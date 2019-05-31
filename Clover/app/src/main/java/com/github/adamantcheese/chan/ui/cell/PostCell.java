@@ -48,7 +48,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.github.adamantcheese.chan.core.model.Post;

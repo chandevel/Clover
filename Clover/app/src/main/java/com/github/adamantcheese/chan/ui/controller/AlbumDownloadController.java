@@ -29,7 +29,7 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -242,7 +242,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
             cell.thumbnailView.setScaleY(scale);
         }
 
-        Drawable drawable = context.getResources().getDrawable(checked ? R.drawable.ic_check_circle_white_24dp :
+        Drawable drawable = context.getDrawable(checked ? R.drawable.ic_check_circle_white_24dp :
                 R.drawable.ic_radio_button_unchecked_white_24dp);
 
         if (checked) {

@@ -22,7 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 

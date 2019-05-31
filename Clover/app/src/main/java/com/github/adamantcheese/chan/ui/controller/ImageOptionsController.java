@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatButton;
@@ -30,7 +29,7 @@ import android.view.Window;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;

@@ -20,7 +20,7 @@ import android.content.Context;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 

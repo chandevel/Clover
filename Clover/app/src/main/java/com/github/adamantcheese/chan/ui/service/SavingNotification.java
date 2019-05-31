@@ -28,7 +28,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 
 import javax.inject.Inject;
 

@@ -20,8 +20,7 @@ import android.util.JsonReader;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-
-import com.adamantcheese.github.chan.BuildConfig;
+import com.github.adamantcheese.chan.BuildConfig;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

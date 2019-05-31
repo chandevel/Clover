@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.adamantcheese.github.chan"
+    package="com.github.adamantcheese.chan"
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -100,13 +100,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:name="com.github.adamantcheese.chan.core.receiver.WakeUpdateReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.adamantcheese.github.chan.intent.action.WAKE_ALARM" />
+                <action android:name="com.github.adamantcheese.chan.intent.action.WAKE_ALARM" />
             </intent-filter>
         </receiver>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.adamantcheese.github.chan.fileprovider"
+            android:authorities="com.github.adamantcheese.chan.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
 

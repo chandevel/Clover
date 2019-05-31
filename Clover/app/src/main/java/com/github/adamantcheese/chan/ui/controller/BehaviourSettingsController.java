@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;

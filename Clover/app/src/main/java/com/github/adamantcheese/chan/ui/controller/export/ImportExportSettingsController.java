@@ -26,7 +26,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;

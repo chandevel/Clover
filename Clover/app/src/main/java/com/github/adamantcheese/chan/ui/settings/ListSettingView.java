@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.ui.settings;
 import android.view.Gravity;
 import android.view.View;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.Setting;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;

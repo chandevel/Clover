@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.database;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;

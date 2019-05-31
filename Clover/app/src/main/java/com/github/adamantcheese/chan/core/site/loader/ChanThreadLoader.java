@@ -27,7 +27,7 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -83,10 +83,6 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         this.loadable = loadable;
 
         inject(this);
-
-        if (loadable.mode == Loadable.Mode.BOARD) {
-            loadable.mode = Loadable.Mode.CATALOG;
-        }
     }
 
     /**

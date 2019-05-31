@@ -28,7 +28,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.saver.FileWatcher;
 import com.github.adamantcheese.chan.ui.adapter.FilesAdapter;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;

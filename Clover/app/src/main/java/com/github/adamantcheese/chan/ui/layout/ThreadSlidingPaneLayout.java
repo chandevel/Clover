@@ -22,7 +22,7 @@ import android.support.v4.widget.SlidingPaneLayout;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.controller.ThreadSlideController;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 

@@ -29,7 +29,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseHistoryManager;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;

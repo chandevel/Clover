@@ -51,7 +51,7 @@ public class WakeManager {
     private final PowerManager powerManager;
 
     private List<Wakeable> wakeableSet = new ArrayList<>();
-    public static final Intent intent = new Intent("com.adamantcheese.github.chan.intent.action.WAKE_ALARM");
+    public static final Intent intent = new Intent("com.github.adamantcheese.chan.intent.action.WAKE_ALARM");
     private long lastBackgroundUpdateTime;
 
     @Inject

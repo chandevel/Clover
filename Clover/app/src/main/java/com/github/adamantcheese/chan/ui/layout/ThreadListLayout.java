@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.layout;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -36,7 +37,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -400,6 +401,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         }
     }
 
+    @SuppressLint("StringFormatMatches")
+    //search_results for some reason gives a warning for having 3 variables instead of 2
     public void setSearchStatus(String query, boolean setEmptyText, boolean hideKeyboard) {
         if (hideKeyboard) {
             AndroidUtils.hideKeyboard(this);

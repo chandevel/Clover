@@ -21,7 +21,7 @@ import android.util.AttributeSet;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;

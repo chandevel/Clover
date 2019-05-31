@@ -23,7 +23,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.Setting;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;

@@ -18,7 +18,7 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.text.TextUtils;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;

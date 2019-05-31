@@ -26,7 +26,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 
 import com.github.adamantcheese.chan.Chan;
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.Post;

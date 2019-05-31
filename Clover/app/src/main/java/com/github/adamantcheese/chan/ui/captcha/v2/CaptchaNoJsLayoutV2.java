@@ -34,7 +34,7 @@ import android.widget.GridView;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
@@ -247,7 +247,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
             captchaImagesGrid.setAdapter(null);
             captchaImagesGrid.setAdapter(adapter);
 
-            int columnsCount = 0;
+            int columnsCount;
             int imageSize = captchaImagesGrid.getWidth();
 
             switch (captchaInfo.getCaptchaType()) {

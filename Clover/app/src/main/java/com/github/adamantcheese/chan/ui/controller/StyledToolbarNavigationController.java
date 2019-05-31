@@ -18,7 +18,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.ControllerTransition;
 import com.github.adamantcheese.chan.controller.ui.NavigationControllerContainerLayout;

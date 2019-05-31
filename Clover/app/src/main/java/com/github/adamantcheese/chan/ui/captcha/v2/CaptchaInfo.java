@@ -106,8 +106,8 @@ public class CaptchaInfo {
 
     public static class CaptchaTitle {
         private String title;
-        private int boldStart = -1;
-        private int boldEnd = -1;
+        private int boldStart;
+        private int boldEnd;
 
         public CaptchaTitle(String title, int boldStart, int boldEnd) {
             this.title = title;

@@ -171,7 +171,7 @@ public class Chan4BoardsRequest extends JsonReaderRequest<List<Board>> {
 
         reader.endObject();
 
-        if (!board.finish()) {
+        if (board.hasMissingInfo()) {
             // Invalid data, ignore
             return null;
         }

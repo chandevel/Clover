@@ -27,7 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;

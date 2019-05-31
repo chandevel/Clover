@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.core.settings;
 import android.os.Environment;
 import android.text.TextUtils;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -117,7 +117,7 @@ public class ChanSettings {
     }
 
     private static Proxy proxy;
-    private static final String sharedPrefsFile = "shared_prefs/com.adamantcheese.github.chan_preferences.xml";
+    private static final String sharedPrefsFile = "shared_prefs/com.github.adamantcheese.chan_preferences.xml";
 
     public static final BooleanSetting forceEnglishLocale;
     private static final StringSetting theme;

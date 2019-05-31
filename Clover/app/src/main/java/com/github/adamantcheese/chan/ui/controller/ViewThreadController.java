@@ -25,7 +25,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -322,9 +322,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         }
         pinItemPinned = pinned;
 
-        Drawable outline = context.getResources().getDrawable(
+        Drawable outline = context.getDrawable(
                 R.drawable.ic_bookmark_outline_white_24dp);
-        Drawable white = context.getResources().getDrawable(
+        Drawable white = context.getDrawable(
                 R.drawable.ic_bookmark_white_24dp);
 
         Drawable drawable = pinned ? white : outline;

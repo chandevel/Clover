@@ -31,7 +31,7 @@ import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.manager.WatchManager;

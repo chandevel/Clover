@@ -25,7 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.saver.FileWatcher;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;

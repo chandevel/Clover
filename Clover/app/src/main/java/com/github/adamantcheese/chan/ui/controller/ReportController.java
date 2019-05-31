@@ -21,7 +21,7 @@ import android.content.Context;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.Site;

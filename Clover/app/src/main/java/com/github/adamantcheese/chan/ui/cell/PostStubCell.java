@@ -16,9 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -26,7 +24,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;

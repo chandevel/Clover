@@ -20,7 +20,7 @@ import android.content.Context;
 import android.support.v7.widget.SwitchCompat;
 import android.widget.CompoundButton;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;

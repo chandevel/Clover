@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
@@ -716,7 +717,7 @@ public class WatchManager implements WakeManager.Wakeable {
                 }
             }
 
-            if (Logger.debugEnabled()) {
+            if (BuildConfig.DEBUG) {
                 Logger.d(TAG, String.format(Locale.ENGLISH,
                         "postlast=%d postnew=%d werenewposts=%b quotelast=%d quotenew=%d werenewquotes=%b nextload=%ds",
                         pin.watchLastCount, pin.watchNewCount, wereNewPosts, pin.quoteLastCount,

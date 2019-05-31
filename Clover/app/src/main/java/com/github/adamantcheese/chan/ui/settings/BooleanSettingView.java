@@ -20,7 +20,7 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.View;
 import android.widget.CompoundButton;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.Setting;
 
 public class BooleanSettingView extends SettingView implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {

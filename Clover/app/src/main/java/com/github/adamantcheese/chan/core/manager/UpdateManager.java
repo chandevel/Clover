@@ -31,14 +31,13 @@ import android.text.Spanned;
 import android.widget.Button;
 
 import com.android.volley.RequestQueue;
-
-import com.adamantcheese.github.chan.BuildConfig;
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;

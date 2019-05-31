@@ -2,7 +2,7 @@ package com.github.adamantcheese.chan.ui.controller.export;
 
 import android.content.Context;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.controller.BaseFloatingController;
 
 public class LoadingViewController extends BaseFloatingController {

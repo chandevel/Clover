@@ -26,7 +26,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Toast;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
@@ -48,7 +48,7 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
         super(context, attrs, defStyle);
         this.setOnLongClickListener(this);
 
-        playIcon = getResources().getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
+        playIcon = context.getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
     }
 
     public void setPostImage(PostImage postImage, int width, int height) {

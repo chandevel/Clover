@@ -20,12 +20,12 @@ import android.content.Context;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-
-import org.codejargon.feather.Provides;
-import com.adamantcheese.github.chan.BuildConfig;
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
+
+import org.codejargon.feather.Provides;
 
 import java.io.File;
 

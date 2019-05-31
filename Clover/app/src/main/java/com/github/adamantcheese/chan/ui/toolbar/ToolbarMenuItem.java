@@ -28,7 +28,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
@@ -55,7 +55,7 @@ public class ToolbarMenuItem {
 
     public ToolbarMenuItem(int id, int drawable, ClickCallback clicked) {
         this.id = id;
-        this.drawable = getRes().getDrawable(drawable);
+        this.drawable = getAppContext().getDrawable(drawable);
         this.clicked = clicked;
     }
 
@@ -93,7 +93,7 @@ public class ToolbarMenuItem {
     }
 
     public void setImage(int drawable) {
-        setImage(getRes().getDrawable(drawable));
+        setImage(getAppContext().getDrawable(drawable));
     }
 
     public void setImage(Drawable drawable) {

@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.SiteSetupPresenter;
 import com.github.adamantcheese.chan.core.settings.OptionsSetting;
 import com.github.adamantcheese.chan.core.site.Site;

@@ -24,7 +24,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;

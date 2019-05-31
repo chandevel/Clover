@@ -27,6 +27,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.injector;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class SiteIcon {
     private static final String TAG = "SiteIcon";
@@ -49,7 +50,7 @@ public class SiteIcon {
                 @Override
                 public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                     if (response.getBitmap() != null) {
-                        Drawable drawable = new BitmapDrawable(response.getBitmap());
+                        Drawable drawable = new BitmapDrawable(getAppContext().getResources(), response.getBitmap());
                         result.onSiteIcon(SiteIcon.this, drawable);
                     }
                 }

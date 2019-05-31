@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.utils;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
@@ -37,7 +36,6 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -54,7 +52,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 
 import java.io.File;
 import java.util.ArrayList;

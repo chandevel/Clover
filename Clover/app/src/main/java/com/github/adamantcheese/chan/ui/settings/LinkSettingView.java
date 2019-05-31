@@ -18,7 +18,7 @@ package com.github.adamantcheese.chan.ui.settings;
 
 import android.view.View;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 
 public class LinkSettingView extends SettingView {
     private final View.OnClickListener clickListener;

@@ -38,7 +38,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterType;

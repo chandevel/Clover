@@ -24,7 +24,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.utils.AndroidUtils;

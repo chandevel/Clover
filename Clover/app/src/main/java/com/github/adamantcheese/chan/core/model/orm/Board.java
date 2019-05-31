@@ -198,8 +198,8 @@ public class Board implements Cloneable {
         return board;
     }
 
-    public boolean finish() {
-        return !TextUtils.isEmpty(name) && !TextUtils.isEmpty(code) && perPage >= 0 && pages >= 0;
+    public boolean hasMissingInfo() {
+        return TextUtils.isEmpty(name) || TextUtils.isEmpty(code) || perPage < 0 || pages < 0;
     }
 
     public Site getSite() {

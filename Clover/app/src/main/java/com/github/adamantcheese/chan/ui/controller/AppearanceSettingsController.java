@@ -18,7 +18,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;

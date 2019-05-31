@@ -18,7 +18,7 @@ import android.widget.ListView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;

@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.theme;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 
 public class DarkTheme extends Theme {
     public DarkTheme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor) {

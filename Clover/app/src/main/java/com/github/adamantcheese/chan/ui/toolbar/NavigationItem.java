@@ -18,7 +18,7 @@ package com.github.adamantcheese.chan.ui.toolbar;
 
 import android.view.View;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 

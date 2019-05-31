@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 

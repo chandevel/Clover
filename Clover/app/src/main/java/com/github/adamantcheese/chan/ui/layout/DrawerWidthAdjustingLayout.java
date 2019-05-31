@@ -21,7 +21,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 

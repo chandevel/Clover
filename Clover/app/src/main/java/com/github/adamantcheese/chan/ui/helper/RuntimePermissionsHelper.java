@@ -27,7 +27,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;

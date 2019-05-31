@@ -28,7 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -196,7 +196,7 @@ public class FloatingMenu {
 
         popupWindow.setOnDismissListener(() -> {
             if (anchor.getViewTreeObserver().isAlive()) {
-                anchor.getViewTreeObserver().removeGlobalOnLayoutListener(globalLayoutListener);
+                anchor.getViewTreeObserver().removeOnGlobalLayoutListener(globalLayoutListener);
             }
             globalLayoutListener = null;
             popupWindow = null;

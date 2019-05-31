@@ -281,6 +281,10 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
                 mShowHideAnimator.setDuration(duration);
                 mShowHideAnimator.start();
                 break;
+            case ANIMATION_STATE_FADING_OUT:
+                break;
+            case ANIMATION_STATE_OUT:
+                break;
         }
     }
 

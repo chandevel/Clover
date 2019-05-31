@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatRadioButton;
@@ -14,7 +13,7 @@ import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;

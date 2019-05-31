@@ -36,7 +36,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter.SiteBoardCount;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -271,7 +271,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
             theme().settingsDrawable.apply(settings);
 
             Drawable drawable = DrawableCompat.wrap(
-                    context.getResources().getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
+                    context.getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
             DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));
             reorder.setImageDrawable(drawable);
 

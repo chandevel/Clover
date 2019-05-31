@@ -324,7 +324,7 @@ public class Chan4 extends SiteBase {
                     .build();
 
             CookieManager cookieManager = CookieManager.getInstance();
-            cookieManager.removeAllCookie();
+            cookieManager.removeAllCookies(null);
             if (actions.isLoggedIn()) {
                 String[] passCookies = {
                         "pass_enabled=1;",

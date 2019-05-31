@@ -36,7 +36,7 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;

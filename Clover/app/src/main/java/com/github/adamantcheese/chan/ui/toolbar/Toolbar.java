@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.toolbar;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -29,7 +28,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
 
 import java.util.ArrayList;

@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.os.StrictMode;
 
 import org.codejargon.feather.Feather;
-import com.adamantcheese.github.chan.BuildConfig;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.di.AppModule;

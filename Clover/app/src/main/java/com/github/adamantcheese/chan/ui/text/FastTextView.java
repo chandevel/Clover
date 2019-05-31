@@ -30,7 +30,7 @@ import android.util.LruCache;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;

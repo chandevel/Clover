@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -273,7 +273,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             holder.itemView.setBackgroundColor(0x22000000);
             holder.highlighted = true;
         } else if (!highlighted && holder.highlighted) {
-            holder.itemView.setBackgroundDrawable(AndroidUtils.getAttrDrawable(holder.itemView.getContext(), android.R.attr.selectableItemBackground));
+            holder.itemView.setBackground(AndroidUtils.getAttrDrawable(holder.itemView.getContext(), android.R.attr.selectableItemBackground));
             holder.highlighted = false;
         }
     }

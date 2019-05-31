@@ -19,11 +19,10 @@ package com.github.adamantcheese.chan.core.model.orm;
 import android.os.Parcel;
 import android.text.TextUtils;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
-
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * Something that can be loaded, like a board or thread.
@@ -201,7 +200,6 @@ public class Loadable implements Cloneable {
                 case Mode.INVALID:
                     return true;
                 case Mode.CATALOG:
-                case Mode.BOARD:
                     return boardCode.equals(other.boardCode);
                 case Mode.THREAD:
                     return boardCode.equals(other.boardCode) && no == other.no;
@@ -217,7 +215,7 @@ public class Loadable implements Cloneable {
     public int hashCode() {
         int result = mode;
 
-        if (mode == Mode.THREAD || mode == Mode.CATALOG || mode == Mode.BOARD) {
+        if (mode == Mode.THREAD || mode == Mode.CATALOG) {
             result = 31 * result + (boardCode != null ? boardCode.hashCode() : 0);
         }
         if (mode == Mode.THREAD) {
@@ -305,8 +303,6 @@ public class Loadable implements Cloneable {
     public static class Mode {
         public static final int INVALID = -1;
         public static final int THREAD = 0;
-        @Deprecated
-        public static final int BOARD = 1;
-        public static final int CATALOG = 2;
+        public static final int CATALOG = 1;
     }
 }

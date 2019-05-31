@@ -37,7 +37,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter;
@@ -271,7 +271,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
             description = itemView.findViewById(R.id.description);
             reorder = itemView.findViewById(R.id.reorder);
 
-            Drawable drawable = DrawableCompat.wrap(context.getResources().getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
+            Drawable drawable = DrawableCompat.wrap(context.getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
             DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));
             reorder.setImageDrawable(drawable);
 

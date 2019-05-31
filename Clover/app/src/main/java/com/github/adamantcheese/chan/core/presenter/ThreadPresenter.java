@@ -18,7 +18,7 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.text.TextUtils;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
@@ -626,9 +626,9 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
 
             threadPresenterCallback.showBoard(catalog);
-        } else if (linkable.type == PostLinkable.Type.SEARCH) {
+        } //else if (linkable.type == PostLinkable.Type.SEARCH) {
             //TODO go to board and search
-        }
+        //}
     }
 
     @Override

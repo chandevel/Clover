@@ -24,7 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.support.design.widget.FloatingActionButton;
 import android.widget.ImageView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
@@ -160,11 +160,11 @@ public class Theme {
         public void apply(ImageView imageView) {
             imageView.setImageResource(drawable);
             // Use the int one!
-            imageView.setAlpha(intAlpha);
+            imageView.setImageAlpha(intAlpha);
         }
 
         public Drawable makeDrawable(Context context) {
-            Drawable d = context.getResources().getDrawable(drawable).mutate();
+            Drawable d = context.getDrawable(drawable).mutate();
             d.setAlpha(intAlpha);
             return d;
         }

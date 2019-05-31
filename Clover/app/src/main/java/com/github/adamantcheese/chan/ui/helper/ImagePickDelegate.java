@@ -133,11 +133,9 @@ public class ImagePickDelegate implements Runnable {
     public void run() {
         cacheFile = replyManager.getPickFile();
 
-        ParcelFileDescriptor fileDescriptor = null;
         InputStream is = null;
         OutputStream os = null;
-        try {
-            fileDescriptor = activity.getContentResolver().openFileDescriptor(uri, "r");
+        try (ParcelFileDescriptor fileDescriptor = activity.getContentResolver().openFileDescriptor(uri, "r")) {
             is = new FileInputStream(fileDescriptor.getFileDescriptor());
             os = new FileOutputStream(cacheFile);
             boolean fullyCopied = IOUtils.copy(is, os, MAX_FILE_SIZE);
@@ -147,13 +145,6 @@ public class ImagePickDelegate implements Runnable {
         } catch (IOException | SecurityException e) {
             Logger.e(TAG, "Error copying file from the file descriptor", e);
         } finally {
-            // FileDescriptor isn't closeable on API 15
-            if (fileDescriptor != null) {
-                try {
-                    fileDescriptor.close();
-                } catch (IOException ignored) {
-                }
-            }
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(os);
         }

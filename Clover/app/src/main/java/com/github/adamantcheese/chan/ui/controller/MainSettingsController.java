@@ -20,11 +20,11 @@ import android.content.Context;
 import android.view.View;
 import android.widget.Toast;
 
-import com.adamantcheese.github.chan.BuildConfig;
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.SettingsPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.controller.export.ImportExportSettingsController;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;

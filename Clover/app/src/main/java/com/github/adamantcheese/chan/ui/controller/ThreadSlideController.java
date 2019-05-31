@@ -21,7 +21,7 @@ import android.support.v4.widget.SlidingPaneLayout;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.ControllerTransition;
 import com.github.adamantcheese.chan.ui.layout.ThreadSlidingPaneLayout;

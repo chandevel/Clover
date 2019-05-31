@@ -29,7 +29,7 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter;
 
 public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.AddCallback, View.OnClickListener {

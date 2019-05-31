@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.captcha;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.webkit.JavascriptInterface;
