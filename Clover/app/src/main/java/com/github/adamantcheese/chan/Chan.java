@@ -33,7 +33,9 @@ import com.github.adamantcheese.chan.core.di.ManagerModule;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.RepositoryModule;
 import com.github.adamantcheese.chan.core.di.SiteModule;
+import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
+import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.LocaleUtils;
@@ -104,6 +106,10 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
         siteService.initialize();
         boardManager.initialize();
         databaseManager.initializeAndTrim();
+
+        //create these classes here even if they aren't explicitly used, so they do their background tasks
+        feather.instance(ArchivesManager.class);
+        feather.instance(FilterWatchManager.class);
 
         // Start watching for slow disk reads and writes after the heavy initializing is done
         if (BuildConfig.DEBUG) {

@@ -102,15 +102,6 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     @Inject
     SiteService siteService;
 
-    @SuppressWarnings("unused")
-    //Used to instantiate an instance of the filter watch manager, which automatically ties itself to the wake manager
-    @Inject
-    FilterWatchManager filterWatchManager;
-
-    //Used to instantiate an instance of the archives manager, so the archives list is requested on startup
-    @Inject
-    ArchivesManager archivesManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -27,9 +27,12 @@ import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
+import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
+import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
+import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 
 import org.codejargon.feather.Provides;
@@ -105,8 +108,11 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public ArchivesManager provideArchivesManager(SiteRepository siteRepository) {
-        //archives are only for 4chan
-        return new ArchivesManager(siteRepository.all().getForClass(Chan4.class));
+    public ArchivesManager provideArchivesManager(SiteRepository siteRepository) throws Exception {
+        //archives are only for 4chan, make a dummy site instance for this method
+        Site chan4 = Chan4.class.newInstance();
+        chan4.initialize(9999, new SiteConfig(), new JsonSettings());
+        chan4.postInitialize();
+        return new ArchivesManager(chan4);
     }
 }
