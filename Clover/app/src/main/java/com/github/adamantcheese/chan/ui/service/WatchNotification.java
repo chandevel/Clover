@@ -284,17 +284,14 @@ public class WatchNotification extends Service {
         }
 
         //set the alert icon if necessary
-        if (alertIcon) {
+        //if the last notification was an alert, continue it having that icon until it goes to zero
+        //also keep the priority so it shows up in the status bar
+        if (alertIcon || alertIconOverride) {
             builder.setSmallIcon(R.drawable.ic_stat_notify_alert);
             builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         } else {
             builder.setSmallIcon(R.drawable.ic_stat_notify);
-            builder.setPriority(NotificationCompat.PRIORITY_MIN);
-        }
-
-        //if the last notification was an alert, continue it having that icon until it goes to zero
-        if(alertIconOverride) {
-            builder.setSmallIcon(R.drawable.ic_stat_notify_alert);
+            builder.setPriority(NotificationCompat.PRIORITY_LOW);
         }
 
         //setup the pause watch button

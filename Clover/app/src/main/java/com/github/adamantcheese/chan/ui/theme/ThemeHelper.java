@@ -18,6 +18,8 @@ package com.github.adamantcheese.chan.ui.theme;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.AnyThread;
 
 import com.github.adamantcheese.chan.R;
@@ -115,7 +117,8 @@ public class ThemeHelper {
         context.getWindow().setStatusBarColor(theme.primaryColor.dark);
         context.getWindow().setNavigationBarColor(0xff000000);
 
-        context.setTaskDescription(new ActivityManager.TaskDescription(null, R.drawable.ic_task_description, theme.primaryColor.color));
+        Bitmap taskDescriptionBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_task_description);
+        context.setTaskDescription(new ActivityManager.TaskDescription(null, taskDescriptionBitmap, theme.primaryColor.color));
     }
 
     public PrimaryColor getColor(String name, PrimaryColor defaultColor) {
