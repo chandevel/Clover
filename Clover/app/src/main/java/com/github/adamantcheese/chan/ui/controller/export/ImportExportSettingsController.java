@@ -41,10 +41,11 @@ import java.io.File;
 import java.util.Locale;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 public class ImportExportSettingsController extends SettingsController implements
         ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
-    public static final String EXPORT_FILE_NAME = getAppContext().getPackageManager().getApplicationLabel(getAppContext().getApplicationInfo()) + "_exported_settings.json";
+    public static final String EXPORT_FILE_NAME = getApplicationLabel() + "_exported_settings.json";
 
     @Nullable
     private ImportExportSettingsPresenter presenter;

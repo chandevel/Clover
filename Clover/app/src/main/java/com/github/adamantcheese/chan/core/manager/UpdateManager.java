@@ -49,6 +49,7 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 /**
  * Calls the update API and downloads and requests installs of APK files.
@@ -141,10 +142,10 @@ public class UpdateManager {
     }
 
     private boolean processUpdateApiResponse(UpdateApiRequest.UpdateApiResponse response) {
-        Spanned text = Html.fromHtml("<h2>Kuroba update ready</h2>A new Kuroba version is available.<br><br>Changelog:<br>" + response.body);
         if (response.versionCode > BuildConfig.VERSION_CODE) {
             AlertDialog dialog = new AlertDialog.Builder(context)
-                    .setMessage(text)
+                    .setTitle(Html.fromHtml(getApplicationLabel() + " " + response.versionCodeString + " available"))
+                    .setMessage(response.body)
                     .setNegativeButton(R.string.update_later, null)
                     .setPositiveButton(R.string.update_install, (dialog1, which) -> updateInstallRequested(response))
                     .create();

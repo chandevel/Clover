@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import com.github.adamantcheese.chan.R;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 public class NewFolderLayout extends LinearLayout {
     private EditText folderName;
@@ -28,7 +29,7 @@ public class NewFolderLayout extends LinearLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         folderName = findViewById(R.id.new_folder);
-        folderName.setText(getAppContext().getPackageManager().getApplicationLabel(getAppContext().getApplicationInfo()));
+        folderName.setText(getApplicationLabel());
     }
 
     public String getFolderName() {

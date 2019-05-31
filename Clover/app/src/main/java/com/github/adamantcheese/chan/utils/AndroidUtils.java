@@ -96,6 +96,10 @@ public class AndroidUtils {
         return getRes().getString(res);
     }
 
+    public static CharSequence getApplicationLabel() {
+        return application.getPackageManager().getApplicationLabel(application.getApplicationInfo());
+    }
+
     public static SharedPreferences getPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(application);
     }

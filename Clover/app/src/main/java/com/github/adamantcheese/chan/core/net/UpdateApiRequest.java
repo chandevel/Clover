@@ -16,11 +16,17 @@
  */
 package com.github.adamantcheese.chan.core.net;
 
+import android.text.Html;
+import android.text.Spanned;
 import android.util.JsonReader;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.github.adamantcheese.chan.BuildConfig;
+
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,9 +47,9 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
             switch (reader.nextName()) {
                 case "tag_name":
                     try {
-                        String version = reader.nextString();
+                        response.versionCodeString = reader.nextString();
                         Pattern versionPattern = Pattern.compile("v(\\d+?)\\.(\\d+?)\\.(\\d+?)");
-                        Matcher versionMatcher = versionPattern.matcher(version);
+                        Matcher versionMatcher = versionPattern.matcher(response.versionCodeString);
                         if (versionMatcher.matches()) {
                             response.versionCode = Integer.parseInt(versionMatcher.group(1))
                                     + (Integer.parseInt(versionMatcher.group(2)) * 100)
@@ -77,7 +83,9 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                     reader.endArray();
                     break;
                 case "body":
-                    response.body = reader.nextString().replace("\r\n", "<br>");
+                    Node updateLog = Parser.builder().build().parse(reader.nextString());
+                    response.body = Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog));
+                    System.out.println("test");
                     break;
                 default:
                     reader.skipValue();
@@ -95,7 +103,8 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
 
     public static class UpdateApiResponse {
         public int versionCode;
+        public String versionCodeString;
         public HttpUrl apkURL;
-        public String body;
+        public Spanned body;
     }
 }
