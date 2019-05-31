@@ -102,4 +102,5 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'me.xdrop:fuzzywuzzy:1.1.10'
     implementation 'org.codejargon.feather:feather:1.0'
+    implementation 'com.github.deano2390:FlowTextView:2.0.5'
 }

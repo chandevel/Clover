@@ -21,7 +21,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -59,7 +58,6 @@ public class WatchNotification extends Service {
     private static final String NOTIFICATION_NAME = "Watch notification";
     private static final String NOTIFICATION_NAME_ALERT = "Watch notification alert";
 
-    private static final int SUBJECT_LENGTH = 6;
     private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
 
     private int NOTIFICATION_LIGHT = 0x1;
@@ -109,18 +107,8 @@ public class WatchNotification extends Service {
         if (intent != null && intent.getExtras() != null && intent.getExtras().getBoolean("pause_pins", false)) {
             watchManager.pauseAll();
         } else {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                notificationManager.notify(NOTIFICATION_ID, createNotification());
-            } else {
-                //Notification n = createNotification();
-                //if (ChanSettings.watchNotifyAlert.buildNotification()) {
-                //    notificationManager.cancel(NOTIFICATION_ID);
-                //}
-                //notificationManager.notify(ChanSettings.watchNotifyAlert.buildNotification() ? NOTIFICATION_ID_ALERT : NOTIFICATION_ID, n);
-                notificationManager.notify(NOTIFICATION_ID, createNotification());
-            }
+            notificationManager.notify(NOTIFICATION_ID, createNotification());
         }
-
         return START_STICKY;
     }
 
@@ -212,10 +200,10 @@ public class WatchNotification extends Service {
             List<CharSequence> expandedLines = new ArrayList<>();
             for (Post postForExpandedLine : postsForExpandedLines) {
                 CharSequence prefix;
-                if (postForExpandedLine.getTitle().length() <= SUBJECT_LENGTH) {
+                if (postForExpandedLine.getTitle().length() <= 6) {
                     prefix = postForExpandedLine.getTitle();
                 } else {
-                    prefix = postForExpandedLine.getTitle().subSequence(0, SUBJECT_LENGTH);
+                    prefix = postForExpandedLine.getTitle().subSequence(0, 6);
                 }
 
                 CharSequence comment = postForExpandedLine.image() != null ? "(img) " : "";

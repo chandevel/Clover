@@ -748,6 +748,7 @@ public class WatchManager implements WakeManager.Wakeable {
                     getAppContext().startService(pageNotifyIntent);
                     notified = true;
                 } else if (page != null && page.page < pin.loadable.board.pages) {
+                    getAppContext().stopService(new Intent(getAppContext(), LastPageNotification.class));
                     notified = false;
                 }
             }
