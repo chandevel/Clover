@@ -211,13 +211,7 @@ public class BoardSetupPresenter implements Observer {
 
                 List<Board> toSuggest;
                 if (query == null || query.equals("")) {
-                    toSuggest = new ArrayList<>(allUnsavedBoards.size());
-                    for (Board b : allUnsavedBoards) {
-                        if (b.workSafe) toSuggest.add(b);
-                    }
-                    for (Board b : allUnsavedBoards) {
-                        if (!b.workSafe) toSuggest.add(b);
-                    }
+                    toSuggest = new ArrayList<>(allUnsavedBoards);
                 } else {
                     toSuggest = BoardHelper.search(allUnsavedBoards, query);
                 }
