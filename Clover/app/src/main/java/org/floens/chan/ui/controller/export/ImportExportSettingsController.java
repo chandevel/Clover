@@ -148,7 +148,7 @@ public class ImportExportSettingsController extends SettingsController implement
         }
 
         if (!AndroidUtils.isApi16()) {
-            // we can't request READ_EXTERNAL_STORAGE permission on devices with API level below 16
+            // we can't request WRITE_EXTERNAL_STORAGE permission on devices with API level below 16
             onPermissionGrantedForDirectoryCreation();
             return;
         }
@@ -158,7 +158,7 @@ public class ImportExportSettingsController extends SettingsController implement
                 .setTitle(context.getString(R.string.clover_directory_may_not_exist_title))
                 .setMessage(context.getString(R.string.clover_directory_may_not_exist_message))
                 .setPositiveButton(context.getString(R.string.create), (dialog1, which) -> {
-                    getPermissionHelper().requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted -> {
+                    getPermissionHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
                         if (granted) {
                             onPermissionGrantedForDirectoryCreation();
                         }
