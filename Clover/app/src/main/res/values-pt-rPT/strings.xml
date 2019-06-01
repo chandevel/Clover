@@ -18,16 +18,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <string name="cancel">Cancel</string>
-    <string name="add">Add</string>
-    <string name="close">Close</string>
-    <string name="back">Back</string>
+    <string name="cancel">Cancelar</string>
+    <string name="add">Adicionar</string>
+    <string name="close">Fechar</string>
+    <string name="back">Voltar</string>
     <string name="ok">OK</string>
-    <string name="exit">Exit</string>
-    <string name="delete">Delete</string>
-    <string name="undo">Undo</string>
-    <string name="save">Save</string>
-    <string name="permission_app_settings">App settings</string>
+    <string name="exit">Sair</string>
+    <string name="delete">Apagar</string>
+    <string name="undo">Desfazer</string>
+    <string name="save">Guardar</string>
+    <string name="permission_app_settings">Definições da aplicação</string>
     <string name="permission_grant">Grant</string>
     <string name="update_later">Later</string>
     <string name="update_none">Clover is up-to-date</string>
