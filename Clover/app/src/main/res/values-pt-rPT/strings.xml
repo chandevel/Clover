@@ -28,24 +28,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="undo">Desfazer</string>
     <string name="save">Guardar</string>
     <string name="permission_app_settings">Definições da aplicação</string>
-    <string name="permission_grant">Grant</string>
-    <string name="update_later">Later</string>
-    <string name="update_none">Clover is up-to-date</string>
-    <string name="update_check_failed">Failed to check for updates.</string>
-    <string name="update_install">Install</string>
-    <string name="update_install_downloading">Downloading update</string>
-    <string name="update_install_download_failed">Download failed</string>
-    <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
-    <string name="update_retry_title">Retry update</string>
-    <string name="update_retry">Clover was not updated yet. Tap \"retry\" to retry the install.</string>
-    <string name="update_retry_button">retry</string>
-    <string name="update_storage_permission_required_title">Storage permission required</string>
-    <string name="update_storage_permission_required">\"Permission to access storage is required for installing the update.
+    <string name="permission_grant">Conceder</string>
+    <string name="update_later">Mais tarde</string>
+    <string name="update_none">Clover está atualizado</string>
+    <string name="update_check_failed">Falha ao verificar atualizações.</string>
+    <string name="update_install">Instalar</string>
+    <string name="update_install_downloading">A transferir atualização</string>
+    <string name="update_install_download_failed">Transferência falhou</string>
+    <string name="update_install_download_move_failed">Falha ao mover o ficheiro transferido ao diretório Transferir.</string>
+    <string name="update_retry_title">Repetir atualização</string>
+    <string name="update_retry">Clover ainda não foi atualizado. Clica em \"tentar novamente\" para tentar novamente a instalação.</string>
+    <string name="update_retry_button">tentar novamente</string>
+    <string name="update_storage_permission_required_title">Requer acesso ao armazenamento</string>
+    <string name="update_storage_permission_required">\"Permissão para acessar o armazenamento é necessária para instalar a atualização.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"</string>
+Reabilite esta permissão nas definições da aplicação se estiveres permanentemente desabilitado.\"</string>
     <plurals name="minutes">
-        <item quantity="one">%d minute</item>
-        <item quantity="other">%d minutes</item>
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minutos</item>
     </plurals>
     <plurals name="posts">
         <item quantity="one">%d post</item>
