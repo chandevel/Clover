@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -32,13 +31,10 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
-import com.github.adamantcheese.chan.core.manager.ArchivesManager;
-import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.UpdateManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -66,7 +62,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -152,7 +147,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             Logger.e("UNCAUGHT", sw.toString());
-            Logger.e("UNCAUGHT",".\n----------------------------------------\nEND OF CURRENT RUNTIME MESSAGES\n----------------------------------------\n.");
+            Logger.e("UNCAUGHT", ".\n----------------------------------------\nEND OF CURRENT RUNTIME MESSAGES\n----------------------------------------\n.");
             System.exit(999);
         });
     }

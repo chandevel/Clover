@@ -1,10 +1,13 @@
 package com.github.adamantcheese.chan.core.repository;
 
+import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
+import com.github.adamantcheese.chan.core.model.orm.Filter;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -184,6 +187,45 @@ public class SiteRepository {
             throw new IllegalArgumentException();
         }
         return site;
+    }
+
+    public void removeSite(Site site) {
+        databaseManager.runTask(() -> {
+            removeFilters(site);
+            databaseManager.getDatabaseBoardManager().deleteBoards(site).call();
+
+            List<Loadable> siteLoadables = databaseManager.getDatabaseLoadableManager().getLoadables(site).call();
+            if (!siteLoadables.isEmpty()) {
+                databaseManager.getDatabasePinManager().deletePinsFromLoadables(siteLoadables).call();
+                databaseManager.getDatabaseHistoryManager().deleteHistory(siteLoadables).call();
+                databaseManager.getDatabaseLoadableManager().deleteLoadables(siteLoadables).call();
+            }
+
+            databaseManager.getDatabaseSavedReplyManager().deleteSavedReplies(site).call();
+            databaseManager.getDatabaseHideManager().deleteThreadHides(site).call();
+            databaseManager.getDatabaseSiteManager().deleteSite(site).call();
+            return null;
+        });
+    }
+
+    private void removeFilters(Site site) throws Exception {
+        List<Filter> filtersToDelete = new ArrayList<>();
+
+        for (Filter filter : databaseManager.getDatabaseFilterManager().getFilters().call()) {
+            if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
+                continue;
+            }
+
+            for (String uniqueId : filter.boards.split(",")) {
+                String[] split = uniqueId.split(":");
+                if (split.length == 2 && Integer.parseInt(split[0]) == site.id()) {
+                    filtersToDelete.add(filter);
+                    break;
+                }
+            }
+        }
+
+        databaseManager.getDatabaseFilterManager().deleteFilters(filtersToDelete).call();
     }
 
     public class Sites extends Observable {

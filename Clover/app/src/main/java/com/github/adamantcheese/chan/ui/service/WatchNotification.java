@@ -242,7 +242,7 @@ public class WatchNotification extends Service {
 
             return buildNotification(message, expandedLines, flags, alert,
                     ChanSettings.watchLastCount.get() > 0,
-                    subjectPins.size() > 0 ? subjectPins.get(0) : null);
+                    subjectPins.size() == 1 ? subjectPins.get(0) : null);
         }
     }
 

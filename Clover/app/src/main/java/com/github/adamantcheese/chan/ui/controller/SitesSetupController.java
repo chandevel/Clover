@@ -35,8 +35,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter.SiteBoardCount;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -197,8 +199,31 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         crossfadeView.toggle(!sites.isEmpty(), true);
     }
 
+    @Override
+    public void onSiteDeleted(Site site) {
+        ((StartActivity) context).restartApp();
+    }
+
+    @Override
+    public void onErrorWhileTryingToDeleteSite(Site site, Throwable error) {
+        String message = context.getString(R.string.could_not_remove_site_error_message, site.name(), error.getMessage());
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+    }
+
     private void onSiteCellSettingsClicked(Site site) {
         presenter.onSiteCellSettingsClicked(site);
+    }
+
+    private void onRemoveSiteSettingClicked(Site site) {
+        new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.delete_site_dialog_title))
+                .setMessage(context.getString(R.string.delete_site_dialog_message, site.name()))
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
+                    presenter.removeSite(site);
+                })
+                .setNegativeButton(R.string.cancel, ((dialog, which) -> dialog.dismiss()))
+                .create()
+                .show();
     }
 
     private class SitesAdapter extends RecyclerView.Adapter<SiteCell> {
@@ -249,6 +274,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         private TextView text;
         private TextView description;
         private SiteIcon siteIcon;
+        private ImageView removeSite;
         private ImageView settings;
         private ImageView reorder;
 
@@ -262,13 +288,18 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
             image = itemView.findViewById(R.id.image);
             text = itemView.findViewById(R.id.text);
             description = itemView.findViewById(R.id.description);
+            removeSite = itemView.findViewById(R.id.remove_site);
             settings = itemView.findViewById(R.id.settings);
             reorder = itemView.findViewById(R.id.reorder);
 
             // Setup views
             itemView.setOnClickListener(this);
+            removeSite.setOnClickListener(this);
+
             setRoundItemBackground(settings);
+            setRoundItemBackground(removeSite);
             theme().settingsDrawable.apply(settings);
+            theme().clearDrawable.apply(removeSite);
 
             Drawable drawable = DrawableCompat.wrap(
                     context.getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
@@ -298,7 +329,9 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
         @Override
         public void onClick(View v) {
-            if (v == itemView) {
+            if (v == removeSite) {
+                onRemoveSiteSettingClicked(site);
+            } else if (v == itemView) {
                 onSiteCellSettingsClicked(site);
             }
         }

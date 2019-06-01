@@ -19,12 +19,13 @@ package com.github.adamantcheese.chan.core.database;
 import android.support.annotation.AnyThread;
 
 import com.github.adamantcheese.chan.Chan;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.table.TableUtils;
-
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
+import com.github.adamantcheese.chan.core.site.Site;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.table.TableUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -143,6 +144,16 @@ public class DatabaseSavedReplyManager {
                     .and().eq("board", board.code)
                     .and().eq("no", no).query();
             return query.isEmpty() ? null : query.get(0);
+        };
+    }
+
+    public Callable<Void> deleteSavedReplies(Site site) {
+        return () -> {
+            DeleteBuilder<SavedReply, Integer> builder = helper.savedDao.deleteBuilder();
+            builder.where().eq("site", site.id());
+            builder.delete();
+
+            return null;
         };
     }
 }

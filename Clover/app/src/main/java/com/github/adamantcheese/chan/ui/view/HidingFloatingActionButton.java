@@ -89,8 +89,6 @@ public class HidingFloatingActionButton extends FloatingActionButton implements 
             return;
         }
 
-//        Logger.test("onCollapseTranslation " + offset);
-
         int translation = (int) (getTotalHeight() * offset);
         if (translation != currentCollapseTranslation) {
             currentCollapseTranslation = translation;
@@ -109,8 +107,6 @@ public class HidingFloatingActionButton extends FloatingActionButton implements 
             currentCollapseTranslation = -1;
             return;
         }
-
-//        Logger.test("onCollapseAnimation " + collapse);
 
         int translation = collapse ? getTotalHeight() : 0;
         if (translation != currentCollapseTranslation) {

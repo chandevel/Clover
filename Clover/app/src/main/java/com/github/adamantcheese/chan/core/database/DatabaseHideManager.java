@@ -4,13 +4,13 @@ import android.annotation.SuppressLint;
 import android.support.annotation.Nullable;
 
 import com.github.adamantcheese.chan.Chan;
-import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.table.TableUtils;
-
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
+import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -389,5 +389,15 @@ public class DatabaseHideManager {
                 .and()
                 .eq("hide", false)
                 .query();
+    }
+
+    public Callable<Void> deleteThreadHides(Site site) {
+        return () -> {
+            DeleteBuilder<PostHide, Integer> builder = helper.postHideDao.deleteBuilder();
+            builder.where().eq("site", site.id());
+            builder.delete();
+
+            return null;
+        };
     }
 }

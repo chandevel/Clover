@@ -664,4 +664,8 @@ Don't have a 4chan Pass?<br>
     <string name="setting_posting_timeout_toggle_notice" tools:ignore="MissingTranslation">Posting timeout will be applied on the next app start</string>
 
     <string name="file_url_copied_to_clipboard" tools:ignore="MissingTranslation">File url copied to clipboard</string>
+
+    <string name="delete_site_dialog_title" tools:ignore="MissingTranslation">Delete site?</string>
+    <string name="delete_site_dialog_message" tools:ignore="MissingTranslation">Are you sure you want to delete "%1$s"? This action will delete the site and everything that is associated with it. The app will be restarted. Do you wish to proceed?</string>
+    <string name="could_not_remove_site_error_message" tools:ignore="MissingTranslation">"Could not remove site %1$s, error message: %2$s</string>
 </resources>

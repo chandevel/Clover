@@ -150,7 +150,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     public void setMode(final Mode newMode, boolean center) {
         if (this.mode != newMode) {
-//            Logger.test("Changing mode from " + this.mode + " to " + newMode + " for " + postImage.thumbnailUrl);
             this.mode = newMode;
 
             AndroidUtils.waitForMeasure(this, view -> {

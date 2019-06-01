@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.controller.ui;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -36,10 +35,6 @@ import com.github.adamantcheese.chan.controller.NavigationController;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 public class NavigationControllerContainerLayout extends FrameLayout {
-    // The shadow starts at this alpha and goes up to 1f
-    public static final float SHADOW_MIN_ALPHA = 0.5f;
-
-
     private NavigationController navigationController;
 
     private int slopPixels;
@@ -130,16 +125,13 @@ public class NavigationControllerContainerLayout extends FrameLayout {
 
         switch (actionMasked) {
             case MotionEvent.ACTION_DOWN:
-//                Logger.test("onInterceptTouchEvent down");
                 interceptedEvent = MotionEvent.obtain(event);
                 break;
             case MotionEvent.ACTION_MOVE: {
-//                Logger.test("onInterceptTouchEvent move");
                 float x = (event.getX() - interceptedEvent.getX());
                 float y = (event.getY() - interceptedEvent.getY());
 
                 if (Math.abs(y) >= slopPixels || interceptedEvent.getX() < dp(20)) {
-//                    Logger.test("blockTracking = true");
                     blockTracking = true;
                 }
 
@@ -152,7 +144,6 @@ public class NavigationControllerContainerLayout extends FrameLayout {
             }
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP: {
-//                Logger.test("onInterceptTouchEvent cancel/up");
                 interceptedEvent.recycle();
                 interceptedEvent = null;
                 blockTracking = false;
@@ -180,13 +171,6 @@ public class NavigationControllerContainerLayout extends FrameLayout {
     }
 
     @Override
-    protected void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-//        endTracking();
-    }
-
-    @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (!tracking) {
             return false;
@@ -200,8 +184,6 @@ public class NavigationControllerContainerLayout extends FrameLayout {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP: {
-//                Logger.test("onTouchEvent cancel or up");
-
                 scroller.forceFinished(true);
 
                 velocityTracker.addMovement(event);
@@ -212,14 +194,9 @@ public class NavigationControllerContainerLayout extends FrameLayout {
                     boolean doFlingAway = false;
 
                     if ((velocity > 0 && Math.abs(velocity) > dp(800) && Math.abs(velocity) < maxFlingPixels) || translationX >= getWidth() * 3 / 4) {
-//                        int left = getWidth() - translationX;
-//                        int flingVelocity = Math.max(velocity, 0);
-
-//                        Logger.test("flinging with velocity = %d", velocity);
                         velocity = Math.max(dp(2000), velocity);
 
                         scroller.fling(translationX, 0, velocity, 0, 0, Integer.MAX_VALUE, 0, 0);
-//                        Logger.test("finalX = %d getWidth = %d", scroller.getFinalX(), getWidth());
 
                         // Make sure the animation always goes past the end
                         if (scroller.getFinalX() < getWidth()) {
@@ -227,13 +204,11 @@ public class NavigationControllerContainerLayout extends FrameLayout {
                         }
 
                         doFlingAway = true;
-//                        Logger.test("Flinging away with velocity = %d", velocity);
                     }
 
                     if (doFlingAway) {
                         startFlingAnimation(true);
                     } else {
-//                        Logger.test("Snapping back");
                         scroller.forceFinished(true);
                         scroller.startScroll(translationX, 0, -translationX, 0, 250);
                         startFlingAnimation(false);
@@ -258,7 +233,7 @@ public class NavigationControllerContainerLayout extends FrameLayout {
         super.dispatchDraw(canvas);
 
         if (tracking) {
-            float alpha = Math.min(1f, Math.max(0f, SHADOW_MIN_ALPHA - (shadowPosition / (float) getWidth()) * SHADOW_MIN_ALPHA));
+            float alpha = Math.min(1f, Math.max(0f, 0.5f - (shadowPosition / (float) getWidth()) * 0.5f));
             shadowPaint.setColor(Color.argb((int) (alpha * 255f), 0, 0, 0));
             shadowRect.set(0, 0, shadowPosition, getHeight());
             canvas.drawRect(shadowRect, shadowPaint);
@@ -281,18 +256,10 @@ public class NavigationControllerContainerLayout extends FrameLayout {
         velocityTracker = VelocityTracker.obtain();
         velocityTracker.addMovement(startEvent);
 
-//        long start = Time.startTiming();
-
         navigationController.beginSwipeTransition(trackingController, behindTrackingController);
-
-//        Time.endTiming("attach", start);
-
-//        Logger.test("Start tracking " + trackingController.getClass().getSimpleName());
     }
 
     private void endTracking(boolean finishTransition) {
-//        Logger.test("endTracking finishTransition = " + finishTransition);
-
         if (!tracking) {
             throw new IllegalStateException("endTracking called but was not tracking");
         }

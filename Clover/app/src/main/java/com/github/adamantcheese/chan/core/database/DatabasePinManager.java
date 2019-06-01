@@ -16,9 +16,13 @@
  */
 package com.github.adamantcheese.chan.core.database;
 
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.j256.ormlite.stmt.DeleteBuilder;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -92,6 +96,22 @@ public class DatabasePinManager {
                 p.loadable = databaseLoadableManager.refreshForeign(p.loadable);
             }
             return list;
+        };
+    }
+
+    public Callable<Void> deletePinsFromLoadables(List<Loadable> siteLoadables) {
+        return () -> {
+            Set<Integer> loadableIdSet = new HashSet<>();
+
+            for (Loadable loadable : siteLoadables) {
+                loadableIdSet.add(loadable.id);
+            }
+
+            DeleteBuilder<Pin, Integer> builder = helper.pinDao.deleteBuilder();
+            builder.where().in("loadable_id", loadableIdSet);
+            builder.delete();
+
+            return null;
         };
     }
 }

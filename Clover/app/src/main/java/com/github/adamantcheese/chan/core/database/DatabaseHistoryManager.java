@@ -17,12 +17,15 @@
 package com.github.adamantcheese.chan.core.database;
 
 import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.core.model.orm.History;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
-import com.github.adamantcheese.chan.core.model.orm.History;
-
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -100,6 +103,22 @@ public class DatabaseHistoryManager {
     public Callable<Void> clearHistory() {
         return () -> {
             TableUtils.clearTable(helper.getConnectionSource(), History.class);
+            return null;
+        };
+    }
+
+    public Callable<Void> deleteHistory(List<Loadable> siteLoadables) {
+        return () -> {
+            Set<Integer> loadableIdSet = new HashSet<>();
+
+            for (Loadable loadable : siteLoadables) {
+                loadableIdSet.add(loadable.id);
+            }
+
+            DeleteBuilder<History, Integer> builder = helper.historyDao.deleteBuilder();
+            builder.where().in("loadable_id", loadableIdSet);
+            builder.delete();
+
             return null;
         };
     }
