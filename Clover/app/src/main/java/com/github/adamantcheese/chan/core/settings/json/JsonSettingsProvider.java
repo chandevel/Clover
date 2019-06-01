@@ -129,6 +129,11 @@ public class JsonSettingsProvider implements SettingProvider {
         save();
     }
 
+    @Override
+    public void putStringSync(String key, String value) {
+        throw new UnsupportedOperationException();
+    }
+
     private void load() {
         byKey.clear();
         for (JsonSetting setting : jsonSettings.settings) {

@@ -77,6 +77,7 @@ public class SharedPreferencesSettingProvider implements SettingProvider {
         prefs.edit().putString(key, value).apply();
     }
 
+    @Override
     public void putStringSync(String key, String value) {
         prefs.edit().putString(key, value).commit();
     }

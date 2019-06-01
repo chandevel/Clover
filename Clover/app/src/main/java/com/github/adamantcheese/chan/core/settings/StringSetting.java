@@ -43,4 +43,12 @@ public class StringSetting extends Setting<String> {
             onValueChanged();
         }
     }
+
+    public void setSync(String value) {
+        if (!value.equals(get())) {
+            settingProvider.putStringSync(key, value);
+            cached = value;
+            onValueChanged();
+        }
+    }
 }

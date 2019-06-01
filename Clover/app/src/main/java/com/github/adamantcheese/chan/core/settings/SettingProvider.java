@@ -32,4 +32,6 @@ public interface SettingProvider {
     String getString(String key, String def);
 
     void putString(String key, String value);
+
+    void putStringSync(String key, String value);
 }
