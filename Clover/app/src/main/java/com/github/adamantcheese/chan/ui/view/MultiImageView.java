@@ -583,8 +583,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             for (int i = getChildCount() - 1; i >= 0; i--) {
                 View child = getChildAt(i);
                 if (child != playView) {
-                    if (child != view && child instanceof PlayerView) {
-                        ((PlayerView) child).getPlayer().release();
+                    if (child != view) {
+                        if(child instanceof PlayerView) {
+                            ((PlayerView) child).getPlayer().release();
+                        }
                         removeViewAt(i);
                     } else {
                         alreadyAttached = true;
