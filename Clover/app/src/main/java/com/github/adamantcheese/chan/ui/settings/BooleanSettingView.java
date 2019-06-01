@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
-import android.support.v7.widget.SwitchCompat;
+import androidx.appcompat.widget.SwitchCompat;
 import android.view.View;
 import android.widget.CompoundButton;
 

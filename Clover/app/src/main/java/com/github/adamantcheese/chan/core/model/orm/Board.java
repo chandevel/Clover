@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.j256.ormlite.field.DatabaseField;

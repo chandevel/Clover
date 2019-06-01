@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;

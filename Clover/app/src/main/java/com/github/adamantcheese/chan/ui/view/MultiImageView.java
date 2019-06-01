@@ -16,26 +16,21 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.os.Build;
-import android.support.v4.content.FileProvider;
+
+import androidx.core.content.FileProvider;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -100,9 +95,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     private FileCacheDownloader gifRequest;
     private FileCacheDownloader videoRequest;
 
-    private VideoView videoView;
-    private boolean videoError = false;
-    private MediaPlayer mediaPlayer;
     private SimpleExoPlayer exoPlayer;
 
     private boolean backgroundToggle;
@@ -199,8 +191,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     private void pauseVideo() {
         if (exoPlayer != null) {
             exoPlayer.setPlayWhenReady(false);
-        } else if (videoView != null) {
-            videoView.pause();
         }
     }
 
@@ -211,8 +201,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             if (audioComponent != null) {
                 audioComponent.setVolume(volume);
             }
-        } else if (mediaPlayer != null) {
-            mediaPlayer.setVolume(volume, volume);
         }
     }
 
@@ -430,8 +418,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             AndroidUtils.openIntent(intent);
 
-            onModeLoaded(Mode.MOVIE, videoView);
-        } else if (ChanSettings.videoUseExoplayer.get()) {
+            onModeLoaded(Mode.MOVIE, null);
+        } else {
             PlayerView exoVideoView = new PlayerView(getContext());
             exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
             exoVideoView.setPlayer(exoPlayer);
@@ -450,45 +438,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             exoPlayer.setPlayWhenReady(true);
             onModeLoaded(Mode.MOVIE, exoVideoView);
             callback.onVideoLoaded(this);
-        } else {
-            Context proxyContext = new NoMusicServiceCommandContext(getContext());
-
-            videoView = new VideoView(proxyContext);
-            videoView.setZOrderOnTop(true);
-            videoView.setMediaController(new MediaController(getContext()));
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                videoView.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE);
-            }
-
-            addView(videoView, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
-
-            videoView.setOnPreparedListener(mp -> {
-                mediaPlayer = mp;
-                mp.setLooping(ChanSettings.videoAutoLoop.get());
-                mp.setVolume(0f, 0f);
-                onModeLoaded(Mode.MOVIE, videoView);
-                callback.onVideoLoaded(this);
-
-                if (hasMediaPlayerAudioTracks(mp)) {
-                    callback.onAudioLoaded(this);
-                }
-            });
-
-            videoView.setOnErrorListener((mp, what, extra) -> {
-                onVideoError();
-
-                return true;
-            });
-
-            videoView.setVideoPath(file.getAbsolutePath());
-
-            try {
-                videoView.start();
-            } catch (IllegalStateException e) {
-                Logger.e(TAG, "Video view start error", e);
-                onVideoError();
-            }
         }
     }
 
@@ -497,35 +446,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         if (exoPlayer.getAudioFormat() != null) {
             callback.onAudioLoaded(this);
         }
-    }
-
-    private boolean hasMediaPlayerAudioTracks(MediaPlayer mediaPlayer) {
-        try {
-            for (MediaPlayer.TrackInfo trackInfo : mediaPlayer.getTrackInfo()) {
-                if (trackInfo.getTrackType() == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
-                    return true;
-                }
-            }
-
-            return false;
-        } catch (RuntimeException e) {
-            // getTrackInfo() raises an IllegalStateException on some devices.
-            // Samsung even throws a RuntimeException.
-            // Return a default value.
-            return true;
-        }
-    }
-
-    private void onVideoError() {
-        if (!videoError) {
-            videoError = true;
-            callback.onVideoError(this);
-        }
-    }
-
-    private void cleanupVideo(VideoView videoView) {
-        videoView.stopPlayback();
-        mediaPlayer = null;
     }
 
     public void toggleTransparency() {
@@ -592,10 +512,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                 }
                 break;
         }
-    }
-
-    private void cleanupVideo(PlayerView videoView) {
-        videoView.getPlayer().release();
     }
 
     private void setBitImageFileInternal(File file, boolean tiling, final Mode forMode) {
@@ -667,13 +583,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             for (int i = getChildCount() - 1; i >= 0; i--) {
                 View child = getChildAt(i);
                 if (child != playView) {
-                    if (child != view) {
-                        if (child instanceof VideoView) {
-                            cleanupVideo((VideoView) child);
-                        } else if (child instanceof PlayerView) {
-                            cleanupVideo((PlayerView) child);
-                        }
-
+                    if (child != view && child instanceof PlayerView) {
+                        ((PlayerView) child).getPlayer().release();
                         removeViewAt(i);
                     } else {
                         alreadyAttached = true;
@@ -697,27 +608,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
         void onProgress(MultiImageView multiImageView, long current, long total);
 
-        void onVideoError(MultiImageView multiImageView);
-
         void onVideoLoaded(MultiImageView multiImageView);
 
         void onModeLoaded(MultiImageView multiImageView, Mode mode);
 
         void onAudioLoaded(MultiImageView multiImageView);
-    }
-
-    public static class NoMusicServiceCommandContext extends ContextWrapper {
-        public NoMusicServiceCommandContext(Context base) {
-            super(base);
-        }
-
-        @Override
-        public void sendBroadcast(Intent intent) {
-            // Only allow broadcasts when it's not a music service command
-            // Prevents pause intents from broadcasting
-            if (!"com.android.music.musicservicecommand".equals(intent.getAction())) {
-                super.sendBroadcast(intent);
-            }
-        }
     }
 }

@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.database;
 
-import android.support.annotation.AnyThread;
+import androidx.annotation.AnyThread;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.orm.Board;

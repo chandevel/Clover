@@ -96,7 +96,6 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="image_preview_failed_oom">Failed to show image, out of memory</string>
     <string name="image_failed_big_image">Deepzoom loading failed</string>
     <string name="image_not_found">Image not found</string>
-    <string name="image_open_failed">Failed to open image</string>
     <string name="image_spoiler_filename">Spoiler image</string>
     <string name="thread_boards_search_hint">Search</string>
     <string name="thread_load_failed_ssl">HTTPS error</string>
@@ -244,9 +243,6 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="delete_success">Post deleted</string>
     <string name="delete_image_only">Only delete the image</string>
     <string name="delete_error">Error deleting post</string>
-    <string name="video_playback_warning_title">WebM video error</string>
-    <string name="video_playback_warning">The WebM video failed to play. This might be a problem with the hardware of your phone.\n\nYou can install an external media player that has a software decoder and enable \"Open videos external\" in the settings so that the video opens externally in a software decoding app.</string>
-    <string name="video_playback_ignore">Don\'t show again</string>
     <string name="watch_pause_pins">Stop watching</string>
     <string name="watch_idle">No new posts</string>
     <plurals name="watch_title">

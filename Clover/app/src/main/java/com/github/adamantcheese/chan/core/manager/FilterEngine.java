@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
-import android.support.annotation.AnyThread;
+import androidx.annotation.AnyThread;
 import android.text.TextUtils;
 
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;

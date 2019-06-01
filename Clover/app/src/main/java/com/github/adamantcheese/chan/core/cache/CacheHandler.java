@@ -16,9 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.cache;
 
-import android.support.annotation.AnyThread;
-import android.support.annotation.MainThread;
-import android.support.annotation.WorkerThread;
+import androidx.annotation.AnyThread;
+import androidx.annotation.MainThread;
+import androidx.annotation.WorkerThread;
 import android.util.Pair;
 
 import com.github.adamantcheese.chan.utils.Logger;

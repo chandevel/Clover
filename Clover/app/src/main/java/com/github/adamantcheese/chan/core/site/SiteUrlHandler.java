@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.core.site;
 
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;

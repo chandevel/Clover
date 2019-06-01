@@ -110,7 +110,6 @@ Ative essa permissão novamente nas configurações do aplicativo caso tenha des
     <string name="image_preview_failed_oom">Falha ao mostrar a imagem, memória insuficiente</string>
     <string name="image_failed_big_image">Falha ao mostrar a imagem, processo de deep-zoom falhou</string>
     <string name="image_not_found">Imagem não encontrada</string>
-    <string name="image_open_failed">Falha ao abrir a imagem</string>
     <string name="image_spoiler_filename">Imagem de spoiler</string>
     <string name="thread_boards_search_hint">Procurar</string>
     <string name="thread_load_failed_ssl">Erro de HTTPS</string>
@@ -258,12 +257,6 @@ Se o padrão coincide, então o post pode ser oculto ou realçado.<br>
     <string name="delete_success">Postagem apagada</string>
     <string name="delete_image_only">Apagar somente a imagem</string>
     <string name="delete_error">Erro ao apagar a postagem</string>
-    <string name="video_playback_warning_title">Erro no WebM</string>
-    <string name="video_playback_warning">\"Não foi possível mostrar o WebM. Isso pode ser um problema com as especificações do seu celular.
-
-Uma solução pode ser usar um player externo com um decodificador por software.
-Ative \"Abrir videos em um player externo\" nas configurações para abrir videos em players externos.\"    </string>
-    <string name="video_playback_ignore">Não mostrar novamente</string>
     <string name="watch_pause_pins">Deixar de acompanhar</string>
     <string name="watch_idle">Sem novas postagens</string>
     <plurals name="watch_title">
@@ -417,8 +410,6 @@ Ative \"Abrir videos em um player externo\" nas configurações para abrir video
     <string name="setting_video_default_muted_description">Se um vídeo tiver áudio, deixá-lo mudo como padrão.</string>
     <string name="setting_video_open_external">Abrir videos num player externo</string>
     <string name="setting_video_open_external_description">Abrir videos em um aplicativo externo</string>
-    <string name="setting_video_exoplayer">Ativar o novo ExoPlayer</string>
-    <string name="setting_video_exoplayer_description">Use o novo ExoPlayer como reprodutor interno de mídias</string>
     <string name="setting_share_url">Compartilhar a URL da imagem</string>
     <string name="setting_share_url_description">Compartilhar o URL da imagem ao invés da imagem em si</string>
     <string name="settings_reveal_image_spoilers">Mostrar spoiler em imagens</string>

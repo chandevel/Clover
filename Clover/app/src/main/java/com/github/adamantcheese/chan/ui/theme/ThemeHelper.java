@@ -20,7 +20,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.annotation.AnyThread;
+import androidx.annotation.AnyThread;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;

@@ -1,7 +1,7 @@
 package com.github.adamantcheese.chan.core.database;
 
 import android.annotation.SuppressLint;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.Post;

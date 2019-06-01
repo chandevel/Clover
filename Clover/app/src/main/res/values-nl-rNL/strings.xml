@@ -108,7 +108,6 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
     <string name="image_preview_failed_oom">Kon afbeelding niet weergeven, geen geheugen meer</string>
     <string name="image_failed_big_image">Kon afbeelding niet weergeven, deep-zoom is gefaald</string>
     <string name="image_not_found">Afbeelding niet gevonden</string>
-    <string name="image_open_failed">Kon afbeelding niet openen</string>
     <string name="image_spoiler_filename">Spoilerafbeelding</string>
     <string name="thread_boards_search_hint">Zoeken</string>
     <string name="thread_load_failed_ssl">HTTPS-fout</string>
@@ -257,12 +256,6 @@ Als het patroon past kan de post verborgen worden of gemarkeerd worden.<br>
     <string name="delete_success">Post verwijderd</string>
     <string name="delete_image_only">Verwijder alleen de afbeelding</string>
     <string name="delete_error">Fout bij verwijderen post</string>
-    <string name="video_playback_warning_title">WebM-video fout</string>
-    <string name="video_playback_warning">"De WebM-video kon niet afgespeeld worden. Dit kan een probleem zijn met de hardware van je telefoon.
-
-Als tijdelijke oplossing kan je een externe mediaspeler met een software-decoder gebruiken.
-Zet \"Speel video\'s af met een externe mediaspeler\" aan in de instellingen om video\'s af te spelen in een externe mediaspeler."</string>
-    <string name="video_playback_ignore">Niet meer tonen</string>
     <string name="watch_pause_pins">Stop met volgen</string>
     <string name="watch_idle">Geen nieuwe posts</string>
     <plurals name="watch_title">

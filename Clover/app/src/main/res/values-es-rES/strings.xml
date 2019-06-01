@@ -108,7 +108,6 @@ Rehablita este permiso en la configuración de la aplicación si lo desailitaste
     <string name="image_preview_failed_oom">No se pudo mostrar la imagen, no hay memoria</string>
     <string name="image_failed_big_image">No se pudo mostrar la imagen, falló la carga de zoom profundo</string>
     <string name="image_not_found">Imagen no encontrada</string>
-    <string name="image_open_failed">No se pudo abrir la imagen</string>
     <string name="image_spoiler_filename">Imagen spoiler</string>
     <string name="thread_boards_search_hint">Buscar</string>
     <string name="thread_load_failed_ssl">Error HTTPS</string>
@@ -261,12 +260,6 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="delete_success">Publicación eliminada</string>
     <string name="delete_image_only">Solo borra la imágen</string>
     <string name="delete_error">Error al eliminar</string>
-    <string name="video_playback_warning_title">Error de video WebM</string>
-    <string name="video_playback_warning">"El video WebM no se puro reproducir.Este puede ser un problema con el hardware del teléfono.
-
-Una posible solución es usar un reproductor de tercero con algún decodificador
-Active \"Reproducir videos con reproductor externo\" En las configuraciones"</string>
-    <string name="video_playback_ignore">No mostrar de nuevo</string>
     <string name="watch_pause_pins">Dejar de ver</string>
     <string name="watch_idle">No nuevos posts</string>
     <plurals name="watch_title">
@@ -422,8 +415,6 @@ Si esta deshabilitado, guardar imágen con el nombre de archivo original de la s
     <string name="setting_video_default_muted_description">Si un video tiene audio, silenceado predeterminado.</string>
     <string name="setting_video_open_external">Reproducir con reproductor externo</string>
     <string name="setting_video_open_external_description">Reproducir en una aplicación de reproductor de medios externos</string>
-    <string name="setting_video_exoplayer">Habilitar el nuevo ExoPlayer</string>
-    <string name="setting_video_exoplayer_description">Usar el nuevo ExoPlayer para reproductor de media interna</string>
     <string name="setting_share_url">Compartir la URL de la imagen</string>
     <string name="setting_share_url_description">Compartir la URL de la imagen en lugar de la propia imagen</string>
     <string name="settings_reveal_image_spoilers">Revelar imágenes spoilers</string>

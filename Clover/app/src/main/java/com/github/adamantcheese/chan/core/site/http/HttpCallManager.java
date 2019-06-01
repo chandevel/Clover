@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.http;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;

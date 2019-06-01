@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.dvach;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.github.adamantcheese.chan.core.site.Site;

@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_marginTop="20dp"
         android:text="@string/setup_sites_description" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/url_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_marginRight="20dp"
         android:layout_marginTop="8dp">
 
-        <android.support.design.widget.TextInputEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/url"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -45,6 +45,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:inputType="textUri"
             tools:ignore="HardcodedText" />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
 </com.github.adamantcheese.chan.ui.layout.SiteAddLayout>

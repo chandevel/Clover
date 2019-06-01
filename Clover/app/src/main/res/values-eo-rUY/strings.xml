@@ -110,7 +110,6 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
     <string name="image_preview_failed_oom">Malsukcesis montri bildon: memormanko</string>
     <string name="image_failed_big_image">Fortzomo-ŝarĝo malsukcesis</string>
     <string name="image_not_found">Bildo ne trovita</string>
-    <string name="image_open_failed">Malsukcesis malfermi bildon</string>
     <string name="image_spoiler_filename">Spoiler image</string>
     <string name="thread_boards_search_hint">Serĉi</string>
     <string name="thread_load_failed_ssl">HTTPS-eraro</string>
@@ -258,11 +257,6 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="delete_success">Afiŝo forigita</string>
     <string name="delete_image_only">Nur forigi ĉi tiun bildon</string>
     <string name="delete_error">Eraro dum forigi afiŝon</string>
-    <string name="video_playback_warning_title">WebM-video eraro</string>
-    <string name="video_playback_warning">\"La WebM-video malsukcesis ludi. Tio povas esti problemo de la aparataro de via poŝtelefono.
-
-Vi povas instali eksteran videoludilon, kiu havas programaran malkodilon kaj ŝalti «Malfermu videojn ekstere» en la agordoj por ke la video malfermas ekstere en programaran malkodanta apon.\"    </string>
-    <string name="video_playback_ignore">Ne montri denove</string>
     <string name="watch_pause_pins">Ĉesi spekti</string>
     <string name="watch_idle">Neniu nova afiŝo</string>
     <plurals name="watch_title">
@@ -418,8 +412,6 @@ If disabled, save the image with the filename the uploader assigned.\"
     <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
     <string name="setting_video_open_external">Ludi videojn per ekstera ludilo</string>
     <string name="setting_video_open_external_description">Ludi videojn per ekstera kantludil-apo</string>
-    <string name="setting_video_exoplayer">Enable new ExoPlayer</string>
-    <string name="setting_video_exoplayer_description">Use the new ExoPlayer for internal media player</string>
     <string name="setting_share_url">Disigi URL al bildo</string>
     <string name="setting_share_url_description">Disigi URL al bildo anstataǔ la bildon mem</string>
     <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>

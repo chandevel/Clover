@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.ui.helper;
 
 import android.graphics.drawable.BitmapDrawable;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;

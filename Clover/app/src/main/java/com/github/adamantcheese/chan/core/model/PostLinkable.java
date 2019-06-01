@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;

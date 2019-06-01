@@ -2,7 +2,7 @@ package com.github.adamantcheese.chan.ui.layout;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.support.design.widget.TextInputLayout;
+import com.google.android.material.textfield.TextInputLayout;
 import android.util.AttributeSet;
 import android.widget.EditText;
 import android.widget.LinearLayout;

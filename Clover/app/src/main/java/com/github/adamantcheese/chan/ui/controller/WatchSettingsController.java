@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.support.v7.widget.SwitchCompat;
+import androidx.appcompat.widget.SwitchCompat;
 import android.widget.CompoundButton;
 
 import com.github.adamantcheese.chan.R;

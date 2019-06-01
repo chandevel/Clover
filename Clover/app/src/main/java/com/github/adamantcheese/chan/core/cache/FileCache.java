@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.cache;
 
-import android.support.annotation.MainThread;
+import androidx.annotation.MainThread;
 
 import com.github.adamantcheese.chan.utils.Logger;
 

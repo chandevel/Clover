@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.core.repository;
 
 import android.annotation.SuppressLint;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 

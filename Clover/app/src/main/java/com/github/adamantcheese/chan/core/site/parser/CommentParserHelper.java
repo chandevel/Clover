@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
-import android.support.annotation.AnyThread;
+import androidx.annotation.AnyThread;
 import android.text.SpannableString;
 
 import com.github.adamantcheese.chan.core.model.Post;

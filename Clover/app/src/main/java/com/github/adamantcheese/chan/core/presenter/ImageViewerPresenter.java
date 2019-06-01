@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.net.ConnectivityManager;
-import android.support.v4.view.ViewPager;
+import androidx.viewpager.widget.ViewPager;
 
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
@@ -334,11 +334,6 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     @Override
-    public void onVideoError(MultiImageView multiImageView) {
-        callback.onVideoError();
-    }
-
-    @Override
     public void onVideoLoaded(MultiImageView multiImageView) {
         callback.showVolumeMenuItem(false, muted);
     }
@@ -411,8 +406,6 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         void showProgress(boolean show);
 
         void onLoadProgress(float progress);
-
-        void onVideoError();
 
         void showVolumeMenuItem(boolean show, boolean muted);
     }

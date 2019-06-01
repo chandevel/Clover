@@ -76,20 +76,17 @@ android {
 }
 
 dependencies {
-    def supportVersion = '28.0.0'
+    implementation 'androidx.legacy:legacy-support-v13:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.annotation:annotation:1.0.2'
+    implementation 'androidx.exifinterface:exifinterface:1.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.browser:browser:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
-    implementation "com.android.support:support-v13:${supportVersion}"
-    implementation "com.android.support:appcompat-v7:${supportVersion}"
-    implementation "com.android.support:recyclerview-v7:${supportVersion}"
-    implementation "com.android.support:cardview-v7:${supportVersion}"
-    implementation "com.android.support:support-annotations:${supportVersion}"
-    implementation "com.android.support:exifinterface:${supportVersion}"
-    implementation "com.android.support:design:${supportVersion}"
-    implementation "com.android.support:customtabs:${supportVersion}"
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.0'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.9.0'
+    implementation 'com.google.android.exoplayer:exoplayer:2.10.1'
 
     implementation 'com.squareup.okhttp3:okhttp:3.14.1'
     implementation 'com.j256.ormlite:ormlite-core:5.1'

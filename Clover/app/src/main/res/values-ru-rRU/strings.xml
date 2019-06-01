@@ -125,7 +125,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="image_preview_failed_oom">Не удалось показать, нехватка памяти</string>
     <string name="image_failed_big_image">Не удалось показать, ошибка приближения</string>
     <string name="image_not_found">Изображение не найдено</string>
-    <string name="image_open_failed">Не удается открыть изображение</string>
     <string name="image_spoiler_filename">Спойлер</string>
     <string name="thread_boards_search_hint">Поиск</string>
     <string name="thread_load_failed_ssl">Ошибка HTTPS</string>
@@ -279,14 +278,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="delete_success">Пост удален</string>
     <string name="delete_image_only">Удалить изображение</string>
     <string name="delete_error">Ошибка при удалении поста</string>
-    <string name="video_playback_warning_title">Ошибка видео</string>
-    <string name="video_playback_warning">
-\"Не удалось запустить видео. Это может быть связано с характеристиками вашего устройства.
-
-Использование внешнего проигрывателя с софтовым декодированием может решить проблему.
-Включите \"Использовать внешний проигрыватель\" в настройках.\"
-    </string>
-    <string name="video_playback_ignore">Не показывать снова</string>
     <string name="watch_pause_pins">Перестать следить</string>
     <string name="watch_idle">Нет новых постов</string>
     <plurals name="watch_title">

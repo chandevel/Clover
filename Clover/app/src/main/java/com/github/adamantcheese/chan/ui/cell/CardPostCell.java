@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.ui.cell;
 
 import android.content.Context;
-import android.support.v7.widget.CardView;
+import androidx.cardview.widget.CardView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;

@@ -108,7 +108,6 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="image_preview_failed_oom">Impossibile caricare l\'immagine, memoria esaurita</string>
     <string name="image_failed_big_image">Impossibile caricare l\'immagine, caricamento deep-zoom fallito</string>
     <string name="image_not_found">Immagine non trovata</string>
-    <string name="image_open_failed">Impossibile visualizzare l\'immagine</string>
     <string name="image_spoiler_filename">Spoiler image</string>
     <string name="thread_boards_search_hint">Cerca</string>
     <string name="thread_load_failed_ssl">Errore HTTPS</string>
@@ -256,13 +255,6 @@ Se il pattern viene trovato, il post può essere nascosto o evidenziato.<br>
     <string name="delete_success">Post eliminato</string>
     <string name="delete_image_only">Elimina solo l\'immagine</string>
     <string name="delete_error">Errore nella cancellazione del post</string>
-    <string name="video_playback_warning_title">Errore video WebM</string>
-    <string name="video_playback_warning">\"Il video WebM non è riuscito a partire. Potrebbe essere un problema con l\'hardware del tuo telefono.
-
-Un\'alternativa è utilizzare un lettore multimediale esterno con la decodifica software.
-Abilita \"Riproduci video con un lettore esterno\" nelle impostazioni per riprodurre i video con un lettore esterno.\"
-    </string>
-    <string name="video_playback_ignore">Non mostrare più</string>
     <string name="watch_pause_pins">Stop watching</string>
     <string name="watch_idle">Nessun nuovo post</string>
     <plurals name="watch_title">
@@ -418,8 +410,6 @@ Se disabilitato, salva l\'immagine con il nome del file assegnato dall\'utente.\
     <string name="setting_video_default_muted_description">Se un video ha audio, silenzialo per impostazione predefinita.</string>
     <string name="setting_video_open_external">Riproduci video con lettore esterno</string>
     <string name="setting_video_open_external_description">Riproduci video in un\'app multimediale esterna</string>
-    <string name="setting_video_exoplayer">Abilita nuovo ExoPlayer</string>
-    <string name="setting_video_exoplayer_description">Use the new ExoPlayer for internal media player</string>
     <string name="setting_share_url">Condividi URL dell\'immagine</string>
     <string name="setting_share_url_description">Condividi l\'URL dell\'immagine invece dell\'immagine stessa</string>
     <string name="settings_reveal_image_spoilers">Rivela immagine spoilerata</string>

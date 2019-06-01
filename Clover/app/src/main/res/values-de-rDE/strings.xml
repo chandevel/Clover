@@ -110,7 +110,6 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
     <string name="image_preview_failed_oom">Fehler beim Abrufen des Bildes, Speicher voll</string>
     <string name="image_failed_big_image">Fehler beim Abrufen des Bildes, Deep-Zoom-Laden fehlgeschlagen</string>
     <string name="image_not_found">Bild nicht gefunden</string>
-    <string name="image_open_failed">Fehler beim Abrufen des Bildes</string>
     <string name="image_spoiler_filename">Spoiler-Bild</string>
     <string name="thread_boards_search_hint">Suche</string>
     <string name="thread_load_failed_ssl">HTTP-Fehler</string>
@@ -258,11 +257,6 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="delete_success">Beitrag wurde entfernt</string>
     <string name="delete_image_only">Nur das Bild löschen</string>
     <string name="delete_error">Fehler beim Löschen der beitrag</string>
-    <string name="video_playback_warning_title">WebM video Fehler</string>
-    <string name="video_playback_warning">\"Das WebM-Video konnte nicht abgespielt werden. Dies könnte ein Problem mit der Hardware Ihres Handys sein. 
-
-Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwaredecoder zu verwenden. Aktivieren Sie \"Play videos with external player\" in den Einstellungen, um Videos mit einem externer Spieler.\"    </string>
-    <string name="video_playback_ignore">Nicht wieder anzeigen</string>
     <string name="watch_pause_pins">Aufhören zu schauen</string>
     <string name="watch_idle">Keine neue Beiträge</string>
     <plurals name="watch_title">
@@ -417,8 +411,6 @@ speichern wenn deaktiviert, Sie das Bild mit dem Dateinamen den Uploader zugewie
     <string name="setting_video_default_muted_description">Wenn ein Video Ton enthält, starten Sie es ohne Ton automatisch.</string>
     <string name="setting_video_open_external">Videos mit Ihrem externen Player abspielen</string>
     <string name="setting_video_open_external_description">Videos in einer externen Media Player-App abspielen</string>
-    <string name="setting_video_exoplayer">Neu ExoPlayer aktivieren</string>
-    <string name="setting_video_exoplayer_description">Verwenden Sie den neuen ExoPlayer für den internen Media Player</string>
     <string name="setting_share_url">Teilen Sie die URL des Bildes</string>
     <string name="setting_share_url_description">Teilen Sie die URL für das Bild anstelle des Bildes selbst</string>
     <string name="settings_reveal_image_spoilers">Enthüllen Bildspoiler</string>

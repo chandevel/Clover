@@ -100,7 +100,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="image_preview_failed_oom">Failed to show image, out of memory</string>
     <string name="image_failed_big_image">Failed to show image, deep-zoom loading failed</string>
     <string name="image_not_found">Image not found</string>
-    <string name="image_open_failed">Failed to open image</string>
     <string name="image_spoiler_filename">Spoiler image</string>
     <string name="thread_boards_search_hint">Search</string>
     <string name="thread_load_failed_ssl">HTTPS error</string>
@@ -247,13 +246,6 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="delete_success">Post deleted</string>
     <string name="delete_image_only">Only delete the image</string>
     <string name="delete_error">Error deleting post</string>
-    <string name="video_playback_warning_title">WebM video error</string>
-    <string name="video_playback_warning">\"The WebM video failed to play. This might be a problem with the hardware of your phone.
-
-A workaround is to use an external media player with a software decoder.
-Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
-    </string>
-    <string name="video_playback_ignore">Don\'t show again</string>
     <string name="watch_pause_pins">구독 해제하기</string>
     <string name="watch_idle">새 게시글이 없습니다</string>
     <plurals name="watch_title">
@@ -406,8 +398,6 @@ If disabled, save the image with the filename the uploader assigned.\"
     <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
     <string name="setting_video_open_external">Play videos with external player</string>
     <string name="setting_video_open_external_description">Play videos in an external media player app</string>
-    <string name="setting_video_exoplayer">Enable new ExoPlayer</string>
-    <string name="setting_video_exoplayer_description">Use the new ExoPlayer for internal media player</string>
     <string name="setting_share_url">Share URL to image</string>
     <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
     <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>

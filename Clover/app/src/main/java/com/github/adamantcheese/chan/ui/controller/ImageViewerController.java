@@ -21,22 +21,18 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.CheckBox;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -324,27 +320,6 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     public void onLoadProgress(float progress) {
         loadingBar.setProgress(progress);
-    }
-
-    public void onVideoError() {
-        if (ChanSettings.videoErrorIgnore.get()) {
-            Toast.makeText(context, R.string.image_open_failed, Toast.LENGTH_SHORT).show();
-        } else {
-            @SuppressLint("InflateParams")
-            View notice = LayoutInflater.from(context).inflate(R.layout.dialog_video_error, null);
-            final CheckBox dontShowAgain = notice.findViewById(R.id.checkbox);
-
-            new AlertDialog.Builder(context)
-                    .setTitle(R.string.video_playback_warning_title)
-                    .setView(notice)
-                    .setPositiveButton(R.string.ok, (dialog, which) -> {
-                        if (dontShowAgain.isChecked()) {
-                            ChanSettings.videoErrorIgnore.set(true);
-                        }
-                    })
-                    .setCancelable(false)
-                    .show();
-        }
     }
 
     @Override
