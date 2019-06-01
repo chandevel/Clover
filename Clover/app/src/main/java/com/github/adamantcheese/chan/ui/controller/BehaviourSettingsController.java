@@ -68,8 +68,11 @@ public class BehaviourSettingsController extends SettingsController {
             if (!ChanSettings.useNewCaptchaWindow.get()) {
                 ChanSettings.useRealGoogleCookies.set(false);
 
-                // reset the old google cookie as well
+                // Reset the old google cookie
                 ChanSettings.googleCookie.set("");
+
+                // and cookie update time as well
+                ChanSettings.lastGoogleCookieUpdateTime.set(0L);
             }
 
             rebuildPreferences();

@@ -195,6 +195,7 @@ public class ChanSettings {
     public static final BooleanSetting useNewCaptchaWindow;
     public static final BooleanSetting useRealGoogleCookies;
     public static final StringSetting googleCookie;
+    public static final LongSetting lastGoogleCookieUpdateTime;
 
     public static final OptionsSetting<PostingTimeout> postingTimeout;
 
@@ -299,6 +300,7 @@ public class ChanSettings {
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
         useRealGoogleCookies = new BooleanSetting(p, "use_real_google_cookies", false);
         googleCookie = new StringSetting(p, "google_cookie", "");
+        lastGoogleCookieUpdateTime = new LongSetting(p, "last_google_cookie_update_time", 0L);
     }
 
     public static ThemeColor getThemeAndColor() {
