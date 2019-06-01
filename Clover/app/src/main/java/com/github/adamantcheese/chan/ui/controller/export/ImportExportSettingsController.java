@@ -120,12 +120,12 @@ public class ImportExportSettingsController extends SettingsController implement
             return;
         }
 
-        getPermissionHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
+        ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
             if (granted && presenter != null) {
                 navigationController.presentController(loadingViewController);
                 presenter.doExport(settingsFile);
             } else {
-                getPermissionHelper().showPermissionRequiredDialog(context,
+                ((StartActivity) context).getRuntimePermissionsHelper().showPermissionRequiredDialog(context,
                         context.getString(R.string.update_storage_permission_required_title),
                         context.getString(R.string.storage_permission_required_to_export_settings),
                         this::onExportClicked);
@@ -142,7 +142,7 @@ public class ImportExportSettingsController extends SettingsController implement
 
         // if we already have the permission and the default directory already exists - do not show
         // the dialog again
-        if (getPermissionHelper().hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (((StartActivity) context).getRuntimePermissionsHelper().hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             if (settingsFile.getParentFile().exists()) {
                 return;
             }
@@ -152,7 +152,7 @@ public class ImportExportSettingsController extends SettingsController implement
         new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.default_directory_may_not_exist_title))
                 .setMessage(context.getString(R.string.default_directory_may_not_exist_message))
-                .setPositiveButton(context.getString(R.string.create), (dialog1, which) -> getPermissionHelper().requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted -> {
+                .setPositiveButton(context.getString(R.string.create), (dialog1, which) -> ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
                     if (granted) {
                         onPermissionGrantedForDirectoryCreation();
                     }
@@ -175,11 +175,11 @@ public class ImportExportSettingsController extends SettingsController implement
             return;
         }
 
-        getPermissionHelper().requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted -> {
+        ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted -> {
             if (granted) {
                 onPermissionGrantedForImport();
             } else {
-                getPermissionHelper().showPermissionRequiredDialog(context,
+                ((StartActivity) context).getRuntimePermissionsHelper().showPermissionRequiredDialog(context,
                         context.getString(R.string.update_storage_permission_required_title),
                         context.getString(R.string.storage_permission_required_to_import_settings),
                         this::onImportClicked);
@@ -215,7 +215,6 @@ public class ImportExportSettingsController extends SettingsController implement
     @Override
     public void onSuccess(ImportExportRepository.ImportExport importExport) {
         // called on background thread
-
         if (context instanceof StartActivity) {
             AndroidUtils.runOnUiThread(() -> {
                 if (importExport == ImportExportRepository.ImportExport.Import) {
@@ -248,15 +247,10 @@ public class ImportExportSettingsController extends SettingsController implement
     @Override
     public void onError(String message) {
         // may be called on background thread
-
         AndroidUtils.runOnUiThread(() -> {
             clearAllChildControllers();
             showMessage(message);
         });
-    }
-
-    private RuntimePermissionsHelper getPermissionHelper() {
-        return ((StartActivity) context).getPermissionHelper();
     }
 
     private void showMessage(String message) {

@@ -565,10 +565,6 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         return false;
     }
 
-    public RuntimePermissionsHelper getPermissionHelper() {
-        return runtimePermissionsHelper;
-    }
-
     public void restartApp() {
         Intent intent = new Intent(this, StartActivity.class);
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
