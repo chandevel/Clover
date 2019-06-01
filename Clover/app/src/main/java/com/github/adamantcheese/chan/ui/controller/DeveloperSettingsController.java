@@ -21,9 +21,12 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 
 import javax.inject.Inject;
@@ -56,22 +59,28 @@ public class DeveloperSettingsController extends Controller {
         Button logsButton = new Button(context);
         logsButton.setOnClickListener(v -> navigationController.pushController(new LogsController(context)));
         logsButton.setText(R.string.settings_open_logs);
-
         wrapper.addView(logsButton);
 
         Button crashButton = new Button(context);
-
         crashButton.setOnClickListener(v -> {
             throw new RuntimeException("Debug crash");
         });
         crashButton.setText("Crash the app");
-
         wrapper.addView(crashButton);
 
-        summaryText = new TextView(context);
-        summaryText.setPadding(0, dp(25), 0, 0);
-        wrapper.addView(summaryText);
+        Button clearCacheButton = new Button(context);
+        FileCache cache = Chan.injector().instance(FileCache.class);
+        clearCacheButton.setOnClickListener(v -> {
+            cache.clearCache();
+            Toast.makeText(context, "Cleared image cache", Toast.LENGTH_SHORT).show();
+            clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize()/1024/1024 + "MB)");
+        });
+        clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize()/1024/1024 + "MB)");
+        wrapper.addView(clearCacheButton);
 
+        summaryText = new TextView(context);
+        summaryText.setPadding(dp(15), dp(5), 0, 0);
+        wrapper.addView(summaryText);
         setDbSummary();
 
         Button resetDbButton = new Button(context);

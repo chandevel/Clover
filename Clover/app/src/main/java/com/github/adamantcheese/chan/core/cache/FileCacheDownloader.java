@@ -22,6 +22,7 @@ import android.support.annotation.AnyThread;
 import android.support.annotation.MainThread;
 import android.support.annotation.WorkerThread;
 
+import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -53,7 +54,6 @@ public class FileCacheDownloader implements Runnable {
     private final OkHttpClient httpClient;
     private final String url;
     private final File output;
-    private final String userAgent;
     private final Handler handler;
 
     // Main thread only.
@@ -71,17 +71,16 @@ public class FileCacheDownloader implements Runnable {
 
     static FileCacheDownloader fromCallbackClientUrlOutputUserAgent(
             Callback callback, OkHttpClient httpClient, String url,
-            File output, String userAgent) {
-        return new FileCacheDownloader(callback, httpClient, url, output, userAgent);
+            File output) {
+        return new FileCacheDownloader(callback, httpClient, url, output);
     }
 
     private FileCacheDownloader(Callback callback, OkHttpClient httpClient,
-                                String url, File output, String userAgent) {
+                                String url, File output) {
         this.callback = callback;
         this.httpClient = httpClient;
         this.url = url;
         this.output = output;
-        this.userAgent = userAgent;
 
         handler = new Handler(Looper.getMainLooper());
     }
@@ -226,7 +225,7 @@ public class FileCacheDownloader implements Runnable {
     private ResponseBody getBody() throws IOException {
         Request request = new Request.Builder()
                 .url(url)
-                .header("User-Agent", userAgent)
+                .header("User-Agent", NetModule.USER_AGENT)
                 .build();
 
         call = httpClient.newBuilder()

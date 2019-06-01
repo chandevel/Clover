@@ -37,16 +37,13 @@ public class FileCache implements FileCacheDownloader.Callback {
     private static final int DOWNLOAD_POOL_SIZE = 2;
 
     private final ExecutorService downloadPool = Executors.newFixedThreadPool(DOWNLOAD_POOL_SIZE);
-    private String userAgent;
     protected OkHttpClient httpClient;
 
     private final CacheHandler cacheHandler;
 
     private List<FileCacheDownloader> downloaders = new ArrayList<>();
 
-    public FileCache(File directory, long maxSize, String userAgent) {
-        this.userAgent = userAgent;
-
+    public FileCache(File directory) {
         httpClient = new OkHttpClient.Builder()
                 .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                 .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
@@ -55,7 +52,7 @@ public class FileCache implements FileCacheDownloader.Callback {
                 .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                 .build();
 
-        cacheHandler = new CacheHandler(directory, maxSize);
+        cacheHandler = new CacheHandler(directory);
     }
 
     public void clearCache() {
@@ -121,6 +118,10 @@ public class FileCache implements FileCacheDownloader.Callback {
         return cacheHandler.get(key);
     }
 
+    public long getFileCacheSize() {
+        return cacheHandler.getSize().get();
+    }
+
     private void handleFileImmediatelyAvailable(FileCacheListener listener, File file) {
         // TODO: setLastModified doesn't seem to work on Android...
         if (!file.setLastModified(System.currentTimeMillis())) {
@@ -133,7 +134,7 @@ public class FileCache implements FileCacheDownloader.Callback {
     private FileCacheDownloader handleStartDownload(
             FileCacheListener listener, File file, String url) {
         FileCacheDownloader downloader = FileCacheDownloader.fromCallbackClientUrlOutputUserAgent(
-                this, httpClient, url, file, userAgent);
+                this, httpClient, url, file);
         downloader.addListener(listener);
         downloader.execute(downloadPool);
         downloaders.add(downloader);

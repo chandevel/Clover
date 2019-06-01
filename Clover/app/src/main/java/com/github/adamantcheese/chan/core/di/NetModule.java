@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import android.content.Context;
-
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.github.adamantcheese.chan.BuildConfig;
@@ -31,17 +29,17 @@ import java.io.File;
 
 import javax.inject.Singleton;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+
 public class NetModule {
     private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
-    private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024;
-    private static final String FILE_CACHE_NAME = "filecache";
     public static final String USER_AGENT = "Kuroba/" + BuildConfig.VERSION_NAME;
 
     @Provides
     @Singleton
-    public RequestQueue provideRequestQueue(Context applicationContext) {
-        File cacheDir = getCacheDir(applicationContext);
-        return Volley.newRequestQueue(applicationContext,
+    public RequestQueue provideRequestQueue() {
+        File cacheDir = getCacheDir();
+        return Volley.newRequestQueue(getAppContext(),
                 USER_AGENT,
                 new ProxiedHurlStack(USER_AGENT),
                 new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
@@ -49,16 +47,16 @@ public class NetModule {
 
     @Provides
     @Singleton
-    public FileCache provideFileCache(Context applicationContext) {
-        return new FileCache(new File(getCacheDir(applicationContext), FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE, USER_AGENT);
+    public FileCache provideFileCache() {
+        return new FileCache(new File(getCacheDir(), "filecache"));
     }
 
-    private File getCacheDir(Context applicationContext) {
+    private File getCacheDir() {
         // See also res/xml/filepaths.xml for the fileprovider.
-        if (applicationContext.getExternalCacheDir() != null) {
-            return applicationContext.getExternalCacheDir();
+        if (getAppContext().getExternalCacheDir() != null) {
+            return getAppContext().getExternalCacheDir();
         } else {
-            return applicationContext.getCacheDir();
+            return getAppContext().getCacheDir();
         }
     }
 

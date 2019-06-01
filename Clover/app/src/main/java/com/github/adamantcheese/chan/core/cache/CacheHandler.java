@@ -35,11 +35,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CacheHandler {
     private static final String TAG = "CacheHandler";
     private static final int TRIM_TRIES = 20;
+    private static final long FILE_CACHE_DISK_SIZE = 100 * 1024 * 1024;
 
     private final ExecutorService pool = Executors.newFixedThreadPool(1);
 
     private final File directory;
-    private final long maxSize;
 
     /**
      * An estimation of the current size of the directory. Used to check if trim must be run
@@ -48,9 +48,8 @@ public class CacheHandler {
     private AtomicLong size = new AtomicLong();
     private AtomicBoolean trimRunning = new AtomicBoolean(false);
 
-    public CacheHandler(File directory, long maxSize) {
+    public CacheHandler(File directory) {
         this.directory = directory;
-        this.maxSize = maxSize;
 
         createDirectories();
         backgroundRecalculateSize();
@@ -69,10 +68,15 @@ public class CacheHandler {
     }
 
     @MainThread
+    public AtomicLong getSize() {
+        return size;
+    }
+
+    @MainThread
     protected void fileWasAdded(File file) {
         long adjustedSize = size.addAndGet(file.length());
 
-        if (adjustedSize > maxSize && trimRunning.compareAndSet(false, true)) {
+        if (adjustedSize > FILE_CACHE_DISK_SIZE && trimRunning.compareAndSet(false, true)) {
             pool.submit(() -> {
                 try {
                     trim();
@@ -151,7 +155,7 @@ public class CacheHandler {
         // Trim as long as the directory size exceeds the threshold and we haven't reached
         // the trim limit.
         long workingSize = size.get();
-        for (int i = 0; workingSize >= maxSize && i < Math.min(files.size(), TRIM_TRIES); i++) {
+        for (int i = 0; workingSize >= FILE_CACHE_DISK_SIZE && i < Math.min(files.size(), TRIM_TRIES); i++) {
             File file = files.get(i).first;
 
             Logger.d(TAG, "Delete for trim " + file.getAbsolutePath());
