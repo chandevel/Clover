@@ -48,32 +48,32 @@ Reabilite esta permissão nas definições da aplicação se estiveres permanent
         <item quantity="other">%d minutos</item>
     </plurals>
     <plurals name="posts">
-        <item quantity="one">%d post</item>
-        <item quantity="other">%d posts</item>
+        <item quantity="one">%d postagem</item>
+        <item quantity="other">%d postagens</item>
     </plurals>
     <plurals name="reply">
-        <item quantity="one">%d reply</item>
-        <item quantity="other">%d replies</item>
+        <item quantity="one">%d resposta</item>
+        <item quantity="other">%d respostas</item>
     </plurals>
     <plurals name="image">
-        <item quantity="one">%d image</item>
-        <item quantity="other">%d images</item>
+        <item quantity="one">%d imagem</item>
+        <item quantity="other">%d imagens</item>
     </plurals>
     <plurals name="board">
         <item quantity="one">%d board</item>
         <item quantity="other">%d boards</item>
     </plurals>
     <plurals name="type">
-        <item quantity="one">%d type</item>
-        <item quantity="other">%d types</item>
+        <item quantity="one">%d tipo</item>
+        <item quantity="other">%d tipos</item>
     </plurals>
     <plurals name="bookmark">
-        <item quantity="one">%d bookmark</item>
-        <item quantity="other">%d bookmarks</item>
+        <item quantity="one">%d marcador</item>
+        <item quantity="other">%d marcadores</item>
     </plurals>
     <plurals name="filter">
-        <item quantity="one">%d filter</item>
-        <item quantity="other">%d filters</item>
+        <item quantity="one">%d filtro</item>
+        <item quantity="other">%d filtros</item>
     </plurals>
     <plurals name="site">
         <item quantity="one">%d site</item>
