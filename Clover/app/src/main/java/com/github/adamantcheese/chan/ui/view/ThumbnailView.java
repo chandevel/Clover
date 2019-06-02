@@ -17,17 +17,22 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 
 import com.android.volley.AuthFailureError;
@@ -36,11 +41,9 @@ import com.android.volley.ParseError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-
 import com.github.adamantcheese.chan.R;
 
 import static com.github.adamantcheese.chan.Chan.injector;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -123,7 +126,9 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
             foregroundCalculate = clickable;
             if (clickable) {
-                foreground = getAppContext().getDrawable(R.drawable.item_background);
+                TypedValue rippleAttrForThemeValue = new TypedValue();
+                getContext().getTheme().resolveAttribute(R.attr.colorControlHighlight, rippleAttrForThemeValue, true);
+                foreground = new RippleDrawable(ColorStateList.valueOf(rippleAttrForThemeValue.data), null, new ColorDrawable(Color.WHITE));
                 foreground.setCallback(this);
                 if (foreground.isStateful()) {
                     foreground.setState(getDrawableState());
