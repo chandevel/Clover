@@ -35,7 +35,8 @@ public class LastReplyRepository {
     }
 
     public boolean canPost(Site s, Board b) {
-        return getLastReply(s, b) + b.cooldownReplies * 1000 < System.currentTimeMillis();
+        boolean half = s.name().equals("4chan") && s.actions().isLoggedIn();
+        return getLastReply(s, b) + (half ? b.cooldownReplies * 500 : b.cooldownReplies * 1000) < System.currentTimeMillis();
     }
 
     private class SiteBoard {

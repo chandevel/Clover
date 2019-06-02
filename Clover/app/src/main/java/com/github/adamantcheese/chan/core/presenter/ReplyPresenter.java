@@ -211,7 +211,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 submitOrAuthenticate();
             } else {
                 long lastPostTime = lastReplyRepository.getLastReply(draft.loadable.site, draft.loadable.board);
-                long timeLeft = draft.loadable.board.cooldownReplies - ((System.currentTimeMillis() - lastPostTime) / 1000L);
+                long waitTime = draft.loadable.board.cooldownReplies;
+                if (draft.loadable.site.name().equals("4chan") && draft.loadable.site.actions().isLoggedIn()) {
+                    waitTime /= 2;
+                }
+                long timeLeft = waitTime - ((System.currentTimeMillis() - lastPostTime) / 1000L);
                 String errorMessage = getAppContext().getString(R.string.reply_error_message_timer, timeLeft);
                 switchPage(Page.INPUT, true);
                 callback.openMessage(true, false, errorMessage, true);
