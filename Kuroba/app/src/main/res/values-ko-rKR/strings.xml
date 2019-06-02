@@ -27,14 +27,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="permission_app_settings">앱 설정</string>
     <string name="permission_grant">Grant</string>
     <string name="update_later">나중에</string>
-    <string name="update_none">Clover가 최신 버전입니다</string>
+    <string name="update_none">Kuroba가 최신 버전입니다</string>
     <string name="update_check_failed">업데이트 확인에 실패했습니다.</string>
     <string name="update_install">설치</string>
     <string name="update_install_downloading">업데이트 받는 중</string>
     <string name="update_install_download_failed">다운로드 실패</string>
     <string name="update_install_download_move_failed">받은 파일을 다운로드 디렉터리로 옮기는데 실패했습니다.</string>
     <string name="update_retry_title">업데이트 재시도</string>
-    <string name="update_retry">Clover가 업데이트되지 않았습니다. 다시 시도를 눌러 설치를 다시 시도하세요.</string>
+    <string name="update_retry">Kuroba가 업데이트되지 않았습니다. 다시 시도를 눌러 설치를 다시 시도하세요.</string>
     <string name="update_retry_button">다시 시도</string>
     <string name="update_storage_permission_required_title">저장소 권한 필요</string>
     <string name="update_storage_permission_required">\"업데이트를 설치하기 위해선 저장소 접근 권한이 필요합니다.
@@ -81,7 +81,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="action_rename_pin">즐겨찾기 이름 바꾸기</string>
     <string name="action_rename">이름 바꾸기</string>
     <string name="action_reply">댓글</string>
-    <string name="open_link_not_matched">Clover는 이 주소를 열 수 없습니다, 대신 브라우저를 통해 엽니다.</string>
+    <string name="open_link_not_matched">Kuroba는 이 주소를 열 수 없습니다, 대신 브라우저를 통해 엽니다.</string>
     <string name="order_bump">범프 순위</string>
     <string name="order_reply">Reply count</string>
     <string name="order_image">Image count</string>

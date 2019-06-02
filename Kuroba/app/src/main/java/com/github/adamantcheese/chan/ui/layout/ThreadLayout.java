@@ -687,7 +687,6 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // This unicode symbol crashes app on APIs below 23
-            // https://github.com/Floens/Clover/issues/677
             tv.setText(R.string.thread_empty_setup_feature);
         }
 

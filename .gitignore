@@ -1,7 +1,7 @@
 gps/
-Clover/app/keys.properties
-Clover/app/version.properties
-Clover/captures/
+Kuroba/app/keys.properties
+Kuroba/app/version.properties
+Kuroba/captures/
 
 
 #built application files
@@ -43,4 +43,4 @@ $RECYCLE.BIN/
 
 # Mac crap
 .DS_Store
-Clover/app/keystore.jks
+Kuroba/app/keystore.jks
