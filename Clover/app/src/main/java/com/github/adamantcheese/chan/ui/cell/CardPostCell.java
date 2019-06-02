@@ -17,12 +17,13 @@
 package com.github.adamantcheese.chan.ui.cell;
 
 import android.content.Context;
-import androidx.cardview.widget.CardView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.cardview.widget.CardView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -42,7 +43,7 @@ import java.util.List;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class CardPostCell extends CardView implements PostCellInterface, View.OnClickListener, View.OnLongClickListener {
+public class CardPostCell extends CardView implements PostCellInterface, View.OnClickListener {
     private static final int COMMENT_MAX_LENGTH = 200;
 
     private boolean bound;
@@ -86,7 +87,6 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         filterMatchColor = findViewById(R.id.filter_match_color);
 
         setOnClickListener(this);
-        setOnLongClickListener(this);
 
         setCompact(compact);
 
@@ -126,15 +126,6 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         } else if (v == this) {
             callback.onPostClicked(post);
         }
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        if (v == this) {
-            callback.onPostLongClicked(post);
-        }
-
-        return true;
     }
 
     @Override

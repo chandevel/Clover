@@ -25,7 +25,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import androidx.annotation.NonNull;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -39,6 +38,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
 import android.view.ActionMode;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -48,9 +48,11 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.github.adamantcheese.chan.R;
+import androidx.annotation.NonNull;
+
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -83,7 +85,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
-public class PostCell extends LinearLayout implements PostCellInterface {
+public class PostCell extends LinearLayout implements PostCellInterface, View.OnTouchListener {
     private static final String TAG = "PostCell";
     private static final int COMMENT_MAX_LENGTH_BOARD = 350;
 
@@ -114,6 +116,8 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     private int markedNo;
     private boolean showDivider;
 
+    private GestureDetector gestureDetector;
+
     private OnClickListener selfClicked = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -122,18 +126,6 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             } else {
                 callback.onPostClicked(post);
             }
-        }
-    };
-    private OnLongClickListener selfLongClicked = new OnLongClickListener() {
-        @Override
-        public boolean onLongClick(View v) {
-            if (ignoreNextOnClick) {
-                ignoreNextOnClick = false;
-            } else {
-                callback.onPostLongClicked(post);
-            }
-
-            return true;
         }
     };
 
@@ -219,7 +211,9 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         });
 
         setOnClickListener(selfClicked);
-        setOnLongClickListener(selfLongClicked);
+        setOnTouchListener(this);
+
+        gestureDetector = new GestureDetector(getContext(), new DoubleTapGestureListener());
     }
 
     private void showOptions(View anchor, List<FloatingMenuItem> items,
@@ -484,7 +478,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
             // And this sets clickable to appropriate values again.
             comment.setOnClickListener(selfClicked);
-            comment.setOnLongClickListener(selfLongClicked);
+            comment.setOnTouchListener(this);
 
             if (ChanSettings.tapNoReply.get()) {
                 title.setMovementMethod(titleMovementMethod);
@@ -492,9 +486,8 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         } else {
             comment.setText(commentText);
             comment.setOnClickListener(null);
-            comment.setOnLongClickListener(null);
+            comment.setOnTouchListener(null);
             comment.setClickable(false);
-            comment.setLongClickable(false);
 
             // Sets focusable to auto, clickable and longclickable to false.
             comment.setMovementMethod(null);
@@ -607,6 +600,11 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     }
 
     private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        return gestureDetector.onTouchEvent(event);
+    }
 
     /**
      * A MovementMethod that searches for PostLinkables.<br>
@@ -928,6 +926,14 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
         @Override
         public void onErrorResponse(VolleyError error) {
+        }
+    }
+
+    private class DoubleTapGestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            callback.onPostDoubleClicked(post);
+            return true;
         }
     }
 }

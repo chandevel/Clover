@@ -92,7 +92,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         }
 
         @Override
-        public void onPostLongClicked(Post post) {
+        public void onPostDoubleClicked(Post post) {
         }
 
         @Override

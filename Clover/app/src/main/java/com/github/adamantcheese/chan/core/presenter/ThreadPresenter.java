@@ -437,7 +437,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     @Override
-    public void onPostLongClicked(Post post) {
+    public void onPostDoubleClicked(Post post) {
         if (!loadable.isCatalogMode()) {
             if (searchOpen) {
                 searchQuery = null;
