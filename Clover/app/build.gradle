@@ -10,8 +10,8 @@ android {
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
         // (watch out for octal notation, never start with a 0)
         // version name should be of the form vXX.YY.ZZ
-        versionCode 40004
-        versionName "v4.0.4"
+        versionCode 40005
+        versionName "v4.0.5"
 
         applicationId "com.github.adamantcheese.chan"
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
