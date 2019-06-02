@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
@@ -64,6 +65,8 @@ public class SavingNotification extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR, "Save notification", NotificationManager.IMPORTANCE_LOW));
         }
+
+        startForeground(NOTIFICATION_ID, getNotification());
     }
 
     @Override

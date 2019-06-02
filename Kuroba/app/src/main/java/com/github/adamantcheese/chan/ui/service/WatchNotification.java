@@ -27,10 +27,11 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.IBinder;
-import androidx.core.app.NotificationCompat;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+
+import androidx.core.app.NotificationCompat;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
@@ -96,6 +97,8 @@ public class WatchNotification extends Service {
             alert.setLightColor(0xff91e466);
             notificationManager.createNotificationChannel(alert);
         }
+
+        startForeground(NOTIFICATION_ID, createNotification());
     }
 
     @Override
