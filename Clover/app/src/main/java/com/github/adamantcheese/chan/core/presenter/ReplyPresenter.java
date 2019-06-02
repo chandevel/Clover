@@ -211,7 +211,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 submitOrAuthenticate();
             } else {
                 long lastPostTime = lastReplyRepository.getLastReply(draft.loadable.site, draft.loadable.board);
-                long timeLeft = 60L - ((System.currentTimeMillis() - lastPostTime) / 1000L);
+                long timeLeft = draft.loadable.board.cooldownReplies - ((System.currentTimeMillis() - lastPostTime) / 1000L);
                 String errorMessage = getAppContext().getString(R.string.reply_error_message_timer, timeLeft);
                 switchPage(Page.INPUT, true);
                 callback.openMessage(true, false, errorMessage, true);
