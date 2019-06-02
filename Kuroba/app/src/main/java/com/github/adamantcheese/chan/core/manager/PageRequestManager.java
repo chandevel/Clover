@@ -61,8 +61,10 @@ public class PageRequestManager implements SiteActions.PagesListener {
     }
 
     public void forceUpdateForBoard(Board b) {
+        Board localBoardCopy = b.clone(); //clone the board so that if for any reason the GC decides
+        // to eat the other variable, this one is still around for the delayed function call
         Handler mainThread = new Handler(Looper.getMainLooper());
-        mainThread.postDelayed(() -> shouldUpdate(b, true), THIRTY_SECONDS);
+        mainThread.postDelayed(() -> shouldUpdate(localBoardCopy, true), THIRTY_SECONDS);
     }
 
     private Chan4PagesRequest.Page findPage(Board board, int opNo) {
@@ -93,6 +95,7 @@ public class PageRequestManager implements SiteActions.PagesListener {
     }
 
     private void shouldUpdate(Board b, boolean forceUpdate) {
+        if (b == null) return; //if for any reason the board is null, don't do anything
         long lastUpdateTime = boardTimeMap.get(b.code);
         if (lastUpdateTime + THREE_MINUTES <= System.currentTimeMillis() || forceUpdate) {
             Logger.d(TAG, "Requesting existing board pages, " + (forceUpdate ? "forced update" : "timeout"));
