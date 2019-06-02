@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
+import com.github.adamantcheese.chan.core.receiver.WakeUpdateReceiver;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -41,17 +42,14 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 public class WakeManager {
     private static final String TAG = "WakeManager";
 
-    public static final int BACKGROUND_INTERVAL = 15 * 60 * 1000;
-
-    private static final String WAKELOCK_TAG = "Kuroba:WakeManagerUpdateLock";
-    private static final long WAKELOCK_MAX_TIME = 60 * 1000;
     private WakeLock wakeLock;
 
     private final AlarmManager alarmManager;
     private final PowerManager powerManager;
 
     private List<Wakeable> wakeableSet = new ArrayList<>();
-    public static final Intent intent = new Intent("com.github.adamantcheese.chan.intent.action.WAKE_ALARM");
+    public static final Intent intent = new Intent(getAppContext(), WakeUpdateReceiver.class);
+    private PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
     private long lastBackgroundUpdateTime;
 
     @Inject
@@ -99,14 +97,11 @@ public class WakeManager {
     }
 
     private void startAlarm() {
-        int interval = ChanSettings.watchBackgroundInterval.get();
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, interval, interval, pendingIntent);
-        Logger.d(TAG, "Started background alarm with an interval of " + (interval / 1000 / 60) + " minutes");
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, ChanSettings.watchBackgroundInterval.get(), pendingIntent);
+        Logger.d(TAG, "Started background alarm with an interval of " + (ChanSettings.watchBackgroundInterval.get() / 1000 / 60) + " minutes");
     }
 
     private void stopAlarm() {
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
         alarmManager.cancel(pendingIntent);
         Logger.d(TAG, "Stopped background alarm");
     }
@@ -124,9 +119,9 @@ public class WakeManager {
                 }
                 wakeLock = null;
             }
-            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG);
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Kuroba:WakeManagerUpdateLock");
             wakeLock.setReferenceCounted(false);
-            wakeLock.acquire(WAKELOCK_MAX_TIME);
+            wakeLock.acquire(60 * 1000); //60 seconds max
         } else {
             if (wakeLock == null) {
                 Logger.e(TAG, "Wakelock null while trying to release it");

@@ -15,7 +15,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.github.adamantcheese.chan"
     android:installLocation="auto">
 
@@ -25,13 +24,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-
-    <uses-permission
-        android:name="android.permission.WAKE_LOCK"
-        tools:node="replace" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
-        android:name="com.github.adamantcheese.chan.Chan"
+        android:name=".Chan"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="Kuroba"
@@ -60,7 +56,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:value="598.0dip" />
 
         <activity
-            android:name="com.github.adamantcheese.chan.StartActivity"
+            android:name=".StartActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize">
 
             <intent-filter>
@@ -86,28 +82,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </activity>
 
         <service
-            android:name="com.github.adamantcheese.chan.ui.service.WatchNotification"
+            android:name=".ui.service.WatchNotification"
             android:exported="false" />
 
         <service
-            android:name="com.github.adamantcheese.chan.ui.service.SavingNotification"
+            android:name=".ui.service.SavingNotification"
             android:exported="false" />
 
         <service
-            android:name="com.github.adamantcheese.chan.ui.service.LastPageNotification"
+            android:name=".ui.service.LastPageNotification"
             android:exported="false" />
 
         <receiver
-            android:name="com.github.adamantcheese.chan.core.receiver.WakeUpdateReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.github.adamantcheese.chan.intent.action.WAKE_ALARM" />
-            </intent-filter>
-        </receiver>
+            android:name=".core.receiver.WakeUpdateReceiver"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.github.adamantcheese.chan.fileprovider"
+            android:authorities=".fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
 

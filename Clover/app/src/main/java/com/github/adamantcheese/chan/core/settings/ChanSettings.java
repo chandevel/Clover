@@ -20,7 +20,6 @@ import android.os.Environment;
 import android.text.TextUtils;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
@@ -263,7 +262,7 @@ public class ChanSettings {
         watchFilterWatch = new BooleanSetting(p, "preference_watch_filter_watch", false);
         watchFilterWatch.addCallback(((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(watchFilterWatch))));
-        watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", WakeManager.BACKGROUND_INTERVAL);
+        watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", 15 * 60 * 1000); //15 minute default
         watchBackgroundInterval.addCallback((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(watchBackgroundInterval)));
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
