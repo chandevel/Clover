@@ -21,12 +21,12 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.widget.ImageView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
  * A Theme<br>
@@ -59,6 +59,7 @@ public class Theme {
     public int savedReplyColor;
     public int selectedColor;
     public int textColorRevealSpoiler;
+    public int backColorSecondary;
 
     public ThemeDrawable settingsDrawable;
     public ThemeDrawable imageDrawable;
@@ -123,7 +124,8 @@ public class Theme {
                 R.attr.text_color_primary,
                 R.attr.text_color_secondary,
                 R.attr.text_color_hint,
-                R.attr.text_color_reveal_spoiler
+                R.attr.text_color_reveal_spoiler,
+                R.attr.backcolor_secondary
         });
 
         quoteColor = ta.getColor(0, 0);
@@ -144,6 +146,7 @@ public class Theme {
         textSecondary = ta.getColor(15, 0);
         textHint = ta.getColor(16, 0);
         textColorRevealSpoiler = ta.getColor(17, 0);
+        backColorSecondary = ta.getColor(18, 0);
 
         ta.recycle();
     }

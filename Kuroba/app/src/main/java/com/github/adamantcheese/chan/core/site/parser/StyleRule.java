@@ -26,8 +26,10 @@ import android.text.style.TypefaceSpan;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
+import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+
 import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
@@ -35,9 +37,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class StyleRule {
-    public enum Color {
+    public enum ForegroundColor {
         INLINE_QUOTE,
         QUOTE
+    }
+
+    public enum BackgroundColor {
+        CODE
     }
 
     private final List<String> blockElements = Arrays.asList("p", "div");
@@ -51,7 +57,8 @@ public class StyleRule {
 
     private List<Action> actions = new ArrayList<>();
 
-    private Color color = null;
+    private ForegroundColor foregroundColor = null;
+    private BackgroundColor backgroundColor = null;
     private boolean strikeThrough;
     private boolean bold;
     private boolean italic;
@@ -95,8 +102,13 @@ public class StyleRule {
         return this;
     }
 
-    public StyleRule color(Color color) {
-        this.color = color;
+    public StyleRule foregroundColor(ForegroundColor foregroundColor) {
+        this.foregroundColor = foregroundColor;
+        return this;
+    }
+
+    public StyleRule backgroundColor(BackgroundColor backgroundColor) {
+        this.backgroundColor = backgroundColor;
         return this;
     }
 
@@ -183,8 +195,12 @@ public class StyleRule {
 
         List<Object> spansToApply = new ArrayList<>(2);
 
-        if (color != null) {
-            spansToApply.add(new ForegroundColorSpanHashed(getColor(theme, color)));
+        if (foregroundColor != null) {
+            spansToApply.add(new ForegroundColorSpanHashed(getForegroundColor(theme, foregroundColor)));
+        }
+
+        if (backgroundColor != null) {
+            spansToApply.add(new BackgroundColorSpanHashed(getBackgroundColor(theme, backgroundColor)));
         }
 
         if (strikeThrough) {
@@ -229,14 +245,24 @@ public class StyleRule {
         return result;
     }
 
-    private int getColor(Theme theme, Color color) {
-        switch (color) {
+    private int getForegroundColor(Theme theme, ForegroundColor foregroundColor) {
+        switch (foregroundColor) {
             case INLINE_QUOTE:
                 return theme.inlineQuoteColor;
             case QUOTE:
                 return theme.quoteColor;
+            default:
+                return 0;
         }
-        return 0;
+    }
+
+    private int getBackgroundColor(Theme theme, BackgroundColor backgroundColor) {
+        switch (backgroundColor) {
+            case CODE:
+                return theme.backColorSecondary;
+            default:
+                return 0;
+        }
     }
 
     private SpannableString applySpan(CharSequence text, List<Object> spans) {

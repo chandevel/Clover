@@ -17,11 +17,12 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import android.graphics.Typeface;
-import androidx.annotation.AnyThread;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
+
+import androidx.annotation.AnyThread;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
@@ -67,11 +68,11 @@ public class CommentParser {
     public void addDefaultRules() {
         rule(tagRule("a").action(this::handleAnchor));
 
-        rule(tagRule("span").cssClass("deadlink").color(StyleRule.Color.QUOTE).strikeThrough());
+        rule(tagRule("span").cssClass("deadlink").foregroundColor(StyleRule.ForegroundColor.QUOTE).strikeThrough());
         rule(tagRule("span").cssClass("spoiler").link(PostLinkable.Type.SPOILER));
         rule(tagRule("span").cssClass("fortune").action(this::handleFortune));
         rule(tagRule("span").cssClass("abbr").nullify());
-        rule(tagRule("span").color(StyleRule.Color.INLINE_QUOTE).linkify());
+        rule(tagRule("span").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE).linkify());
 
         rule(tagRule("table").action(this::handleTable));
 
@@ -83,7 +84,7 @@ public class CommentParser {
         rule(tagRule("i").italic());
         rule(tagRule("em").italic());
 
-        rule(tagRule("pre").cssClass("prettyprint").monospace().size(sp(12f)));
+        rule(tagRule("pre").cssClass("prettyprint").monospace().size(sp(12f)).backgroundColor(StyleRule.BackgroundColor.CODE));
     }
 
     public void rule(StyleRule rule) {
