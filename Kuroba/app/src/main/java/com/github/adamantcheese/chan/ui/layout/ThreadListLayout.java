@@ -257,7 +257,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         setFastScroll(true);
 
-        /**
+        /*
          * We call a blocking function that accesses the database from a background thread but doesn't
          * throw an exception here. Why, you would ask? Because we can't use callbacks here, otherwise
          * everything in ThreadPresenter.onChanLoaderData() below showPosts will be executed BEFORE
@@ -269,7 +269,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
          * This solution works but it will hang the main thread for some time (it shouldn't be for very
          * long since we have like 300-500 posts in a thread to filter in the database).
          * BUT if for some reason it starts to cause ANRs then we will have to apply the callback solution.
-         * */
+         */
         List<Post> filteredPosts = filter.apply(
                 thread.posts,
                 thread.loadable.site.id(),

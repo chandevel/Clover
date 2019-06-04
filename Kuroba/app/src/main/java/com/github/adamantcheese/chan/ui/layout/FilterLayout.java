@@ -19,8 +19,6 @@ package com.github.adamantcheese.chan.ui.layout;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatCheckBox;
 import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
@@ -38,6 +36,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatCheckBox;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
@@ -46,9 +48,10 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
-import com.github.adamantcheese.chan.ui.view.ColorPickerView;
-import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
+import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.ui.view.ColorPickerView;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 
@@ -58,7 +61,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -141,7 +143,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         patternPreviewStatus = findViewById(R.id.pattern_preview_status);
         enabled = findViewById(R.id.enabled);
         help = findViewById(R.id.help);
-        theme().helpDrawable.apply(help);
+        Chan.injector().instance(ThemeHelper.class).getTheme().helpDrawable.apply(help);
         help.setOnClickListener(this);
         colorContainer = findViewById(R.id.color_container);
         colorContainer.setOnClickListener(this);

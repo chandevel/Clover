@@ -25,9 +25,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Build;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.appcompat.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -39,6 +36,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -58,11 +59,13 @@ import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
 import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.HidingFloatingActionButton;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +74,6 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -155,7 +157,7 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         // Inflate thread loading layout
         progressLayout = layoutInflater.inflate(R.layout.layout_thread_progress, this, false);
-        
+
         // View setup
         presenter.setContext(getContext());
         threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
@@ -172,7 +174,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         } else {
             replyButton.setOnClickListener(this);
             replyButton.setToolbar(callback.getToolbar());
-            theme().applyFabColor(replyButton);
+            Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(replyButton);
         }
 
         presenter.create(this);

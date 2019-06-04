@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
@@ -25,11 +26,11 @@ import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class AppearanceSettingsController extends SettingsController {
@@ -56,7 +57,7 @@ public class AppearanceSettingsController extends SettingsController {
             SettingsGroup appearance = new SettingsGroup(R.string.settings_group_appearance);
 
             appearance.add(new LinkSettingView(this,
-                    getString(R.string.setting_theme), theme().displayName,
+                    getString(R.string.setting_theme), Chan.injector().instance(ThemeHelper.class).getTheme().displayName,
                     v -> navigationController.pushController(
                             new ThemeSettingsController(context))));
 

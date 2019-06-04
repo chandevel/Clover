@@ -22,6 +22,8 @@ import android.content.Context;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
+import com.github.adamantcheese.chan.core.saver.ImageSaver;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import org.codejargon.feather.Provides;
 
@@ -54,5 +56,17 @@ public class AppModule {
     @Singleton
     public NotificationManager provideNotificationManager() {
         return (NotificationManager) applicationContext.getSystemService(NOTIFICATION_SERVICE);
+    }
+
+    @Provides
+    @Singleton
+    public ThemeHelper provideThemeHelper() {
+        return new ThemeHelper();
+    }
+
+    @Provides
+    @Singleton
+    public ImageSaver provideImageSaver() {
+        return new ImageSaver();
     }
 }

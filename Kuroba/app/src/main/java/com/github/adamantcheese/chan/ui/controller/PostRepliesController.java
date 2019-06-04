@@ -26,6 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -33,12 +34,11 @@ import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.List;
-
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 
 public class PostRepliesController extends BaseFloatingController {
     private PostPopupHelper postPopupHelper;
@@ -127,14 +127,14 @@ public class PostRepliesController extends BaseFloatingController {
         View repliesClose = dataView.findViewById(R.id.replies_close);
         repliesClose.setOnClickListener(v -> postPopupHelper.popAll());
 
-        Drawable backDrawable = theme().backDrawable.makeDrawable(context);
-        Drawable doneDrawable = theme().doneDrawable.makeDrawable(context);
+        Drawable backDrawable = Chan.injector().instance(ThemeHelper.class).getTheme().backDrawable.makeDrawable(context);
+        Drawable doneDrawable = Chan.injector().instance(ThemeHelper.class).getTheme().doneDrawable.makeDrawable(context);
 
         TextView repliesBackText = dataView.findViewById(R.id.replies_back_icon);
         TextView repliesCloseText = dataView.findViewById(R.id.replies_close_icon);
         repliesBackText.setCompoundDrawablesWithIntrinsicBounds(backDrawable, null, null, null);
         repliesCloseText.setCompoundDrawablesWithIntrinsicBounds(doneDrawable, null, null, null);
-        if (theme().isLightTheme) {
+        if (Chan.injector().instance(ThemeHelper.class).getTheme().isLightTheme) {
             repliesBackText.setTextColor(0x8a000000);
             repliesCloseText.setTextColor(0x8a000000);
         } else {

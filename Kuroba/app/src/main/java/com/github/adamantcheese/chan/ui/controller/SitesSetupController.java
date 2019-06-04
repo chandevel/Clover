@@ -21,13 +21,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.NonNull;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,6 +30,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter;
@@ -45,8 +46,10 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.layout.SiteAddLayout;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.ui.view.DividerItemDecoration;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +57,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
@@ -124,7 +126,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(sitesRecyclerview);
         addButton.setOnClickListener(this);
-        theme().applyFabColor(addButton);
+        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(addButton);
         crossfadeView.toggle(false, false);
 
         // Presenter
@@ -218,9 +220,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.delete_site_dialog_title))
                 .setMessage(context.getString(R.string.delete_site_dialog_message, site.name()))
-                .setPositiveButton(R.string.delete, (dialog, which) -> {
-                    presenter.removeSite(site);
-                })
+                .setPositiveButton(R.string.delete, (dialog, which) -> presenter.removeSite(site))
                 .setNegativeButton(R.string.cancel, ((dialog, which) -> dialog.dismiss()))
                 .create()
                 .show();
@@ -298,8 +298,8 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
             setRoundItemBackground(settings);
             setRoundItemBackground(removeSite);
-            theme().settingsDrawable.apply(settings);
-            theme().clearDrawable.apply(removeSite);
+            Chan.injector().instance(ThemeHelper.class).getTheme().settingsDrawable.apply(settings);
+            Chan.injector().instance(ThemeHelper.class).getTheme().clearDrawable.apply(removeSite);
 
             Drawable drawable = DrawableCompat.wrap(
                     context.getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();

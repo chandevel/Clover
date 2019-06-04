@@ -17,11 +17,13 @@
 package com.github.adamantcheese.chan.core.site.common;
 
 
-import androidx.annotation.AnyThread;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 
+import androidx.annotation.AnyThread;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -32,6 +34,7 @@ import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -57,7 +60,7 @@ public class DefaultPostParser implements PostParser {
     @Override
     public Post parse(Theme theme, Post.Builder builder, Callback callback) {
         if (theme == null) {
-            theme = ThemeHelper.getInstance().getTheme();
+            theme = Chan.injector().instance(ThemeHelper.class).getTheme();
         }
 
         if (!TextUtils.isEmpty(builder.name)) {

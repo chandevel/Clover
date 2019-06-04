@@ -20,9 +20,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.view.ContextThemeWrapper;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -35,7 +32,12 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.viewpager.widget.ViewPager;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -46,7 +48,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -57,6 +58,7 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ViewPagerAdapter;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,8 +144,6 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
     private FloatingActionButton done;
     private TextView textView;
 
-    private ThemeHelper themeHelper;
-
     private List<Theme> themes;
     private List<ThemeHelper.PrimaryColor> selectedPrimaryColors = new ArrayList<>();
     private ThemeHelper.PrimaryColor selectedAccentColor;
@@ -160,8 +160,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         navigation.swipeable = false;
         view = inflateRes(R.layout.controller_theme);
 
-        themeHelper = ThemeHelper.getInstance();
-        themes = themeHelper.getThemes();
+        themes = Chan.injector().instance(ThemeHelper.class).getThemes();
 
         pager = view.findViewById(R.id.pager);
         done = view.findViewById(R.id.add);
@@ -184,8 +183,8 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         pager.setAdapter(adapter);
 
         ChanSettings.ThemeColor currentSettingsTheme = ChanSettings.getThemeAndColor();
-        for (int i = 0; i < themeHelper.getThemes().size(); i++) {
-            Theme theme = themeHelper.getThemes().get(i);
+        for (int i = 0; i < themes.size(); i++) {
+            Theme theme = themes.get(i);
             ThemeHelper.PrimaryColor primaryColor = theme.primaryColor;
 
             if (theme.name.equals(currentSettingsTheme.theme)) {
@@ -194,7 +193,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             }
             selectedPrimaryColors.add(primaryColor);
         }
-        selectedAccentColor = themeHelper.getTheme().accentColor;
+        selectedAccentColor = Chan.injector().instance(ThemeHelper.class).getTheme().accentColor;
         done.setBackgroundTintList(ColorStateList.valueOf(selectedAccentColor.color));
     }
 
@@ -207,16 +206,16 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
     private void saveTheme() {
         int currentItem = pager.getCurrentItem();
-        Theme selectedTheme = themeHelper.getThemes().get(currentItem);
+        Theme selectedTheme = themes.get(currentItem);
         ThemeHelper.PrimaryColor selectedColor = selectedPrimaryColors.get(currentItem);
-        themeHelper.changeTheme(selectedTheme, selectedColor, selectedAccentColor);
+        Chan.injector().instance(ThemeHelper.class).changeTheme(selectedTheme, selectedColor, selectedAccentColor);
         ((StartActivity) context).restartApp();
     }
 
     private void showAccentColorPicker() {
         List<FloatingMenuItem> items = new ArrayList<>();
         FloatingMenuItem selected = null;
-        for (ThemeHelper.PrimaryColor color : themeHelper.getColors()) {
+        for (ThemeHelper.PrimaryColor color : Chan.injector().instance(ThemeHelper.class).getColors()) {
             FloatingMenuItem floatingMenuItem = new FloatingMenuItem(new ColorsAdapterItem(color, color.color), color.displayName);
             items.add(floatingMenuItem);
             if (color == selectedAccentColor) {
@@ -292,7 +291,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             final View.OnClickListener colorClick = v -> {
                 List<FloatingMenuItem> items = new ArrayList<>();
                 FloatingMenuItem selected = null;
-                for (ThemeHelper.PrimaryColor color : themeHelper.getColors()) {
+                for (ThemeHelper.PrimaryColor color : Chan.injector().instance(ThemeHelper.class).getColors()) {
                     FloatingMenuItem floatingMenuItem = new FloatingMenuItem(new ColorsAdapterItem(color, color.color500), color.displayName);
                     items.add(floatingMenuItem);
                     if (color == selectedPrimaryColors.get(position)) {

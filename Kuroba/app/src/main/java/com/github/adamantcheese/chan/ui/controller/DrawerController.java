@@ -17,17 +17,18 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
@@ -36,6 +37,8 @@ import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -44,7 +47,6 @@ import javax.inject.Inject;
 import de.greenrobot.event.EventBus;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 
@@ -80,7 +82,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         settings = view.findViewById(R.id.settings);
         settings.setOnClickListener(this);
-        theme().settingsDrawable.apply(settings.findViewById(R.id.image));
+        Chan.injector().instance(ThemeHelper.class).getTheme().settingsDrawable.apply(settings.findViewById(R.id.image));
         ((TextView) settings.findViewById(R.id.text)).setTypeface(ROBOTO_MEDIUM);
 
         drawerAdapter = new DrawerAdapter(this);

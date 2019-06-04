@@ -17,10 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +24,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -36,7 +37,9 @@ import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +50,6 @@ import javax.inject.Inject;
 import de.greenrobot.event.EventBus;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -119,11 +121,11 @@ public class FiltersController extends Controller implements
 
         add = view.findViewById(R.id.add);
         add.setOnClickListener(this);
-        theme().applyFabColor(add);
+        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(add);
 
         enable = view.findViewById(R.id.enable);
         enable.setOnClickListener(this);
-        theme().applyFabColor(enable);
+        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(enable);
 
         adapter = new FilterAdapter();
         recyclerView.setAdapter(adapter);
@@ -151,7 +153,7 @@ public class FiltersController extends Controller implements
                 setFilters(enabledFilters, false);
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
-            theme().applyFabColor(enable);
+            Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(enable);
             adapter.load();
         }
     }
@@ -179,7 +181,7 @@ public class FiltersController extends Controller implements
                     } else {
                         enable.setImageResource(R.drawable.ic_clear_white_24dp);
                     }
-                    theme().applyFabColor(enable);
+                    Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(enable);
                     EventBus.getDefault().post(new RefreshUIMessage("filters"));
                     adapter.load();
                 })
@@ -296,7 +298,7 @@ public class FiltersController extends Controller implements
             subtext = itemView.findViewById(R.id.subtext);
             delete = itemView.findViewById(R.id.delete);
 
-            theme().clearDrawable.apply(delete);
+            Chan.injector().instance(ThemeHelper.class).getTheme().clearDrawable.apply(delete);
 
             delete.setOnClickListener(this);
 

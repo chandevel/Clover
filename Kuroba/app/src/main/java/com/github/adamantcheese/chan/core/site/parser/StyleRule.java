@@ -257,12 +257,10 @@ public class StyleRule {
     }
 
     private int getBackgroundColor(Theme theme, BackgroundColor backgroundColor) {
-        switch (backgroundColor) {
-            case CODE:
-                return theme.backColorSecondary;
-            default:
-                return 0;
+        if (backgroundColor == BackgroundColor.CODE) {
+            return theme.backColorSecondary;
         }
+        return 0;
     }
 
     private SpannableString applySpan(CharSequence text, List<Object> spans) {

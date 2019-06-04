@@ -30,14 +30,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationLayoutInterface, View.OnClickListener {
@@ -83,7 +84,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
             return false;
         });
         submit = findViewById(R.id.submit);
-        theme().sendDrawable.apply(submit);
+        Chan.injector().instance(ThemeHelper.class).getTheme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);
 

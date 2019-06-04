@@ -44,17 +44,12 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private static final int MAX_NAME_LENGTH = 50;
     private static final Pattern REPEATED_UNDERSCORES_PATTERN = Pattern.compile("_+");
     private static final Pattern SAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._]");
-    private static final ImageSaver instance = new ImageSaver();
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private int doneTasks = 0;
     private int totalTasks = 0;
     private Toast toast;
 
-    public static ImageSaver getInstance() {
-        return instance;
-    }
-
-    private ImageSaver() {
+    public ImageSaver() {
         EventBus.getDefault().register(this);
     }
 

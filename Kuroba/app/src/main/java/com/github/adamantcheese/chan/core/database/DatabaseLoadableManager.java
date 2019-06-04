@@ -105,7 +105,7 @@ public class DatabaseLoadableManager {
      *
      * @param loadable Loadable that only has its id loaded
      * @return a loadable ready to use.
-     * @throws SQLException
+     * @throws SQLException database error
      */
     public Loadable refreshForeign(final Loadable loadable) throws SQLException {
         if (loadable.id == 0) {
@@ -121,7 +121,7 @@ public class DatabaseLoadableManager {
 
         // Add it to the cache, refresh contents
         helper.loadableDao.refresh(loadable);
-        loadable.site = SiteRepository.forId(loadable.siteId);
+        loadable.site = Chan.injector().instance(SiteRepository.class).forId(loadable.siteId);
         loadable.board = loadable.site.board(loadable.boardCode);
         cachedLoadables.put(loadable, loadable);
         return loadable;
@@ -160,7 +160,7 @@ public class DatabaseLoadableManager {
                     result = loadable;
                 } else {
                     Log.d(TAG, "Loadable found in db");
-                    result.site = SiteRepository.forId(result.siteId);
+                    result.site = Chan.injector().instance(SiteRepository.class).forId(result.siteId);
                     result.board = result.site.board(result.boardCode);
                 }
 

@@ -33,16 +33,6 @@ import java.util.List;
 public class ThemeHelper {
     private static final String TAG = "ThemeHelper";
 
-    public static ThemeHelper instance = new ThemeHelper();
-
-    public static ThemeHelper getInstance() {
-        return instance;
-    }
-
-    public static Theme theme() {
-        return getInstance().getTheme();
-    }
-
     private List<Theme> themes = new ArrayList<>();
 
     private Theme theme;

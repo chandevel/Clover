@@ -30,16 +30,12 @@ public class SiteRepository {
 
     private Sites sitesObservable = new Sites();
 
-    // Shortcut
-    private static SiteRepository instance;
-
-    public static Site forId(int id) {
-        return instance.sitesObservable.forId(id);
+    public Site forId(int id) {
+        return sitesObservable.forId(id);
     }
 
     @Inject
     public SiteRepository(DatabaseManager databaseManager) {
-        instance = this;
         this.databaseManager = databaseManager;
     }
 

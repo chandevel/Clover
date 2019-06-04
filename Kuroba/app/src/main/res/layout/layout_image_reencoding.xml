@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/reencode_image_view_holder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -66,7 +67,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:id="@+id/reencode_image_as_is"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="AS IS" />
+                    android:text="AS IS"
+                    tools:ignore="HardcodedText" />
 
                 <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/reencode_image_as_jpeg"
@@ -103,7 +105,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="1" />
+                        android:text="1"
+                        tools:ignore="HardcodedText" />
 
                     <androidx.appcompat.widget.AppCompatSeekBar
                         android:id="@+id/reecode_image_quality"
@@ -120,7 +123,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_width="24dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="100" />
+                        android:text="100"
+                        tools:ignore="HardcodedText" />
 
                 </LinearLayout>
 
@@ -147,7 +151,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="1" />
+                        android:text="1"
+                        tools:ignore="HardcodedText" />
 
                     <androidx.appcompat.widget.AppCompatSeekBar
                         android:id="@+id/reecode_image_reduce"
@@ -164,7 +169,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_width="24dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="10" />
+                        android:text="10"
+                        tools:ignore="HardcodedText" />
 
                 </LinearLayout>
 

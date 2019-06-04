@@ -2,9 +2,13 @@ package com.github.adamantcheese.chan.ui.view;
 
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
+
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
+import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 /**
@@ -29,16 +33,18 @@ public class FastScrollerHelper {
 
     private static StateListDrawable getThumb() {
         StateListDrawable list = new StateListDrawable();
+        Theme curTheme = Chan.injector().instance(ThemeHelper.class).getTheme();
         list.addState(new int[]{android.R.attr.state_pressed},
-                new ColorDrawable(theme().accentColor.color));
-        list.addState(new int[]{}, new ColorDrawable(theme().textSecondary));
+                new ColorDrawable(curTheme.accentColor.color));
+        list.addState(new int[]{}, new ColorDrawable(curTheme.textSecondary));
         return list;
     }
 
     private static StateListDrawable getTrack() {
         StateListDrawable list = new StateListDrawable();
+        Theme curTheme = Chan.injector().instance(ThemeHelper.class).getTheme();
         list.addState(new int[]{android.R.attr.state_pressed},
-                new ColorDrawable(theme().textHint));
+                new ColorDrawable(curTheme.textHint));
         list.addState(new int[]{}, new ColorDrawable(0));
         return list;
     }

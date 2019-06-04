@@ -39,8 +39,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import androidx.browser.customtabs.CustomTabsIntent;
-import com.google.android.material.snackbar.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -52,15 +50,18 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.browser.customtabs.CustomTabsIntent;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
@@ -162,7 +163,7 @@ public class AndroidUtils {
 
         if (openWithCustomTabs) {
             CustomTabsIntent tabsIntent = new CustomTabsIntent.Builder()
-                    .setToolbarColor(theme().primaryColor.color)
+                    .setToolbarColor(Chan.injector().instance(ThemeHelper.class).getTheme().primaryColor.color)
                     .build();
             try {
                 tabsIntent.launchUrl(activity, Uri.parse(link));

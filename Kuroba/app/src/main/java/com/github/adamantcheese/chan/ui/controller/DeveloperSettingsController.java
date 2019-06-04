@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -45,6 +46,7 @@ public class DeveloperSettingsController extends Controller {
         super(context);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onCreate() {
         super.onCreate();

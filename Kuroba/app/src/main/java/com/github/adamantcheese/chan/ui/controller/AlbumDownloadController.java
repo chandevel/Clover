@@ -18,17 +18,18 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -40,11 +41,11 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 public class AlbumDownloadController extends Controller implements View.OnClickListener {
@@ -55,7 +56,6 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
     private Loadable loadable;
 
     private boolean allChecked = true;
-    private ImageSaver imageSaver;
 
     public AlbumDownloadController(Context context) {
         super(context);
@@ -64,8 +64,6 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
     @Override
     public void onCreate() {
         super.onCreate();
-
-        imageSaver = ImageSaver.getInstance();
 
         view = inflateRes(R.layout.controller_album_download);
 
@@ -77,7 +75,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
 
         download = view.findViewById(R.id.download);
         download.setOnClickListener(this);
-        theme().applyFabColor(download);
+        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(download);
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);
@@ -98,7 +96,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
                         .setPositiveButton(R.string.ok, null)
                         .show();
             } else {
-                final String folderForAlbum = imageSaver.getSubFolder(loadable.title);
+                final String folderForAlbum = Chan.injector().instance(ImageSaver.class).getSubFolder(loadable.title);
 
                 String message = context.getString(R.string.album_download_confirm,
                         context.getResources().getQuantityString(R.plurals.image, checkCount, checkCount),
@@ -115,7 +113,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
                                 }
                             }
 
-                            if (imageSaver.startBundledTask(context, folderForAlbum, tasks)) {
+                            if (Chan.injector().instance(ImageSaver.class).startBundledTask(context, folderForAlbum, tasks)) {
                                 navigationController.popController();
                             }
                         })

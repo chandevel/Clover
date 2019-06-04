@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.captcha;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.ConsoleMessage;
@@ -29,13 +28,15 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.NonNull;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 
 public class CaptchaLayout extends WebView implements AuthenticationLayoutInterface {
     private static final String TAG = "CaptchaLayout";
@@ -62,7 +63,7 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
     @Override
     public void initialize(Site site, AuthenticationLayoutCallback callback) {
         this.callback = callback;
-        this.lightTheme = theme().isLightTheme;
+        this.lightTheme = Chan.injector().instance(ThemeHelper.class).getTheme().isLightTheme;
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
 

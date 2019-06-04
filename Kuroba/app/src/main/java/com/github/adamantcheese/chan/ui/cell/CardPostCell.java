@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -217,7 +218,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         }
 
         comment.setText(commentText);
-        comment.setTextColor(ThemeHelper.theme().textPrimary);
+        comment.setTextColor(Chan.injector().instance(ThemeHelper.class).getTheme().textPrimary);
 
         replies.setText(getResources().getString(R.string.card_stats, post.getReplies(), post.getImagesCount()));
     }

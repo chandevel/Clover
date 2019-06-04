@@ -37,7 +37,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
@@ -45,7 +47,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaLayout;
@@ -53,9 +54,10 @@ import com.github.adamantcheese.chan.ui.captcha.GenericWebViewAuthenticationLayo
 import com.github.adamantcheese.chan.ui.captcha.LegacyCaptchaLayout;
 import com.github.adamantcheese.chan.ui.captcha.v1.CaptchaNojsLayoutV1;
 import com.github.adamantcheese.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
-import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
+import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -67,7 +69,6 @@ import java.util.Locale;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -178,11 +179,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         setRoundItemBackground(more);
         more.setOnClickListener(this);
 
-        theme().imageDrawable.apply(attach);
+        Chan.injector().instance(ThemeHelper.class).getTheme().imageDrawable.apply(attach);
         setRoundItemBackground(attach);
         attach.setOnClickListener(this);
 
-        theme().sendDrawable.apply(submit);
+        Chan.injector().instance(ThemeHelper.class).getTheme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);
 
@@ -193,7 +194,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         // Setup captcha layout views
         captchaContainer.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-        theme().refreshDrawable.apply(captchaHardReset);
+        Chan.injector().instance(ThemeHelper.class).getTheme().refreshDrawable.apply(captchaHardReset);
         setRoundItemBackground(captchaHardReset);
         captchaHardReset.setOnClickListener(this);
 
@@ -505,9 +506,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     @Override
     public void openPreview(boolean show, File previewFile) {
         if (show) {
-            theme().clearDrawable.apply(attach);
+            Chan.injector().instance(ThemeHelper.class).getTheme().clearDrawable.apply(attach);
         } else {
-            theme().imageDrawable.apply(attach);
+            Chan.injector().instance(ThemeHelper.class).getTheme().imageDrawable.apply(attach);
         }
 
         if (show) {

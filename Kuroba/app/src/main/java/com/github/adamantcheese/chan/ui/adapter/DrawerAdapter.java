@@ -18,20 +18,23 @@ package com.github.adamantcheese.chan.ui.adapter;
 
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.PinHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
@@ -42,7 +45,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -124,7 +126,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case TYPE_LINK:
                 return new LinkHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_link, parent, false));
             case TYPE_BOARD_INPUT:
-                return new RecyclerView.ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_browse_input, parent, false)) {};
+                return new RecyclerView.ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_browse_input, parent, false)) {
+                };
             case TYPE_DIVIDER:
                 return new DividerHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_divider, parent, false));
         }
@@ -137,7 +140,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case TYPE_HEADER:
                 HeaderHolder headerHolder = (HeaderHolder) holder;
                 headerHolder.text.setText(R.string.drawer_pinned);
-                theme().clearDrawable.apply(headerHolder.clear);
+                Chan.injector().instance(ThemeHelper.class).getTheme().clearDrawable.apply(headerHolder.clear);
 
                 break;
             case TYPE_PIN:
@@ -151,11 +154,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 switch (position) {
                     case 0:
                         linkHolder.text.setText(R.string.drawer_sites);
-                        theme().listAddDrawable.apply(linkHolder.image);
+                        Chan.injector().instance(ThemeHelper.class).getTheme().listAddDrawable.apply(linkHolder.image);
                         break;
                     case 1:
                         linkHolder.text.setText(R.string.drawer_history);
-                        theme().historyDrawable.apply(linkHolder.image);
+                        Chan.injector().instance(ThemeHelper.class).getTheme().historyDrawable.apply(linkHolder.image);
                         break;
                 }
                 break;

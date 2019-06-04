@@ -108,7 +108,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             return;
         }
 
-        ThemeHelper.getInstance().setupContext(this);
+        Chan.injector().instance(ThemeHelper.class).setupContext(this);
 
         imagePickDelegate = new ImagePickDelegate(this);
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
@@ -240,7 +240,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             return null;
         }
 
-        Site site = SiteRepository.forId(stateLoadable.siteId);
+        Site site = Chan.injector().instance(SiteRepository.class).forId(stateLoadable.siteId);
         if (site != null) {
             Board board = site.board(stateLoadable.boardCode);
             if (board != null) {

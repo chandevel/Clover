@@ -95,7 +95,7 @@ public class DatabaseSavedReplyManager {
                 for (int i = 0; i < all.size(); i++) {
                     SavedReply savedReply = all.get(i);
 
-                    savedReply.site = SiteRepository.forId(savedReply.siteId);
+                    savedReply.site = Chan.injector().instance(SiteRepository.class).forId(savedReply.siteId);
 
                     List<SavedReply> list = savedRepliesByNo.get(savedReply.no);
                     if (list == null) {

@@ -35,6 +35,20 @@ android {
         }
     }
 
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/LICENSE-LGPL-3.txt'
+        exclude 'META-INF/LICENSE-LGPL-2.1.txt'
+        exclude 'META-INF/LICENSE-W3C-TEST'
+    }
+
     buildTypes {
         release {
             /*
@@ -99,5 +113,5 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'me.xdrop:fuzzywuzzy:1.1.10'
     implementation 'org.codejargon.feather:feather:1.0'
-    implementation 'com.atlassian.commonmark:commonmark:0.12.1'
+    implementation 'com.vladsch.flexmark:flexmark-all:0.42.12'
 }

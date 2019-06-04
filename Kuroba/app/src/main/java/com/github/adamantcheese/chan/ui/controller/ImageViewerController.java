@@ -27,7 +27,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
-import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -38,6 +37,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.davemorrissey.labs.subscaleview.ImageViewState;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -250,7 +250,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 }
                 task.setSubFolder(subFolderName);
             }
-            ImageSaver.getInstance().startDownloadTask(context, task);
+            Chan.injector().instance(ImageSaver.class).startDownloadTask(context, task);
         }
     }
 

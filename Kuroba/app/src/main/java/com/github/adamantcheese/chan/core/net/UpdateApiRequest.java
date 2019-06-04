@@ -23,10 +23,9 @@ import android.util.JsonReader;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.github.adamantcheese.chan.BuildConfig;
-
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.util.ast.Node;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

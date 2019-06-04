@@ -52,6 +52,7 @@ import androidx.annotation.NonNull;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
@@ -219,7 +220,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
     private void showOptions(View anchor, List<FloatingMenuItem> items,
                              List<FloatingMenuItem> extraItems,
                              Object extraOption) {
-        if (ThemeHelper.getInstance().getTheme().isLightTheme) {
+        if (Chan.injector().instance(ThemeHelper.class).getTheme().isLightTheme) {
             options.setImageResource(R.drawable.ic_overflow_black);
         }
 
@@ -259,7 +260,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         super.onAttachedToWindow();
 
         if (post != null && !bound) {
-            bindPost(ThemeHelper.theme(), post);
+            bindPost(Chan.injector().instance(ThemeHelper.class).getTheme(), post);
         }
     }
 
@@ -294,7 +295,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         this.markedNo = markedNo;
         this.showDivider = showDivider;
 
-        bindPost(ThemeHelper.theme(), post);
+        bindPost(Chan.injector().instance(ThemeHelper.class).getTheme(), post);
     }
 
     public Post getPost() {

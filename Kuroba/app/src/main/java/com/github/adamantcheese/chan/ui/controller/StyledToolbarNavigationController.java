@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.ControllerTransition;
@@ -40,7 +41,7 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
         nav.setNavigationController(this);
         nav.setSwipeEnabled(ChanSettings.controllerSwipeable.get());
         toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(ThemeHelper.getInstance().getTheme().primaryColor.color);
+        toolbar.setBackgroundColor(Chan.injector().instance(ThemeHelper.class).getTheme().primaryColor.color);
         toolbar.setCallback(this);
     }
 

@@ -343,15 +343,7 @@ public class Chan4 extends SiteBase {
         public void boards(final BoardsListener listener) {
             requestQueue.add(new Chan4BoardsRequest(Chan4.this, response -> listener.onBoardsReceived(new Boards(response)), (error) -> {
                 Logger.e(TAG, "Failed to get boards from server", error);
-
-                // API fail, provide some default boards
-                List<Board> list = new ArrayList<>();
-                list.add(new Board(Chan4.this, "Technology", "g", true, true));
-                list.add(new Board(Chan4.this, "Food & Cooking", "ck", true, true));
-                list.add(new Board(Chan4.this, "Do It Yourself", "diy", true, true));
-                list.add(new Board(Chan4.this, "Animals & Nature", "an", true, true));
-                Collections.shuffle(list);
-                listener.onBoardsReceived(new Boards(list));
+                listener.onBoardsReceived(new Boards(new ArrayList<>()));
             }));
         }
 
