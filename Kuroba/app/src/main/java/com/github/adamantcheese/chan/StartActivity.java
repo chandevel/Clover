@@ -23,13 +23,14 @@ import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
@@ -56,7 +57,6 @@ import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.LocaleUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.PrintWriter;
@@ -107,8 +107,6 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         if (intentMismatchWorkaround()) {
             return;
         }
-
-        LocaleUtils.overrideLocaleToEnglishIfNeeded(this);
 
         ThemeHelper.getInstance().setupContext(this);
 
@@ -499,15 +497,11 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     @Override
     public void onBackPressed() {
         if (!stackTop().onBack()) {
-            if (ChanSettings.confirmExit.get()) {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.action_confirm_exit_title)
-                        .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.exit, (dialog, which) -> StartActivity.super.onBackPressed())
-                        .show();
-            } else {
-                super.onBackPressed();
-            }
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.action_confirm_exit_title)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.exit, (dialog, which) -> StartActivity.super.onBackPressed())
+                    .show();
         }
     }
 

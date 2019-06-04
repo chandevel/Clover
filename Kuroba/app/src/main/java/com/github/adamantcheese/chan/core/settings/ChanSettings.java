@@ -118,7 +118,6 @@ public class ChanSettings {
     private static Proxy proxy;
     private static final String sharedPrefsFile = "shared_prefs/com.github.adamantcheese.chan_preferences.xml";
 
-    public static final BooleanSetting forceEnglishLocale;
     private static final StringSetting theme;
     public static final OptionsSetting<LayoutMode> layoutMode;
     public static final StringSetting fontSize;
@@ -140,7 +139,7 @@ public class ChanSettings {
     public static final BooleanSetting developer;
 
     public static final StringSetting saveLocation;
-    public static final BooleanSetting saveOriginalFilename;
+    public static final BooleanSetting saveServerFilename;
     public static final BooleanSetting shareUrl;
     public static final BooleanSetting enableReplyFab;
     public static final BooleanSetting enableYouCount;
@@ -151,7 +150,6 @@ public class ChanSettings {
     public static final BooleanSetting revealImageSpoilers;
     public static final BooleanSetting revealTextSpoilers;
     public static final BooleanSetting repliesButtonsBottom;
-    public static final BooleanSetting confirmExit;
     public static final BooleanSetting tapNoReply;
     public static final BooleanSetting volumeKeysScrolling;
     public static final BooleanSetting postFullDate;
@@ -199,8 +197,6 @@ public class ChanSettings {
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
-        forceEnglishLocale = new BooleanSetting(p, "preference_force_english_locale", false);
-
         theme = new StringSetting(p, "preference_theme", "yotsuba");
 
         layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.class, LayoutMode.AUTO);
@@ -228,7 +224,7 @@ public class ChanSettings {
         saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Kuroba");
         saveLocation.addCallback((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
-        saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);
+        saveServerFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
         accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);
         enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
@@ -239,7 +235,6 @@ public class ChanSettings {
         revealImageSpoilers = new BooleanSetting(p, "preference_reveal_image_spoilers", false);
         revealTextSpoilers = new BooleanSetting(p, "preference_reveal_text_spoilers", false);
         repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
-        confirmExit = new BooleanSetting(p, "preference_confirm_exit", false);
         tapNoReply = new BooleanSetting(p, "preference_tap_no_reply", false);
         volumeKeysScrolling = new BooleanSetting(p, "preference_volume_key_scrolling", false);
         postFullDate = new BooleanSetting(p, "preference_post_full_date", false);

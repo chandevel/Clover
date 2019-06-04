@@ -162,6 +162,10 @@ public class MainSettingsController extends SettingsController implements Settin
                 v -> AndroidUtils.openLink("https://github.com/Adamantcheese/Kuroba")));
 
         about.add(new LinkSettingView(this,
+                "Donate", "Support me on Ko-fi!",
+                v -> AndroidUtils.openLink("https://ko-fi.com/kuroba_chan")));
+
+        about.add(new LinkSettingView(this,
                 R.string.settings_about_license, R.string.settings_about_license_description,
                 v -> navigationController.pushController(
                         new LicensesController(context,

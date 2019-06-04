@@ -40,7 +40,6 @@ import de.greenrobot.event.EventBus;
 import static com.github.adamantcheese.chan.Chan.injector;
 
 public class BehaviourSettingsController extends SettingsController {
-    private SettingView forceEnglishSetting;
     private SettingView useNewCaptchaWindow;
     private ListSettingView<ChanSettings.PostingTimeout> postingTimeoutSetting;
 
@@ -60,10 +59,7 @@ public class BehaviourSettingsController extends SettingsController {
     @Override
     public void onPreferenceChange(SettingView item) {
         super.onPreferenceChange(item);
-        if (item == forceEnglishSetting) {
-            Toast.makeText(context, R.string.setting_force_english_locale_toggle_notice,
-                    Toast.LENGTH_LONG).show();
-        } else if (item == useNewCaptchaWindow) {
+        if (item == useNewCaptchaWindow) {
             // when user disables the new captcha window also disable the usage of the google cookies
             if (!ChanSettings.useNewCaptchaWindow.get()) {
                 ChanSettings.useRealGoogleCookies.set(false);
@@ -97,17 +93,9 @@ public class BehaviourSettingsController extends SettingsController {
         {
             SettingsGroup general = new SettingsGroup(R.string.settings_group_general);
 
-            forceEnglishSetting = general.add(new BooleanSettingView(this,
-                    ChanSettings.forceEnglishLocale,
-                    R.string.setting_force_english_locale,
-                    R.string.setting_force_english_locale_toggle_notice));
-
             general.add(new BooleanSettingView(this,
                     ChanSettings.autoRefreshThread,
                     R.string.setting_auto_refresh_thread, 0));
-
-            general.add(new BooleanSettingView(this, ChanSettings.confirmExit,
-                    R.string.setting_confirm_exit, 0));
 
             requiresRestart.add(general.add(new BooleanSettingView(this,
                     ChanSettings.controllerSwipeable,

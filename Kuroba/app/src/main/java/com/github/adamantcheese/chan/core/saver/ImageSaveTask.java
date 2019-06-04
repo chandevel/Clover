@@ -83,6 +83,10 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         this.share = share;
     }
 
+    public boolean getShare() {
+        return share;
+    }
+
     @Override
     public void run() {
         try {

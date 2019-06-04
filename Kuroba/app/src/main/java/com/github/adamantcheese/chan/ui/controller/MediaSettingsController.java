@@ -107,9 +107,9 @@ public class MediaSettingsController extends SettingsController {
                     R.string.setting_save_thread_folder_description));
 
             media.add(new BooleanSettingView(this,
-                    ChanSettings.saveOriginalFilename,
-                    R.string.setting_save_original_filename,
-                    R.string.setting_save_original_filename_description));
+                    ChanSettings.saveServerFilename,
+                    R.string.setting_save_server_filename,
+                    R.string.setting_save_server_filename_description));
 
             media.add(new BooleanSettingView(this, ChanSettings.videoDefaultMuted,
                     R.string.setting_video_default_muted,

@@ -85,7 +85,7 @@ public class WatchNotification extends Service {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //notification channel for non-alerts
-            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR, NOTIFICATION_NAME, NotificationManager.IMPORTANCE_LOW));
+            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR, NOTIFICATION_NAME, NotificationManager.IMPORTANCE_MIN));
             //notification channel for alerts
             NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID_ALERT_STR, NOTIFICATION_NAME_ALERT, NotificationManager.IMPORTANCE_HIGH);
             alert.setSound(DEFAULT_NOTIFICATION_URI, new AudioAttributes.Builder()
@@ -295,7 +295,7 @@ public class WatchNotification extends Service {
             builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         } else {
             builder.setSmallIcon(R.drawable.ic_stat_notify);
-            builder.setPriority(NotificationCompat.PRIORITY_LOW);
+            builder.setPriority(NotificationCompat.PRIORITY_MIN);
         }
 
         //setup the pause watch button

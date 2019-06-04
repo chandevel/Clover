@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -24,9 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="delete">Delete</string>
     <string name="undo">Undo</string>
     <string name="save">Save</string>
-    <string name="continue_text" tools:ignore="MissingTranslation">Continue</string>
-    <string name="create" tools:ignore="MissingTranslation">Create</string>
-    <string name="do_not" tools:ignore="MissingTranslation">Do not</string>
+    <string name="continue_text">Continue</string>
+    <string name="create">Create</string>
+    <string name="do_not">Do not</string>
 
     <string name="permission_app_settings">App settings</string>
     <string name="permission_grant">Grant</string>
@@ -48,16 +48,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
 
-    <string name="storage_permission_required_to_export_settings" tools:ignore="MissingTranslation">
+    <string name="storage_permission_required_to_export_settings">
 "Permission to access storage is required to export settings.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
 
-    <string name="storage_permission_required_to_import_settings" tools:ignore="MissingTranslation">
+    <string name="storage_permission_required_to_import_settings">
 "Permission to access storage is required to import settings.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
-    <string name="minutes" tools:ignore="MissingTranslation">%d minutes</string>
+    <string name="minutes">%d minutes</string>
 
     <plurals name="posts">
         <item quantity="one">%d post</item>
@@ -106,16 +106,16 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="action_open_browser">Open in a browser</string>
     <string name="action_share">Share</string>
     <string name="action_download_album">Download album</string>
-    <string name="action_transparency_toggle" tools:ignore="MissingTranslation">Toggle opacity</string>
-    <string name="action_image_rotate_cw" tools:ignore="MissingTranslation">Rotate image CW</string>
-    <string name="action_image_rotate_ccw" tools:ignore="MissingTranslation">Rotate image CCW</string>
+    <string name="action_transparency_toggle">Toggle opacity</string>
+    <string name="action_image_rotate_cw">Rotate image CW</string>
+    <string name="action_image_rotate_ccw">Rotate image CCW</string>
     <string name="action_search">Search</string>
     <string name="action_search_image">Image search</string>
     <string name="action_switch_catalog">Catalog mode</string>
     <string name="action_switch_board">Board mode</string>
-    <string name="action_scroll_to_top" tools:ignore="MissingTranslation">Top</string>
-    <string name="action_scroll_to_bottom" tools:ignore="MissingTranslation">Bottom</string>
-    <string name="action_sort" tools:ignore="MissingTranslation">Sort</string>
+    <string name="action_scroll_to_top">Top</string>
+    <string name="action_scroll_to_bottom">Bottom</string>
+    <string name="action_sort">Sort</string>
     <string name="action_rename_pin">Rename bookmark</string>
     <string name="action_rename">Rename</string>
     <string name="action_reply">Reply</string>
@@ -127,8 +127,8 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="order_image">Image count</string>
     <string name="order_newest">Newest</string>
     <string name="order_oldest">Oldest</string>
-    <string name="order_modified" tools:ignore="MissingTranslation">Latest reply</string>
-    <string name="order_activity" tools:ignore="MissingTranslation">Thread activity</string>
+    <string name="order_modified">Latest reply</string>
+    <string name="order_activity">Thread activity</string>
 
     <string name="search_hint">Search</string>
     <string name="search_results">Found %1$s for \"%2$s\"</string>
@@ -160,7 +160,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_load_failed_retry">Retry</string>
     <string name="thread_archived">Archived</string>
     <string name="thread_closed">Closed</string>
-    <string name="thread_page_no" tools:ignore="MissingTranslation">Page</string>
+    <string name="thread_page_no">Page</string>
     <plurals name="thread_new_posts">
         <item quantity="one">%d new post</item>
         <item quantity="other">%d new posts</item>
@@ -170,7 +170,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_up_down_hint">Scroll to top/bottom</string>
     <string name="thread_pin_hint">Bookmark this thread</string>
     <string name="thread_view_archive">Archive</string>
-    <string name="thread_show_archives" tools:ignore="MissingTranslation">Archives</string>
+    <string name="thread_show_archives">Archives</string>
 
     <string name="thread_empty_setup_feature" translatable="false">&#128564;</string>
     <string name="thread_empty_setup_title">Nothing to show</string>
@@ -216,7 +216,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="filter_hide">Hide post</string>
     <string name="filter_color">Highlight post</string>
     <string name="filter_remove">Remove post</string>
-    <string name="filter_watch" tools:ignore="MissingTranslation">Watch post</string>
+    <string name="filter_watch">Watch post</string>
     <string name="filter_invalid_pattern">Invalid pattern</string>
     <string name="filter_preview">Test your filter</string>
     <string name="filter_no_matches">Does not match</string>
@@ -291,7 +291,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="post_copy_text">Copy text</string>
     <string name="post_report">Report</string>
     <string name="post_hide">Hide</string>
-    <string name="post_remove" tools:ignore="MissingTranslation">Remove</string>
+    <string name="post_remove">Remove</string>
     <plurals name="post_hidden">
         <item quantity="one">%1$d post hidden</item>
         <item quantity="other">%1$d posts hidden</item>
@@ -300,8 +300,8 @@ If the pattern matches then the post can be hidden or highlighted.<br>
         <item quantity="one">%1$d post removed</item>
         <item quantity="other">%1$d posts removed</item>
     </plurals>
-    <string name="thread_hidden" tools:ignore="MissingTranslation">Thread hidden</string>
-    <string name="thread_removed" tools:ignore="MissingTranslation">Thread removed</string>
+    <string name="thread_hidden">Thread hidden</string>
+    <string name="thread_removed">Thread removed</string>
     <string name="post_delete">Delete</string>
     <string name="post_more">More…</string>
 
@@ -319,7 +319,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="reply_submit">Submit</string>
     <string name="reply_error">Error posting</string>
     <string name="reply_error_message">Error posting: %s</string>
-    <string name="reply_error_message_timer" tools:ignore="MissingTranslation">Error posting: You must wait %d seconds before posting a reply.</string>
+    <string name="reply_error_message_timer">Error posting: You must wait %d seconds before posting a reply.</string>
     <string name="reply_success">Post successful</string>
     <string name="reply_captcha_text">Type the text</string>
     <string name="reply_comment_button_quote" translatable="false">&gt;</string>
@@ -365,7 +365,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="image_save_as">Saved as \"%1$s\"</string>
     <string name="image_save_failed">Saving image failed</string>
 
-    <string name="thread_page_limit" tools:ignore="MissingTranslation">Thread hit last page</string>
+    <string name="thread_page_limit">Thread hit last page</string>
 
     <string name="drawer_sites">Setup sites</string>
     <string name="drawer_history">History</string>
@@ -379,8 +379,8 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="settings_sites">Sites</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_appearance_description">Theme, layout, fonts, etc.</string>
-    <string name="settings_behavior" tools:ignore="MissingTranslation">Behavior</string>
-    <string name="settings_behavior_description" tools:ignore="MissingTranslation">Thread refresh, captcha, etc.</string>
+    <string name="settings_behavior">Behavior</string>
+    <string name="settings_behavior_description">Thread refresh, captcha, etc.</string>
     <string name="settings_media">Media</string>
     <string name="settings_media_description">Save location, auto loading, etc.</string>
     <string name="settings_filters">Filters</string>
@@ -394,12 +394,12 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
     <string name="setting_watch_enable_background">Enable in the background</string>
     <string name="setting_watch_enable_background_description">Watch bookmarks when Kuroba is placed in the background</string>
-    <string name="setting_watch_enable_filter_watch" tools:ignore="MissingTranslation">Enable filter watching</string>
-    <string name="setting_watch_enable_filter_watch_description" tools:ignore="MissingTranslation">Watch posts that match filters marked as watch post</string>
+    <string name="setting_watch_enable_filter_watch">Enable filter watching</string>
+    <string name="setting_watch_enable_filter_watch_description">Watch posts that match filters marked as watch post</string>
     <string name="setting_watch_background_timeout">Background update interval</string>
     <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
-    <string name="setting_thread_page_limit_notify" tools:ignore="MissingTranslation">Last page notifications</string>
-    <string name="setting_thread_page_limit_notify_description" tools:ignore="MissingTranslation">Notify when threads hit the last page</string>
+    <string name="setting_thread_page_limit_notify">Last page notifications</string>
+    <string name="setting_thread_page_limit_notify_description">Notify when threads hit the last page</string>
     <string name="setting_watch_notify_mode">Notify about</string>
     <string-array name="setting_watch_notify_modes">
         <item>All posts</item>
@@ -452,7 +452,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="setting_never_hide_toolbar">Never hide the toolbar</string>
     <string name="setting_enable_reply_fab">Enable the reply button</string>
     <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>
-    <string name="setting_enable_you_count" tools:ignore="MissingTranslation">Enable the (You) counter</string>
+    <string name="setting_enable_you_count">Enable the (You) counter</string>
 
     <!-- Appearance post group -->
     <string name="settings_group_post">Post</string>
@@ -465,14 +465,11 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="setting_post_filename">Show filename on posts</string>
 
     <!-- Behavior -->
-    <string name="settings_screen_behavior" tools:ignore="MissingTranslation">Behavior</string>
+    <string name="settings_screen_behavior">Behavior</string>
 
     <!-- Behavior general group -->
     <string name="settings_group_general">General</string>
-    <string name="setting_force_english_locale" tools:ignore="MissingTranslation">Always use English for the language of the app</string>
-    <string name="setting_force_english_locale_toggle_notice" tools:ignore="MissingTranslation">Language will be applied on the next app start.</string>
     <string name="setting_auto_refresh_thread">Auto refresh threads</string>
-    <string name="setting_confirm_exit">Confirm before exit</string>
     <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
     <string name="setting_clear_thread_hides">Clear all thread hides</string>
     <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
@@ -494,7 +491,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
     <string name="setting_tap_no_rely">Tap the post number to reply</string>
     <string name="setting_open_link_confirmation">Ask before opening links</string>
-    <string name="setting_open_link_browser" tools:ignore="MissingTranslation">Always open links in external browser</string>
+    <string name="setting_open_link_browser">Always open links in external browser</string>
 
 
     <!-- Behavior proxy group -->
@@ -512,10 +509,10 @@ If the pattern matches then the post can be hidden or highlighted.<br>
 
     <string name="setting_save_board_folder">Save images in board folders</string>
     <string name="setting_save_board_folder_description">Create a folder for each board when saving</string>
-    <string name="setting_save_thread_folder" tools:ignore="MissingTranslation">Save images in thread folders</string>
-    <string name="setting_save_thread_folder_description" tools:ignore="MissingTranslation">Create a folder for each thread when saving</string>
-    <string name="setting_save_original_filename">Save original filename</string>
-    <string name="setting_save_original_filename_description">
+    <string name="setting_save_thread_folder">Save images in thread folders</string>
+    <string name="setting_save_thread_folder_description">Create a folder for each thread when saving</string>
+    <string name="setting_save_server_filename">Save server filename</string>
+    <string name="setting_save_server_filename_description">
 "Save the image with the filename the site assigned.
 If disabled, save the image with the filename the uploader assigned."
     </string>
@@ -538,8 +535,8 @@ If disabled, save the image with the filename the uploader assigned."
 
     <string name="setting_video_auto_load">Automatically load videos</string>
 
-    <string name="setting_video_auto_loop" tools:ignore="MissingTranslation">Enable automatic video-looping</string>
-    <string name="setting_video_auto_loop_description" tools:ignore="MissingTranslation">Automatically loop video content</string>
+    <string name="setting_video_auto_loop">Enable automatic video-looping</string>
+    <string name="setting_video_auto_loop_description">Automatically loop video content</string>
 
 
     <!-- Save location settings -->
@@ -552,8 +549,8 @@ Re-enable this permission in the app settings if you permanently disabled it."
     </string>
     <string name="setting_folder_pick_ok">Choose</string>
     <string name="setting_folder_navigate_up">Up</string>
-    <string name="save_new_folder" tools:ignore="MissingTranslation">Add a new folder</string>
-    <string name="new_folder_hint" tools:ignore="MissingTranslation">Folder name</string>
+    <string name="save_new_folder">Add a new folder</string>
+    <string name="new_folder_hint">Folder name</string>
 
 
     <!-- Theme settings -->
@@ -578,7 +575,7 @@ Tap the toolbar menu to change its color."
     <string name="setting_pass_logout">Logout</string>
     <string name="setting_pass_logging_in">Loading&#8230;</string>
     <string name="setting_pass_error">Connection error</string>
-    <string name="setting_pass_bottom_description" tools:ignore="MissingTranslation">"
+    <string name="setting_pass_bottom_description">"
 <![CDATA[
 Forgot your 4chan Pass login details?<br>
 <a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
@@ -588,72 +585,73 @@ Don't have a 4chan Pass?<br>
 ]]>
     "</string>
 
-    <string name="settings_screen_theme" tools:ignore="MissingTranslation">Themes</string>
-    <string name="image_quality" tools:ignore="MissingTranslation">Image quality: %1$d</string>
-    <string name="scale_reduce" tools:ignore="MissingTranslation">Reduce: %1$dx</string>
-    <string name="could_not_decode_image_bitmap" tools:ignore="MissingTranslation">Could not decode image bitmap</string>
-    <string name="could_not_apply_image_options" tools:ignore="MissingTranslation">Could not apply new image options. Error message is %1$s</string>
-    <string name="image_options_remove_filename" tools:ignore="MissingTranslation">Remove filename</string>
-    <string name="image_options_change_image_checksum" tools:ignore="MissingTranslation">Change image checksum</string>
-    <string name="image_options_fix_exif" tools:ignore="MissingTranslation">Fix EXIF orientation</string>
-    <string name="image_options_remove_metadata" tools:ignore="MissingTranslation">Remove metadata</string>
-    <string name="image_options_re_encode" tools:ignore="MissingTranslation">Re-encode</string>
-    <string name="reencode_image_re_encode_image_text" tools:ignore="MissingTranslation">Re-encode image</string>
-    <string name="reencode_image_as_is" tools:ignore="MissingTranslation">AS IS (%1$s)</string>
-    <string name="reencode_image_as_jpeg" tools:ignore="MissingTranslation">AS JPEG</string>
-    <string name="reencode_image_as_png" tools:ignore="MissingTranslation">AS PNG</string>
-    <string name="reencode_image_image_quality_100_default_text" tools:ignore="MissingTranslation">Image quality: 100</string>
-    <string name="reencode_image_reduce_1x_default_text" tools:ignore="MissingTranslation">Reduce: 1x</string>
-    <string name="click_image_for_extra_options" tools:ignore="MissingTranslation">Click image for extra options</string>
+    <string name="settings_screen_theme">Themes</string>
+    <string name="image_quality">Image quality: %1$d</string>
+    <string name="scale_reduce">Reduce: %1$dx</string>
+    <string name="could_not_decode_image_bitmap">Could not decode image bitmap</string>
+    <string name="could_not_apply_image_options">Could not apply new image options. Error message is %1$s</string>
+    <string name="image_options_remove_filename">Remove filename</string>
+    <string name="image_options_change_image_checksum">Change image checksum</string>
+    <string name="image_options_fix_exif">Fix EXIF orientation</string>
+    <string name="image_options_remove_metadata">Remove metadata</string>
+    <string name="image_options_re_encode">Re-encode</string>
+    <string name="reencode_image_re_encode_image_text">Re-encode image</string>
+    <string name="reencode_image_as_is">AS IS (%1$s)</string>
+    <string name="reencode_image_as_jpeg">AS JPEG</string>
+    <string name="reencode_image_as_png">AS PNG</string>
+    <string name="reencode_image_image_quality_100_default_text">Image quality: 100</string>
+    <string name="reencode_image_reduce_1x_default_text">Reduce: 1x</string>
+    <string name="click_image_for_extra_options">Click image for extra options</string>
 
-    <string name="settings_import_export" tools:ignore="MissingTranslation">Import/Export</string>
-    <string name="settings_import_export_description" tools:ignore="MissingTranslation">Import/Export settings/pins etc</string>
-    <string name="import_or_export_settings" tools:ignore="MissingTranslation">Import/Export settings</string>
-    <string name="export_settings" tools:ignore="MissingTranslation">Export settings</string>
-    <string name="export_settings_to_a_file" tools:ignore="MissingTranslation">Export settings to a file</string>
-    <string name="import_settings" tools:ignore="MissingTranslation">Import settings</string>
-    <string name="import_settings_from_a_file" tools:ignore="MissingTranslation">Import settings from a file</string>
-    <string name="import_warning_title" tools:ignore="MissingTranslation">Warning</string>
-    <string name="import_warning_text" tools:ignore="MissingTranslation">You are about to import settings/saved pins/filters/hidden posts from a file. The file must be located at \"%1$s\" and have a name \"%2$s\". This will clear all your existing settings/pins/threads and replace them with the ones from the file. You MAY LOOSE some of your settings/pins/hidden threads if you are trying to import a file with different app version (upgrade or downgrade). The app will be restarted. \nAre you sure you want to continue?</string>
-    <string name="successfully_exported_text" tools:ignore="MissingTranslation">Exported successfully to \"%1$s\". File path has been copied to the clipboard"</string>
-    <string name="error_external_storage_is_not_mounted" tools:ignore="MissingTranslation">External storage is not mounted</string>
-    <string name="could_not_create_dir_for_export_error_text" tools:ignore="MissingTranslation">Could not create directory for export file %1$s; you probably won\'t be able to export settings</string>
-    <string name="default_directory_may_not_exist_message" tools:ignore="MissingTranslation">The default directory may not exist yet. Do you want to check whether the directory exists and create it automatically?</string>
-    <string name="default_directory_may_not_exist_title" tools:ignore="MissingTranslation">Default directory may not exist</string>
+    <string name="settings_import_export">Import/Export</string>
+    <string name="settings_import_export_description">Import/Export settings/pins etc</string>
+    <string name="import_or_export_settings">Import/Export settings</string>
+    <string name="export_settings">Export settings</string>
+    <string name="export_settings_to_a_file">Export settings to a file</string>
+    <string name="import_settings">Import settings</string>
+    <string name="import_settings_from_a_file">Import settings from a file</string>
+    <string name="import_warning_title">Warning</string>
+    <string name="import_warning_text">You are about to import settings/saved pins/filters/hidden posts from a file. The file must be located at \"%1$s\" and have a name \"%2$s\". This will clear all your existing settings/pins/threads and replace them with the ones from the file. You MAY LOOSE some of your settings/pins/hidden threads if you are trying to import a file with different app version (upgrade or downgrade). The app will be restarted. \nAre you sure you want to continue?</string>
+    <string name="successfully_exported_text">Exported successfully to \"%1$s\". File path has been copied to the clipboard"</string>
+    <string name="error_external_storage_is_not_mounted">External storage is not mounted</string>
+    <string name="could_not_create_dir_for_export_error_text">Could not create directory for export file %1$s; you probably won\'t be able to export settings</string>
+    <string name="default_directory_may_not_exist_message">The default directory may not exist yet. Do you want to check whether the directory exists and create it automatically?</string>
+    <string name="default_directory_may_not_exist_title">Default directory may not exist</string>
 
-    <string name="apply_to_replies" tools:ignore="MissingTranslation">Apply to replies</string>
-    <string name="thread_layout_hide_whole_chain" tools:ignore="MissingTranslation">Hide whole chain</string>
-    <string name="thread_layout_remove_whole_chain" tools:ignore="MissingTranslation">Remove whole chain</string>
-    <string name="thread_layout_hide_post" tools:ignore="MissingTranslation">Hide post</string>
-    <string name="thread_layout_remove_post" tools:ignore="MissingTranslation">Remove post</string>
-    <string name="thread_layout_hide_whole_chain_as_well" tools:ignore="MissingTranslation">Would you like to hide the whole reply chain as well?</string>
-    <string name="thread_layout_remove_whole_chain_as_well" tools:ignore="MissingTranslation">Would you like to remove the whole reply chain as well?</string>
-    <string name="view_removed_posts" tools:ignore="MissingTranslation">View removed posts</string>
-    <string name="restore_posts" tools:ignore="MissingTranslation">Restore posts</string>
-    <string name="restored_n_posts" tools:ignore="MissingTranslation">Restored %1$d posts</string>
-    <string name="no_removed_posts_for_current_thread" tools:ignore="MissingTranslation">No removed posts found for the current thread</string>
-    <string name="select_all" tools:ignore="MissingTranslation">Select all</string>
+    <string name="apply_to_replies">Apply to replies</string>
+    <string name="thread_layout_hide_whole_chain">Hide whole chain</string>
+    <string name="thread_layout_remove_whole_chain">Remove whole chain</string>
+    <string name="thread_layout_hide_post">Hide post</string>
+    <string name="thread_layout_remove_post">Remove post</string>
+    <string name="thread_layout_hide_whole_chain_as_well">Would you like to hide the whole reply chain as well?</string>
+    <string name="thread_layout_remove_whole_chain_as_well">Would you like to remove the whole reply chain as well?</string>
+    <string name="view_removed_posts">View removed posts</string>
+    <string name="restore_posts">Restore posts</string>
+    <string name="restored_n_posts">Restored %1$d posts</string>
+    <string name="no_removed_posts_for_current_thread">No removed posts found for the current thread</string>
+    <string name="select_all">Select all</string>
 
     <!-- Captcha settings -->
-    <string name="settings_captcha_group" tools:ignore="MissingTranslation">Captcha</string>
-    <string name="settings_use_new_captcha_window" tools:ignore="MissingTranslation">Use new captcha window for no-js captcha</string>
-    <string name="settings_use_real_google_cookies" tools:ignore="MissingTranslation">Use real google cookies instead of hardcoded ones</string>
-    <string name="settings_use_real_google_cookies_description" tools:ignore="MissingTranslation">When enabled, a GET request to google.com will be executed to get a cookie, which will be used for captcha authentication. The hardcoded ones sometimes will make you re-enter the captcha dozens of times. Those cookies will be updated automatically (every three months). You may update them manually if you want.</string>
+    <string name="settings_captcha_group">Captcha</string>
+    <string name="settings_use_new_captcha_window">Use new captcha window for no-js captcha</string>
+    <string name="settings_use_real_google_cookies">Use real google cookies instead of hardcoded ones</string>
+    <string name="settings_use_real_google_cookies_description">When enabled, a GET request to google.com will be executed to get a cookie, which will be used for captcha authentication. The hardcoded ones sometimes will make you re-enter the captcha dozens of times. Those cookies will be updated automatically (every three months). You may update them manually if you want.</string>
 
-    <string name="captcha_layout_v2_verify_button_text" tools:ignore="MissingTranslation">Verify</string>
-    <string name="captcha_layout_v2_reload" tools:ignore="MissingTranslation">Reload</string>
-    <string name="captcha_layout_v2_use_old_captcha" tools:ignore="MissingTranslation">Use old captcha</string>
-    <string name="captcha_layout_v2_you_have_to_select_at_least_one_image" tools:ignore="MissingTranslation">You have to select at least one image (if you see a captcha that does not have any matching images then it is probably a bug; fill an issue and use the old captcha)</string>
-    <string name="captcha_layout_v2_verification_already_in_progress" tools:ignore="MissingTranslation">Verification is already in progress</string>
-    <string name="captcha_layout_v2_captcha_request_is_already_in_progress" tools:ignore="MissingTranslation">Captcha request is already in progress</string>
-    <string name="captcha_layout_v2_you_are_requesting_captcha_too_fast" tools:ignore="MissingTranslation">You are requesting captcha too fast</string>
-    <string name="captcha_layout_v2_refresh_cookies" tools:ignore="MissingTranslation">Refresh cookies</string>
+    <string name="captcha_layout_v2_verify_button_text">Verify</string>
+    <string name="captcha_layout_v2_reload">Reload</string>
+    <string name="captcha_layout_v2_use_old_captcha">Use old captcha</string>
+    <string name="captcha_layout_v2_you_have_to_select_at_least_one_image">You have to select at least one image (if you see a captcha that does not have any matching images then it is probably a bug; fill an issue and use the old captcha)</string>
+    <string name="captcha_layout_v2_verification_already_in_progress">Verification is already in progress</string>
+    <string name="captcha_layout_v2_captcha_request_is_already_in_progress">Captcha request is already in progress</string>
+    <string name="captcha_layout_v2_you_are_requesting_captcha_too_fast">You are requesting captcha too fast</string>
+    <string name="captcha_layout_v2_refresh_cookies">Refresh cookies</string>
 
-    <string name="setting_posting_timeout_toggle_notice" tools:ignore="MissingTranslation">Posting timeout will be applied on the next app start</string>
+    <string name="setting_posting_timeout_toggle_notice">Posting timeout will be applied on the next app start</string>
 
-    <string name="file_url_copied_to_clipboard" tools:ignore="MissingTranslation">File url copied to clipboard</string>
+    <string name="file_url_copied_to_clipboard">File url copied to clipboard</string>
 
-    <string name="delete_site_dialog_title" tools:ignore="MissingTranslation">Delete site?</string>
-    <string name="delete_site_dialog_message" tools:ignore="MissingTranslation">Are you sure you want to delete "%1$s"? This action will delete the site and everything that is associated with it. The app will be restarted. Do you wish to proceed?</string>
-    <string name="could_not_remove_site_error_message" tools:ignore="MissingTranslation">"Could not remove site %1$s, error message: %2$s</string>
+    <string name="delete_site_dialog_title">Delete site?</string>
+    <string name="delete_site_dialog_message">Are you sure you want to delete "%1$s"? This action will delete the site and everything that is associated with it. The app will be restarted. Do you wish to proceed?</string>
+    <string name="could_not_remove_site_error_message">"Could not remove site %1$s, error message: %2$s</string>
+    <string name="image_duplicate">Duplicate file exists, not saving.</string>
 </resources>

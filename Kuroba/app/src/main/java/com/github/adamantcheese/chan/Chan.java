@@ -35,7 +35,6 @@ import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.LocaleUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.codejargon.feather.Feather;
@@ -70,14 +69,12 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-
         AndroidUtils.init(this);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        LocaleUtils.overrideLocaleToEnglishIfNeeded(this);
         registerActivityLifecycleCallbacks(this);
 
         feather = Feather.with(

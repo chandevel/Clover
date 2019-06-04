@@ -22,9 +22,9 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
 
@@ -41,7 +41,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private static final String TAG = "ImageSaver";
-    private static final int MAX_RENAME_TRIES = 500;
     private static final int MAX_NAME_LENGTH = 50;
     private static final Pattern REPEATED_UNDERSCORES_PATTERN = Pattern.compile("_+");
     private static final Pattern SAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._]");
@@ -61,11 +60,19 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     public void startDownloadTask(Context context, final ImageSaveTask task) {
         PostImage postImage = task.getPostImage();
-        String name = ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename;
+        String name = ChanSettings.saveServerFilename.get() ? postImage.originalName : postImage.filename;
         String fileName = filterName(name + "." + postImage.extension);
-        task.setDestination(findUnusedFileName(new File(getSaveLocation(task), fileName)));
+        File saveFile = new File(getSaveLocation(task), fileName);
+        if (saveFile.exists() && !task.getShare()) {
+            Toast.makeText(context, context.getString(R.string.image_duplicate), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        task.setDestination(saveFile);
 
-        if (!hasPermission(context)) {
+        if (hasPermission(context)) {
+            startTask(task);
+            updateNotification();
+        } else {
             // This does not request the permission when another request is pending.
             // This is ok and will drop the task.
             requestPermission(context, granted -> {
@@ -76,14 +83,14 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                     showToast(null, false);
                 }
             });
-        } else {
-            startTask(task);
-            updateNotification();
         }
     }
 
     public boolean startBundledTask(Context context, final String subFolder, final List<ImageSaveTask> tasks) {
-        if (!hasPermission(context)) {
+        if (hasPermission(context)) {
+            startBundledTaskInternal(subFolder, tasks);
+            return true;
+        } else {
             // This does not request the permission when another request is pending.
             // This is ok and will drop the tasks.
             requestPermission(context, granted -> {
@@ -94,9 +101,6 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                 }
             });
             return false;
-        } else {
-            startBundledTaskInternal(subFolder, tasks);
-            return true;
         }
     }
 
@@ -178,7 +182,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                 getAppContext().getString(R.string.image_save_as, task.getDestination().getName()) :
                 getString(R.string.image_save_failed);
         toast = Toast.makeText(getAppContext(), text, Toast.LENGTH_LONG);
-        toast.show();
+        if (!task.getShare()) {
+            toast.show();
+        }
     }
 
     private String filterName(String name) {
@@ -189,32 +195,6 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             name = "_";
         }
         return name;
-    }
-
-    private File findUnusedFileName(File start) {
-        String base;
-        String extension;
-
-        String[] splitted = start.getAbsolutePath().split("\\.(?=[^\\.]+$)");
-        if (splitted.length == 2) {
-            base = splitted[0];
-            extension = "." + splitted[1];
-        } else {
-            base = splitted[0];
-            extension = ".";
-        }
-
-        File test;
-        test = new File(base + extension);
-
-        int index = 0;
-        int tries = 0;
-        while (test.exists() && tries++ < MAX_RENAME_TRIES) {
-            test = new File(base + "_" + index + extension);
-            index++;
-        }
-
-        return test;
     }
 
     private boolean hasPermission(Context context) {
