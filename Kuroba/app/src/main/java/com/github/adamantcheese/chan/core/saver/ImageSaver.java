@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.saver;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
@@ -58,9 +59,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         String name = ChanSettings.saveServerFilename.get() ? postImage.originalName : postImage.filename;
         String fileName = filterName(name + "." + postImage.extension);
         File saveFile = new File(getSaveLocation(task), fileName);
-        if (saveFile.exists() && !task.getShare()) {
-            Toast.makeText(context, context.getString(R.string.image_duplicate), Toast.LENGTH_SHORT).show();
-            return;
+        while (saveFile.exists()) {
+            fileName = filterName(name + "_" + Long.toHexString(SystemClock.elapsedRealtimeNanos()) + "." + postImage.extension);
+            saveFile = new File(getSaveLocation(task), fileName);
         }
         task.setDestination(saveFile);
 
