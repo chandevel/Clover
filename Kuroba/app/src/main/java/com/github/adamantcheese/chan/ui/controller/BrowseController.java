@@ -22,7 +22,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -174,11 +175,25 @@ public class BrowseController extends ThreadController implements
 
             // Give the rotation menu item view a spin.
             View refreshView = item.getView();
-            refreshView.setRotation(0f);
-            refreshView.animate()
-                    .rotation(360f)
-                    .setDuration(500)
-                    .setInterpolator(new DecelerateInterpolator(2f));
+            //Disable the ripple effect until the animation ends, but turn it back on so tap/hold ripple works
+            refreshView.setBackgroundResource(0);
+            Animation animation = new RotateAnimation(0, 360, RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+            animation.setDuration(500L);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    refreshView.setBackgroundResource(R.drawable.item_background);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+            });
+            refreshView.startAnimation(animation);
         }
     }
 
