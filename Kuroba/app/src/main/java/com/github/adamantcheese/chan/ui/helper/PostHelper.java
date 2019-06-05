@@ -17,10 +17,11 @@
 package com.github.adamantcheese.chan.ui.helper;
 
 import android.graphics.drawable.BitmapDrawable;
-import androidx.annotation.Nullable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
+
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -28,7 +29,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class PostHelper {
     public static CharSequence prependIcon(CharSequence total, BitmapDrawable bitmapDrawable, int height) {
@@ -65,8 +65,8 @@ public class PostHelper {
             return "";
         }
     }
-    
-    private static DateFormat dateFormat = SimpleDateFormat.getDateTimeInstance();
+
+    private static DateFormat dateFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
     private static Date tmpDate = new Date();
 
     public static String getLocalDate(Post post) {
