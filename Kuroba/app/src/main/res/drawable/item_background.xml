@@ -14,16 +14,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true">
-        <shape>
-            <solid android:color="#20000000" />
-        </shape>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight">
+    <item android:id="@android:id/mask">
+        <color android:color="@android:color/white" />
     </item>
-    <item android:state_focused="true">
-        <shape>
-            <solid android:color="#20000000" />
-        </shape>
-    </item>
-    <item android:drawable="@android:color/transparent" />
-</selector>
+</ripple>

@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <dimen name="toolbar_height">56dp</dimen>
 
     <dimen name="grid_card_width">120dp</dimen>
-    <dimen name="grid_card_margin">0dp</dimen>
-    <dimen name="grid_card_corner_radius">0dp</dimen>
+    <dimen name="grid_card_margin">2dp</dimen>
+    <dimen name="grid_card_corner_radius">2dp</dimen>
 
     <dimen name="cell_post_thumbnail_size">72dp</dimen>
 </resources>
