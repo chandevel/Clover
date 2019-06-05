@@ -25,6 +25,7 @@ import android.text.style.ImageSpan;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -64,8 +65,8 @@ public class PostHelper {
             return "";
         }
     }
-
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("LL/dd/yy(EEE)HH:mm:ss", Locale.US);
+    
+    private static DateFormat dateFormat = SimpleDateFormat.getDateTimeInstance();
     private static Date tmpDate = new Date();
 
     public static String getLocalDate(Post post) {
