@@ -60,7 +60,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         String fileName = filterName(name + "." + postImage.extension);
         File saveFile = new File(getSaveLocation(task), fileName);
         while (saveFile.exists()) {
-            fileName = filterName(name + "_" + Long.toHexString(SystemClock.elapsedRealtimeNanos()) + "." + postImage.extension);
+            fileName = filterName(name + "_" + Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX) + "." + postImage.extension);
             saveFile = new File(getSaveLocation(task), fileName);
         }
         task.setDestination(saveFile);

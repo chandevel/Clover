@@ -98,6 +98,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     private LinearLayout nameOptions;
     private Button commentQuoteButton;
     private Button commentSpoilerButton;
+    private Button commentCodeButton;
     private SelectionListeningEditText comment;
     private TextView commentCounter;
     private CheckBox spoiler;
@@ -150,6 +151,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         ViewGroup commentButtons = replyInputLayout.findViewById(R.id.comment_buttons);
         commentQuoteButton = replyInputLayout.findViewById(R.id.comment_quote);
         commentSpoilerButton = replyInputLayout.findViewById(R.id.comment_spoiler);
+        commentCodeButton = replyInputLayout.findViewById(R.id.comment_code);
         comment = replyInputLayout.findViewById(R.id.comment);
         commentCounter = replyInputLayout.findViewById(R.id.comment_counter);
         spoiler = replyInputLayout.findViewById(R.id.spoiler);
@@ -166,6 +168,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         // Setup reply layout views
         commentQuoteButton.setOnClickListener(this);
         commentSpoilerButton.setOnClickListener(this);
+        commentCodeButton.setOnClickListener(this);
 
         comment.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
@@ -254,6 +257,8 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
             presenter.commentQuoteClicked();
         } else if (v == commentSpoilerButton) {
             presenter.commentSpoilerClicked();
+        } else if (v == commentCodeButton) {
+            presenter.commentCodeClicked();
         }
     }
 
@@ -473,6 +478,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     @Override
     public void openCommentSpoilerButton(boolean open) {
         commentSpoilerButton.setVisibility(open ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void openCommentCodeButton(boolean open) {
+        commentCodeButton.setVisibility(open ? View.VISIBLE : View.GONE);
     }
 
     @Override

@@ -287,7 +287,7 @@ public class ChanSettings {
 
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
 
-        useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
+        useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", false);
         useRealGoogleCookies = new BooleanSetting(p, "use_real_google_cookies", false);
         googleCookie = new StringSetting(p, "google_cookie", "");
         lastGoogleCookieUpdateTime = new LongSetting(p, "last_google_cookie_update_time", 0L);

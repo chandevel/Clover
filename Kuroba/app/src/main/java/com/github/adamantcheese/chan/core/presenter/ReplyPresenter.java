@@ -166,6 +166,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         if (board.spoilers) {
             callback.openCommentSpoilerButton(moreOpen);
         }
+        if (board.site.name().equals("4chan") && board.code.equals("g")) {
+            callback.openCommentCodeButton(moreOpen);
+        }
         if (previewOpen) {
             callback.openFileName(moreOpen);
             if (board.spoilers) {
@@ -200,6 +203,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     public void onSubmitClicked() {
         callback.loadViewsIntoDraft(draft);
+
+        if (draft.comment.trim().isEmpty()) {
+            callback.openMessage(true, false, getAppContext().getString(R.string.reply_comment_empty), true);
+        }
 
         draft.loadable = loadable;
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
@@ -349,6 +356,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         commentInsert("[spoiler]", "[/spoiler]");
     }
 
+    public void commentCodeClicked() {
+        commentInsert("[code]", "[/code]");
+    }
+
     public void quote(Post post, boolean withText) {
         handleQuote(post, withText ? post.comment.toString() : null);
     }
@@ -433,6 +444,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.openSubject(false);
         callback.openCommentQuoteButton(false);
         callback.openCommentSpoilerButton(false);
+        callback.openCommentCodeButton(false);
         callback.openNameOptions(false);
         callback.openFileName(false);
         callback.openSpoiler(false, false);
@@ -560,6 +572,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         void openCommentQuoteButton(boolean open);
 
         void openCommentSpoilerButton(boolean open);
+
+        void openCommentCodeButton(boolean open);
 
         void openFileName(boolean open);
 
