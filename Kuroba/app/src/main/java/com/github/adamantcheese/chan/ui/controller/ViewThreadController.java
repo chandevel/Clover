@@ -20,10 +20,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.core.util.Pair;
-import androidx.appcompat.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -93,6 +94,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .withSubItem(R.string.action_search, this::searchClicked)
                 .withSubItem(R.string.action_reload, this::reloadClicked)
                 .withSubItem(R.string.thread_show_archives, this::showArchives)
+                .withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
@@ -138,6 +140,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .create();
         dialog.setCanceledOnTouchOutside(true);
         dialog.show();
+    }
+
+    public void showRemovedPostsDialog(ToolbarMenuSubItem item) {
+        threadLayout.getPresenter().showRemovedPostsDialog();
     }
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {

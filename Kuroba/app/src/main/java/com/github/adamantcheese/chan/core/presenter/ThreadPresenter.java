@@ -19,10 +19,11 @@ package com.github.adamantcheese.chan.core.presenter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import androidx.core.util.Pair;
-import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
@@ -94,7 +95,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
     private static final int POST_OPTION_EXTRA = 15;
     private static final int POST_OPTION_REMOVE = 16;
-    private static final int POST_OPTION_REMOVED_POSTS = 17;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private WatchManager watchManager;
@@ -493,10 +493,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             menu.add(new FloatingMenuItem(POST_OPTION_REMOVE, R.string.post_remove));
         }
 
-        if (loadable.isThreadMode() && post.isOP) {
-            menu.add(new FloatingMenuItem(POST_OPTION_REMOVED_POSTS, R.string.view_removed_posts));
-        }
-
         if (loadable.isThreadMode()) {
             if (!TextUtils.isEmpty(post.id)) {
                 menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
@@ -602,16 +598,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                     }
                 }
                 break;
-            case POST_OPTION_REMOVED_POSTS: {
-                if (chanLoader.getThread().loadable.mode != Loadable.Mode.THREAD) {
-                    return;
-                }
-
-                threadPresenterCallback.viewRemovedPostsForTheThread(
-                        chanLoader.getThread().posts,
-                        chanLoader.getThread().op.no);
-                break;
-            }
         }
     }
 
@@ -851,6 +837,16 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         }
 
         threadPresenterCallback.hideOrRemovePosts(hide, wholeChain, posts, threadNo);
+    }
+
+    public void showRemovedPostsDialog() {
+        if (chanLoader.getThread().loadable.mode != Loadable.Mode.THREAD) {
+            return;
+        }
+
+        threadPresenterCallback.viewRemovedPostsForTheThread(
+                chanLoader.getThread().posts,
+                chanLoader.getThread().op.no);
     }
 
     public void onRestoreRemovedPostsClicked(List<Integer> selectedPosts) {
