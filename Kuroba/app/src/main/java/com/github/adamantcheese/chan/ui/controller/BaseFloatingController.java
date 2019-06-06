@@ -6,6 +6,7 @@ import android.view.Window;
 
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 public abstract class BaseFloatingController extends Controller {
     private static final int TRANSITION_DURATION = 200;
@@ -32,7 +33,7 @@ public abstract class BaseFloatingController extends Controller {
         super.stopPresenting();
 
         if (statusBarColorPrevious != 0) {
-            AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            AndroidUtils.animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
