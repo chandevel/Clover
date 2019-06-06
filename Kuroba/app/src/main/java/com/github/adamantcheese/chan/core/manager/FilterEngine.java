@@ -154,23 +154,23 @@ public class FilterEngine {
 
     @AnyThread
     public boolean matches(Filter filter, Post.Builder post) {
-        if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, FilterType.TRIPCODE.isRegex, post.tripcode, false)) {
+        if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, post.tripcode, false)) {
             return true;
         }
 
-        if ((filter.type & FilterType.NAME.flag) != 0 && matches(filter, FilterType.NAME.isRegex, post.name, false)) {
+        if ((filter.type & FilterType.NAME.flag) != 0 && matches(filter, post.name, false)) {
             return true;
         }
 
-        if ((filter.type & FilterType.COMMENT.flag) != 0 && matches(filter, FilterType.COMMENT.isRegex, post.comment.toString(), false)) {
+        if ((filter.type & FilterType.COMMENT.flag) != 0 && matches(filter, post.comment.toString(), false)) {
             return true;
         }
 
-        if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, FilterType.ID.isRegex, post.posterId, false)) {
+        if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, post.posterId, false)) {
             return true;
         }
 
-        if ((filter.type & FilterType.SUBJECT.flag) != 0 && matches(filter, FilterType.SUBJECT.isRegex, post.subject, false)) {
+        if ((filter.type & FilterType.SUBJECT.flag) != 0 && matches(filter, post.subject, false)) {
             return true;
         }
 
@@ -179,7 +179,7 @@ public class FilterEngine {
             for (PostImage image : post.images) {
                 filename.append(image.filename).append(" ");
             }
-            return (filename.length() > 0) && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, filename.toString(), false);
+            return (filename.length() > 0) && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, filename.toString(), false);
         }
 
         return false;
@@ -187,23 +187,23 @@ public class FilterEngine {
 
     @AnyThread
     public boolean matches(Filter filter, Post post) {
-        if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, FilterType.TRIPCODE.isRegex, post.tripcode, false)) {
+        if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, post.tripcode, false)) {
             return true;
         }
 
-        if ((filter.type & FilterType.NAME.flag) != 0 && matches(filter, FilterType.NAME.isRegex, post.name, false)) {
+        if ((filter.type & FilterType.NAME.flag) != 0 && matches(filter, post.name, false)) {
             return true;
         }
 
-        if ((filter.type & FilterType.COMMENT.flag) != 0 && matches(filter, FilterType.COMMENT.isRegex, post.comment.toString(), false)) {
+        if ((filter.type & FilterType.COMMENT.flag) != 0 && matches(filter, post.comment.toString(), false)) {
             return true;
         }
 
-        if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, FilterType.ID.isRegex, post.id, false)) {
+        if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, post.id, false)) {
             return true;
         }
 
-        if ((filter.type & FilterType.SUBJECT.flag) != 0 && matches(filter, FilterType.SUBJECT.isRegex, post.subject, false)) {
+        if ((filter.type & FilterType.SUBJECT.flag) != 0 && matches(filter, post.subject, false)) {
             return true;
         }
 
@@ -212,50 +212,46 @@ public class FilterEngine {
             for (PostImage image : post.images) {
                 filename.append(image.filename).append(" ");
             }
-            return (filename.length() > 0) && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, filename.toString(), false);
+            return (filename.length() > 0) && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, filename.toString(), false);
         }
 
         return false;
     }
 
     @AnyThread
-    public boolean matches(Filter filter, boolean matchRegex, String text, boolean forceCompile) {
+    public boolean matches(Filter filter, String text, boolean forceCompile) {
         if (TextUtils.isEmpty(text)) {
             return false;
         }
 
-        if (matchRegex) {
-            Pattern pattern = null;
-            if (!forceCompile) {
-                synchronized (patternCache) {
-                    pattern = patternCache.get(filter.pattern);
-                }
+        Pattern pattern = null;
+        if (!forceCompile) {
+            synchronized (patternCache) {
+                pattern = patternCache.get(filter.pattern);
             }
+        }
 
-            if (pattern == null) {
-                pattern = compile(filter.pattern);
-                if (pattern != null) {
-                    synchronized (patternCache) {
-                        patternCache.put(filter.pattern, pattern);
-                    }
-                    Logger.d(TAG, "Resulting pattern: " + pattern.pattern());
-                }
-            }
-
+        if (pattern == null) {
+            pattern = compile(filter.pattern);
             if (pattern != null) {
-                Matcher matcher = pattern.matcher(text);
-                try {
-                    return matcher.find();
-                } catch (IllegalArgumentException e) {
-                    Logger.w(TAG, "matcher.find() exception", e);
-                    return false;
+                synchronized (patternCache) {
+                    patternCache.put(filter.pattern, pattern);
                 }
-            } else {
-                Logger.e(TAG, "Invalid pattern");
+                Logger.d(TAG, "Resulting pattern: " + pattern.pattern());
+            }
+        }
+
+        if (pattern != null) {
+            Matcher matcher = pattern.matcher(text);
+            try {
+                return matcher.find();
+            } catch (IllegalArgumentException e) {
+                Logger.w(TAG, "matcher.find() exception", e);
                 return false;
             }
         } else {
-            return text.equals(filter.pattern);
+            Logger.e(TAG, "Invalid pattern");
+            return false;
         }
     }
 

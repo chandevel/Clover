@@ -20,19 +20,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum FilterType {
-    TRIPCODE(0x1, false),
-    NAME(0x2, false),
-    COMMENT(0x4, true),
-    ID(0x8, false),
-    SUBJECT(0x10, true),
-    FILENAME(0x20, true);
+    TRIPCODE(0x1),
+    NAME(0x2),
+    COMMENT(0x4),
+    ID(0x8),
+    SUBJECT(0x10),
+    FILENAME(0x20);
 
     public final int flag;
-    public final boolean isRegex;
 
-    FilterType(int flag, boolean isRegex) {
+    FilterType(int flag) {
         this.flag = flag;
-        this.isRegex = isRegex;
     }
 
     public static List<FilterType> forFlags(int flag) {

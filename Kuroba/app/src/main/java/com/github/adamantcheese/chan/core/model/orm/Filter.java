@@ -90,6 +90,7 @@ public class Filter implements Cloneable {
         applyToReplies = filter.applyToReplies;
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Filter clone() {
         return new Filter(
                 enabled,

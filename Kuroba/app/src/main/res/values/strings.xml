@@ -210,8 +210,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="filter_pattern_hint_regex">Pattern</string>
     <string name="filter_boards">Boards</string>
     <string name="filter_types">Types</string>
-    <string name="filter_type_string_matching">String matching</string>
-    <string name="filter_type_regex_matching">Regex matching</string>
     <string name="filter_all">all</string>
     <string name="filter_hide">Hide post</string>
     <string name="filter_color">Highlight post</string>
@@ -226,15 +224,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="filter_help">
 <![CDATA[
 Filters act on a given pattern and a place to search the pattern.<br>
-If the pattern matches then the post can be hidden or highlighted.<br>
-
-<h4>For tripcodes, names and IDs:</h4>
-<p>
-    It will match the given pattern exact.<br>
-    <tt>!Ep8pui8Vw2</tt> will match the tripcode <i>!Ep8pui8Vw2</i> but not <i>Ep8pu</i>.
-</p>
-
-<h4>For comments, subjects and filenames:</h4>
+If the pattern matches then the post can be hidden, removed, highlighted, or automatically bookmarked.<br>
 <p>
     These filters are pattern based, and have three modes:<br>
     <br>
@@ -244,7 +234,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     2. Quoting your pattern with <tt>\"</tt> like <tt>\"foo bar\"</tt> will match the text exactly.
     <i>foo bar</i> matches but <i>foo</i> does not.<br>
     <br>
-    3. Regular expressions. <tt>/^>implying/</tt> for example.
+    3. Regular expressions. <tt>/^>implying/</tt> for example. You can use <tt>/^>ImPlYiNg/<b>i</b></tt> to make the regex case insensitive.
 </p>
 ]]>
     </string>

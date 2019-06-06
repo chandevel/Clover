@@ -197,11 +197,10 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
             for (FilterType filterType : FilterType.values()) {
                 String name = FiltersController.filterTypeName(filterType);
-                String description = getString(filterType.isRegex ? R.string.filter_type_regex_matching : R.string.filter_type_string_matching);
                 boolean checked = filter.hasFilter(filterType);
 
                 items.add(new SelectLayout.SelectItem<>(
-                        filterType, filterType.flag, name, description, name, checked
+                        filterType, filterType.flag, name, null, name, checked
                 ));
             }
 
@@ -393,7 +392,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updatePatternPreview() {
         String text = patternPreview.getText().toString();
-        boolean matches = text.length() > 0 && filterEngine.matches(filter, true, text, true);
+        boolean matches = text.length() > 0 && filterEngine.matches(filter, text, true);
         patternPreviewStatus.setText(matches ? R.string.filter_matches : R.string.filter_no_matches);
     }
 
