@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 public class ChanSettings {
     public enum MediaAutoLoadMode implements OptionSettingItem {

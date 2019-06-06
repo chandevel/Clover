@@ -44,7 +44,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
@@ -194,22 +195,26 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         drawerAdapter.updateHighlighted(recyclerView);
     }
 
+    @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         drawerAdapter.onPinAdded(message.pin);
         drawerLayout.openDrawer(drawer);
         updateBadge();
     }
 
+    @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
         drawerAdapter.onPinRemoved(message.pin);
         updateBadge();
     }
 
+    @Subscribe
     public void onEvent(PinMessages.PinChangedMessage message) {
         drawerAdapter.onPinChanged(recyclerView, message.pin);
         updateBadge();
     }
 
+    @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
         drawerAdapter.onPinsChanged(message.pins);
         updateBadge();

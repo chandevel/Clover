@@ -52,7 +52,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
@@ -290,6 +291,7 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     // Called when the app changes foreground state
+    @Subscribe
     public void onEvent(Chan.ForegroundChangedMessage message) {
         updateState();
         if (!message.inForeground) {
@@ -298,6 +300,7 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     // Called when either the background watch or watch enable settings are changed
+    @Subscribe
     public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
         if (settingChanged.setting == ChanSettings.watchBackground) {
             onBackgroundWatchingChanged(ChanSettings.watchBackground.get());

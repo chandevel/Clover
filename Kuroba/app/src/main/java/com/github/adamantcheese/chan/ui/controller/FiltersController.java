@@ -47,7 +47,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;

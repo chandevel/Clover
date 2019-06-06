@@ -30,7 +30,8 @@ import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -83,6 +84,7 @@ public class MediaSettingsController extends SettingsController {
         }
     }
 
+    @Subscribe
     public void onEvent(ChanSettings.SettingChanged setting) {
         if (setting.setting == ChanSettings.saveLocation) {
             updateSaveLocationSetting();

@@ -32,7 +32,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
@@ -75,6 +76,7 @@ public class WakeManager {
         }
     }
 
+    @Subscribe
     public void onEvent(ChanSettings.SettingChanged<?> settingChanged) {
         if (settingChanged.setting == ChanSettings.watchBackground || settingChanged.setting == ChanSettings.watchEnabled) {
             if (ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()) {

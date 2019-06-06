@@ -44,6 +44,8 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
@@ -180,14 +182,17 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         loadThread(pin.loadable);
     }
 
+    @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         setPinIconState(true);
     }
 
+    @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
         setPinIconState(true);
     }
 
+    @Subscribe
     public void onEvent(PinMessages.PinChangedMessage message) {
         setPinIconState(false);
         // Update title
@@ -196,6 +201,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         }
     }
 
+    @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
         setPinIconState(true);
     }

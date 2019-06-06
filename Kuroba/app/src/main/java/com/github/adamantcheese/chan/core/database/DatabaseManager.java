@@ -37,7 +37,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
@@ -129,6 +130,7 @@ public class DatabaseManager {
     }
     // Called when the app changes foreground state
 
+    @Subscribe
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
             runTaskAsync(databaseLoadableManager.flush());

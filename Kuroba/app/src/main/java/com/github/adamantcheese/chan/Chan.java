@@ -38,10 +38,9 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.codejargon.feather.Feather;
+import org.greenrobot.eventbus.EventBus;
 
 import javax.inject.Inject;
-
-import de.greenrobot.event.EventBus;
 
 public class Chan extends Application implements Application.ActivityLifecycleCallbacks {
     private int activityForegroundCounter = 0;

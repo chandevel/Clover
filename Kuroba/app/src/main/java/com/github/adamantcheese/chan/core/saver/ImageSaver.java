@@ -35,7 +35,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -126,6 +127,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         showToast(task, success);
     }
 
+    @Subscribe
     public void onEvent(SavingNotification.SavingCancelRequestMessage message) {
         cancelAll();
     }

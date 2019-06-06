@@ -40,7 +40,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 public class FilterWatchManager implements WakeManager.Wakeable {
     private static final String TAG = "FilterWatchManager";
@@ -83,6 +84,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         EventBus.getDefault().register(this);
     }
 
+    @Subscribe
     public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
         if (settingChanged.setting == ChanSettings.watchFilterWatch) {
             if (ChanSettings.watchFilterWatch.get()) {

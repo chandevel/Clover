@@ -35,7 +35,7 @@ import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 
 import static com.github.adamantcheese.chan.Chan.injector;
 

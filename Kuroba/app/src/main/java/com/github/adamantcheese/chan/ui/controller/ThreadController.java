@@ -44,7 +44,8 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
@@ -129,10 +130,12 @@ public abstract class ThreadController extends Controller implements
         return threadLayout.sendKeyEvent(event) || super.dispatchKeyEvent(event);
     }
 
+    @Subscribe
     public void onEvent(Chan.ForegroundChangedMessage message) {
         threadLayout.getPresenter().onForegroundChanged(message.inForeground);
     }
 
+    @Subscribe
     public void onEvent(RefreshUIMessage message) {
         threadLayout.getPresenter().requestData();
     }
