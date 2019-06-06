@@ -90,7 +90,7 @@ public class ImageReencodingPresenter {
         try {
             Reply reply = replyManager.getReply(loadable);
             return BitmapUtils.getImageFormat(reply.file);
-        } catch (IOException e) {
+        } catch (Exception e) {
             Logger.e(TAG, "Error while trying to get image format", e);
             return null;
         }

@@ -655,4 +655,5 @@ Don't have a 4chan Pass?<br>
     <string name="delete_site_dialog_message">Are you sure you want to delete "%1$s"? This action will delete the site and everything that is associated with it. The app will be restarted. Do you wish to proceed?</string>
     <string name="could_not_remove_site_error_message">"Could not remove site %1$s, error message: %2$s</string>
     <string name="reply_comment_empty">Comment body is empty.</string>
+    <string name="image_reencode_format_error">Something is wrong with this file.</string>
 </resources>

@@ -2,8 +2,11 @@ package com.github.adamantcheese.chan.ui.helper;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
@@ -50,6 +53,8 @@ public class ImageOptionsHelper implements
         if (imageReencodeOptionsController == null && imageFormat != null) {
             imageReencodeOptionsController = new ImageReencodeOptionsController(context, this, this, imageFormat);
             callbacks.presentController(imageReencodeOptionsController);
+        } else {
+            Toast.makeText(context, context.getString(R.string.image_reencode_format_error), Toast.LENGTH_LONG).show();
         }
     }
 

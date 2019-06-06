@@ -43,8 +43,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private static final String TAG = "ImageSaver";
     private static final int MAX_NAME_LENGTH = 50;
-    private static final Pattern REPEATED_UNDERSCORES_PATTERN = Pattern.compile("_+");
-    private static final Pattern SAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._]");
+    private static final Pattern UNSAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._\\\\ -]");
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private int doneTasks = 0;
     private int totalTasks = 0;
@@ -175,7 +174,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         }
 
         String text = success ?
-                getAppContext().getString(R.string.image_save_as, task.getDestination().getName()) :
+                getAppContext().getString(R.string.image_save_as, task.getDestination().getName().replace("\\ ", " ")) :
                 getString(R.string.image_save_failed);
         toast = Toast.makeText(getAppContext(), text, Toast.LENGTH_LONG);
         if (!task.getShare()) {
@@ -184,9 +183,8 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     }
 
     private String filterName(String name) {
-        name = name.replace(' ', '_');
-        name = SAFE_CHARACTERS_PATTERN.matcher(name).replaceAll("");
-        name = REPEATED_UNDERSCORES_PATTERN.matcher(name).replaceAll("_");
+        name = name.replace(" ", "\\ ");
+        name = UNSAFE_CHARACTERS_PATTERN.matcher(name).replaceAll("");
         if (name.length() == 0) {
             name = "_";
         }
