@@ -216,7 +216,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
             itemView.getLayoutParams().height = recyclerView.getRealSpanWidth();
             checkbox = itemView.findViewById(R.id.checkbox);
             thumbnailView = itemView.findViewById(R.id.thumbnail_view);
-            itemView.setOnClickListener(this);
+            thumbnailView.setOnClickListener(this);
         }
 
         @Override
