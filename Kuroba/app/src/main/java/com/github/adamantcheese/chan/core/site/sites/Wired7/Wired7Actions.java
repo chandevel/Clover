@@ -14,14 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.site.sites.wired_7;
+package com.github.adamantcheese.chan.core.site.sites.Wired7;
 
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
+import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
+
 import org.jsoup.Jsoup;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,8 +32,8 @@ import okhttp3.Response;
 
 import static android.text.TextUtils.isEmpty;
 
-public class Wired_7Actions extends VichanActions {
-    Wired_7Actions(CommonSite commonSite) {
+public class Wired7Actions extends VichanActions {
+    Wired7Actions(CommonSite commonSite) {
         super(commonSite);
     }
 

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.site.sites.wired_7;
+package com.github.adamantcheese.chan.core.site.sites.Wired7;
 
 import androidx.annotation.Nullable;
 
@@ -24,18 +24,17 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 
 import okhttp3.HttpUrl;
 
-public class Wired_7 extends CommonSite {
+public class Wired7 extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
-            return Wired_7.class;
+            return Wired7.class;
         }
 
         @Override
@@ -45,7 +44,7 @@ public class Wired_7 extends CommonSite {
 
         @Override
         public String[] getNames() {
-            return new String[]{"Wired-7"};
+            return new String[]{"Wired-7, wired7, Wired7"};
         }
 
         @Override
@@ -98,7 +97,7 @@ public class Wired_7 extends CommonSite {
         setEndpoints(new VichanEndpoints(this,
                 "https://wired-7.org",
                 "https://wired-7.org"));
-        setActions(new Wired_7Actions(this));
+        setActions(new Wired7Actions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());
     }
