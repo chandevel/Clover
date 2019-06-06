@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -234,6 +235,12 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private void updatePinViewHolder(PinViewHolder holder, Pin pin) {
+        LinearLayout.LayoutParams newParams = new LinearLayout.LayoutParams(
+                holder.watchCountText.getLayoutParams().width,
+                holder.watchCountText.getLayoutParams().height,
+                ChanSettings.shortPinInfo.get() ? 1.5f : 2.5f);
+        holder.watchCountText.setLayoutParams(newParams);
+
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
             BitmapDrawable archivedIcon = new BitmapDrawable(
@@ -247,9 +254,10 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         holder.image.setUrl(pin.thumbnailUrl, dp(40), dp(40));
 
         if (ChanSettings.watchEnabled.get()) {
-            String count = PinHelper.getShortUnreadCount(pin.getNewPostCount());
+            String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
+            String totalCount = PinHelper.getShortUnreadCount(watchManager.getPinWatcher(pin).getReplyCount());
             holder.watchCountText.setVisibility(View.VISIBLE);
-            holder.watchCountText.setText(count);
+            holder.watchCountText.setText(ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount);
 
             if (!pin.watching) {
                 holder.watchCountText.setTextColor(0xff898989); // TODO material colors

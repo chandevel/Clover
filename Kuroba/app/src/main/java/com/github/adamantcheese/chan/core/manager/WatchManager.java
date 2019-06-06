@@ -578,6 +578,10 @@ public class WatchManager implements WakeManager.Wakeable {
             pageRequestManager.addListener(this);
         }
 
+        public int getReplyCount() {
+            return posts.size() - 1;
+        }
+
         public List<Post> getUnviewedPosts() {
             if (posts.isEmpty()) {
                 return posts;
