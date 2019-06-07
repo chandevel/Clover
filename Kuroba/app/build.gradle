@@ -10,10 +10,15 @@ android {
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
         // (watch out for octal notation, never start with a 0)
         // version name should be of the form vXX.YY.ZZ
+
+        //bump the MAJOR (XX) version when there are incompatible changes between versions, or major changes
+        //bump the MINOR (YY) version when there are compatible changes between versions (ie database changes)
+        //bump the PATCH (ZZ) version otherwise
         versionCode 40010
         versionName "v4.0.10"
 
         applicationId "com.github.adamantcheese.chan"
+        //this is your update endpoint, change it to your repository
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
     }
 
@@ -31,6 +36,9 @@ android {
 
     android.applicationVariants.all { variant ->
         variant.outputs.all {
+            //this is required for the auto-updater, set the APK to upload to github here
+            //if you change this, also change UpdateManager::doUpdate::onSuccess to have the same name
+            //see docs/release.txt for more info
             outputFileName = "Kuroba.apk"
         }
     }
