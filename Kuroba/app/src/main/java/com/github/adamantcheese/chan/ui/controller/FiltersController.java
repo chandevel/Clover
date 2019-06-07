@@ -54,7 +54,6 @@ import org.greenrobot.eventbus.EventBus;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class FiltersController extends Controller implements
         ToolbarNavigationController.ToolbarSearchCallback,

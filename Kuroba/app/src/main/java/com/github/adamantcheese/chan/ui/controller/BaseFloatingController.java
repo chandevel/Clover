@@ -6,7 +6,6 @@ import android.view.Window;
 
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.Logger;
 
 public abstract class BaseFloatingController extends Controller {
     private static final int TRANSITION_DURATION = 200;
