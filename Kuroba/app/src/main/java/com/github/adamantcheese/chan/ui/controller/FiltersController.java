@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
+import com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction;
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
@@ -40,6 +41,7 @@ import com.github.adamantcheese.chan.ui.layout.FilterLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +52,7 @@ import javax.inject.Inject;
 import org.greenrobot.eventbus.EventBus;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -68,38 +71,6 @@ public class FiltersController extends Controller implements
 
     public FiltersController(Context context) {
         super(context);
-    }
-
-    public static String filterTypeName(FilterType type) {
-        switch (type) {
-            case TRIPCODE:
-                return getString(R.string.filter_tripcode);
-            case NAME:
-                return getString(R.string.filter_name);
-            case COMMENT:
-                return getString(R.string.filter_comment);
-            case ID:
-                return getString(R.string.filter_id);
-            case SUBJECT:
-                return getString(R.string.filter_subject);
-            case FILENAME:
-                return getString(R.string.filter_filename);
-        }
-        return null;
-    }
-
-    public static String actionName(FilterEngine.FilterAction action) {
-        switch (action) {
-            case HIDE:
-                return getString(R.string.filter_hide);
-            case COLOR:
-                return getString(R.string.filter_color);
-            case REMOVE:
-                return getString(R.string.filter_remove);
-            case WATCH:
-                return getString(R.string.filter_watch);
-        }
-        return null;
     }
 
     @Override
@@ -249,7 +220,7 @@ public class FiltersController extends Controller implements
                 subText += context.getResources().getQuantityString(R.plurals.board, size, size);
             }
 
-            subText += " \u2013 " + FiltersController.actionName(FilterEngine.FilterAction.forId(filter.action));
+            subText += " \u2013 " + FilterAction.actionName(FilterAction.forId(filter.action));
 
             holder.subtext.setText(subText);
         }

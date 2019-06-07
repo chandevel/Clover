@@ -245,8 +245,7 @@ public class BoardSetupPresenter implements Observer {
 
     private void setOrder() {
         for (int i = 0; i < savedBoards.size(); i++) {
-            Board b = savedBoards.get(i);
-            b.order = i;
+            savedBoards.get(i).order = i;
         }
     }
 

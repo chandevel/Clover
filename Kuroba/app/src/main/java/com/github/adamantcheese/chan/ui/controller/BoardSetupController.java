@@ -198,10 +198,10 @@ public class BoardSetupController extends Controller implements View.OnClickList
     public void boardsWereAdded(int count) {
         savedBoardsRecycler.smoothScrollToPosition(savedAdapter.getItemCount());
 
-        String boardText = context.getResources().getQuantityString(R.plurals.board, count, count);
-        String text = context.getString(R.string.setup_board_added, boardText);
-
-        Snackbar snackbar = Snackbar.make(view, text, Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar.make(view,
+                context.getString(R.string.setup_board_added,
+                        context.getResources().getQuantityString(R.plurals.board, count, count)),
+                Snackbar.LENGTH_LONG);
         fixSnackbarText(context, snackbar);
         snackbar.show();
     }

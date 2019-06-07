@@ -43,11 +43,11 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
+import com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction;
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
-import com.github.adamantcheese.chan.ui.controller.FiltersController;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -196,7 +196,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
             List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
             for (FilterType filterType : FilterType.values()) {
-                String name = FiltersController.filterTypeName(filterType);
+                String name = FilterType.filterTypeName(filterType);
                 boolean checked = filter.hasFilter(filterType);
 
                 items.add(new SelectLayout.SelectItem<>(
@@ -270,8 +270,8 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         } else if (v == actionText) {
             List<FloatingMenuItem> menuItems = new ArrayList<>(6);
 
-            for (FilterEngine.FilterAction action : FilterEngine.FilterAction.values()) {
-                menuItems.add(new FloatingMenuItem(action, FiltersController.actionName(action)));
+            for (FilterAction action : FilterAction.values()) {
+                menuItems.add(new FloatingMenuItem(action, FilterAction.actionName(action)));
             }
 
             FloatingMenu menu = new FloatingMenu(v.getContext());
@@ -280,7 +280,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
                 @Override
                 public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                    FilterEngine.FilterAction action = (FilterEngine.FilterAction) item.getId();
+                    FilterAction action = (FilterAction) item.getId();
                     filter.action = action.id;
                     updateFilterAction();
                 }
@@ -360,20 +360,20 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private void updateCheckboxes() {
         enabled.setChecked(filter.enabled);
         applyToReplies.setChecked(filter.applyToReplies);
-        if (filter.action == FilterEngine.FilterAction.WATCH.id) {
+        if (filter.action == FilterAction.WATCH.id) {
             applyToReplies.setEnabled(false);
         }
     }
 
     private void updateFilterAction() {
-        FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
-        actionText.setText(FiltersController.actionName(action));
-        colorContainer.setVisibility(action == FilterEngine.FilterAction.COLOR ? VISIBLE : GONE);
+        FilterAction action = FilterAction.forId(filter.action);
+        actionText.setText(FilterAction.actionName(action));
+        colorContainer.setVisibility(action == FilterAction.COLOR ? VISIBLE : GONE);
         if (filter.color == 0) {
             filter.color = 0xffff0000;
         }
         colorPreview.setBackgroundColor(filter.color);
-        if (filter.action != FilterEngine.FilterAction.WATCH.id) {
+        if (filter.action != FilterAction.WATCH.id) {
             applyToReplies.setEnabled(true);
         } else {
             applyToReplies.setEnabled(false);

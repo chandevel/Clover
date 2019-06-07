@@ -16,8 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import com.github.adamantcheese.chan.R;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public enum FilterType {
     TRIPCODE(0x1),
@@ -41,5 +45,23 @@ public enum FilterType {
             }
         }
         return enabledTypes;
+    }
+
+    public static String filterTypeName(FilterType type) {
+        switch (type) {
+            case TRIPCODE:
+                return getString(R.string.filter_tripcode);
+            case NAME:
+                return getString(R.string.filter_name);
+            case COMMENT:
+                return getString(R.string.filter_comment);
+            case ID:
+                return getString(R.string.filter_id);
+            case SUBJECT:
+                return getString(R.string.filter_subject);
+            case FILENAME:
+                return getString(R.string.filter_filename);
+        }
+        return null;
     }
 }

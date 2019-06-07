@@ -16,9 +16,11 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
-import androidx.annotation.AnyThread;
 import android.text.TextUtils;
 
+import androidx.annotation.AnyThread;
+
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -37,6 +39,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class FilterEngine {
     private static final String TAG = "FilterEngine";
@@ -63,6 +67,20 @@ public class FilterEngine {
             for (FilterAction type : values()) {
                 enums[type.id] = type;
             }
+        }
+
+        public static String actionName(FilterEngine.FilterAction action) {
+            switch (action) {
+                case HIDE:
+                    return getString(R.string.filter_hide);
+                case COLOR:
+                    return getString(R.string.filter_color);
+                case REMOVE:
+                    return getString(R.string.filter_remove);
+                case WATCH:
+                    return getString(R.string.filter_watch);
+            }
+            return null;
         }
     }
 

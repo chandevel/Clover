@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.database;
 
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.table.TableUtils;
 
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,15 @@ public class DatabaseFilterManager {
         return () -> {
             helper.filterDao.create(filter);
             return filter;
+        };
+    }
+
+    public Callable<List<Filter>> updateFilters(final List<Filter> filters) {
+        return () -> {
+          for(Filter filter : filters) {
+              helper.filterDao.update(filter);
+          }
+          return filters;
         };
     }
 
