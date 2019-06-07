@@ -192,6 +192,9 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         // If it has audio, we'll know after it is loaded.
         callback.showVolumeMenuItem(false, true);
 
+        //Reset the save icon
+        callback.resetDownloadButtonState();
+
         PostImage postImage = images.get(selectedPosition);
         setTitle(postImage, position);
         callback.scrollToImage(postImage);
@@ -408,5 +411,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         void onLoadProgress(float progress);
 
         void showVolumeMenuItem(boolean show, boolean muted);
+
+        void resetDownloadButtonState();
     }
 }

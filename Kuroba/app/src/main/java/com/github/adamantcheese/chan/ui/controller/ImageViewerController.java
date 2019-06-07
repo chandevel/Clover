@@ -81,6 +81,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
     private static final int VOLUME_ID = 1;
+    private static final int SAVE_ID = 2;
 
     @Inject
     ImageLoader imageLoader;
@@ -120,7 +121,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         }
 
         menuBuilder.withItem(VOLUME_ID, R.drawable.ic_volume_off_white_24dp, this::volumeClicked);
-        menuBuilder.withItem(R.drawable.ic_file_download_white_24dp, this::saveClicked);
+        menuBuilder.withItem(SAVE_ID, R.drawable.ic_file_download_white_24dp, this::saveClicked);
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
         overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
@@ -176,6 +177,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     private void saveClicked(ToolbarMenuItem item) {
+        item.setVisible(false);
         saveShare(false, presenter.getCurrentPostImage());
     }
 
@@ -328,6 +330,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         volumeMenuItem.setVisible(show);
         volumeMenuItem.setImage(
                 muted ? R.drawable.ic_volume_off_white_24dp : R.drawable.ic_volume_up_white_24dp);
+    }
+
+    @Override
+    public void resetDownloadButtonState() {
+        navigation.findItem(SAVE_ID).setVisible(true);
     }
 
     private void showImageSearchOptions() {
@@ -501,22 +508,14 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         navigationController.view.setBackgroundColor(Color.argb((int) (alpha * TRANSITION_FINAL_ALPHA * 255f), 0, 0, 0));
 
         if (alpha == 0f) {
-            setStatusBarColor(statusBarColorPrevious);
+            getWindow().setStatusBarColor(statusBarColorPrevious);
         } else {
             int r = (int) ((1f - alpha) * Color.red(statusBarColorPrevious));
             int g = (int) ((1f - alpha) * Color.green(statusBarColorPrevious));
             int b = (int) ((1f - alpha) * Color.blue(statusBarColorPrevious));
-            setStatusBarColor(Color.argb(255, r, g, b));
+            getWindow().setStatusBarColor(Color.argb(255, r, g, b));
         }
 
-        setToolbarBackgroundAlpha(alpha);
-    }
-
-    private void setStatusBarColor(int color) {
-        getWindow().setStatusBarColor(color);
-    }
-
-    private void setToolbarBackgroundAlpha(float alpha) {
         toolbar.setAlpha(alpha);
         loadingBar.setAlpha(alpha);
     }
