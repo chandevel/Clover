@@ -64,7 +64,6 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
 
 import java.io.File;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -626,7 +625,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
                 currentProgress.setVisibility(View.VISIBLE);
             }
 
-            currentProgress.setText(String.format(Locale.getDefault(), "%d", percent));
+            currentProgress.setText(percent);
         }
     }
 

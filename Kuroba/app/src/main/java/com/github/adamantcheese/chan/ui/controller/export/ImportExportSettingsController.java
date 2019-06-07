@@ -21,23 +21,23 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Environment;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.io.File;
-import java.util.Locale;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
@@ -190,12 +190,9 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     private void onPermissionGrantedForImport() {
-        String warningMessage = String.format(
-                Locale.getDefault(),
-                context.getString(R.string.import_warning_text),
+        String warningMessage = context.getString(R.string.import_warning_text,
                 settingsFile.getParentFile().getPath(),
-                settingsFile.getName()
-                );
+                settingsFile.getName());
 
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.import_warning_title)
@@ -225,8 +222,7 @@ public class ImportExportSettingsController extends SettingsController implement
                     copyDirPathToClipboard();
                     clearAllChildControllers();
 
-                    showMessage(String.format(Locale.getDefault(),
-                            context.getString(R.string.successfully_exported_text),
+                    showMessage(context.getString(R.string.successfully_exported_text,
                             settingsFile.getAbsolutePath()));
 
                     if (callbacks != null) {

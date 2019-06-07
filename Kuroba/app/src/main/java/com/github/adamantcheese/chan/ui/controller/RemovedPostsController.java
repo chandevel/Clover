@@ -200,7 +200,7 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
             AppCompatCheckBox checkbox = convertView.findViewById(R.id.removed_post_checkbox);
             AppCompatImageView postImage = convertView.findViewById(R.id.post_image);
 
-            postNo.setText(String.format(Locale.getDefault(), "No. %d", removedPost.postNo));
+            postNo.setText(String.format("No. %d", removedPost.postNo));
             postComment.setText(removedPost.comment);
             checkbox.setChecked(removedPost.isChecked());
 
