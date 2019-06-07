@@ -193,10 +193,17 @@ public class FiltersController extends Controller implements
     }
 
     private void deleteFilter(Filter filter) {
+        Filter clone = filter.clone();
         filterEngine.deleteFilter(filter);
         EventBus.getDefault().post(new RefreshUIMessage("filters"));
         adapter.load();
-        //TODO: undo
+        Snackbar s = Snackbar.make(view, context.getString(R.string.filter_removed_undo, clone.pattern), Snackbar.LENGTH_LONG);
+        s.setAction(R.string.undo, v -> {
+            filterEngine.createOrUpdateFilter(clone);
+            adapter.load();
+        });
+        fixSnackbarText(context, s);
+        s.show();
     }
 
     @Override
