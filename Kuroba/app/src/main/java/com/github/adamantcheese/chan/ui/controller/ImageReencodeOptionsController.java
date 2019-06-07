@@ -3,15 +3,17 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatRadioButton;
-import androidx.appcompat.widget.AppCompatSeekBar;
+import android.util.Pair;
 import android.view.View;
 import android.view.Window;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatRadioButton;
+import androidx.appcompat.widget.AppCompatSeekBar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -27,6 +29,7 @@ public class ImageReencodeOptionsController extends Controller implements
     private ImageReencodeOptionsCallbacks callbacks;
     private ImageOptionsHelper imageReencodingHelper;
     private Bitmap.CompressFormat imageFormat;
+    private Pair<Integer, Integer> dims;
 
     private ConstraintLayout viewHolder;
     private RadioGroup radioGroup;
@@ -44,9 +47,9 @@ public class ImageReencodeOptionsController extends Controller implements
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (seekBar == quality) {
-                currentImageQuality.setText(String.format(context.getString(R.string.image_quality), progress));
+                currentImageQuality.setText(context.getString(R.string.image_quality, progress));
             } else if (seekBar == reduce) {
-                currentImageReduce.setText(String.format(context.getString(R.string.scale_reduce), progress));
+                currentImageReduce.setText(context.getString(R.string.scale_reduce, dims.first, dims.second, dims.first / progress, dims.second / progress));
             } else {
                 throw new RuntimeException("Unknown seekBar");
             }
@@ -67,13 +70,15 @@ public class ImageReencodeOptionsController extends Controller implements
             Context context,
             ImageOptionsHelper imageReencodingHelper,
             ImageReencodeOptionsCallbacks callbacks,
-            Bitmap.CompressFormat imageFormat
+            Bitmap.CompressFormat imageFormat,
+            Pair<Integer, Integer> dims
     ) {
         super(context);
 
         this.imageReencodingHelper = imageReencodingHelper;
         this.callbacks = callbacks;
         this.imageFormat = imageFormat;
+        this.dims = dims;
     }
 
     @Override
@@ -115,6 +120,8 @@ public class ImageReencodeOptionsController extends Controller implements
         if (statusBarColorPrevious != 0) {
             AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
+
+        currentImageReduce.setText(context.getString(R.string.scale_reduce, dims.first, dims.second, dims.first, dims.second));
     }
 
     private void setReencodeImageAsIsText() {
@@ -128,7 +135,7 @@ public class ImageReencodeOptionsController extends Controller implements
             format = "Unknown";
         }
 
-        reencodeImageAsIs.setText(String.format(context.getString(R.string.reencode_image_as_is), format));
+        reencodeImageAsIs.setText(context.getString(R.string.reencode_image_as_is, format));
     }
 
     @Override
@@ -192,6 +199,7 @@ public class ImageReencodeOptionsController extends Controller implements
 
     public interface ImageReencodeOptionsCallbacks {
         void onCanceled();
+
         void onOk(ImageReencodingPresenter.Reencode reencode);
     }
 }

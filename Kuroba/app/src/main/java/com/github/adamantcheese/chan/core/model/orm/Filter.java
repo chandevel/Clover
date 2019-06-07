@@ -16,10 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
+import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-
-import com.github.adamantcheese.chan.core.manager.FilterType;
 
 @DatabaseTable(tableName = "filter")
 public class Filter implements Cloneable {
@@ -65,7 +64,6 @@ public class Filter implements Cloneable {
     }
 
     public Filter() {
-
     }
 
     public Filter(boolean enabled, int type, String pattern, boolean allBoards, String boards, int action, int color, boolean applyToReplies) {

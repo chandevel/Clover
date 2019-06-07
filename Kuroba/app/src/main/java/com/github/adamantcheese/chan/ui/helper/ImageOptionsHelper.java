@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.ui.helper;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Pair;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -49,9 +50,9 @@ public class ImageOptionsHelper implements
     }
 
     @Override
-    public void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat) {
-        if (imageReencodeOptionsController == null && imageFormat != null) {
-            imageReencodeOptionsController = new ImageReencodeOptionsController(context, this, this, imageFormat);
+    public void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat, @Nullable Pair<Integer, Integer> dims) {
+        if (imageReencodeOptionsController == null && imageFormat != null && dims != null) {
+            imageReencodeOptionsController = new ImageReencodeOptionsController(context, this, this, imageFormat, dims);
             callbacks.presentController(imageReencodeOptionsController);
         } else {
             Toast.makeText(context, context.getString(R.string.image_reencode_format_error), Toast.LENGTH_LONG).show();

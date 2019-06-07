@@ -24,6 +24,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.AppCompatImageView;
+
+import android.util.Pair;
 import android.view.View;
 import android.view.Window;
 import android.widget.CompoundButton;
@@ -150,7 +152,7 @@ public class ImageOptionsController extends Controller implements
             if (!isChecked) {
                 onReencodingCanceled();
             } else {
-                callbacks.onReencodeOptionClicked(presenter.getImageFormat());
+                callbacks.onReencodeOptionClicked(presenter.getImageFormat(), presenter.getImageDims());
             }
         } else {
             throw new RuntimeException("onCheckedChanged Unknown view clicked");
@@ -229,7 +231,7 @@ public class ImageOptionsController extends Controller implements
     }
 
     public interface ImageOptionsControllerCallbacks {
-        void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat);
+        void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat, @Nullable Pair<Integer, Integer> dims);
 
         void onImageOptionsApplied(Reply reply);
     }

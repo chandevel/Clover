@@ -17,6 +17,8 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.graphics.Bitmap;
+import android.util.Pair;
+
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
@@ -92,6 +94,17 @@ public class ImageReencodingPresenter {
             return BitmapUtils.getImageFormat(reply.file);
         } catch (Exception e) {
             Logger.e(TAG, "Error while trying to get image format", e);
+            return null;
+        }
+    }
+
+    @Nullable
+    public Pair<Integer, Integer> getImageDims() {
+        try {
+            Reply reply = replyManager.getReply(loadable);
+            return BitmapUtils.getImageDims(reply.file);
+        } catch (Exception e) {
+            Logger.e(TAG, "Error while trying to get image dimensions", e);
             return null;
         }
     }

@@ -2,7 +2,10 @@ package com.github.adamantcheese.chan.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.graphics.Matrix;
+import android.util.Pair;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
@@ -242,5 +245,18 @@ public class BitmapUtils {
 
             throw new IllegalArgumentException("File " + file.getName() + " is neither PNG nor JPEG");
         }
+    }
+
+    /**
+     * Gets the dimensions of the specified image file
+     *
+     * @param file image
+     * @return a pair of dimensions, in WIDTH then HEIGHT order
+     * @throws IOException if anything went wrong
+     */
+    public static Pair<Integer, Integer> getImageDims(File file) throws IOException {
+        if (file == null) throw new IOException();
+        Bitmap bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(file));
+        return new Pair<>(bitmap.getWidth(), bitmap.getHeight());
     }
 }
