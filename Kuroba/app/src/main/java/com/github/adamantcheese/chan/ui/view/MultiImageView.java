@@ -46,6 +46,7 @@ import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.core.cache.FileCacheDataSource;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
@@ -53,8 +54,10 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
@@ -375,6 +378,28 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     }
 
     private void setVideo(String videoUrl) {
+        setVideoMediaSource(videoUrl);
+    }
+
+    private void setVideoMediaSource(String videoUrl) {
+        PlayerView exoVideoView = new PlayerView(getContext());
+        exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+        exoVideoView.setPlayer(exoPlayer);
+
+        exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
+                Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
+
+        MediaSource videoSource = fileCache.createMediaSource(videoUrl);
+        exoPlayer.prepare(videoSource);
+        exoPlayer.addAudioListener(this);
+
+        addView(exoVideoView);
+        exoPlayer.setPlayWhenReady(true);
+        onModeLoaded(Mode.MOVIE, exoVideoView);
+        callback.onVideoLoaded(this);
+    }
+
+    private void setVideoDownloadFile(String videoUrl) {
         if (videoRequest != null) {
             return;
         }
