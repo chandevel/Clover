@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -265,6 +266,12 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 holder.watchCountText.setTextColor(0xffFF4444);
             } else {
                 holder.watchCountText.setTextColor(0xff33B5E5);
+            }
+
+            if (watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit) {
+                holder.watchCountText.setTypeface(holder.watchCountText.getTypeface(), Typeface.ITALIC);
+            } else {
+                holder.watchCountText.setTypeface(holder.watchCountText.getTypeface(), Typeface.NORMAL);
             }
 
             // The 16dp padding now belongs to the counter, for a bigger touch area
