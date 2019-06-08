@@ -41,6 +41,9 @@ import com.github.adamantcheese.chan.ui.service.LastPageNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
 import com.github.adamantcheese.chan.utils.Logger;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,9 +54,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
@@ -582,7 +582,7 @@ public class WatchManager implements WakeManager.Wakeable {
         }
 
         public int getReplyCount() {
-            return posts.size() - 1;
+            return posts.size();
         }
 
         public List<Post> getUnviewedPosts() {

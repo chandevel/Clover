@@ -268,7 +268,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 holder.watchCountText.setTextColor(0xff33B5E5);
             }
 
-            if (watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit) {
+            if (watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) {
                 holder.watchCountText.setTypeface(holder.watchCountText.getTypeface(), Typeface.ITALIC);
             } else {
                 holder.watchCountText.setTypeface(holder.watchCountText.getTypeface(), Typeface.NORMAL);
