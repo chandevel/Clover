@@ -691,10 +691,10 @@ public class WatchManager implements WakeManager.Wakeable {
                 }
             }
 
-            // Now get a list of posts that have a quote to a saved reply
+            // Now get a list of posts that have a quote to a saved reply, but not self-replies
             for (Post post : thread.posts) {
                 for (Post saved : savedReplies) {
-                    if (post.repliesTo.contains(saved.no)) {
+                    if (post.repliesTo.contains(saved.no) && !post.isSavedReply) {
                         quotes.add(post);
                     }
                 }
