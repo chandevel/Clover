@@ -41,9 +41,6 @@ import com.github.adamantcheese.chan.ui.service.LastPageNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,6 +51,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
@@ -694,7 +694,7 @@ public class WatchManager implements WakeManager.Wakeable {
             // Now get a list of posts that have a quote to a saved reply
             for (Post post : thread.posts) {
                 for (Post saved : savedReplies) {
-                    if (post.repliesTo.contains(saved.no) && !saved.isSavedReply) {
+                    if (post.repliesTo.contains(saved.no)) {
                         quotes.add(post);
                     }
                 }
