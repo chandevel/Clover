@@ -129,8 +129,10 @@ public class BoardSetupController extends Controller implements View.OnClickList
         savedBoardsRecycler.setAdapter(savedAdapter);
         savedBoardsRecycler.addItemDecoration(
                 new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
+
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
+
         add.setOnClickListener(this);
         Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(add);
         crossfadeView.toggle(false, false);

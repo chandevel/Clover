@@ -50,11 +50,8 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public FilterEngine provideFilterEngine(
-            DatabaseManager databaseManager,
-            BoardManager boardManager
-    ) {
-        return new FilterEngine(databaseManager, boardManager);
+    public FilterEngine provideFilterEngine(DatabaseManager databaseManager) {
+        return new FilterEngine(databaseManager);
     }
 
     @Provides

@@ -92,7 +92,7 @@ public class FilterEngine {
     private final List<Filter> enabledFilters = new ArrayList<>();
 
     @Inject
-    public FilterEngine(DatabaseManager databaseManager, BoardManager boardManager) {
+    public FilterEngine(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
         databaseFilterManager = databaseManager.getDatabaseFilterManager();
         update();
