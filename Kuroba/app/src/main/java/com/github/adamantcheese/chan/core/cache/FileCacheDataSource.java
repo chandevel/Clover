@@ -15,6 +15,8 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -252,6 +254,19 @@ public class FileCacheDataSource extends BaseDataSource {
         prepared = true;
     }
 
+    public void fillCache(File file) throws IOException {
+        final int fillCacheBufferSize = 64;
+        long bytesRead;
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] buffer = new byte[fillCacheBufferSize];
+
+            while ((bytesRead = fis.read(buffer, 0, fillCacheBufferSize)) != -1) {
+                partialFileCache.write(buffer, 0, bytesRead);
+            }
+        }
+    }
+
     @Override
     public long open(DataSpec dataSpec) throws IOException {
         if (!prepared) {
@@ -291,6 +306,9 @@ public class FileCacheDataSource extends BaseDataSource {
 
     private void activateHttpRange(Range<Long> range) throws HttpDataSource.HttpDataSourceException {
         if (httpActiveRange == null || !httpActiveRange.equals(range)) {
+            // As this is reading sequentially, and our ranges are limited to the region
+            // our DataSpec was supposed to read, it's okay to assume we will read the entirety
+            // of our missing ranges, and we won't need to seek inside them.
             dataSource.open(new DataSpec(uri, range.getLower(),
                     range.getUpper() - range.getLower() + 1, null));
             httpActiveRange = range;

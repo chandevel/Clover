@@ -24,7 +24,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 
 import java.io.File;
@@ -108,7 +107,42 @@ public class FileCache implements FileCacheDownloader.Callback, FileCacheDataSou
         return null;
     }
 
-    public MediaSource createMediaSource(String url) {
+    private void handleCreateMediaSourceDownload(MediaSourceCallback listener, File file, String url) {
+        Uri uri = Uri.parse(url);
+        FileCacheDataSource fileCacheSource = new FileCacheDataSource(uri, file);
+        fileCacheSource.addListener(this);
+        fileCacheSource.prepare();
+
+        // Attempt to get the data from a downloader already running for this URL,
+        // and fill it into our cache
+        FileCacheDownloader runningDownloaderForKey = getDownloaderByKey(url);
+        if (runningDownloaderForKey != null) {
+            runningDownloaderForKey.addListener(new FileCacheListener() {
+                @Override
+                public void beforePurgeOutput(File file) {
+                    try {
+                        fileCacheSource.fillCache(file);
+                    } catch (IOException e) {
+                        Logger.e(TAG, "Failed to fill cache!", e);
+                    }
+
+                    listener.onMediaSourceReady(
+                            new ProgressiveMediaSource.Factory(() -> fileCacheSource).createMediaSource(uri)
+                    );
+                }
+            });
+
+            // Is it really OK to cancel here? Maybe a better way would be to just "peek"
+            // into the downloader data...
+            runningDownloaderForKey.cancel();
+        } else {
+            listener.onMediaSourceReady(
+                new ProgressiveMediaSource.Factory(() -> fileCacheSource).createMediaSource(uri)
+            );
+        }
+    }
+
+    public void createMediaSource(String url, MediaSourceCallback listener) {
         File file = get(url);
 
         DataSource dataSource;
@@ -117,15 +151,12 @@ public class FileCache implements FileCacheDownloader.Callback, FileCacheDataSou
         if (file.exists() && getDownloaderByKey(url) == null) {
             uri = Uri.parse(file.toURI().toString());
             dataSource = new FileDataSource();
+            listener.onMediaSourceReady(
+                    new ProgressiveMediaSource.Factory(() -> dataSource).createMediaSource(uri)
+            );
         } else {
-            uri = Uri.parse(url);
-            FileCacheDataSource fileCacheSource = new FileCacheDataSource(uri, file);
-            fileCacheSource.addListener(this);
-            fileCacheSource.prepare();
-            dataSource = fileCacheSource;
+            handleCreateMediaSourceDownload(listener, file, url);
         }
-
-        return new ProgressiveMediaSource.Factory(() -> dataSource).createMediaSource(uri);
     }
 
     @Override
@@ -172,5 +203,9 @@ public class FileCache implements FileCacheDownloader.Callback, FileCacheDataSou
         downloader.execute(downloadPool);
         downloaders.add(downloader);
         return downloader;
+    }
+
+    public interface MediaSourceCallback {
+        void onMediaSourceReady(MediaSource source);
     }
 }

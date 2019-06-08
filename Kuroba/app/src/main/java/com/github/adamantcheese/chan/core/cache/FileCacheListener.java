@@ -38,6 +38,12 @@ public abstract class FileCacheListener {
     }
 
     /**
+     * Called just before the file is purged, after being cancelled.
+     */
+    public void beforePurgeOutput(File file) {
+    }
+
+    /**
      * Called when the file download was cancelled.
      */
     public void onCancel() {
