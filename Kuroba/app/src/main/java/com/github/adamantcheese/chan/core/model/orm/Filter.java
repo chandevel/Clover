@@ -50,6 +50,9 @@ public class Filter implements Cloneable {
     @DatabaseField(columnName = "apply_to_replies", canBeNull = false)
     public boolean applyToReplies;
 
+    @DatabaseField
+    public int order = -1;
+
     public boolean hasFilter(FilterType filterType) {
         return (type & filterType.flag) != 0;
     }
@@ -66,7 +69,7 @@ public class Filter implements Cloneable {
     public Filter() {
     }
 
-    public Filter(boolean enabled, int type, String pattern, boolean allBoards, String boards, int action, int color, boolean applyToReplies) {
+    public Filter(boolean enabled, int type, String pattern, boolean allBoards, String boards, int action, int color, boolean applyToReplies, int order) {
         this.enabled = enabled;
         this.type = type;
         this.pattern = pattern;
@@ -75,6 +78,7 @@ public class Filter implements Cloneable {
         this.action = action;
         this.color = color;
         this.applyToReplies = applyToReplies;
+        this.order = order;
     }
 
     public void apply(Filter filter) {
@@ -86,6 +90,7 @@ public class Filter implements Cloneable {
         action = filter.action;
         color = filter.color;
         applyToReplies = filter.applyToReplies;
+        order = filter.order;
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
@@ -98,7 +103,8 @@ public class Filter implements Cloneable {
                 boards,
                 action,
                 color,
-                applyToReplies
+                applyToReplies,
+                order
         );
     }
 }

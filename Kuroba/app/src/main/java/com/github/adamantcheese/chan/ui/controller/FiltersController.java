@@ -16,15 +16,20 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -43,13 +48,14 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
-
-import org.greenrobot.eventbus.EventBus;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
@@ -64,9 +70,40 @@ public class FiltersController extends Controller implements
     @Inject
     FilterEngine filterEngine;
 
+    private RecyclerView recyclerView;
     private FloatingActionButton add;
     private FloatingActionButton enable;
     private FilterAdapter adapter;
+
+    private ItemTouchHelper itemTouchHelper;
+    private boolean attached;
+
+    private ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+            ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
+    ) {
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            int from = viewHolder.getAdapterPosition();
+            int to = target.getAdapterPosition();
+
+            if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION || !TextUtils.isEmpty(adapter.searchQuery)) {
+                //require that no search is going on while we do the sorting
+                return false;
+            }
+
+            adapter.move(from, to);
+            return true;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
+                int position = viewHolder.getAdapterPosition();
+                deleteFilter(adapter.displayList.get(position));
+            }
+        }
+    };
 
     public FiltersController(Context context) {
         super(context);
@@ -77,17 +114,23 @@ public class FiltersController extends Controller implements
         super.onCreate();
         inject(this);
 
-        navigation.setTitle(R.string.filters_screen);
+        view = inflateRes(R.layout.controller_filters);
 
+        navigation.setTitle(R.string.filters_screen);
+        navigation.swipeable = false;
         navigation.buildMenu()
                 .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
                 .build();
 
-        view = inflateRes(R.layout.controller_filters);
+        adapter = new FilterAdapter();
 
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setHasFixedSize(true);
+        recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setAdapter(adapter);
+
+        itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+        attached = true;
 
         add = view.findViewById(R.id.add);
         add.setOnClickListener(this);
@@ -96,16 +139,20 @@ public class FiltersController extends Controller implements
         enable = view.findViewById(R.id.enable);
         enable.setOnClickListener(this);
         Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(enable);
+    }
 
-        adapter = new FilterAdapter();
-        recyclerView.setAdapter(adapter);
-        adapter.load();
+    @Override
+    public void onDestroy() {
+        databaseManager.getDatabaseFilterManager().updateFilters(adapter.sourceList);
     }
 
     @Override
     public void onClick(View v) {
         if (v == add) {
-            showFilterDialog(new Filter());
+            Filter f = new Filter();
+            //add to the end of the filter list
+            f.order = adapter.getItemCount();
+            showFilterDialog(f);
         } else if (v == enable) {
             FloatingActionButton enableButton = (FloatingActionButton) v;
             //if every filter is disabled, enable all of them and set the drawable to be an x
@@ -124,7 +171,7 @@ public class FiltersController extends Controller implements
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
             Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(enable);
-            adapter.load();
+            adapter.reload();
         }
     }
 
@@ -145,6 +192,7 @@ public class FiltersController extends Controller implements
         final AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setView(filterLayout)
                 .setPositiveButton(R.string.save, (dialog, which) -> {
+
                     filterEngine.createOrUpdateFilter(filterLayout.getFilter());
                     if (filterEngine.getEnabledFilters().isEmpty()) {
                         enable.setImageResource(R.drawable.ic_done_white_24dp);
@@ -153,12 +201,11 @@ public class FiltersController extends Controller implements
                     }
                     Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(enable);
                     EventBus.getDefault().post(new RefreshUIMessage("filters"));
-                    adapter.load();
+                    adapter.reload();
                 })
                 .show();
 
         filterLayout.setCallback(enabled -> alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled));
-
         filterLayout.setFilter(filter);
     }
 
@@ -166,26 +213,41 @@ public class FiltersController extends Controller implements
         Filter clone = filter.clone();
         filterEngine.deleteFilter(filter);
         EventBus.getDefault().post(new RefreshUIMessage("filters"));
-        adapter.load();
+        adapter.reload();
+
         Snackbar s = Snackbar.make(view, context.getString(R.string.filter_removed_undo, clone.pattern), Snackbar.LENGTH_LONG);
         s.setAction(R.string.undo, v -> {
             filterEngine.createOrUpdateFilter(clone);
-            adapter.load();
+            adapter.reload();
         });
         fixSnackbarText(context, s);
         s.show();
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void onSearchVisibilityChanged(boolean visible) {
         if (!visible) {
-            adapter.search(null);
+            //search off, turn on buttons and touch listener
+            adapter.searchQuery = null;
+            adapter.filter();
+            add.setVisibility(View.VISIBLE);
+            enable.setVisibility(View.VISIBLE);
+            itemTouchHelper.attachToRecyclerView(recyclerView);
+            attached = true;
+        } else {
+            //search on, turn off buttons and touch listener
+            add.setVisibility(View.GONE);
+            enable.setVisibility(View.GONE);
+            itemTouchHelper.attachToRecyclerView(null);
+            attached = false;
         }
     }
 
     @Override
     public void onSearchEntered(String entered) {
-        adapter.search(entered);
+        adapter.searchQuery = entered;
+        adapter.filter();
     }
 
     private class FilterAdapter extends RecyclerView.Adapter<FilterCell> {
@@ -195,6 +257,8 @@ public class FiltersController extends Controller implements
 
         public FilterAdapter() {
             setHasStableIds(true);
+            reload();
+            filter();
         }
 
         @Override
@@ -234,19 +298,31 @@ public class FiltersController extends Controller implements
             return displayList.get(position).id;
         }
 
-        public void search(String query) {
-            this.searchQuery = query;
-            filter();
-        }
-
-        private void load() {
+        public void reload() {
             sourceList.clear();
             sourceList.addAll(databaseManager.runTask(databaseManager.getDatabaseFilterManager().getFilters()));
-
+            Collections.sort(sourceList, (o1, o2) -> o1.order - o2.order);
             filter();
         }
 
-        private void filter() {
+        public void move(int from, int to) {
+            Filter filter = sourceList.remove(from);
+            sourceList.add(to, filter);
+            sourceList = setOrders(sourceList);
+            databaseManager.runTask(databaseManager.getDatabaseFilterManager().updateFilters(sourceList));
+            displayList.clear();
+            displayList.addAll(sourceList);
+            notifyDataSetChanged();
+        }
+
+        private List<Filter> setOrders(List<Filter> input) {
+            for (int i = 0; i < input.size(); i++) {
+                input.get(i).order = i;
+            }
+            return input;
+        }
+
+        public void filter() {
             displayList.clear();
             if (!TextUtils.isEmpty(searchQuery)) {
                 String query = searchQuery.toLowerCase(Locale.ENGLISH);
@@ -258,6 +334,7 @@ public class FiltersController extends Controller implements
             } else {
                 displayList.addAll(sourceList);
             }
+            Collections.sort(displayList, (o1, o2) -> o1.order - o2.order);
 
             notifyDataSetChanged();
         }
@@ -266,18 +343,25 @@ public class FiltersController extends Controller implements
     private class FilterCell extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView text;
         private TextView subtext;
-        private ImageView delete;
+        private ImageView reorder;
 
         public FilterCell(View itemView) {
             super(itemView);
 
             text = itemView.findViewById(R.id.text);
             subtext = itemView.findViewById(R.id.subtext);
-            delete = itemView.findViewById(R.id.delete);
+            reorder = itemView.findViewById(R.id.reorder);
 
-            Chan.injector().instance(ThemeHelper.class).getTheme().clearDrawable.apply(delete);
+            Drawable drawable = DrawableCompat.wrap(context.getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
+            DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));
+            reorder.setImageDrawable(drawable);
 
-            delete.setOnClickListener(this);
+            reorder.setOnTouchListener((v, event) -> {
+                if (event.getActionMasked() == MotionEvent.ACTION_DOWN && attached) {
+                    itemTouchHelper.startDrag(FilterCell.this);
+                }
+                return false;
+            });
 
             itemView.setOnClickListener(this);
         }
@@ -285,15 +369,9 @@ public class FiltersController extends Controller implements
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
-            if (position >= 0 && position < adapter.getItemCount()) {
-                Filter filter = adapter.displayList.get(position);
-                if (v == itemView) {
-                    showFilterDialog(filter);
-                } else if (v == delete) {
-                    deleteFilter(filter);
-                }
+            if (position >= 0 && position < adapter.getItemCount() && v == itemView) {
+                showFilterDialog(adapter.displayList.get(position));
             }
-
         }
     }
 }

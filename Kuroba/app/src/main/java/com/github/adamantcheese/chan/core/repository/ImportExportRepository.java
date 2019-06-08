@@ -17,9 +17,8 @@
 package com.github.adamantcheese.chan.core.repository;
 
 import android.annotation.SuppressLint;
-import androidx.annotation.NonNull;
 
-import com.google.gson.Gson;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -38,6 +37,7 @@ import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileReader;
@@ -276,7 +276,8 @@ public class ImportExportRepository {
                     exportedFilter.getBoards(),
                     exportedFilter.getAction(),
                     exportedFilter.getColor(),
-                    exportedFilter.getApplyToReplies()
+                    exportedFilter.getApplyToReplies(),
+                    exportedFilter.getOrder()
             ));
         }
 
@@ -427,7 +428,8 @@ public class ImportExportRepository {
                     filter.boards,
                     filter.action,
                     filter.color,
-                    filter.applyToReplies
+                    filter.applyToReplies,
+                    filter.order
             ));
         }
 

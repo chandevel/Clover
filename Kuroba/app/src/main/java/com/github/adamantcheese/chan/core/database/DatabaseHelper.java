@@ -45,7 +45,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 31;
+    private static final int DATABASE_VERSION = 32;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -320,6 +320,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 loadableDao.executeRawNoArgs("UPDATE loadable SET mode = 1 WHERE mode = 2");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 31");
+            }
+        }
+
+        if (oldVersion < 32) {
+            try {
+                filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN \"order\" INTEGER");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 32");
             }
         }
     }
