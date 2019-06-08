@@ -87,6 +87,7 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                     break;
                 case "body":
                     MutableDataHolder options = new MutableDataSet()
+                            .set(GfmIssuesExtension.GIT_HUB_ISSUES_URL_ROOT, BuildConfig.ISSUES_ENDPOINT)
                             .set(Parser.EXTENSIONS, Collections.singletonList(GfmIssuesExtension.create()));
                     Node updateLog = Parser.builder(options).build().parse(reader.nextString());
                     response.body = Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder(options).build().render(updateLog));

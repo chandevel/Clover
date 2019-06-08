@@ -20,6 +20,7 @@ android {
         applicationId "com.github.adamantcheese.chan"
         //this is your update endpoint, change it to your repository
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
+        buildConfigField "String", "ISSUES_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba/issues\""
     }
 
     compileOptions {
