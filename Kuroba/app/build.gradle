@@ -14,8 +14,8 @@ android {
         //bump the MAJOR (XX) version when there are incompatible changes between versions, or major changes
         //bump the MINOR (YY) version when there are compatible changes between versions (ie database changes)
         //bump the PATCH (ZZ) version otherwise
-        versionCode 40010
-        versionName "v4.0.10"
+        versionCode 40100
+        versionName "v4.1.0"
 
         applicationId "com.github.adamantcheese.chan"
         //this is your update endpoint, change it to your repository
