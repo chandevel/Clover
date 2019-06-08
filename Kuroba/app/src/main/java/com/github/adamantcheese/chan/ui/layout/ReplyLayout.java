@@ -625,7 +625,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
                 currentProgress.setVisibility(View.VISIBLE);
             }
 
-            currentProgress.setText(percent);
+            currentProgress.setText(String.valueOf(percent));
         }
     }
 
