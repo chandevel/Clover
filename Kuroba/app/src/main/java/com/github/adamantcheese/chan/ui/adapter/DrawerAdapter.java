@@ -16,9 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -244,10 +244,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
-            BitmapDrawable archivedIcon = new BitmapDrawable(
-                    AndroidUtils.getRes(),
-                    BitmapFactory.decodeResource(AndroidUtils.getRes(),
-                            R.drawable.archived_icon));
+            Bitmap archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
             text = PostHelper.prependIcon(text, archivedIcon, sp(16));
         }
 

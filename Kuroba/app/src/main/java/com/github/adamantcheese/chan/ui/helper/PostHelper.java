@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.helper;
 
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Bitmap;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
@@ -30,12 +30,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class PostHelper {
-    public static CharSequence prependIcon(CharSequence total, BitmapDrawable bitmapDrawable, int height) {
-        SpannableString string = new SpannableString("  ");
-        ImageSpan imageSpan = new ImageSpan(bitmapDrawable);
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
-        int width = (int) (height / (bitmapDrawable.getIntrinsicHeight() / (float) bitmapDrawable.getIntrinsicWidth()));
+public class PostHelper {
+    public static CharSequence prependIcon(CharSequence total, Bitmap bitmap, int height) {
+        SpannableString string = new SpannableString("  ");
+        ImageSpan imageSpan = new ImageSpan(getAppContext(), bitmap);
+
+        int width = (int) (height / (bitmap.getHeight() / (float) bitmap.getWidth()));
 
         imageSpan.getDrawable().setBounds(0, 0, width, height);
         string.setSpan(imageSpan, 0, 1, 0);
