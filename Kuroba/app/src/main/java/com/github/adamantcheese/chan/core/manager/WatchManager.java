@@ -582,7 +582,7 @@ public class WatchManager implements WakeManager.Wakeable {
         }
 
         public int getReplyCount() {
-            return posts.size();
+            return chanLoader.getThread().posts.size();
         }
 
         public List<Post> getUnviewedPosts() {
