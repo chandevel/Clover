@@ -109,7 +109,7 @@ public class PageRequestManager implements SiteActions.PagesListener {
                 requestedBoards.add(b.code);
                 b.site.actions().pages(b, this);
             } else {
-                Logger.w(TAG, "Board /" + b.code + "/ has already been requested");
+                Logger.d(TAG, "Board /" + b.code + "/ has already been requested");
             }
         }
     }
