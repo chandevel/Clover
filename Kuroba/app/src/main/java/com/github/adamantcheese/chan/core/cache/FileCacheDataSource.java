@@ -211,6 +211,7 @@ public class FileCacheDataSource extends BaseDataSource {
 
     private HttpDataSource dataSource;
     private PartialFileCache partialFileCache;
+    private byte[] dataToFillCache = null;
     private PartialFileCache.RegionStats activeRegionStats;
     private Range<Long> httpActiveRange;
 
@@ -235,34 +236,40 @@ public class FileCacheDataSource extends BaseDataSource {
         this.uri = uri;
     }
 
-    private void detectLength() {
-        try {
-            this.fileLength = dataSource.open(new DataSpec(uri, 0, C.LENGTH_UNSET, null));
-        } catch (HttpDataSource.HttpDataSourceException e) {
-            Logger.w(TAG, "Couldn't detect length of URI", e);
-            this.fileLength = C.LENGTH_UNSET;
-        }
+    private void detectLength() throws HttpDataSource.HttpDataSourceException {
+        this.fileLength = dataSource.open(new DataSpec(uri, 0, C.LENGTH_UNSET, null));
 
         Logger.i(TAG, "detectLength: " + this.fileLength);
     }
 
-    public void prepare() {
+    private void prepare() throws HttpDataSource.HttpDataSourceException {
         detectLength();
         this.partialFileCache = new PartialFileCache(this.fileLength);
         partialFileCache.addListener(() -> this.cacheComplete());
+
+        if (dataToFillCache != null) {
+            partialFileCache.write(dataToFillCache, 0, dataToFillCache.length);
+            partialFileCache.seek(0);
+
+            dataToFillCache = null;
+        }
 
         prepared = true;
     }
 
     public void fillCache(File file) throws IOException {
-        final int fillCacheBufferSize = 64;
-        long bytesRead;
-
         try (FileInputStream fis = new FileInputStream(file)) {
-            byte[] buffer = new byte[fillCacheBufferSize];
+            dataToFillCache = new byte[(int) file.length()];
+            fis.read(dataToFillCache);
 
-            while ((bytesRead = fis.read(buffer, 0, fillCacheBufferSize)) != -1) {
-                partialFileCache.write(buffer, 0, bytesRead);
+            // If it's null, this means we're not prepared yet (i.e. we don't know the real size
+            // of the video, which is required by partialFileCache). Just leave it here and wait
+            // until we're prepared.
+            if (partialFileCache != null) {
+                partialFileCache.write(dataToFillCache, 0, dataToFillCache.length);
+                partialFileCache.seek(0);
+
+                dataToFillCache = null;
             }
         }
     }
@@ -270,7 +277,7 @@ public class FileCacheDataSource extends BaseDataSource {
     @Override
     public long open(DataSpec dataSpec) throws IOException {
         if (!prepared) {
-            throw new IOException("call prepare() first!");
+            prepare();
         }
 
         // We keep the cache for a single file, so it would be bothersome that it was used with
