@@ -372,8 +372,8 @@ public class CaptchaNoJsHtmlParser {
                 for (int row = 0; row < rows; ++row) {
                     Bitmap imagePiece = Bitmap.createBitmap(
                             originalBitmap,
-                            column * imageWidth,
-                            row * imageHeight,
+                            row * imageWidth,
+                            column * imageHeight,
                             imageWidth,
                             imageHeight);
 

@@ -49,15 +49,12 @@ public class CaptchaNoJsPresenterV2 {
     private static final String acceptEncodingHeader = "deflate, br";
     private static final String acceptLanguageHeader = "en-US";
     private static final String recaptchaUrlBase = "https://www.google.com/recaptcha/api/fallback?k=";
-    private static final String googleBaseUrl = "https://www.google.com/";
     private static final String encoding = "UTF-8";
     private static final String mediaType = "application/x-www-form-urlencoded";
     private static final String recaptchaChallengeString = "reCAPTCHA challenge";
     private static final String verificationTokenString = "fbc-verification-token";
-    private static final String setCookieHeaderName = "set-cookie";
     private static final int SUCCESS_STATUS_CODE = 200;
     private static final long CAPTCHA_REQUEST_THROTTLE_MS = 3000L;
-    private static final long THREE_MONTHS = TimeUnit.DAYS.toMillis(90);
 
     // this cookie is taken from dashchan
     private static final String defaultGoogleCookies = "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
@@ -72,13 +69,9 @@ public class CaptchaNoJsPresenterV2 {
     private AuthenticationCallbacks callbacks;
     @Nullable
     private CaptchaInfo prevCaptchaInfo = null;
-    @NonNull
-    // either the default cookie or a real cookie
-    private volatile String googleCookie;
 
     private AtomicBoolean verificationInProgress = new AtomicBoolean(false);
     private AtomicBoolean captchaRequestInProgress = new AtomicBoolean(false);
-    private AtomicBoolean refreshCookiesRequestInProgress = new AtomicBoolean(false);
     private String siteKey;
     private String baseUrl;
     private long lastTimeCaptchaRequest = 0L;
@@ -86,8 +79,6 @@ public class CaptchaNoJsPresenterV2 {
     public CaptchaNoJsPresenterV2(@Nullable AuthenticationCallbacks callbacks, Context context) {
         this.callbacks = callbacks;
         this.parser = new CaptchaNoJsHtmlParser(context, okHttpClient);
-
-        this.googleCookie = ChanSettings.googleCookie.get();
     }
 
     public void init(String siteKey, String baseUrl) {
@@ -126,16 +117,12 @@ public class CaptchaNoJsPresenterV2 {
                 throw new CaptchaNoJsV2Error("C parameter is null");
             }
 
-            if (googleCookie.isEmpty()) {
-                throw new IllegalStateException("Google cookies are not supposed to be empty here");
-            }
-
             executor.submit(() -> {
                 try {
                     String recaptchaUrl = recaptchaUrlBase + siteKey;
                     RequestBody body = createResponseBody(prevCaptchaInfo, selectedIds);
 
-                    Logger.d(TAG, "Verify called. Current cookie = " + googleCookie);
+                    Logger.d(TAG, "Verify called");
 
                     Request request = new Request.Builder()
                             .url(recaptchaUrl)
@@ -145,7 +132,7 @@ public class CaptchaNoJsPresenterV2 {
                             .header("Accept", acceptHeader)
                             .header("Accept-Encoding", acceptEncodingHeader)
                             .header("Accept-Language", acceptLanguageHeader)
-                            .header("Cookie", googleCookie)
+                            .header("Cookie", defaultGoogleCookies)
                             .build();
 
                     try (Response response = okHttpClient.newCall(request).execute()) {
@@ -170,38 +157,6 @@ public class CaptchaNoJsPresenterV2 {
             verificationInProgress.set(false);
             throw error;
         }
-    }
-
-    /**
-     * Manually refreshes the google cookie
-     * */
-    public void refreshCookies() {
-        if (!refreshCookiesRequestInProgress.compareAndSet(false, true)) {
-            Logger.d(TAG, "Google cookie request is already in progress");
-            return;
-        }
-
-        if (executor.isShutdown()) {
-            refreshCookiesRequestInProgress.set(false);
-            Logger.d(TAG, "Cannot request google cookie, executor has been shut down");
-            return;
-        }
-
-        executor.submit(() -> {
-            try {
-                googleCookie = getGoogleCookies(true);
-
-                if (callbacks != null) {
-                    callbacks.onGoogleCookiesRefreshed();
-                }
-            } catch (IOException e) {
-                if (callbacks != null) {
-                    callbacks.onGetGoogleCookieError(false, e);
-                }
-            } finally {
-                refreshCookiesRequestInProgress.set(false);
-            }
-        });
     }
 
     /**
@@ -232,16 +187,6 @@ public class CaptchaNoJsPresenterV2 {
             executor.submit(() -> {
                 try {
                     try {
-                        googleCookie = getGoogleCookies(false);
-                    } catch (Throwable error) {
-                        if (callbacks != null) {
-                            callbacks.onGetGoogleCookieError(true, error);
-                        }
-
-                        throw error;
-                    }
-
-                    try {
                         prevCaptchaInfo = getCaptchaInfo();
                     } catch (Throwable error) {
                         if (callbacks != null) {
@@ -254,7 +199,6 @@ public class CaptchaNoJsPresenterV2 {
                     Logger.e(TAG, "Error while executing captcha requests", error);
 
                     prevCaptchaInfo = null;
-                    googleCookie = defaultGoogleCookies;
                 } finally {
                     captchaRequestInProgress.set(false);
                 }
@@ -273,60 +217,10 @@ public class CaptchaNoJsPresenterV2 {
         }
     }
 
-    @NonNull
-    private String getGoogleCookies(boolean forced) throws IOException {
-        if (BackgroundUtils.isMainThread()) {
-            throw new RuntimeException("Must not be executed on the main thread");
-        }
-
-        if (!ChanSettings.useRealGoogleCookies.get()) {
-            Logger.d(TAG, "Google cookies request is disabled in the settings, using the default ones");
-            return defaultGoogleCookies;
-        }
-
-        boolean isItTimeToUpdateCookies =
-                ((System.currentTimeMillis() - ChanSettings.lastGoogleCookieUpdateTime.get()) > THREE_MONTHS);
-
-        if (!forced && (!googleCookie.isEmpty() && !isItTimeToUpdateCookies)) {
-            Logger.d(TAG, "We already have google cookies");
-            return googleCookie;
-        }
-
-        Logger.d(TAG, "Time to update cookies: forced = " + forced + ", isCookieEmpty = " +
-                googleCookie.isEmpty() + ", last cookie expired = " + isItTimeToUpdateCookies);
-
-        Request request = new Request.Builder()
-                .url(googleBaseUrl)
-                .header("User-Agent", userAgentHeader)
-                .header("Accept", acceptHeader)
-                .header("Accept-Encoding", acceptEncodingHeader)
-                .header("Accept-Language", acceptLanguageHeader)
-                .build();
-
-        try (Response response = okHttpClient.newCall(request).execute()) {
-            String newCookie = handleGetGoogleCookiesResponse(response);
-            if (!newCookie.equalsIgnoreCase(defaultGoogleCookies)) {
-                ChanSettings.googleCookie.set(newCookie);
-                ChanSettings.lastGoogleCookieUpdateTime.set(System.currentTimeMillis());
-
-                Logger.d(TAG, "Successfully refreshed google cookies, new cookie = " + newCookie);
-            } else {
-                Logger.d(TAG, "Could not successfully handle google cookie response, " +
-                        "using the default google cookies until the next request");
-            }
-
-            return newCookie;
-        }
-    }
-
     @Nullable
     private CaptchaInfo getCaptchaInfo() throws IOException {
         if (BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must not be executed on the main thread");
-        }
-
-        if (googleCookie.isEmpty()) {
-            throw new IllegalStateException("Google cookies are not supposed to be null here");
         }
 
         String recaptchaUrl = recaptchaUrlBase + siteKey;
@@ -338,7 +232,7 @@ public class CaptchaNoJsPresenterV2 {
                 .header("Accept", acceptHeader)
                 .header("Accept-Encoding", acceptEncodingHeader)
                 .header("Accept-Language", acceptLanguageHeader)
-                .header("Cookie", googleCookie)
+                .header("Cookie", defaultGoogleCookies)
                 .build();
 
         try (Response response = okHttpClient.newCall(request).execute()) {
@@ -375,33 +269,6 @@ public class CaptchaNoJsPresenterV2 {
         return MultipartBody.create(
                 MediaType.parse(mediaType),
                 resultBody);
-    }
-
-    @NonNull
-    private String handleGetGoogleCookiesResponse(Response response) {
-        if (response.code() != SUCCESS_STATUS_CODE) {
-            Logger.w(TAG, "Get google cookies request returned bad status code = " + response.code());
-            return defaultGoogleCookies;
-        }
-
-        Headers headers = response.headers();
-
-        for (String headerName : headers.names()) {
-            if (headerName.equalsIgnoreCase(setCookieHeaderName)) {
-                String setCookieHeader = headers.get(headerName);
-                if (setCookieHeader != null) {
-                    String[] split = setCookieHeader.split(";");
-                    for (String splitPart : split) {
-                        if (splitPart.startsWith("NID")) {
-                            return splitPart;
-                        }
-                    }
-                }
-            }
-        }
-
-        Logger.d(TAG, "Could not find the NID cookie in the headers");
-        return defaultGoogleCookies;
     }
 
     @Nullable
@@ -491,10 +358,6 @@ public class CaptchaNoJsPresenterV2 {
     }
 
     public interface AuthenticationCallbacks {
-        void onGetGoogleCookieError(boolean shouldFallback, Throwable error);
-
-        void onGoogleCookiesRefreshed();
-
         void onCaptchaInfoParsed(CaptchaInfo captchaInfo);
 
         void onCaptchaInfoParseError(Throwable error);
