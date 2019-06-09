@@ -27,11 +27,11 @@ import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -116,10 +116,6 @@ public class MediaSettingsController extends SettingsController {
             media.add(new BooleanSettingView(this, ChanSettings.videoDefaultMuted,
                     R.string.setting_video_default_muted,
                     R.string.setting_video_default_muted_description));
-
-            media.add(new BooleanSettingView(this, ChanSettings.videoStream,
-                    R.string.setting_video_stream,
-                    R.string.setting_video_stream_description));
 
             media.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal,
                     R.string.setting_video_open_external,

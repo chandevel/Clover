@@ -23,14 +23,14 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-
-import org.greenrobot.eventbus.EventBus;
 
 public class ChanSettings {
     public enum MediaAutoLoadMode implements OptionSettingItem {
@@ -127,7 +127,6 @@ public class ChanSettings {
     public static final BooleanSetting autoRefreshThread;
     public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
     public static final OptionsSetting<MediaAutoLoadMode> videoAutoLoadNetwork;
-    public static final BooleanSetting videoStream;
     public static final BooleanSetting videoOpenExternal;
     public static final BooleanSetting textOnly;
     public static final OptionsSetting<PostViewMode> boardViewMode;
@@ -212,7 +211,6 @@ public class ChanSettings {
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
         imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
         videoAutoLoadNetwork = new OptionsSetting<>(p, "preference_video_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
-        videoStream = new BooleanSetting(p, "preference_video_stream", false);
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
         textOnly = new BooleanSetting(p, "preference_text_only", false);
         boardViewMode = new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);
