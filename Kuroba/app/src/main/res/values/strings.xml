@@ -509,6 +509,8 @@ If disabled, save the image with the filename the uploader assigned."
     </string>
     <string name="setting_video_default_muted">Start videos muted</string>
     <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
+    <string name="setting_video_stream">Stream videos</string>
+    <string name="setting_video_stream_description">Attempt to stream videos, instead of downloading them completely.</string>
     <string name="setting_video_open_external">Play videos with external player</string>
     <string name="setting_video_open_external_description">Play videos in an external media player app</string>
     <string name="setting_share_url">Share URL to image</string>
