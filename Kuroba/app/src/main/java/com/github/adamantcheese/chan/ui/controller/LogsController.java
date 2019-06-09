@@ -80,7 +80,7 @@ public class LogsController extends Controller {
             process = new ProcessBuilder()
                     .command("logcat", "-d", "-v", "tag",
                             //Silence these tags, useful for release version on OnePlus
-                            "libc:S", "chatty:S", "RenderThread:S")
+                            "libc:S", "chatty:S", "RenderThread:S", "VideoCapabilities:S", "SpannableStringBuilder:S")
                     .start();
         } catch (IOException e) {
             Logger.e(TAG, "Error starting logcat", e);

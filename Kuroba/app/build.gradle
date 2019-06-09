@@ -16,8 +16,8 @@ android {
         //bump the MINOR (YY) version when there are compatible changes between versions (ie database changes)
         //or if there are big application level changes like tearing out/adding major features
         //bump the PATCH (ZZ) version otherwise, for anything small
-        versionCode 40200
-        versionName "v4.2.0"
+        versionCode 40201
+        versionName "v4.2.1"
 
         applicationId "com.github.adamantcheese.chan"
         //this is your update endpoint, change it to your repository
@@ -105,7 +105,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.annotation:annotation:1.0.2'
+    implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.exifinterface:exifinterface:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.browser:browser:1.0.0'

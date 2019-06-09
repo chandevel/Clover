@@ -62,6 +62,7 @@ import pl.droidsonroids.gif.GifImageView;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
 public class MultiImageView extends FrameLayout implements View.OnClickListener, AudioListener, LifecycleObserver {
     public enum Mode {
@@ -390,7 +391,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     }
 
     private void openVideoInternalStream(String videoUrl) {
-        fileCache.createMediaSource(videoUrl, source -> {
+        runOnUiThread(() -> fileCache.createMediaSource(videoUrl, source -> {
             PlayerView exoVideoView = new PlayerView(getContext());
             exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
             exoVideoView.setPlayer(exoPlayer);
@@ -399,13 +400,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                     Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
             exoPlayer.prepare(source);
-            exoPlayer.addAudioListener(this);
+            exoPlayer.addAudioListener(MultiImageView.this);
 
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
             onModeLoaded(Mode.MOVIE, exoVideoView);
-            callback.onVideoLoaded(this);
-        });
+            callback.onVideoLoaded(MultiImageView.this);
+        }));
     }
 
     private void openVideoExternal(String videoUrl) {
