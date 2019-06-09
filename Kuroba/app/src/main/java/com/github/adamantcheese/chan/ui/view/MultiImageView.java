@@ -223,6 +223,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             videoRequest.cancel();
             videoRequest = null;
         }
+        if (exoPlayer != null) {
+            // ExoPlayer will keep loading resources if we don't release it here.
+            exoPlayer.release();
+            exoPlayer = null;
+        }
 
         if (context instanceof StartActivity) {
             ((StartActivity) context).getLifecycle().removeObserver(this);
