@@ -78,7 +78,10 @@ public class Chan4 extends SiteBase {
         public boolean respondsTo(HttpUrl url) {
             return url.host().equals("4chan.org") ||
                     url.host().equals("www.4chan.org") ||
-                    url.host().equals("boards.4chan.org");
+                    url.host().equals("boards.4chan.org") ||
+                    url.host().equals("4channel.org") ||
+                    url.host().equals("www.4channel.org") ||
+                    url.host().equals("boards.4channel.org");
         }
 
         @Override
