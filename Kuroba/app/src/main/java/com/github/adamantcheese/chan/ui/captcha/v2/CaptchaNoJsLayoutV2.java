@@ -55,7 +55,6 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     private AppCompatButton captchaVerifyButton;
     private AppCompatButton useOldCaptchaButton;
     private AppCompatButton reloadCaptchaButton;
-    private AppCompatButton refreshCookiesButton;
 
     private CaptchaNoJsV2Adapter adapter;
     private CaptchaNoJsPresenterV2 presenter;
@@ -89,7 +88,6 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         captchaVerifyButton = view.findViewById(R.id.captcha_layout_v2_verify_button);
         useOldCaptchaButton = view.findViewById(R.id.captcha_layout_v2_use_old_captcha_button);
         reloadCaptchaButton = view.findViewById(R.id.captcha_layout_v2_reload_button);
-        refreshCookiesButton = view.findViewById(R.id.captcha_layout_v2_refresh_cookies);
         ConstraintLayout buttonsHolder = view.findViewById(R.id.captcha_layout_v2_buttons_holder);
         ScrollView background = view.findViewById(R.id.captcha_layout_v2_background);
 
@@ -100,16 +98,10 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         captchaVerifyButton.setTextColor(AndroidUtils.getAttrColor(getContext(), R.attr.text_color_primary));
         useOldCaptchaButton.setTextColor(AndroidUtils.getAttrColor(getContext(), R.attr.text_color_primary));
         reloadCaptchaButton.setTextColor(AndroidUtils.getAttrColor(getContext(), R.attr.text_color_primary));
-        refreshCookiesButton.setTextColor(AndroidUtils.getAttrColor(getContext(), R.attr.text_color_primary));
 
         captchaVerifyButton.setOnClickListener(this);
         useOldCaptchaButton.setOnClickListener(this);
         reloadCaptchaButton.setOnClickListener(this);
-
-        if (ChanSettings.useRealGoogleCookies.get()) {
-            refreshCookiesButton.setVisibility(View.VISIBLE);
-            refreshCookiesButton.setOnClickListener(this);
-        }
 
         captchaVerifyButton.setEnabled(false);
     }
@@ -180,26 +172,6 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         });
     }
 
-    @Override
-    public void onGoogleCookiesRefreshed() {
-        // called on a background thread
-
-        AndroidUtils.runOnUiThread(() -> {
-            showToast("Google cookies successfully refreshed");
-
-            // refresh the captcha as well
-            reset();
-        });
-    }
-
-    // Called when we could not get google cookies
-    @Override
-    public void onGetGoogleCookieError(boolean shouldFallback, Throwable error) {
-        // called on a background thread
-
-        handleError(shouldFallback, error);
-    }
-
     // Called when we got response from re-captcha but could not parse some part of it
     @Override
     public void onCaptchaInfoParseError(Throwable error) {
@@ -235,8 +207,6 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
             callback.onFallbackToV1CaptchaView();
         } else if (v == reloadCaptchaButton) {
             reset();
-        } else if (v == refreshCookiesButton) {
-            presenter.refreshCookies();
         }
     }
 

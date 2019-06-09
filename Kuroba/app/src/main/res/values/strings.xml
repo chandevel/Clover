@@ -625,7 +625,6 @@ Don't have a 4chan Pass?<br>
     <!-- Captcha settings -->
     <string name="settings_captcha_group">Captcha</string>
     <string name="settings_use_new_captcha_window">Use new captcha window for no-js captcha</string>
-    <string name="settings_use_real_google_cookies">Use real google cookies instead of hardcoded ones</string>
     <string name="settings_use_real_google_cookies_description">When enabled, a GET request to google.com will be executed to get a cookie, which will be used for captcha authentication. The hardcoded ones sometimes will make you re-enter the captcha dozens of times. Those cookies will be updated automatically (every three months). You may update them manually if you want.</string>
 
     <string name="captcha_layout_v2_verify_button_text">Verify</string>
