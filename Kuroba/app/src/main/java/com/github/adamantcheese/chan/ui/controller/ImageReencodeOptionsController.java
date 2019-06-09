@@ -46,6 +46,11 @@ public class ImageReencodeOptionsController extends Controller implements
     private SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if(progress <= 0) {
+                //for API 22-25
+                seekBar.setProgress(1);
+                progress = 1;
+            }
             if (seekBar == quality) {
                 currentImageQuality.setText(context.getString(R.string.image_quality, progress));
             } else if (seekBar == reduce) {

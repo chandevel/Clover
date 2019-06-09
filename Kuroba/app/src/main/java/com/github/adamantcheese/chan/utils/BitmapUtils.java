@@ -2,7 +2,6 @@ package com.github.adamantcheese.chan.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ImageDecoder;
 import android.graphics.Matrix;
 import android.util.Pair;
 
@@ -13,6 +12,7 @@ import androidx.exifinterface.media.ExifInterface;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -256,7 +256,7 @@ public class BitmapUtils {
      */
     public static Pair<Integer, Integer> getImageDims(File file) throws IOException {
         if (file == null) throw new IOException();
-        Bitmap bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(file));
+        Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
         return new Pair<>(bitmap.getWidth(), bitmap.getHeight());
     }
 }
