@@ -286,7 +286,7 @@ public class ChanSettings {
 
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
 
-        useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", false);
+        useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
     }
 
     public static ThemeColor getThemeAndColor() {

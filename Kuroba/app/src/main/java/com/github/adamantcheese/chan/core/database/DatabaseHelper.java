@@ -27,6 +27,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
@@ -45,7 +46,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 32;
+    private static final int DATABASE_VERSION = 33;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -329,6 +330,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 32");
             }
+        }
+
+        if (oldVersion < 33) {
+            //even though this isn't a database thing, it's an easy way of doing things only once
+            ChanSettings.useNewCaptchaWindow.set(true);
         }
     }
 
