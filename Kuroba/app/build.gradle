@@ -11,11 +11,13 @@ android {
         // (watch out for octal notation, never start with a 0)
         // version name should be of the form vXX.YY.ZZ
 
-        //bump the MAJOR (XX) version when there are incompatible changes between versions, or major changes
+        //bump the MAJOR (XX) version when there are incompatible changes between versions
+        //or major changes to the application that would require a reinstall
         //bump the MINOR (YY) version when there are compatible changes between versions (ie database changes)
-        //bump the PATCH (ZZ) version otherwise
-        versionCode 40101
-        versionName "v4.1.1"
+        //or if there are big application level changes like tearing out/adding major features
+        //bump the PATCH (ZZ) version otherwise, for anything small
+        versionCode 40200
+        versionName "v4.2.0"
 
         applicationId "com.github.adamantcheese.chan"
         //this is your update endpoint, change it to your repository
