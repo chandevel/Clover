@@ -159,6 +159,10 @@ public class ToolbarMenuItem {
         }
     }
 
+    public void setCallback(ClickCallback callback) {
+        clicked = callback;
+    }
+
     public interface ClickCallback {
         void clicked(ToolbarMenuItem item);
     }

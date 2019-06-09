@@ -36,7 +36,6 @@ import android.view.animation.DecelerateInterpolator;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.davemorrissey.labs.subscaleview.ImageViewState;
-
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -177,7 +176,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     private void saveClicked(ToolbarMenuItem item) {
-        item.setVisible(false);
+        item.setCallback(null);
+        item.setImage(R.drawable.ic_file_download_grey_24dp);
         saveShare(false, presenter.getCurrentPostImage());
     }
 
@@ -243,12 +243,12 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                             File.separator +
                             presenter.getLoadable().no +
                             "_";
-                            String tempTitle = presenter.getLoadable().title
-                                    .toLowerCase()
-                                    .replaceAll(" ", "_")
-                                    .replaceAll("[^a-z0-9_]", "");
-                            tempTitle = tempTitle.substring(0, Math.min(tempTitle.length(), 50));
-                            subFolderName = subFolderName + tempTitle;
+                    String tempTitle = presenter.getLoadable().title
+                            .toLowerCase()
+                            .replaceAll(" ", "_")
+                            .replaceAll("[^a-z0-9_]", "");
+                    tempTitle = tempTitle.substring(0, Math.min(tempTitle.length(), 50));
+                    subFolderName = subFolderName + tempTitle;
                 }
                 task.setSubFolder(subFolderName);
             }
@@ -334,7 +334,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Override
     public void resetDownloadButtonState() {
-        navigation.findItem(SAVE_ID).setVisible(true);
+        navigation.findItem(SAVE_ID).setImage(R.drawable.ic_file_download_white_24dp);
+        navigation.findItem(SAVE_ID).setCallback(this::saveClicked);
     }
 
     private void showImageSearchOptions() {
