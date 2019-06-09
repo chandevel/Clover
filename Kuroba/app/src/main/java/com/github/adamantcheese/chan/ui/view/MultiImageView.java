@@ -375,7 +375,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     }
 
     private void setVideo(String videoUrl) {
-        setVideoMediaSource(videoUrl);
+        if (ChanSettings.videoStream.get()) {
+            setVideoMediaSource(videoUrl);
+        } else {
+            setVideoDownloadFile(videoUrl);
+        }
     }
 
     private void setVideoMediaSource(String videoUrl) {
