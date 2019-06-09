@@ -258,9 +258,9 @@ public class DefaultPostParser implements PostParser {
         private static Map<String, Character> emojiUnicodeMap = new ArrayMap<>();
         private static Map<Character, ImageSpan> unicodeimageMap = new ArrayMap<>();
 
-        {
+        static {
             try {
-                emojiUnicodeMap.put(":you:", '\ue000');
+                emojiUnicodeMap.put(":you:", '\uE000');
                 unicodeimageMap.put('\uE000', setupSpan("emoji/you.png"));
             } catch (IOException e) {
                 throw new Error("Can't load images????");
