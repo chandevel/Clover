@@ -20,8 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -56,8 +54,6 @@ import com.google.android.exoplayer2.ui.PlayerView;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -94,7 +90,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     private FileCacheDownloader videoRequest;
 
     private SimpleExoPlayer exoPlayer;
-    private ExecutorService threadPool = Executors.newCachedThreadPool();
+    private boolean mediaSourceCancel = false;
 
     private boolean backgroundToggle;
 
@@ -223,6 +219,16 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         if (videoRequest != null) {
             videoRequest.cancel();
             videoRequest = null;
+        }
+
+        synchronized (this) {
+            mediaSourceCancel = true;
+        }
+
+        if (exoPlayer != null) {
+            // ExoPlayer will keep loading resources if we don't release it here.
+            exoPlayer.release();
+            exoPlayer = null;
         }
 
         if (context instanceof StartActivity) {
@@ -395,25 +401,29 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     }
 
     private void openVideoInternalStream(String videoUrl) {
-        threadPool.execute(() -> fileCache.createMediaSource(videoUrl, source -> {
-            Handler h = new Handler(Looper.getMainLooper());
-            h.post(() -> {
-                PlayerView exoVideoView = new PlayerView(getContext());
-                exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
-                exoVideoView.setPlayer(exoPlayer);
+        fileCache.createMediaSource(videoUrl, source -> {
+            synchronized (MultiImageView.this) {
+                if (mediaSourceCancel) return;
 
-                exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
-                        Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
+                if (!hasContent || mode == Mode.MOVIE) {
+                    PlayerView exoVideoView = new PlayerView(getContext());
+                    exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+                    exoVideoView.setPlayer(exoPlayer);
 
-                exoPlayer.prepare(source);
-                exoPlayer.addAudioListener(MultiImageView.this);
+                    exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
+                            Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
-                addView(exoVideoView);
-                exoPlayer.setPlayWhenReady(true);
-                onModeLoaded(Mode.MOVIE, exoVideoView);
-                callback.onVideoLoaded(MultiImageView.this);
-            });
-        }));
+                    exoPlayer.prepare(source);
+                    exoPlayer.setVolume(0f);
+                    exoPlayer.addAudioListener(MultiImageView.this);
+
+                    addView(exoVideoView);
+                    exoPlayer.setPlayWhenReady(true);
+                    onModeLoaded(Mode.MOVIE, exoVideoView);
+                    callback.onVideoLoaded(MultiImageView.this);
+                }
+            }
+        });
     }
 
     private void openVideoExternal(String videoUrl) {
