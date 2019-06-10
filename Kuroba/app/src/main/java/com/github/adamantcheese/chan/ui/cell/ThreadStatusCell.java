@@ -35,8 +35,8 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 
@@ -47,7 +47,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
     private Callback callback;
 
     private boolean running = false;
-    private int lastYouCount;
+    private int lastReplyCount;
 
     private TextView text;
     private String error;
@@ -120,8 +120,8 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                 } else if (time <= 0) {
                     builder.append(getContext().getString(R.string.thread_refresh_now));
                     //only update you count when the thread is loaded and the setting is on
-                    if (ChanSettings.enableYouCount.get()) {
-                        lastYouCount = getNumYous(chanThread);
+                    if (ChanSettings.enableReplyCount.get()) {
+                        lastReplyCount = getNumReplies(chanThread);
                     }
                 } else {
                     builder.append(getContext().getString(R.string.thread_refresh_countdown, time));
@@ -168,10 +168,9 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                         builder.append('?');
                     }
 
-                    if (ChanSettings.enableYouCount.get()) {
+                    if (ChanSettings.enableReplyCount.get()) {
                         builder.append(" / ")
-                                .append(Integer.toString(lastYouCount))
-                                .append(" (You)s");
+                                .append(getResources().getQuantityString(R.plurals.reply, lastReplyCount, lastReplyCount));
                     }
                 }
             }
@@ -182,12 +181,24 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
         }
     }
 
-    private int getNumYous(ChanThread thread) {
+    private int getNumReplies(ChanThread thread) {
         int ret = 0;
-        Pattern youQuotePattern = Pattern.compile(">>\\d+ \\(You\\)");
-        for (Post p : thread.posts) {
-            Matcher youQuoteMatcher = youQuotePattern.matcher(p.comment.toString());
-            while (youQuoteMatcher.find()) ret++;
+        //from PinWatcher
+        // Get list of saved replies from this thread
+        List<Post> savedReplies = new ArrayList<>();
+        for (Post item : thread.posts) {
+            if (item.isSavedReply) {
+                savedReplies.add(item);
+            }
+        }
+
+        // Now count posts that have a quote to a saved reply, including self-quotes
+        for (Post post : thread.posts) {
+            for (Post saved : savedReplies) {
+                if (post.repliesTo.contains(saved.no)) {
+                    ret++;
+                }
+            }
         }
         return ret;
     }
