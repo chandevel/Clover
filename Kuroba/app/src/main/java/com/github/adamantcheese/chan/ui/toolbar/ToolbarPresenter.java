@@ -92,7 +92,7 @@ public class ToolbarPresenter {
         cancelTransitionIfNeeded();
 
         item.search = true;
-        callback.showForNavigationItem(item, AnimationStyle.FADE);
+        callback.showForNavigationItem(item, AnimationStyle.NONE);
 
         callback.onSearchVisibilityChanged(item, true);
     }

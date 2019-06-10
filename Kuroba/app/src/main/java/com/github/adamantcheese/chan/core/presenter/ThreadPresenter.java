@@ -225,8 +225,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public void onSearchEntered(String entered) {
+        searchQuery = entered;
         if (chanLoader.getThread() != null) {
-            searchQuery = entered;
             showPosts();
             if (TextUtils.isEmpty(entered)) {
                 threadPresenterCallback.setSearchStatus(null, true, false);
@@ -625,9 +625,13 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
 
             threadPresenterCallback.showBoard(catalog);
-        } //else if (linkable.type == PostLinkable.Type.SEARCH) {
-        //TODO go to board and search
-        //}
+        } else if (linkable.type == PostLinkable.Type.SEARCH) {
+            CommentParser.SearchLink search = (CommentParser.SearchLink) linkable.value;
+            Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager().getBoard(loadable.site, search.board));
+            Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
+
+            threadPresenterCallback.showBoardAndSearch(catalog, search.search);
+        }
     }
 
     @Override
@@ -889,6 +893,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         void showThread(Loadable threadLoadable);
 
         void showBoard(Loadable catalogLoadable);
+
+        void showBoardAndSearch(Loadable catalogLoadable, String searchQuery);
 
         void openLink(String link);
 

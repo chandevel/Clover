@@ -57,7 +57,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 public class BrowseController extends ThreadController implements
         ThreadLayout.ThreadLayoutCallback,
         BrowsePresenter.Callback,
-        BrowseBoardsFloatingMenu.ClickCallback {
+        BrowseBoardsFloatingMenu.ClickCallback,
+        ThreadSlideController.SlideChangeListener {
     private static final int VIEW_MODE_ID = 1;
     private static final int ARCHIVE_ID = 2;
 
@@ -66,6 +67,7 @@ public class BrowseController extends ThreadController implements
 
     private ChanSettings.PostViewMode postViewMode;
     private PostsFilter.Order order;
+    public String searchQuery = "";
 
     public BrowseController(Context context) {
         super(context);
@@ -387,6 +389,13 @@ public class BrowseController extends ThreadController implements
         setBoard(catalogLoadable.board);
     }
 
+    @Override
+    public void showBoardAndSearch(Loadable catalogLoadable, String searchQuery) {
+        //we don't actually need to do anything here because you can't tap board links in the browse controller
+        //set the board just in case?
+        setBoard(catalogLoadable.board);
+    }
+
     // Creates or updates the target ThreadViewController
     // This controller can be in various places depending on the layout
     // We dynamically search for it
@@ -439,6 +448,16 @@ public class BrowseController extends ThreadController implements
             ViewThreadController viewThreadController = new ViewThreadController(context);
             viewThreadController.setLoadable(threadLoadable);
             navigationController.pushController(viewThreadController, animated);
+        }
+    }
+
+    @Override
+    public void onSlideChanged() {
+        super.onSlideChanged();
+        if (getToolbar() != null && searchQuery != null) {
+            getToolbar().openSearch();
+            getToolbar().searchInput(searchQuery);
+            searchQuery = null;
         }
     }
 }

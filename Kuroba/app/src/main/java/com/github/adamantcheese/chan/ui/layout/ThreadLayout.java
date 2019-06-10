@@ -356,6 +356,11 @@ public class ThreadLayout extends CoordinatorLayout implements
         callback.showBoard(catalogLoadable);
     }
 
+    @Override
+    public void showBoardAndSearch(Loadable catalogLoadable, String searchQuery) {
+        callback.showBoardAndSearch(catalogLoadable, searchQuery);
+    }
+
     public void showPostsPopup(Post forPost, List<Post> posts) {
         postPopupHelper.showPosts(forPost, posts);
     }
@@ -750,6 +755,8 @@ public class ThreadLayout extends CoordinatorLayout implements
         void showThread(Loadable threadLoadable);
 
         void showBoard(Loadable catalogLoadable);
+
+        void showBoardAndSearch(Loadable catalogLoadable, String searchQuery);
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
 

@@ -40,6 +40,7 @@ import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
+import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
@@ -224,12 +225,34 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     @Override
     public void showBoard(final Loadable catalogLoadable) {
+        showBoardInternal(catalogLoadable, null);
+    }
+
+    @Override
+    public void showBoardAndSearch(final Loadable catalogLoadable, String search) {
+        showBoardInternal(catalogLoadable, search);
+    }
+
+    private void showBoardInternal(Loadable catalogLoadable, String searchQuery) {
         if (doubleNavigationController != null && doubleNavigationController.getLeftController() instanceof BrowseController) {
-            ((BrowseController) doubleNavigationController.getLeftController()).setBoard(catalogLoadable.board);
+            //slide layout
             doubleNavigationController.switchToController(true);
+            ((BrowseController) doubleNavigationController.getLeftController()).setBoard(catalogLoadable.board);
+            if (searchQuery != null) {
+                ((BrowseController) doubleNavigationController.getLeftController()).searchQuery = searchQuery;
+            }
         } else if (doubleNavigationController != null && doubleNavigationController.getLeftController() instanceof StyledToolbarNavigationController) {
+            //split layout
             ((BrowseController) doubleNavigationController.getLeftController().childControllers.get(0)).setBoard(catalogLoadable.board);
+            if (searchQuery != null) {
+                Toolbar toolbar = doubleNavigationController.getLeftController().childControllers.get(0).getToolbar();
+                if (toolbar != null) {
+                    toolbar.openSearch();
+                    toolbar.searchInput(searchQuery);
+                }
+            }
         } else {
+            //phone layout
             BrowseController browseController = null;
             for (Controller c : navigationController.childControllers) {
                 if (c instanceof BrowseController) {
@@ -240,7 +263,15 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             if (browseController != null) {
                 browseController.setBoard(catalogLoadable.board);
             }
-            navigationController.popController();
+            navigationController.popController(false);
+            //search after we're at the browse controller
+            if (searchQuery != null) {
+                Toolbar toolbar = browseController.getToolbar();
+                if (toolbar != null) {
+                    toolbar.openSearch();
+                    toolbar.searchInput(searchQuery);
+                }
+            }
         }
     }
 
