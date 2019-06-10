@@ -50,6 +50,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -282,6 +283,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             holder.textView.setPadding(holder.textView.getPaddingLeft(), holder.textView.getPaddingTop(),
                     dp(16), holder.textView.getPaddingBottom());
         }
+        //invalidate views to force them to update immediately when a pin changes
+        runOnUiThread(() -> {
+            holder.textView.invalidate();
+            holder.watchCountText.invalidate();
+        });
 
         boolean highlighted = pin == this.highlighted;
         if (highlighted && !holder.highlighted) {
