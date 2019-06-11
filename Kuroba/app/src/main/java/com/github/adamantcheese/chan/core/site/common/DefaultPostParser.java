@@ -17,13 +17,9 @@
 package com.github.adamantcheese.chan.core.site.common;
 
 
-import android.graphics.BitmapFactory;
 import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
-import android.text.style.ImageSpan;
-import android.util.ArrayMap;
 
 import androidx.annotation.AnyThread;
 
@@ -38,7 +34,6 @@ import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.vdurmont.emoji.EmojiParser;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -50,10 +45,7 @@ import org.jsoup.parser.Parser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
@@ -190,7 +182,7 @@ public class DefaultPostParser implements PostParser {
         CharSequence total = new SpannableString("");
 
         try {
-            String comment = EmojiParser.parseToUnicode(commentRaw.toString()).replace("<wbr>", "");
+            String comment = commentRaw.toString().replace("<wbr>", "");
 
             Document document = Jsoup.parseBodyFragment(comment);
 
@@ -214,9 +206,8 @@ public class DefaultPostParser implements PostParser {
 
     private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) throws IOException {
         if (node instanceof TextNode) {
-            String text = CustomEmoji.preReplace(((TextNode) node).text());
+            String text = ((TextNode) node).text();
             SpannableString spannable = new SpannableString(text);
-            CustomEmoji.postReplace(spannable);
             CommentParserHelper.detectLinks(theme, post, text, spannable);
 
             return spannable;
@@ -251,44 +242,6 @@ public class DefaultPostParser implements PostParser {
             }
         } else {
             return ""; // ?
-        }
-    }
-
-    private static class CustomEmoji {
-        private static Map<String, Character> emojiUnicodeMap = new ArrayMap<>();
-        private static Map<Character, ImageSpan> unicodeimageMap = new ArrayMap<>();
-
-        static {
-            try {
-                emojiUnicodeMap.put(":you:", '\uE000');
-                unicodeimageMap.put('\uE000', setupSpan("emoji/you.png"));
-            } catch (IOException e) {
-                throw new Error("Can't load images????");
-            }
-        }
-
-        protected static String preReplace(String text) {
-            for (String alias : emojiUnicodeMap.keySet()) {
-                text = text.replaceAll(alias, emojiUnicodeMap.get(alias).toString());
-            }
-            return text;
-        }
-
-        protected static void postReplace(SpannableString text) {
-            for (int i = 0; i < text.length(); i++) {
-                for (Character c : unicodeimageMap.keySet()) {
-                    if (text.charAt(i) == c) {
-                        text.setSpan(unicodeimageMap.get(c), i, i + 1, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                    }
-                }
-            }
-        }
-
-        private static ImageSpan setupSpan(String filename) throws IOException {
-            ImageSpan span = new ImageSpan(getAppContext(), BitmapFactory.decodeStream(getRes().getAssets().open(filename)));
-            int width = (int) (sp(32) / (span.getDrawable().getIntrinsicHeight() / (float) span.getDrawable().getIntrinsicWidth()));
-            span.getDrawable().setBounds(0, 0, width, sp(32));
-            return span;
         }
     }
 }
