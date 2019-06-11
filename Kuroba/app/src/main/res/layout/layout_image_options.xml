@@ -16,27 +16,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/image_options_view_holder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#88000000"
     android:clickable="true"
-    android:focusable="true"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    app:layout_constraintTop_toTopOf="parent">
+    android:focusable="true">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="340dp"
+        android:id="@+id/container"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
+        app:cardBackgroundColor="#00000000"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,25 +41,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:focusable="true"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <ImageView
                 android:id="@+id/image_options_preview"
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:scaleType="centerCrop"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:background="@color/accent" />
+                android:layout_height="300dp"
+                android:scaleType="fitCenter" />
 
             <LinearLayout
+                android:id="@+id/reencode_options_group"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
                 android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
+                android:background="@android:color/white"
                 android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/preview">
+                android:paddingTop="8dp">
 
                 <androidx.appcompat.widget.AppCompatCheckBox
                     android:id="@+id/image_options_remove_filename"
@@ -120,10 +109,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:layout_marginRight="8dp"
+                        android:text="@string/cancel"
                         app:layout_constraintBottom_toBottomOf="@+id/image_options_ok"
                         app:layout_constraintEnd_toStartOf="@+id/image_options_ok"
-                        app:layout_constraintTop_toTopOf="@+id/image_options_ok"
-                        android:text="@string/cancel" />
+                        app:layout_constraintTop_toTopOf="@+id/image_options_ok" />
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/image_options_ok"
@@ -132,9 +121,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:layout_marginRight="8dp"
+                        android:text="@string/ok"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:text="@string/ok" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

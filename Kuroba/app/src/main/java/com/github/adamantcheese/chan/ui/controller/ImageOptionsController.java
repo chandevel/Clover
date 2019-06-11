@@ -19,17 +19,21 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatCheckBox;
-import androidx.appcompat.widget.AppCompatImageView;
-
+import android.graphics.Point;
 import android.util.Pair;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -38,6 +42,9 @@ import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 public class ImageOptionsController extends Controller implements
         View.OnClickListener,
@@ -51,7 +58,9 @@ public class ImageOptionsController extends Controller implements
     private ImageOptionsControllerCallbacks callbacks;
 
     private ConstraintLayout viewHolder;
-    private AppCompatImageView preview;
+    private CardView container;
+    private LinearLayout optionsHolder;
+    private ImageView preview;
     private AppCompatCheckBox fixExif;
     private AppCompatCheckBox removeMetadata;
     private AppCompatCheckBox removeFilename;
@@ -82,6 +91,8 @@ public class ImageOptionsController extends Controller implements
         view = inflateRes(R.layout.layout_image_options);
 
         viewHolder = view.findViewById(R.id.image_options_view_holder);
+        container = view.findViewById(R.id.container);
+        optionsHolder = view.findViewById(R.id.reencode_options_group);
         preview = view.findViewById(R.id.image_options_preview);
         fixExif = view.findViewById(R.id.image_options_fix_exif);
         removeMetadata = view.findViewById(R.id.image_options_remove_metadata);
@@ -98,6 +109,19 @@ public class ImageOptionsController extends Controller implements
         changeImageChecksum.setOnCheckedChangeListener(this);
 
         viewHolder.setOnClickListener(this);
+        preview.setOnClickListener(v -> {
+            boolean isCurrentlyVisible = optionsHolder.getVisibility() == View.VISIBLE;
+            optionsHolder.setVisibility(isCurrentlyVisible ? View.GONE : View.VISIBLE);
+            Point p = new Point();
+            getWindow().getWindowManager().getDefaultDisplay().getSize(p);
+            int dimX1 = isCurrentlyVisible ? p.x : ViewGroup.LayoutParams.MATCH_PARENT;
+            int dimY1 = isCurrentlyVisible ? p.y : dp(300);
+            preview.setLayoutParams(new LinearLayout.LayoutParams(dimX1, dimY1, 0));
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) container.getLayoutParams();
+            params.width = isCurrentlyVisible ? p.x : dp(300);
+            params.height = WRAP_CONTENT;
+            container.setLayoutParams(params);
+        });
         cancel.setOnClickListener(this);
         ok.setOnClickListener(this);
 
