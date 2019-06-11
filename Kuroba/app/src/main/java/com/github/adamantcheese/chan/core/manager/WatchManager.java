@@ -583,7 +583,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
         public int getReplyCount() {
             if (chanLoader != null && chanLoader.getThread() != null && chanLoader.getThread().posts != null) {
-                return chanLoader.getThread().posts.size();
+                return chanLoader.getThread().posts.size() - 1;
             }
             return 0;
         }
