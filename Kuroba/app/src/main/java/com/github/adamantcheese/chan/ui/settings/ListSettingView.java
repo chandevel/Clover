@@ -107,7 +107,6 @@ public class ListSettingView<T> extends SettingView implements FloatingMenu.Floa
 
         FloatingMenu menu = new FloatingMenu(v.getContext());
         menu.setAnchor(v, Gravity.LEFT, dp(5), dp(5));
-        menu.setPopupWidth(FloatingMenu.POPUP_WIDTH_ANCHOR);
         menu.setCallback(this);
         menu.setItems(menuItems);
         menu.show();

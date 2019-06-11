@@ -17,16 +17,19 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
-import androidx.appcompat.widget.ListPopupWindow;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+
+import androidx.appcompat.widget.ListPopupWindow;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -38,15 +41,11 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class FloatingMenu {
-    public static final int POPUP_WIDTH_AUTO = -1;
-    public static final int POPUP_WIDTH_ANCHOR = -2;
-
     private final Context context;
     private View anchor;
     private int anchorGravity = Gravity.LEFT;
     private int anchorOffsetX;
     private int anchorOffsetY;
-    private int popupWidth = POPUP_WIDTH_AUTO;
     private int popupHeight = -1;
     private boolean manageItems = true;
     private List<FloatingMenuItem> items;
@@ -77,13 +76,6 @@ public class FloatingMenu {
         this.anchorGravity = anchorGravity;
         this.anchorOffsetX = anchorOffsetX;
         this.anchorOffsetY = anchorOffsetY;
-    }
-
-    public void setPopupWidth(int width) {
-        this.popupWidth = width;
-        if (popupWindow != null) {
-            popupWindow.setContentWidth(popupWidth);
-        }
     }
 
     public void setPopupHeight(int height) {
@@ -137,13 +129,6 @@ public class FloatingMenu {
         popupWindow.setDropDownGravity(anchorGravity);
         popupWindow.setVerticalOffset(-anchor.getHeight() + anchorOffsetY);
         popupWindow.setHorizontalOffset(anchorOffsetX);
-        if (popupWidth == POPUP_WIDTH_ANCHOR) {
-            popupWindow.setContentWidth(Math.min(dp(8 * 56), Math.max(dp(4 * 56), anchor.getWidth())));
-        } else if (popupWidth == POPUP_WIDTH_AUTO) {
-            popupWindow.setContentWidth(dp(3 * 56));
-        } else {
-            popupWindow.setContentWidth(popupWidth);
-        }
 
         if (popupHeight > 0) {
             popupWindow.setHeight(popupHeight);
@@ -162,8 +147,11 @@ public class FloatingMenu {
 
         if (adapter != null) {
             popupWindow.setAdapter(adapter);
+            popupWindow.setWidth(measureContentWidth(adapter));
         } else {
-            popupWindow.setAdapter(new FloatingMenuArrayAdapter(context, R.layout.toolbar_menu_item, items));
+            FloatingMenuArrayAdapter arrayAdapter = new FloatingMenuArrayAdapter(context, R.layout.toolbar_menu_item, items);
+            popupWindow.setAdapter(arrayAdapter);
+            popupWindow.setWidth(measureContentWidth(arrayAdapter));
         }
 
         if (manageItems) {
@@ -216,6 +204,35 @@ public class FloatingMenu {
             popupWindow.dismiss();
             popupWindow = null;
         }
+    }
+
+    private int measureContentWidth(ListAdapter listAdapter) {
+        ViewGroup mMeasureParent = new FrameLayout(context);
+        int maxWidth = 0;
+        View itemView = null;
+        int itemType = 0;
+
+        final int widthMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+        final int heightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+        final int count = listAdapter.getCount();
+        for (int i = 0; i < count; i++) {
+            final int positionType = listAdapter.getItemViewType(i);
+            if (positionType != itemType) {
+                itemType = positionType;
+                itemView = null;
+            }
+
+            itemView = listAdapter.getView(i, itemView, mMeasureParent);
+            itemView.measure(widthMeasureSpec, heightMeasureSpec);
+
+            final int itemWidth = itemView.getMeasuredWidth();
+
+            if (itemWidth > maxWidth) {
+                maxWidth = itemWidth;
+            }
+        }
+
+        return maxWidth;
     }
 
     public interface FloatingMenuCallback {

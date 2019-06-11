@@ -136,6 +136,23 @@ public class DatabaseSavedReplyManager {
         };
     }
 
+    public Callable<SavedReply> unsaveReply(final SavedReply savedReply) {
+        return () -> {
+            helper.savedDao.create(savedReply);
+            helper.savedDao.delete(savedReply);
+            synchronized (savedRepliesByNo) {
+                List<SavedReply> list = savedRepliesByNo.get(savedReply.no);
+                if (list == null) {
+                    list = new ArrayList<>(1);
+                    savedRepliesByNo.put(savedReply.no, list);
+                }
+
+                list.remove(savedReply);
+            }
+            return savedReply;
+        };
+    }
+
     public Callable<SavedReply> findSavedReply(final Board board, final int no) {
         return () -> {
             QueryBuilder<SavedReply, Integer> builder = helper.savedDao.queryBuilder();

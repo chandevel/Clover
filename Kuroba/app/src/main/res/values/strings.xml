@@ -23,7 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="exit">Exit</string>
     <string name="delete">Delete</string>
     <string name="undo">Undo</string>
-    <string name="save">Save</string>
+    <string name="save">Mark as my post</string>
+    <string name="unsave">Unmark as my post</string>
     <string name="continue_text">Continue</string>
     <string name="create">Create</string>
     <string name="do_not">Do not</string>
@@ -62,6 +63,11 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <plurals name="posts">
         <item quantity="one">%d post</item>
         <item quantity="other">%d posts</item>
+    </plurals>
+
+    <plurals name="quotes">
+        <item quantity="one">%d quotes</item>
+        <item quantity="other">%d quotes</item>
     </plurals>
 
     <plurals name="reply">
@@ -616,7 +622,7 @@ Don't have a 4chan Pass?<br>
     <string name="thread_layout_remove_post">Remove post</string>
     <string name="thread_layout_hide_whole_chain_as_well">Would you like to hide the whole reply chain as well?</string>
     <string name="thread_layout_remove_whole_chain_as_well">Would you like to remove the whole reply chain as well?</string>
-    <string name="view_removed_posts">View 🗑️\'d posts</string>
+    <string name="view_removed_posts">View removed posts</string>
     <string name="restore_posts">Restore posts</string>
     <string name="restored_n_posts">Restored %1$d posts</string>
     <string name="no_removed_posts_for_current_thread">No removed posts found for the current thread</string>

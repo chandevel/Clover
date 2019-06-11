@@ -170,7 +170,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
                     if (ChanSettings.enableReplyCount.get()) {
                         builder.append(" / ")
-                                .append(getResources().getQuantityString(R.plurals.reply, lastReplyCount, lastReplyCount));
+                                .append(getResources().getQuantityString(R.plurals.quotes, lastReplyCount, lastReplyCount));
                     }
                 }
             }

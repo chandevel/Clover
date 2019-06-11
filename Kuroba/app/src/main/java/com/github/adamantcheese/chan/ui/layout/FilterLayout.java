@@ -276,7 +276,6 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
             FloatingMenu menu = new FloatingMenu(v.getContext());
             menu.setAnchor(v, Gravity.LEFT, -dp(5), -dp(5));
-            menu.setPopupWidth(dp(150));
             menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
                 @Override
                 public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {

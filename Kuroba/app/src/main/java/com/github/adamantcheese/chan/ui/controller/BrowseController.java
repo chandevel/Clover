@@ -67,7 +67,7 @@ public class BrowseController extends ThreadController implements
 
     private ChanSettings.PostViewMode postViewMode;
     private PostsFilter.Order order;
-    public String searchQuery = "";
+    public String searchQuery = null;
 
     public BrowseController(Context context) {
         super(context);

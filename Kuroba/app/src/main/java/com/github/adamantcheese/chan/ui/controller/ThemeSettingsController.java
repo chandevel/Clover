@@ -237,7 +237,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
             }
         });
-        menu.setPopupWidth(dp(200));
+        //menu.setPopupWidth(dp(200));
         menu.setPopupHeight(dp(300));
         menu.show();
     }
@@ -249,7 +249,6 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         menu.setAdapter(new ColorsAdapter(items));
         menu.setSelectedItem(selected);
         menu.setAnchor(anchor, Gravity.CENTER, 0, dp(5));
-        menu.setPopupWidth(anchor.getWidth());
         return menu;
     }
 

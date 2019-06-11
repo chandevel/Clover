@@ -521,7 +521,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         extraMenu.add(new FloatingMenuItem(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, R.string.save));
+        boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
+        extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, isSaved ? R.string.unsave : R.string.save));
 
         return POST_OPTION_EXTRA;
     }
@@ -565,7 +566,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             case POST_OPTION_SAVE:
                 SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(
                         post.board.site, post.board, post.no, "");
-                databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
+                if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
+                    databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().unsaveReply(savedReply));
+                } else {
+                    databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
+                }
                 //force reload for reply highlighting
                 requestData();
                 break;
