@@ -191,7 +191,7 @@ public class FiltersController extends Controller implements
 
         final AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setView(filterLayout)
-                .setPositiveButton(R.string.save, (dialog, which) -> {
+                .setPositiveButton("Save", (dialog, which) -> {
 
                     filterEngine.createOrUpdateFilter(filterLayout.getFilter());
                     if (filterEngine.getEnabledFilters().isEmpty()) {

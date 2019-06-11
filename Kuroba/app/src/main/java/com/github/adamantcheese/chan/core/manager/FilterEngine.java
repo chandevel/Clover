@@ -172,6 +172,9 @@ public class FilterEngine {
 
     @AnyThread
     public boolean matches(Filter filter, Post.Builder post) {
+        if (!post.moderatorCapcode.equals("") || post.sticky) {
+            return false;
+        }
         if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, post.tripcode, false)) {
             return true;
         }
