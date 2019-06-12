@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -33,8 +34,11 @@ public class ImageDecoder {
     public static void decodeFileOnBackgroundThread(final File file, final int maxWidth, final int maxHeight, ImageDecoderCallback callback) {
         Thread thread = new Thread(() -> {
             final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
+            MediaMetadataRetriever video = new MediaMetadataRetriever();
+            video.setDataSource(file.getAbsolutePath());
+            final Bitmap videoBitmap = video.getFrameAtTime();
 
-            AndroidUtils.runOnUiThread(() -> callback.onImageBitmap(bitmap));
+            AndroidUtils.runOnUiThread(() -> callback.onImageBitmap(bitmap != null ? bitmap : videoBitmap));
         });
         thread.start();
     }
