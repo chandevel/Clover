@@ -16,12 +16,15 @@
  */
 package com.github.adamantcheese.chan.core.settings;
 
+import android.net.ConnectivityManager;
 import android.os.Environment;
 import android.text.TextUtils;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,7 +33,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
-import org.greenrobot.eventbus.EventBus;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
 
 public class ChanSettings {
     public enum MediaAutoLoadMode implements OptionSettingItem {
@@ -50,6 +53,14 @@ public class ChanSettings {
         @Override
         public String getKey() {
             return name;
+        }
+
+        public static boolean shouldLoadForNetworkType(ChanSettings.MediaAutoLoadMode networkType) {
+            if (networkType == ChanSettings.MediaAutoLoadMode.NONE) {
+                return false;
+            } else if (networkType == ChanSettings.MediaAutoLoadMode.WIFI) {
+                return isConnected(ConnectivityManager.TYPE_WIFI);
+            } else return networkType == ChanSettings.MediaAutoLoadMode.ALL;
         }
     }
 
@@ -162,6 +173,7 @@ public class ChanSettings {
     public static final BooleanSetting saveThreadFolder;
     public static final BooleanSetting videoDefaultMuted;
     public static final BooleanSetting videoAutoLoop;
+    public static final BooleanSetting autoLoadThreadImages;
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchBackground;
@@ -245,6 +257,7 @@ public class ChanSettings {
         saveThreadFolder = new BooleanSetting(p, "preference_save_subthread", false);
         videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
         videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
+        autoLoadThreadImages = new BooleanSetting(p, "preference_auto_load_thread", false);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
         watchEnabled.addCallback((setting, value) ->

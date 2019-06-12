@@ -27,11 +27,11 @@ import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -143,6 +143,11 @@ public class MediaSettingsController extends SettingsController {
                     ChanSettings.videoAutoLoop,
                     R.string.setting_video_auto_loop,
                     R.string.setting_video_auto_loop_description));
+
+            loading.add(new BooleanSettingView(this,
+                    ChanSettings.autoLoadThreadImages,
+                    R.string.setting_auto_load_thread_images,
+                    R.string.setting_auto_load_thread_images_description));
 
             groups.add(loading);
         }

@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.cache;
 
 import android.os.Handler;
 import android.os.Looper;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
@@ -112,7 +113,7 @@ public class FileCacheDownloader implements Runnable {
     public void cancel() {
         if (cancel.compareAndSet(false, true)) {
             // Did not start running yet, mark finished here.
-            if (!running.get()) {
+            if (!running.get() && callback != null) {
                 callback.downloaderFinished(this);
             }
         }
@@ -170,8 +171,10 @@ public class FileCacheDownloader implements Runnable {
             log("done");
 
             post(() -> {
-                callback.downloaderAddedFile(output);
-                callback.downloaderFinished(this);
+                if (callback != null) {
+                    callback.downloaderAddedFile(output);
+                    callback.downloaderFinished(this);
+                }
                 for (FileCacheListener callback : listeners) {
                     callback.onSuccess(output);
                     callback.onEnd();
@@ -205,7 +208,9 @@ public class FileCacheDownloader implements Runnable {
 
                     callback.onEnd();
                 }
-                callback.downloaderFinished(this);
+                if (callback != null) {
+                    callback.downloaderFinished(this);
+                }
             });
         } finally {
             Util.closeQuietly(sourceCloseable);

@@ -78,7 +78,9 @@ public class FileCache implements FileCacheDownloader.Callback {
     public FileCacheDownloader downloadFile(String url, FileCacheListener listener) {
         FileCacheDownloader runningDownloaderForKey = getDownloaderByKey(url);
         if (runningDownloaderForKey != null) {
-            runningDownloaderForKey.addListener(listener);
+            if (listener != null) {
+                runningDownloaderForKey.addListener(listener);
+            }
             return runningDownloaderForKey;
         }
 
@@ -127,15 +129,19 @@ public class FileCache implements FileCacheDownloader.Callback {
         if (!file.setLastModified(System.currentTimeMillis())) {
             Logger.e(TAG, "Could not set last modified time on file");
         }
-        listener.onSuccess(file);
-        listener.onEnd();
+        if (listener != null) {
+            listener.onSuccess(file);
+            listener.onEnd();
+        }
     }
 
     private FileCacheDownloader handleStartDownload(
             FileCacheListener listener, File file, String url) {
         FileCacheDownloader downloader = FileCacheDownloader.fromCallbackClientUrlOutputUserAgent(
                 this, httpClient, url, file);
-        downloader.addListener(listener);
+        if (listener != null) {
+            downloader.addListener(listener);
+        }
         downloader.execute(downloadPool);
         downloaders.add(downloader);
         return downloader;

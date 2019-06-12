@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
-import android.net.ConnectivityManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.github.adamantcheese.chan.core.cache.FileCache;
@@ -35,7 +34,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 
 public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewerPresenter";
@@ -357,16 +356,6 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     private boolean videoAutoLoad(PostImage postImage) {
         return imageAutoLoad(postImage) && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
-    }
-
-    private boolean shouldLoadForNetworkType(ChanSettings.MediaAutoLoadMode networkType) {
-        if (networkType == ChanSettings.MediaAutoLoadMode.NONE) {
-            return false;
-        } else if (networkType == ChanSettings.MediaAutoLoadMode.WIFI) {
-            return isConnected(ConnectivityManager.TYPE_WIFI);
-        } else return networkType == ChanSettings.MediaAutoLoadMode.ALL;
-
-        // Not connected or unrecognized
     }
 
     private void setTitle(PostImage postImage, int position) {

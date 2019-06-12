@@ -27,6 +27,7 @@ import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -70,6 +71,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
@@ -293,21 +295,36 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
         if (loadable.isThreadMode()) {
             int lastLoaded = loadable.lastLoaded;
-            List<Post> posts = result.posts;
             int more = 0;
             if (lastLoaded > 0) {
-                for (int i = 0; i < posts.size(); i++) {
-                    Post post = posts.get(i);
-                    if (post.no == lastLoaded) {
-                        more = posts.size() - i - 1;
+                for (Post p : result.posts) {
+                    if (p.no == lastLoaded) {
+                        more = result.posts.size() - result.posts.indexOf(p) - 1;
                         break;
                     }
                 }
             }
-            loadable.setLastLoaded(posts.get(posts.size() - 1).no);
+            loadable.setLastLoaded(result.posts.get(result.posts.size() - 1).no);
 
             if (more > 0) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
+            }
+
+            if (ChanSettings.autoLoadThreadImages.get()) {
+                FileCache cache = Chan.injector().instance(FileCache.class);
+                for (Post p : result.posts) {
+                    if (p.images != null) {
+                        for (PostImage i : p.images) {
+                            if (cache.exists(i.imageUrl.toString())) continue;
+                            if ((i.type == PostImage.Type.STATIC || i.type == PostImage.Type.GIF)
+                                    && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
+                                cache.downloadFile(i.imageUrl.toString(), null);
+                            } else if (i.type == PostImage.Type.MOVIE && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
+                                cache.downloadFile(i.imageUrl.toString(), null);
+                            }
+                        }
+                    }
+                }
             }
         }
 
