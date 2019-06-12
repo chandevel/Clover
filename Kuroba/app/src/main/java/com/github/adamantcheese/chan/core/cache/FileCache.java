@@ -16,19 +16,11 @@
  */
 package com.github.adamantcheese.chan.core.cache;
 
-import android.net.Uri;
-
 import androidx.annotation.MainThread;
 
 import com.github.adamantcheese.chan.utils.Logger;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.FileDataSource;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -106,24 +98,6 @@ public class FileCache implements FileCacheDownloader.Callback {
             }
         }
         return null;
-    }
-
-    public MediaSource createMediaSource(String url) {
-        File file = get(url);
-
-        DataSource dataSource;
-        Uri uri;
-        // The file needs to exist and to be complete, i.e. have no active downloader.
-        if (file.exists() && getDownloaderByKey(url) == null) {
-            uri = Uri.parse(file.toURI().toString());
-            dataSource = new FileDataSource();
-        } else {
-            uri = Uri.parse(url);
-            dataSource = new FileCacheDataSource(uri, file);
-            ((FileCacheDataSource) dataSource).prepare();
-        }
-
-        return new ProgressiveMediaSource.Factory(() -> dataSource).createMediaSource(uri);
     }
 
     @Override
