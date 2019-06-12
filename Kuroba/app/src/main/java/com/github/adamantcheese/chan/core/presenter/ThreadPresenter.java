@@ -56,6 +56,7 @@ import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadListLayout;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -97,12 +98,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
     private static final int POST_OPTION_EXTRA = 15;
     private static final int POST_OPTION_REMOVE = 16;
+    private static final int POST_OPTION_SAVE_THREAD = 17;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
     private ChanLoaderFactory chanLoaderFactory;
     private PageRequestManager pageRequestManager;
+    private ThreadSaveManager threadSaveManager;
 
     private Loadable loadable;
     private ChanThreadLoader chanLoader;
@@ -116,11 +119,13 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     public ThreadPresenter(WatchManager watchManager,
                            DatabaseManager databaseManager,
                            ChanLoaderFactory chanLoaderFactory,
-                           PageRequestManager pageRequestManager) {
+                           PageRequestManager pageRequestManager,
+                           ThreadSaveManager threadSaveManager) {
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
         this.chanLoaderFactory = chanLoaderFactory;
         this.pageRequestManager = pageRequestManager;
+        this.threadSaveManager = threadSaveManager;
     }
 
     public void create(ThreadPresenterCallback threadPresenterCallback) {
@@ -511,6 +516,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         }
 
         if (loadable.isThreadMode()) {
+            menu.add(new FloatingMenuItem(POST_OPTION_SAVE_THREAD, "Save thread"));
+
             if (!TextUtils.isEmpty(post.id)) {
                 menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
             }
@@ -620,7 +627,24 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                     }
                 }
                 break;
+            case POST_OPTION_SAVE_THREAD:
+                onSaveThreadClicked();
+                break;
         }
+    }
+
+    private void onSaveThreadClicked() {
+        threadSaveManager.saveThread(chanLoader.getThread(), new ThreadSaveManager.ThreadSaveManagerCallbacks() {
+            @Override
+            public void onSuccess() {
+                System.out.println("TTTAAA Success");
+            }
+
+            @Override
+            public void onError(Throwable error) {
+                error.printStackTrace();
+            }
+        });
     }
 
     @Override
