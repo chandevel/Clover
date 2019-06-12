@@ -395,25 +395,20 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     private void openVideoInternalStream(String videoUrl) {
         fileCache.createMediaSource(videoUrl, source -> {
-            AndroidUtils.runOnUiThread(() -> {
-                if (!hasContent || mode == Mode.MOVIE) {
-                    PlayerView exoVideoView = new PlayerView(getContext());
-                    exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
-                    exoVideoView.setPlayer(exoPlayer);
+            PlayerView exoVideoView = new PlayerView(getContext());
+            exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+            exoVideoView.setPlayer(exoPlayer);
 
-                    exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
-                            Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
+            exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
+                    Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
-                    exoPlayer.prepare(source);
-                    exoPlayer.setVolume(0f);
-                    exoPlayer.addAudioListener(MultiImageView.this);
+            exoPlayer.prepare(source);
+            exoPlayer.addAudioListener(MultiImageView.this);
 
-                    addView(exoVideoView);
-                    exoPlayer.setPlayWhenReady(true);
-                    onModeLoaded(Mode.MOVIE, exoVideoView);
-                    callback.onVideoLoaded(MultiImageView.this);
-                }
-            });
+            addView(exoVideoView);
+            exoPlayer.setPlayWhenReady(true);
+            onModeLoaded(Mode.MOVIE, exoVideoView);
+            callback.onVideoLoaded(MultiImageView.this);
         });
     }
 
