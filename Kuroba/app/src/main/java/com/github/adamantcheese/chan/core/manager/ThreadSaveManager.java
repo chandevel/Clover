@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 
@@ -63,20 +64,24 @@ public class ThreadSaveManager {
         this.gson = gson;
     }
 
+    public void cancel() {
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+            disposable = null;
+        }
+    }
+
     public void saveThread(ChanThread thread, ThreadSaveManagerCallbacks callbacks) {
+        cancel();
+
         if (thread == null) {
-            callbacks.onError(new NullPointerException("ChanThread is null"));
+            callbacks.onThreadSaveError(new NullPointerException("ChanThread is null"));
             return;
         }
 
         if (thread.posts.isEmpty()) {
-            callbacks.onSuccess();
+            callbacks.onThreadSaveSuccess();
             return;
-        }
-
-        if (disposable != null && !disposable.isDisposed()) {
-            disposable.dispose();
-            disposable = null;
         }
 
         try {
@@ -108,9 +113,13 @@ public class ThreadSaveManager {
                 }
             }
 
+            final AtomicInteger downloadedFiles = new AtomicInteger(0);
+            final int totalImagesCount = getImagesCount(thread.posts);
 
             // Pair<Extension, Url>
             Pair<String, HttpUrl> spoilerImageUrlAndExtension = getSpoilerImageUrlAndExtension(thread.posts);
+
+            callbacks.onThreadSavingStarted();
 
             disposable = Completable.fromRunnable(() -> saveThreadJsonToFile(thread, threadSaveDir))
                     // Execute json serialization on the executor
@@ -120,7 +129,12 @@ public class ThreadSaveManager {
                             boardSaveDir,
                             spoilerImageUrlAndExtension)))
                     .andThen(Completable.defer(() -> {
-                        // for each thread create a new flowable
+                        // OP image may be deleted by moderators and we may end up with no images at all
+                        if (totalImagesCount <= 0) {
+                            return Completable.complete();
+                        }
+
+                        // for each post create a new flowable
                         return Flowable.fromIterable(thread.posts)
                                 // Here we create a separate reactive stream for each image request.
                                 //                   |
@@ -140,26 +154,47 @@ public class ThreadSaveManager {
                                 .flatMapCompletable((post) -> {
                                     return downloadImages(
                                             threadSaveDirImages,
-                                            post);
+                                            post,
+                                            downloadedFiles,
+                                            totalImagesCount,
+                                            callbacks);
                                 });
                     }))
                     // Get the results on the main thread
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> {
                         Logger.d(TAG, "Thread download success!");
-                        callbacks.onSuccess();
+                        callbacks.onThreadSaveSuccess();
                     }, (error) -> {
                         Logger.d(TAG, "Thread download error");
                         deleteThread(thread);
-                        callbacks.onError(error);
+                        callbacks.onThreadSaveError(error);
                     });
 
         } catch (Throwable error) {
             Logger.e(TAG, "Could not save thread", error);
             deleteThread(thread);
 
-            callbacks.onError(error);
+            callbacks.onThreadSaveError(error);
         }
+    }
+
+    private int getImagesCount(List<Post> posts) {
+        int imagesCount = 0;
+
+        for (Post post : posts) {
+            imagesCount += post.images.size();
+        }
+
+        return imagesCount;
+    }
+
+    private void updateProgress(
+            ThreadSaveManagerCallbacks callbacks,
+            AtomicInteger downloadedFiles,
+            int totalImagesCount) {
+        int percent = (int)(((float) downloadedFiles.incrementAndGet() / (float) totalImagesCount) * 100f);
+        callbacks.onThreadSavingProgress(percent);
     }
 
     private void downloadSpoilerImage(
@@ -220,10 +255,13 @@ public class ThreadSaveManager {
 
     private Completable downloadImages(
             File threadSaveDirImages,
-            Post post) {
+            Post post,
+            AtomicInteger downloadedFiles,
+            int totalImagesCount,
+            ThreadSaveManagerCallbacks callbacks) {
         return Flowable.fromIterable(post.images)
                 .flatMapCompletable((postImage) -> {
-                    // Download each image in parallel on the executorService
+                    // Download each image in parallel using executorService
                     return Completable.fromRunnable(() -> {
                         try {
                             downloadImageIntoFile(
@@ -234,6 +272,8 @@ public class ThreadSaveManager {
                                     postImage.thumbnailUrl);
                         } catch (IOException e) {
                             Exceptions.propagate(e);
+                        } finally {
+                            updateProgress(callbacks, downloadedFiles, totalImagesCount);
                         }
                     })
                     // We don't really want to use more than "CPU processors count" threads here, but
@@ -337,8 +377,9 @@ public class ThreadSaveManager {
     }
 
     public interface ThreadSaveManagerCallbacks {
-        void onSuccess();
-
-        void onError(Throwable error);
+        void onThreadSavingStarted();
+        void onThreadSavingProgress(int percent);
+        void onThreadSaveSuccess();
+        void onThreadSaveError(Throwable error);
     }
 }

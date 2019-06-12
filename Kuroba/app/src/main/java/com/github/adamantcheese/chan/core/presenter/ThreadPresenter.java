@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -27,6 +28,7 @@ import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
@@ -57,6 +59,7 @@ import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
+import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadListLayout;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -80,7 +83,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         PostCellInterface.PostCellCallback,
         ThreadStatusCell.Callback,
         ThreadListLayout.ThreadListLayoutPresenterCallback,
-        ArchivesLayout.Callback {
+        ArchivesLayout.Callback,
+        ThreadSaveManager.ThreadSaveManagerCallbacks {
     private static final int POST_OPTION_QUOTE = 0;
     private static final int POST_OPTION_QUOTE_TEXT = 1;
     private static final int POST_OPTION_INFO = 2;
@@ -634,23 +638,46 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     private void onSaveThreadClicked() {
-//        if (!permissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//            // TODO: check for permission and try again
-//            callbacks.onNoWriteExternalStoragePermission();
-//            return;
-//        }
+        if (context == null) {
+            throw new NullPointerException("Context is null in ThreadPresenter!");
+        }
 
-        threadSaveManager.saveThread(chanLoader.getThread(), new ThreadSaveManager.ThreadSaveManagerCallbacks() {
-            @Override
-            public void onSuccess() {
-                System.out.println("TTTAAA Success");
-            }
+        RuntimePermissionsHelper runtimePermissionsHelper =
+                ((StartActivity) context).getRuntimePermissionsHelper();
 
-            @Override
-            public void onError(Throwable error) {
-                error.printStackTrace();
-            }
-        });
+        if (!runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
+                if (granted) {
+                    onSaveThreadClicked();
+                } else {
+                    // TODO: show error message or permission rationale
+                }
+            });
+
+            return;
+        }
+
+        threadSaveManager.saveThread(chanLoader.getThread(), this);
+    }
+
+    @Override
+    public void onThreadSavingStarted() {
+        System.out.println("TTTAAA onThreadSavingStarted");
+    }
+
+    @Override
+    public void onThreadSavingProgress(int percent) {
+        System.out.println("TTTAAA onThreadSavingProgress " + percent);
+    }
+
+    @Override
+    public void onThreadSaveSuccess() {
+        System.out.println("TTTAAA onThreadSaveSuccess");
+    }
+
+    @Override
+    public void onThreadSaveError(Throwable error) {
+        error.printStackTrace();
     }
 
     @Override
