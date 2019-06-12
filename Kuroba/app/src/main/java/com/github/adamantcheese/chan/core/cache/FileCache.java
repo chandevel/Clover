@@ -126,7 +126,9 @@ public class FileCache implements FileCacheDownloader.Callback, FileCacheDataSou
                         Logger.e(TAG, "Failed to fill cache!", e);
                     }
 
-                    listener.onMediaSourceReady(new ProgressiveMediaSource.Factory(() -> fileCacheSource).createMediaSource(uri));
+                    listener.onMediaSourceReady(
+                            new ProgressiveMediaSource.Factory(() -> fileCacheSource).createMediaSource(uri)
+                    );
                 }
             });
 
@@ -134,17 +136,24 @@ public class FileCache implements FileCacheDownloader.Callback, FileCacheDataSou
             // into the downloader data...
             runningDownloaderForKey.cancel();
         } else {
-            listener.onMediaSourceReady(new ProgressiveMediaSource.Factory(() -> fileCacheSource).createMediaSource(uri));
+            listener.onMediaSourceReady(
+                new ProgressiveMediaSource.Factory(() -> fileCacheSource).createMediaSource(uri)
+            );
         }
     }
 
     public void createMediaSource(String url, MediaSourceCallback listener) {
         File file = get(url);
 
+        DataSource dataSource;
+        Uri uri;
         // The file needs to exist and to be complete, i.e. have no active downloader.
         if (file.exists() && getDownloaderByKey(url) == null) {
-            Uri uri = Uri.parse(file.toURI().toString());
-            listener.onMediaSourceReady(new ProgressiveMediaSource.Factory(FileDataSource::new).createMediaSource(uri));
+            uri = Uri.parse(file.toURI().toString());
+            dataSource = new FileDataSource();
+            listener.onMediaSourceReady(
+                    new ProgressiveMediaSource.Factory(() -> dataSource).createMediaSource(uri)
+            );
         } else {
             handleCreateMediaSourceDownload(listener, file, url);
         }
