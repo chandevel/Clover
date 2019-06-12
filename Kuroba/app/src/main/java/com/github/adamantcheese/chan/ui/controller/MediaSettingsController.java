@@ -117,10 +117,6 @@ public class MediaSettingsController extends SettingsController {
                     R.string.setting_video_default_muted,
                     R.string.setting_video_default_muted_description));
 
-            media.add(new BooleanSettingView(this, ChanSettings.videoStream,
-                    R.string.setting_video_stream,
-                    R.string.setting_video_stream_description));
-
             media.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal,
                     R.string.setting_video_open_external,
                     R.string.setting_video_open_external_description));
