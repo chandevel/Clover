@@ -212,7 +212,6 @@ public class FileCacheDataSource extends BaseDataSource {
     private HttpDataSource dataSource;
     private PartialFileCache partialFileCache;
     private byte[] dataToFillCache = null;
-    private int dataToFillCacheLength = 0;
     private PartialFileCache.RegionStats activeRegionStats;
     private Range<Long> httpActiveRange;
 
@@ -249,7 +248,7 @@ public class FileCacheDataSource extends BaseDataSource {
         partialFileCache.addListener(() -> this.cacheComplete());
 
         if (dataToFillCache != null) {
-            partialFileCache.write(dataToFillCache, 0, dataToFillCacheLength);
+            partialFileCache.write(dataToFillCache, 0, dataToFillCache.length);
             partialFileCache.seek(0);
 
             dataToFillCache = null;
@@ -261,13 +260,13 @@ public class FileCacheDataSource extends BaseDataSource {
     public void fillCache(File file) throws IOException {
         try (FileInputStream fis = new FileInputStream(file)) {
             dataToFillCache = new byte[(int) file.length()];
-            dataToFillCacheLength = fis.read(dataToFillCache);
+            fis.read(dataToFillCache);
 
             // If it's null, this means we're not prepared yet (i.e. we don't know the real size
             // of the video, which is required by partialFileCache). Just leave it here and wait
             // until we're prepared.
             if (partialFileCache != null) {
-                partialFileCache.write(dataToFillCache, 0, dataToFillCacheLength);
+                partialFileCache.write(dataToFillCache, 0, dataToFillCache.length);
                 partialFileCache.seek(0);
 
                 dataToFillCache = null;
