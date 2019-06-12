@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import android.text.Html;
 import android.text.TextUtils;
 
 import androidx.annotation.AnyThread;
@@ -253,7 +254,7 @@ public class FilterEngine {
         }
 
         if (pattern == null) {
-            pattern = compile(filter.pattern);
+            pattern = compile(filter.pattern, filter.action);
             if (pattern != null) {
                 synchronized (patternCache) {
                     patternCache.put(filter.pattern, pattern);
@@ -281,7 +282,7 @@ public class FilterEngine {
     private static final Pattern wildcardPattern = Pattern.compile("\\\\\\*"); // an escaped \ and an escaped *, to replace an escaped * from escapeRegex
 
     @AnyThread
-    public Pattern compile(String rawPattern) {
+    public Pattern compile(String rawPattern, int filterAction) {
         if (TextUtils.isEmpty(rawPattern)) {
             return null;
         }
@@ -298,14 +299,23 @@ public class FilterEngine {
             }
 
             try {
-                pattern = Pattern.compile(isRegex.group(1), flags);
+                //the filter watch manager deals with exact comments and not HTML, so we don't escape for that
+                if (filterAction != FilterAction.WATCH.id) {
+                    pattern = Pattern.compile(Html.escapeHtml(isRegex.group(1)), flags);
+                } else {
+                    pattern = Pattern.compile(isRegex.group(1), flags);
+                }
             } catch (PatternSyntaxException e) {
                 return null;
             }
         } else if (rawPattern.length() >= 2 && rawPattern.charAt(0) == '"' && rawPattern.charAt(rawPattern.length() - 1) == '"') {
             // "matches an exact sentence"
             String text = escapeRegex(rawPattern.substring(1, rawPattern.length() - 1));
-            pattern = Pattern.compile(text, Pattern.CASE_INSENSITIVE);
+            if (filterAction != FilterAction.WATCH.id) {
+                pattern = Pattern.compile(Html.escapeHtml(text), Pattern.CASE_INSENSITIVE);
+            } else {
+                pattern = Pattern.compile(text, Pattern.CASE_INSENSITIVE);
+            }
         } else {
             String[] words = rawPattern.split(" ");
             StringBuilder text = new StringBuilder();
@@ -319,7 +329,11 @@ public class FilterEngine {
                 }
             }
 
-            pattern = Pattern.compile(text.toString(), Pattern.CASE_INSENSITIVE);
+            if (filterAction != FilterAction.WATCH.id) {
+                pattern = Pattern.compile(Html.escapeHtml(text.toString()), Pattern.CASE_INSENSITIVE);
+            } else {
+                pattern = Pattern.compile(text.toString(), Pattern.CASE_INSENSITIVE);
+            }
         }
 
         return pattern;

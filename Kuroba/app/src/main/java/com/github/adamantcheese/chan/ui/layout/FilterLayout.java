@@ -333,7 +333,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     }
 
     private void updateFilterValidity() {
-        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern) != null;
+        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, filter.action) != null;
 
         if (valid != patternContainerErrorShowing) {
             patternContainerErrorShowing = valid;

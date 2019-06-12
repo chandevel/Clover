@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -192,7 +193,6 @@ public class FiltersController extends Controller implements
         final AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setView(filterLayout)
                 .setPositiveButton("Save", (dialog, which) -> {
-
                     filterEngine.createOrUpdateFilter(filterLayout.getFilter());
                     if (filterEngine.getEnabledFilters().isEmpty()) {
                         enable.setImageResource(R.drawable.ic_done_white_24dp);
@@ -202,6 +202,14 @@ public class FiltersController extends Controller implements
                     Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(enable);
                     EventBus.getDefault().post(new RefreshUIMessage("filters"));
                     adapter.reload();
+
+                    //double check filters, warn if duplicate
+                    List<Filter> currentFilters = databaseManager.runTask(databaseManager.getDatabaseFilterManager().getFilters());
+                    for (Filter f : currentFilters) {
+                        if (f.pattern.equals(filterLayout.getFilter().pattern)) {
+                            Toast.makeText(context, "Warning: two filters exist with the same pattern, filters may not work as expected", Toast.LENGTH_LONG).show();
+                        }
+                    }
                 })
                 .show();
 
