@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 
-public class FileCache implements FileCacheDownloader.Callback, FileCacheDataSource.Callback {
+public class FileCache implements FileCacheDownloader.Callback {
     private static final String TAG = "FileCache";
     private static final int TIMEOUT = 10000;
     private static final int DOWNLOAD_POOL_SIZE = 2;
@@ -119,10 +119,8 @@ public class FileCache implements FileCacheDownloader.Callback, FileCacheDataSou
             dataSource = new FileDataSource();
         } else {
             uri = Uri.parse(url);
-            FileCacheDataSource fileCacheSource = new FileCacheDataSource(uri, file);
-            fileCacheSource.addListener(this);
-            fileCacheSource.prepare();
-            dataSource = fileCacheSource;
+            dataSource = new FileCacheDataSource(uri, file);
+            ((FileCacheDataSource) dataSource).prepare();
         }
 
         return new ProgressiveMediaSource.Factory(() -> dataSource).createMediaSource(uri);
@@ -135,11 +133,6 @@ public class FileCache implements FileCacheDownloader.Callback, FileCacheDataSou
 
     @Override
     public void downloaderAddedFile(File file) {
-        cacheHandler.fileWasAdded(file);
-    }
-
-    @Override
-    public void dataSourceAddedFile(File file) {
         cacheHandler.fileWasAdded(file);
     }
 

@@ -15,7 +15,6 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 
 import java.io.EOFException;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +55,6 @@ public class FileCacheDataSource extends BaseDataSource {
         private byte[] cachedRangesData;
         private long pos = 0;
         private long fileLength;
-        private boolean firedCacheComplete = false;
-        private List<Runnable> listeners = new ArrayList<>();
 
         PartialFileCache(long fileLength) {
             this.fileLength = fileLength;
@@ -160,10 +157,6 @@ public class FileCacheDataSource extends BaseDataSource {
             joinRanges();
 
             pos += length;
-
-            if (isCacheComplete() && !firedCacheComplete) {
-                fireCacheComplete();
-            }
         }
 
         void read(byte[] buffer, long offset, long length) {
@@ -181,38 +174,12 @@ public class FileCacheDataSource extends BaseDataSource {
         void seek(long pos) {
             this.pos = pos;
         }
-
-        void addListener(Runnable listener) {
-            listeners.add(listener);
-
-            if (firedCacheComplete) {
-                listener.run();
-            }
-        }
-
-        void fireCacheComplete() {
-            for (Runnable listener : listeners) {
-                listener.run();
-            }
-
-            firedCacheComplete = true;
-        }
-
-        boolean isCacheComplete() {
-            return isCached(0, fileLength);
-        }
-
-        byte[] getCacheBytes() {
-            return cachedRangesData;
-        }
     }
 
     private HttpDataSource dataSource;
     private PartialFileCache partialFileCache;
     private PartialFileCache.RegionStats activeRegionStats;
     private Range<Long> httpActiveRange;
-
-    private List<Callback> listeners = new ArrayList<>();
 
     private File file;
     private @Nullable Uri uri;
@@ -247,7 +214,6 @@ public class FileCacheDataSource extends BaseDataSource {
     public void prepare() {
         detectLength();
         this.partialFileCache = new PartialFileCache(this.fileLength);
-        partialFileCache.addListener(() -> this.cacheComplete());
 
         prepared = true;
     }
@@ -333,23 +299,6 @@ public class FileCacheDataSource extends BaseDataSource {
         return readBytes;
     }
 
-    public void cacheComplete() {
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write(partialFileCache.getCacheBytes());
-        } catch (Exception e) {
-            Logger.e(TAG, "cacheComplete: caught exception", e);
-            return;
-        }
-
-        for (Callback c : listeners) {
-            c.dataSourceAddedFile(file);
-        }
-    }
-
-    public void addListener(Callback c) {
-        listeners.add(c);
-    }
-
     @Nullable
     @Override
     public Uri getUri() {
@@ -369,9 +318,5 @@ public class FileCacheDataSource extends BaseDataSource {
                 transferEnded();
             }
         }
-    }
-
-    interface Callback {
-        void dataSourceAddedFile(File file);
     }
 }
