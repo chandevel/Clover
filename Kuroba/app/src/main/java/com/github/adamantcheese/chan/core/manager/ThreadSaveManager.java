@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.manager;
 
+import android.util.Pair;
+
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.mapper.ThreadMapper;
@@ -18,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -39,14 +42,15 @@ import okhttp3.ResponseBody;
 public class ThreadSaveManager {
     private static final String TAG = "ThreadSaveManager";
     private static final int MAX_DOWNLOAD_IMAGE_WAITING_TIME_SECONDS = 20;
+    private static final int TIMEOUT_SECONDS = 30;
 
     private Gson gson;
 
     private OkHttpClient okHttpClient = new OkHttpClient()
             .newBuilder()
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .connectTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .build();
     private ExecutorService executorService = Executors.newFixedThreadPool(
             Runtime.getRuntime().availableProcessors());
@@ -65,11 +69,10 @@ public class ThreadSaveManager {
             return;
         }
 
-//        if (!permissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//            // TODO: check for permission and try again
-//            callbacks.onNoWriteExternalStoragePermission();
-//            return;
-//        }
+        if (thread.posts.isEmpty()) {
+            callbacks.onSuccess();
+            return;
+        }
 
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
@@ -77,9 +80,9 @@ public class ThreadSaveManager {
         }
 
         try {
-            String subDirs = getThreadSubDir(thread);
+            String threadSubDir = getThreadSubDir(thread);
 
-            File threadSaveDir = new File(ChanSettings.saveLocation.get(), subDirs);
+            File threadSaveDir = new File(ChanSettings.saveLocation.get(), threadSubDir);
             if (!threadSaveDir.exists()) {
                 if (!threadSaveDir.mkdirs()) {
                     throw new IOException("Could not create a directory to save the thread " +
@@ -95,9 +98,27 @@ public class ThreadSaveManager {
                 }
             }
 
+            String boardSubDir = getBoardSubDir(thread);
+
+            File boardSaveDir = new File(ChanSettings.saveLocation.get(), boardSubDir);
+            if (!boardSaveDir.exists()) {
+                if (!boardSaveDir.mkdirs()) {
+                    throw new IOException("Could not create a directory to save the spoiler image " +
+                            "to (full path: " + boardSaveDir.getAbsolutePath() + ")");
+                }
+            }
+
+
+            // Pair<Extension, Url>
+            Pair<String, HttpUrl> spoilerImageUrlAndExtension = getSpoilerImageUrlAndExtension(thread.posts);
+
             disposable = Completable.fromRunnable(() -> saveThreadJsonToFile(thread, threadSaveDir))
                     // Execute json serialization on the executor
                     .subscribeOn(Schedulers.from(executorService))
+                    .andThen(Completable.fromRunnable(() -> downloadSpoilerImage(
+                            thread,
+                            boardSaveDir,
+                            spoilerImageUrlAndExtension)))
                     .andThen(Completable.defer(() -> {
                         // for each thread create a new flowable
                         return Flowable.fromIterable(thread.posts)
@@ -119,8 +140,7 @@ public class ThreadSaveManager {
                                 .flatMapCompletable((post) -> {
                                     return downloadImages(
                                             threadSaveDirImages,
-                                            post,
-                                            thread.loadable.board.spoilers);
+                                            post);
                                 });
                     }))
                     // Get the results on the main thread
@@ -140,6 +160,42 @@ public class ThreadSaveManager {
 
             callbacks.onError(error);
         }
+    }
+
+    private void downloadSpoilerImage(
+            ChanThread thread,
+            File threadSaveDirImages,
+            Pair<String, HttpUrl> spoilerImageUrlAndExtension) {
+        if (thread.loadable.board.spoilers && spoilerImageUrlAndExtension != null) {
+            try {
+                String spoilerImageName = "spoiler" + "." + spoilerImageUrlAndExtension.first;
+                File spoilerImageFullPath = new File(threadSaveDirImages, spoilerImageName);
+
+                if (spoilerImageFullPath.exists()) {
+                    return;
+                }
+
+                downloadImage(
+                        threadSaveDirImages,
+                        spoilerImageName,
+                        spoilerImageUrlAndExtension.second);
+            } catch (IOException e) {
+                Exceptions.propagate(e);
+            }
+        }
+    }
+
+    @Nullable
+    private Pair<String, HttpUrl> getSpoilerImageUrlAndExtension(List<Post> posts) {
+        for (Post post : posts) {
+            if (post.images.size() > 0) {
+                return new Pair<>(
+                        post.images.get(0).extension,
+                        post.images.get(0).spoilerThumbnailUrl);
+            }
+        }
+
+        return null;
     }
 
     private void saveThreadJsonToFile(ChanThread thread, File threadSaveDir) {
@@ -164,8 +220,7 @@ public class ThreadSaveManager {
 
     private Completable downloadImages(
             File threadSaveDirImages,
-            Post post,
-            boolean boardHasSpoilers) {
+            Post post) {
         return Flowable.fromIterable(post.images)
                 .flatMapCompletable((postImage) -> {
                     // Download each image in parallel on the executorService
@@ -173,11 +228,9 @@ public class ThreadSaveManager {
                         try {
                             downloadImageIntoFile(
                                     threadSaveDirImages,
-                                    boardHasSpoilers,
                                     postImage.filename,
                                     postImage.extension,
                                     postImage.imageUrl,
-                                    postImage.spoilerThumbnailUrl,
                                     postImage.thumbnailUrl);
                         } catch (IOException e) {
                             Exceptions.propagate(e);
@@ -195,11 +248,9 @@ public class ThreadSaveManager {
 
     private void downloadImageIntoFile(
             File threadSaveDirImages,
-            boolean boardHasSpoilers,
             String filename,
             String extension,
             HttpUrl imageUrl,
-            HttpUrl spoilerThumbnailUrl,
             HttpUrl thumbnailUrl) throws IOException {
         Logger.d(TAG, "Downloading image with filename " + filename +
                 " in a thread " + Thread.currentThread().getName());
@@ -212,14 +263,6 @@ public class ThreadSaveManager {
                 threadSaveDirImages,
                 filename + "_" + "thumbnail" + "." + extension,
                 thumbnailUrl);
-
-        if (boardHasSpoilers) {
-            // TODO: do not download spoiler image for every image in a thread, do it once per thread at least
-            downloadImage(
-                    threadSaveDirImages,
-                    filename + "_" + "spoiler" + "." + extension,
-                    spoilerThumbnailUrl);
-        }
     }
 
     private void downloadImage(File threadSaveDirImages, String filename, HttpUrl imageUrl) throws IOException {
@@ -281,6 +324,16 @@ public class ThreadSaveManager {
                 File.separator +
                 thread.loadable.boardCode +
                 File.separator + thread.op.no;
+    }
+
+    private String getBoardSubDir(ChanThread thread) {
+        // saved_threads/4chan/g/
+
+        return "saved_threads" +
+                File.separator +
+                thread.loadable.site.name() +
+                File.separator +
+                thread.loadable.boardCode;
     }
 
     public interface ThreadSaveManagerCallbacks {

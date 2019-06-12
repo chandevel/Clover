@@ -634,6 +634,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     private void onSaveThreadClicked() {
+//        if (!permissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+//            // TODO: check for permission and try again
+//            callbacks.onNoWriteExternalStoragePermission();
+//            return;
+//        }
+
         threadSaveManager.saveThread(chanLoader.getThread(), new ThreadSaveManager.ThreadSaveManagerCallbacks() {
             @Override
             public void onSuccess() {
