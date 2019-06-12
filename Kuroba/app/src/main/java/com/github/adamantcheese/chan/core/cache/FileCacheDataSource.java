@@ -260,7 +260,7 @@ public class FileCacheDataSource extends BaseDataSource {
 
         // We keep the cache for a single file, so it would be bothersome that it was used with
         // another file.
-        if (!dataSpec.uri.equals(uri)) {
+        if (dataSpec.uri.equals(uri)) {
             throw new IOException("dataSpec.uri is different than uri passed to constructor!");
         }
 
