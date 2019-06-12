@@ -94,6 +94,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     private FileCacheDownloader videoRequest;
 
     private SimpleExoPlayer exoPlayer;
+    private ExecutorService threadPool = Executors.newCachedThreadPool();
 
     private boolean backgroundToggle;
 
@@ -394,22 +395,25 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     }
 
     private void openVideoInternalStream(String videoUrl) {
-        fileCache.createMediaSource(videoUrl, source -> {
-            PlayerView exoVideoView = new PlayerView(getContext());
-            exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
-            exoVideoView.setPlayer(exoPlayer);
+        threadPool.execute(() -> fileCache.createMediaSource(videoUrl, source -> {
+            Handler h = new Handler(Looper.getMainLooper());
+            h.post(() -> {
+                PlayerView exoVideoView = new PlayerView(getContext());
+                exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+                exoVideoView.setPlayer(exoPlayer);
 
-            exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
-                    Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
+                exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
+                        Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
-            exoPlayer.prepare(source);
-            exoPlayer.addAudioListener(MultiImageView.this);
+                exoPlayer.prepare(source);
+                exoPlayer.addAudioListener(MultiImageView.this);
 
-            addView(exoVideoView);
-            exoPlayer.setPlayWhenReady(true);
-            onModeLoaded(Mode.MOVIE, exoVideoView);
-            callback.onVideoLoaded(MultiImageView.this);
-        });
+                addView(exoVideoView);
+                exoPlayer.setPlayWhenReady(true);
+                onModeLoaded(Mode.MOVIE, exoVideoView);
+                callback.onVideoLoaded(MultiImageView.this);
+            });
+        }));
     }
 
     private void openVideoExternal(String videoUrl) {
