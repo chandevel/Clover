@@ -111,6 +111,7 @@ public class FileCache implements FileCacheDownloader.Callback, FileCacheDataSou
         Uri uri = Uri.parse(url);
         FileCacheDataSource fileCacheSource = new FileCacheDataSource(uri, file);
         fileCacheSource.addListener(this);
+        fileCacheSource.prepare();
 
         // Attempt to get the data from a downloader already running for this URL,
         // and fill it into our cache
