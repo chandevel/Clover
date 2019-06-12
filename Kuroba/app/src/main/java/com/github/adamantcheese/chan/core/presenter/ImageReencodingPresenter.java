@@ -205,7 +205,7 @@ public class ImageReencodingPresenter {
     }
 
     private String getNewImageName() {
-        return String.valueOf(System.currentTimeMillis() / 1000);
+        return String.valueOf(System.currentTimeMillis());
     }
 
     public static class ImageOptions {
