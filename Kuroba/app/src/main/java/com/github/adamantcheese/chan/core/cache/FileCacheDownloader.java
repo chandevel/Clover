@@ -195,10 +195,6 @@ public class FileCacheDownloader implements Runnable {
             final boolean finalIsNotFound = isNotFound;
             final boolean finalCancelled = cancelled;
             post(() -> {
-                for (FileCacheListener callback : listeners) {
-                    callback.beforePurgeOutput(output);
-                }
-
                 purgeOutput();
                 for (FileCacheListener callback : listeners) {
                     if (finalCancelled) {
