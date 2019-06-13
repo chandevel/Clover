@@ -328,18 +328,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
             });
 
-            /*itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    int pos = getAdapterPosition() - PIN_OFFSET;
-                    if (pos >= 0 && pos < pins.size()) {
-                        callback.onPinLongClicked(pins.get(pos));
-                    }
-
-                    return true;
-                }
-            });*/
-
             watchCountText.setOnClickListener(v -> {
                 int pos = getAdapterPosition() - PIN_OFFSET;
                 if (pos >= 0 && pos < pins.size()) {
