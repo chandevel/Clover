@@ -315,7 +315,8 @@ If the pattern matches then the post can be hidden, removed, highlighted, or aut
     <string name="reply_submit">Submit</string>
     <string name="reply_error">Error posting</string>
     <string name="reply_error_message">Error posting: %s</string>
-    <string name="reply_error_message_timer">Error posting: You must wait %d seconds before posting a reply.</string>
+    <string name="reply_error_message_timer_reply">Error posting: You must wait %d seconds before posting a reply.</string>
+    <string name="reply_error_message_timer_thread">Error posting: You must wait %d seconds before posting a thread.</string>
     <string name="reply_success">Post successful</string>
     <string name="reply_captcha_text">Type the text</string>
     <string name="reply_comment_button_quote" translatable="false">&gt;</string>
