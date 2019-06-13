@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -36,9 +35,6 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -46,7 +42,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 33;
+    private static final int DATABASE_VERSION = 34;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -186,6 +182,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         if (oldVersion < 33) {
             //even though this isn't a database thing, it's an easy way of doing things only once
             ChanSettings.useNewCaptchaWindow.set(true);
+        }
+
+        if (oldVersion < 34) {
+            try {
+                filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN onlyOnOP INTEGER default 0");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 34");
+            }
         }
     }
 

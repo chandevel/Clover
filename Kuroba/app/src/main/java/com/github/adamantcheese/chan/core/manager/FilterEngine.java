@@ -176,6 +176,7 @@ public class FilterEngine {
         if (!post.moderatorCapcode.equals("") || post.sticky) {
             return false;
         }
+        if (filter.onlyOnOP && !post.op) return false;
         if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, post.tripcode, false)) {
             return true;
         }

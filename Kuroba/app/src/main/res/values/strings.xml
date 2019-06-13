@@ -620,6 +620,7 @@ Don't have a 4chan Pass?<br>
     <string name="default_directory_may_not_exist_title">Default directory may not exist</string>
 
     <string name="apply_to_replies">Apply to replies</string>
+    <string name="only_on_op">Only on OP</string>
     <string name="thread_layout_hide_whole_chain">Hide whole chain</string>
     <string name="thread_layout_remove_whole_chain">Remove whole chain</string>
     <string name="thread_layout_hide_post">Hide post</string>
