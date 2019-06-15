@@ -36,6 +36,7 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -285,6 +286,14 @@ public class AndroidUtils {
         return String.format(Locale.US, "%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
+    public static void hideView(View view) {
+        view.setVisibility(View.GONE);
+    }
+
+    public static void showView(View view) {
+        view.setVisibility(View.VISIBLE);
+    }
+
     public interface OnMeasuredCallback {
         /**
          * Called when the layout is done.
@@ -461,5 +470,9 @@ public class AndroidUtils {
         scaleAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
 
         view.startAnimation(scaleAnimation);
+    }
+
+    public static boolean isNougat() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
 }

@@ -17,6 +17,7 @@ public class PostImageMapper {
                 postImage.imageHeight,
                 postImage.spoiler,
                 postImage.size,
+                // TODO: delete
                 postImage.type.name()
         );
     }
@@ -31,4 +32,25 @@ public class PostImageMapper {
         return serializablePostImageList;
     }
 
+    public static PostImage fromSerializablePostImage(SerializablePostImage serializablePostImage) {
+        return new PostImage.Builder()
+                .originalName(serializablePostImage.getOriginalName())
+                .filename(serializablePostImage.getFilename())
+                .extension(serializablePostImage.getExtension())
+                .imageWidth(serializablePostImage.getImageWidth())
+                .imageHeight(serializablePostImage.getImageHeight())
+                .spoiler(serializablePostImage.isSpoiler())
+                .size(serializablePostImage.getSize())
+                .build();
+    }
+
+    public static List<PostImage> fromSerializablePostImageList(List<SerializablePostImage> serializablePostImageList) {
+        List<PostImage> postImageList = new ArrayList<>(serializablePostImageList.size());
+
+        for (SerializablePostImage serializablePostImage : serializablePostImageList) {
+            postImageList.add(fromSerializablePostImage(serializablePostImage));
+        }
+
+        return postImageList;
+    }
 }

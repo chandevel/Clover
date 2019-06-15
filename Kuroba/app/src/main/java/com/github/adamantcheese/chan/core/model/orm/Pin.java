@@ -56,6 +56,12 @@ public class Pin implements Comparable<Pin>, Cloneable {
     @DatabaseField
     public boolean archived = false;
 
+    /**
+     * Pins can now be used to either watch new posts or save new posts or do both
+     * */
+    @DatabaseField(columnName = "pin_type")
+    public int pinType;
+
     public Pin() {
     }
 
@@ -69,7 +75,8 @@ public class Pin implements Comparable<Pin>, Cloneable {
             boolean isError,
             String thumbnailUrl,
             int order,
-            boolean archived
+            boolean archived,
+            PinType pinType
     ) {
         this.loadable = loadable;
         this.watching = watching;
@@ -81,6 +88,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
         this.thumbnailUrl = thumbnailUrl;
         this.order = order;
         this.archived = archived;
+        this.pinType = pinType.typeValue;
     }
 
     public int getNewPostCount() {
@@ -114,11 +122,40 @@ public class Pin implements Comparable<Pin>, Cloneable {
         copy.thumbnailUrl = thumbnailUrl;
         copy.order = order;
         copy.archived = archived;
+        copy.pinType = pinType;
         return copy;
     }
 
     @Override
     public int compareTo(@NonNull Pin o) {
         return this.order - o.order;
+    }
+
+    public enum PinType {
+        WatchNewPosts(1 << 0),
+        DownloadNewPosts(1 << 1),
+        WatchAndDownload(WatchNewPosts.typeValue | DownloadNewPosts.typeValue);
+
+        private int typeValue;
+
+        public int getTypeValue() {
+            return typeValue;
+        }
+
+        PinType(int typeValue) {
+            this.typeValue = typeValue;
+        }
+
+        public static PinType from(int value) {
+            if (value == WatchNewPosts.typeValue) {
+                return WatchNewPosts;
+            } else if (value == DownloadNewPosts.typeValue) {
+                return DownloadNewPosts;
+            } else if (value == WatchAndDownload.typeValue) {
+                return WatchAndDownload;
+            }
+
+            throw new IllegalArgumentException("Not implemented for " + value);
+        }
     }
 }

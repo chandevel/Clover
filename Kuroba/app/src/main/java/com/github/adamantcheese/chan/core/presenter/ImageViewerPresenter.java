@@ -77,13 +77,13 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         }
 
         // Do this before the view is measured, to avoid it to always loading the first two pages
-        callback.setPagerItems(images, selectedPosition);
+        callback.setPagerItems(loadable, images, selectedPosition);
         callback.setImageMode(images.get(selectedPosition), MultiImageView.Mode.LOWRES, true);
     }
 
     public void onViewMeasured() {
         // Pager is measured, but still invisible
-        callback.startPreviewInTransition(images.get(selectedPosition));
+        callback.startPreviewInTransition(loadable, images.get(selectedPosition));
         PostImage postImage = images.get(selectedPosition);
         callback.setTitle(postImage, selectedPosition, images.size(), postImage.spoiler);
     }
@@ -109,7 +109,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         callback.setPagerVisiblity(false);
         callback.setPreviewVisibility(true);
-        callback.startPreviewOutTransition(postImage);
+        callback.startPreviewOutTransition(loadable, postImage);
         callback.showProgress(false);
 
         cancelPreloadingImages();
@@ -217,12 +217,12 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private void onLowResInCenter() {
         PostImage postImage = images.get(selectedPosition);
 
-        if (imageAutoLoad(postImage) && !postImage.spoiler) {
+        if (imageAutoLoad(loadable, postImage) && !postImage.spoiler) {
             if (postImage.type == PostImage.Type.STATIC) {
                 callback.setImageMode(postImage, MultiImageView.Mode.BIGIMAGE, true);
             } else if (postImage.type == PostImage.Type.GIF) {
                 callback.setImageMode(postImage, MultiImageView.Mode.GIF, true);
-            } else if (postImage.type == PostImage.Type.MOVIE && videoAutoLoad(postImage)) {
+            } else if (postImage.type == PostImage.Type.MOVIE && videoAutoLoad(loadable, postImage)) {
                 callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
             }
         }
@@ -238,20 +238,17 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
             boolean load = false;
             if (next.type == PostImage.Type.STATIC || next.type == PostImage.Type.GIF) {
-                load = imageAutoLoad(next);
+                load = imageAutoLoad(loadable, next);
             } else if (next.type == PostImage.Type.MOVIE) {
-                load = videoAutoLoad(next);
+                load = videoAutoLoad(loadable, next);
             }
 
             if (load) {
-                final String fileUrl = next.imageUrl.toString();
-
                 // If downloading, remove from preloadingImages if it finished.
                 // Array to allow access from within the callback (the callback should really
                 // pass the filecachedownloader itself).
-                final FileCacheDownloader[] preloadDownload =
-                        new FileCacheDownloader[1];
-                preloadDownload[0] = fileCache.downloadFile(fileUrl,
+                final FileCacheDownloader[] preloadDownload = new FileCacheDownloader[1];
+                preloadDownload[0] = fileCache.downloadFile(loadable, next,
                         new FileCacheListener() {
                             @Override
                             public void onEnd() {
@@ -281,7 +278,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         // Don't mistake a swipe when the pager is disabled as a tap
         if (viewPagerVisible) {
             PostImage postImage = images.get(selectedPosition);
-            if (imageAutoLoad(postImage) && !postImage.spoiler) {
+            if (imageAutoLoad(loadable, postImage) && !postImage.spoiler) {
                 if (postImage.type == PostImage.Type.MOVIE) {
                     callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
                 } else {
@@ -349,13 +346,18 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         }
     }
 
-    private boolean imageAutoLoad(PostImage postImage) {
+    private boolean imageAutoLoad(Loadable loadable, PostImage postImage) {
+        if (loadable.isSavedCopy) {
+            // All images are stored locally when isSavedCopy is true
+            return true;
+        }
+
         // Auto load the image when it is cached
         return fileCache.exists(postImage.imageUrl.toString()) || shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get());
     }
 
-    private boolean videoAutoLoad(PostImage postImage) {
-        return imageAutoLoad(postImage) && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
+    private boolean videoAutoLoad(Loadable loadable, PostImage postImage) {
+        return imageAutoLoad(loadable, postImage) && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
     }
 
     private void setTitle(PostImage postImage, int position) {
@@ -375,15 +377,15 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     public interface Callback {
-        void startPreviewInTransition(PostImage postImage);
+        void startPreviewInTransition(Loadable loadable, PostImage postImage);
 
-        void startPreviewOutTransition(PostImage postImage);
+        void startPreviewOutTransition(Loadable loadable, PostImage postImage);
 
         void setPreviewVisibility(boolean visible);
 
         void setPagerVisiblity(boolean visible);
 
-        void setPagerItems(List<PostImage> images, int initialIndex);
+        void setPagerItems(Loadable loadable, List<PostImage> images, int initialIndex);
 
         void setImageMode(PostImage postImage, MultiImageView.Mode mode, boolean center);
 

@@ -109,7 +109,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
                             List<ImageSaveTask> tasks = new ArrayList<>(items.size());
                             for (AlbumDownloadItem item : items) {
                                 if (item.checked) {
-                                    tasks.add(new ImageSaveTask(item.postImage));
+                                    tasks.add(new ImageSaveTask(loadable, item.postImage));
                                 }
                             }
 
@@ -185,14 +185,17 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
 
         @Override
         public AlbumDownloadCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new AlbumDownloadCell(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_album_download, parent, false));
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.cell_album_download, parent, false);
+
+            return new AlbumDownloadCell(view);
         }
 
         @Override
         public void onBindViewHolder(AlbumDownloadCell holder, int position) {
             AlbumDownloadItem item = items.get(position);
 
-            holder.thumbnailView.setPostImage(item.postImage, dp(100), dp(100));
+            holder.thumbnailView.setPostImage(loadable, item.postImage, dp(100), dp(100));
             setItemChecked(holder, item.checked, false);
         }
 

@@ -18,20 +18,25 @@ package com.github.adamantcheese.chan.core.manager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.Nullable;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.ServerError;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
+import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
@@ -55,6 +60,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import io.reactivex.Single;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 /**
@@ -75,6 +82,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 public class WatchManager implements WakeManager.Wakeable {
     private static final String TAG = "WatchManager";
     private static final Intent WATCH_NOTIFICATION_INTENT = new Intent(getAppContext(), WatchNotification.class);
+    private static final byte[] EMPTY_BYTE_ARRAY = new byte[] {};
 
     enum IntervalType {
         /**
@@ -99,27 +107,41 @@ public class WatchManager implements WakeManager.Wakeable {
 
     private final DatabaseManager databaseManager;
     private final DatabasePinManager databasePinManager;
+    private final DatabaseSavedThreadManager databaseSavedThreadManager;
     private final ChanLoaderFactory chanLoaderFactory;
     private final WakeManager wakeManager;
     private final PageRequestManager pageRequestManager;
+    private final ThreadSaveManager threadSaveManager;
 
     private IntervalType currentInterval = IntervalType.NONE;
 
     private final List<Pin> pins;
+    private final List<SavedThread> savedThreads;
+
     private Map<Pin, PinWatcher> pinWatchers = new HashMap<>();
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
 
     @Inject
-    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory, WakeManager wakeManager, PageRequestManager pageRequestManager) {
+    public WatchManager(
+            DatabaseManager databaseManager,
+            ChanLoaderFactory chanLoaderFactory,
+            WakeManager wakeManager,
+            PageRequestManager pageRequestManager,
+            ThreadSaveManager threadSaveManager) {
         //retain local references to needed managers/factories/pins
         this.databaseManager = databaseManager;
         this.chanLoaderFactory = chanLoaderFactory;
         this.wakeManager = wakeManager;
         this.pageRequestManager = pageRequestManager;
+        this.threadSaveManager = threadSaveManager;
 
         databasePinManager = databaseManager.getDatabasePinManager();
+        databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadmanager();
+
         pins = databaseManager.runTask(databasePinManager.getPins());
         Collections.sort(pins);
+
+        savedThreads = databaseManager.runTask(databaseSavedThreadManager.getSavedThreads());
 
         //register this manager to watch for setting changes and post pin changes
         EventBus.getDefault().register(this);
@@ -138,13 +160,15 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     public boolean createPin(Loadable loadable) {
-        return createPin(loadable, null);
+        return createPin(loadable, null, Pin.PinType.WatchNewPosts);
     }
 
-    public boolean createPin(Loadable loadable, @Nullable Post opPost) {
+    public boolean createPin(Loadable loadable, @Nullable Post opPost, Pin.PinType pinType) {
         Pin pin = new Pin();
         pin.loadable = loadable;
         pin.loadable.title = PostHelper.getTitle(opPost, loadable);
+        pin.pinType = pinType.getTypeValue();
+
         if (opPost != null) {
             PostImage image = opPost.image();
             pin.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
@@ -152,10 +176,12 @@ public class WatchManager implements WakeManager.Wakeable {
         return createPin(pin);
     }
 
+
     public boolean createPin(Pin pin) {
         // No duplicates
         for (Pin e : pins) {
             if (e.loadable.equals(pin.loadable)) {
+                // TODO: update the pin type here
                 return false;
             }
         }
@@ -180,18 +206,127 @@ public class WatchManager implements WakeManager.Wakeable {
         return true;
     }
 
+    public Single<Boolean> startSavingThread(int pinId, Loadable loadable, List<Post> postsToSave) {
+        return Single.fromCallable(() -> {
+            SavedThread savedThread = findSavedThreadByPinId(pinId);
+            if (savedThread != null && (savedThread.isFullyDownloaded || !savedThread.isStopped)) {
+                // TODO: custom exception
+                throw new Resources.NotFoundException("This thread is already being saved " +
+                        "(pinId = " + pinId + ")");
+            }
+
+            if (savedThread == null) {
+                savedThread = new SavedThread(pinId, false, false);
+            } else {
+                savedThread.isStopped = false;
+            }
+
+            // TODO: update drawer item to show that it is now being saved (icon)
+            createOrUpdateSavedThread(savedThread);
+            databaseManager.runTask(databaseSavedThreadManager.startSavingThread(savedThread));
+            return true;
+        }).flatMap((result) -> {
+            if (!result) {
+                throw new IllegalStateException("Could not start saving a thread");
+            }
+
+            return threadSaveManager.saveThread(pinId, loadable, postsToSave);
+        });
+    }
+
+    private void createOrUpdateSavedThread(SavedThread savedThread) {
+        for (int i = 0; i < savedThreads.size(); i++) {
+            SavedThread st = savedThreads.get(i);
+
+            if (st.equals(savedThread)) {
+                savedThreads.get(i).update(savedThread);
+                return;
+            }
+        }
+
+        savedThreads.add(savedThread);
+    }
+
+    @Nullable
+    public SavedThread findSavedThreadByPinId(int pinId) {
+        for (SavedThread savedThread : savedThreads) {
+            if (savedThread.pinId == pinId) {
+                return savedThread;
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public SavedThread findSavedThreadByLoadable(Loadable loadable) {
+        Pin pin = getPinByLoadable(loadable);
+        if (pin == null) {
+            return null;
+        }
+
+        return findSavedThreadByPinId(pin.id);
+    }
+
+    @Nullable
+    public Pin getPinByLoadable(Loadable loadable) {
+        for (Pin pin : pins) {
+            if (pin.loadable.equals(loadable)) {
+                return pin;
+            }
+        }
+
+        return null;
+    }
+
     public void deletePin(Pin pin) {
         pins.remove(pin);
 
         destroyPinWatcher(pin);
+        deletedThreadSave(pin.id);
 
         databaseManager.runTask(databasePinManager.deletePin(pin));
+        // TODO: instead of deleting the thread, mark it as stopped
+        databaseManager.runTask(databaseSavedThreadManager.deleteSavedThread(pin.id));
+
         // Update the new orders
         Collections.sort(pins);
         reorder(pins);
         updateState();
 
         EventBus.getDefault().post(new PinMessages.PinRemovedMessage(pin));
+    }
+
+    private void deletedThreadSave(int pinId) {
+        SavedThread savedThread = null;
+
+        for (int i = 0; i < savedThreads.size(); i++) {
+            if (savedThreads.get(i).pinId == pinId) {
+                savedThread = savedThreads.get(i);
+                break;
+            }
+        }
+
+        if (savedThread != null) {
+            savedThreads.remove(savedThread);
+        }
+    }
+
+    // TODO: use this instead of deleteSavedThread
+    public boolean stopSavingThread(Pin pin) {
+        if (pin == null) {
+            return false;
+        }
+
+        SavedThread savedThread = findSavedThreadByPinId(pin.id);
+        if (savedThread == null || (savedThread.isFullyDownloaded || savedThread.isStopped)) {
+            return false;
+        }
+
+        savedThread.isStopped = true;
+        createOrUpdateSavedThread(savedThread);
+
+        return databaseManager.runTask(databaseSavedThreadManager.stopSavingThread(pin.id));
     }
 
     public void deletePins(List<Pin> pinList) {
@@ -588,6 +723,10 @@ public class WatchManager implements WakeManager.Wakeable {
             return 0;
         }
 
+        public List<Post> getPosts() {
+            return posts;
+        }
+
         public List<Post> getUnviewedPosts() {
             if (posts.isEmpty()) {
                 return posts;
@@ -662,6 +801,18 @@ public class WatchManager implements WakeManager.Wakeable {
 
         @Override
         public void onChanLoaderData(ChanThread thread) {
+            if (thread.archived || thread.closed) {
+                NetworkResponse networkResponse = new NetworkResponse(
+                        NetworkResponse.STATUS_NOT_FOUND,
+                        EMPTY_BYTE_ARRAY,
+                        Collections.EMPTY_MAP,
+                        true);
+                ServerError serverError = new ServerError(networkResponse);
+
+                onChanLoaderError(new ChanThreadLoader.ChanLoaderException(serverError));
+                return;
+            }
+
             pin.isError = false;
             /*
              * Forcibly update watched thread titles

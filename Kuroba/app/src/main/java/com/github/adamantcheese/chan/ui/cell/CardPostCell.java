@@ -29,6 +29,7 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.text.FastTextView;
@@ -49,6 +50,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
 
     private boolean bound;
     private Post post;
+    private Loadable loadable;
     private PostCellInterface.PostCellCallback callback;
     private boolean compact = false;
 
@@ -147,7 +149,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         }
     }
 
-    public void setPost(final Post post, PostCellInterface.PostCellCallback callback,
+    public void setPost(Loadable loadable, final Post post, PostCellInterface.PostCellCallback callback,
                         boolean selectable, boolean highlighted, boolean selected, int markedNo,
                         boolean showDivider, ChanSettings.PostViewMode postViewMode,
                         boolean compact) {
@@ -160,6 +162,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
             this.post = null;
         }
 
+        this.loadable = loadable;
         this.post = post;
         this.callback = callback;
 
@@ -189,10 +192,10 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbnailView.setVisibility(View.VISIBLE);
-            thumbnailView.setPostImage(post.image(), thumbnailView.getWidth(), thumbnailView.getHeight());
+            thumbnailView.setPostImage(loadable, post.image(), thumbnailView.getWidth(), thumbnailView.getHeight());
         } else {
             thumbnailView.setVisibility(View.GONE);
-            thumbnailView.setPostImage(null, 0, 0);
+            thumbnailView.setPostImage(loadable, null, 0, 0);
         }
 
         if (post.filterHighlightedColor != 0) {

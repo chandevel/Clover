@@ -25,6 +25,8 @@ import java.util.Map;
  * Data and headers returned from {@link Network#performRequest(Request)}.
  */
 public class NetworkResponse {
+    public static final int STATUS_NOT_FOUND = 404;
+
     /**
      * Creates a new network response.
      * @param statusCode the HTTP status code

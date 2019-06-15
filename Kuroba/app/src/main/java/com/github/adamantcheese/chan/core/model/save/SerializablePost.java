@@ -17,7 +17,7 @@ public class SerializablePost {
     @SerializedName("name")
     private String name;
     @SerializedName("comment")
-    private CharSequence comment;
+    private String comment;
     @SerializedName("subject")
     private String subject;
     @SerializedName("time")
@@ -34,7 +34,7 @@ public class SerializablePost {
     private String capcode;
     @SerializedName("is_saved_reply")
     private boolean isSavedReply;
-//    private int filterHighlightedColor; // TODO
+//    private int filterHighlightedColor; // TODO: do we need this information in the saved thread?
 //    private boolean filterStub;
 //    private boolean filterRemove;
 //    private boolean filterWatch;
@@ -42,9 +42,9 @@ public class SerializablePost {
     @SerializedName("replies_to")
     private Set<Integer> repliesTo;
     @SerializedName("subject_span")
-    private CharSequence subjectSpan;
+    private String subjectSpan;
     @SerializedName("name_tripcode_id_capcode_span")
-    private CharSequence nameTripcodeIdCapcodeSpan;
+    private String nameTripcodeIdCapcodeSpan;
     @SerializedName("deleted")
     private Boolean deleted;
     @SerializedName("replies_from")
@@ -72,7 +72,7 @@ public class SerializablePost {
             int no,
             boolean isOP,
             String name,
-            CharSequence comment,
+            String comment,
             String subject,
             long time,
             List<SerializablePostImage> images,
@@ -82,8 +82,8 @@ public class SerializablePost {
             String capcode,
             boolean isSavedReply,
             Set<Integer> repliesTo,
-            CharSequence subjectSpan,
-            CharSequence nameTripcodeIdCapcodeSpan,
+            String subjectSpan,
+            String nameTripcodeIdCapcodeSpan,
             Boolean deleted,
             List<Integer> repliesFrom,
             boolean sticky,
@@ -139,7 +139,7 @@ public class SerializablePost {
         return name;
     }
 
-    public CharSequence getComment() {
+    public String getComment() {
         return comment;
     }
 
@@ -179,11 +179,11 @@ public class SerializablePost {
         return repliesTo;
     }
 
-    public CharSequence getSubjectSpan() {
+    public String getSubjectSpan() {
         return subjectSpan;
     }
 
-    public CharSequence getNameTripcodeIdCapcodeSpan() {
+    public String getNameTripcodeIdCapcodeSpan() {
         return nameTripcodeIdCapcodeSpan;
     }
 

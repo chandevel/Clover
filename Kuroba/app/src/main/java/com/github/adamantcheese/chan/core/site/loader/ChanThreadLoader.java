@@ -18,6 +18,8 @@ package com.github.adamantcheese.chan.core.site.loader;
 
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.ParseError;
@@ -26,11 +28,14 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
-
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderRequest;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
@@ -46,6 +51,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.net.ssl.SSLException;
+
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
@@ -65,11 +76,19 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     @Inject
     RequestQueue volleyRequestQueue;
 
+    @Inject
+    DatabaseManager databaseManager;
+
+    @Inject
+    SavedThreadLoaderManager savedThreadLoaderManager;
+
     private final List<ChanLoaderCallback> listeners = new ArrayList<>();
     private final Loadable loadable;
     private ChanThread thread;
 
     private ChanLoaderRequest request;
+
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private int currentTimeout = 0;
     private int lastPostCount;
@@ -102,6 +121,8 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
      */
     public boolean removeListener(ChanLoaderCallback listener) {
         listeners.remove(listener);
+        compositeDisposable.clear();
+
         if (listeners.isEmpty()) {
             clearTimer();
             if (request != null) {
@@ -124,6 +145,20 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     public void requestData() {
         clearTimer();
 
+        Disposable disposable = Single.fromCallable(this::loadSavedCopyIfExists)
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        this::requestDataInternal,
+                        (error) -> Logger.e(TAG, "Error while loading saved thread", error));
+
+        compositeDisposable.add(disposable);
+    }
+
+    private void requestDataInternal(Boolean loaded) {
+        if (loaded) {
+            return;
+        }
+
         if (request != null) {
             request.getVolleyRequest().cancel();
             // request = null;
@@ -139,6 +174,23 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         thread = null;
 
         request = getData();
+    }
+
+    private boolean loadSavedCopyIfExists() {
+        if (loadable.isSavedCopy) {
+            // Do not attempt to load data from the network when viewing a saved thread use local
+            // saved thread instead
+
+            ChanThread chanThread = loadSavedThreadIfItExists();
+            thread = chanThread;
+
+            if (chanThread != null && chanThread.posts.size() > 0) {
+                onPreparedResponseInternal(chanThread, false, true);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -224,7 +276,6 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         Logger.d(TAG, "Requested " + loadable.boardCode + ", " + loadable.no);
 
         List<Post> cached = thread == null ? new ArrayList<>() : thread.posts;
-
         ChanReader chanReader = loadable.getSite().chanReader();
 
         ChanLoaderRequestParams requestParams = new ChanLoaderRequestParams(loadable, chanReader, cached, this, this);
@@ -240,19 +291,75 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     public void onResponse(ChanLoaderResponse response) {
         request = null;
 
-        if (response.posts.isEmpty()) {
-            onErrorResponse(new VolleyError("Post size is 0"));
-            return;
+        Disposable disposable = Single.fromCallable(() -> onResponseInternal(response))
+        .subscribeOn(Schedulers.io())
+        .subscribe(
+                (result) -> { },
+                (error) -> Logger.e(TAG, "onResponse error", error));
+
+        compositeDisposable.add(disposable);
+    }
+
+    private Boolean onResponseInternal(ChanLoaderResponse response) {
+        // The board returned us an archived thread
+        if (response.op.archived || response.op.closed) {
+            ChanThread chanThread = loadSavedThreadIfItExists();
+            thread = chanThread;
+
+            // If saved thread was not found or it has no posts (deserialization error) switch to
+            // the error route
+            if (chanThread == null || chanThread.posts.isEmpty()) {
+                onErrorResponse(new VolleyError("Could not load saved thread"));
+                return false;
+            }
+
+            // Otherwise pass it to the response parse method
+            onPreparedResponseInternal(chanThread, response.op.closed, response.op.archived);
+        } else {
+            // Normal thread, not archived
+            if (response.posts.isEmpty()) {
+                onErrorResponse(new VolleyError("Post size is 0"));
+                return false;
+            }
+
+            if (thread == null) {
+                thread = new ChanThread(loadable, new ArrayList<>());
+            }
+
+            thread.posts.clear();
+            thread.posts.addAll(response.posts);
+
+            onResponseInternalNext(response.op);
         }
 
-        if (thread == null) {
-            thread = new ChanThread(loadable, new ArrayList<>());
-        }
+        return true;
+    }
 
-        thread.posts.clear();
-        thread.posts.addAll(response.posts);
+    private void onPreparedResponseInternal(
+            ChanThread chanThread,
+            boolean closed,
+            boolean archived) {
+        Post.Builder fakeOp = new Post.Builder();
+        Post savedOp = chanThread.posts.get(0);
 
-        processResponse(response);
+        thread.closed = closed;
+        thread.archived = archived;
+
+        fakeOp.closed(closed);
+        fakeOp.archived(archived);
+        fakeOp.sticky(savedOp.isSticky());
+        fakeOp.replies(savedOp.getReplies());
+        fakeOp.images(savedOp.getImagesCount());
+        fakeOp.uniqueIps(savedOp.getUniqueIps());
+        fakeOp.lastModified(savedOp.getLastModified());
+
+        // TODO: update loadable in the database as well?
+        chanThread.loadable.isSavedCopy = true;
+        onResponseInternalNext(fakeOp);
+    }
+
+    private void onResponseInternalNext(Post.Builder fakeOp) {
+        processResponse(fakeOp);
 
         if (TextUtils.isEmpty(loadable.title)) {
             loadable.setTitle(PostHelper.getTitle(thread.op, loadable));
@@ -272,23 +379,22 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             currentTimeout = Math.min(currentTimeout + 1, WATCH_TIMEOUTS.length - 1);
         }
 
-        for (ChanLoaderCallback l : listeners) {
-            l.onChanLoaderData(thread);
-        }
+        AndroidUtils.runOnUiThread(() -> {
+            for (ChanLoaderCallback l : listeners) {
+                l.onChanLoaderData(thread);
+            }
+        });
     }
 
     /**
      * Final processing af a response that needs to happen on the main thread.
-     *
-     * @param response Response to process
      */
-    private void processResponse(ChanLoaderResponse response) {
+    private void processResponse(Post.Builder fakeOp) {
         if (loadable.isThreadMode() && thread.posts.size() > 0) {
             // Replace some op parameters to the real op (index 0).
             // This is done on the main thread to avoid race conditions.
             Post realOp = thread.posts.get(0);
             thread.op = realOp;
-            Post.Builder fakeOp = response.op;
             if (fakeOp != null) {
                 realOp.setClosed(fakeOp.closed);
                 thread.closed = realOp.isClosed();
@@ -309,15 +415,72 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     public void onErrorResponse(VolleyError error) {
         request = null;
 
-        Logger.i(TAG, "Loading error", error);
+        Disposable disposable = Single.fromCallable(() -> {
+            // Thread was deleted (404), try to load a saved copy (if any)
+            if (error.networkResponse != null &&
+                    error.networkResponse.statusCode == 404 &&
+                    loadable != null &&
+                    loadable.mode == Loadable.Mode.THREAD) {
+                ChanThread chanThread = loadSavedThreadIfItExists();
+                thread = chanThread;
 
-        clearTimer();
+                if (chanThread != null && chanThread.posts.size() > 0) {
+                    onPreparedResponseInternal(chanThread, false, true);
+                    return false;
+                }
+            }
 
-        ChanLoaderException loaderException = new ChanLoaderException(error);
+            return true;
+        })
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe((result) -> {
+            if (!result) {
+                return;
+            }
 
-        for (ChanLoaderCallback l : listeners) {
-            l.onChanLoaderError(loaderException);
+            Logger.i(TAG, "Loading error", error);
+            clearTimer();
+            ChanLoaderException loaderException = new ChanLoaderException(error);
+
+            for (ChanLoaderCallback l : listeners) {
+                l.onChanLoaderError(loaderException);
+            }
+        });
+
+        compositeDisposable.add(disposable);
+    }
+
+    /**
+     * Loads a saved thread if it exists
+     */
+    @Nullable
+    private ChanThread loadSavedThreadIfItExists() {
+        Loadable loadable = getLoadable();
+        if (loadable != null) {
+            SavedThread savedThread = getSavedThreadByThreadLoadable(loadable);
+            if (savedThread != null) {
+                return savedThreadLoaderManager.loadSavedThread(loadable);
+            }
         }
+
+        return null;
+    }
+
+    @Nullable
+    private SavedThread getSavedThreadByThreadLoadable(Loadable loadable) {
+        return databaseManager.runTask(() -> {
+            Pin pin = databaseManager.getDatabasePinManager()
+                    .getPinByLoadableId(loadable.id)
+                    .call();
+            if (pin == null) {
+                return null;
+            }
+
+            return databaseManager.getDatabaseSavedThreadmanager()
+                    .getSavedThreadByPinId(pin.id)
+                    .call();
+        });
     }
 
     private void clearPendingRunnable() {
@@ -334,7 +497,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         void onChanLoaderError(ChanLoaderException error);
     }
 
-    public class ChanLoaderException extends Exception {
+    public static class ChanLoaderException extends Exception {
         private VolleyError volleyError;
 
         public ChanLoaderException(VolleyError volleyError) {

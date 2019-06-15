@@ -18,13 +18,16 @@ package com.github.adamantcheese.chan.core.database;
 
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.NonNull;
 
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.misc.TransactionManager;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.misc.TransactionManager;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
@@ -36,9 +39,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
@@ -67,6 +67,7 @@ public class DatabaseManager {
     private final DatabaseBoardManager databaseBoardManager;
     private final DatabaseSiteManager databaseSiteManager;
     private final DatabaseHideManager databaseHideManager;
+    private final DatabaseSavedThreadManager databaseSavedThreadManager;
 
     @Inject
     public DatabaseManager() {
@@ -85,6 +86,7 @@ public class DatabaseManager {
         databaseBoardManager = new DatabaseBoardManager();
         databaseSiteManager = new DatabaseSiteManager();
         databaseHideManager = new DatabaseHideManager();
+        databaseSavedThreadManager = new DatabaseSavedThreadManager();
         EventBus.getDefault().register(this);
     }
 
@@ -127,6 +129,10 @@ public class DatabaseManager {
 
     public DatabaseHideManager getDatabaseHideManager() {
         return databaseHideManager;
+    }
+
+    public DatabaseSavedThreadManager getDatabaseSavedThreadmanager() {
+        return databaseSavedThreadManager;
     }
     // Called when the app changes foreground state
 

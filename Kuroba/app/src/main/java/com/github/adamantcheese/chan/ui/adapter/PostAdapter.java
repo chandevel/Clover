@@ -16,10 +16,11 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -45,6 +46,8 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final ThreadStatusCell.Callback statusCellCallback;
     private final List<Post> displayList = new ArrayList<>();
+
+    private Loadable loadable = null;
     private String error = null;
     private Post highlightedPost;
     private String highlightedPostId;
@@ -101,11 +104,17 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         switch (itemViewType) {
             case TYPE_POST:
             case TYPE_POST_STUB:
+                if (loadable == null) {
+                    throw new IllegalStateException("Loadable cannot be null");
+                }
+
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(getPostPosition(position));
                 boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo ||
                         post.tripcode.equals(highlightedPostTripcode);
-                postViewHolder.postView.setPost(post,
+                postViewHolder.postView.setPost(
+                        loadable,
+                        post,
                         postCellCallback,
                         true,
                         highlight,
@@ -179,6 +188,8 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be called on the main thread!");
         }
+
+        this.loadable = thread.loadable;
         showError(null);
 
         displayList.clear();

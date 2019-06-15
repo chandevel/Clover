@@ -43,7 +43,9 @@ import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.di.NetModule;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -143,23 +145,23 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         return postImage;
     }
 
-    public void setMode(final Mode newMode, boolean center) {
+    public void setMode(Loadable loadable, final Mode newMode, boolean center) {
         if (this.mode != newMode) {
             this.mode = newMode;
 
             AndroidUtils.waitForMeasure(this, view -> {
                 switch (newMode) {
                     case LOWRES:
-                        setThumbnail(postImage.getThumbnailUrl().toString(), center);
+                        setThumbnail(loadable, postImage, center);
                         break;
                     case BIGIMAGE:
-                        setBigImage(postImage.imageUrl.toString());
+                        setBigImage(loadable, postImage);
                         break;
                     case GIF:
-                        setGif(postImage.imageUrl.toString());
+                        setGif(loadable, postImage);
                         break;
                     case MOVIE:
-                        setVideo(postImage.imageUrl.toString());
+                        setVideo(loadable, postImage);
                         break;
                 }
                 return true;
@@ -224,7 +226,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         context = null;
     }
 
-    private void setThumbnail(String thumbnailUrl, boolean center) {
+    private void setThumbnail(Loadable loadable, PostImage postImage, boolean center) {
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
             return;
@@ -234,8 +236,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             return;
         }
 
-        // Also use volley for the thumbnails
-        thumbnailRequest = imageLoader.get(thumbnailUrl, new ImageLoader.ImageListener() {
+        ImageLoader.ImageListener imageListener = new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 thumbnailRequest = null;
@@ -254,9 +255,32 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                     onModeLoaded(Mode.LOWRES, thumbnail);
                 }
             }
-        }, getWidth(), getHeight());
+        };
 
-        if (thumbnailRequest.getBitmap() != null) {
+        if (loadable.isSavedCopy) {
+            String formattedImage = ThreadSaveManager.formatThumbnailImageName(
+                    postImage.originalName,
+                    postImage.extension
+            );
+
+            thumbnailRequest = imageLoader.getFromDisk(
+                    loadable,
+                    formattedImage,
+                    imageListener,
+                    getWidth(),
+                    getHeight());
+        } else {
+            // Also use volley for the thumbnails
+            thumbnailRequest = imageLoader.get(
+                    postImage.getThumbnailUrl().toString(),
+                    imageListener,
+                    getWidth(),
+                    getHeight());
+        }
+
+        // FIXME: (thumbnailRequest != null) this is probably a bug somewhere
+        //  in the imageLoader.getFromDisk()
+        if (thumbnailRequest != null && thumbnailRequest.getBitmap() != null) {
             // Request was immediate and thumbnailRequest was first set to null in onResponse, and then set to the container
             // when the method returned
             // Still set it to null here
@@ -264,7 +288,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         }
     }
 
-    private void setBigImage(String imageUrl) {
+    private void setBigImage(Loadable loadable, PostImage postImage) {
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading big image");
             return;
@@ -275,7 +299,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         }
 
         callback.showProgress(this, true);
-        bigImageRequest = fileCache.downloadFile(imageUrl, new FileCacheListener() {
+        bigImageRequest = fileCache.downloadFile(loadable, postImage, new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
                 callback.onProgress(MultiImageView.this, downloaded, total);
@@ -307,7 +331,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         setBitImageFileInternal(file, true, Mode.BIGIMAGE);
     }
 
-    private void setGif(String gifUrl) {
+    private void setGif(Loadable loadable, PostImage postImage) {
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
             return;
@@ -318,7 +342,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         }
 
         callback.showProgress(this, true);
-        gifRequest = fileCache.downloadFile(gifUrl, new FileCacheListener() {
+        gifRequest = fileCache.downloadFile(loadable, postImage, new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
                 callback.onProgress(MultiImageView.this, downloaded, total);
@@ -377,13 +401,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         onModeLoaded(Mode.GIF, view);
     }
 
-    private void setVideo(String videoUrl) {
+    private void setVideo(Loadable loadable, PostImage postImage) {
         if (videoRequest != null) {
             return;
         }
 
         callback.showProgress(this, true);
-        videoRequest = fileCache.downloadFile(videoUrl, new FileCacheListener() {
+        videoRequest = fileCache.downloadFile(loadable, postImage, new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
                 callback.onProgress(MultiImageView.this, downloaded, total);

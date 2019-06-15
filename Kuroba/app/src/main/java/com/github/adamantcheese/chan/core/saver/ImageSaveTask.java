@@ -24,6 +24,7 @@ import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -43,6 +44,7 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     FileCache fileCache;
 
     private PostImage postImage;
+    private Loadable loadable;
     private ImageSaveTaskCallback callback;
     private File destination;
     private boolean share;
@@ -50,8 +52,9 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     private boolean success = false;
 
-    public ImageSaveTask(PostImage postImage) {
+    public ImageSaveTask(Loadable loadable, PostImage postImage) {
         inject(this);
+        this.loadable = loadable;
         this.postImage = postImage;
     }
 
@@ -96,7 +99,7 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
                 postFinished(success);
             } else {
                 FileCacheDownloader fileCacheDownloader =
-                        fileCache.downloadFile(postImage.imageUrl.toString(), this);
+                        fileCache.downloadFile(loadable, postImage, this);
 
                 // If the fileCacheDownloader is null then the destination already existed and onSuccess() has been called.
                 // Wait otherwise for the download to finish to avoid that the next task is immediately executed.

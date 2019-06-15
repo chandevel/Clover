@@ -23,12 +23,16 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.Logger;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,9 +43,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 public class FilterWatchManager implements WakeManager.Wakeable {
     private static final String TAG = "FilterWatchManager";
@@ -161,7 +162,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                     if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
                         Loadable pinLoadable = Loadable.forThread(result.loadable.site, p.board, p.no, PostHelper.getTitle(p, result.loadable));
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
-                        watchManager.createPin(pinLoadable, p);
+                        watchManager.createPin(pinLoadable, p, Pin.PinType.WatchNewPosts);
                         toAdd.add(p.no);
                     }
                 }

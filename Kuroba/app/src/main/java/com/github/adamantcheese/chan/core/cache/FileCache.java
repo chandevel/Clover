@@ -17,7 +17,12 @@
 package com.github.adamantcheese.chan.core.cache;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
+import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
@@ -63,6 +68,34 @@ public class FileCache implements FileCacheDownloader.Callback {
         cacheHandler.clearCache();
     }
 
+    @MainThread
+    public FileCacheDownloader downloadFile(
+            Loadable loadable,
+            @NonNull PostImage postImage,
+            FileCacheListener listener) {
+        if (loadable.isSavedCopy) {
+            String filename = ThreadSaveManager.formatOriginalImageName(
+                    postImage.originalName, postImage.extension);
+
+            String imageDir = ThreadSaveManager.getImagesSubDir(loadable, loadable.no);
+            File fullImagePath = new File(ChanSettings.saveLocation.get(), imageDir);
+            File imageOnDiskFile = new File(fullImagePath, filename);
+
+            if (imageOnDiskFile.exists()
+                    && imageOnDiskFile.isFile()
+                    && imageOnDiskFile.canRead()) {
+                handleFileImmediatelyAvailable(listener, imageOnDiskFile);
+            } else {
+                Logger.e(TAG, "Cannot load saved image from the disk, path: "
+                        + imageOnDiskFile.getAbsolutePath());
+            }
+
+            return null;
+        } else {
+            return downloadFile(postImage.imageUrl.toString(), listener);
+        }
+    }
+
     /**
      * Start downloading the file located at the url.<br>
      * If the file is in the cache then the callback is executed immediately and null is
@@ -75,7 +108,7 @@ public class FileCache implements FileCacheDownloader.Callback {
      * @return {@code null} if in the cache, {@link FileCacheDownloader} otherwise.
      */
     @MainThread
-    public FileCacheDownloader downloadFile(String url, FileCacheListener listener) {
+    public FileCacheDownloader downloadFile(@NonNull String url, FileCacheListener listener) {
         FileCacheDownloader runningDownloaderForKey = getDownloaderByKey(url);
         if (runningDownloaderForKey != null) {
             if (listener != null) {

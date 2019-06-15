@@ -82,6 +82,12 @@ public class Loadable implements Cloneable {
     public boolean dirty = false;
 
     /**
+     * Tells us whether this loadable (when in THREAD mode) contains information about
+     * a live thread or a local saved copy of a thread (which may be already deleted, 404)
+     * */
+    public transient boolean isSavedCopy = false;
+
+    /**
      * Constructs an empty loadable. The mode is INVALID.
      */
     protected Loadable() {

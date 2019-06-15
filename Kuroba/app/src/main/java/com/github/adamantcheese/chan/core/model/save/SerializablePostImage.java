@@ -38,4 +38,36 @@ public class SerializablePostImage {
         this.size = size;
         this.type = type;
     }
+
+    public String getOriginalName() {
+        return originalName;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public int getImageWidth() {
+        return imageWidth;
+    }
+
+    public int getImageHeight() {
+        return imageHeight;
+    }
+
+    public boolean isSpoiler() {
+        return spoiler;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public String getType() {
+        return type;
+    }
 }

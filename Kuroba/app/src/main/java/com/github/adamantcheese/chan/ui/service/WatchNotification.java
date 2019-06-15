@@ -30,30 +30,42 @@ import android.os.IBinder;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import androidx.core.app.NotificationCompat;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import io.reactivex.Flowable;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class WatchNotification extends Service {
+    private static final String TAG = "WatchNotification";
     private String NOTIFICATION_ID_STR = "1";
     private String NOTIFICATION_ID_ALERT_STR = "2";
     private int NOTIFICATION_ID = 1;
@@ -72,6 +84,14 @@ public class WatchNotification extends Service {
     @Inject
     WatchManager watchManager;
 
+    @Inject
+    ThreadSaveManager threadSaveManager;
+
+    @Inject
+    DatabaseManager databaseManager;
+
+    private CompositeDisposable compositeDisposable;
+
     @Override
     public IBinder onBind(final Intent intent) {
         return null;
@@ -81,6 +101,8 @@ public class WatchNotification extends Service {
     public void onCreate() {
         super.onCreate();
         inject(this);
+
+        compositeDisposable = new CompositeDisposable();
         ChanSettings.watchLastCount.set(0);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -105,6 +127,8 @@ public class WatchNotification extends Service {
     public void onDestroy() {
         super.onDestroy();
         notificationManager.cancel(NOTIFICATION_ID);
+        // TODO:
+//        compositeDisposable.dispose();
     }
 
     @Override
@@ -130,11 +154,34 @@ public class WatchNotification extends Service {
         //A list of pins that had new posts in them, or had new quotes in them, depending on settings
         List<Pin> subjectPins = new ArrayList<>();
 
+        HashMap<SavedThread, Pair<Loadable, List<Post>>> unviewedPostsByThread = new HashMap<>();
+        HashMap<Pin.PinType, List<Pin>> pinsByType = new HashMap<>();
+
         int flags = 0;
+
+        // TODO: separate pins by type and do pin jobs separately
+//        for (Pin pin : watchManager.getWatchingPins()) {
+//            Pin.PinType pinType = Pin.PinType.from(pin.pinType);
+//
+//            if (!pinsByType.containsKey(pinType)) {
+//                pinsByType.put(pinType, new ArrayList<>());
+//            }
+//
+//            pinsByType.get(pinType).add(pin);
+//        }
 
         for (Pin pin : watchManager.getWatchingPins()) {
             WatchManager.PinWatcher watcher = watchManager.getPinWatcher(pin);
-            if (watcher == null || pin.isError) {
+            if (watcher == null) {
+                continue;
+            }
+
+            SavedThread savedThread = watchManager.findSavedThreadByPinId(pin.id);
+            if (savedThread != null) {
+                handleSavedThread(unviewedPostsByThread, pin, watcher, savedThread);
+            }
+
+            if (pin.isError) {
                 continue;
             }
 
@@ -176,17 +223,87 @@ public class WatchNotification extends Service {
             flags &= ~(NOTIFICATION_PEEK);
         }
 
+        if (unviewedPostsByThread.size() > 0) {
+            updateSavedThreads(unviewedPostsByThread);
+        }
+
         return setupNotificationTextFields(pins, subjectPins, unviewedPosts, listQuoting, notifyQuotesOnly, flags);
     }
 
-    private Notification setupNotificationTextFields(List<Pin> pins, List<Pin> subjectPins, List<Post> unviewedPosts, List<Post> listQuoting,
-                                                     boolean notifyQuotesOnly, int flags) {
+    private void handleSavedThread(
+            HashMap<SavedThread, Pair<Loadable, List<Post>>> unviewedPostsByThread,
+            Pin pin,
+            WatchManager.PinWatcher watcher,
+            SavedThread savedThread) {
+        if (pin.isError) {
+            // Stop saving thread completely if pin has error (probably 404)
+            savedThread.isFullyDownloaded = true;
+        }
+        if (!pin.watching) {
+            // Pause saving thread if pin is paused
+            savedThread.isStopped = true;
+        }
+
+        // Update thread in the DB
+        if (savedThread.isStopped || savedThread.isFullyDownloaded) {
+            databaseManager.runTask(databaseManager.getDatabaseSavedThreadmanager().updateThread(savedThread));
+            return;
+        }
+
+        // Just pass all the posts to the threadSaveManager. It will figure out new posts by itself
+        List<Post> allPosts = watcher.getPosts();
+        if (!allPosts.isEmpty()) {
+            // Add all posts to the map
+            unviewedPostsByThread.put(savedThread, new Pair<>(pin.loadable, allPosts));
+        }
+    }
+
+    /**
+     * Saves new posts to the disk. Does duplicates checking internally so it is safe to just
+     * pass there all pin posts. Very slow!
+     * */
+    private void updateSavedThreads(HashMap<SavedThread, Pair<Loadable, List<Post>>> allPostsByThread) {
+        Disposable disposable = Flowable.fromIterable(allPostsByThread.entrySet())
+                .flatMapSingle((entry) -> {
+                    Loadable loadable = entry.getValue().first;
+                    List<Post> posts = entry.getValue().second;
+
+                    // This function is really slow since it downloads everything in a thread
+                    // (posts and their images/files)
+                    return threadSaveManager.saveThread(entry.getKey().pinId, loadable, posts)
+                            .doOnError((error) -> {
+                                String threadName = "[board = " + loadable.boardCode + ", title = "
+                                        + loadable.title + ", new posts count = " + posts.size() + "]";
+
+                                Logger.e(TAG, "Could not save a thread " + threadName, error);
+                            })
+                            .onErrorReturnItem(false);
+                })
+                .subscribe(
+                        (res) -> { },
+                        (error) -> Logger.e(TAG, "Error while downloading a thread", error),
+                        () -> Logger.d(TAG, "All threads are updated"));
+
+        compositeDisposable.add(disposable);
+    }
+
+    private Notification setupNotificationTextFields(
+            List<Pin> pins,
+            List<Pin> subjectPins,
+            List<Post> unviewedPosts,
+            List<Post> listQuoting,
+            boolean notifyQuotesOnly,
+            int flags) {
         if (unviewedPosts.isEmpty()) {
             // Idle notification
             ChanSettings.watchLastCount.set(0);
-            return buildNotification(getResources().getQuantityString(R.plurals.watch_title, pins.size(), pins.size()),
+            return buildNotification(
+                    getResources().getQuantityString(R.plurals.watch_title, pins.size(), pins.size()),
                     Collections.singletonList(getString(R.string.watch_idle)),
-                    0, false, false, pins.size() > 0 ? pins.get(0) : null);
+                    0,
+                    false,
+                    false,
+                    pins.size() > 0 ? pins.get(0) : null);
         } else {
             // New posts notification
             String message;
@@ -259,8 +376,13 @@ public class WatchNotification extends Service {
      * @param alertIcon     Show the alert version of the icon
      * @param target        The target pin, or null to open the pinned pane on tap
      */
-    private Notification buildNotification(String title, List<CharSequence> expandedLines,
-                                           int flags, boolean alertIcon, boolean alertIconOverride, Pin target) {
+    private Notification buildNotification(
+            String title,
+            List<CharSequence> expandedLines,
+            int flags,
+            boolean alertIcon,
+            boolean alertIconOverride,
+            Pin target) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, alertIcon ? NOTIFICATION_ID_ALERT_STR : NOTIFICATION_ID_STR);
         builder.setContentTitle(title);
         builder.setContentText(TextUtils.join(", ", expandedLines));

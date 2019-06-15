@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -42,6 +43,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
     private static final int TITLE_MAX_LENGTH = 100;
 
     private boolean bound;
+    private Loadable loadable;
     private Post post;
     private ChanSettings.PostViewMode postViewMode;
     private boolean showDivider;
@@ -138,7 +140,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
         }
     }
 
-    public void setPost(final Post post, PostCellInterface.PostCellCallback callback,
+    public void setPost(Loadable loadable, final Post post, PostCellInterface.PostCellCallback callback,
                         boolean selectable, boolean highlighted, boolean selected, int markedNo,
                         boolean showDivider, ChanSettings.PostViewMode postViewMode,
                         boolean compact) {
@@ -151,6 +153,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
             this.post = null;
         }
 
+        this.loadable = loadable;
         this.post = post;
         this.callback = callback;
         this.postViewMode = postViewMode;

@@ -17,6 +17,7 @@ package com.android.volley.toolbox;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.ImageView;
@@ -26,7 +27,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.utils.Logger;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -40,6 +46,8 @@ import java.util.LinkedList;
  * thread as well.
  */
 public class ImageLoader {
+    private static final String TAG = "ImageLoader";
+
     /** RequestQueue for dispatching ImageRequests onto. */
     private final RequestQueue mRequestQueue;
 
@@ -168,6 +176,52 @@ public class ImageLoader {
      */
     public ImageContainer get(String requestUrl, final ImageListener listener) {
         return get(requestUrl, listener, 0, 0);
+    }
+
+    /**
+     * Loads image from disk or gets it from the cache if it is already cached. Caches the image in
+     * the cache if successfully loaded from the disk
+     * */
+    public ImageContainer getFromDisk(
+            Loadable loadable,
+            String filename,
+            ImageListener imageListener,
+            int width,
+            int height) {
+        throwIfNotOnMainThread();
+
+        String imageDir = ThreadSaveManager.getImagesSubDir(loadable, loadable.no);
+        File fullImagePath = new File(ChanSettings.saveLocation.get(), imageDir);
+        File imageOnDiskFile = new File(fullImagePath, filename);
+
+        if (!imageOnDiskFile.exists() || !imageOnDiskFile.isFile() || !imageOnDiskFile.canRead()) {
+            Logger.e(TAG, "Could not load image from the disk: " +
+                    "(exists = " + imageOnDiskFile.exists() +
+                    ", isFile = " + imageOnDiskFile.isFile() +
+                    ", canRead = " + imageOnDiskFile.canRead() + ")");
+            return null;
+        }
+
+        String imageOnDisk = imageOnDiskFile.getAbsolutePath();
+        String cacheKey = getCacheKey(imageOnDisk, width, height);
+        Bitmap cachedBitmap = mCache.getBitmap(cacheKey);
+
+        if (cachedBitmap != null) {
+            ImageContainer container = new ImageContainer(cachedBitmap, imageOnDisk, null, null);
+            imageListener.onResponse(container, true);
+            return container;
+        }
+
+        Bitmap bitmap = BitmapFactory.decodeFile(imageOnDisk);
+        if (bitmap == null) {
+            return null;
+        }
+
+        mCache.putBitmap(cacheKey, bitmap);
+
+        ImageContainer container = new ImageContainer(bitmap, imageOnDisk, null, null);
+        imageListener.onResponse(container, true);
+        return null;
     }
 
     /**

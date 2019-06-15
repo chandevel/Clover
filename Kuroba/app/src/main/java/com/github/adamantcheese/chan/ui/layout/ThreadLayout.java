@@ -182,6 +182,15 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     public void destroy() {
         presenter.unbindLoadable();
+        presenter.destroy();
+    }
+
+    public void hideReplyButton() {
+        AndroidUtils.hideView(replyButton);
+    }
+
+    public void showReplyButton() {
+        AndroidUtils.showView(replyButton);
     }
 
     @Override
@@ -254,9 +263,17 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
+        if (thread.loadable.isSavedCopy) {
+            hideReplyButton();
+            getPresenter().updateLoadable(true);
+        } else {
+            showReplyButton();
+            getPresenter().updateLoadable(false);
+        }
+
         threadListLayout.showPosts(thread, filter, visible != Visible.THREAD);
         switchVisible(Visible.THREAD);
-        callback.onShowPosts();
+        callback.onShowPosts(thread.loadable);
     }
 
     @Override
@@ -762,7 +779,7 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         void showAlbum(List<PostImage> images, int index);
 
-        void onShowPosts();
+        void onShowPosts(Loadable loadable);
 
         void presentRepliesController(Controller controller);
 

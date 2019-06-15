@@ -27,7 +27,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 public class PostImageThumbnailView extends ThumbnailView implements View.OnLongClickListener {
@@ -51,12 +53,22 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
         playIcon = context.getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
     }
 
-    public void setPostImage(PostImage postImage, int width, int height) {
+    public void setPostImage(Loadable loadable, PostImage postImage, int width, int height) {
         if (this.postImage != postImage) {
             this.postImage = postImage;
 
             if (postImage != null) {
-                setUrl(postImage.getThumbnailUrl().toString(), width, height);
+                if (!loadable.isSavedCopy) {
+                    setUrl(postImage.getThumbnailUrl().toString(), width, height);
+                } else {
+                    String filename = ThreadSaveManager.formatThumbnailImageName(
+                            postImage.originalName,
+                            postImage.extension);
+
+                    if (!setUrlFromDisk(loadable, filename, width, height)) {
+                        setUrl(null, width, height);
+                    }
+                }
             } else {
                 setUrl(null, width, height);
             }

@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -32,6 +33,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 
 public class AlbumViewCell extends FrameLayout {
     private PostImage postImage;
+    private Loadable loadable;
     private PostImageThumbnailView thumbnailView;
     private TextView text;
 
@@ -54,11 +56,13 @@ public class AlbumViewCell extends FrameLayout {
         text = findViewById(R.id.text);
     }
 
-    public void setPostImage(PostImage postImage) {
+    public void setPostImage(Loadable loadable, PostImage postImage) {
         this.postImage = postImage;
+        this.loadable = loadable;
+
         // Keep this the same as the normal thumbnails to improve performance
         int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
-        thumbnailView.setPostImage(postImage, thumbnailSize, thumbnailSize);
+        thumbnailView.setPostImage(loadable, postImage, thumbnailSize, thumbnailSize);
 
         String details = postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight +
                 " " + AndroidUtils.getReadableFileSize(postImage.size, false);
