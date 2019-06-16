@@ -30,6 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
@@ -59,7 +61,15 @@ public class ThreadSaveManager {
     private DatabaseSavedThreadManager databaseSavedThreadManager;
     private SavedThreadLoaderRepository savedThreadLoaderRepository;
 
-    private ConcurrentHashMap<Loadable, Boolean> alreadyRunningDownloads = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Loadable, Boolean> activeDownloads = new ConcurrentHashMap<>();
+
+    /**
+     * Prefetch download is active when user clicks the save thread button and a dialog with progressbar
+     * shows up. This dialog is supposed to not be cancelable so only one prefetch download should
+     * be active at a time. If user rotates a phone or application configuration changes for some
+     * different reason we want to remove the callback to avoid memory leaks.
+     * */
+    private AtomicReference<DownloadingCallback> prefetchDownload = new AtomicReference<>(null);
 
     private OkHttpClient okHttpClient = new OkHttpClient()
             .newBuilder()
@@ -87,15 +97,39 @@ public class ThreadSaveManager {
         this.databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadmanager();
     }
 
-    public Single<Boolean> saveThread(Loadable loadable, List<Post> postsToSave) {
-        if (alreadyRunningDownloads.containsKey(loadable)) {
+    /**
+     * Used to remove callback from prefetchDownload atomic reference to avoid memory leaks.
+     * */
+    public void removePrefetchDownloadCallback() {
+        prefetchDownload.set(null);
+    }
+
+    /**
+     * Saves a thread's posts with all the images/webm/etc to the disk. Callback parameter is used for
+     * when user clicks "save thread" button to show downloading progress. Callback may be removed at
+     * any time during the download.
+     * */
+    public Single<Boolean> saveThread(
+            Loadable loadable,
+            List<Post> postsToSave,
+            @Nullable DownloadingCallback callback) {
+        if (activeDownloads.containsKey(loadable)) {
             Logger.d(TAG, "Downloader is already running for " + loadable);
             return Single.just(true);
         }
 
+        if (callback != null) {
+            if (!prefetchDownload.compareAndSet(null, callback)) {
+                throw new RuntimeException("Cannot have more than one prefetch download at a time!");
+            }
+        }
+
         return saveThreadInternal(loadable, postsToSave)
-                .doOnSubscribe((disposable) -> alreadyRunningDownloads.put(loadable, true))
-                .doFinally(() -> alreadyRunningDownloads.remove(loadable))
+                .doOnSubscribe((disposable) -> activeDownloads.put(loadable, true))
+                .doFinally(() -> {
+                    activeDownloads.remove(loadable);
+                    prefetchDownload.compareAndSet(callback, null);
+                })
                 .subscribeOn(Schedulers.from(executorService));
     }
 
@@ -122,7 +156,8 @@ public class ThreadSaveManager {
                 return false;
             }
 
-            Logger.d(TAG, "" + newPosts.size() + " new posts for a thread " + loadable.no);
+            int postsWithImages = calculateAmountOfPostsWithImages(newPosts);
+            Logger.d(TAG, "" + newPosts.size() + " new posts for a thread " + loadable.no + ", with images " + postsWithImages);
 
             String threadSubDir = getThreadSubDir(loadable, loadable.no);
             File threadSaveDir = new File(ChanSettings.saveLocation.get(), threadSubDir);
@@ -152,6 +187,8 @@ public class ThreadSaveManager {
                 }
             }
 
+            sendStartEvent();
+
             // Get spoiler image url and extension
             // Pair<Extension, Url>
             final Pair<String, HttpUrl> spoilerImageUrlAndExtension =
@@ -166,6 +203,8 @@ public class ThreadSaveManager {
                     serializableThread,
                     newPosts,
                     threadSaveDir);
+
+            AtomicInteger currentImageDownloadIndex = new AtomicInteger(0);
 
             try {
                 Single.fromCallable(() -> downloadSpoilerImage(
@@ -193,16 +232,16 @@ public class ThreadSaveManager {
                             .flatMap((post) -> {
                                 return downloadImages(
                                         threadSaveDirImages,
-                                        post);
+                                        post,
+                                        currentImageDownloadIndex,
+                                        postsWithImages);
                             })
                             .toList()
                             .doOnSuccess((list) -> Logger.d(TAG, "result = " + list));
                 })
                 .flatMap((res) -> {
                     return Single.defer(() -> {
-                        // Update the latests saved post id in the database
-                        int lastPostNo = newPosts.get(newPosts.size() - 1).no;
-                        databaseManager.runTask(databaseSavedThreadManager.updateLastSavedPostNo(loadable.id, lastPostNo));
+                        updateLastSavedPostNo(loadable, newPosts);
 
                         Logger.d(TAG, "Successfully updated a thread " + loadable.no);
                         return Single.just(true);
@@ -217,8 +256,28 @@ public class ThreadSaveManager {
                 // TODO: should we really delete everything upon error?
                 deleteThread(loadable, loadable.no);
                 throw new Exception(error);
+            } finally {
+                sendEndEvent();
             }
         });
+    }
+
+    private void updateLastSavedPostNo(Loadable loadable, List<Post> newPosts) {
+        // Update the latests saved post id in the database
+        int lastPostNo = newPosts.get(newPosts.size() - 1).no;
+        databaseManager.runTask(databaseSavedThreadManager.updateLastSavedPostNo(loadable.id, lastPostNo));
+    }
+
+    private int calculateAmountOfPostsWithImages(List<Post> newPosts) {
+        int count = 0;
+
+        for (Post post : newPosts) {
+            if (post.images.size() > 0) {
+                ++count;
+            }
+        }
+
+        return count;
     }
 
     private List<Post> filterAndSortPosts(int loadableId, List<Post> inputPosts) {
@@ -281,13 +340,15 @@ public class ThreadSaveManager {
 
     private Flowable<Boolean> downloadImages(
             File threadSaveDirImages,
-            Post post) {
+            Post post,
+            AtomicInteger currentImageDownloadIndex,
+            int postsWithImagesCount) {
         if (post.images.isEmpty()) {
             Logger.d(TAG, "Post " + post.no + " contains no images");
             return Flowable.empty();
         }
 
-        if (!downloadImages()) {
+        if (!shouldDownloadImages()) {
             Logger.d(TAG, "Cannot load images or videos with current network");
             return Flowable.empty();
         }
@@ -325,6 +386,9 @@ public class ThreadSaveManager {
                     // to lose what we have already downloaded
                     .doOnError((error) -> {
                         Logger.e(TAG, "Error while trying to download image " + postImage.originalName, error);
+                    })
+                    .doOnEvent((result, event) -> {
+                        sendProgressEvent(currentImageDownloadIndex, postsWithImagesCount);
                     })
                     .onErrorReturnItem(false);
                 });
@@ -376,7 +440,7 @@ public class ThreadSaveManager {
                 thumbnailUrl);
     }
 
-    private boolean downloadImages() {
+    private boolean shouldDownloadImages() {
         return shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get()) &&
                 shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
     }
@@ -439,6 +503,38 @@ public class ThreadSaveManager {
         IOUtils.deleteDirWithContents(threadSaveDir.getParentFile());
     }
 
+    private void sendStartEvent() {
+        DownloadingCallback callback = prefetchDownload.get();
+        if (callback != null) {
+            Logger.d(TAG, "Started downloading thread");
+            callback.onStartedDownloading();
+        }
+    }
+
+    private void sendProgressEvent(AtomicInteger currentImageDownloadIndex, int postsWithImagesCount) {
+        DownloadingCallback callback = prefetchDownload.get();
+        if (callback != null) {
+            // postsWithImagesCount may be 0 so we need to avoid division by zero
+            int count = postsWithImagesCount == 0 ? 1 : postsWithImagesCount;
+            int index = currentImageDownloadIndex.incrementAndGet();
+            int percent = (int)(((float)index / (float) count) * 100f);
+
+            Logger.d(TAG, "Downloading is in progress, " +
+                    "percent = " + percent +
+                    ", count = " + count +
+                    ", index = " + index);
+            callback.onProgress(percent);
+        }
+    }
+
+    private void sendEndEvent() {
+        DownloadingCallback callback = prefetchDownload.get();
+        if (callback != null) {
+            Logger.d(TAG, "Completed downloading thread");
+            callback.onCompletedDownloading();
+        }
+    }
+
     public static String formatThumbnailImageName(String originalName, String extension) {
         return originalName + "_" + THUMBNAIL_FILE_NAME + "." + extension;
     }
@@ -478,6 +574,12 @@ public class ThreadSaveManager {
                 loadable.site.name() +
                 File.separator +
                 loadable.boardCode;
+    }
+
+    public interface DownloadingCallback {
+        void onStartedDownloading();
+        void onProgress(int percent);
+        void onCompletedDownloading();
     }
 
     private static final Comparator<Post> postComparator = (o1, o2) -> Integer.compare(o1.no, o2.no);

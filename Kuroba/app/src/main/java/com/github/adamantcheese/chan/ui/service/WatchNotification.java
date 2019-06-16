@@ -279,7 +279,7 @@ public class WatchNotification extends Service {
 
                     // This function is really slow since it downloads everything in a thread
                     // (posts and their images/files)
-                    return threadSaveManager.saveThread(loadable, posts)
+                    return threadSaveManager.saveThread(loadable, posts, null)
                             .doOnError((error) -> {
                                 String threadName = "[board = " + loadable.boardCode + ", title = "
                                         + loadable.title + ", new posts count = " + posts.size() + "]";

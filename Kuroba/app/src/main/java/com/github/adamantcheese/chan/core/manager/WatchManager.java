@@ -206,15 +206,22 @@ public class WatchManager implements WakeManager.Wakeable {
         return true;
     }
 
-    public Single<Boolean> startSavingThread(Loadable loadable, List<Post> postsToSave) {
+    public Single<Boolean> startSavingThread(
+            Loadable loadable,
+            List<Post> postsToSave,
+            @Nullable ThreadSaveManager.DownloadingCallback callback) {
         return Single.fromCallable(() -> startSavingThreadInternal(loadable.id))
                 .flatMap((result) -> {
                     if (!result) {
                         return Single.just(false);
                     }
 
-                    return threadSaveManager.saveThread(loadable, postsToSave);
+                    return threadSaveManager.saveThread(loadable, postsToSave, callback);
                 });
+    }
+
+    public void removePrefetchDownloadCallback() {
+        threadSaveManager.removePrefetchDownloadCallback();
     }
 
     private Boolean startSavingThreadInternal(int loadableId) {

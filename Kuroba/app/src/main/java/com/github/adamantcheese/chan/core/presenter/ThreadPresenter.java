@@ -84,7 +84,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         PostCellInterface.PostCellCallback,
         ThreadStatusCell.Callback,
         ThreadListLayout.ThreadListLayoutPresenterCallback,
-        ArchivesLayout.Callback {
+        ArchivesLayout.Callback,
+        ThreadSaveManager.DownloadingCallback {
     private static final String TAG = "ThreadPresenter";
 
     private static final int POST_OPTION_QUOTE = 0;
@@ -250,12 +251,27 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
     private void startSavingThreadInternal(Loadable loadable, List<Post> postsToSave) {
         // TODO: add a dialog with progressbar showing the dowloading progress
-        Disposable result = watchManager.startSavingThread(loadable, postsToSave)
+        Disposable result = watchManager.startSavingThread(loadable, postsToSave, this)
                 .subscribe(
                         (res) -> { },
                         (error) -> Logger.e(TAG, "Could not start saving a thread", error));
 
         compositeDisposable.add(result);
+    }
+
+    @Override
+    public void onStartedDownloading() {
+        // Called on background thread
+    }
+
+    @Override
+    public void onProgress(int percent) {
+        // Called on background thread
+    }
+
+    @Override
+    public void onCompletedDownloading() {
+        // Called on background thread
     }
 
     public boolean isPinned() {
@@ -958,6 +974,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     public void destroy() {
         // TODO
 //        compositeDisposable.dispose();
+        watchManager.removePrefetchDownloadCallback();
     }
 
     public void updateLoadable(boolean isSavedCopy) {
