@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.manager;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -82,7 +81,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 public class WatchManager implements WakeManager.Wakeable {
     private static final String TAG = "WatchManager";
     private static final Intent WATCH_NOTIFICATION_INTENT = new Intent(getAppContext(), WatchNotification.class);
-    private static final byte[] EMPTY_BYTE_ARRAY = new byte[] {};
+    private static final byte[] EMPTY_BYTE_ARRAY = new byte[]{};
 
     enum IntervalType {
         /**
@@ -117,6 +116,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
     private final List<Pin> pins;
     private final List<SavedThread> savedThreads;
+    private boolean prevIncrementalThreadSavingEnabled = false;
 
     private Map<Pin, PinWatcher> pinWatchers = new HashMap<>();
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
@@ -206,32 +206,55 @@ public class WatchManager implements WakeManager.Wakeable {
         return true;
     }
 
-    public Single<Boolean> startSavingThread(int pinId, Loadable loadable, List<Post> postsToSave) {
-        return Single.fromCallable(() -> {
-            SavedThread savedThread = findSavedThreadByPinId(pinId);
-            if (savedThread != null && (savedThread.isFullyDownloaded || !savedThread.isStopped)) {
-                // TODO: custom exception
-                throw new Resources.NotFoundException("This thread is already being saved " +
-                        "(pinId = " + pinId + ")");
-            }
+    public Single<Boolean> startSavingThread(Loadable loadable, List<Post> postsToSave) {
+        return Single.fromCallable(() -> startSavingThreadInternal(loadable.id))
+                .flatMap((result) -> {
+                    if (!result) {
+                        return Single.just(false);
+                    }
 
-            if (savedThread == null) {
-                savedThread = new SavedThread(pinId, false, false);
-            } else {
-                savedThread.isStopped = false;
-            }
+                    return threadSaveManager.saveThread(loadable, postsToSave);
+                });
+    }
 
-            // TODO: update drawer item to show that it is now being saved (icon)
-            createOrUpdateSavedThread(savedThread);
-            databaseManager.runTask(databaseSavedThreadManager.startSavingThread(savedThread));
-            return true;
-        }).flatMap((result) -> {
-            if (!result) {
-                throw new IllegalStateException("Could not start saving a thread");
-            }
+    private Boolean startSavingThreadInternal(int loadableId) {
+        SavedThread savedThread = findSavedThreadByLoadableId(loadableId);
+        if (savedThread != null && (savedThread.isFullyDownloaded)) {
+            // If a thread is already fully downloaded or already being downloaded do not attempt to
+            // start downloading it again just skip it.
+            // If isStopped equals to isThreadSavingEnabled do nothing as well.
+            return false;
+        }
 
-            return threadSaveManager.saveThread(pinId, loadable, postsToSave);
-        });
+
+        if (savedThread == null) {
+            savedThread = new SavedThread(false, false, loadableId);
+        } else {
+            savedThread.isStopped = false;
+        }
+
+        // TODO: update drawer item to show that it is now being saved (icon)
+        // TODO: update toolbar's save icon (enable it if it is disable)
+
+        createOrUpdateSavedThread(savedThread);
+        databaseManager.runTask(databaseSavedThreadManager.startSavingThread(savedThread));
+        return true;
+    }
+
+    private void stopSavingThreadInternal(int loadableId) {
+        SavedThread savedThread = findSavedThreadByLoadableId(loadableId);
+        if (savedThread == null || (savedThread.isFullyDownloaded)) {
+            // If a thread is already fully downloaded or already stopped do nothing, if it is being
+            // downloaded then stop it. If we could not find it then do nothing as well.
+            return;
+        }
+
+        // TODO: update drawer item (remove icon)
+        // TODO: update toolbar's save icon (disable it if it is enabled)
+
+        // Cache stopped saved thread so it's just faster to find it
+        createOrUpdateSavedThread(savedThread);
+        databaseManager.runTask(databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(loadableId, true));
     }
 
     private void createOrUpdateSavedThread(SavedThread savedThread) {
@@ -248,24 +271,21 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     @Nullable
-    public SavedThread findSavedThreadByPinId(int pinId) {
+    public SavedThread findSavedThreadByLoadableId(int loadableId) {
         for (SavedThread savedThread : savedThreads) {
-            if (savedThread.pinId == pinId) {
+            if (savedThread.loadableId == loadableId) {
                 return savedThread;
             }
         }
 
-        return null;
-    }
+        SavedThread savedThread = databaseManager.runTask(
+                databaseSavedThreadManager.getSavedThreadByLoadableId(loadableId));
 
-    @Nullable
-    public SavedThread findSavedThreadByLoadable(Loadable loadable) {
-        Pin pin = getPinByLoadable(loadable);
-        if (pin == null) {
-            return null;
+        if (savedThread != null) {
+            savedThreads.add(savedThread);
         }
 
-        return findSavedThreadByPinId(pin.id);
+        return savedThread;
     }
 
     @Nullable
@@ -283,11 +303,11 @@ public class WatchManager implements WakeManager.Wakeable {
         pins.remove(pin);
 
         destroyPinWatcher(pin);
-        deletedThreadSave(pin.id);
+        deletedThreadSave(pin.loadable.id);
 
         databaseManager.runTask(databasePinManager.deletePin(pin));
-        // TODO: instead of deleting the thread, mark it as stopped
-        databaseManager.runTask(databaseSavedThreadManager.deleteSavedThread(pin.id));
+        databaseManager.runTask(
+                databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(pin.loadable.id, true));
 
         // Update the new orders
         Collections.sort(pins);
@@ -297,11 +317,11 @@ public class WatchManager implements WakeManager.Wakeable {
         EventBus.getDefault().post(new PinMessages.PinRemovedMessage(pin));
     }
 
-    private void deletedThreadSave(int pinId) {
+    private void deletedThreadSave(int loadableId) {
         SavedThread savedThread = null;
 
         for (int i = 0; i < savedThreads.size(); i++) {
-            if (savedThreads.get(i).pinId == pinId) {
+            if (savedThreads.get(i).loadableId == loadableId) {
                 savedThread = savedThreads.get(i);
                 break;
             }
@@ -310,23 +330,6 @@ public class WatchManager implements WakeManager.Wakeable {
         if (savedThread != null) {
             savedThreads.remove(savedThread);
         }
-    }
-
-    // TODO: use this instead of deleteSavedThread
-    public boolean stopSavingThread(Pin pin) {
-        if (pin == null) {
-            return false;
-        }
-
-        SavedThread savedThread = findSavedThreadByPinId(pin.id);
-        if (savedThread == null || (savedThread.isFullyDownloaded || savedThread.isStopped)) {
-            return false;
-        }
-
-        savedThread.isStopped = true;
-        createOrUpdateSavedThread(savedThread);
-
-        return databaseManager.runTask(databaseSavedThreadManager.stopSavingThread(pin.id));
     }
 
     public void deletePins(List<Pin> pinList) {
@@ -355,9 +358,9 @@ public class WatchManager implements WakeManager.Wakeable {
         EventBus.getDefault().post(new PinMessages.PinChangedMessage(pin));
     }
 
-    public Pin findPinByLoadable(Loadable other) {
+    public Pin findPinByLoadableId(int loadableId) {
         for (Pin pin : pins) {
-            if (pin.loadable.equals(other)) {
+            if (pin.loadable.id == loadableId) {
                 return pin;
             }
         }
@@ -551,6 +554,8 @@ public class WatchManager implements WakeManager.Wakeable {
     private void updateState(boolean watchEnabled, boolean backgroundEnabled) {
         Logger.d(TAG, "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground=" + isInForeground());
 
+        switchIncrementalThreadDownloadingState(watchEnabled && backgroundEnabled);
+
         //determine expected interval type for current settings
         IntervalType intervalType;
         if (!watchEnabled) {
@@ -610,6 +615,40 @@ public class WatchManager implements WakeManager.Wakeable {
             getAppContext().startService(WATCH_NOTIFICATION_INTENT);
         } else {
             getAppContext().stopService(WATCH_NOTIFICATION_INTENT);
+        }
+    }
+
+    private void switchIncrementalThreadDownloadingState(boolean isEnabled) {
+        if (prevIncrementalThreadSavingEnabled == isEnabled) {
+            return;
+        }
+
+        prevIncrementalThreadSavingEnabled = isEnabled;
+        List<Pin> pinsWithDownloadFlag = new ArrayList<>();
+
+        for (Pin pin : pins) {
+            if (pin.isError || pin.archived) {
+                continue;
+            }
+
+            if ((Pin.PinType.from(pin.pinType).hasDownloadFlag())) {
+                pinsWithDownloadFlag.add(pin);
+            }
+        }
+
+        if (pinsWithDownloadFlag.isEmpty()) {
+            Logger.d(TAG, "No pins found with download flag");
+            return;
+        }
+
+        Logger.d(TAG, "Found " + pinsWithDownloadFlag.size() + " pins with download flag");
+
+        for (Pin pin : pinsWithDownloadFlag) {
+            if (isEnabled) {
+                startSavingThreadInternal(pin.loadable.id);
+            } else {
+                stopSavingThreadInternal(pin.loadable.id);
+            }
         }
     }
 

@@ -149,7 +149,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 unbindLoadable();
             }
 
-            Pin pin = watchManager.findPinByLoadable(loadable);
+            Pin pin = watchManager.findPinByLoadableId(loadable.id);
             // TODO this isn't true anymore, because all loadables come from one location.
             if (pin != null) {
                 // Use the loadable from the pin.
@@ -210,7 +210,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public boolean pin() {
-        Pin pin = watchManager.findPinByLoadable(loadable);
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null) {
             if (chanLoader.getThread() != null) {
                 Post op = chanLoader.getThread().op;
@@ -223,8 +223,13 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public void save() {
-        Pin pin = watchManager.findPinByLoadable(loadable);
-        if (pin == null) {
+        save(watchManager.findPinByLoadableId(loadable.id));
+    }
+
+    public void save(Pin pin) {
+        if (pin != null) {
+            watchManager.deletePin(pin);
+        } else {
             if (chanLoader.getThread() != null) {
                 Post op = chanLoader.getThread().op;
                 List<Post> postsToSave = chanLoader.getThread().posts;
@@ -238,19 +243,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                     throw new IllegalStateException("Could not find freshly created pin by loadable " + loadable);
                 }
 
-                startSavingThreadInternal(newPin.id, loadable, postsToSave);
-            }
-        } else {
-            if (chanLoader.getThread() != null) {
-                // TODO: probably need to update the pin here to watch and download type
-                List<Post> postsToSave = chanLoader.getThread().posts;
-                startSavingThreadInternal(pin.id, loadable, postsToSave);
+                startSavingThreadInternal(loadable, postsToSave);
             }
         }
     }
 
-    private void startSavingThreadInternal(int pinId, Loadable loadable, List<Post> postsToSave) {
-        Disposable result = watchManager.startSavingThread(pinId, loadable, postsToSave)
+    private void startSavingThreadInternal(Loadable loadable, List<Post> postsToSave) {
+        // TODO: add a dialog with progressbar showing the dowloading progress
+        Disposable result = watchManager.startSavingThread(loadable, postsToSave)
                 .subscribe(
                         (res) -> { },
                         (error) -> Logger.e(TAG, "Could not start saving a thread", error));
@@ -259,11 +259,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public boolean isPinned() {
-        return watchManager.findPinByLoadable(loadable) != null;
+        return watchManager.findPinByLoadableId(loadable.id) != null;
     }
 
     public boolean isSaved() {
-        return watchManager.findSavedThreadByLoadable(loadable) != null;
+        return watchManager.findSavedThreadByLoadableId(loadable.id) != null;
     }
 
     public void onSearchVisibilityChanged(boolean visible) {
@@ -407,7 +407,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             loadable.setLastViewed(posts.get(posts.size() - 1).no);
         }
 
-        Pin pin = watchManager.findPinByLoadable(loadable);
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
             watchManager.onBottomPostViewed(pin);
         }

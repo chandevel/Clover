@@ -8,7 +8,7 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "saved_thread")
 public class SavedThread {
     public static final String ID = "id";
-    public static final String PIN_ID = "pin_id";
+    public static final String LOADABLE_ID = "loadable_id";
     public static final String LAST_SAVED_POST_NO = "last_saved_post_no";
     public static final String IS_FULLY_DOWNLOADED = "is_fully_downloaded";
     public static final String IS_STOPPED = "is_stopped";
@@ -16,8 +16,8 @@ public class SavedThread {
     @DatabaseField(columnName = ID, generatedId = true)
     public int id;
 
-    @DatabaseField(columnName = PIN_ID)
-    public int pinId;
+    @DatabaseField(columnName = LOADABLE_ID)
+    public int loadableId;
 
     @DatabaseField(columnName = LAST_SAVED_POST_NO)
     public int lastSavedPostNo;
@@ -38,16 +38,22 @@ public class SavedThread {
     public SavedThread() {
     }
 
-    public SavedThread(int pinId, boolean isFullyDownloaded, boolean isStopped) {
-        this.pinId = pinId;
+    public SavedThread(boolean isFullyDownloaded, boolean isStopped, int loadableId) {
+        this(0, isFullyDownloaded, isStopped, 0, loadableId);
+    }
+
+    public SavedThread(int id, boolean isFullyDownloaded, boolean isStopped, int lastSavedPostNo, int loadableId) {
+        this.id = id;
         this.isFullyDownloaded = isFullyDownloaded;
         this.isStopped = isStopped;
+        this.lastSavedPostNo = lastSavedPostNo;
+        this.loadableId = loadableId;
     }
 
     public void update(SavedThread other) {
-        this.pinId = other.pinId;
         this.isFullyDownloaded = other.isFullyDownloaded;
         this.isStopped = other.isStopped;
+        this.lastSavedPostNo = other.lastSavedPostNo;
     }
 
     @Override

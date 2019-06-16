@@ -46,9 +46,8 @@ import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAuto
 
 public class ThreadSaveManager {
     private static final String TAG = "ThreadSaveManager";
-    private static final int MAX_DOWNLOAD_IMAGE_WAITING_TIME_SECONDS = 20;
     private static final int OKHTTP_TIMEOUT_SECONDS = 30;
-    private static final int MAX_RETRY_ATTEMPTS = 5;
+    private static final int MAX_RETRY_ATTEMPTS = 3;
     public static final String SAVED_THREADS_DIR_NAME = "saved_threads";
     public static final String IMAGES_DIR_NAME = "images";
     public static final String SPOILER_FILE_NAME = "spoiler";
@@ -88,20 +87,23 @@ public class ThreadSaveManager {
         this.databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadmanager();
     }
 
-    public Single<Boolean> saveThread(int pinId, Loadable loadable, List<Post> postsToSave) {
+    public Single<Boolean> saveThread(Loadable loadable, List<Post> postsToSave) {
         if (alreadyRunningDownloads.containsKey(loadable)) {
             Logger.d(TAG, "Downloader is already running for " + loadable);
             return Single.just(true);
         }
 
-        return saveThreadInternal(pinId, loadable, postsToSave)
+        return saveThreadInternal(loadable, postsToSave)
                 .doOnSubscribe((disposable) -> alreadyRunningDownloads.put(loadable, true))
                 .doFinally(() -> alreadyRunningDownloads.remove(loadable))
                 .subscribeOn(Schedulers.from(executorService));
     }
 
+    // TODO: We should load images before post filtering, because if an image was not downloaded
+    //  because of an error it won't be re downloaded next time since the post with the image will
+    //  be filtered
     @SuppressLint("CheckResult")
-    private Single<Boolean> saveThreadInternal(int pinId, Loadable loadable, List<Post> postsToSave) {
+    private Single<Boolean> saveThreadInternal(Loadable loadable, List<Post> postsToSave) {
         return Single.fromCallable(() -> {
             Logger.d(TAG, "Starting a new download for " + loadable + ", on thread " + Thread.currentThread().getName());
 
@@ -114,7 +116,7 @@ public class ThreadSaveManager {
             }
 
             // Filter out already saved posts and sort new posts in ascending order
-            List<Post> newPosts = filterAndSortPosts(pinId, postsToSave);
+            List<Post> newPosts = filterAndSortPosts(loadable.id, postsToSave);
             if (newPosts.isEmpty()) {
                 Logger.d(TAG, "No new posts for a thread " + loadable.no);
                 return false;
@@ -200,7 +202,7 @@ public class ThreadSaveManager {
                     return Single.defer(() -> {
                         // Update the latests saved post id in the database
                         int lastPostNo = newPosts.get(newPosts.size() - 1).no;
-                        databaseManager.runTask(databaseSavedThreadManager.updateLastSavedPostNo(pinId, lastPostNo));
+                        databaseManager.runTask(databaseSavedThreadManager.updateLastSavedPostNo(loadable.id, lastPostNo));
 
                         Logger.d(TAG, "Successfully updated a thread " + loadable.no);
                         return Single.just(true);
@@ -209,6 +211,7 @@ public class ThreadSaveManager {
                 // Have to use blockingGet here
                 .blockingGet();
 
+                Logger.d(TAG, "All threads are updated");
                 return true;
             } catch (Throwable error) {
                 // TODO: should we really delete everything upon error?
@@ -218,9 +221,9 @@ public class ThreadSaveManager {
         });
     }
 
-    private List<Post> filterAndSortPosts(int pinId, List<Post> inputPosts) {
+    private List<Post> filterAndSortPosts(int loadableId, List<Post> inputPosts) {
         // Filter out already saved posts (by lastSavedPostNo)
-        int lastSavedPostNo = databaseManager.runTask(databaseSavedThreadManager.getLastSavedPostNo(pinId));
+        int lastSavedPostNo = databaseManager.runTask(databaseSavedThreadManager.getLastSavedPostNo(loadableId));
         List<Post> filteredPosts = new ArrayList<>(inputPosts.size() / 2);
 
         for (Post post : inputPosts) {
@@ -293,25 +296,66 @@ public class ThreadSaveManager {
                 .flatMapSingle((postImage) -> {
                     // Download each image in parallel using executorService
                     return Single.defer(() -> {
-                        downloadImageIntoFile(
-                                threadSaveDirImages,
-                                postImage.originalName,
-                                postImage.extension,
-                                postImage.imageUrl,
-                                postImage.thumbnailUrl);
+                        try {
+                            downloadImageIntoFile(
+                                    threadSaveDirImages,
+                                    postImage.originalName,
+                                    postImage.extension,
+                                    postImage.imageUrl,
+                                    postImage.thumbnailUrl);
+                        } catch (IOException error) {
+                            Logger.e(TAG, "downloadImageIntoFile error for image "
+                                    + postImage.filename + " %s", error.getMessage());
+
+                            deleteImageCompletely(
+                                    threadSaveDirImages,
+                                    postImage.originalName,
+                                    postImage.extension);
+                            throw error;
+                        }
 
                         return Single.just(true);
                     })
-                    .doOnError((error) -> Logger.e(TAG, "Downloading error", error))
                     // We don't really want to use more than "CPU processors count" threads here, but
                     // we want for every request to run on a separate thread in parallel
                     .subscribeOn(Schedulers.from(executorService))
-                    .timeout(MAX_DOWNLOAD_IMAGE_WAITING_TIME_SECONDS, TimeUnit.SECONDS)
+                    // Retry couple of times upon exceptions
+                    .retry(MAX_RETRY_ATTEMPTS)
                     // Do nothing if an error occurs (like timeout exception) because we don't want
                     // to lose what we have already downloaded
-                    .retry(MAX_RETRY_ATTEMPTS)
+                    .doOnError((error) -> {
+                        Logger.e(TAG, "Error while trying to download image " + postImage.originalName, error);
+                    })
                     .onErrorReturnItem(false);
                 });
+    }
+
+    private void deleteImageCompletely(
+            File threadSaveDirImages,
+            String filename,
+            String extension) {
+        Logger.d(TAG, "Deleting a file with name " + filename);
+        boolean error = false;
+
+        File originalFile = new File(threadSaveDirImages,
+                filename + "_" + ORIGINAL_FILE_NAME + "." + extension);
+        if (originalFile.exists()) {
+            if (!originalFile.delete()) {
+                error = true;
+            }
+        }
+
+        File thumbnailFile = new File(threadSaveDirImages,
+                filename + "_" + THUMBNAIL_FILE_NAME + "." + extension);
+        if (thumbnailFile.exists()) {
+            if (!thumbnailFile.delete()) {
+                error = true;
+            }
+        }
+
+        if (error) {
+            Logger.e(TAG, "Could not completely delete image " + filename);
+        }
     }
 
     private void downloadImageIntoFile(
@@ -320,7 +364,7 @@ public class ThreadSaveManager {
             String extension,
             HttpUrl imageUrl,
             HttpUrl thumbnailUrl) throws IOException {
-        Logger.d(TAG, "Downloading a file with name " + filename);
+        Logger.d(TAG, "Downloading a file with name " + filename + " on a thread " + Thread.currentThread().getName());
 
         downloadImage(
                 threadSaveDirImages,

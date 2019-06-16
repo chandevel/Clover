@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.core.database;
 
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
-import com.j256.ormlite.stmt.DeleteBuilder;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -24,39 +23,38 @@ public class DatabaseSavedThreadManager {
 
     public Callable<SavedThread> startSavingThread(final SavedThread savedThread) {
         return () -> {
-            // TODO: check duplicates first
+            SavedThread prevSavedThread = getSavedThreadByLoadableId(savedThread.loadableId).call();
+            if (prevSavedThread != null) {
+                helper.savedThreadDao.update(merge(prevSavedThread, savedThread));
+                return savedThread;
+            }
 
             helper.savedThreadDao.create(savedThread);
             return savedThread;
         };
     }
 
-    public Callable<Boolean> stopSavingThread(int pinId) {
-        return () -> {
-            SavedThread savedThread = helper.savedThreadDao.queryBuilder()
-                    .where()
-                    .eq(SavedThread.PIN_ID, pinId)
-                    .queryForFirst();
-            if (savedThread == null) {
-                return false;
-            }
+    private SavedThread merge(SavedThread prevSavedThread, SavedThread savedThread) {
+        if (prevSavedThread.loadableId != savedThread.loadableId) {
+            throw new RuntimeException("Cannot merge threads with different loadableIds " +
+                    "(prevLoadableId = " + prevSavedThread.loadableId +
+                    ", currLoadableId = " + savedThread.loadableId + ")");
+        }
 
-            if (savedThread.isFullyDownloaded) {
-                return false;
-            }
-
-            savedThread.isStopped = true;
-            helper.savedThreadDao.update(savedThread);
-
-            return false;
-        };
+        return new SavedThread(
+                prevSavedThread.id,
+                savedThread.isFullyDownloaded,
+                savedThread.isStopped,
+                Math.max(prevSavedThread.lastSavedPostNo, savedThread.lastSavedPostNo),
+                prevSavedThread.loadableId
+        );
     }
 
-    public Callable<Void> updateLastSavedPostNo(int pinId, int lastPostNo) {
+    public Callable<Void> updateLastSavedPostNo(int loadableId, int lastPostNo) {
         return () -> {
             SavedThread savedThread = helper.savedThreadDao.queryBuilder()
                     .where()
-                    .eq(SavedThread.PIN_ID, pinId)
+                    .eq(SavedThread.LOADABLE_ID, loadableId)
                     .queryForFirst();
             if (savedThread == null) {
                 return null;
@@ -69,29 +67,53 @@ public class DatabaseSavedThreadManager {
         };
     }
 
-
-    public Callable<Void> updateThread(SavedThread savedThread) {
-        return () -> {
-            helper.savedThreadDao.update(savedThread);
-            return null;
-        };
-    }
-
-    public Callable<Void> deleteSavedThread(int pinId) {
-        return () -> {
-            DeleteBuilder<SavedThread, Integer> deleteBuilder = helper.savedThreadDao.deleteBuilder();
-            deleteBuilder.where().in(SavedThread.PIN_ID, pinId);
-            deleteBuilder.delete();
-
-            return null;
-        };
-    }
-
-    public Callable<Integer> getLastSavedPostNo(int pinId) {
+    public Callable<Boolean> updateThreadStoppedFlagByLoadableId(int loadableId, boolean stop) {
         return () -> {
             SavedThread savedThread = helper.savedThreadDao.queryBuilder()
                     .where()
-                    .eq(SavedThread.PIN_ID, pinId)
+                    .eq(SavedThread.LOADABLE_ID, loadableId)
+                    .queryForFirst();
+            if (savedThread == null) {
+                return false;
+            }
+
+            if (savedThread.isFullyDownloaded) {
+                return false;
+            }
+
+            savedThread.isStopped = stop;
+            helper.savedThreadDao.update(savedThread);
+
+            return true;
+        };
+    }
+
+    public Callable<Boolean> updateThreadFullyDownloadedByLoadableId(int loadableId) {
+        return () -> {
+            SavedThread savedThread = helper.savedThreadDao.queryBuilder()
+                    .where()
+                    .eq(SavedThread.LOADABLE_ID, loadableId)
+                    .queryForFirst();
+            if (savedThread == null) {
+                return false;
+            }
+
+            if (savedThread.isFullyDownloaded) {
+                return true;
+            }
+
+            savedThread.isFullyDownloaded = true;
+            helper.savedThreadDao.update(savedThread);
+
+            return false;
+        };
+    }
+
+    public Callable<Integer> getLastSavedPostNo(int loadableId) {
+        return () -> {
+            SavedThread savedThread = helper.savedThreadDao.queryBuilder()
+                    .where()
+                    .eq(SavedThread.LOADABLE_ID, loadableId)
                     .queryForFirst();
             if (savedThread == null) {
                 return 0;
@@ -101,11 +123,11 @@ public class DatabaseSavedThreadManager {
         };
     }
 
-    public Callable<SavedThread> getSavedThreadByPinId(int pinId) {
+    public Callable<SavedThread> getSavedThreadByLoadableId(int loadableId) {
         return () -> {
             return helper.savedThreadDao.queryBuilder()
                     .where()
-                    .eq(SavedThread.PIN_ID, pinId)
+                    .eq(SavedThread.LOADABLE_ID, loadableId)
                     .queryForFirst();
         };
     }

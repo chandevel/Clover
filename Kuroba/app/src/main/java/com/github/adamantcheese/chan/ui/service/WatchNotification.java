@@ -176,7 +176,7 @@ public class WatchNotification extends Service {
                 continue;
             }
 
-            SavedThread savedThread = watchManager.findSavedThreadByPinId(pin.id);
+            SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
             if (savedThread != null) {
                 handleSavedThread(unviewedPostsByThread, pin, watcher, savedThread);
             }
@@ -236,17 +236,26 @@ public class WatchNotification extends Service {
             WatchManager.PinWatcher watcher,
             SavedThread savedThread) {
         if (pin.isError) {
+            // FIXME: this is not getting called when a thread becomes archived, probably needs to be moved to WatchManager
             // Stop saving thread completely if pin has error (probably 404)
             savedThread.isFullyDownloaded = true;
         }
         if (!pin.watching) {
+            // FIXME: this is not getting called when a thread becomes archived, probably needs to be moved to WatchManager
             // Pause saving thread if pin is paused
             savedThread.isStopped = true;
         }
 
         // Update thread in the DB
-        if (savedThread.isStopped || savedThread.isFullyDownloaded) {
-            databaseManager.runTask(databaseManager.getDatabaseSavedThreadmanager().updateThread(savedThread));
+        if (savedThread.isStopped) {
+            databaseManager.runTask(databaseManager.getDatabaseSavedThreadmanager()
+                    .updateThreadStoppedFlagByLoadableId(pin.loadable.id, true));
+            return;
+        }
+
+        if (savedThread.isFullyDownloaded) {
+            databaseManager.runTask(databaseManager.getDatabaseSavedThreadmanager()
+                    .updateThreadFullyDownloadedByLoadableId(pin.loadable.id));
             return;
         }
 
@@ -270,7 +279,7 @@ public class WatchNotification extends Service {
 
                     // This function is really slow since it downloads everything in a thread
                     // (posts and their images/files)
-                    return threadSaveManager.saveThread(entry.getKey().pinId, loadable, posts)
+                    return threadSaveManager.saveThread(loadable, posts)
                             .doOnError((error) -> {
                                 String threadName = "[board = " + loadable.boardCode + ", title = "
                                         + loadable.title + ", new posts count = " + posts.size() + "]";
@@ -282,7 +291,7 @@ public class WatchNotification extends Service {
                 .subscribe(
                         (res) -> { },
                         (error) -> Logger.e(TAG, "Error while downloading a thread", error),
-                        () -> Logger.d(TAG, "All threads are updated"));
+                        () -> { });
 
         compositeDisposable.add(disposable);
     }

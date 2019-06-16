@@ -142,6 +142,10 @@ public class Pin implements Comparable<Pin>, Cloneable {
             return typeValue;
         }
 
+        public boolean hasDownloadFlag() {
+            return (typeValue & DownloadNewPosts.typeValue) != 0;
+        }
+
         PinType(int typeValue) {
             this.typeValue = typeValue;
         }
