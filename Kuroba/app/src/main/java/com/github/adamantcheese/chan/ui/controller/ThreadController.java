@@ -98,7 +98,6 @@ public abstract class ThreadController extends Controller implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         threadLayout.destroy();
 
         EventBus.getDefault().unregister(this);
@@ -175,6 +174,11 @@ public abstract class ThreadController extends Controller implements
 
     @Override
     public void presentImageReencodingController(Controller controller) {
+        presentController(controller);
+    }
+
+    @Override
+    public void presentLoadingViewController(Controller controller) {
         presentController(controller);
     }
 

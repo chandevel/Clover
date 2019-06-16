@@ -164,6 +164,10 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     public boolean createPin(Loadable loadable, @Nullable Post opPost, Pin.PinType pinType) {
+        return createPin(loadable, opPost, pinType, true);
+    }
+
+    public boolean createPin(Loadable loadable, @Nullable Post opPost, Pin.PinType pinType, boolean sendBroadcast) {
         Pin pin = new Pin();
         pin.loadable = loadable;
         pin.loadable.title = PostHelper.getTitle(opPost, loadable);
@@ -173,11 +177,14 @@ public class WatchManager implements WakeManager.Wakeable {
             PostImage image = opPost.image();
             pin.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
         }
-        return createPin(pin);
+        return createPin(pin, sendBroadcast);
     }
 
-
     public boolean createPin(Pin pin) {
+        return createPin(pin, true);
+    }
+
+    public boolean createPin(Pin pin, boolean sendBroadcast) {
         // No duplicates
         for (Pin e : pins) {
             if (e.loadable.equals(pin.loadable)) {
@@ -201,7 +208,9 @@ public class WatchManager implements WakeManager.Wakeable {
         reorder(pins);
         updateState();
 
-        EventBus.getDefault().post(new PinMessages.PinAddedMessage(pin));
+        if (sendBroadcast) {
+            EventBus.getDefault().post(new PinMessages.PinAddedMessage(pin));
+        }
 
         return true;
     }
@@ -248,7 +257,7 @@ public class WatchManager implements WakeManager.Wakeable {
         return true;
     }
 
-    private void stopSavingThreadInternal(int loadableId) {
+    public void stopSavingThread(int loadableId) {
         SavedThread savedThread = findSavedThreadByLoadableId(loadableId);
         if (savedThread == null || (savedThread.isFullyDownloaded)) {
             // If a thread is already fully downloaded or already stopped do nothing, if it is being
@@ -359,7 +368,6 @@ public class WatchManager implements WakeManager.Wakeable {
 
     public void updatePin(Pin pin) {
         databaseManager.runTask(databasePinManager.updatePin(pin));
-
         updateState();
 
         EventBus.getDefault().post(new PinMessages.PinChangedMessage(pin));
@@ -654,7 +662,7 @@ public class WatchManager implements WakeManager.Wakeable {
             if (isEnabled) {
                 startSavingThreadInternal(pin.loadable.id);
             } else {
-                stopSavingThreadInternal(pin.loadable.id);
+                stopSavingThread(pin.loadable.id);
             }
         }
     }

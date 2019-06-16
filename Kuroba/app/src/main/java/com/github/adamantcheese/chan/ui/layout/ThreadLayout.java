@@ -59,6 +59,7 @@ import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
 import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
+import com.github.adamantcheese.chan.ui.helper.ThreadPrefetchHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.HidingFloatingActionButton;
@@ -87,7 +88,8 @@ public class ThreadLayout extends CoordinatorLayout implements
         ImageOptionsHelper.ImageReencodingHelperCallback,
         RemovedPostsHelper.RemovedPostsCallbacks,
         View.OnClickListener,
-        ThreadListLayout.ThreadListLayoutCallback {
+        ThreadListLayout.ThreadListLayoutCallback,
+        ThreadPrefetchHelper.ThreadPrefetchHelperCallback {
     private enum Visible {
         EMPTY,
         LOADING,
@@ -116,6 +118,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     private PostPopupHelper postPopupHelper;
     private ImageOptionsHelper imageReencodingHelper;
     private RemovedPostsHelper removedPostsHelper;
+    private ThreadPrefetchHelper threadPrefetchHelper;
     private Visible visible;
     private ProgressDialog deletingDialog;
     private boolean refreshedFromSwipe;
@@ -163,6 +166,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
         imageReencodingHelper = new ImageOptionsHelper(getContext(), this);
+        threadPrefetchHelper = new ThreadPrefetchHelper(getContext(), this);
         removedPostsHelper = new RemovedPostsHelper(getContext(), presenter, this);
         errorText.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
         errorRetryButton.setOnClickListener(this);
@@ -723,6 +727,11 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
+    public void presentLoadingViewController(Controller controller) {
+        callback.presentLoadingViewController(controller);
+    }
+
+    @Override
     public void presentController(Controller controller) {
         callback.presentImageReencodingController(controller);
     }
@@ -768,6 +777,21 @@ public class ThreadLayout extends CoordinatorLayout implements
         alertDialog.show();
     }
 
+    @Override
+    public void showThreadPrefetchDialog() {
+        threadPrefetchHelper.present();
+    }
+
+    @Override
+    public void updateThreadPrefetchDialog(int percent) {
+        threadPrefetchHelper.updateProgress(percent);
+    }
+
+    @Override
+    public void hideThreadPrefetchDialog() {
+        threadPrefetchHelper.dismiss();
+    }
+
     public interface ThreadLayoutCallback {
         void showThread(Loadable threadLoadable);
 
@@ -784,6 +808,8 @@ public class ThreadLayout extends CoordinatorLayout implements
         void presentRepliesController(Controller controller);
 
         void presentImageReencodingController(Controller controller);
+
+        void presentLoadingViewController(Controller controller);
 
         void presenterRemovedPostsController(Controller controller);
 

@@ -65,6 +65,8 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -73,11 +75,13 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
 public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         PostAdapter.PostAdapterCallback,
@@ -223,19 +227,32 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         return isPinned();
     }
 
-    public void save() {
-        save(watchManager.findPinByLoadableId(loadable.id));
-    }
-
-    public void save(Pin pin) {
+    public void save(ThreadPrefetchCallback callback) {
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
-            watchManager.deletePin(pin);
+            try {
+                Pin.PinType pinType = Pin.PinType.from(pin.pinType);
+
+                if (!pinType.hasDownloadFlag()) {
+                    return;
+                }
+
+                pinType.removeFlag(Pin.PinType.DownloadNewPosts);
+                pin.pinType = pinType.getTypeValue();
+
+                watchManager.updatePin(pin);
+                watchManager.stopSavingThread(pin.loadable.id);
+            } finally {
+                callback.onPrefetchEnded();
+            }
         } else {
             if (chanLoader.getThread() != null) {
                 Post op = chanLoader.getThread().op;
                 List<Post> postsToSave = chanLoader.getThread().posts;
 
-                if (!watchManager.createPin(loadable, op, Pin.PinType.DownloadNewPosts)) {
+                // We don't want to send PinAddedMessage broadcast right away. We will send it after
+                // the thread has been saved
+                if (!watchManager.createPin(loadable, op, Pin.PinType.DownloadNewPosts, false)) {
                     throw new IllegalStateException("Could not create pin for loadable " + loadable);
                 }
 
@@ -244,16 +261,23 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                     throw new IllegalStateException("Could not find freshly created pin by loadable " + loadable);
                 }
 
-                startSavingThreadInternal(loadable, postsToSave);
+                startSavingThreadInternal(loadable, postsToSave, newPin, callback);
             }
         }
     }
 
-    private void startSavingThreadInternal(Loadable loadable, List<Post> postsToSave) {
-        // TODO: add a dialog with progressbar showing the dowloading progress
+    private void startSavingThreadInternal(
+            Loadable loadable,
+            List<Post> postsToSave,
+            Pin newPin,
+            ThreadPrefetchCallback callback) {
         Disposable result = watchManager.startSavingThread(loadable, postsToSave, this)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        (res) -> { },
+                        (res) -> {
+                            EventBus.getDefault().post(new WatchManager.PinMessages.PinAddedMessage(newPin));
+                            callback.onPrefetchEnded();
+                        },
                         (error) -> Logger.e(TAG, "Could not start saving a thread", error));
 
         compositeDisposable.add(result);
@@ -262,16 +286,27 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     @Override
     public void onStartedDownloading() {
         // Called on background thread
+        runOnUiThread(() -> {
+            threadPresenterCallback.showThreadPrefetchDialog();
+        });
     }
 
     @Override
     public void onProgress(int percent) {
         // Called on background thread
+
+        runOnUiThread(() -> {
+            threadPresenterCallback.updateThreadPrefetchDialog(percent);
+        });
     }
 
     @Override
     public void onCompletedDownloading() {
         // Called on background thread
+
+        runOnUiThread(() -> {
+            threadPresenterCallback.hideThreadPrefetchDialog();
+        });
     }
 
     public boolean isPinned() {
@@ -981,6 +1016,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         loadable.isSavedCopy = isSavedCopy;
     }
 
+    public interface ThreadPrefetchCallback {
+        void onPrefetchEnded();
+    }
+
     public interface ThreadPresenterCallback {
         void showPosts(ChanThread thread, PostsFilter filter);
 
@@ -1061,5 +1100,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         void viewRemovedPostsForTheThread(List<Post> threadPosts, int threadNo);
 
         void onRestoreRemovedPostsClicked(int threadNo, Site site, String boardCode, List<Integer> selectedPosts);
+
+        void showThreadPrefetchDialog();
+
+        void updateThreadPrefetchDialog(int percent);
+
+        void hideThreadPrefetchDialog();
     }
 }

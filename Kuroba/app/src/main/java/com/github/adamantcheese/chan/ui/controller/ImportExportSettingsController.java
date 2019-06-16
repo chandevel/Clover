@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.controller.export;
+package com.github.adamantcheese.chan.ui.controller;
 
 import android.Manifest;
 import android.content.ClipData;
@@ -58,7 +58,7 @@ public class ImportExportSettingsController extends SettingsController implement
         super(context);
 
         this.callbacks = callbacks;
-        this.loadingViewController = new LoadingViewController(context);
+        this.loadingViewController = new LoadingViewController(context, true);
     }
 
     @Override

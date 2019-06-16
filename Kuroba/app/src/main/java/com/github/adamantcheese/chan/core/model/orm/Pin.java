@@ -150,6 +150,13 @@ public class Pin implements Comparable<Pin>, Cloneable {
             this.typeValue = typeValue;
         }
 
+        // TODO: test
+        public void removeFlag(PinType flag) {
+            if ((typeValue & flag.typeValue) != 0) {
+                typeValue &= ~(1 << flag.typeValue);
+            }
+        }
+
         public static PinType from(int value) {
             if (value == WatchNewPosts.typeValue) {
                 return WatchNewPosts;

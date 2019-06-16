@@ -123,17 +123,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void saveClicked(ToolbarMenuItem item) {
-        threadLayout.getPresenter().save();
-
-        if (ChanSettings.watchEnabled.get() && ChanSettings.watchBackground.get()) {
-            // Only add the thread to the pins when background watcher is enabled, otherwise
-            // just save current snapshot of a thread
+        threadLayout.getPresenter().save(() -> {
             setSaveIconState(true);
             updateDrawerHighlighting(loadable);
-        } else {
-            // TODO: show a message that a snapshot of the thread was saved, but it won't be
-            //  incrementally updated because background watcher is not enabled
-        }
+        });
     }
 
     private void searchClicked(ToolbarMenuSubItem item) {
