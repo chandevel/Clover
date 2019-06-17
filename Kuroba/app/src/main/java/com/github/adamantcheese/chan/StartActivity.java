@@ -27,6 +27,7 @@ import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -86,6 +87,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     private UpdateManager updateManager;
 
     private boolean intentMismatchWorkaroundActive = false;
+    private boolean exitFlag = false;
 
     @Inject
     DatabaseManager databaseManager;
@@ -497,11 +499,13 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     @Override
     public void onBackPressed() {
         if (!stackTop().onBack()) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.action_confirm_exit_title)
-                    .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.exit, (dialog, which) -> StartActivity.super.onBackPressed())
-                    .show();
+            if (!exitFlag) {
+                Toast.makeText(this, R.string.action_confirm_exit_title, Toast.LENGTH_LONG).show();
+                exitFlag = true;
+            } else {
+                exitFlag = false;
+                StartActivity.super.onBackPressed();
+            }
         }
     }
 

@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="close">Close</string>
     <string name="back">Back</string>
     <string name="ok">OK</string>
-    <string name="exit">Exit</string>
     <string name="delete">Delete</string>
     <string name="undo">Undo</string>
     <string name="save">Mark as my post</string>
@@ -144,7 +143,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="open_thread_confirmation">Open this thread?</string>
     <string name="open_link_failed">No applications were found to open this link</string>
 
-    <string name="action_confirm_exit_title">Confirm exit</string>
+    <string name="action_confirm_exit_title">Tap back again to exit</string>
 
     <string name="thumbnail_load_failed_network">Error</string>
     <string name="thumbnail_load_failed_server" translatable="false">404</string>
