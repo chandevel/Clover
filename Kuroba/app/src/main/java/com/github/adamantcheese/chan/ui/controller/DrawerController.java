@@ -40,12 +40,12 @@ import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.List;
 
 import javax.inject.Inject;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
@@ -193,11 +193,13 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     public void setPinHighlighted(Pin pin) {
         drawerAdapter.setPinHighlighted(pin);
         drawerAdapter.updateHighlighted(recyclerView);
+        recyclerView.postInvalidate();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         drawerAdapter.onPinAdded(message.pin);
+        recyclerView.postInvalidate();
         drawerLayout.openDrawer(drawer);
         updateBadge();
     }
@@ -205,18 +207,21 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
         drawerAdapter.onPinRemoved(message.pin);
+        recyclerView.postInvalidate();
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinChangedMessage message) {
         drawerAdapter.onPinChanged(recyclerView, message.pin);
+        recyclerView.postInvalidate();
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
         drawerAdapter.onPinsChanged(message.pins);
+        recyclerView.postInvalidate();
         updateBadge();
     }
 

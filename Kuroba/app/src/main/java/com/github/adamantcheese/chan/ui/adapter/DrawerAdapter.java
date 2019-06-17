@@ -50,7 +50,6 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -237,11 +236,13 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private void updatePinViewHolder(PinViewHolder holder, Pin pin) {
+        TextView watchCount = holder.watchCountText;
         LinearLayout.LayoutParams newParams = new LinearLayout.LayoutParams(
-                holder.watchCountText.getLayoutParams().width,
-                holder.watchCountText.getLayoutParams().height,
+                watchCount.getLayoutParams().width,
+                watchCount.getLayoutParams().height,
                 ChanSettings.shortPinInfo.get() ? 1.5f : 2.5f);
-        holder.watchCountText.setLayoutParams(newParams);
+
+        watchCount.setLayoutParams(newParams);
 
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
@@ -249,45 +250,41 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             text = PostHelper.prependIcon(text, archivedIcon, sp(16));
         }
 
-        holder.textView.setText(text);
+        TextView bookmarkLabel = holder.textView;
+        bookmarkLabel.setText(text);
         holder.image.setUrl(pin.thumbnailUrl, dp(40), dp(40));
 
         if (ChanSettings.watchEnabled.get()) {
             String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
             String totalCount = PinHelper.getShortUnreadCount(watchManager.getPinWatcher(pin).getReplyCount());
-            holder.watchCountText.setVisibility(View.VISIBLE);
-            holder.watchCountText.setText(ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount);
+            watchCount.setVisibility(View.VISIBLE);
+            watchCount.setText(ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount);
 
             if (!pin.watching) {
-                holder.watchCountText.setTextColor(0xff898989); // TODO material colors
+                watchCount.setTextColor(0xff898989); // TODO material colors
             } else if (pin.getNewQuoteCount() > 0) {
-                holder.watchCountText.setTextColor(0xffFF4444);
+                watchCount.setTextColor(0xffFF4444);
             } else {
-                holder.watchCountText.setTextColor(0xff33B5E5);
+                watchCount.setTextColor(0xff33B5E5);
             }
 
             if (watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) {
-                holder.watchCountText.setTypeface(holder.watchCountText.getTypeface(), Typeface.ITALIC);
+                watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
             } else {
-                holder.watchCountText.setTypeface(holder.watchCountText.getTypeface(), Typeface.NORMAL);
+                watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
             }
 
             // The 16dp padding now belongs to the counter, for a bigger touch area
-            holder.textView.setPadding(holder.textView.getPaddingLeft(), holder.textView.getPaddingTop(),
-                    0, holder.textView.getPaddingBottom());
-            holder.watchCountText.setPadding(dp(16), holder.watchCountText.getPaddingTop(),
-                    holder.watchCountText.getPaddingRight(), holder.watchCountText.getPaddingBottom());
+            bookmarkLabel.setPadding(bookmarkLabel.getPaddingLeft(), bookmarkLabel.getPaddingTop(),
+                    0, bookmarkLabel.getPaddingBottom());
+            watchCount.setPadding(dp(16), watchCount.getPaddingTop(),
+                    watchCount.getPaddingRight(), watchCount.getPaddingBottom());
         } else {
             // The 16dp padding now belongs to the textview, for better ellipsize
-            holder.watchCountText.setVisibility(View.GONE);
-            holder.textView.setPadding(holder.textView.getPaddingLeft(), holder.textView.getPaddingTop(),
-                    dp(16), holder.textView.getPaddingBottom());
+            watchCount.setVisibility(View.GONE);
+            bookmarkLabel.setPadding(bookmarkLabel.getPaddingLeft(), bookmarkLabel.getPaddingTop(),
+                    dp(16), bookmarkLabel.getPaddingBottom());
         }
-        //invalidate views to force them to update immediately when a pin changes
-        runOnUiThread(() -> {
-            holder.textView.invalidate();
-            holder.watchCountText.invalidate();
-        });
 
         boolean highlighted = pin == this.highlighted;
         if (highlighted && !holder.highlighted) {
