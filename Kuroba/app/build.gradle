@@ -89,7 +89,8 @@ android {
                 is.close()
                 signingConfig signingConfigs.release
             }
-            minifyEnabled true
+            // Because we're always on dev, don't minify to make sure that crash logs are intelligible
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
             debuggable = false
         }
