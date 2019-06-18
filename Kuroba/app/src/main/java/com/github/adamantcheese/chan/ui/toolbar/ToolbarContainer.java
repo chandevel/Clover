@@ -460,23 +460,10 @@ public class ToolbarContainer extends FrameLayout {
                 titleView.setCompoundDrawablesWithIntrinsicBounds(
                         null, null, arrowDrawable, null);
                 titleView.setOnClickListener(v -> item.middleMenu.show(titleView));
-
-                // Hide the dropdown arrow if there is no text.
-                titleView.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        arrowDrawable.setAlpha(isEmpty(s) ? 0 : 255);
-                    }
-                });
-                arrowDrawable.setAlpha(isEmpty(item.title) ? 0 : 255);
+                //Default stuff for nothing there
+                if(item.title.isEmpty()) {
+                    titleView.setText("Setup sites");
+                }
             }
 
             // Possible subtitle.

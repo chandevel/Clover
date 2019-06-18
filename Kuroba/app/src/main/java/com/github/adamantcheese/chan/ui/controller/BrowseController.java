@@ -39,6 +39,8 @@ import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.layout.BrowseBoardsFloatingMenu;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
+import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
+import com.github.adamantcheese.chan.ui.toolbar.ToolbarContainer;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
@@ -99,8 +101,9 @@ public class BrowseController extends ThreadController implements
     public void showSitesNotSetup() {
         super.showSitesNotSetup();
 
-        HintPopup hint = HintPopup.show(context, getToolbar(), R.string.thread_empty_setup_hint);
-        hint.alignLeft();
+        View hintView = getToolbar().findViewById(R.id.title_container);
+        HintPopup hint = HintPopup.show(context, hintView, R.string.thread_empty_setup_hint);
+        hint.alignCenter();
         hint.wiggle();
     }
 
@@ -239,6 +242,16 @@ public class BrowseController extends ThreadController implements
     @Override
     public void onSiteClicked(Site site) {
         presenter.onBoardsFloatingMenuSiteClicked(site);
+    }
+
+    @Override
+    public void openSetup() {
+        SitesSetupController setupController = new SitesSetupController(context);
+        if (doubleNavigationController != null) {
+            doubleNavigationController.pushController(setupController);
+        } else {
+            navigationController.pushController(setupController);
+        }
     }
 
     private void openArchive() {

@@ -21,10 +21,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -39,6 +35,12 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -56,6 +58,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
@@ -138,6 +141,14 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         presenter.create(this, selectedBoard);
         items = presenter.items();
         items.addObserver(this);
+
+        if (items.items.size() == 1) {
+            Board setupBoard = new Board();
+            setupBoard.name = "Setup sites";
+            setupBoard.code = "setup";
+            setupBoard.order = 999999;
+            items.items.add(new Item(1, setupBoard));
+        }
     }
 
     @Override
@@ -156,7 +167,11 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         if (!isInteractive()) return;
 
         if (board != null) {
-            clickCallback.onBoardClicked(board);
+            if (board.order == 999999) {
+                clickCallback.openSetup();
+            } else {
+                clickCallback.onBoardClicked(board);
+            }
         } else {
             clickCallback.onSiteClicked(site);
         }
@@ -459,5 +474,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         void onBoardClicked(Board item);
 
         void onSiteClicked(Site site);
+
+        void openSetup();
     }
 }

@@ -155,8 +155,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 LinkHolder linkHolder = (LinkHolder) holder;
                 switch (position) {
                     case 0:
-                        linkHolder.text.setText(R.string.drawer_sites);
-                        Chan.injector().instance(ThemeHelper.class).getTheme().listAddDrawable.apply(linkHolder.image);
+                        linkHolder.text.setText(R.string.drawer_settings);
+                        Chan.injector().instance(ThemeHelper.class).getTheme().settingsDrawable.apply(linkHolder.image);
                         break;
                     case 1:
                         linkHolder.text.setText(R.string.drawer_history);
@@ -365,7 +365,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             itemView.setOnClickListener(v -> {
                 switch (getAdapterPosition()) {
                     case 0:
-                        callback.openSites();
+                        callback.openSettings();
                         break;
                     case 1:
                         callback.openHistory();
@@ -405,7 +405,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         void onPinRemoved(Pin pin);
 
-        void openSites();
+        void openSettings();
 
         void openHistory();
     }
