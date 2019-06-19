@@ -16,7 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.utils.Logger;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -45,8 +47,6 @@ public class VichanAntispam {
     private static final String TAG = "Antispam";
     private HttpUrl url;
 
-    private OkHttpClient okHttpClient = new OkHttpClient();
-
     private List<String> fieldsToIgnore = new ArrayList<>();
 
     public VichanAntispam(HttpUrl url) {
@@ -66,7 +66,7 @@ public class VichanAntispam {
                 .url(url)
                 .build();
         try {
-            Response response = okHttpClient.newCall(request).execute();
+            Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute();
             ResponseBody body = response.body();
             if (body != null) {
                 Document document = Jsoup.parse(body.string());

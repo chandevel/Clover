@@ -23,6 +23,7 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -52,7 +53,6 @@ public class FileCacheDownloader implements Runnable {
     private static final long BUFFER_SIZE = 8192;
     private static final long NOTIFY_SIZE = BUFFER_SIZE * 8;
 
-    private final OkHttpClient httpClient;
     private final String url;
     private final File output;
     private final Handler handler;
@@ -71,15 +71,12 @@ public class FileCacheDownloader implements Runnable {
     private ResponseBody body;
 
     static FileCacheDownloader fromCallbackClientUrlOutputUserAgent(
-            Callback callback, OkHttpClient httpClient, String url,
-            File output) {
-        return new FileCacheDownloader(callback, httpClient, url, output);
+            Callback callback, String url, File output) {
+        return new FileCacheDownloader(callback, url, output);
     }
 
-    private FileCacheDownloader(Callback callback, OkHttpClient httpClient,
-                                String url, File output) {
+    private FileCacheDownloader(Callback callback, String url, File output) {
         this.callback = callback;
-        this.httpClient = httpClient;
         this.url = url;
         this.output = output;
 
@@ -233,7 +230,7 @@ public class FileCacheDownloader implements Runnable {
                 .header("User-Agent", NetModule.USER_AGENT)
                 .build();
 
-        call = httpClient.newBuilder()
+        call = Chan.injector().instance(OkHttpClient.class).newBuilder()
                 .proxy(ChanSettings.getProxy())
                 .build()
                 .newCall(request);

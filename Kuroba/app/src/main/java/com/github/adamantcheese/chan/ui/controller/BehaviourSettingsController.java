@@ -150,8 +150,8 @@ public class BehaviourSettingsController extends SettingsController {
                     ChanSettings.openLinkBrowser,
                     R.string.setting_open_link_browser, 0));
 
-            postingTimeoutSetting = addPostingTimeoutSetting();
-            post.add(postingTimeoutSetting);
+            //postingTimeoutSetting = addPostingTimeoutSetting();
+            //post.add(postingTimeoutSetting);
 
             groups.add(post);
         }

@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.captcha.v1;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.ConsoleMessage;
@@ -29,6 +28,9 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.NonNull;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -55,8 +57,6 @@ public class CaptchaNojsLayoutV1 extends WebView implements AuthenticationLayout
     private AuthenticationLayoutCallback callback;
     private String baseUrl;
     private String siteKey;
-
-    private OkHttpClient okHttpClient = new OkHttpClient();
 
     private String webviewUserAgent;
 
@@ -145,7 +145,7 @@ public class CaptchaNojsLayoutV1 extends WebView implements AuthenticationLayout
                 .header("User-Agent", webviewUserAgent)
                 .header("Referer", baseUrl)
                 .build();
-        okHttpClient.newCall(request).enqueue(new Callback() {
+        Chan.injector().instance(OkHttpClient.class).newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
             }

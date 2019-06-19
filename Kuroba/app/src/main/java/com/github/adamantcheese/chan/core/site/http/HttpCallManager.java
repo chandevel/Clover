@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.site.http;
 
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -76,6 +77,6 @@ public class HttpCallManager {
         requestBuilder.header("User-Agent", NetModule.USER_AGENT);
         Request request = requestBuilder.build();
 
-        client.newCall(request).enqueue(httpCall);
+        Chan.injector().instance(OkHttpClient.class).newCall(request).enqueue(httpCall);
     }
 }

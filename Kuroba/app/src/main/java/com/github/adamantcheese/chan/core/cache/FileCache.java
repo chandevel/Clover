@@ -33,23 +33,15 @@ import okhttp3.Protocol;
 
 public class FileCache implements FileCacheDownloader.Callback {
     private static final String TAG = "FileCache";
-    private static final int TIMEOUT = 10000;
     private static final int DOWNLOAD_POOL_SIZE = 2;
 
     private final ExecutorService downloadPool = Executors.newFixedThreadPool(DOWNLOAD_POOL_SIZE);
-    protected OkHttpClient httpClient;
 
     private final CacheHandler cacheHandler;
 
     private List<FileCacheDownloader> downloaders = new ArrayList<>();
 
     public FileCache(File directory) {
-        httpClient = new OkHttpClient.Builder()
-                .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .build();
-
         cacheHandler = new CacheHandler(directory);
     }
 
@@ -136,7 +128,7 @@ public class FileCache implements FileCacheDownloader.Callback {
     private FileCacheDownloader handleStartDownload(
             FileCacheListener listener, File file, String url) {
         FileCacheDownloader downloader = FileCacheDownloader.fromCallbackClientUrlOutputUserAgent(
-                this, httpClient, url, file);
+                this, url, file);
         if (listener != null) {
             downloader.addListener(listener);
         }
