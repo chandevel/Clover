@@ -81,10 +81,6 @@ public class AppearanceSettingsController extends SettingsController {
                     R.string.setting_enable_reply_fab,
                     R.string.setting_enable_reply_fab_description)));
 
-            layout.add(new BooleanSettingView(this,
-                    ChanSettings.enableReplyCount,
-                    R.string.setting_enable_reply_count, 0));
-
             requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.accessibleInfo,
                     "Enable accessible post info",
