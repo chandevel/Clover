@@ -48,8 +48,6 @@ public class FileCache implements FileCacheDownloader.Callback {
                 .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                 .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                 .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                // Disable SPDY, causes reproducible timeouts, only one download at the same time and other fun stuff
-                .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                 .build();
 
         cacheHandler = new CacheHandler(directory);
