@@ -245,6 +245,7 @@ If the pattern matches then the post can be hidden, removed, highlighted, or aut
     <string name="filter_id">ID</string>
     <string name="filter_subject">Subject</string>
     <string name="filter_filename">Filename</string>
+    <string name="filter_country_code">Country code</string>
 
     <string name="board_select_all">Select all</string>
     <string name="board_select_none">Select none</string>
