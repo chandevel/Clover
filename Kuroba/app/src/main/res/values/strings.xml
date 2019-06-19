@@ -64,11 +64,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
         <item quantity="other">%d posts</item>
     </plurals>
 
-    <plurals name="quotes">
-        <item quantity="one">%d quotes</item>
-        <item quantity="other">%d quotes</item>
-    </plurals>
-
     <plurals name="reply">
         <item quantity="one">%d reply</item>
         <item quantity="other">%d replies</item>

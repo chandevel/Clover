@@ -154,7 +154,6 @@ public class ChanSettings {
     public static final BooleanSetting saveServerFilename;
     public static final BooleanSetting shareUrl;
     public static final BooleanSetting enableReplyFab;
-    public static final BooleanSetting enableReplyCount;
     public static final BooleanSetting accessibleInfo;
     public static final BooleanSetting anonymize;
     public static final BooleanSetting anonymizeIds;
@@ -239,7 +238,6 @@ public class ChanSettings {
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
         accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);
         enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
-        enableReplyCount = new BooleanSetting(p, "preference_enable_you_count", false);
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
         showAnonymousName = new BooleanSetting(p, "preference_show_anonymous_name", false);
