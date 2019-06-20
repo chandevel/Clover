@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         minSdkVersion 22
-        targetSdkVersion 28
+        targetSdkVersion 29
 
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
         // (watch out for octal notation, never start with a 0)
@@ -17,7 +17,7 @@ android {
         //or if there are big application level changes like tearing out/adding major features
         //bump the PATCH (ZZ) version otherwise, for anything small
         versionCode 40300
-        versionName "v4.3.0"
+        versionName "v4.3.0-dev"
 
         applicationId "com.github.adamantcheese.chan"
         //this is your update endpoint, change it to your repository
