@@ -45,7 +45,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParser {
-    private static final String SAVED_REPLY_SUFFIX = " (You)";
+    private static final String SAVED_REPLY_SELF_SUFFIX = " (Me)";
+    private static final String SAVED_REPLY_OTHER_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
     private static final String EXTERN_THREAD_LINK_SUFFIX = " \u2192"; // arrow to the right
 
@@ -151,7 +152,11 @@ public class CommentParser {
 
                 // Append (You) when it's a reply to an saved reply
                 if (callback.isSaved(postNo)) {
-                    handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_SUFFIX);
+                    if (post.isSavedReply) {
+                        handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_SELF_SUFFIX);
+                    } else {
+                        handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_OTHER_SUFFIX);
+                    }
                 }
             }
 
