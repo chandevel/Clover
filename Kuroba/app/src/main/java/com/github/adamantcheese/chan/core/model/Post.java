@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -175,7 +176,7 @@ public class Post implements Comparable<Post> {
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
     }
 
-    @MainThread
+    @AnyThread
     public boolean isSticky() {
         return sticky;
     }

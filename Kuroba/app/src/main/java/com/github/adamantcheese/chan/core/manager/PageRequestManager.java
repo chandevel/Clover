@@ -61,7 +61,7 @@ public class PageRequestManager implements SiteActions.PagesListener {
     }
 
     public void forceUpdateForBoard(Board b) {
-        Board localBoardCopy = b.clone(); //clone the board so that if for any reason the GC decides
+        final Board localBoardCopy = b.clone(); //clone the board so that if for any reason the GC decides
         // to eat the other variable, this one is still around for the delayed function call
         Handler mainThread = new Handler(Looper.getMainLooper());
         mainThread.postDelayed(() -> shouldUpdate(localBoardCopy, true), THIRTY_SECONDS);
