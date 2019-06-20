@@ -313,15 +313,13 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             if (ChanSettings.autoLoadThreadImages.get()) {
                 FileCache cache = Chan.injector().instance(FileCache.class);
                 for (Post p : result.posts) {
-                    if (p.images != null) {
-                        for (PostImage i : p.images) {
-                            if (cache.exists(i.imageUrl.toString())) continue;
-                            if ((i.type == PostImage.Type.STATIC || i.type == PostImage.Type.GIF)
-                                    && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
-                                cache.downloadFile(i.imageUrl.toString(), null);
-                            } else if (i.type == PostImage.Type.MOVIE && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
-                                cache.downloadFile(i.imageUrl.toString(), null);
-                            }
+                    for (PostImage i : p.images) {
+                        if (cache.exists(i.imageUrl.toString())) continue;
+                        if ((i.type == PostImage.Type.STATIC || i.type == PostImage.Type.GIF)
+                                && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
+                            cache.downloadFile(i.imageUrl.toString(), null);
+                        } else if (i.type == PostImage.Type.MOVIE && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
+                            cache.downloadFile(i.imageUrl.toString(), null);
                         }
                     }
                 }
@@ -637,7 +635,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
             Board board = loadable.site.board(link.board);
             if (board != null) {
-                Loadable thread = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(board.site, board, link.threadId, PostHelper.getTitle(post, null)));
+                Loadable thread = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(board.site, board, link.threadId, ""));
                 thread.markedNo = link.postId;
 
                 threadPresenterCallback.showThread(thread);
