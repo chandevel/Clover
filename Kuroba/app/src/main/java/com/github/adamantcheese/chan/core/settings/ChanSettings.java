@@ -203,6 +203,8 @@ public class ChanSettings {
 
     public static final OptionsSetting<PostingTimeout> postingTimeout;
 
+    public static final BooleanSetting autoCrashEmoji;
+
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
@@ -298,6 +300,8 @@ public class ChanSettings {
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
 
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
+
+        autoCrashEmoji = new BooleanSetting(p, "crash_emoji", false);
     }
 
     public static ThemeColor getThemeAndColor() {
