@@ -23,6 +23,9 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "pin")
 public class Pin implements Comparable<Pin>, Cloneable {
+    public static final int WATCH_NEW_POSTS = 1 << 0;
+    public static final int DOWNLOAD_NEW_POSTS = 1 << 1;
+
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -88,7 +91,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
         this.thumbnailUrl = thumbnailUrl;
         this.order = order;
         this.archived = archived;
-        this.pinType = pinType.typeValue;
+        this.pinType = pinType.getTypeValue();
     }
 
     public int getNewPostCount() {
@@ -129,44 +132,5 @@ public class Pin implements Comparable<Pin>, Cloneable {
     @Override
     public int compareTo(@NonNull Pin o) {
         return this.order - o.order;
-    }
-
-    public enum PinType {
-        WatchNewPosts(1 << 0),
-        DownloadNewPosts(1 << 1),
-        WatchAndDownload(WatchNewPosts.typeValue | DownloadNewPosts.typeValue);
-
-        private int typeValue;
-
-        public int getTypeValue() {
-            return typeValue;
-        }
-
-        public boolean hasDownloadFlag() {
-            return (typeValue & DownloadNewPosts.typeValue) != 0;
-        }
-
-        PinType(int typeValue) {
-            this.typeValue = typeValue;
-        }
-
-        // TODO: test
-        public void removeFlag(PinType flag) {
-            if ((typeValue & flag.typeValue) != 0) {
-                typeValue &= ~(1 << flag.typeValue);
-            }
-        }
-
-        public static PinType from(int value) {
-            if (value == WatchNewPosts.typeValue) {
-                return WatchNewPosts;
-            } else if (value == DownloadNewPosts.typeValue) {
-                return DownloadNewPosts;
-            } else if (value == WatchAndDownload.typeValue) {
-                return WatchAndDownload;
-            }
-
-            throw new IllegalArgumentException("Not implemented for " + value);
-        }
     }
 }

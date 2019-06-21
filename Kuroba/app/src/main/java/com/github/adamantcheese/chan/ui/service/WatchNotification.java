@@ -44,6 +44,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -155,13 +156,13 @@ public class WatchNotification extends Service {
         List<Pin> subjectPins = new ArrayList<>();
 
         HashMap<SavedThread, Pair<Loadable, List<Post>>> unviewedPostsByThread = new HashMap<>();
-        HashMap<Pin.PinType, List<Pin>> pinsByType = new HashMap<>();
+        HashMap<PinType, List<Pin>> pinsByType = new HashMap<>();
 
         int flags = 0;
 
         // TODO: separate pins by type and do pin jobs separately
 //        for (Pin pin : watchManager.getWatchingPins()) {
-//            Pin.PinType pinType = Pin.PinType.from(pin.pinType);
+//            PinType pinType = PinType.from(pin.getTypeValue());
 //
 //            if (!pinsByType.containsKey(pinType)) {
 //                pinsByType.put(pinType, new ArrayList<>());

@@ -26,7 +26,7 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -250,7 +250,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 if (loadable.isThreadMode()) {
                     ChanThread thread = callback.getThread();
                     if (thread != null) {
-                        watchManager.createPin(loadable, thread.op, Pin.PinType.WatchNewPosts);
+                        watchManager.createPin(loadable, thread.op, PinType.WatchNewPosts);
                     }
                 } else {
                     Loadable postedLoadable = databaseManager.getDatabaseLoadableManager()

@@ -23,7 +23,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -162,7 +162,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                     if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
                         Loadable pinLoadable = Loadable.forThread(result.loadable.site, p.board, p.no, PostHelper.getTitle(p, result.loadable));
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
-                        watchManager.createPin(pinLoadable, p, Pin.PinType.WatchNewPosts);
+                        watchManager.createPin(pinLoadable, p, PinType.WatchNewPosts);
                         toAdd.add(p.no);
                     }
                 }

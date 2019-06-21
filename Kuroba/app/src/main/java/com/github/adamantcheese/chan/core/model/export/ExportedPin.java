@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.core.model.export;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.google.gson.annotations.SerializedName;
 
 public class ExportedPin {
@@ -50,7 +50,7 @@ public class ExportedPin {
     @Nullable
     private ExportedLoadable exportedLoadable;
     @SerializedName("pin_type")
-    private Pin.PinType pinType;
+    private PinType pinType;
 
     public ExportedPin(
             boolean archived,
@@ -67,7 +67,7 @@ public class ExportedPin {
             boolean watching,
             @NonNull
             ExportedLoadable exportedLoadable,
-            Pin.PinType pinType
+            PinType pinType
     ) {
         this.archived = archived;
         this.pinId = pinId;
@@ -134,8 +134,8 @@ public class ExportedPin {
         return exportedLoadable;
     }
 
-    public Pin.PinType getPinType() {
+    public PinType getPinType() {
         // WatchNewPosts is the default pin behavior
-        return pinType != null ? pinType : Pin.PinType.WatchNewPosts;
+        return pinType != null ? pinType : PinType.WatchNewPosts;
     }
 }

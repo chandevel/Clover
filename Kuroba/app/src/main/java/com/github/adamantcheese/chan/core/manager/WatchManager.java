@@ -35,6 +35,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -160,14 +161,14 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     public boolean createPin(Loadable loadable) {
-        return createPin(loadable, null, Pin.PinType.WatchNewPosts);
+        return createPin(loadable, null, PinType.WatchNewPosts);
     }
 
-    public boolean createPin(Loadable loadable, @Nullable Post opPost, Pin.PinType pinType) {
+    public boolean createPin(Loadable loadable, @Nullable Post opPost, PinType pinType) {
         return createPin(loadable, opPost, pinType, true);
     }
 
-    public boolean createPin(Loadable loadable, @Nullable Post opPost, Pin.PinType pinType, boolean sendBroadcast) {
+    public boolean createPin(Loadable loadable, @Nullable Post opPost, PinType pinType, boolean sendBroadcast) {
         Pin pin = new Pin();
         pin.loadable = loadable;
         pin.loadable.title = PostHelper.getTitle(opPost, loadable);
@@ -646,7 +647,7 @@ public class WatchManager implements WakeManager.Wakeable {
                 continue;
             }
 
-            if ((Pin.PinType.from(pin.pinType).hasDownloadFlag())) {
+            if ((PinType.from(pin.pinType).hasDownloadFlag())) {
                 pinsWithDownloadFlag.add(pin);
             }
         }
