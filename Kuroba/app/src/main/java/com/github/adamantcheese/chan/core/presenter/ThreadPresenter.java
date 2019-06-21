@@ -76,10 +76,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
@@ -125,7 +121,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded;
     private Context context;
-    private CompositeDisposable compositeDisposable;
 
     @Inject
     public ThreadPresenter(WatchManager watchManager,
@@ -142,7 +137,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
     public void create(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
-        compositeDisposable = new CompositeDisposable();
     }
 
     public void showNoContent() {
@@ -284,16 +278,19 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             List<Post> postsToSave,
             Pin newPin,
             ThreadPrefetchCallback callback) {
-        Disposable result = watchManager.startSavingThread(loadable, postsToSave, this)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        (res) -> {
-                            EventBus.getDefault().post(new WatchManager.PinMessages.PinAddedMessage(newPin));
-                            callback.onPrefetchEnded();
-                        },
-                        (error) -> Logger.e(TAG, "Could not start saving a thread", error));
+        watchManager.startSavingThread(loadable, postsToSave, new ThreadSaveManager.ResultCallback() {
+            @Override
+            public void onResult(boolean result) {
+                EventBus.getDefault().post(new WatchManager.PinMessages.PinAddedMessage(newPin));
+                callback.onPrefetchEnded();
+            }
 
-        compositeDisposable.add(result);
+            @Override
+            public void onError(Throwable error) {
+                Logger.e(TAG, "Could not start saving a thread", error);
+            }
+        }, this);
+
     }
 
     @Override
@@ -1020,9 +1017,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public void destroy() {
-        // TODO
-//        compositeDisposable.dispose();
-        watchManager.removePrefetchDownloadCallback();
+        watchManager.removePrefetchDownloadCallback(loadable);
     }
 
     public void updateLoadable(boolean isSavedCopy) {

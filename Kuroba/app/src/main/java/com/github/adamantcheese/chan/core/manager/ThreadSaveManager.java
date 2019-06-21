@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.core.manager;
 import android.annotation.SuppressLint;
 import android.util.Pair;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -25,8 +26,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +39,8 @@ import javax.inject.Inject;
 
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.processors.PublishProcessor;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -61,15 +65,8 @@ public class ThreadSaveManager {
     private DatabaseSavedThreadManager databaseSavedThreadManager;
     private SavedThreadLoaderRepository savedThreadLoaderRepository;
 
-    private ConcurrentHashMap<Loadable, Boolean> activeDownloads = new ConcurrentHashMap<>();
-
-    /**
-     * Prefetch download is active when user clicks the save thread button and a dialog with progressbar
-     * shows up. This dialog is supposed to not be cancelable so only one prefetch download should
-     * be active at a time. If user rotates a phone or application configuration changes for some
-     * different reason we want to remove the callback to avoid memory leaks.
-     * */
-    private AtomicReference<DownloadingCallback> prefetchDownload = new AtomicReference<>(null);
+    @GuardedBy("itself")
+    private final Map<Loadable, SaveThreadParameters> activeDownloads = new HashMap<>();
 
     private OkHttpClient okHttpClient = new OkHttpClient()
             .newBuilder()
@@ -80,10 +77,11 @@ public class ThreadSaveManager {
     private ExecutorService executorService = Executors.newFixedThreadPool(
             Runtime.getRuntime().availableProcessors());
 
+    private PublishProcessor<Loadable> workerQueue = PublishProcessor.create();
+
     // TODO: get permissions
     // TODO: don't use postImage extension for thumbnail (they are probably either jpegs or pngs)
     // TODO: check whenther pin watcher is on or off before start saving a thread
-    // TODO: show progressbar when preloading a thread
     // TODO: do not forget about clearing composite distosables
 
     @Inject
@@ -95,47 +93,166 @@ public class ThreadSaveManager {
         this.databaseManager = databaseManager;
         this.savedThreadLoaderRepository = savedThreadLoaderRepository;
         this.databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadmanager();
+
+        initRxWorkerQueue();
     }
 
     /**
-     * Used to remove callback from prefetchDownload atomic reference to avoid memory leaks.
+     * Initializes main rx queue that is going to accept new downloading requests and process them
+     * sequentially.
+     *
+     * This class is a singleton so we don't really care about disposing of the rx streams
      * */
-    public void removePrefetchDownloadCallback() {
-        prefetchDownload.set(null);
+    @SuppressLint("CheckResult")
+    private void initRxWorkerQueue() {
+        workerQueue.concatMapSingle((loadable) -> {
+            SaveThreadParameters parameters;
+
+            synchronized (activeDownloads) {
+                Logger.d(TAG, "New downloading request started, activeDownloads count = " + activeDownloads.size());
+                parameters = activeDownloads.get(loadable);
+            }
+
+            if (parameters == null) {
+                throw new ParametersNotFoundException(loadable);
+            }
+
+            return saveThreadInternal(loadable, parameters.getPostsToSave())
+                    .subscribeOn(Schedulers.from(executorService))
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnError((error) -> onDownloadingError(error, loadable))
+                    .doOnSuccess((result) -> onDownloadingCompleted(result, loadable))
+                    .doOnEvent((result, error) -> Logger.d(TAG, "Downloading request has completed, activeDownloads count = " + activeDownloads.size()))
+                    // Suppress all of the exceptions so that the stream does not complete
+                    .onErrorReturnItem(false);
+        }).subscribe(
+                (res) -> {},
+                (error) -> Logger.e(TAG, "Uncaught exception!!!", error),
+                () -> Logger.e(TAG, "BAD!!! workerQueue stream has completed!!! This should happen!!!"));
     }
 
     /**
-     * Saves a thread's posts with all the images/webm/etc to the disk. Callback parameter is used for
-     * when user clicks "save thread" button to show downloading progress. Callback may be removed at
-     * any time during the download.
+     * Enqueues a thread's posts with all the images/webm/etc to be saved to the disk.
+     *
+     * @param downloadingCallback is used for when user clicks "save thread" button to show downloading progress.
+     * Callback may be removed at any time during the download.
+     * @param resultCallback is used for delivering the result of a download.
      * */
-    public Single<Boolean> saveThread(
+    public void enqueueThreadToSave(
             Loadable loadable,
             List<Post> postsToSave,
-            @Nullable DownloadingCallback callback) {
-        if (activeDownloads.containsKey(loadable)) {
-            Logger.d(TAG, "Downloader is already running for " + loadable);
-            return Single.just(true);
+            ResultCallback resultCallback,
+            @Nullable DownloadingCallback downloadingCallback) {
+
+        synchronized (activeDownloads) {
+            if (activeDownloads.containsKey(loadable)) {
+                Logger.d(TAG, "Downloader is already running for " + loadable);
+                return;
+            }
         }
 
-        if (callback != null) {
-            if (!prefetchDownload.compareAndSet(null, callback)) {
+        // We don't want to have two downloading callbacks set at the same time.
+        // We assume that user can't start prefetching two different threads at the same time.
+        if (downloadingCallback != null) {
+            if (isDownloadingCallbackAlreadyAdded()) {
                 throw new RuntimeException("Cannot have more than one prefetch download at a time!");
             }
         }
 
-        return saveThreadInternal(loadable, postsToSave)
-                .doOnSubscribe((disposable) -> activeDownloads.put(loadable, true))
-                .doFinally(() -> {
-                    activeDownloads.remove(loadable);
-                    prefetchDownload.compareAndSet(callback, null);
-                })
-                .subscribeOn(Schedulers.from(executorService));
+        SaveThreadParameters parameters = new SaveThreadParameters(
+                loadable,
+                postsToSave,
+                resultCallback,
+                downloadingCallback);
+
+        // Store the parameter of this download
+        synchronized (activeDownloads) {
+            activeDownloads.put(loadable, parameters);
+        }
+
+        // Enqueue the download
+        workerQueue.onNext(loadable);
+    }
+
+    public void removeCallbacks(Loadable loadable) {
+        synchronized (activeDownloads) {
+            SaveThreadParameters parameters = activeDownloads.get(loadable);
+            if (parameters == null) {
+                return;
+            }
+
+            parameters.removeCallbacks();
+        }
+    }
+
+    private void onDownloadingCompleted(boolean result, Loadable loadable) {
+        synchronized (activeDownloads) {
+            SaveThreadParameters saveThreadParameters = activeDownloads.get(loadable);
+            if (saveThreadParameters == null) {
+                return;
+            }
+
+            AtomicReference<ResultCallback> resultCallbackRef = saveThreadParameters.getResultCallback();
+            if (resultCallbackRef != null) {
+                ResultCallback resultCallback = resultCallbackRef.get();
+                if (resultCallback != null) {
+                    resultCallback.onResult(result);
+                }
+            }
+
+            saveThreadParameters.removeCallbacks();
+            activeDownloads.remove(loadable);
+        }
+    }
+
+    private void onDownloadingError(Throwable error, Loadable loadable) {
+        synchronized (activeDownloads) {
+            SaveThreadParameters saveThreadParameters = activeDownloads.get(loadable);
+            if (saveThreadParameters == null) {
+                return;
+            }
+
+            AtomicReference<ResultCallback> resultCallbackRef = saveThreadParameters.getResultCallback();
+            if (resultCallbackRef != null) {
+                ResultCallback resultCallback = resultCallbackRef.get();
+                if (resultCallback != null) {
+                    if (isFatalException(error)) {
+                        resultCallback.onError(error);
+                    }
+                }
+            }
+
+            saveThreadParameters.removeCallbacks();
+            activeDownloads.remove(loadable);
+        }
+    }
+
+    private boolean isDownloadingCallbackAlreadyAdded() {
+        synchronized (activeDownloads) {
+            for (Map.Entry<Loadable, SaveThreadParameters> entry : activeDownloads.entrySet()) {
+                if (entry.getValue().getDownloadingCallback().get() != null) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     // TODO: We should load images before post filtering, because if an image was not downloaded
     //  because of an error it won't be re downloaded next time since the post with the image will
     //  be filtered
+
+    /**
+     * Saves provided posts to a json file called "thread.json". Also saved all of the files that the
+     * posts contain.
+     *
+     * @param loadable is a unique identifier of a thread we are saving.
+     * @param postsToSave posts of a thread to be saved.
+     *
+     * @return false when there are no new posts to save (we already have of the provided posts saved)
+     * and true when there were new posts to save and we have successfully saved them.
+     * */
     @SuppressLint("CheckResult")
     private Single<Boolean> saveThreadInternal(Loadable loadable, List<Post> postsToSave) {
         return Single.fromCallable(() -> {
@@ -153,7 +270,7 @@ public class ThreadSaveManager {
             List<Post> newPosts = filterAndSortPosts(loadable.id, postsToSave);
             if (newPosts.isEmpty()) {
                 Logger.d(TAG, "No new posts for a thread " + loadable.no);
-                return false;
+                throw new NoNewPostsToSaveException();
             }
 
             int postsWithImages = calculateAmountOfPostsWithImages(newPosts);
@@ -187,7 +304,7 @@ public class ThreadSaveManager {
                 }
             }
 
-            sendStartEvent();
+            sendStartEvent(loadable);
 
             // Get spoiler image url and extension
             // Pair<Extension, Url>
@@ -231,6 +348,7 @@ public class ThreadSaveManager {
                             //                   |
                             .flatMap((post) -> {
                                 return downloadImages(
+                                        loadable,
                                         threadSaveDirImages,
                                         post,
                                         currentImageDownloadIndex,
@@ -257,7 +375,7 @@ public class ThreadSaveManager {
                 deleteThread(loadable, loadable.no);
                 throw new Exception(error);
             } finally {
-                sendEndEvent();
+                sendEndEvent(loadable);
             }
         });
     }
@@ -339,6 +457,7 @@ public class ThreadSaveManager {
     }
 
     private Flowable<Boolean> downloadImages(
+            Loadable loadable,
             File threadSaveDirImages,
             Post post,
             AtomicInteger currentImageDownloadIndex,
@@ -388,7 +507,10 @@ public class ThreadSaveManager {
                         Logger.e(TAG, "Error while trying to download image " + postImage.originalName, error);
                     })
                     .doOnEvent((result, event) -> {
-                        sendProgressEvent(currentImageDownloadIndex, postsWithImagesCount);
+                        sendProgressEvent(
+                                loadable,
+                                currentImageDownloadIndex,
+                                postsWithImagesCount);
                     })
                     .onErrorReturnItem(false);
                 });
@@ -503,16 +625,26 @@ public class ThreadSaveManager {
         IOUtils.deleteDirWithContents(threadSaveDir.getParentFile());
     }
 
-    private void sendStartEvent() {
-        DownloadingCallback callback = prefetchDownload.get();
+    /**
+     * Sends start event to the callback that renders LoadingView. This event will show the LoadingView.
+     * */
+    private void sendStartEvent(Loadable loadable) {
+        DownloadingCallback callback = getDownloadingCallback(loadable);
         if (callback != null) {
             Logger.d(TAG, "Started downloading thread");
             callback.onStartedDownloading();
         }
     }
 
-    private void sendProgressEvent(AtomicInteger currentImageDownloadIndex, int postsWithImagesCount) {
-        DownloadingCallback callback = prefetchDownload.get();
+    /**
+     * Sends progress event to the callback that renders LoadingView.
+     * This event will advance the progress bar.
+     * */
+    private void sendProgressEvent(
+            Loadable loadable,
+            AtomicInteger currentImageDownloadIndex,
+            int postsWithImagesCount) {
+        DownloadingCallback callback = getDownloadingCallback(loadable);
         if (callback != null) {
             // postsWithImagesCount may be 0 so we need to avoid division by zero
             int count = postsWithImagesCount == 0 ? 1 : postsWithImagesCount;
@@ -527,12 +659,41 @@ public class ThreadSaveManager {
         }
     }
 
-    private void sendEndEvent() {
-        DownloadingCallback callback = prefetchDownload.get();
+    /**
+     * Sends end event to the callback that renders LoadingView. This event will hide the LoadingView.
+     * */
+    private void sendEndEvent(Loadable loadable) {
+        DownloadingCallback callback = getDownloadingCallback(loadable);
         if (callback != null) {
             Logger.d(TAG, "Completed downloading thread");
             callback.onCompletedDownloading();
         }
+    }
+
+    @Nullable
+    private DownloadingCallback getDownloadingCallback(Loadable loadable) {
+        synchronized (activeDownloads) {
+            SaveThreadParameters saveThreadParameters = activeDownloads.get(loadable);
+            if (saveThreadParameters == null) {
+                return null;
+            }
+
+            AtomicReference<DownloadingCallback> downloadingCallbackRef =
+                    saveThreadParameters.getDownloadingCallback();
+            if (downloadingCallbackRef == null) {
+                return null;
+            }
+
+            return downloadingCallbackRef.get();
+        }
+    }
+
+    private boolean isFatalException(Throwable error) {
+        if (error instanceof NoNewPostsToSaveException) {
+            return false;
+        }
+
+        return true;
     }
 
     public static String formatThumbnailImageName(String originalName, String extension) {
@@ -576,10 +737,66 @@ public class ThreadSaveManager {
                 loadable.boardCode;
     }
 
+    public interface ResultCallback {
+        void onResult(boolean result);
+        void onError(Throwable error);
+    }
+
     public interface DownloadingCallback {
         void onStartedDownloading();
         void onProgress(int percent);
         void onCompletedDownloading();
+    }
+
+    public static class SaveThreadParameters {
+        private Loadable loadable;
+        private List<Post> postsToSave;
+        private AtomicReference<ResultCallback> resultCallback;
+        private AtomicReference<DownloadingCallback> downloadingCallback;
+
+        public SaveThreadParameters(
+                Loadable loadable,
+                List<Post> postsToSave,
+                ResultCallback resultCallback,
+                DownloadingCallback downloadingCallback) {
+            this.loadable = loadable;
+            this.postsToSave = postsToSave;
+            this.resultCallback = new AtomicReference<>(resultCallback);
+            this.downloadingCallback = new AtomicReference<>(downloadingCallback);
+        }
+
+        public Loadable getLoadable() {
+            return loadable;
+        }
+
+        public List<Post> getPostsToSave() {
+            return postsToSave;
+        }
+
+        public AtomicReference<ResultCallback> getResultCallback() {
+            return resultCallback;
+        }
+
+        public AtomicReference<DownloadingCallback> getDownloadingCallback() {
+            return downloadingCallback;
+        }
+
+        public void removeCallbacks() {
+            resultCallback.set(null);
+            downloadingCallback.set(null);
+        }
+    }
+
+    class ParametersNotFoundException extends Exception {
+        public ParametersNotFoundException(Loadable loadable) {
+            super("Parameters not found with loadable " + loadable.toString());
+        }
+    }
+
+    class NoNewPostsToSaveException extends Exception {
+        public NoNewPostsToSaveException() {
+            super("No new posts left to save after filtering");
+        }
     }
 
     private static final Comparator<Post> postComparator = (o1, o2) -> Integer.compare(o1.no, o2.no);

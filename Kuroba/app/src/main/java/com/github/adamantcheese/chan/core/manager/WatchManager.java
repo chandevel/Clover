@@ -60,8 +60,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import io.reactivex.Single;
-
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 /**
@@ -216,22 +214,20 @@ public class WatchManager implements WakeManager.Wakeable {
         return true;
     }
 
-    public Single<Boolean> startSavingThread(
+    public void startSavingThread(
             Loadable loadable,
             List<Post> postsToSave,
-            @Nullable ThreadSaveManager.DownloadingCallback callback) {
-        return Single.fromCallable(() -> startSavingThreadInternal(loadable.id))
-                .flatMap((result) -> {
-                    if (!result) {
-                        return Single.just(false);
-                    }
+            ThreadSaveManager.ResultCallback resultCallback,
+            @Nullable ThreadSaveManager.DownloadingCallback downloadingCallback) {
+        if (!startSavingThreadInternal(loadable.id)) {
+            return;
+        }
 
-                    return threadSaveManager.saveThread(loadable, postsToSave, callback);
-                });
+        threadSaveManager.enqueueThreadToSave(loadable, postsToSave, resultCallback, downloadingCallback);
     }
 
-    public void removePrefetchDownloadCallback() {
-        threadSaveManager.removePrefetchDownloadCallback();
+    public void removePrefetchDownloadCallback(Loadable loadable) {
+        threadSaveManager.removeCallbacks(loadable);
     }
 
     private Boolean startSavingThreadInternal(int loadableId) {

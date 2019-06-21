@@ -54,13 +54,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
-
-import io.reactivex.Flowable;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
@@ -91,8 +88,6 @@ public class WatchNotification extends Service {
     @Inject
     DatabaseManager databaseManager;
 
-    private CompositeDisposable compositeDisposable;
-
     @Override
     public IBinder onBind(final Intent intent) {
         return null;
@@ -103,7 +98,6 @@ public class WatchNotification extends Service {
         super.onCreate();
         inject(this);
 
-        compositeDisposable = new CompositeDisposable();
         ChanSettings.watchLastCount.set(0);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -128,8 +122,6 @@ public class WatchNotification extends Service {
     public void onDestroy() {
         super.onDestroy();
         notificationManager.cancel(NOTIFICATION_ID);
-        // TODO:
-//        compositeDisposable.dispose();
     }
 
     @Override
@@ -271,30 +263,31 @@ public class WatchNotification extends Service {
     /**
      * Saves new posts to the disk. Does duplicates checking internally so it is safe to just
      * pass there all pin posts. Very slow!
-     * */
+     */
     private void updateSavedThreads(HashMap<SavedThread, Pair<Loadable, List<Post>>> allPostsByThread) {
-        Disposable disposable = Flowable.fromIterable(allPostsByThread.entrySet())
-                .flatMapSingle((entry) -> {
-                    Loadable loadable = entry.getValue().first;
-                    List<Post> posts = entry.getValue().second;
+        for (Map.Entry<SavedThread, Pair<Loadable, List<Post>>> entry : allPostsByThread.entrySet()) {
+            Loadable loadable = entry.getValue().first;
+            List<Post> posts = entry.getValue().second;
 
-                    // This function is really slow since it downloads everything in a thread
-                    // (posts and their images/files)
-                    return threadSaveManager.saveThread(loadable, posts, null)
-                            .doOnError((error) -> {
-                                String threadName = "[board = " + loadable.boardCode + ", title = "
-                                        + loadable.title + ", new posts count = " + posts.size() + "]";
+            // This function is really slow since it downloads everything in a thread
+            // (posts and their images/files)
+            threadSaveManager.enqueueThreadToSave(loadable, posts, new ThreadSaveManager.ResultCallback() {
+                @Override
+                public void onResult(boolean result) {
+                    if (!result) {
+                        Logger.d(TAG, "Result is false for downloading request with loadable " + loadable.toString());
+                    }
+                }
 
-                                Logger.e(TAG, "Could not save a thread " + threadName, error);
-                            })
-                            .onErrorReturnItem(false);
-                })
-                .subscribe(
-                        (res) -> { },
-                        (error) -> Logger.e(TAG, "Error while downloading a thread", error),
-                        () -> { });
+                @Override
+                public void onError(Throwable error) {
+                    String threadName = "[board = " + loadable.boardCode + ", title = "
+                            + loadable.title + ", new posts count = " + posts.size() + "]";
 
-        compositeDisposable.add(disposable);
+                    Logger.e(TAG, "Could not save a thread " + threadName, error);
+                }
+            }, null);
+        }
     }
 
     private Notification setupNotificationTextFields(
