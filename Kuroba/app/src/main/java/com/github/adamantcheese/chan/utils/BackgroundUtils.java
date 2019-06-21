@@ -16,13 +16,20 @@
  */
 package com.github.adamantcheese.chan.utils;
 
+import android.content.Context;
 import android.os.Looper;
+
+import com.github.adamantcheese.chan.Chan;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BackgroundUtils {
+
+    public static boolean isInForeground() {
+        return ((Chan) Chan.injector().instance(Context.class)).getApplicationInForeground();
+    }
 
     public static boolean isMainThread() {
         return Thread.currentThread() == Looper.getMainLooper().getThread();

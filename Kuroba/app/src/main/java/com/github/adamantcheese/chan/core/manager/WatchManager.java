@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -56,6 +55,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.isInForeground;
 
 /**
  * Manages all Pin related management.
@@ -397,10 +397,6 @@ public class WatchManager implements WakeManager.Wakeable {
 
     private void updatePinsInDatabase() {
         databaseManager.runTaskAsync(databasePinManager.updatePins(pins));
-    }
-
-    private boolean isInForeground() {
-        return ((Chan) Chan.injector().instance(Context.class)).getApplicationInForeground();
     }
 
     private boolean isTimerEnabled() {

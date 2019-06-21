@@ -35,7 +35,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -48,7 +47,10 @@ import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter;
 import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
+import com.github.adamantcheese.chan.core.site.common.CommonSite;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.Observable;
@@ -56,7 +58,10 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
+
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.injector;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
@@ -143,11 +148,43 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         items.addObserver(this);
 
         if (items.items.size() == 1) {
-            Board setupBoard = new Board();
-            setupBoard.name = "Setup sites";
-            setupBoard.code = "setup";
-            setupBoard.order = 999999;
-            items.items.add(new Item(1, setupBoard));
+            CommonSite setupSite = new CommonSite() {
+                @Override
+                public void setup() {
+                    setName("App Setup");
+                    setIcon(SiteIcon.fromDrawable(injector().instance(ThemeHelper.class).getTheme().settingsDrawable.makeDrawable(getAppContext())));
+                    setBoardsType(BoardsType.STATIC);
+                    setConfig(new CommonConfig() {
+                    });
+                    setResolvable(new CommonSiteUrlHandler() {
+                        @Override
+                        public HttpUrl getUrl() {
+                            return null;
+                        }
+
+                        @Override
+                        public String[] getNames() {
+                            return new String[0];
+                        }
+
+                        @Override
+                        public Class<? extends Site> getSiteClass() {
+                            return null;
+                        }
+                    });
+                    setEndpoints(new CommonEndpoints(null) {
+                        @Override
+                        public HttpUrl pages(Board board) {
+                            return null;
+                        }
+                    });
+                    setActions(new CommonActions(null) {
+                    });
+                    setParser(new CommentParser());
+                }
+            };
+            setupSite.setup();
+            items.items.add(new Item(1, setupSite));
         }
     }
 
@@ -167,13 +204,13 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         if (!isInteractive()) return;
 
         if (board != null) {
-            if (board.order == 999999) {
+            clickCallback.onBoardClicked(board);
+        } else {
+            if (site.name().equals("App Setup")) {
                 clickCallback.openSetup();
             } else {
-                clickCallback.onBoardClicked(board);
+                clickCallback.onSiteClicked(site);
             }
-        } else {
-            clickCallback.onSiteClicked(site);
         }
         dismiss();
     }

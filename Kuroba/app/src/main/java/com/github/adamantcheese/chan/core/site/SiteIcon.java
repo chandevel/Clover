@@ -34,6 +34,7 @@ public class SiteIcon {
     private static final int FAVICON_SIZE = 64;
 
     private HttpUrl url;
+    private Drawable drawable;
 
     public static SiteIcon fromFavicon(HttpUrl url) {
         SiteIcon siteIcon = new SiteIcon();
@@ -41,11 +42,19 @@ public class SiteIcon {
         return siteIcon;
     }
 
+    public static SiteIcon fromDrawable(Drawable drawable) {
+        SiteIcon siteIcon = new SiteIcon();
+        siteIcon.drawable = drawable;
+        return siteIcon;
+    }
+
     private SiteIcon() {
     }
 
     public void get(SiteIconResult result) {
-        if (url != null) {
+        if (drawable != null) {
+            result.onSiteIcon(SiteIcon.this, drawable);
+        } else if (url != null) {
             injector().instance(ImageLoader.class).get(url.toString(), new ImageLoader.ImageListener() {
                 @Override
                 public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
