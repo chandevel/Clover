@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.util.Pair;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -109,7 +110,8 @@ public class ThreadSaveManager {
             SaveThreadParameters parameters;
 
             synchronized (activeDownloads) {
-                Logger.d(TAG, "New downloading request started, activeDownloads count = " + activeDownloads.size());
+                Logger.d(TAG, "New downloading request started " + loadableToString(loadable)
+                        + ", activeDownloads count = " + activeDownloads.size());
                 parameters = activeDownloads.get(loadable);
             }
 
@@ -122,7 +124,10 @@ public class ThreadSaveManager {
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnError((error) -> onDownloadingError(error, loadable))
                     .doOnSuccess((result) -> onDownloadingCompleted(result, loadable))
-                    .doOnEvent((result, error) -> Logger.d(TAG, "Downloading request has completed, activeDownloads count = " + activeDownloads.size()))
+                    .doOnEvent((result, error) -> {
+                        Logger.d(TAG, "Downloading request has completed"  + loadableToString(loadable) +
+                                ", activeDownloads count = " + activeDownloads.size());
+                    })
                     // Suppress all of the exceptions so that the stream does not complete
                     .onErrorReturnItem(false);
         }).subscribe(
@@ -136,15 +141,19 @@ public class ThreadSaveManager {
      *
      * @param downloadingCallback is used for when user clicks "save thread" button to show downloading progress.
      * Callback may be removed at any time during the download.
+     * @param isFromService is used for removing callbacks for every download that has been started
+     * from the WatchNotification service when it gets destroyed.
      * @param resultCallback is used for delivering the result of a download.
      * */
     public void enqueueThreadToSave(
             Loadable loadable,
             List<Post> postsToSave,
+            boolean isFromService,
             ResultCallback resultCallback,
             @Nullable DownloadingCallback downloadingCallback) {
 
         synchronized (activeDownloads) {
+            // Check if a thread is already being downloaded
             if (activeDownloads.containsKey(loadable)) {
                 Logger.d(TAG, "Downloader is already running for " + loadable);
                 return;
@@ -162,10 +171,11 @@ public class ThreadSaveManager {
         SaveThreadParameters parameters = new SaveThreadParameters(
                 loadable,
                 postsToSave,
+                isFromService,
                 resultCallback,
                 downloadingCallback);
 
-        // Store the parameter of this download
+        // Store the parameters of this download
         synchronized (activeDownloads) {
             activeDownloads.put(loadable, parameters);
         }
@@ -174,6 +184,9 @@ public class ThreadSaveManager {
         workerQueue.onNext(loadable);
     }
 
+    /**
+     * Remove (set to null) callbacks associated with this loadable
+     * */
     public void removeCallbacks(Loadable loadable) {
         synchronized (activeDownloads) {
             SaveThreadParameters parameters = activeDownloads.get(loadable);
@@ -182,6 +195,19 @@ public class ThreadSaveManager {
             }
 
             parameters.removeCallbacks();
+        }
+    }
+
+    /**
+     * Remove (set to null) all callbacks that has been started from the WatchNotification service
+     * */
+    public void removeCallbacksStartedFromService() {
+        synchronized (activeDownloads) {
+            for (Map.Entry<Loadable, SaveThreadParameters> entry : activeDownloads.entrySet()) {
+                if (entry.getValue().isFromService()) {
+                    entry.getValue().removeCallbacks();
+                }
+            }
         }
     }
 
@@ -227,6 +253,10 @@ public class ThreadSaveManager {
         }
     }
 
+    /**
+     * Check whether we already have an active DownloadingCallback. There can only be one
+     * DownloadingCallback at a time.
+     * */
     private boolean isDownloadingCallbackAlreadyAdded() {
         synchronized (activeDownloads) {
             for (Map.Entry<Loadable, SaveThreadParameters> entry : activeDownloads.entrySet()) {
@@ -254,16 +284,12 @@ public class ThreadSaveManager {
      * and true when there were new posts to save and we have successfully saved them.
      * */
     @SuppressLint("CheckResult")
-    private Single<Boolean> saveThreadInternal(Loadable loadable, List<Post> postsToSave) {
+    private Single<Boolean> saveThreadInternal(@NonNull Loadable loadable, List<Post> postsToSave) {
         return Single.fromCallable(() -> {
             Logger.d(TAG, "Starting a new download for " + loadable + ", on thread " + Thread.currentThread().getName());
 
             if (BackgroundUtils.isMainThread()) {
                 throw new RuntimeException("Cannot be executed on the main thread!");
-            }
-
-            if (loadable == null) {
-                throw new NullPointerException("loadable is null");
             }
 
             // Filter out already saved posts and sort new posts in ascending order
@@ -279,29 +305,20 @@ public class ThreadSaveManager {
             String threadSubDir = getThreadSubDir(loadable, loadable.no);
             File threadSaveDir = new File(ChanSettings.saveLocation.get(), threadSubDir);
 
-            if (!threadSaveDir.exists()) {
-                if (!threadSaveDir.mkdirs()) {
-                    throw new IOException("Could not create a directory to save the thread " +
-                            "to (full path: " + threadSaveDir.getAbsolutePath() + ")");
-                }
+            if (!threadSaveDir.exists() && !threadSaveDir.mkdirs()) {
+                throw new CouldNotCreateThreadDirectoryException(threadSaveDir);
             }
 
             File threadSaveDirImages = new File(threadSaveDir, IMAGES_DIR_NAME);
-            if (!threadSaveDirImages.exists()) {
-                if (!threadSaveDirImages.mkdirs()) {
-                    throw new IOException("Could not create a directory to save the thread images" +
-                            "to (full path: " + threadSaveDirImages.getAbsolutePath() + ")");
-                }
+            if (!threadSaveDirImages.exists() && !threadSaveDirImages.mkdirs()) {
+                throw new CouldNotCreateImagesDirectoryException(threadSaveDirImages);
             }
 
             String boardSubDir = getBoardSubDir(loadable);
 
             File boardSaveDir = new File(ChanSettings.saveLocation.get(), boardSubDir);
-            if (!boardSaveDir.exists()) {
-                if (!boardSaveDir.mkdirs()) {
-                    throw new IOException("Could not create a directory to save the spoiler image " +
-                            "to (full path: " + boardSaveDir.getAbsolutePath() + ")");
-                }
+            if (!boardSaveDir.exists() && !boardSaveDir.mkdirs()) {
+                throw new CouldNotCreateSpoilerImageDirectoryException(boardSaveDir);
             }
 
             sendStartEvent(loadable);
@@ -343,9 +360,9 @@ public class ThreadSaveManager {
                             //               |   |   | // (availableProcessors count at a time),
                             //               V   V   V // Combine them back to a single stream,
                             //               \   |   /
-                            //                \  |  /
-                            //                 \ | /
-                            //                   |
+                            //                \  |  /  // There actually as many worker threads as
+                            //                 \ | /   // there are processor cores count on the
+                            //                   |     // user phone.
                             .flatMap((post) -> {
                                 return downloadImages(
                                         loadable,
@@ -380,12 +397,18 @@ public class ThreadSaveManager {
         });
     }
 
+    /**
+     * To avoid saving the same posts every time we need to update LastSavedPostNo in the DB
+     * */
     private void updateLastSavedPostNo(Loadable loadable, List<Post> newPosts) {
         // Update the latests saved post id in the database
         int lastPostNo = newPosts.get(newPosts.size() - 1).no;
         databaseManager.runTask(databaseSavedThreadManager.updateLastSavedPostNo(loadable.id, lastPostNo));
     }
 
+    /**
+     * Calculates how many posts with images we have in total
+     * */
     private int calculateAmountOfPostsWithImages(List<Post> newPosts) {
         int count = 0;
 
@@ -398,6 +421,9 @@ public class ThreadSaveManager {
         return count;
     }
 
+    /**
+     * Returns only the posts that we haven't saved yet. Sorts them in ascending order.
+     * */
     private List<Post> filterAndSortPosts(int loadableId, List<Post> inputPosts) {
         // Filter out already saved posts (by lastSavedPostNo)
         int lastSavedPostNo = databaseManager.runTask(databaseSavedThreadManager.getLastSavedPostNo(loadableId));
@@ -544,6 +570,9 @@ public class ThreadSaveManager {
         }
     }
 
+    /**
+     * Downloads an image with it's thumbnail to the disk
+     * */
     private void downloadImageIntoFile(
             File threadSaveDirImages,
             String filename,
@@ -562,11 +591,17 @@ public class ThreadSaveManager {
                 thumbnailUrl);
     }
 
+    /**
+     * Checks whether the user allows downloading images and other files when there is no Wi-Fi connection
+     * */
     private boolean shouldDownloadImages() {
         return shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get()) &&
                 shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
     }
 
+    /**
+     * Downloads an image and stores it to the disk
+     * */
     private void downloadImage(
             File threadSaveDirImages,
             String filename,
@@ -589,6 +624,9 @@ public class ThreadSaveManager {
         }
     }
 
+    /**
+     * Writes image's bytes to a file
+     * */
     private void storeImageToFile(
             File imageFile,
             Response response) throws IOException {
@@ -614,6 +652,9 @@ public class ThreadSaveManager {
         }
     }
 
+    /**
+     * Deletes a directory with the thread file and all of the images
+     * */
     private void deleteThread(Loadable loadable, int opNo) throws IOException {
         String subDirs = getThreadSubDir(loadable, opNo);
 
@@ -688,12 +729,25 @@ public class ThreadSaveManager {
         }
     }
 
+    /**
+     * Determines whether we should pass this exception to the callback or not.
+     * For instance NoNewPostsToSaveException will be thrown every time when the saveThread is called
+     * and there are no new posts to download left after filtering. We don't want to pass this
+     * exception to the callbacks because this exception is just to stop the downloading process.
+     * */
     private boolean isFatalException(Throwable error) {
         if (error instanceof NoNewPostsToSaveException) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Extracts and converts to a string only the info from the loadable that we are interested in
+     * */
+    private String loadableToString(Loadable loadable) {
+        return "[" + loadable.site.name() + ", " + loadable.boardCode + ", " + loadable.no + "]";
     }
 
     public static String formatThumbnailImageName(String originalName, String extension) {
@@ -751,16 +805,19 @@ public class ThreadSaveManager {
     public static class SaveThreadParameters {
         private Loadable loadable;
         private List<Post> postsToSave;
+        private boolean isFromService;
         private AtomicReference<ResultCallback> resultCallback;
         private AtomicReference<DownloadingCallback> downloadingCallback;
 
         public SaveThreadParameters(
                 Loadable loadable,
                 List<Post> postsToSave,
+                boolean isFromService,
                 ResultCallback resultCallback,
                 DownloadingCallback downloadingCallback) {
             this.loadable = loadable;
             this.postsToSave = postsToSave;
+            this.isFromService = isFromService;
             this.resultCallback = new AtomicReference<>(resultCallback);
             this.downloadingCallback = new AtomicReference<>(downloadingCallback);
         }
@@ -771,6 +828,10 @@ public class ThreadSaveManager {
 
         public List<Post> getPostsToSave() {
             return postsToSave;
+        }
+
+        public boolean isFromService() {
+            return isFromService;
         }
 
         public AtomicReference<ResultCallback> getResultCallback() {
@@ -789,13 +850,34 @@ public class ThreadSaveManager {
 
     class ParametersNotFoundException extends Exception {
         public ParametersNotFoundException(Loadable loadable) {
-            super("Parameters not found with loadable " + loadable.toString());
+            super("Parameters not found with loadable " + loadableToString(loadable));
         }
     }
 
     class NoNewPostsToSaveException extends Exception {
         public NoNewPostsToSaveException() {
             super("No new posts left to save after filtering");
+        }
+    }
+
+    class CouldNotCreateThreadDirectoryException extends Exception {
+        public CouldNotCreateThreadDirectoryException(File threadSaveDir) {
+            super("Could not create a directory to save the thread " +
+                    "to (full path: " + threadSaveDir.getAbsolutePath() + ")");
+        }
+    }
+
+    class CouldNotCreateImagesDirectoryException extends Exception {
+        public CouldNotCreateImagesDirectoryException(File threadSaveDirImages) {
+            super("Could not create a directory to save the thread images" +
+                    "to (full path: " + threadSaveDirImages.getAbsolutePath() + ")");
+        }
+    }
+
+    class CouldNotCreateSpoilerImageDirectoryException extends Exception {
+        public CouldNotCreateSpoilerImageDirectoryException(File boardSaveDir) {
+            super("Could not create a directory to save the spoiler image " +
+                    "to (full path: " + boardSaveDir.getAbsolutePath() + ")");
         }
     }
 

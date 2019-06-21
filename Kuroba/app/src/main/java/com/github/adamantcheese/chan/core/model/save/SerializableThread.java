@@ -4,9 +4,12 @@ import com.github.adamantcheese.chan.core.mapper.PostMapper;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SerializableThread {
     @SerializedName("post_list")
@@ -35,12 +38,20 @@ public class SerializableThread {
 //    }
 
     public SerializableThread merge(List<Post> posts) {
+        Set<SerializablePost> postsSet = new HashSet<>(posts.size() + postList.size());
+        postsSet.addAll(postList);
+
         for (Post post : posts) {
-            // TODO: check duplicates once more just in case
-            postList.add(PostMapper.toSerializablePost(post));
+            postsSet.add(PostMapper.toSerializablePost(post));
         }
 
-        Collections.sort(postList, postComparator);
+        List<SerializablePost> filteredPosts = new ArrayList<>(postsSet.size());
+        filteredPosts.addAll(postsSet);
+
+        Collections.sort(filteredPosts, postComparator);
+
+        postList.clear();
+        postList.addAll(filteredPosts);
         return this;
     }
 

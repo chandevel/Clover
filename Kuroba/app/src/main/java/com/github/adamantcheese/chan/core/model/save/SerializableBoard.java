@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.model.save;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 public class SerializableBoard {
@@ -33,5 +35,32 @@ public class SerializableBoard {
         this.order = order;
         this.name = name;
         this.code = code;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * siteId +
+                31 * name.hashCode() +
+                31 * code.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (other == null) {
+            return false;
+        }
+
+        if (other == this) {
+            return true;
+        }
+
+        if (this.getClass() != other.getClass()) {
+            return false;
+        }
+
+        SerializableBoard otherBoard = (SerializableBoard) other;
+        return this.siteId == otherBoard.siteId
+                && this.name.equals(otherBoard.name)
+                && this.code.equals(otherBoard.code);
     }
 }

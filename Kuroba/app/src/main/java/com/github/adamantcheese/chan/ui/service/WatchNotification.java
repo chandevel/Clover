@@ -122,6 +122,7 @@ public class WatchNotification extends Service {
     public void onDestroy() {
         super.onDestroy();
         notificationManager.cancel(NOTIFICATION_ID);
+        threadSaveManager.removeCallbacksStartedFromService();
     }
 
     @Override
@@ -271,7 +272,7 @@ public class WatchNotification extends Service {
 
             // This function is really slow since it downloads everything in a thread
             // (posts and their images/files)
-            threadSaveManager.enqueueThreadToSave(loadable, posts, new ThreadSaveManager.ResultCallback() {
+            threadSaveManager.enqueueThreadToSave(loadable, posts, true, new ThreadSaveManager.ResultCallback() {
                 @Override
                 public void onResult(boolean result) {
                     if (!result) {

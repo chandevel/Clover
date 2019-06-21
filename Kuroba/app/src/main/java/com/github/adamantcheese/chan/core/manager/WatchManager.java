@@ -223,7 +223,7 @@ public class WatchManager implements WakeManager.Wakeable {
             return;
         }
 
-        threadSaveManager.enqueueThreadToSave(loadable, postsToSave, resultCallback, downloadingCallback);
+        threadSaveManager.enqueueThreadToSave(loadable, postsToSave, false, resultCallback, downloadingCallback);
     }
 
     public void removePrefetchDownloadCallback(Loadable loadable) {

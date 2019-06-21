@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.model.save;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -225,5 +227,33 @@ public class SerializablePost {
 
     public String getTitle() {
         return title;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * no +
+                31 * board.code.hashCode() +
+                31 * board.siteId;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (other == null) {
+            return false;
+        }
+
+        if (other == this) {
+            return true;
+        }
+
+        if (this.getClass() != other.getClass()) {
+            return false;
+        }
+
+        SerializablePost otherPost = (SerializablePost) other;
+
+        return this.no == otherPost.no
+                && this.board.code.equals(otherPost.board.code)
+                && this.board.siteId == otherPost.board.siteId;
     }
 }

@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.model.save;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 public class SerializablePostImage {
@@ -69,5 +71,31 @@ public class SerializablePostImage {
 
     public String getType() {
         return type;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * originalName.hashCode() +
+                31 * filename.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (other == null) {
+            return false;
+        }
+
+        if (other == this) {
+            return true;
+        }
+
+        if (this.getClass() != other.getClass()) {
+            return false;
+        }
+
+        SerializablePostImage otherPostImage = (SerializablePostImage) other;
+
+        return this.originalName.equals(otherPostImage.originalName)
+                && this.filename.equals(otherPostImage.filename);
     }
 }
