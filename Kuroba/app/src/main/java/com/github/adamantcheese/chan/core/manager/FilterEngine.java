@@ -201,10 +201,12 @@ public class FilterEngine {
 
         //figure out if the post has a country code, if so check the filter
         String countryCode = "";
-        for (PostHttpIcon icon : post.httpIcons) {
-            if (icon.name.indexOf('/') != -1) {
-                countryCode = icon.name.substring(icon.name.indexOf('/'));
-                break;
+        if (post.httpIcons != null) {
+            for (PostHttpIcon icon : post.httpIcons) {
+                if (icon.name.indexOf('/') != -1) {
+                    countryCode = icon.name.substring(icon.name.indexOf('/'));
+                    break;
+                }
             }
         }
         if (!countryCode.isEmpty() && (filter.type & FilterType.COUNTRY_CODE.flag) != 0 && matches(filter, countryCode, false)) {
@@ -250,10 +252,12 @@ public class FilterEngine {
 
         //figure out if the post has a country code, if so check the filter
         String countryCode = "";
-        for (PostHttpIcon icon : post.httpIcons) {
-            if (icon.name.indexOf('/') != -1) {
-                countryCode = icon.name.substring(icon.name.indexOf('/'));
-                break;
+        if (post.httpIcons != null) {
+            for (PostHttpIcon icon : post.httpIcons) {
+                if (icon.name.indexOf('/') != -1) {
+                    countryCode = icon.name.substring(icon.name.indexOf('/'));
+                    break;
+                }
             }
         }
         if (!countryCode.isEmpty() && (filter.type & FilterType.COUNTRY_CODE.flag) != 0 && matches(filter, countryCode, false)) {
