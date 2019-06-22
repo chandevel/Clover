@@ -36,8 +36,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
@@ -190,13 +190,41 @@ public class ThreadSaveManager {
         workerQueue.onNext(loadable);
     }
 
+    /**
+     * Cancels a download associated with this loadable. Cancelling means that the user has completely
+     * removed a pin associated with it. This means that we need to delete thread's file in the disk
+     * as well.
+     * */
+    public void cancelDownloading(Loadable loadable) {
+        synchronized (activeDownloads) {
+            SaveThreadParameters parameters = activeDownloads.get(loadable);
+            if (parameters == null) {
+                Logger.w(TAG, "cancelDownloading Could not find SaveThreadParameters for loadable "
+                        + loadableToString(loadable));
+                return;
+            }
+
+            Logger.d(TAG, "Cancelling a download for loadable " + loadableToString(loadable));
+            parameters.cancel();
+        }
+    }
+
+    /**
+     * Stops a download associated with this loadable. Stopping means that the user unpressed
+     * "save thread" button. This does not mean that they do not want to save this thread anymore
+     * they may press it again later. So we don't need to delete thread's files from disk in this
+     * case.
+     * */
     public void stopDownloading(Loadable loadable) {
         synchronized (activeDownloads) {
             SaveThreadParameters parameters = activeDownloads.get(loadable);
             if (parameters == null) {
+                Logger.w(TAG, "stopDownloading Could not find SaveThreadParameters for loadable "
+                        + loadableToString(loadable));
                 return;
             }
 
+            Logger.d(TAG, "Stopping a download for loadable " + loadableToString(loadable));
             parameters.stop();
         }
     }
@@ -340,7 +368,12 @@ public class ThreadSaveManager {
                 .flatMap((res) -> {
                     return Single.defer(() -> {
                         if (!isCurrentDownloadRunning(loadable)) {
-                            Logger.d(TAG, "Thread downloading has been canceled " + loadableToString(loadable));
+                            if (isCurrentDownloadStopped(loadable)) {
+                                Logger.d(TAG, "Thread downloading has been stopped " + loadableToString(loadable));
+                            } else {
+                                Logger.d(TAG, "Thread downloading has been canceled " + loadableToString(loadable));
+                            }
+
                             return Single.just(false);
                         }
 
@@ -353,8 +386,13 @@ public class ThreadSaveManager {
                 // Have to use blockingGet here
                 .blockingGet();
             } finally {
-                if (!isCurrentDownloadRunning(loadable)) {
-                    Logger.d(TAG, "Thread with loadable " + loadableToString(loadable) + " has been canceled");
+                if (shouldDeleteDownloadedFiles(loadable)) {
+                    if (isCurrentDownloadStopped(loadable)) {
+                        Logger.d(TAG, "Thread with loadable " + loadableToString(loadable) + " has been stopped");
+                    } else {
+                        Logger.d(TAG, "Thread with loadable " + loadableToString(loadable) + " has been canceled");
+                    }
+
                     deleteThread(loadable);
                 } else {
                     Logger.d(TAG, "Thread with loadable " + loadableToString(loadable) + " has been updated");
@@ -559,7 +597,7 @@ public class ThreadSaveManager {
                                     loadable);
                         } catch (IOException error) {
                             Logger.e(TAG, "downloadImageIntoFile error for image "
-                                    + postImage.filename + " %s", error.getMessage());
+                                    + postImage.originalName + ", error message = %s", error.getMessage());
 
                             deleteImageCompletely(
                                     threadSaveDirImages,
@@ -682,7 +720,11 @@ public class ThreadSaveManager {
         }
 
         if (!isCurrentDownloadRunning(loadable)) {
-            Logger.d(TAG, "File downloading with name " + filename + " has been canceled");
+            if (isCurrentDownloadStopped(loadable)) {
+                Logger.d(TAG, "File downloading with name " + filename + " has been stopped");
+            } else {
+                Logger.d(TAG, "File downloading with name " + filename + " has been canceled");
+            }
             return;
         }
 
@@ -707,17 +749,43 @@ public class ThreadSaveManager {
         }
     }
 
-    private boolean isCurrentDownloadRunning(Loadable loadable) {
+    private boolean shouldDeleteDownloadedFiles(Loadable loadable) {
         synchronized (activeDownloads) {
             SaveThreadParameters parameters = activeDownloads.get(loadable);
             if (parameters != null) {
-                if (!parameters.getIsRunning()) {
-                    return false;
+                if (parameters.isCancelled()) {
+                    return true;
                 }
             }
         }
 
-        return true;
+        return false;
+    }
+
+    private boolean isCurrentDownloadStopped(Loadable loadable) {
+        synchronized (activeDownloads) {
+            SaveThreadParameters parameters = activeDownloads.get(loadable);
+            if (parameters != null) {
+                if (parameters.isStopped()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isCurrentDownloadRunning(Loadable loadable) {
+        synchronized (activeDownloads) {
+            SaveThreadParameters parameters = activeDownloads.get(loadable);
+            if (parameters != null) {
+                if (parameters.isRunning()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -824,14 +892,14 @@ public class ThreadSaveManager {
     public static class SaveThreadParameters {
         private Loadable loadable;
         private List<Post> postsToSave;
-        private AtomicBoolean isRunning;
+        private AtomicReference<DownloadRequestState> state;
 
         public SaveThreadParameters(
                 Loadable loadable,
                 List<Post> postsToSave) {
             this.loadable = loadable;
             this.postsToSave = postsToSave;
-            this.isRunning = new AtomicBoolean(true);
+            this.state = new AtomicReference<>(DownloadRequestState.Running);
         }
 
         public Loadable getLoadable() {
@@ -842,12 +910,24 @@ public class ThreadSaveManager {
             return postsToSave;
         }
 
-        public boolean getIsRunning() {
-            return isRunning.get();
+        public boolean isRunning() {
+            return state.get() == DownloadRequestState.Running;
+        }
+
+        public boolean isCancelled() {
+            return state.get() == DownloadRequestState.Cancelled;
+        }
+
+        public boolean isStopped() {
+            return state.get() == DownloadRequestState.Stopped;
         }
 
         public void stop() {
-            isRunning.compareAndSet(true, false);
+            state.compareAndSet(DownloadRequestState.Running, DownloadRequestState.Stopped);
+        }
+
+        public void cancel() {
+            state.compareAndSet(DownloadRequestState.Running, DownloadRequestState.Cancelled);
         }
     }
 
@@ -881,6 +961,18 @@ public class ThreadSaveManager {
         public CouldNotCreateSpoilerImageDirectoryException(File boardSaveDir) {
             super("Could not create a directory to save the spoiler image " +
                     "to (full path: " + boardSaveDir.getAbsolutePath() + ")");
+        }
+    }
+
+    public enum DownloadRequestState {
+        Running(0),
+        Cancelled(1),
+        Stopped(2);
+
+        private int type;
+
+        DownloadRequestState(int type) {
+            this.type = type;
         }
     }
 

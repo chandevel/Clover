@@ -217,15 +217,15 @@ public class WatchManager implements WakeManager.Wakeable {
     public void startSavingThread(
             Loadable loadable,
             List<Post> postsToSave) {
-        if (!startSavingThreadInternal(loadable.id)) {
+        if (!startSavingThreadInternal(loadable)) {
             return;
         }
 
         threadSaveManager.enqueueThreadToSave(loadable, postsToSave);
     }
 
-    private Boolean startSavingThreadInternal(int loadableId) {
-        SavedThread savedThread = findSavedThreadByLoadableId(loadableId);
+    private Boolean startSavingThreadInternal(Loadable loadable) {
+        SavedThread savedThread = findSavedThreadByLoadableId(loadable.id);
         if (savedThread != null && (savedThread.isFullyDownloaded)) {
             // If a thread is already fully downloaded or already being downloaded do not attempt to
             // start downloading it again just skip it.
@@ -233,9 +233,8 @@ public class WatchManager implements WakeManager.Wakeable {
             return false;
         }
 
-
         if (savedThread == null) {
-            savedThread = new SavedThread(false, false, loadableId);
+            savedThread = new SavedThread(false, false, loadable.id);
         } else {
             savedThread.isStopped = false;
         }
@@ -248,8 +247,8 @@ public class WatchManager implements WakeManager.Wakeable {
         return true;
     }
 
-    public void stopSavingThread(int loadableId) {
-        SavedThread savedThread = findSavedThreadByLoadableId(loadableId);
+    public void stopSavingThread(Loadable loadable) {
+        SavedThread savedThread = findSavedThreadByLoadableId(loadable.id);
         if (savedThread == null || (savedThread.isFullyDownloaded)) {
             // If a thread is already fully downloaded or already stopped do nothing, if it is being
             // downloaded then stop it. If we could not find it then do nothing as well.
@@ -261,7 +260,10 @@ public class WatchManager implements WakeManager.Wakeable {
 
         // Cache stopped saved thread so it's just faster to find it
         createOrUpdateSavedThread(savedThread);
-        databaseManager.runTask(databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(loadableId, true));
+        databaseManager.runTask(
+                databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(loadable.id, true));
+
+        threadSaveManager.stopDownloading(loadable);
     }
 
     private void createOrUpdateSavedThread(SavedThread savedThread) {
@@ -312,7 +314,7 @@ public class WatchManager implements WakeManager.Wakeable {
         destroyPinWatcher(pin);
         deleteThreadSave(pin.loadable.id);
 
-        threadSaveManager.stopDownloading(pin.loadable);
+        threadSaveManager.cancelDownloading(pin.loadable);
 
         databaseManager.runTask(() -> {
             databasePinManager.deletePin(pin).call();
@@ -350,7 +352,7 @@ public class WatchManager implements WakeManager.Wakeable {
             destroyPinWatcher(pin);
             deleteThreadSave(pin.loadable.id);
 
-            threadSaveManager.stopDownloading(pin.loadable);
+            threadSaveManager.cancelDownloading(pin.loadable);
         }
 
         databaseManager.runTask(() -> {
@@ -376,7 +378,12 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     public void updatePin(Pin pin) {
-        databaseManager.runTask(databasePinManager.updatePin(pin));
+        databaseManager.runTask(() -> {
+            databasePinManager.updatePin(pin).call();
+
+            // TODO: update saved thread
+            return null;
+        });
         updateState();
 
         EventBus.getDefault().post(new PinMessages.PinChangedMessage(pin));
@@ -679,9 +686,9 @@ public class WatchManager implements WakeManager.Wakeable {
 
         for (Pin pin : pinsWithDownloadFlag) {
             if (isEnabled) {
-                startSavingThreadInternal(pin.loadable.id);
+                startSavingThreadInternal(pin.loadable);
             } else {
-                stopSavingThread(pin.loadable.id);
+                stopSavingThread(pin.loadable);
             }
         }
     }

@@ -27,6 +27,10 @@ public class PinTypeHolder {
             return (typeValue & DownloadNewPosts.typeValue) != 0;
         }
 
+        public boolean hasWatchNewPostsFlag() {
+            return (typeValue & WatchNewPosts.typeValue) != 0;
+        }
+
         public boolean hasNoFlags() {
             return typeValue == 0;
         }

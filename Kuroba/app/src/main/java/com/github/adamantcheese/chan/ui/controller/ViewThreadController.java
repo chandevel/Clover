@@ -26,6 +26,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
@@ -69,6 +70,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private boolean saveItemSaved = false;
     private Loadable loadable;
 
+    private Drawable saveIconOutline;
+    private Drawable saveIconNormal;
+
     public ViewThreadController(Context context) {
         super(context);
     }
@@ -81,6 +85,16 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void onCreate() {
         super.onCreate();
         inject(this);
+
+        saveIconOutline = context.getDrawable(R.drawable.ic_save_while_24dp)
+                .getConstantState()
+                .newDrawable();
+        DrawableCompat.setTint(saveIconOutline, 0xFFBBBBBB);
+
+        saveIconNormal = context.getDrawable(R.drawable.ic_save_while_24dp)
+                .getConstantState()
+                .newDrawable();
+        DrawableCompat.setTint(saveIconNormal, 0xFFFFFFFF);
 
         threadLayout.setPostViewMode(ChanSettings.PostViewMode.LIST);
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
@@ -95,7 +109,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu()
                 .withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
                 .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked)
-                .withItem(SAVE_THREAD_ID, R.drawable.ic_save_while_outline_24dp, this::saveClicked);
+                .withItem(SAVE_THREAD_ID, saveIconOutline, this::saveClicked);
 
         NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow();
 
@@ -123,6 +137,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private void pinClicked(ToolbarMenuItem item) {
         threadLayout.getPresenter().pin();
         setPinIconState(true);
+        setSaveIconState(true);
+
         updateDrawerHighlighting(loadable);
     }
 
@@ -210,6 +226,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         ThreadPresenter presenter = threadLayout.getPresenter();
         if (presenter != null) {
             setPinIconState(false);
+            setSaveIconState(false);
         }
     }
 
@@ -228,16 +245,20 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         setPinIconState(true);
+        setSaveIconState(true);
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
         setPinIconState(true);
+        setSaveIconState(true);
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinChangedMessage message) {
         setPinIconState(false);
+        setSaveIconState(false);
+
         // Update title
         if (message.pin.loadable == loadable) {
             onShowPosts(message.pin.loadable);
@@ -247,6 +268,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
         setPinIconState(true);
+        setSaveIconState(true);
     }
 
     @Override
@@ -318,7 +340,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             this.loadable = presenter.getLoadable();
             navigation.title = loadable.title;
             ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
+
             setPinIconState(false);
+            setSaveIconState(false);
+
             updateDrawerHighlighting(loadable);
             updateLeftPaneHighlighting(loadable);
             presenter.requestInitialData();
@@ -419,12 +444,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         saveItemSaved = saved;
 
-        Drawable outline = context.getDrawable(
-                R.drawable.ic_save_while_outline_24dp);
-        Drawable white = context.getDrawable(
-                R.drawable.ic_save_while_24dp);
-
-        Drawable drawable = saved ? white : outline;
+        Drawable drawable = saved ? saveIconNormal : saveIconOutline;
         menuItem.setImage(drawable, animated);
     }
 

@@ -236,13 +236,9 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                         watchManager.deletePin(pin);
                     } else {
                         watchManager.updatePin(pin);
-                        watchManager.stopSavingThread(pin.loadable.id);
+                        watchManager.stopSavingThread(pin.loadable);
                     }
                 } else {
-                    pinType.addDownloadNewPostsFlag();
-                    pin.pinType = pinType.getTypeValue();
-
-                    watchManager.updatePin(pin);
                     saveInternal();
                 }
         } else {
@@ -256,37 +252,69 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         Post op = chanLoader.getThread().op;
         List<Post> postsToSave = chanLoader.getThread().posts;
 
-        // We don't want to send PinAddedMessage broadcast right away. We will send it after
-        // the thread has been saved
-        if (!watchManager.createPin(loadable, op, PinTypeHolder.PinType.DownloadNewPosts, false)) {
-            throw new IllegalStateException("Could not create pin for loadable " + loadable);
-        }
+        Pin oldPin = watchManager.findPinByLoadableId(loadable.id);
+        if (oldPin != null) {
+            // Save button is clicked and bookmark button is already pressed
+            // Update old pin and create new thread save
+            PinTypeHolder.PinType oldPinType = PinTypeHolder.PinType.from(oldPin.pinType);
+            if (oldPinType.hasDownloadFlag()) {
+                // We forgot to delete pin when cancelling thread download?
+                throw new IllegalStateException("oldPin already contains DownloadFlag");
+            }
 
-        Pin newPin = watchManager.getPinByLoadable(loadable);
-        if (newPin == null) {
-            throw new IllegalStateException("Could not find freshly created pin by loadable " + loadable);
-        }
+            oldPinType.addDownloadNewPostsFlag();
+            oldPin.pinType = oldPinType.getTypeValue();
 
-        startSavingThreadInternal(loadable, postsToSave, newPin);
+            watchManager.updatePin(oldPin);
+            startSavingThreadInternal(loadable, postsToSave, oldPin);
+            EventBus.getDefault().post(new WatchManager.PinMessages.PinChangedMessage(oldPin));
+        } else {
+            // Save button is clicked and bookmark button is not yet pressed
+            // Create new pin along with thread save
+
+            // We don't want to send PinAddedMessage broadcast right away. We will send it after
+            // the thread has been saved
+            if (!watchManager.createPin(loadable, op, PinTypeHolder.PinType.DownloadNewPosts, false)) {
+                throw new IllegalStateException("Could not create pin for loadable " + loadable);
+            }
+
+            Pin newPin = watchManager.getPinByLoadable(loadable);
+            if (newPin == null) {
+                throw new IllegalStateException("Could not find freshly created pin by loadable " + loadable);
+            }
+
+            startSavingThreadInternal(loadable, postsToSave, newPin);
+            EventBus.getDefault().post(new WatchManager.PinMessages.PinAddedMessage(newPin));
+        }
     }
 
     private void startSavingThreadInternal(
             Loadable loadable,
             List<Post> postsToSave,
             Pin newPin) {
-        watchManager.startSavingThread(loadable, postsToSave);
+        if (!PinTypeHolder.PinType.from(newPin.pinType).hasDownloadFlag()) {
+            throw new IllegalStateException("newPin does not have DownloadFlag: " + newPin.pinType);
+        }
 
-        // TODO: PinAddedMessage needs to be updated (like do not set the bookmark icon when the user
-        //  has clicked save icon)
-        EventBus.getDefault().post(new WatchManager.PinMessages.PinAddedMessage(newPin));
+        watchManager.startSavingThread(loadable, postsToSave);
     }
 
     public boolean isPinned() {
-        return watchManager.findPinByLoadableId(loadable.id) != null;
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            return false;
+        }
+
+        return PinTypeHolder.PinType.from(pin.pinType).hasWatchNewPostsFlag();
     }
 
     public boolean isSaved() {
-        return watchManager.findSavedThreadByLoadableId(loadable.id) != null;
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            return false;
+        }
+
+        return PinTypeHolder.PinType.from(pin.pinType).hasDownloadFlag();
     }
 
     public void onSearchVisibilityChanged(boolean visible) {
