@@ -85,8 +85,6 @@ public class ThreadSaveManager {
 
     private PublishProcessor<Loadable> workerQueue = PublishProcessor.create();
 
-    // TODO: check whether pin watcher is on or off before start saving a thread
-
     private static int getThreadsCountForDownloaderExecutor() {
         int threadsCount = (Runtime.getRuntime().availableProcessors() / 2) + 1;
         if (threadsCount < 3) {
