@@ -207,17 +207,36 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public boolean pin() {
+        if (chanLoader.getThread() == null) {
+            return false;
+        }
+
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
-            // TODO: check flags before deleting, delete the pin only when there are no flags left
-            watchManager.deletePin(pin);
+            PinTypeHolder.PinType pinType = PinTypeHolder.PinType.from(pin.pinType);
+            if (pinType.hasWatchNewPostsFlag()) {
+                pinType.removeWatchNewPostsFlag();
+                pin.pinType = pinType.getTypeValue();
+
+                if (pinType.hasNoFlags()) {
+                    watchManager.deletePin(pin);
+                } else {
+                    watchManager.updatePin(pin);
+                }
+            } else {
+                pinType.addWatchNewPostsFlag();
+                pin.pinType = pinType.getTypeValue();
+
+                watchManager.updatePin(pin);
+            }
         } else {
             if (chanLoader.getThread() != null) {
                 Post op = chanLoader.getThread().op;
                 watchManager.createPin(loadable, op, PinTypeHolder.PinType.WatchNewPosts);
             }
         }
-        return isPinned();
+
+        return true;
     }
 
     public boolean save() {
@@ -227,20 +246,20 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
-                PinTypeHolder.PinType pinType = PinTypeHolder.PinType.from(pin.pinType);
-                if (pinType.hasDownloadFlag()) {
-                    pinType.removeDownloadNewPostsFlag();
-                    pin.pinType = pinType.getTypeValue();
+            PinTypeHolder.PinType pinType = PinTypeHolder.PinType.from(pin.pinType);
+            if (pinType.hasDownloadFlag()) {
+                pinType.removeDownloadNewPostsFlag();
+                pin.pinType = pinType.getTypeValue();
 
-                    if (pinType.hasNoFlags()) {
-                        watchManager.deletePin(pin);
-                    } else {
-                        watchManager.updatePin(pin);
-                        watchManager.stopSavingThread(pin.loadable);
-                    }
+                if (pinType.hasNoFlags()) {
+                    watchManager.deletePin(pin);
                 } else {
-                    saveInternal();
+                    watchManager.updatePin(pin);
+                    watchManager.stopSavingThread(pin.loadable);
                 }
+            } else {
+                saveInternal();
+            }
         } else {
             saveInternal();
         }

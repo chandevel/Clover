@@ -135,11 +135,12 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void pinClicked(ToolbarMenuItem item) {
-        threadLayout.getPresenter().pin();
-        setPinIconState(true);
-        setSaveIconState(true);
+        if (threadLayout.getPresenter().pin()) {
+            setPinIconState(true);
+            setSaveIconState(true);
 
-        updateDrawerHighlighting(loadable);
+            updateDrawerHighlighting(loadable);
+        }
     }
 
     private void saveClicked(ToolbarMenuItem item) {

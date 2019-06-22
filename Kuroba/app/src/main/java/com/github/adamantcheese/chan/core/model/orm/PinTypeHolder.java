@@ -47,6 +47,18 @@ public class PinTypeHolder {
             }
         }
 
+        public void removeWatchNewPostsFlag() {
+            if ((typeValue & WatchNewPosts.typeValue) != 0) {
+                typeValue &= ~(WatchNewPosts.typeValue);
+            }
+        }
+
+        public void addWatchNewPostsFlag() {
+            if ((typeValue & WatchNewPosts.typeValue) == 0) {
+                typeValue |= WatchNewPosts.typeValue;
+            }
+        }
+
         public static PinType from(int value) {
             if (value == WatchNewPosts.typeValue) {
                 return WatchNewPosts;

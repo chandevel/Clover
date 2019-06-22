@@ -384,8 +384,8 @@ public class WatchManager implements WakeManager.Wakeable {
             // TODO: update saved thread
             return null;
         });
-        updateState();
 
+        updateState();
         EventBus.getDefault().post(new PinMessages.PinChangedMessage(pin));
     }
 
