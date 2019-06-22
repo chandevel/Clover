@@ -87,13 +87,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         inject(this);
 
         saveIconOutline = context.getDrawable(R.drawable.ic_save_while_24dp)
-                .getConstantState()
-                .newDrawable();
+                .mutate();
         DrawableCompat.setTint(saveIconOutline, 0xFFBBBBBB);
 
         saveIconNormal = context.getDrawable(R.drawable.ic_save_while_24dp)
-                .getConstantState()
-                .newDrawable();
+                .mutate();
         DrawableCompat.setTint(saveIconNormal, 0xFFFFFFFF);
 
         threadLayout.setPostViewMode(ChanSettings.PostViewMode.LIST);

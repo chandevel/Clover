@@ -80,7 +80,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-        drawerAdapter = new DrawerAdapter(this);
+        drawerAdapter = new DrawerAdapter(this, context);
         recyclerView.setAdapter(drawerAdapter);
 
         drawerAdapter.onPinsChanged(watchManager.getAllPins());

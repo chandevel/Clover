@@ -16,9 +16,11 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,9 +36,11 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.PinHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -68,15 +73,25 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Inject
     WatchManager watchManager;
+    @Inject
+    ThemeHelper themeHelper;
+
+    private Drawable threadDownloadIcon;
 
     private final Callback callback;
     private List<Pin> pins = new ArrayList<>();
     private Pin highlighted;
 
-    public DrawerAdapter(Callback callback) {
+    public DrawerAdapter(Callback callback, Context context) {
         inject(this);
         this.callback = callback;
         setHasStableIds(true);
+
+        Theme currentTheme = themeHelper.getTheme();
+
+        threadDownloadIcon = context.getDrawable(R.drawable.ic_save_while_24dp)
+                .mutate();
+        threadDownloadIcon.setTint(currentTheme.textPrimary);
     }
 
     public void setPinHighlighted(Pin highlighted) {
@@ -255,33 +270,46 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         holder.image.setUrl(pin.thumbnailUrl, dp(40), dp(40));
 
         if (ChanSettings.watchEnabled.get()) {
-            String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
-            String totalCount = PinHelper.getShortUnreadCount(watchManager.getPinWatcher(pin).getReplyCount());
-            watchCount.setVisibility(View.VISIBLE);
-            watchCount.setText(ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount);
+            if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
+                String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
+                String totalCount = PinHelper.getShortUnreadCount(watchManager.getPinWatcher(pin).getReplyCount());
+                watchCount.setVisibility(View.VISIBLE);
+                watchCount.setText(ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount);
 
-            if (!pin.watching) {
-                watchCount.setTextColor(0xff898989); // TODO material colors
-            } else if (pin.getNewQuoteCount() > 0) {
-                watchCount.setTextColor(0xffFF4444);
+                if (!pin.watching) {
+                    watchCount.setTextColor(0xff898989); // TODO material colors
+                } else if (pin.getNewQuoteCount() > 0) {
+                    watchCount.setTextColor(0xffFF4444);
+                } else {
+                    watchCount.setTextColor(0xff33B5E5);
+                }
+
+                if (watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) {
+                    watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
+                } else {
+                    watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
+                }
+
+                // The 16dp padding now belongs to the counter, for a bigger touch area
+                bookmarkLabel.setPadding(bookmarkLabel.getPaddingLeft(), bookmarkLabel.getPaddingTop(),
+                        0, bookmarkLabel.getPaddingBottom());
+                watchCount.setPadding(dp(16), watchCount.getPaddingTop(),
+                        watchCount.getPaddingRight(), watchCount.getPaddingBottom());
             } else {
-                watchCount.setTextColor(0xff33B5E5);
+                watchCount.setVisibility(View.GONE);
             }
 
-            if (watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) {
-                watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
+            if (PinType.hasDownloadFlag(pin.pinType)) {
+                holder.threadDownloadIcon.setImageDrawable(threadDownloadIcon);
+                holder.threadDownloadIcon.setVisibility(View.VISIBLE);
             } else {
-                watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
+                holder.threadDownloadIcon.setVisibility(View.GONE);
             }
-
-            // The 16dp padding now belongs to the counter, for a bigger touch area
-            bookmarkLabel.setPadding(bookmarkLabel.getPaddingLeft(), bookmarkLabel.getPaddingTop(),
-                    0, bookmarkLabel.getPaddingBottom());
-            watchCount.setPadding(dp(16), watchCount.getPaddingTop(),
-                    watchCount.getPaddingRight(), watchCount.getPaddingBottom());
         } else {
             // The 16dp padding now belongs to the textview, for better ellipsize
             watchCount.setVisibility(View.GONE);
+            holder.threadDownloadIcon.setVisibility(View.GONE);
+
             bookmarkLabel.setPadding(bookmarkLabel.getPaddingLeft(), bookmarkLabel.getPaddingTop(),
                     dp(16), bookmarkLabel.getPaddingBottom());
         }
@@ -306,6 +334,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private ThumbnailView image;
         private TextView textView;
         private TextView watchCountText;
+        private AppCompatImageView threadDownloadIcon;
 
         private PinViewHolder(View itemView) {
             super(itemView);
@@ -315,6 +344,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             textView.setTypeface(ROBOTO_MEDIUM);
             watchCountText = itemView.findViewById(R.id.watch_count);
             watchCountText.setTypeface(ROBOTO_MEDIUM);
+            threadDownloadIcon = itemView.findViewById(R.id.thread_download_icon);
 
             setRoundItemBackground(watchCountText);
 

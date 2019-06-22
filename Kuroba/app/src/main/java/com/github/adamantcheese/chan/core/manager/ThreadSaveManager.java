@@ -630,7 +630,7 @@ public class ThreadSaveManager {
         int index = currentImageDownloadIndex.incrementAndGet();
         int percent = (int)(((float)index / (float) count) * 100f);
 
-        Logger.d(TAG, "Downloading is in progress for loadable " + loadableToString(loadable) + ", " +
+        Logger.d(TAG, "Downloading is in progress for an image with loadable " + loadableToString(loadable) + ", " +
                 "percent = " + percent +
                 ", count = " + count +
                 ", index = " + index);
