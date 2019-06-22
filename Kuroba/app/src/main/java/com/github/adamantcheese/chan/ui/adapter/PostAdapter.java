@@ -16,11 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -28,6 +30,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
@@ -113,10 +116,11 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         -1,
                         true,
                         postViewMode,
-                        compact);
+                        compact,
+                        Chan.injector().instance(ThemeHelper.class).getTheme());
 
                 if (itemViewType == TYPE_POST_STUB) {
-                    ((View)postViewHolder.postView).setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));
+                    ((View) postViewHolder.postView).setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));
                 }
                 break;
             case TYPE_STATUS:
@@ -326,6 +330,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public interface PostAdapterCallback {
         Loadable getLoadable();
+
         void onUnhidePostClick(Post post);
     }
 }

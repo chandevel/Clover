@@ -163,7 +163,8 @@ public class PostRepliesController extends BaseFloatingController {
                         data.forPost.no,
                         showDivider,
                         ChanSettings.PostViewMode.LIST,
-                        false);
+                        false,
+                        Chan.injector().instance(ThemeHelper.class).getTheme());
 
                 return (View) postCell;
             }

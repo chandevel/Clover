@@ -269,7 +269,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                         int markedNo,
                         boolean showDivider,
                         ChanSettings.PostViewMode postViewMode,
-                        boolean compact) {
+                        boolean compact,
+                        Theme theme) {
         if (this.post == post &&
                 this.selectable == selectable &&
                 this.highlighted == highlighted &&
@@ -292,7 +293,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         this.markedNo = markedNo;
         this.showDivider = showDivider;
 
-        bindPost(Chan.injector().instance(ThemeHelper.class).getTheme(), post);
+        bindPost(theme, post);
     }
 
     public Post getPost() {

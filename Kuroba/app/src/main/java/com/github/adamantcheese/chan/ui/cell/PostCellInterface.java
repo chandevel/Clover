@@ -21,6 +21,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
@@ -35,7 +36,8 @@ public interface PostCellInterface {
                  int markedNo,
                  boolean showDivider,
                  ChanSettings.PostViewMode postViewMode,
-                 boolean compact);
+                 boolean compact,
+                 Theme theme);
 
     Post getPost();
 

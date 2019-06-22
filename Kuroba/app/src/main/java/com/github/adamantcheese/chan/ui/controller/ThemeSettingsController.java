@@ -278,7 +278,9 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                             "<span class=\"deadlink\">&gt;&gt;987654321</span><br>" +
                             "http://example.com/" +
                             "<br>" +
-                            "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.");
+                            "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim." +
+                            "<br>" +
+                            "<span class=\"quote\">&gt;Nam non hendrerit justo, venenatis bibendum arcu.</span>");
             CommentParser parser = new CommentParser();
             parser.addDefaultRules();
             Post post = new DefaultPostParser(parser).parse(theme, builder, parserCallback);
@@ -347,7 +349,8 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     -1,
                     true,
                     ChanSettings.PostViewMode.LIST,
-                    false);
+                    false,
+                    theme);
             linearLayout.addView(postCell, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
             return linearLayout;
