@@ -226,10 +226,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 watchManager.updatePin(pin);
             }
         } else {
-            if (chanLoader.getThread() != null) {
-                Post op = chanLoader.getThread().op;
-                watchManager.createPin(loadable, op, PinType.WATCH_NEW_POSTS);
-            }
+            Post op = chanLoader.getThread().op;
+            watchManager.createPin(loadable, op, PinType.WATCH_NEW_POSTS);
         }
 
         return true;
