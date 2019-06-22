@@ -21,13 +21,20 @@ public class SavedThreadLoaderRepository {
 
     private Gson gson;
 
+    /**
+     * It would probably be a better idea to save posts in the database but then users won't be
+     * able to backup them and they would be deleted after every app uninstall. This implementation
+     * is slower than the DB one, but at least users will have their threads even after app
+     * uninstall/app data clearing.
+     * */
     @Inject
     public SavedThreadLoaderRepository(Gson gson) {
         this.gson = gson;
     }
 
     @Nullable
-    public SerializableThread loadOldThreadFromJsonFile(File threadSaveDir) throws IOException {
+    public SerializableThread loadOldThreadFromJsonFile(
+            File threadSaveDir) throws IOException, OldThreadTakesTooMuchSpace {
         File threadFile = new File(threadSaveDir, THREAD_FILE_NAME);
         if (!threadFile.exists()) {
             return null;
@@ -38,9 +45,7 @@ public class SavedThreadLoaderRepository {
         try (RandomAccessFile raf = new RandomAccessFile(threadFile, "rw")) {
             int size = raf.readInt();
             if (size <= 0 || size > MAX_THREAD_SIZE_BYTES) {
-                throw new IOException("Old serialized thread takes way too much space: " + size +
-                        " bytes. You are not trying to save an infinite or sticky thread, right? " +
-                        "It's not supported.");
+                throw new OldThreadTakesTooMuchSpace(size);
             }
 
             byte[] bytes = new byte[size];
@@ -55,7 +60,7 @@ public class SavedThreadLoaderRepository {
     public void savePostsToJsonFile(
             @Nullable SerializableThread oldSerializableThread,
             List<Post> posts,
-            File threadSaveDir) throws IOException {
+            File threadSaveDir) throws IOException, CouldNotCreateThreadFile {
         SerializableThread serializableThread;
 
         if (oldSerializableThread != null) {
@@ -70,8 +75,7 @@ public class SavedThreadLoaderRepository {
 
         File threadFile = new File(threadSaveDir, THREAD_FILE_NAME);
         if (!threadFile.exists() && !threadFile.createNewFile()) {
-            throw new IOException("Could not create the thread file " +
-                    "(path: " + threadFile.getAbsolutePath() + ")");
+            throw new CouldNotCreateThreadFile(threadFile);
         }
 
         // Update the thread file
@@ -82,4 +86,18 @@ public class SavedThreadLoaderRepository {
         }
     }
 
+    public class OldThreadTakesTooMuchSpace extends Exception {
+        public OldThreadTakesTooMuchSpace(int size) {
+            super("Old serialized thread takes way too much space: " + size +
+                    " bytes. You are not trying to save an infinite or sticky thread, right? " +
+                    "It's not supported.");
+        }
+    }
+
+    public class CouldNotCreateThreadFile extends Exception {
+        public CouldNotCreateThreadFile(File threadFile) {
+            super("Could not create the thread file " +
+                    "(path: " + threadFile.getAbsolutePath() + ")");
+        }
+    }
 }

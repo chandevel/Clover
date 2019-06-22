@@ -80,7 +80,7 @@ public class SavedThreadLoaderManager {
             }
 
             return ThreadMapper.fromSerializedThread(loadable, serializableThread);
-        } catch (IOException e) {
+        } catch (IOException | SavedThreadLoaderRepository.OldThreadTakesTooMuchSpace e) {
             Logger.e(TAG, "Could not load saved thread", e);
             return null;
         }

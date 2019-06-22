@@ -33,7 +33,7 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinType;
+import com.github.adamantcheese.chan.core.model.orm.PinTypeHolder;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -368,7 +368,7 @@ public class ImportExportRepository {
                     pin.watchNewCount,
                     pin.watching,
                     exportedLoadable,
-                    PinType.from(pin.pinType)
+                    PinTypeHolder.PinType.from(pin.pinType)
             );
 
             toExportMap.get(siteModel).add(exportedPin);

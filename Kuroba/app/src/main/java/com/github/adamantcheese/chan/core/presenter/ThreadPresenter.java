@@ -41,7 +41,7 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.History;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinType;
+import com.github.adamantcheese.chan.core.model.orm.PinTypeHolder;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -63,7 +63,6 @@ import com.github.adamantcheese.chan.ui.layout.ThreadListLayout;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -78,15 +77,13 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
 public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         PostAdapter.PostAdapterCallback,
         PostCellInterface.PostCellCallback,
         ThreadStatusCell.Callback,
         ThreadListLayout.ThreadListLayoutPresenterCallback,
-        ArchivesLayout.Callback,
-        ThreadSaveManager.DownloadingCallback {
+        ArchivesLayout.Callback {
     private static final String TAG = "ThreadPresenter";
 
     private static final int POST_OPTION_QUOTE = 0;
@@ -217,16 +214,16 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         } else {
             if (chanLoader.getThread() != null) {
                 Post op = chanLoader.getThread().op;
-                watchManager.createPin(loadable, op, PinType.WatchNewPosts);
+                watchManager.createPin(loadable, op, PinTypeHolder.PinType.WatchNewPosts);
             }
         }
         return isPinned();
     }
 
-    public void save(ThreadPrefetchCallback callback) {
+    public void save() {
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
-                PinType pinType = PinType.from(pin.pinType);
+                PinTypeHolder.PinType pinType = PinTypeHolder.PinType.from(pin.pinType);
                 if (pinType.hasDownloadFlag()) {
                     pinType.removeDownloadNewPostsFlag();
                     pin.pinType = pinType.getTypeValue();
@@ -238,29 +235,26 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                         watchManager.updatePin(pin);
                         watchManager.stopSavingThread(pin.loadable.id);
                     }
-
-                    // TODO: do we need this here?
-                    callback.onPrefetchEnded();
                 } else {
                     pinType.addDownloadNewPostsFlag();
                     pin.pinType = pinType.getTypeValue();
 
                     watchManager.updatePin(pin);
-                    saveInternal(callback);
+                    saveInternal();
                 }
         } else {
-            saveInternal(callback);
+            saveInternal();
         }
     }
 
-    private void saveInternal(ThreadPrefetchCallback callback) {
+    private void saveInternal() {
         if (chanLoader.getThread() != null) {
             Post op = chanLoader.getThread().op;
             List<Post> postsToSave = chanLoader.getThread().posts;
 
             // We don't want to send PinAddedMessage broadcast right away. We will send it after
             // the thread has been saved
-            if (!watchManager.createPin(loadable, op, PinType.DownloadNewPosts, false)) {
+            if (!watchManager.createPin(loadable, op, PinTypeHolder.PinType.DownloadNewPosts, false)) {
                 throw new IllegalStateException("Could not create pin for loadable " + loadable);
             }
 
@@ -269,54 +263,16 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 throw new IllegalStateException("Could not find freshly created pin by loadable " + loadable);
             }
 
-            startSavingThreadInternal(loadable, postsToSave, newPin, callback);
+            startSavingThreadInternal(loadable, postsToSave, newPin);
         }
     }
 
     private void startSavingThreadInternal(
             Loadable loadable,
             List<Post> postsToSave,
-            Pin newPin,
-            ThreadPrefetchCallback callback) {
-        watchManager.startSavingThread(loadable, postsToSave, new ThreadSaveManager.ResultCallback() {
-            @Override
-            public void onResult(boolean result) {
-                EventBus.getDefault().post(new WatchManager.PinMessages.PinAddedMessage(newPin));
-                callback.onPrefetchEnded();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                Logger.e(TAG, "Could not start saving a thread", error);
-            }
-        }, this);
-
-    }
-
-    @Override
-    public void onStartedDownloading() {
-        // Called on background thread
-        runOnUiThread(() -> {
-            threadPresenterCallback.showThreadPrefetchDialog();
-        });
-    }
-
-    @Override
-    public void onProgress(int percent) {
-        // Called on background thread
-
-        runOnUiThread(() -> {
-            threadPresenterCallback.updateThreadPrefetchDialog(percent);
-        });
-    }
-
-    @Override
-    public void onCompletedDownloading() {
-        // Called on background thread
-
-        runOnUiThread(() -> {
-            threadPresenterCallback.hideThreadPrefetchDialog();
-        });
+            Pin newPin) {
+        watchManager.startSavingThread(loadable, postsToSave);
+        EventBus.getDefault().post(new WatchManager.PinMessages.PinAddedMessage(newPin));
     }
 
     public boolean isPinned() {
@@ -713,7 +669,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 Loadable pinLoadable = databaseManager.getDatabaseLoadableManager().get(
                         Loadable.forThread(loadable.site, post.board, post.no, title)
                 );
-                watchManager.createPin(pinLoadable, post, PinType.WatchNewPosts);
+                watchManager.createPin(pinLoadable, post, PinTypeHolder.PinType.WatchNewPosts);
                 break;
             case POST_OPTION_OPEN_BROWSER:
                 AndroidUtils.openLink(loadable.site.resolvable().desktopUrl(loadable, post));
@@ -1016,10 +972,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         this.context = context;
     }
 
-    public void destroy() {
-        watchManager.removePrefetchDownloadCallback(loadable);
-    }
-
     public void updateLoadable(boolean isSavedCopy) {
         loadable.isSavedCopy = isSavedCopy;
     }
@@ -1108,11 +1060,5 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         void viewRemovedPostsForTheThread(List<Post> threadPosts, int threadNo);
 
         void onRestoreRemovedPostsClicked(int threadNo, Site site, String boardCode, List<Integer> selectedPosts);
-
-        void showThreadPrefetchDialog();
-
-        void updateThreadPrefetchDialog(int percent);
-
-        void hideThreadPrefetchDialog();
     }
 }

@@ -79,7 +79,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
             String thumbnailUrl,
             int order,
             boolean archived,
-            PinType pinType
+            PinTypeHolder.PinType pinType
     ) {
         this.loadable = loadable;
         this.watching = watching;

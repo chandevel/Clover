@@ -35,7 +35,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinType;
+import com.github.adamantcheese.chan.core.model.orm.PinTypeHolder;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -159,14 +159,14 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     public boolean createPin(Loadable loadable) {
-        return createPin(loadable, null, PinType.WatchNewPosts);
+        return createPin(loadable, null, PinTypeHolder.PinType.WatchNewPosts);
     }
 
-    public boolean createPin(Loadable loadable, @Nullable Post opPost, PinType pinType) {
+    public boolean createPin(Loadable loadable, @Nullable Post opPost, PinTypeHolder.PinType pinType) {
         return createPin(loadable, opPost, pinType, true);
     }
 
-    public boolean createPin(Loadable loadable, @Nullable Post opPost, PinType pinType, boolean sendBroadcast) {
+    public boolean createPin(Loadable loadable, @Nullable Post opPost, PinTypeHolder.PinType pinType, boolean sendBroadcast) {
         Pin pin = new Pin();
         pin.loadable = loadable;
         pin.loadable.title = PostHelper.getTitle(opPost, loadable);
@@ -216,18 +216,12 @@ public class WatchManager implements WakeManager.Wakeable {
 
     public void startSavingThread(
             Loadable loadable,
-            List<Post> postsToSave,
-            ThreadSaveManager.ResultCallback resultCallback,
-            @Nullable ThreadSaveManager.DownloadingCallback downloadingCallback) {
+            List<Post> postsToSave) {
         if (!startSavingThreadInternal(loadable.id)) {
             return;
         }
 
-        threadSaveManager.enqueueThreadToSave(loadable, postsToSave, false, resultCallback, downloadingCallback);
-    }
-
-    public void removePrefetchDownloadCallback(Loadable loadable) {
-        threadSaveManager.removeCallbacks(loadable);
+        threadSaveManager.enqueueThreadToSave(loadable, postsToSave);
     }
 
     private Boolean startSavingThreadInternal(int loadableId) {
@@ -643,7 +637,7 @@ public class WatchManager implements WakeManager.Wakeable {
                 continue;
             }
 
-            if ((PinType.from(pin.pinType).hasDownloadFlag())) {
+            if ((PinTypeHolder.PinType.from(pin.pinType).hasDownloadFlag())) {
                 pinsWithDownloadFlag.add(pin);
             }
         }

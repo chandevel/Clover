@@ -44,10 +44,9 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinType;
+import com.github.adamantcheese.chan.core.model.orm.PinTypeHolder;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,7 +121,6 @@ public class WatchNotification extends Service {
     public void onDestroy() {
         super.onDestroy();
         notificationManager.cancel(NOTIFICATION_ID);
-        threadSaveManager.removeCallbacksStartedFromService();
     }
 
     @Override
@@ -149,13 +147,13 @@ public class WatchNotification extends Service {
         List<Pin> subjectPins = new ArrayList<>();
 
         HashMap<SavedThread, Pair<Loadable, List<Post>>> unviewedPostsByThread = new HashMap<>();
-        HashMap<PinType, List<Pin>> pinsByType = new HashMap<>();
+        HashMap<PinTypeHolder.PinType, List<Pin>> pinsByType = new HashMap<>();
 
         int flags = 0;
 
         // TODO: separate pins by type and do pin jobs separately
 //        for (Pin pin : watchManager.getWatchingPins()) {
-//            PinType pinType = PinType.from(pin.getTypeValue());
+//            PinTypeHolder.PinType pinType = PinTypeHolder.PinType.from(pin.getTypeValue());
 //
 //            if (!pinsByType.containsKey(pinType)) {
 //                pinsByType.put(pinType, new ArrayList<>());
@@ -272,22 +270,7 @@ public class WatchNotification extends Service {
 
             // This function is really slow since it downloads everything in a thread
             // (posts and their images/files)
-            threadSaveManager.enqueueThreadToSave(loadable, posts, true, new ThreadSaveManager.ResultCallback() {
-                @Override
-                public void onResult(boolean result) {
-                    if (!result) {
-                        Logger.d(TAG, "Result is false for downloading request with loadable " + loadable.toString());
-                    }
-                }
-
-                @Override
-                public void onError(Throwable error) {
-                    String threadName = "[board = " + loadable.boardCode + ", title = "
-                            + loadable.title + ", new posts count = " + posts.size() + "]";
-
-                    Logger.e(TAG, "Could not save a thread " + threadName, error);
-                }
-            }, null);
+            threadSaveManager.enqueueThreadToSave(loadable, posts);
         }
     }
 

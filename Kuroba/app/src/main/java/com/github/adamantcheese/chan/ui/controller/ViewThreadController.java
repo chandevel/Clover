@@ -123,10 +123,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void saveClicked(ToolbarMenuItem item) {
-        threadLayout.getPresenter().save(() -> {
-            setSaveIconState(true);
-            updateDrawerHighlighting(loadable);
-        });
+        threadLayout.getPresenter().save();
+
+        setSaveIconState(true);
+        updateDrawerHighlighting(loadable);
     }
 
     private void searchClicked(ToolbarMenuSubItem item) {
