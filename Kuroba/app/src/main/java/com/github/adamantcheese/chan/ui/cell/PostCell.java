@@ -804,7 +804,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             httpIcons = new ArrayList<>(icons.size());
             for (int i = 0; i < icons.size(); i++) {
                 PostHttpIcon icon = icons.get(i);
-                PostIconsHttpIcon j = new PostIconsHttpIcon(this, icon.name.substring(0, icon.name.indexOf('/')), icon.url);
+                int codeIndex = icon.name.indexOf('/'); //this is for country codes
+                PostIconsHttpIcon j = new PostIconsHttpIcon(this, icon.name.substring(0, codeIndex != -1 ? codeIndex : icon.name.length()), icon.url);
                 httpIcons.add(j);
                 j.request();
             }

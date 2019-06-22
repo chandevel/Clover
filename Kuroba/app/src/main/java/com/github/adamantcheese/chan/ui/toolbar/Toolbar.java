@@ -313,8 +313,9 @@ public class Toolbar extends LinearLayout implements
             hideKeyboard(navigationItemContainer);
         } else {
             //set a pseudo callback because I'm not doing a bunch of actual callbacks to get back to this same class
-            if (navigationItemContainer.viewForItem(item) instanceof SearchLayout) {
-                searchFunc = () -> ((SearchLayout) navigationItemContainer.viewForItem(item)).openKeyboard();
+            if (navigationItemContainer.viewForItem(item) instanceof SearchLayout && searchFunc != null) {
+                final SearchLayout search = ((SearchLayout) navigationItemContainer.viewForItem(item));
+                searchFunc = search::openKeyboard;
             }
         }
     }

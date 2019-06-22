@@ -78,7 +78,7 @@ public class LogsController extends Controller {
         Process process;
         try {
             process = new ProcessBuilder()
-                    .command("logcat", "-d", "-v", "tag",
+                    .command("logcat", "-d", "-v", "time",
                             //Silence these tags, useful for release version
                             "libc:S", "chatty:S", "RenderThread:S", "VideoCapabilities:S",
                             "SpannableStringBuilder:S", "TextClassifierService:S", "TextClassifierImpl:S",
