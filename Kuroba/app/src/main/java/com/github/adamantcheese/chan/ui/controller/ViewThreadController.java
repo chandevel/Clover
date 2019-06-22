@@ -16,17 +16,20 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -37,6 +40,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
+import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
@@ -123,10 +127,29 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void saveClicked(ToolbarMenuItem item) {
-        threadLayout.getPresenter().save();
+        RuntimePermissionsHelper runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
+        if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            saveClickedInternal();
+            return;
+        }
 
-        setSaveIconState(true);
-        updateDrawerHighlighting(loadable);
+        runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, (granted) -> {
+            if (granted) {
+                saveClickedInternal();
+            } else {
+                Toast.makeText(
+                        context,
+                        context.getString(R.string.view_thread_controller_thread_downloading_requires_write_permission),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void saveClickedInternal() {
+        if (threadLayout.getPresenter().save()) {
+            setSaveIconState(true);
+            updateDrawerHighlighting(loadable);
+        }
     }
 
     private void searchClicked(ToolbarMenuSubItem item) {

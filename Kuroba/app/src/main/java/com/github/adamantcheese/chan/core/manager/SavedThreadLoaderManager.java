@@ -41,7 +41,7 @@ public class SavedThreadLoaderManager {
             throw new RuntimeException("Cannot be executed on the main thread!");
         }
 
-        String threadSubDir = ThreadSaveManager.getThreadSubDir(loadable, loadable.no);
+        String threadSubDir = ThreadSaveManager.getThreadSubDir(loadable);
         File threadSaveDir = new File(ChanSettings.saveLocation.get(), threadSubDir);
 
         if (!threadSaveDir.exists() || !threadSaveDir.isDirectory()) {

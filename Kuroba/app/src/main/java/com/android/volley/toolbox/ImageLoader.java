@@ -190,7 +190,7 @@ public class ImageLoader {
             int height) {
         throwIfNotOnMainThread();
 
-        String imageDir = ThreadSaveManager.getImagesSubDir(loadable, loadable.no);
+        String imageDir = ThreadSaveManager.getImagesSubDir(loadable);
         File fullImagePath = new File(ChanSettings.saveLocation.get(), imageDir);
         File imageOnDiskFile = new File(fullImagePath, filename);
 

@@ -120,18 +120,13 @@ public class IOUtils {
         }
     }
 
-    public static void deleteDirWithContents(File dir) throws IOException {
-        for (File file : dir.listFiles()) {
-            if (file.isDirectory()) {
-                deleteDirWithContents(file);
-                if (!file.delete()) {
-                    throw new IOException("Could not delete " + file.getAbsolutePath());
-                }
-            } else if (file.isFile()) {
-                if (!file.delete()) {
-                    throw new IOException("Could not delete " + file.getAbsolutePath());
-                }
+    public static void deleteDirWithContents(File dir) {
+        if (dir.isDirectory()) {
+            for (File c : dir.listFiles()) {
+                deleteDirWithContents(c);
             }
         }
+
+        dir.delete();
     }
 }

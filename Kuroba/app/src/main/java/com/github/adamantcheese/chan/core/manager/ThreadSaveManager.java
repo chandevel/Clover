@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
@@ -189,6 +190,17 @@ public class ThreadSaveManager {
         workerQueue.onNext(loadable);
     }
 
+    public void stopDownloading(Loadable loadable) {
+        synchronized (activeDownloads) {
+            SaveThreadParameters parameters = activeDownloads.get(loadable);
+            if (parameters == null) {
+                return;
+            }
+
+            parameters.stop();
+        }
+    }
+
     private void onDownloadingCompleted(boolean result, Loadable loadable) {
         synchronized (activeDownloads) {
             SaveThreadParameters saveThreadParameters = activeDownloads.get(loadable);
@@ -244,7 +256,7 @@ public class ThreadSaveManager {
                 throw new RuntimeException("Cannot be executed on the main thread!");
             }
 
-            String threadSubDir = getThreadSubDir(loadable, loadable.no);
+            String threadSubDir = getThreadSubDir(loadable);
             File threadSaveDir = new File(ChanSettings.saveLocation.get(), threadSubDir);
 
             if (!threadSaveDir.exists() && !threadSaveDir.mkdirs()) {
@@ -291,51 +303,64 @@ public class ThreadSaveManager {
 
             AtomicInteger currentImageDownloadIndex = new AtomicInteger(0);
 
-            Single.fromCallable(() -> downloadSpoilerImage(
-                    loadable,
-                    boardSaveDir,
-                    spoilerImageUrlAndExtension)
-            )
-            .flatMap((res) -> {
-                // for each post create a new flowable
-                return Flowable.fromIterable(newPosts)
-                        // Here we create a separate reactive stream for each image request.
-                        //                   |
-                        //                 / | \
-                        //                /  |  \
-                        //               /   |   \
-                        //               V   V   V // Separate streams,
-                        //               |   |   |
-                        //               o   o   o // Download images in parallel
-                        //               |   |   | // (availableProcessors count at a time),
-                        //               V   V   V // Combine them back to a single stream,
-                        //               \   |   /
-                        //                \  |  /  // There actually as many worker threads as
-                        //                 \ | /   // there are processor cores count on the
-                        //                   |     // user phone.
-                        .flatMap((post) -> {
-                            return downloadImages(
-                                    loadable,
-                                    threadSaveDirImages,
-                                    post,
-                                    currentImageDownloadIndex,
-                                    postsWithImages);
-                        })
-                        .toList()
-                        .doOnSuccess((list) -> Logger.d(TAG, "PostImage download result list = " + list));
-            })
-            .flatMap((res) -> {
-                return Single.defer(() -> {
-                    updateLastSavedPostNo(loadable, newPosts);
+            try {
+                Single.fromCallable(() -> downloadSpoilerImage(
+                        loadable,
+                        boardSaveDir,
+                        spoilerImageUrlAndExtension)
+                )
+                .flatMap((res) -> {
+                    // for each post create a new flowable
+                    return Flowable.fromIterable(newPosts)
+                            // Here we create a separate reactive stream for each image request.
+                            //                   |
+                            //                 / | \
+                            //                /  |  \
+                            //               /   |   \
+                            //               V   V   V // Separate streams,
+                            //               |   |   |
+                            //               o   o   o // Download images in parallel
+                            //               |   |   | // (availableProcessors count at a time),
+                            //               V   V   V // Combine them back to a single stream,
+                            //               \   |   /
+                            //                \  |  /  // There actually as many worker threads as
+                            //                 \ | /   // there are processor cores count on the
+                            //                   |     // user phone.
+                            .flatMap((post) -> {
+                                return downloadImages(
+                                        loadable,
+                                        threadSaveDirImages,
+                                        post,
+                                        currentImageDownloadIndex,
+                                        postsWithImages);
+                            })
+                            .toList()
+                            .doOnSuccess((list) -> Logger.d(TAG, "PostImage download result list = " + list));
+                })
+                .flatMap((res) -> {
+                    return Single.defer(() -> {
+                        if (!isCurrentDownloadRunning(loadable)) {
+                            Logger.d(TAG, "Thread downloading has been canceled " + loadableToString(loadable));
+                            return Single.just(false);
+                        }
 
-                    Logger.d(TAG, "Successfully updated a thread " + loadableToString(loadable));
-                    return Single.just(true);
-                });
-            })
-            // Have to use blockingGet here
-            .blockingGet();
+                        updateLastSavedPostNo(loadable, newPosts);
 
-            Logger.d(TAG, "All threads are updated");
+                        Logger.d(TAG, "Successfully updated a thread " + loadableToString(loadable));
+                        return Single.just(true);
+                    });
+                })
+                // Have to use blockingGet here
+                .blockingGet();
+            } finally {
+                if (!isCurrentDownloadRunning(loadable)) {
+                    Logger.d(TAG, "Thread with loadable " + loadableToString(loadable) + " has been canceled");
+                    deleteThread(loadable);
+                } else {
+                    Logger.d(TAG, "Thread with loadable " + loadableToString(loadable) + " has been updated");
+                }
+            }
+
             return true;
         });
     }
@@ -480,6 +505,7 @@ public class ThreadSaveManager {
             }
 
             downloadImage(
+                    loadable,
                     threadSaveDirImages,
                     spoilerImageName,
                     spoilerImageUrlAndExtension.second);
@@ -511,12 +537,12 @@ public class ThreadSaveManager {
             if (VERBOSE_LOG) {
                 Logger.d(TAG, "Post " + post.no + " contains no images");
             }
-            return Flowable.empty();
+            return Flowable.just(false);
         }
 
         if (!shouldDownloadImages()) {
             Logger.d(TAG, "Cannot load images or videos with current network");
-            return Flowable.empty();
+            return Flowable.just(false);
         }
 
         return Flowable.fromIterable(post.images)
@@ -623,10 +649,12 @@ public class ThreadSaveManager {
         }
 
         downloadImage(
+                loadable,
                 threadSaveDirImages,
                 filename + "_" + ORIGINAL_FILE_NAME + "." + extension,
                 imageUrl);
         downloadImage(
+                loadable,
                 threadSaveDirImages,
                 filename + "_" + THUMBNAIL_FILE_NAME + "." + extension,
                 thumbnailUrl);
@@ -644,11 +672,17 @@ public class ThreadSaveManager {
      * Downloads an image and stores it to the disk
      * */
     private void downloadImage(
+            Loadable loadable,
             File threadSaveDirImages,
             String filename,
             HttpUrl imageUrl) throws IOException {
         if (!shouldDownloadImages()) {
             Logger.d(TAG, "Cannot load images or videos with current network");
+            return;
+        }
+
+        if (!isCurrentDownloadRunning(loadable)) {
+            Logger.d(TAG, "File downloading with name " + filename + " has been canceled");
             return;
         }
 
@@ -671,6 +705,19 @@ public class ThreadSaveManager {
         } else {
             Logger.d(TAG, "image " + filename + " already exists on the disk, skip it");
         }
+    }
+
+    private boolean isCurrentDownloadRunning(Loadable loadable) {
+        synchronized (activeDownloads) {
+            SaveThreadParameters parameters = activeDownloads.get(loadable);
+            if (parameters != null) {
+                if (!parameters.getIsRunning()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -715,6 +762,17 @@ public class ThreadSaveManager {
         return true;
     }
 
+    private void deleteThread(Loadable loadable) {
+        String subDirs = getThreadSubDir(loadable);
+
+        File threadSaveDir = new File(ChanSettings.saveLocation.get(), subDirs);
+        if (!threadSaveDir.exists()) {
+            return;
+        }
+
+        IOUtils.deleteDirWithContents(threadSaveDir);
+    }
+
     /**
      * Extracts and converts to a string only the info from the loadable that we are interested in
      * */
@@ -730,7 +788,7 @@ public class ThreadSaveManager {
         return originalName + "_" + ORIGINAL_FILE_NAME + "." + extension;
     }
 
-    public static String getThreadSubDir(Loadable loadable, int opNo) {
+    public static String getThreadSubDir(Loadable loadable) {
         // saved_threads/4chan/g/11223344
 
         return SAVED_THREADS_DIR_NAME +
@@ -738,18 +796,18 @@ public class ThreadSaveManager {
                 loadable.site.name() +
                 File.separator +
                 loadable.boardCode +
-                File.separator + opNo;
+                File.separator + loadable.no;
     }
 
-    public static String getImagesSubDir(Loadable loadable, int opNo) {
-        // saved_threads/4chan/g/11223344
+    public static String getImagesSubDir(Loadable loadable) {
+        // saved_threads/4chan/g/11223344/images
 
         return SAVED_THREADS_DIR_NAME +
                 File.separator +
                 loadable.site.name() +
                 File.separator +
                 loadable.boardCode +
-                File.separator + opNo +
+                File.separator + loadable.no +
                 File.separator + IMAGES_DIR_NAME;
     }
 
@@ -766,12 +824,14 @@ public class ThreadSaveManager {
     public static class SaveThreadParameters {
         private Loadable loadable;
         private List<Post> postsToSave;
+        private AtomicBoolean isRunning;
 
         public SaveThreadParameters(
                 Loadable loadable,
                 List<Post> postsToSave) {
             this.loadable = loadable;
             this.postsToSave = postsToSave;
+            this.isRunning = new AtomicBoolean(true);
         }
 
         public Loadable getLoadable() {
@@ -780,6 +840,14 @@ public class ThreadSaveManager {
 
         public List<Post> getPostsToSave() {
             return postsToSave;
+        }
+
+        public boolean getIsRunning() {
+            return isRunning.get();
+        }
+
+        public void stop() {
+            isRunning.compareAndSet(true, false);
         }
     }
 

@@ -1,7 +1,13 @@
 package com.github.adamantcheese.chan.core.database;
 
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.utils.IOUtils;
+import com.j256.ormlite.stmt.DeleteBuilder;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -129,6 +135,39 @@ public class DatabaseSavedThreadManager {
                     .where()
                     .eq(SavedThread.LOADABLE_ID, loadableId)
                     .queryForFirst();
+        };
+    }
+
+    public Callable<Void> deleteSavedThread(Loadable loadable) {
+        return () -> {
+            SavedThread prevSavedThread = getSavedThreadByLoadableId(loadable.id).call();
+            if (prevSavedThread == null) {
+                return null;
+            }
+
+            DeleteBuilder<SavedThread, Integer> db = helper.savedThreadDao.deleteBuilder();
+            db.where().eq(SavedThread.LOADABLE_ID, loadable.id);
+            db.delete();
+
+            String threadSubDir = ThreadSaveManager.getThreadSubDir(loadable);
+            File threadSaveDir = new File(ChanSettings.saveLocation.get(), threadSubDir);
+
+            if (!threadSaveDir.exists() || !threadSaveDir.isDirectory()) {
+                return null;
+            }
+
+            IOUtils.deleteDirWithContents(threadSaveDir);
+            return null;
+        };
+    }
+
+    public Callable<Void> deleteSavedThreads(List<Loadable> loadableList) {
+        return () -> {
+            for (Loadable loadable : loadableList) {
+                deleteSavedThread(loadable).call();
+            }
+
+            return null;
         };
     }
 }

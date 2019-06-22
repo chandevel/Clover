@@ -310,11 +310,16 @@ public class WatchManager implements WakeManager.Wakeable {
         pins.remove(pin);
 
         destroyPinWatcher(pin);
-        deletedThreadSave(pin.loadable.id);
+        deleteThreadSave(pin.loadable.id);
 
-        databaseManager.runTask(databasePinManager.deletePin(pin));
-        databaseManager.runTask(
-                databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(pin.loadable.id, true));
+        threadSaveManager.stopDownloading(pin.loadable);
+
+        databaseManager.runTask(() -> {
+            databasePinManager.deletePin(pin).call();
+            databaseSavedThreadManager.deleteSavedThread(pin.loadable).call();
+
+            return null;
+        });
 
         // Update the new orders
         Collections.sort(pins);
@@ -324,7 +329,7 @@ public class WatchManager implements WakeManager.Wakeable {
         EventBus.getDefault().post(new PinMessages.PinRemovedMessage(pin));
     }
 
-    private void deletedThreadSave(int loadableId) {
+    private void deleteThreadSave(int loadableId) {
         SavedThread savedThread = null;
 
         for (int i = 0; i < savedThreads.size(); i++) {
@@ -343,9 +348,22 @@ public class WatchManager implements WakeManager.Wakeable {
         for (Pin pin : pinList) {
             pins.remove(pin);
             destroyPinWatcher(pin);
+            deleteThreadSave(pin.loadable.id);
+
+            threadSaveManager.stopDownloading(pin.loadable);
         }
 
-        databaseManager.runTask(databasePinManager.deletePins(pinList));
+        databaseManager.runTask(() -> {
+            databasePinManager.deletePins(pinList).call();
+
+            List<Loadable> loadableList = new ArrayList<>(pinList.size());
+            for (Pin pin : pinList) {
+                loadableList.add(pin.loadable);
+            }
+
+            databaseSavedThreadManager.deleteSavedThreads(loadableList).call();
+            return null;
+        });
 
         // Update the new orders
         Collections.sort(pins);
@@ -480,6 +498,16 @@ public class WatchManager implements WakeManager.Wakeable {
         updatePinsInDatabase();
 
         EventBus.getDefault().post(new PinMessages.PinsChangedMessage(pins));
+    }
+
+    public boolean hasAtLeastOnePinWithDownloadFlag() {
+        for (Pin pin : pins) {
+            if (PinTypeHolder.PinType.from(pin.pinType).hasDownloadFlag()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Clear all non watching pins or all pins

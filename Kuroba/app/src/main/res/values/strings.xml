@@ -657,4 +657,9 @@ Don't have a 4chan Pass?<br>
     <string name="setting_bookmark_short_info">Short bookmark info</string>
     <string name="setting_bookmark_short_info_description">Shorter information in the bookmark menu for unread and quoted posts</string>
     <string name="filter_removed_undo">Removed filter %1$s</string>
+    <string name="view_thread_controller_thread_downloading_requires_write_permission">Thread downloading requires WRITE_EXTERNAL_STORAGE permission</string>
+    <string name="warning">Warning</string>
+    <string name="drawer_controller_at_least_one_pin_has_download_flag">At least one pin has \"Download\" flag which makes this delete operation irreversible. Do you really want to delete all pins?</string>
+    <string name="drawer_controller_do_not_delete">Do not delete</string>
+    <string name="drawer_controller_delete_all_pins">Delete all pins</string>
 </resources>

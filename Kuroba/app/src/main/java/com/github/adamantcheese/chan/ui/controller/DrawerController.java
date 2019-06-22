@@ -23,6 +23,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,6 +36,7 @@ import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinTypeHolder;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -158,20 +160,45 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     @Override
     public void onHeaderClicked(DrawerAdapter.HeaderAction headerAction) {
         if (headerAction == DrawerAdapter.HeaderAction.CLEAR || headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL) {
-            boolean all = headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
-            final List<Pin> pins = watchManager.clearPins(all);
-            if (!pins.isEmpty()) {
+            final boolean all = headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
+            final boolean hasDownloadFlag = watchManager.hasAtLeastOnePinWithDownloadFlag();
+
+            if (all && hasDownloadFlag) {
+                new AlertDialog.Builder(context)
+                        .setTitle(R.string.warning)
+                        .setMessage(R.string.drawer_controller_at_least_one_pin_has_download_flag)
+                        .setNegativeButton(R.string.drawer_controller_do_not_delete, (dialog, which) -> {
+                            dialog.dismiss();
+                        })
+                        .setPositiveButton(R.string.drawer_controller_delete_all_pins, ((dialog, which) -> {
+                            onHeaderClickedInternal(true, true);
+                        }))
+                        .create()
+                        .show();
+                return;
+            }
+
+            onHeaderClickedInternal(all, hasDownloadFlag);
+        }
+    }
+
+    private void onHeaderClickedInternal(boolean all, boolean hasDownloadFlag) {
+        final List<Pin> pins = watchManager.clearPins(all);
+        if (!pins.isEmpty()) {
+            if (!hasDownloadFlag) {
+                // We can't undo this operation when there is at least one pin that downloads a thread
+                // because we will be deleting files from the disk
                 String text = context.getResources().getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
                 Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pins_cleared, text), 4000);
                 fixSnackbarText(context, snackbar);
                 snackbar.setAction(R.string.undo, v -> watchManager.addAll(pins));
                 snackbar.show();
-            } else {
-                int text = watchManager.getAllPins().isEmpty() ? R.string.drawer_pins_non_cleared : R.string.drawer_pins_non_cleared_try_all;
-                Snackbar snackbar = Snackbar.make(drawerLayout, text, Snackbar.LENGTH_LONG);
-                fixSnackbarText(context, snackbar);
-                snackbar.show();
             }
+        } else {
+            int text = watchManager.getAllPins().isEmpty() ? R.string.drawer_pins_non_cleared : R.string.drawer_pins_non_cleared_try_all;
+            Snackbar snackbar = Snackbar.make(drawerLayout, text, Snackbar.LENGTH_LONG);
+            fixSnackbarText(context, snackbar);
+            snackbar.show();
         }
     }
 
@@ -179,10 +206,21 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     public void onPinRemoved(Pin pin) {
         final Pin undoPin = pin.clone();
         watchManager.deletePin(pin);
-        Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pin_removed, pin.loadable.title), Snackbar.LENGTH_LONG);
-        fixSnackbarText(context, snackbar);
-        snackbar.setAction(R.string.undo, v -> watchManager.createPin(undoPin));
-        snackbar.show();
+
+        PinTypeHolder.PinType pinType = PinTypeHolder.PinType.from(pin.pinType);
+        if (!pinType.hasDownloadFlag()) {
+            // If this pin has a DownloadPostsFlag we can't readd it with snackbar because we delete
+            // all of the thread file from the disk, so we just don't show the snackbar in this case.
+
+            Snackbar snackbar = Snackbar.make(
+                    drawerLayout,
+                    context.getString(R.string.drawer_pin_removed, pin.loadable.title),
+                    Snackbar.LENGTH_LONG);
+
+            fixSnackbarText(context, snackbar);
+            snackbar.setAction(R.string.undo, v -> watchManager.createPin(undoPin));
+            snackbar.show();
+        }
     }
 
     @Override

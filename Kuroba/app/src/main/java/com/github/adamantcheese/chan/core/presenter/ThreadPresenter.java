@@ -220,7 +220,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         return isPinned();
     }
 
-    public void save() {
+    public boolean save() {
+        if (chanLoader.getThread() == null) {
+            return false;
+        }
+
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
                 PinTypeHolder.PinType pinType = PinTypeHolder.PinType.from(pin.pinType);
@@ -230,7 +234,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
                     if (pinType.hasNoFlags()) {
                         watchManager.deletePin(pin);
-                        // TODO: send PinRemovedMessage broadcast?
                     } else {
                         watchManager.updatePin(pin);
                         watchManager.stopSavingThread(pin.loadable.id);
@@ -245,26 +248,26 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         } else {
             saveInternal();
         }
+
+        return true;
     }
 
     private void saveInternal() {
-        if (chanLoader.getThread() != null) {
-            Post op = chanLoader.getThread().op;
-            List<Post> postsToSave = chanLoader.getThread().posts;
+        Post op = chanLoader.getThread().op;
+        List<Post> postsToSave = chanLoader.getThread().posts;
 
-            // We don't want to send PinAddedMessage broadcast right away. We will send it after
-            // the thread has been saved
-            if (!watchManager.createPin(loadable, op, PinTypeHolder.PinType.DownloadNewPosts, false)) {
-                throw new IllegalStateException("Could not create pin for loadable " + loadable);
-            }
-
-            Pin newPin = watchManager.getPinByLoadable(loadable);
-            if (newPin == null) {
-                throw new IllegalStateException("Could not find freshly created pin by loadable " + loadable);
-            }
-
-            startSavingThreadInternal(loadable, postsToSave, newPin);
+        // We don't want to send PinAddedMessage broadcast right away. We will send it after
+        // the thread has been saved
+        if (!watchManager.createPin(loadable, op, PinTypeHolder.PinType.DownloadNewPosts, false)) {
+            throw new IllegalStateException("Could not create pin for loadable " + loadable);
         }
+
+        Pin newPin = watchManager.getPinByLoadable(loadable);
+        if (newPin == null) {
+            throw new IllegalStateException("Could not find freshly created pin by loadable " + loadable);
+        }
+
+        startSavingThreadInternal(loadable, postsToSave, newPin);
     }
 
     private void startSavingThreadInternal(
@@ -272,6 +275,9 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             List<Post> postsToSave,
             Pin newPin) {
         watchManager.startSavingThread(loadable, postsToSave);
+
+        // TODO: PinAddedMessage needs to be updated (like do not set the bookmark icon when the user
+        //  has clicked save icon)
         EventBus.getDefault().post(new WatchManager.PinMessages.PinAddedMessage(newPin));
     }
 
