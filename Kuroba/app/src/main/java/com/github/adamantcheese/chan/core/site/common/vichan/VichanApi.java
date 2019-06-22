@@ -8,6 +8,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
+
 import org.jsoup.parser.Parser;
 
 import java.io.IOException;
@@ -245,13 +246,13 @@ public class VichanApi extends CommonSite.CommonApi {
         if (countryCode != null && countryName != null) {
             HttpUrl countryUrl = endpoints.icon("country",
                     makeArgument("country_code", countryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
+            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/" + countryCode));
         }
 
         if (trollCountryCode != null && countryName != null) {
             HttpUrl countryUrl = endpoints.icon("troll_country",
                     makeArgument("troll_country_code", trollCountryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
+            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/" + trollCountryCode));
         }
 
         queue.addForParse(builder);

@@ -42,6 +42,8 @@ public class ExportedFilter {
     private boolean applyToReplies;
     @SerializedName("order")
     private int order;
+    @SerializedName("only_on_op")
+    private boolean onlyOnOP;
 
     public ExportedFilter(
             boolean enabled,
@@ -52,7 +54,8 @@ public class ExportedFilter {
             int action,
             int color,
             boolean applyToReplies,
-            int order
+            int order,
+            boolean onlyOnOp
     ) {
         this.enabled = enabled;
         this.type = type;
@@ -63,6 +66,7 @@ public class ExportedFilter {
         this.color = color;
         this.applyToReplies = applyToReplies;
         this.order = order;
+        this.onlyOnOP = onlyOnOp;
     }
 
     public boolean isEnabled() {
@@ -101,5 +105,9 @@ public class ExportedFilter {
 
     public int getOrder() {
         return order;
+    }
+
+    public boolean getOnlyOnOP() {
+        return onlyOnOP;
     }
 }

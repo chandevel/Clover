@@ -27,36 +27,21 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Protocol;
 
 public class FileCache implements FileCacheDownloader.Callback {
     private static final String TAG = "FileCache";
-    private static final int TIMEOUT = 10000;
     private static final int DOWNLOAD_POOL_SIZE = 2;
 
     private final ExecutorService downloadPool = Executors.newFixedThreadPool(DOWNLOAD_POOL_SIZE);
-    protected OkHttpClient httpClient;
 
     private final CacheHandler cacheHandler;
 
     private List<FileCacheDownloader> downloaders = new ArrayList<>();
 
     public FileCache(File directory) {
-        httpClient = new OkHttpClient.Builder()
-                .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                // Disable SPDY, causes reproducible timeouts, only one download at the same time and other fun stuff
-                .protocols(Collections.singletonList(Protocol.HTTP_1_1))
-                .build();
-
         cacheHandler = new CacheHandler(directory);
     }
 
@@ -171,7 +156,7 @@ public class FileCache implements FileCacheDownloader.Callback {
     private FileCacheDownloader handleStartDownload(
             FileCacheListener listener, File file, String url) {
         FileCacheDownloader downloader = FileCacheDownloader.fromCallbackClientUrlOutputUserAgent(
-                this, httpClient, url, file);
+                this, url, file);
         if (listener != null) {
             downloader.addListener(listener);
         }

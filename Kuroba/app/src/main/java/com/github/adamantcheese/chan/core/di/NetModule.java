@@ -29,6 +29,8 @@ import java.io.File;
 
 import javax.inject.Singleton;
 
+import okhttp3.OkHttpClient;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class NetModule {
@@ -64,5 +66,11 @@ public class NetModule {
     @Singleton
     public HttpCallManager provideHttpCallManager() {
         return new HttpCallManager();
+    }
+
+    @Provides
+    @Singleton
+    public OkHttpClient provideBasicOkHttpClient() {
+        return new OkHttpClient();
     }
 }

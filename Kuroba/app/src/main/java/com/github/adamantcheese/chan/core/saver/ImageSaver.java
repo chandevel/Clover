@@ -29,14 +29,14 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -176,7 +176,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         }
 
         String text = success ?
-                getAppContext().getString(R.string.image_save_as, task.getDestination().getName().replace("\\ ", " ")) :
+                getAppContext().getString(R.string.image_save_as, task.getDestination().getName()) :
                 getString(R.string.image_save_failed);
         toast = Toast.makeText(getAppContext(), text, Toast.LENGTH_LONG);
         if (!task.getShare()) {
@@ -185,7 +185,6 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     }
 
     private String filterName(String name) {
-        name = name.replace(" ", "\\ ");
         name = UNSAFE_CHARACTERS_PATTERN.matcher(name).replaceAll("");
         if (name.length() == 0) {
             name = "_";

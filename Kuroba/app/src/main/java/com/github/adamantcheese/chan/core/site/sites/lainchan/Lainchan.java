@@ -83,7 +83,10 @@ public class Lainchan extends CommonSite {
                 Board.fromSiteNameCode(this, "layer", "layer"),
                 Board.fromSiteNameCode(this, "Questions and Complaints", "q"),
                 Board.fromSiteNameCode(this, "Random", "r"),
-                Board.fromSiteNameCode(this, "Lain", "lain")
+                Board.fromSiteNameCode(this, "Lain", "lain"),
+                Board.fromSiteNameCode(this, "Culture 15 freshly bumped threads", "culture"),
+                Board.fromSiteNameCode(this, "Psychopharmacology 15 freshly bumped threads", "psy"),
+                Board.fromSiteNameCode(this, "15 freshly bumped threads", "mega")
         );
 
         setResolvable(URL_HANDLER);

@@ -32,11 +32,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 
@@ -47,7 +43,6 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
     private Callback callback;
 
     private boolean running = false;
-    private int lastReplyCount;
 
     private TextView text;
     private String error;
@@ -119,10 +114,6 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     builder.append(getContext().getString(R.string.thread_refresh_bar_inactive));
                 } else if (time <= 0) {
                     builder.append(getContext().getString(R.string.thread_refresh_now));
-                    //only update you count when the thread is loaded and the setting is on
-                    if (ChanSettings.enableReplyCount.get()) {
-                        lastReplyCount = getNumReplies(chanThread);
-                    }
                 } else {
                     builder.append(getContext().getString(R.string.thread_refresh_countdown, time));
                 }
@@ -167,11 +158,6 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     } else {
                         builder.append('?');
                     }
-
-                    if (ChanSettings.enableReplyCount.get()) {
-                        builder.append(" / ")
-                                .append(getResources().getQuantityString(R.plurals.quotes, lastReplyCount, lastReplyCount));
-                    }
                 }
             }
 
@@ -179,28 +165,6 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
             return update;
         }
-    }
-
-    private int getNumReplies(ChanThread thread) {
-        int ret = 0;
-        //from PinWatcher
-        // Get list of saved replies from this thread
-        List<Post> savedReplies = new ArrayList<>();
-        for (Post item : thread.posts) {
-            if (item.isSavedReply) {
-                savedReplies.add(item);
-            }
-        }
-
-        // Now count posts that have a quote to a saved reply, including self-quotes
-        for (Post post : thread.posts) {
-            for (Post saved : savedReplies) {
-                if (post.repliesTo.contains(saved.no)) {
-                    ret++;
-                }
-            }
-        }
-        return ret;
     }
 
     private void schedule() {

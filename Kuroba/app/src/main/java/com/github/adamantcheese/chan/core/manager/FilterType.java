@@ -29,7 +29,8 @@ public enum FilterType {
     COMMENT(0x4),
     ID(0x8),
     SUBJECT(0x10),
-    FILENAME(0x20);
+    FILENAME(0x20),
+    COUNTRY_CODE(0x40);
 
     public final int flag;
 
@@ -61,6 +62,8 @@ public enum FilterType {
                 return getString(R.string.filter_subject);
             case FILENAME:
                 return getString(R.string.filter_filename);
+            case COUNTRY_CODE:
+                return getString(R.string.filter_country_code);
         }
         return null;
     }

@@ -21,10 +21,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -40,13 +36,21 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter;
 import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
+import com.github.adamantcheese.chan.core.site.common.CommonSite;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.Observable;
@@ -54,8 +58,12 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
+
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.injector;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
@@ -138,6 +146,46 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         presenter.create(this, selectedBoard);
         items = presenter.items();
         items.addObserver(this);
+
+        if (items.items.size() == 1) {
+            CommonSite setupSite = new CommonSite() {
+                @Override
+                public void setup() {
+                    setName("App Setup");
+                    setIcon(SiteIcon.fromDrawable(injector().instance(ThemeHelper.class).getTheme().settingsDrawable.makeDrawable(getAppContext())));
+                    setBoardsType(BoardsType.STATIC);
+                    setConfig(new CommonConfig() {
+                    });
+                    setResolvable(new CommonSiteUrlHandler() {
+                        @Override
+                        public HttpUrl getUrl() {
+                            return null;
+                        }
+
+                        @Override
+                        public String[] getNames() {
+                            return new String[0];
+                        }
+
+                        @Override
+                        public Class<? extends Site> getSiteClass() {
+                            return null;
+                        }
+                    });
+                    setEndpoints(new CommonEndpoints(null) {
+                        @Override
+                        public HttpUrl pages(Board board) {
+                            return null;
+                        }
+                    });
+                    setActions(new CommonActions(null) {
+                    });
+                    setParser(new CommentParser());
+                }
+            };
+            setupSite.setup();
+            items.items.add(new Item(1, setupSite));
+        }
     }
 
     @Override
@@ -158,7 +206,11 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         if (board != null) {
             clickCallback.onBoardClicked(board);
         } else {
-            clickCallback.onSiteClicked(site);
+            if (site.name().equals("App Setup")) {
+                clickCallback.openSetup();
+            } else {
+                clickCallback.onSiteClicked(site);
+            }
         }
         dismiss();
     }
@@ -459,5 +511,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         void onBoardClicked(Board item);
 
         void onSiteClicked(Site site);
+
+        void openSetup();
     }
 }

@@ -32,10 +32,10 @@ import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.greenrobot.eventbus.EventBus;
 
 import static com.github.adamantcheese.chan.Chan.injector;
 
@@ -150,8 +150,8 @@ public class BehaviourSettingsController extends SettingsController {
                     ChanSettings.openLinkBrowser,
                     R.string.setting_open_link_browser, 0));
 
-            postingTimeoutSetting = addPostingTimeoutSetting();
-            post.add(postingTimeoutSetting);
+            //postingTimeoutSetting = addPostingTimeoutSetting();
+            //post.add(postingTimeoutSetting);
 
             groups.add(post);
         }

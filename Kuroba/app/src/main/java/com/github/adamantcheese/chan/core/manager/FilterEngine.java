@@ -25,6 +25,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
@@ -171,11 +172,13 @@ public class FilterEngine {
         }
     }
 
+    // This method must be a duplicate of the one below
     @AnyThread
     public boolean matches(Filter filter, Post.Builder post) {
         if (!post.moderatorCapcode.equals("") || post.sticky) {
             return false;
         }
+        if (filter.onlyOnOP && !post.op) return false;
         if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, post.tripcode, false)) {
             return true;
         }
@@ -196,6 +199,20 @@ public class FilterEngine {
             return true;
         }
 
+        //figure out if the post has a country code, if so check the filter
+        String countryCode = "";
+        if (post.httpIcons != null) {
+            for (PostHttpIcon icon : post.httpIcons) {
+                if (icon.name.indexOf('/') != -1) {
+                    countryCode = icon.name.substring(icon.name.indexOf('/'));
+                    break;
+                }
+            }
+        }
+        if (!countryCode.isEmpty() && (filter.type & FilterType.COUNTRY_CODE.flag) != 0 && matches(filter, countryCode, false)) {
+            return true;
+        }
+
         if (post.images != null) {
             StringBuilder filename = new StringBuilder();
             for (PostImage image : post.images) {
@@ -209,6 +226,10 @@ public class FilterEngine {
 
     @AnyThread
     public boolean matches(Filter filter, Post post) {
+        if (!post.capcode.equals("") || post.isSticky()) {
+            return false;
+        }
+        if (filter.onlyOnOP && !post.isOP) return false;
         if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, post.tripcode, false)) {
             return true;
         }
@@ -226,6 +247,20 @@ public class FilterEngine {
         }
 
         if ((filter.type & FilterType.SUBJECT.flag) != 0 && matches(filter, post.subject, false)) {
+            return true;
+        }
+
+        //figure out if the post has a country code, if so check the filter
+        String countryCode = "";
+        if (post.httpIcons != null) {
+            for (PostHttpIcon icon : post.httpIcons) {
+                if (icon.name.indexOf('/') != -1) {
+                    countryCode = icon.name.substring(icon.name.indexOf('/'));
+                    break;
+                }
+            }
+        }
+        if (!countryCode.isEmpty() && (filter.type & FilterType.COUNTRY_CODE.flag) != 0 && matches(filter, countryCode, false)) {
             return true;
         }
 

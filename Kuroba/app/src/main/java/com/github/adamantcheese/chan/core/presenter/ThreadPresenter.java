@@ -435,7 +435,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                             if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
                                     && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
                                 cache.downloadFile(loadable, postImage, null);
-                            } else if (postImage.type == PostImage.Type.MOVIE && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
+                            } else if (postImage.type == PostImage.Type.MOVIE &&
+                                    shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
                                 cache.downloadFile(loadable, postImage, null);
                             }
                         }
@@ -757,7 +758,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
             Board board = loadable.site.board(link.board);
             if (board != null) {
-                Loadable thread = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(board.site, board, link.threadId, PostHelper.getTitle(post, null)));
+                Loadable thread = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(board.site, board, link.threadId, ""));
                 thread.markedNo = link.postId;
 
                 threadPresenterCallback.showThread(thread);

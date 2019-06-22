@@ -24,10 +24,6 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -39,10 +35,13 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
 import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
-import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.HashMap;
@@ -460,23 +459,10 @@ public class ToolbarContainer extends FrameLayout {
                 titleView.setCompoundDrawablesWithIntrinsicBounds(
                         null, null, arrowDrawable, null);
                 titleView.setOnClickListener(v -> item.middleMenu.show(titleView));
-
-                // Hide the dropdown arrow if there is no text.
-                titleView.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        arrowDrawable.setAlpha(isEmpty(s) ? 0 : 255);
-                    }
-                });
-                arrowDrawable.setAlpha(isEmpty(item.title) ? 0 : 255);
+                //Default stuff for nothing there
+                if (item.title.isEmpty()) {
+                    titleView.setText("App Setup");
+                }
             }
 
             // Possible subtitle.

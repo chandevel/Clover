@@ -43,10 +43,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/item_background"
-            android:paddingBottom="4dp"
             android:paddingLeft="4dp"
+            android:paddingTop="4dp"
             android:paddingRight="4dp"
-            android:paddingTop="4dp" />
+            android:paddingBottom="4dp" />
 
     </LinearLayout>
 
@@ -69,9 +69,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="8dp"
-            android:paddingBottom="4dp"
             android:paddingLeft="4dp"
-            android:paddingTop="4dp" />
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
 
         <TextView
             android:id="@+id/boards"
@@ -101,9 +101,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="8dp"
-            android:paddingBottom="4dp"
             android:paddingLeft="4dp"
-            android:paddingTop="4dp" />
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
 
         <LinearLayout
             android:id="@+id/color_container"
@@ -115,10 +115,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:id="@+id/color_preview"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:layout_marginBottom="4dp"
                 android:layout_marginLeft="8dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginRight="8dp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginBottom="4dp" />
 
         </LinearLayout>
 
@@ -129,6 +129,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/apply_to_replies"
+        android:textColor="?attr/text_color_secondary"
+        android:textSize="16sp" />
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/only_on_op_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/only_on_op"
         android:textColor="?attr/text_color_secondary"
         android:textSize="16sp" />
 

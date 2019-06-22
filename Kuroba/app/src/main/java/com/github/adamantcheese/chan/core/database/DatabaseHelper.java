@@ -29,7 +29,6 @@ import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -37,9 +36,6 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -109,155 +105,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         Logger.i(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
-
-        if (oldVersion < 12) {
-            try {
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN perPage INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN pages INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN maxFileSize INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN maxWebmSize INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN maxCommentChars INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN bumpLimit INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN imageLimit INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN cooldownThreads INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN cooldownReplies INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN cooldownImages INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN cooldownRepliesIntra INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN cooldownImagesIntra INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN spoilers INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN customSpoilers INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN userIds INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN codeTags INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN preuploadCaptcha INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN countryFlags INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN trollFlags INTEGER;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN mathTags INTEGER;");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 12", e);
-            }
-
-            try {
-                Map<String, Object> fieldValues = new HashMap<>();
-                fieldValues.put("value", "f");
-                List<Board> list = boardsDao.queryForFieldValues(fieldValues);
-                if (list != null) {
-                    boardsDao.delete(list);
-                    Logger.i(TAG, "Deleted f board");
-                }
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error removing /f/ board while upgrading to version 12", e);
-            }
-        }
-
-        if (oldVersion < 13) {
-            try {
-                boardsDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN isError SMALLINT;");
-                boardsDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN thumbnailUrl VARCHAR;");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 13", e);
-            }
-        }
-
-        if (oldVersion < 14) {
-            try {
-                pinDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN \"order\" INTEGER;");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 14", e);
-            }
-        }
-
-        if (oldVersion < 15) {
-            try {
-                pinDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN archived INTEGER;");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 15", e);
-            }
-        }
-
-        if (oldVersion < 16) {
-            try {
-                postHideDao.executeRawNoArgs("CREATE TABLE `threadhide` (`board` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `no` INTEGER );");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 16", e);
-            }
-        }
-
-        if (oldVersion < 17) {
-            try {
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN description TEXT;");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 17", e);
-            }
-        }
-
-        if (oldVersion < 18) {
-            try {
-                historyDao.executeRawNoArgs("CREATE TABLE `history` (`date` BIGINT , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `loadable_id` INTEGER NOT NULL , `thumbnailUrl` VARCHAR );");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 18", e);
-            }
-        }
-
-        if (oldVersion < 19) {
-            try {
-                filterDao.executeRawNoArgs("CREATE TABLE `filter` (`action` INTEGER NOT NULL , `allBoards` SMALLINT NOT NULL , `boards` VARCHAR NOT NULL , `color` INTEGER NOT NULL , `enabled` SMALLINT NOT NULL , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `pattern` VARCHAR NOT NULL , `type` INTEGER NOT NULL );");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 19", e);
-            }
-        }
-
-        if (oldVersion < 20) {
-            try {
-                loadableDao.executeRawNoArgs("ALTER TABLE loadable ADD COLUMN lastViewed default -1;");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 20", e);
-            }
-        }
-
-        if (oldVersion < 21) {
-            try {
-                loadableDao.executeRawNoArgs("ALTER TABLE loadable ADD COLUMN lastLoaded default -1;");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 21", e);
-            }
-        }
-
-        if (oldVersion < 22) {
-            try {
-                siteDao.executeRawNoArgs("CREATE TABLE `site` (`configuration` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `userSettings` VARCHAR );");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 22", e);
-            }
-
-            final int siteId = 0;
-
-            try {
-                boardsDao.executeRawNoArgs("ALTER TABLE loadable ADD COLUMN site INTEGER default " + siteId + ";");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN site INTEGER default " + siteId + ";");
-                boardsDao.executeRawNoArgs("ALTER TABLE savedreply ADD COLUMN site INTEGER default " + siteId + ";");
-                boardsDao.executeRawNoArgs("ALTER TABLE threadhide ADD COLUMN site INTEGER default " + siteId + ";");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 22", e);
-            }
-
-            SiteService.addSiteForLegacy();
-        }
-
-        if (oldVersion < 23) {
-            try {
-                pinDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN \"archive\" INTEGER;");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 23", e);
-            }
-        }
-
-        if (oldVersion < 24) {
-            try {
-                siteDao.executeRawNoArgs("ALTER TABLE site ADD COLUMN \"order\" INTEGER;");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 24", e);
-            }
-        }
 
         if (oldVersion < 25) {
             try {
@@ -341,6 +188,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         if (oldVersion < 33) {
             //even though this isn't a database thing, it's an easy way of doing things only once
             ChanSettings.useNewCaptchaWindow.set(true);
+        }
+
+        if (oldVersion < 34) {
+            try {
+                filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN onlyOnOP INTEGER default 0");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 34");
+            }
         }
 
         if (oldVersion < 35) {

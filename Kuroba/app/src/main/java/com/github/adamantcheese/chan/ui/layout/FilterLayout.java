@@ -78,6 +78,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private LinearLayout colorContainer;
     private View colorPreview;
     private AppCompatCheckBox applyToReplies;
+    private AppCompatCheckBox onlyOnOP;
 
     @Inject
     BoardManager boardManager;
@@ -149,6 +150,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         colorContainer.setOnClickListener(this);
         colorPreview = findViewById(R.id.color_preview);
         applyToReplies = findViewById(R.id.apply_to_replies_checkbox);
+        onlyOnOP = findViewById(R.id.only_on_op_checkbox);
 
         typeText.setOnClickListener(this);
         typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
@@ -169,9 +171,9 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         pattern.setText(filter.pattern);
 
         updateFilterValidity();
-        updateCheckboxes();
         updateFilterType();
         updateFilterAction();
+        updateCheckboxes();
         updateBoardsSummary();
         updatePatternPreview();
     }
@@ -183,6 +185,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     public Filter getFilter() {
         filter.enabled = enabled.isChecked();
         filter.applyToReplies = applyToReplies.isChecked();
+        filter.onlyOnOP = onlyOnOP.isChecked();
 
         return filter;
     }
@@ -359,8 +362,11 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private void updateCheckboxes() {
         enabled.setChecked(filter.enabled);
         applyToReplies.setChecked(filter.applyToReplies);
+        onlyOnOP.setChecked(filter.onlyOnOP);
         if (filter.action == FilterAction.WATCH.id) {
             applyToReplies.setEnabled(false);
+            onlyOnOP.setChecked(true);
+            onlyOnOP.setEnabled(false);
         }
     }
 
@@ -374,11 +380,18 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         colorPreview.setBackgroundColor(filter.color);
         if (filter.action != FilterAction.WATCH.id) {
             applyToReplies.setEnabled(true);
+            onlyOnOP.setEnabled(true);
+            onlyOnOP.setChecked(false);
         } else {
             applyToReplies.setEnabled(false);
+            onlyOnOP.setEnabled(false);
             if (applyToReplies.isChecked()) {
                 applyToReplies.toggle();
                 filter.applyToReplies = false;
+            }
+            if (!onlyOnOP.isChecked()) {
+                onlyOnOP.toggle();
+                filter.onlyOnOP = true;
             }
         }
     }

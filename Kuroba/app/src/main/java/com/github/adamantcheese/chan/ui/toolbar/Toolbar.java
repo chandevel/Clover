@@ -173,7 +173,7 @@ public class Toolbar extends LinearLayout implements
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    //pseduo callback here
+                    //pseudo callback here if set
                     if (searchFunc != null) {
                         searchFunc.run();
                         searchFunc = null;
@@ -313,7 +313,9 @@ public class Toolbar extends LinearLayout implements
             hideKeyboard(navigationItemContainer);
         } else {
             //set a pseudo callback because I'm not doing a bunch of actual callbacks to get back to this same class
-            searchFunc = () -> ((SearchLayout) navigationItemContainer.viewForItem(item)).openKeyboard();
+            if (navigationItemContainer.viewForItem(item) instanceof SearchLayout) {
+                searchFunc = () -> ((SearchLayout) navigationItemContainer.viewForItem(item)).openKeyboard();
+            }
         }
     }
 

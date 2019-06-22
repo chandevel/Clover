@@ -34,11 +34,16 @@ public class ImageDecoder {
     public static void decodeFileOnBackgroundThread(final File file, final int maxWidth, final int maxHeight, ImageDecoderCallback callback) {
         Thread thread = new Thread(() -> {
             final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
-            MediaMetadataRetriever video = new MediaMetadataRetriever();
-            video.setDataSource(file.getAbsolutePath());
-            final Bitmap videoBitmap = video.getFrameAtTime();
+            Bitmap videoBitmap = null;
+            try {
+                MediaMetadataRetriever video = new MediaMetadataRetriever();
+                video.setDataSource(file.getAbsolutePath());
+                videoBitmap = video.getFrameAtTime();
+            } catch (Exception ignored) {
+            }
 
-            AndroidUtils.runOnUiThread(() -> callback.onImageBitmap(bitmap != null ? bitmap : videoBitmap));
+            final Bitmap finalVideoBitmap = videoBitmap;
+            AndroidUtils.runOnUiThread(() -> callback.onImageBitmap(bitmap != null ? bitmap : finalVideoBitmap));
         });
         thread.start();
     }

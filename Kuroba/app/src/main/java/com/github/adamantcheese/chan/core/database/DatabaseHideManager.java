@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.database;
 
 import android.annotation.SuppressLint;
+
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.Chan;
@@ -96,7 +97,8 @@ public class DatabaseHideManager {
                                 true,
                                 false,
                                 false,
-                                hiddenPost.hideRepliesToThisPost);
+                                hiddenPost.hideRepliesToThisPost,
+                                false);
 
                         resultList.add(newPost);
                     } else {
@@ -242,7 +244,8 @@ public class DatabaseHideManager {
                         parentPost.filterStub,
                         parentPost.filterRemove,
                         parentPost.filterWatch,
-                        true);
+                        true,
+                        false);
 
                 // assign the filter parameters to the child post
                 postsFastLookupMap.put(no, newPost);
@@ -263,7 +266,8 @@ public class DatabaseHideManager {
             boolean filterStub,
             boolean filterRemove,
             boolean filterWatch,
-            boolean filterReplies
+            boolean filterReplies,
+            boolean filterOnlyOP
     ) {
         return new Post.Builder()
                 .board(childPost.board)
@@ -286,7 +290,7 @@ public class DatabaseHideManager {
                 .images(childPost.images)
                 .moderatorCapcode(childPost.capcode)
                 .setHttpIcons(childPost.httpIcons)
-                .filter(filterHighlightedColor, filterStub, filterRemove, filterWatch, filterReplies)
+                .filter(filterHighlightedColor, filterStub, filterRemove, filterWatch, filterReplies, filterOnlyOP)
                 .isSavedReply(childPost.isSavedReply)
                 .spans(childPost.subjectSpan, childPost.nameTripcodeIdCapcodeSpan)
                 .linkables(childPost.linkables)

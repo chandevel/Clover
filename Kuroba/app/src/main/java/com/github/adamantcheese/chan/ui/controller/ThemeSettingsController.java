@@ -136,7 +136,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
         @Override
         public boolean isInternal(int postNo) {
-            return false;
+            return true;
         }
     };
 
@@ -237,7 +237,6 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
             }
         });
-        //menu.setPopupWidth(dp(200));
         menu.setPopupHeight(dp(300));
         menu.show();
     }
@@ -276,11 +275,13 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>" +
                             "<br>" +
-                            "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
+                            "<span class=\"deadlink\">&gt;&gt;987654321</span><br>" +
                             "http://example.com/" +
                             "<br>" +
                             "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.");
-            Post post = new DefaultPostParser(new CommentParser()).parse(theme, builder, parserCallback);
+            CommentParser parser = new CommentParser();
+            parser.addDefaultRules();
+            Post post = new DefaultPostParser(parser).parse(theme, builder, parserCallback);
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);

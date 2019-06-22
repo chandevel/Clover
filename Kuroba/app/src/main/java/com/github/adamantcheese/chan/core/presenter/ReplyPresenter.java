@@ -43,6 +43,7 @@ import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.vdurmont.emoji.EmojiParser;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -212,21 +213,44 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         draft.loadable = loadable;
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
         draft.captchaResponse = null;
+        String test = EmojiParser.parseFromUnicode(draft.comment, e -> ":" + e.getEmoji().getAliases().get(0) + (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "") + ": ");
+        if (!test.equals(draft.comment)) {
+            ChanSettings.autoCrashEmoji.setSync(true);
+            throw new Error();
+        }
 
+        //only 4chan seems to have the post delay, this is a hack for that
         if (draft.loadable.site.name().equals("4chan")) {
-            //only 4chan seems to have the post delay, this is a hack for that
-            if (lastReplyRepository.canPost(draft.loadable.site, draft.loadable.board)) {
-                submitOrAuthenticate();
-            } else {
-                long lastPostTime = lastReplyRepository.getLastReply(draft.loadable.site, draft.loadable.board);
-                long waitTime = draft.loadable.board.cooldownReplies;
-                if (draft.loadable.site.name().equals("4chan") && draft.loadable.site.actions().isLoggedIn()) {
-                    waitTime /= 2;
+            if (loadable.isThreadMode()) {
+                if (lastReplyRepository.canPostReply(draft.loadable.site, draft.loadable.board, draft.file != null)) {
+                    submitOrAuthenticate();
+                } else {
+                    long lastPostTime = lastReplyRepository.getLastReply(draft.loadable.site, draft.loadable.board);
+                    long waitTime = draft.file != null ? draft.loadable.board.cooldownImages : draft.loadable.board.cooldownReplies;
+                    if (draft.loadable.site.actions().isLoggedIn()) {
+                        waitTime /= 2;
+                    }
+                    long timeLeft = waitTime - ((System.currentTimeMillis() - lastPostTime) / 1000L);
+                    String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_reply, timeLeft);
+                    switchPage(Page.INPUT, true);
+                    callback.openMessage(true, false, errorMessage, true);
                 }
-                long timeLeft = waitTime - ((System.currentTimeMillis() - lastPostTime) / 1000L);
-                String errorMessage = getAppContext().getString(R.string.reply_error_message_timer, timeLeft);
-                switchPage(Page.INPUT, true);
-                callback.openMessage(true, false, errorMessage, true);
+            } else if (loadable.isCatalogMode()) {
+                if (lastReplyRepository.canPostThread(draft.loadable.site, draft.loadable.board)) {
+                    submitOrAuthenticate();
+                } else {
+                    long lastThreadTime = lastReplyRepository.getLastThread(draft.loadable.site, draft.loadable.board);
+                    long waitTime = draft.loadable.board.cooldownThreads;
+                    if (draft.loadable.site.actions().isLoggedIn()) {
+                        waitTime /= 2;
+                    }
+                    long timeLeft = waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
+                    String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_thread, timeLeft);
+                    switchPage(Page.INPUT, true);
+                    callback.openMessage(true, false, errorMessage, true);
+                }
+            } else {
+                Logger.wtf(TAG, "Loadable isn't a thread or a catalog loadable????");
             }
         } else {
             submitOrAuthenticate();
@@ -244,7 +268,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     @Override
     public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
         if (replyResponse.posted) {
-            lastReplyRepository.putLastReply(draft.loadable.site, draft.loadable.board);
+            if (loadable.isThreadMode()) {
+                lastReplyRepository.putLastReply(draft.loadable.site, draft.loadable.board);
+            } else if (loadable.isCatalogMode()) {
+                lastReplyRepository.putLastThread(draft.loadable.site, draft.loadable.board);
+            }
 
             if (ChanSettings.postPinThread.get()) {
                 if (loadable.isThreadMode()) {
@@ -522,7 +550,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         boolean probablyWebm = file.getName().endsWith(".webm");
         int maxSize = probablyWebm ? board.maxWebmSize : board.maxFileSize;
-        if (file.length() > maxSize) {
+        //if the max size is undefined for the board, ignore this message
+        if (file.length() > maxSize && maxSize != -1) {
             String fileSize = getReadableFileSize(file.length(), false);
             String maxSizeString = getReadableFileSize(maxSize, false);
             String text = getRes().getString(probablyWebm ? R.string.reply_webm_too_big : R.string.reply_file_too_big, fileSize, maxSizeString);

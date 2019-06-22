@@ -278,7 +278,8 @@ public class ImportExportRepository {
                     exportedFilter.getAction(),
                     exportedFilter.getColor(),
                     exportedFilter.getApplyToReplies(),
-                    exportedFilter.getOrder()
+                    exportedFilter.getOrder(),
+                    exportedFilter.getOnlyOnOP()
             ));
         }
 
@@ -431,7 +432,8 @@ public class ImportExportRepository {
                     filter.action,
                     filter.color,
                     filter.applyToReplies,
-                    filter.order
+                    filter.order,
+                    filter.onlyOnOP
             ));
         }
 

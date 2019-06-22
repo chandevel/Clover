@@ -21,7 +21,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -29,7 +28,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
@@ -39,7 +37,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -50,7 +48,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 
 public class DrawerController extends Controller implements DrawerAdapter.Callback, View.OnClickListener {
@@ -58,7 +55,6 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     protected DrawerLayout drawerLayout;
     protected LinearLayout drawer;
     protected RecyclerView recyclerView;
-    protected LinearLayout settings;
     protected DrawerAdapter drawerAdapter;
 
     @Inject
@@ -83,10 +79,6 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        settings = view.findViewById(R.id.settings);
-        settings.setOnClickListener(this);
-        Chan.injector().instance(ThemeHelper.class).getTheme().settingsDrawable.apply(settings.findViewById(R.id.image));
-        ((TextView) settings.findViewById(R.id.text)).setTypeface(ROBOTO_MEDIUM);
 
         drawerAdapter = new DrawerAdapter(this);
         recyclerView.setAdapter(drawerAdapter);
@@ -114,9 +106,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
     @Override
     public void onClick(View v) {
-        if (v == settings) {
-            openController(new MainSettingsController(context));
-        }
+
     }
 
     public void onMenuClicked() {
@@ -223,8 +213,8 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     }
 
     @Override
-    public void openSites() {
-        openController(new SitesSetupController(context));
+    public void openSettings() {
+        openController(new MainSettingsController(context));
     }
 
     @Override
@@ -235,30 +225,37 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     public void setPinHighlighted(Pin pin) {
         drawerAdapter.setPinHighlighted(pin);
         drawerAdapter.updateHighlighted(recyclerView);
+        recyclerView.postInvalidate();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         drawerAdapter.onPinAdded(message.pin);
-        drawerLayout.openDrawer(drawer);
+        recyclerView.postInvalidate();
+        if (BackgroundUtils.isInForeground()) {
+            drawerLayout.openDrawer(drawer);
+        }
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
         drawerAdapter.onPinRemoved(message.pin);
+        recyclerView.postInvalidate();
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinChangedMessage message) {
         drawerAdapter.onPinChanged(recyclerView, message.pin);
+        recyclerView.postInvalidate();
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
         drawerAdapter.onPinsChanged(message.pins);
+        recyclerView.postInvalidate();
         updateBadge();
     }
 

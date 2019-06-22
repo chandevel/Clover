@@ -14,7 +14,6 @@ import com.github.adamantcheese.chan.core.site.parser.PostParser;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -264,16 +263,15 @@ public class FutabaChanReader implements ChanReader {
         }
 
         if (countryCode != null && countryName != null) {
-            Map<String, String> arg = new HashMap<>(1);
             HttpUrl countryUrl = endpoints.icon("country",
                     makeArgument("country_code", countryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
+            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/" + countryCode));
         }
 
         if (trollCountryCode != null && countryName != null) {
             HttpUrl countryUrl = endpoints.icon("troll_country",
                     makeArgument("troll_country_code", trollCountryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
+            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/" + trollCountryCode));
         }
 
         if (since4pass != 0) {

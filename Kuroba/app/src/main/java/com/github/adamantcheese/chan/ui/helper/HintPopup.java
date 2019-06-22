@@ -21,11 +21,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -58,7 +56,8 @@ public class HintPopup {
     private final int offsetY;
     private final boolean top;
     private boolean dismissed;
-    private boolean rightAligned = true;
+    //centered enough, not exact
+    private boolean centered = false;
     private boolean wiggle = false;
 
     public HintPopup(Context context, final View anchor, final String text,
@@ -83,10 +82,6 @@ public class HintPopup {
         popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         popupWindow.setOutsideTouchable(true);
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        popupView.setOnClickListener(v -> {
-//                popupWindow.dismiss();
-        });
     }
 
     public void show() {
@@ -95,7 +90,7 @@ public class HintPopup {
                 popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
                 // TODO: cleanup
                 int xoff;
-                if (rightAligned) {
+                if (!centered) {
                     xoff = -popupView.getMeasuredWidth() + anchor.getWidth() + offsetX - dp(2);
                 } else {
                     xoff = -popupView.getMeasuredWidth() + offsetX - dp(2);
@@ -113,21 +108,12 @@ public class HintPopup {
                             .setDuration(60000)
                             .start();
                 }
-
-                if (!rightAligned) {
-                    View arrow = popupView.findViewById(R.id.arrow);
-                    LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) arrow.getLayoutParams();
-                    lp.gravity = Gravity.LEFT;
-                    arrow.setLayoutParams(lp);
-                }
             }
         }, 400);
-
-        // popupView.postDelayed(popupWindow::dismiss, 5000);
     }
 
-    public void alignLeft() {
-        rightAligned = false;
+    public void alignCenter() {
+        centered = true;
     }
 
     public void wiggle() {

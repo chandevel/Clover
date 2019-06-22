@@ -61,7 +61,7 @@ public class PageRequestManager implements SiteActions.PagesListener {
     }
 
     public void forceUpdateForBoard(Board b) {
-        Board localBoardCopy = b.clone(); //clone the board so that if for any reason the GC decides
+        final Board localBoardCopy = b.clone(); //clone the board so that if for any reason the GC decides
         // to eat the other variable, this one is still around for the delayed function call
         Handler mainThread = new Handler(Looper.getMainLooper());
         mainThread.postDelayed(() -> shouldUpdate(localBoardCopy, true), THIRTY_SECONDS);
@@ -96,7 +96,8 @@ public class PageRequestManager implements SiteActions.PagesListener {
 
     private void shouldUpdate(Board b, boolean forceUpdate) {
         if (b == null) return; //if for any reason the board is null, don't do anything
-        long lastUpdateTime = boardTimeMap.get(b.code);
+        Long lastUpdate = boardTimeMap.get(b.code); //had some null issues for some reason? arisuchan in particular?
+        long lastUpdateTime = lastUpdate != null ? lastUpdate : 0L;
         if (lastUpdateTime + THREE_MINUTES <= System.currentTimeMillis() || forceUpdate) {
             Logger.d(TAG, "Requesting existing board pages, " + (forceUpdate ? "forced update" : "timeout"));
             requestBoard(b);

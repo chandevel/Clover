@@ -17,10 +17,10 @@
 package com.github.adamantcheese.chan.ui.captcha.v2;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
+
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -30,10 +30,8 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -59,9 +57,6 @@ public class CaptchaNoJsPresenterV2 {
     // this cookie is taken from dashchan
     private static final String defaultGoogleCookies = "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
 
-    // TODO: inject this in the future when https://github.com/Floens/Clover/pull/678 is merged
-    private final OkHttpClient okHttpClient = new OkHttpClient();
-
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final CaptchaNoJsHtmlParser parser;
 
@@ -78,7 +73,7 @@ public class CaptchaNoJsPresenterV2 {
 
     public CaptchaNoJsPresenterV2(@Nullable AuthenticationCallbacks callbacks, Context context) {
         this.callbacks = callbacks;
-        this.parser = new CaptchaNoJsHtmlParser(context, okHttpClient);
+        this.parser = new CaptchaNoJsHtmlParser(context);
     }
 
     public void init(String siteKey, String baseUrl) {
@@ -135,7 +130,7 @@ public class CaptchaNoJsPresenterV2 {
                             .header("Cookie", defaultGoogleCookies)
                             .build();
 
-                    try (Response response = okHttpClient.newCall(request).execute()) {
+                    try (Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute()) {
                         prevCaptchaInfo = handleGetRecaptchaResponse(response);
                     } finally {
                         verificationInProgress.set(false);
@@ -235,7 +230,7 @@ public class CaptchaNoJsPresenterV2 {
                 .header("Cookie", defaultGoogleCookies)
                 .build();
 
-        try (Response response = okHttpClient.newCall(request).execute()) {
+        try (Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute()) {
             return handleGetRecaptchaResponse(response);
         }
     }

@@ -160,6 +160,7 @@ public class Chan8 extends CommonSite {
     @Override
     public BoardsType boardsType() {
         // yes, boards.json
-        return BoardsType.DYNAMIC;
+        // TODO for the time being this is disabled until the board manager is fixed to not save all boards
+        return BoardsType.INFINITE;
     }
 }

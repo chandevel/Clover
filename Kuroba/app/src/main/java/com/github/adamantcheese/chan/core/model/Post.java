@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -76,6 +77,8 @@ public class Post implements Comparable<Post> {
     public final boolean filterWatch;
 
     public final boolean filterReplies;
+
+    public final boolean filterOnlyOP;
 
     /**
      * This post replies to the these ids.
@@ -162,6 +165,7 @@ public class Post implements Comparable<Post> {
         filterRemove = builder.filterRemove;
         filterWatch = builder.filterWatch;
         filterReplies = builder.filterReplies;
+        filterOnlyOP = builder.filterOnlyOP;
 
         isSavedReply = builder.isSavedReply;
 
@@ -172,7 +176,7 @@ public class Post implements Comparable<Post> {
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
     }
 
-    @MainThread
+    @AnyThread
     public boolean isSticky() {
         return sticky;
     }
@@ -335,6 +339,7 @@ public class Post implements Comparable<Post> {
         public boolean filterRemove;
         public boolean filterWatch;
         public boolean filterReplies;
+        public boolean filterOnlyOP;
 
         public boolean isSavedReply;
 
@@ -461,12 +466,13 @@ public class Post implements Comparable<Post> {
             return this;
         }
 
-        public Builder filter(int highlightedColor, boolean stub, boolean remove, boolean watch, boolean filterReplies) {
+        public Builder filter(int highlightedColor, boolean stub, boolean remove, boolean watch, boolean filterReplies, boolean onlyOnOp) {
             filterHighlightedColor = highlightedColor;
             filterStub = stub;
             filterRemove = remove;
             filterWatch = watch;
             this.filterReplies = filterReplies;
+            filterOnlyOP = onlyOnOp;
             return this;
         }
 
