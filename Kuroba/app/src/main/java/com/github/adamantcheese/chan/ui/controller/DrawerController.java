@@ -154,6 +154,8 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
             final boolean hasDownloadFlag = watchManager.hasAtLeastOnePinWithDownloadFlag();
 
             if (all && hasDownloadFlag) {
+                // Some pins may have threads that have saved copies on the disk. We want to warn the
+                // user that this action will delete them as well
                 new AlertDialog.Builder(context)
                         .setTitle(R.string.warning)
                         .setMessage(R.string.drawer_controller_at_least_one_pin_has_download_flag)
@@ -177,7 +179,8 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         if (!pins.isEmpty()) {
             if (!hasDownloadFlag) {
                 // We can't undo this operation when there is at least one pin that downloads a thread
-                // because we will be deleting files from the disk
+                // because we will be deleting files from the disk. We don't want to warn the user
+                // every time he deletes one pin.
                 String text = context.getResources().getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
                 Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pins_cleared, text), 4000);
                 fixSnackbarText(context, snackbar);

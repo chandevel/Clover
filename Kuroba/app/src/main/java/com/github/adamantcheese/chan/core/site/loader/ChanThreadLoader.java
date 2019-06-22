@@ -301,7 +301,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     }
 
     private Boolean onResponseInternal(ChanLoaderResponse response) {
-        // The board returned us an archived thread
+        // The server returned us an archived thread
         if (response.op.archived || response.op.closed) {
             ChanThread chanThread = loadSavedThreadIfItExists();
             thread = chanThread;
@@ -316,7 +316,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             // Otherwise pass it to the response parse method
             onPreparedResponseInternal(chanThread, response.op.closed, response.op.archived);
         } else {
-            // Normal thread, not archived
+            // Normal thread, not archived/deleted
             if (response.posts.isEmpty()) {
                 onErrorResponse(new VolleyError("Post size is 0"));
                 return false;
@@ -416,7 +416,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         request = null;
 
         Disposable disposable = Single.fromCallable(() -> {
-            // Thread was deleted (404), try to load a saved copy (if any)
+            // Thread was deleted (404), try to load a saved copy (if we have it)
             if (error.networkResponse != null &&
                     error.networkResponse.statusCode == 404 &&
                     loadable != null &&

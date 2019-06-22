@@ -252,7 +252,7 @@ public class WatchManager implements WakeManager.Wakeable {
             return;
         }
 
-        // Cache stopped saved thread so it's just faster to find it
+        // Cache stopped savedThread so it's just faster to find it
         createOrUpdateSavedThread(savedThread);
         databaseManager.runTask(
                 databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(loadable.id, true));
@@ -306,7 +306,7 @@ public class WatchManager implements WakeManager.Wakeable {
         pins.remove(pin);
 
         destroyPinWatcher(pin);
-        deleteThreadSave(pin.loadable.id);
+        deleteSavedThread(pin.loadable.id);
 
         threadSaveManager.cancelDownloading(pin.loadable);
 
@@ -325,7 +325,7 @@ public class WatchManager implements WakeManager.Wakeable {
         EventBus.getDefault().post(new PinMessages.PinRemovedMessage(pin));
     }
 
-    private void deleteThreadSave(int loadableId) {
+    private void deleteSavedThread(int loadableId) {
         SavedThread savedThread = null;
 
         for (int i = 0; i < savedThreads.size(); i++) {
@@ -344,7 +344,7 @@ public class WatchManager implements WakeManager.Wakeable {
         for (Pin pin : pinList) {
             pins.remove(pin);
             destroyPinWatcher(pin);
-            deleteThreadSave(pin.loadable.id);
+            deleteSavedThread(pin.loadable.id);
 
             threadSaveManager.cancelDownloading(pin.loadable);
         }
@@ -416,6 +416,7 @@ public class WatchManager implements WakeManager.Wakeable {
             List<Pin> l = new ArrayList<>();
 
             for (Pin p : pins) {
+                // User may have unpressed the watch thread button but there may still be flags
                 if (p.watching || PinType.hasFlags(p.pinType)) {
                     l.add(p);
                 }
@@ -690,7 +691,8 @@ public class WatchManager implements WakeManager.Wakeable {
 
     /**
      * This method is getting called every time a user changes their watcher settings (watcher enabled and
-     * background watcher enabled)
+     * background watcher enabled). isEnabled is true when both watchEnabled and backgroundEnabled are
+     * true
      * */
     private void switchIncrementalThreadDownloadingState(boolean isEnabled) {
         if (prevIncrementalThreadSavingEnabled == isEnabled) {

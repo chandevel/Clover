@@ -127,7 +127,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
         if (!loadable.isSavedCopy) {
             // FIXME:
-            // Disable saving images from saved threads (for now at least)
+            //  Disable saving images from archived threads (for now at least)
             menuBuilder.withItem(SAVE_ID, R.drawable.ic_file_download_white_24dp, this::saveClicked);
         }
 
@@ -135,7 +135,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
         if (!loadable.isSavedCopy) {
             // FIXME:
-            // Disable sharing images from saved threads (for now at least)
+            //  Disable sharing images from archived threads (for now at least)
             overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
         }
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);

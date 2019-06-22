@@ -296,6 +296,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 watchCount.setPadding(dp(16), watchCount.getPaddingTop(),
                         watchCount.getPaddingRight(), watchCount.getPaddingBottom());
             } else {
+                // FIXME: apparently we don't need to set the visibility to GONE here. Needs research.
                 watchCount.setVisibility(View.GONE);
             }
 

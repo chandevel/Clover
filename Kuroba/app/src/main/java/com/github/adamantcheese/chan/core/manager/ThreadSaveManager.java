@@ -88,6 +88,8 @@ public class ThreadSaveManager {
     private static int getThreadsCountForDownloaderExecutor() {
         int threadsCount = (Runtime.getRuntime().availableProcessors() / 2) + 1;
         if (threadsCount < 3) {
+            // We need at least two worker threads and one thread for the rx stream itself. More threads
+            // will make the phone laggy, less threads will make downloading really slow.
             threadsCount = 3;
         }
 
@@ -187,7 +189,7 @@ public class ThreadSaveManager {
 
     /**
      * Cancels a download associated with this loadable. Cancelling means that the user has completely
-     * removed a pin associated with it. This means that we need to delete thread's file in the disk
+     * removed the pin associated with it. This means that we need to delete thread's file in the disk
      * as well.
      * */
     public void cancelDownloading(Loadable loadable) {
@@ -207,7 +209,7 @@ public class ThreadSaveManager {
     /**
      * Stops a download associated with this loadable. Stopping means that the user unpressed
      * "save thread" button. This does not mean that they do not want to save this thread anymore
-     * they may press it again later. So we don't need to delete thread's files from disk in this
+     * they may press it again later. So we don't need to delete thread's files from the disk in this
      * case.
      * */
     public void stopDownloading(Loadable loadable) {
@@ -233,7 +235,7 @@ public class ThreadSaveManager {
                 return;
             }
 
-            Logger.d(TAG, "Download for loadable " + loadableToString(loadable) + " ended up with a the result " + result);
+            Logger.d(TAG, "Download for loadable " + loadableToString(loadable) + " ended up with result " + result);
             activeDownloads.remove(loadable);
         }
     }
@@ -256,14 +258,11 @@ public class ThreadSaveManager {
     }
 
     /**
-     * Saves provided posts to a json file called "thread.json". Also saved all of the files that the
-     * posts contain.
+     * Saves provided posts to a json file called "thread.json". Also saves all of the files that the
+     * posts may contain.
      *
      * @param loadable is a unique identifier of a thread we are saving.
      * @param postsToSave posts of a thread to be saved.
-     *
-     * @return false when there are no new posts to save (we already have of the provided posts saved)
-     * and true when there were new posts to save and we have successfully saved them.
      * */
     @SuppressLint("CheckResult")
     private Single<Boolean> saveThreadInternal(@NonNull Loadable loadable, List<Post> postsToSave) {
@@ -336,7 +335,7 @@ public class ThreadSaveManager {
                             //                 / | \
                             //                /  |  \
                             //               /   |   \
-                            //               V   V   V // Separate streams,`
+                            //               V   V   V // Separate streams,
                             //               |   |   |
                             //               o   o   o // Download images in parallel
                             //               |   |   | // (availableProcessors count at a time),
@@ -420,7 +419,7 @@ public class ThreadSaveManager {
 
     /**
      * Returns only the posts that we haven't saved yet. Sorts them in ascending order.
-     * If a post has at least images that were not downloaded yet this posts' images will be
+     * If a post has at least one image that has not been downloaded yet it will be
      * redownloaded again
      * */
     private List<Post> filterAndSortPosts(File threadSaveDirImages, Loadable loadable, List<Post> inputPosts) {
@@ -434,7 +433,7 @@ public class ThreadSaveManager {
         if (lastSavedPostNo > 0) {
             for (Post post : inputPosts) {
                 if (!checkWhetherAllPostImagesAreAlreadySaved(threadSaveDirImages, post)) {
-                    // Some of the post's image could not be downloaded on the previous downloading
+                    // Some of the post's images could not be downloaded during the previous download
                     // so we need to download them now
                     Logger.d(TAG, "Found not downloaded yet images for a post " + post.no +
                             ", for loadable " + loadableToString(loadable));
@@ -570,7 +569,7 @@ public class ThreadSaveManager {
         }
 
         if (!shouldDownloadImages()) {
-            Logger.d(TAG, "Cannot load images or videos with current network");
+            Logger.d(TAG, "Cannot load images or videos with the current network");
             return Flowable.just(false);
         }
 
@@ -599,13 +598,11 @@ public class ThreadSaveManager {
 
                         return Single.just(true);
                     })
-                    // We don't really want to use more than "CPU processors count" threads here, but
-                    // we want for every request to run on a separate thread in parallel
+                    // We don't really want to use a lot of threads here so we use an executor with
+                    // specified amount of threads
                     .subscribeOn(Schedulers.from(executorService))
                     // Retry couple of times upon exceptions
                     .retry(MAX_RETRY_ATTEMPTS)
-                    // Do nothing if an error occurs (like timeout exception) because we don't want
-                    // to lose what we have already downloaded
                     .doOnError((error) -> {
                         Logger.e(TAG, "Error while trying to download image " + postImage.originalName, error);
                     })
@@ -615,6 +612,8 @@ public class ThreadSaveManager {
                                 currentImageDownloadIndex,
                                 postsWithImagesCount);
                     })
+                    // Do nothing if an error occurs (like timeout exception) because we don't want
+                    // to lose what we have already downloaded
                     .onErrorReturnItem(false);
                 });
     }
@@ -663,7 +662,7 @@ public class ThreadSaveManager {
     }
 
     /**
-     * Downloads an image with it's thumbnail to the disk
+     * Downloads an image with it's thumbnail and stores them to the disk
      * */
     private void downloadImageIntoFile(
             File threadSaveDirImages,
@@ -740,6 +739,9 @@ public class ThreadSaveManager {
         }
     }
 
+    /**
+     * @return true when user removes the pin associated with this loadable
+     * */
     private boolean shouldDeleteDownloadedFiles(Loadable loadable) {
         synchronized (activeDownloads) {
             SaveThreadParameters parameters = activeDownloads.get(loadable);
@@ -808,10 +810,9 @@ public class ThreadSaveManager {
     }
 
     /**
-     * Determines whether we should pass this exception to the callback or not.
-     * For instance NoNewPostsToSaveException will be thrown every time when the saveThread is called
-     * and there are no new posts to download left after filtering. We don't want to pass this
-     * exception to the callbacks because this exception is just to stop the downloading process.
+     * Determines whether we should log this exception or not.
+     * For instance NoNewPostsToSaveException will be thrown every time when there are no new
+     * posts to download left after filtering.
      * */
     private boolean isFatalException(Throwable error) {
         if (error instanceof NoNewPostsToSaveException) {
@@ -821,6 +822,9 @@ public class ThreadSaveManager {
         return true;
     }
 
+    /**
+     * When user cancels a download we need to delete the thread from the disk as well
+     * */
     private void deleteThread(Loadable loadable) {
         String subDirs = getThreadSubDir(loadable);
 
@@ -833,7 +837,7 @@ public class ThreadSaveManager {
     }
 
     /**
-     * Extracts and converts to a string only the info from the loadable that we are interested in
+     * Extracts and converts to a string only the info that we are interested in from this loadable
      * */
     private String loadableToString(Loadable loadable) {
         return "[" + loadable.site.name() + ", " + loadable.boardCode + ", " + loadable.no + "]";
@@ -951,8 +955,8 @@ public class ThreadSaveManager {
 
     public enum DownloadRequestState {
         Running(0),
-        Cancelled(1),
-        Stopped(2);
+        Cancelled(1),   // pin removed or both buttons (watch posts and save posts) are unpressed
+        Stopped(2);     // save posts button is unpressed
 
         private int type;
 

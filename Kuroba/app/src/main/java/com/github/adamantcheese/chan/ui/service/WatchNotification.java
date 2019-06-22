@@ -239,8 +239,6 @@ public class WatchNotification extends Service {
             Loadable loadable = entry.getValue().first;
             List<Post> posts = entry.getValue().second;
 
-            // This function is really slow since it downloads everything in a thread
-            // (posts and their images/files)
             threadSaveManager.enqueueThreadToSave(loadable, posts);
         }
     }

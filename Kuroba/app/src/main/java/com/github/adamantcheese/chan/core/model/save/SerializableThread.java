@@ -19,7 +19,6 @@ public class SerializableThread {
 //    @SerializedName("archived")
 //    private boolean archived;
 
-    // TODO: serialization/deserialization of strings' spans (comment/subject etc)
     public SerializableThread(List<SerializablePost> postList/*, boolean closed, boolean archived*/) {
         this.postList = postList;
 //        this.closed = closed;

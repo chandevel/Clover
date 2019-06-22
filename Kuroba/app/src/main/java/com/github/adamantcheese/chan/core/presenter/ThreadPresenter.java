@@ -266,7 +266,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         Pin oldPin = watchManager.findPinByLoadableId(loadable.id);
         if (oldPin != null) {
             // Save button is clicked and bookmark button is already pressed
-            // Update old pin and create new thread save
+            // Update old pin and start saving the thread
             if (PinType.hasDownloadFlag(oldPin.pinType)) {
                 // We forgot to delete pin when cancelling thread download?
                 throw new IllegalStateException("oldPin already contains DownloadFlag");
@@ -279,7 +279,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             EventBus.getDefault().post(new WatchManager.PinMessages.PinChangedMessage(oldPin));
         } else {
             // Save button is clicked and bookmark button is not yet pressed
-            // Create new pin along with thread save
+            // Create new pin and start saving the thread
 
             // We don't want to send PinAddedMessage broadcast right away. We will send it after
             // the thread has been saved

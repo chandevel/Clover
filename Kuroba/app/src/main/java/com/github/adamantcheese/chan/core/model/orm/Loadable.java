@@ -83,7 +83,7 @@ public class Loadable implements Cloneable {
 
     /**
      * Tells us whether this loadable (when in THREAD mode) contains information about
-     * a live thread or a local saved copy of a thread (which may be already deleted, 404)
+     * a live thread or the local saved copy of a thread (which may be already deleted from the server)
      * */
     public transient boolean isSavedCopy = false;
 

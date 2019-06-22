@@ -19,13 +19,13 @@ public class PostMapper {
     private static final Comparator<Post> POST_COMPARATOR = (p1, p2) -> Integer.compare(p1.no, p2.no);
 
     // TODO: figure out how to serialize spans because right now only handful of them
-    //  outlive deserialization (greentext and something else, links/quotes etc do not work
-    //  after deserialization)
+    //  outlive serialization (greentext and something else, links/quotes etc do not work
+    //  after serialization)
     public static SerializablePost toSerializablePost(Post post) {
         return new SerializablePost(
                 post.boardId,
-                // TODO: delete? We don't really need because we use loadable when
-                //  deserializing boards, so we don't need to store it
+                // TODO: delete? We don't really need it because we use loadable when
+                //  deserializing boards
                 BoardMapper.toSerializableBoard(post.board),
                 post.no,
                 post.isOP,

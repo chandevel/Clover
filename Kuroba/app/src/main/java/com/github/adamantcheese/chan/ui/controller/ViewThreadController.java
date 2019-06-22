@@ -88,7 +88,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         saveIconOutline = context.getDrawable(R.drawable.ic_save_while_24dp)
                 .mutate();
-        DrawableCompat.setTint(saveIconOutline, 0xFFBBBBBB);
+        DrawableCompat.setTint(saveIconOutline, 0xFFBBBBBB); // TODO: use different color, this one looks like ass
 
         saveIconNormal = context.getDrawable(R.drawable.ic_save_while_24dp)
                 .mutate();
