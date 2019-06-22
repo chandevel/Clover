@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 public class PostImageThumbnailView extends ThumbnailView implements View.OnLongClickListener {
@@ -56,7 +57,10 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
             this.postImage = postImage;
 
             if (postImage != null) {
-                setUrl(postImage.getThumbnailUrl().toString(), width, height);
+                String url = ChanSettings.autoLoadThreadImages.get() ?
+                        (!postImage.imageUrl.toString().contains("webm") && !postImage.imageUrl.toString().contains("pdf") ? postImage.imageUrl.toString() : postImage.getThumbnailUrl().toString()) :
+                        postImage.getThumbnailUrl().toString();
+                setUrl(url, width, height);
             } else {
                 setUrl(null, width, height);
             }
