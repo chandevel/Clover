@@ -150,10 +150,6 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             Logger.e("UNCAUGHT", ".\n----------------------------------------\nEND OF CURRENT RUNTIME MESSAGES\n----------------------------------------\n.");
             System.exit(999);
         });
-
-        if (ChanSettings.autoCrashEmoji.get()) {
-            throw new Error();
-        }
     }
 
     private void setupFromStateOrFreshLaunch(Bundle savedInstanceState) {

@@ -29,8 +29,6 @@ public interface SettingProvider {
 
     void putBoolean(String key, boolean value);
 
-    void putBooleanSync(String key, boolean value);
-
     String getString(String key, String def);
 
     void putString(String key, String value);
