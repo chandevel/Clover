@@ -36,7 +36,7 @@ import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinTypeHolder;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -207,8 +207,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         final Pin undoPin = pin.clone();
         watchManager.deletePin(pin);
 
-        PinTypeHolder.PinType pinType = PinTypeHolder.PinType.from(pin.pinType);
-        if (!pinType.hasDownloadFlag()) {
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
             // If this pin has a DownloadPostsFlag we can't readd it with snackbar because we delete
             // all of the thread file from the disk, so we just don't show the snackbar in this case.
 

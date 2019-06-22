@@ -603,6 +603,14 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
+    public void shownBackgroundWatcherIsDisabledToast() {
+        Toast.makeText(
+                getContext(),
+                R.string.thread_layout_background_watcher_is_disabled_message,
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
     public void showNewPostsNotification(boolean show, int more) {
         if (show) {
             if (!threadListLayout.scrolledToBottom()) {

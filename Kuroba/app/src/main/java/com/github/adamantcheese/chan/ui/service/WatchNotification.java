@@ -44,7 +44,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinTypeHolder;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
@@ -147,13 +147,13 @@ public class WatchNotification extends Service {
         List<Pin> subjectPins = new ArrayList<>();
 
         HashMap<SavedThread, Pair<Loadable, List<Post>>> unviewedPostsByThread = new HashMap<>();
-        HashMap<PinTypeHolder.PinType, List<Pin>> pinsByType = new HashMap<>();
+        HashMap<PinType, List<Pin>> pinsByType = new HashMap<>();
 
         int flags = 0;
 
         // TODO: separate pins by type and do pin jobs separately
 //        for (Pin pin : watchManager.getWatchingPins()) {
-//            PinTypeHolder.PinType pinType = PinTypeHolder.PinType.from(pin.getTypeValue());
+//            PinType pinType = PinType.from(pin.getTypeValue());
 //
 //            if (!pinsByType.containsKey(pinType)) {
 //                pinsByType.put(pinType, new ArrayList<>());
@@ -227,30 +227,6 @@ public class WatchNotification extends Service {
             Pin pin,
             WatchManager.PinWatcher watcher,
             SavedThread savedThread) {
-        if (pin.isError) {
-            // FIXME: this is not getting called when a thread becomes archived, probably needs to be moved to WatchManager
-            // Stop saving thread completely if pin has error (probably 404)
-            savedThread.isFullyDownloaded = true;
-        }
-        if (!pin.watching) {
-            // FIXME: this is not getting called when a thread becomes archived, probably needs to be moved to WatchManager
-            // Pause saving thread if pin is paused
-            savedThread.isStopped = true;
-        }
-
-        // Update thread in the DB
-        if (savedThread.isStopped) {
-            databaseManager.runTask(databaseManager.getDatabaseSavedThreadmanager()
-                    .updateThreadStoppedFlagByLoadableId(pin.loadable.id, true));
-            return;
-        }
-
-        if (savedThread.isFullyDownloaded) {
-            databaseManager.runTask(databaseManager.getDatabaseSavedThreadmanager()
-                    .updateThreadFullyDownloadedByLoadableId(pin.loadable.id));
-            return;
-        }
-
         // Just pass all the posts to the threadSaveManager. It will figure out new posts by itself
         List<Post> allPosts = watcher.getPosts();
         if (!allPosts.isEmpty()) {
@@ -260,8 +236,8 @@ public class WatchNotification extends Service {
     }
 
     /**
-     * Saves new posts to the disk. Does duplicates checking internally so it is safe to just
-     * pass there all pin posts. Very slow!
+     * Saves new posts to the disk asynchronously. Does duplicates checking internally so it is safe to just
+     * pass all posts in there. Also checks whether the current loadable is already being downloaded.
      */
     private void updateSavedThreads(HashMap<SavedThread, Pair<Loadable, List<Post>>> allPostsByThread) {
         for (Map.Entry<SavedThread, Pair<Loadable, List<Post>>> entry : allPostsByThread.entrySet()) {

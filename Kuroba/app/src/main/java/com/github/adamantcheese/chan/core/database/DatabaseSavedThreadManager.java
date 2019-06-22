@@ -24,7 +24,13 @@ public class DatabaseSavedThreadManager {
     }
 
     public Callable<List<SavedThread>> getSavedThreads() {
-        return () -> helper.savedThreadDao.queryForAll();
+        return () -> {
+            // We don't need fully downloaded threads here
+            return helper.savedThreadDao.queryBuilder()
+                    .where()
+                    .eq(SavedThread.IS_FULLY_DOWNLOADED, false)
+                    .query();
+        };
     }
 
     public Callable<SavedThread> startSavingThread(final SavedThread savedThread) {

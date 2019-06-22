@@ -85,9 +85,7 @@ public class ThreadSaveManager {
 
     private PublishProcessor<Loadable> workerQueue = PublishProcessor.create();
 
-    // TODO: get permissions
     // TODO: check whether pin watcher is on or off before start saving a thread
-    // TODO: do not forget about clearing composite disposables
 
     private static int getThreadsCountForDownloaderExecutor() {
         int threadsCount = (Runtime.getRuntime().availableProcessors() / 2) + 1;
@@ -133,9 +131,8 @@ public class ThreadSaveManager {
             }
 
             if (parameters == null) {
-                // TODO: maybe it is a better idea to just return Single.just(false) and log the error
-                //  instead of breaking the rx stream?
-                throw new ParametersNotFoundException(loadable);
+                Logger.e(TAG, "Could not find download parameters for loadable " + loadableToString(loadable));
+                return Single.just(false);
             }
 
             return saveThreadInternal(loadable, parameters.getPostsToSave())
@@ -259,10 +256,6 @@ public class ThreadSaveManager {
             activeDownloads.remove(loadable);
         }
     }
-
-    // TODO: We should load images before post filtering, because if an image was not downloaded
-    //  because of an error it won't be re downloaded next time since the post with the image will
-    //  be filtered
 
     /**
      * Saves provided posts to a json file called "thread.json". Also saved all of the files that the
@@ -928,12 +921,6 @@ public class ThreadSaveManager {
 
         public void cancel() {
             state.compareAndSet(DownloadRequestState.Running, DownloadRequestState.Cancelled);
-        }
-    }
-
-    class ParametersNotFoundException extends Exception {
-        public ParametersNotFoundException(Loadable loadable) {
-            super("Parameters not found with loadable " + loadableToString(loadable));
         }
     }
 

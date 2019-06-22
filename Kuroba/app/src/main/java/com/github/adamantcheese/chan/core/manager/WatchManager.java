@@ -35,7 +35,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinTypeHolder;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -159,18 +159,18 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     public boolean createPin(Loadable loadable) {
-        return createPin(loadable, null, PinTypeHolder.PinType.WatchNewPosts);
+        return createPin(loadable, null, PinType.WATCH_NEW_POSTS);
     }
 
-    public boolean createPin(Loadable loadable, @Nullable Post opPost, PinTypeHolder.PinType pinType) {
+    public boolean createPin(Loadable loadable, @Nullable Post opPost, int pinType) {
         return createPin(loadable, opPost, pinType, true);
     }
 
-    public boolean createPin(Loadable loadable, @Nullable Post opPost, PinTypeHolder.PinType pinType, boolean sendBroadcast) {
+    public boolean createPin(Loadable loadable, @Nullable Post opPost, int pinType, boolean sendBroadcast) {
         Pin pin = new Pin();
         pin.loadable = loadable;
         pin.loadable.title = PostHelper.getTitle(opPost, loadable);
-        pin.pinType = pinType.getTypeValue();
+        pin.pinType = pinType;
 
         if (opPost != null) {
             PostImage image = opPost.image();
@@ -239,9 +239,6 @@ public class WatchManager implements WakeManager.Wakeable {
             savedThread.isStopped = false;
         }
 
-        // TODO: update drawer item to show that it is now being saved (icon)
-        // TODO: update toolbar's save icon (enable it if it is disable)
-
         createOrUpdateSavedThread(savedThread);
         databaseManager.runTask(databaseSavedThreadManager.startSavingThread(savedThread));
         return true;
@@ -254,9 +251,6 @@ public class WatchManager implements WakeManager.Wakeable {
             // downloaded then stop it. If we could not find it then do nothing as well.
             return;
         }
-
-        // TODO: update drawer item (remove icon)
-        // TODO: update toolbar's save icon (disable it if it is enabled)
 
         // Cache stopped saved thread so it's just faster to find it
         createOrUpdateSavedThread(savedThread);
@@ -373,7 +367,6 @@ public class WatchManager implements WakeManager.Wakeable {
         updatePinsInDatabase();
 
         updateState();
-
         EventBus.getDefault().post(new PinMessages.PinsChangedMessage(pins));
     }
 
@@ -381,7 +374,7 @@ public class WatchManager implements WakeManager.Wakeable {
         databaseManager.runTask(() -> {
             databasePinManager.updatePin(pin).call();
 
-            // TODO: update saved thread
+            // TODO: update saved thread (do we need tho? Like what is there to even update?)
             return null;
         });
 
@@ -509,7 +502,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
     public boolean hasAtLeastOnePinWithDownloadFlag() {
         for (Pin pin : pins) {
-            if (PinTypeHolder.PinType.from(pin.pinType).hasDownloadFlag()) {
+            if (PinType.hasDownloadFlag(pin.pinType)) {
                 return true;
             }
         }
@@ -595,6 +588,7 @@ public class WatchManager implements WakeManager.Wakeable {
     private void updateState(boolean watchEnabled, boolean backgroundEnabled) {
         Logger.d(TAG, "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground=" + isInForeground());
 
+        updateDeletedOrArchivedPins();
         switchIncrementalThreadDownloadingState(watchEnabled && backgroundEnabled);
 
         //determine expected interval type for current settings
@@ -659,6 +653,52 @@ public class WatchManager implements WakeManager.Wakeable {
         }
     }
 
+    private void updateDeletedOrArchivedPins() {
+        for (Pin pin : pins) {
+            if (pin.isError || pin.archived || !pin.watching) {
+                SavedThread savedThread = findSavedThreadByLoadableId(pin.loadable.id);
+                if (savedThread == null || savedThread.isStopped || savedThread.isFullyDownloaded) {
+                    continue;
+                }
+
+                if (pin.isError || pin.archived) {
+                    savedThread.isFullyDownloaded = true;
+                }
+
+                if (!pin.watching) {
+                    savedThread.isStopped = true;
+                }
+
+                if (!savedThread.isStopped && !savedThread.isFullyDownloaded) {
+                    continue;
+                }
+
+                createOrUpdateSavedThread(savedThread);
+
+                databaseManager.runTask(() -> {
+                    // Update thread in the DB
+                    if (savedThread.isStopped) {
+                        databaseManager.getDatabaseSavedThreadmanager()
+                                .updateThreadStoppedFlagByLoadableId(pin.loadable.id, true).call();
+                    }
+
+                    // Update thread in the DB
+                    if (savedThread.isFullyDownloaded) {
+                        databaseManager.getDatabaseSavedThreadmanager()
+                                .updateThreadFullyDownloadedByLoadableId(pin.loadable.id).call();
+                    }
+
+                    databasePinManager.updatePin(pin).call();
+                    return null;
+                });
+            }
+        }
+    }
+
+    /**
+     * This method is getting called every time a user changes their watcher settings (watcher enabled and
+     * background watcher enabled)
+     * */
     private void switchIncrementalThreadDownloadingState(boolean isEnabled) {
         if (prevIncrementalThreadSavingEnabled == isEnabled) {
             return;
@@ -672,7 +712,7 @@ public class WatchManager implements WakeManager.Wakeable {
                 continue;
             }
 
-            if ((PinTypeHolder.PinType.from(pin.pinType).hasDownloadFlag())) {
+            if ((PinType.hasDownloadFlag(pin.pinType))) {
                 pinsWithDownloadFlag.add(pin);
             }
         }

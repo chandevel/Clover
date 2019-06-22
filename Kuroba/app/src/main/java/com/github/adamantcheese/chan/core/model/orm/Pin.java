@@ -23,9 +23,6 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "pin")
 public class Pin implements Comparable<Pin>, Cloneable {
-    public static final int WATCH_NEW_POSTS = 1 << 0;
-    public static final int DOWNLOAD_NEW_POSTS = 1 << 1;
-
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -79,7 +76,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
             String thumbnailUrl,
             int order,
             boolean archived,
-            PinTypeHolder.PinType pinType
+            int pinType
     ) {
         this.loadable = loadable;
         this.watching = watching;
@@ -91,7 +88,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
         this.thumbnailUrl = thumbnailUrl;
         this.order = order;
         this.archived = archived;
-        this.pinType = pinType.getTypeValue();
+        this.pinType = pinType;
     }
 
     public int getNewPostCount() {
