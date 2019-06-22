@@ -172,9 +172,54 @@ public class FilterEngine {
         }
     }
 
+    // This method must be a duplicate of the one below
     @AnyThread
     public boolean matches(Filter filter, Post.Builder post) {
-        return matches(filter, post.build());
+        if (!post.moderatorCapcode.equals("") || post.sticky) {
+            return false;
+        }
+        if (filter.onlyOnOP && !post.op) return false;
+        if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, post.tripcode, false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.NAME.flag) != 0 && matches(filter, post.name, false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.COMMENT.flag) != 0 && matches(filter, post.comment.toString(), false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, post.posterId, false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.SUBJECT.flag) != 0 && matches(filter, post.subject, false)) {
+            return true;
+        }
+
+        //figure out if the post has a country code, if so check the filter
+        String countryCode = "";
+        for (PostHttpIcon icon : post.httpIcons) {
+            if (icon.name.indexOf('/') != -1) {
+                countryCode = icon.name.substring(icon.name.indexOf('/'));
+                break;
+            }
+        }
+        if (!countryCode.isEmpty() && (filter.type & FilterType.COUNTRY_CODE.flag) != 0 && matches(filter, countryCode, false)) {
+            return true;
+        }
+
+        if (post.images != null) {
+            StringBuilder filename = new StringBuilder();
+            for (PostImage image : post.images) {
+                filename.append(image.filename).append(" ");
+            }
+            return (filename.length() > 0) && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, filename.toString(), false);
+        }
+
+        return false;
     }
 
     @AnyThread
