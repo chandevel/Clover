@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.StrictMode;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.di.AppModule;
@@ -102,21 +101,21 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
         feather.instance(FilterWatchManager.class);
 
         // Start watching for slow disk reads and writes after the heavy initializing is done
-        if (BuildConfig.DEBUG) {
-            StrictMode.setThreadPolicy(
-                    new StrictMode.ThreadPolicy.Builder()
-                            .detectCustomSlowCalls()
-                            .detectNetwork()
-                            .detectDiskReads()
-                            .detectDiskWrites()
-                            .penaltyLog()
-                            .build());
-            StrictMode.setVmPolicy(
-                    new StrictMode.VmPolicy.Builder()
-                            .detectAll()
-                            .penaltyLog()
-                            .build());
-        }
+//        if (BuildConfig.DEBUG) {
+//            StrictMode.setThreadPolicy(
+//                    new StrictMode.ThreadPolicy.Builder()
+//                            .detectCustomSlowCalls()
+//                            .detectNetwork()
+//                            .detectDiskReads()
+//                            .detectDiskWrites()
+//                            .penaltyLog()
+//                            .build());
+//            StrictMode.setVmPolicy(
+//                    new StrictMode.VmPolicy.Builder()
+//                            .detectAll()
+//                            .penaltyLog()
+//                            .build());
+//        }
 
         RxJavaPlugins.setErrorHandler(e -> {
             if (e instanceof UndeliverableException) {

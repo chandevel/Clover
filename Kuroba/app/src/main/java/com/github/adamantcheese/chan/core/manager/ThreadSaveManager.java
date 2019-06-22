@@ -345,15 +345,15 @@ public class ThreadSaveManager {
                             //                 / | \
                             //                /  |  \
                             //               /   |   \
-                            //               V   V   V // Separate streams,
+                            //               V   V   V // Separate streams,`
                             //               |   |   |
                             //               o   o   o // Download images in parallel
                             //               |   |   | // (availableProcessors count at a time),
                             //               V   V   V // Combine them back to a single stream,
                             //               \   |   /
-                            //                \  |  /  // There actually as many worker threads as
-                            //                 \ | /   // there are processor cores count on the
-                            //                   |     // user phone.
+                            //                \  |  /
+                            //                 \ | /
+                            //                   |
                             .flatMap((post) -> {
                                 return downloadImages(
                                         loadable,
