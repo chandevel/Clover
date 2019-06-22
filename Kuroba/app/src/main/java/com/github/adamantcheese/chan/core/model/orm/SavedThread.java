@@ -50,6 +50,10 @@ public class SavedThread {
         this.loadableId = loadableId;
     }
 
+    public boolean isRunning() {
+        return !isFullyDownloaded && !isStopped;
+    }
+
     public void update(SavedThread other) {
         this.isFullyDownloaded = other.isFullyDownloaded;
         this.isStopped = other.isStopped;

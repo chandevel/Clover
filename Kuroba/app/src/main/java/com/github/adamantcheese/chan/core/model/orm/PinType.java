@@ -23,6 +23,10 @@ public class PinType {
         return typeValue == 0;
     }
 
+    public static boolean hasFlags(int typeValue) {
+        return typeValue != 0;
+    }
+
     public static int removeDownloadNewPostsFlag(int typeValue) {
         if ((typeValue & DOWNLOAD_NEW_POSTS) != 0) {
             return typeValue & ~(DOWNLOAD_NEW_POSTS);

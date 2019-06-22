@@ -416,8 +416,9 @@ public class WatchManager implements WakeManager.Wakeable {
             List<Pin> l = new ArrayList<>();
 
             for (Pin p : pins) {
-                if (p.watching)
+                if (p.watching || PinType.hasFlags(p.pinType)) {
                     l.add(p);
+                }
             }
 
             return l;
@@ -518,10 +519,9 @@ public class WatchManager implements WakeManager.Wakeable {
             toRemove.addAll(pins);
         } else {
             for (Pin pin : pins) {
-                //if we're watching and a pin isn't being watched, it's a candidate for clearing
+                //if we're watching and a pin isn't being watched and has no flags, it's a candidate for clearing
                 //if the pin is archived or errored out, it's a candidate for clearing
-                if ((ChanSettings.watchEnabled.get() && !pin.watching)
-                        || (pin.archived || pin.isError)) {
+                if ((ChanSettings.watchEnabled.get() && !pin.watching && PinType.hasNoFlags(pin.pinType)) || (pin.archived || pin.isError)) {
                     toRemove.add(pin);
                 }
             }
@@ -661,14 +661,11 @@ public class WatchManager implements WakeManager.Wakeable {
                     savedThread.isFullyDownloaded = true;
                 }
 
-                if (!pin.watching) {
-                    savedThread.isStopped = true;
-                }
-
-                if (!savedThread.isStopped && !savedThread.isFullyDownloaded) {
+                if (!savedThread.isFullyDownloaded) {
                     continue;
                 }
 
+                // TODO: should the pinType be updated here?
                 createOrUpdateSavedThread(savedThread);
 
                 databaseManager.runTask(() -> {

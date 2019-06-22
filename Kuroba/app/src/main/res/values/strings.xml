@@ -332,6 +332,11 @@ If the pattern matches then the post can be hidden, removed, highlighted, or aut
         <item quantity="other">Watching %d threads</item>
     </plurals>
 
+    <plurals name="download_title">
+        <item quantity="one">Downloading one thread</item>
+        <item quantity="other">Downloading %d threads</item>
+    </plurals>
+
     <plurals name="watch_new_quotes">
         <item quantity="one">%d new post quoting you</item>
         <item quantity="other">%d new posts quoting you</item>
