@@ -230,10 +230,6 @@ public class WatchNotification extends Service {
                 flags);
     }
 
-    /**
-     * Saves new posts to the disk asynchronously. Does duplicates checking internally so it is safe to just
-     * pass all posts in there. Also checks whether the current loadable is already being downloaded.
-     */
     private void updateSavedThreads(HashMap<SavedThread, Pair<Loadable, List<Post>>> allPostsByThread) {
         for (Map.Entry<SavedThread, Pair<Loadable, List<Post>>> entry : allPostsByThread.entrySet()) {
             Loadable loadable = entry.getValue().first;

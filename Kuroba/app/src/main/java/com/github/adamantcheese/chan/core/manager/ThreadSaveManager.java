@@ -258,8 +258,10 @@ public class ThreadSaveManager {
     }
 
     /**
-     * Saves provided posts to a json file called "thread.json". Also saves all of the files that the
-     * posts may contain.
+     * Saves new posts to the disk asynchronously. Does duplicates checking internally so it is
+     * safe to just pass all posts in there. Checks whether the current loadable is already
+     * being downloaded. Checks for images that couldn't be downloaded on the previous attempt
+     * (because of IO errors/bad network/server being down etc)
      *
      * @param loadable is a unique identifier of a thread we are saving.
      * @param postsToSave posts of a thread to be saved.
