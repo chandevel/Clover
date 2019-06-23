@@ -52,8 +52,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
-
 public class ThreadSaveManager {
     private static final String TAG = "ThreadSaveManager";
     private static final int OKHTTP_TIMEOUT_SECONDS = 30;
@@ -131,19 +129,27 @@ public class ThreadSaveManager {
             }
 
             if (parameters == null) {
-                Logger.e(TAG, "Could not find download parameters for loadable " + loadableToString(loadable));
+                Logger.e(TAG, "Could not find download parameters for loadable "
+                        + loadableToString(loadable));
                 return Single.just(false);
             }
 
             return saveThreadInternal(loadable, parameters.getPostsToSave())
+                    // Use the executor's thread to process the queue elements. Everything above
+                    // will executed on this executor's threads.
                     .subscribeOn(Schedulers.from(executorService))
+                    // Everything below will be executed on the main thread
                     .observeOn(AndroidSchedulers.mainThread())
+                    // Handle errors
                     .doOnError((error) -> onDownloadingError(error, loadable))
+                    // Handle results
                     .doOnSuccess((result) -> onDownloadingCompleted(result, loadable))
                     .doOnEvent((result, error) -> {
                         synchronized (activeDownloads) {
-                            Logger.d(TAG, "Downloading request has completed for loadable " + loadableToString(loadable) +
-                                    ", activeDownloads count = " + activeDownloads.size());
+                            Logger.d(TAG, "Downloading request has completed for loadable "
+                                    + loadableToString(loadable) +
+                                    ", activeDownloads count = "
+                                    + activeDownloads.size());
                         }
                     })
                     // Suppress all of the exceptions so that the stream does not complete
@@ -235,7 +241,10 @@ public class ThreadSaveManager {
                 return;
             }
 
-            Logger.d(TAG, "Download for loadable " + loadableToString(loadable) + " ended up with result " + result);
+            Logger.d(TAG, "Download for loadable " + loadableToString(loadable)
+                    + " ended up with result " + result);
+
+            // Remove the download
             activeDownloads.remove(loadable);
         }
     }
@@ -250,9 +259,11 @@ public class ThreadSaveManager {
             }
 
             if (isFatalException(error)) {
-                Logger.d(TAG, "Download for loadable " + loadableToString(loadable) + " ended up with an error", error);
+                Logger.d(TAG, "Download for loadable " + loadableToString(loadable)
+                        + " ended up with an error", error);
             }
 
+            // Remove the download
             activeDownloads.remove(loadable);
         }
     }
@@ -269,6 +280,13 @@ public class ThreadSaveManager {
     @SuppressLint("CheckResult")
     private Single<Boolean> saveThreadInternal(@NonNull Loadable loadable, List<Post> postsToSave) {
         return Single.fromCallable(() -> {
+            if (!isCurrentDownloadRunning(loadable)) {
+                // This download was cancelled or stopped while waiting in the queue.
+                Logger.d(TAG, "Download for loadable " + loadableToString(loadable) +
+                        " was canceled or stopped while it was waiting in the queue");
+                return false;
+            }
+
             Logger.d(TAG, "Starting a new download for " + loadableToString(loadable) +
                     ", on thread " + Thread.currentThread().getName());
 
@@ -330,18 +348,20 @@ public class ThreadSaveManager {
                         spoilerImageUrlAndExtension)
                 )
                 .flatMap((res) -> {
-                    // for each post create a new flowable
+                    // For each post create a new inner rx stream (so they can be processed in parallel)
                     return Flowable.fromIterable(newPosts)
                             // Here we create a separate reactive stream for each image request.
+                            // But we use an executor service with limited threads amount, so there
+                            // will be only this much at a time.
                             //                   |
                             //                 / | \
                             //                /  |  \
                             //               /   |   \
-                            //               V   V   V // Separate streams,
+                            //               V   V   V // Separate streams.
                             //               |   |   |
-                            //               o   o   o // Download images in parallel
-                            //               |   |   | // (availableProcessors count at a time),
-                            //               V   V   V // Combine them back to a single stream,
+                            //               o   o   o // Download images in parallel.
+                            //               |   |   |
+                            //               V   V   V // Combine them back to a single stream.
                             //               \   |   /
                             //                \  |  /
                             //                 \ | /
@@ -361,9 +381,11 @@ public class ThreadSaveManager {
                     return Single.defer(() -> {
                         if (!isCurrentDownloadRunning(loadable)) {
                             if (isCurrentDownloadStopped(loadable)) {
-                                Logger.d(TAG, "Thread downloading has been stopped " + loadableToString(loadable));
+                                Logger.d(TAG, "Thread downloading has been stopped "
+                                        + loadableToString(loadable));
                             } else {
-                                Logger.d(TAG, "Thread downloading has been canceled " + loadableToString(loadable));
+                                Logger.d(TAG, "Thread downloading has been canceled "
+                                        + loadableToString(loadable));
                             }
 
                             return Single.just(false);
@@ -375,19 +397,23 @@ public class ThreadSaveManager {
                         return Single.just(true);
                     });
                 })
-                // Have to use blockingGet here
+                // Have to use blockingGet here. This is a place where all of the exception will come
+                        // out from
                 .blockingGet();
             } finally {
                 if (shouldDeleteDownloadedFiles(loadable)) {
                     if (isCurrentDownloadStopped(loadable)) {
-                        Logger.d(TAG, "Thread with loadable " + loadableToString(loadable) + " has been stopped");
+                        Logger.d(TAG, "Thread with loadable " + loadableToString(loadable)
+                                + " has been stopped");
                     } else {
-                        Logger.d(TAG, "Thread with loadable " + loadableToString(loadable) + " has been canceled");
+                        Logger.d(TAG, "Thread with loadable " + loadableToString(loadable)
+                                + " has been canceled");
                     }
 
-                    deleteThread(loadable);
+                    deleteThreadFilesFromDisk(loadable);
                 } else {
-                    Logger.d(TAG, "Thread with loadable " + loadableToString(loadable) + " has been updated");
+                    Logger.d(TAG, "Thread with loadable " + loadableToString(loadable)
+                            + " has been updated");
                 }
             }
 
@@ -694,8 +720,8 @@ public class ThreadSaveManager {
      * Checks whether the user allows downloading images and other files when there is no Wi-Fi connection
      * */
     private boolean shouldDownloadImages() {
-        return shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get()) &&
-                shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
+        return ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get()) &&
+                ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
     }
 
     /**
@@ -827,7 +853,7 @@ public class ThreadSaveManager {
     /**
      * When user cancels a download we need to delete the thread from the disk as well
      * */
-    private void deleteThread(Loadable loadable) {
+    private void deleteThreadFilesFromDisk(Loadable loadable) {
         String subDirs = getThreadSubDir(loadable);
 
         File threadSaveDir = new File(ChanSettings.saveLocation.get(), subDirs);
@@ -957,8 +983,8 @@ public class ThreadSaveManager {
 
     public enum DownloadRequestState {
         Running(0),
-        Cancelled(1),   // pin removed or both buttons (watch posts and save posts) are unpressed
-        Stopped(2);     // save posts button is unpressed
+        Cancelled(1),   // Pin is removed or both buttons (watch posts and save posts) are unpressed.
+        Stopped(2);     // Save posts button is unpressed.
 
         private int type;
 
