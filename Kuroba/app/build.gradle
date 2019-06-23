@@ -18,8 +18,8 @@ android {
         //bump the PATCH (ZZ) version otherwise, for anything small
 
         //versionName is only for displaying in the settings menu
-        versionCode 40301
-        versionName "v4.3.1-dev"
+        versionCode 40302
+        versionName "v4.3.2-dev"
 
         //if you change this, also change the AndroidManifest package
         applicationId "com.github.adamantcheese.chan"
