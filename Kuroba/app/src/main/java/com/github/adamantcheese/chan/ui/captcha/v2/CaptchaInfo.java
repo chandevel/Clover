@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CaptchaInfo {
@@ -38,7 +39,7 @@ public class CaptchaInfo {
         captchaType =  CaptchaType.Unknown;
         checkboxes = new ArrayList<>();
         cParameter = null;
-        challengeImages = null;
+        challengeImages = Collections.emptyList();
         captchaTitle = null;
     }
 

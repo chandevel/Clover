@@ -98,7 +98,6 @@ public class Filter implements Cloneable {
         onlyOnOP = filter.onlyOnOP;
     }
 
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Filter clone() {
         return new Filter(
                 enabled,

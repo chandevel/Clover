@@ -642,8 +642,6 @@ Don't have a 4chan Pass?<br>
     <string name="captcha_layout_v2_you_are_requesting_captcha_too_fast">You are requesting captcha too fast</string>
     <string name="captcha_layout_v2_refresh_cookies">Refresh cookies</string>
 
-    <string name="setting_posting_timeout_toggle_notice">Posting timeout will be applied on the next app start</string>
-
     <string name="file_url_copied_to_clipboard">File url copied to clipboard</string>
 
     <string name="delete_site_dialog_title">Delete site?</string>

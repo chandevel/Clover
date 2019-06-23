@@ -70,6 +70,7 @@ public class LogsController extends Controller {
 
     private void copyLogsClicked(ToolbarMenuSubItem item) {
         ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        assert clipboard != null;
         ClipData clip = ClipData.newPlainText("Logs", logText);
         clipboard.setPrimaryClip(clip);
         Toast.makeText(context, R.string.settings_logs_copied_to_clipboard, Toast.LENGTH_SHORT).show();

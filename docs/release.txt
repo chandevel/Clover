@@ -6,3 +6,4 @@ In Github Releases, draft a new release with tag v(major).(minor).(patch) to mat
 Write your changelog in the description. Markdown is supported.
 Upload APK to github releases.
 Release.
+Delete the last release's APK, to prevent previous version support as much as posible.

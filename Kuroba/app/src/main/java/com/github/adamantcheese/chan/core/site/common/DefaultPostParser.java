@@ -42,7 +42,6 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Parser;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -204,7 +203,7 @@ public class DefaultPostParser implements PostParser {
         return total;
     }
 
-    private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) throws IOException {
+    private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
             SpannableString spannable = new SpannableString(text);

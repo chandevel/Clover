@@ -94,6 +94,7 @@ public class CacheHandler {
         Logger.d(TAG, "Clearing cache");
 
         if (directory.exists() && directory.isDirectory()) {
+            //noinspection ConstantConditions
             for (File file : directory.listFiles()) {
                 if (!file.delete()) {
                     Logger.d(TAG, "Could not delete cache file while clearing cache " +

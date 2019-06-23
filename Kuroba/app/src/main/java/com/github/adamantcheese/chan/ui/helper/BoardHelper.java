@@ -36,7 +36,7 @@ public class BoardHelper {
     }
 
     public static String getDescription(Board board) {
-        return board.description == null ? null : Parser.unescapeEntities(board.description, false);
+        return Parser.unescapeEntities(board.description, false);
     }
 
     public static List<Board> quickSearch(List<Board> from, String query) {

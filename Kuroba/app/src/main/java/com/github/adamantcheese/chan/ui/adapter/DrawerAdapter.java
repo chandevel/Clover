@@ -133,7 +133,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case TYPE_DIVIDER:
                 return new DividerHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_divider, parent, false));
         }
-        return null;
+        throw new IllegalArgumentException();
     }
 
     @Override

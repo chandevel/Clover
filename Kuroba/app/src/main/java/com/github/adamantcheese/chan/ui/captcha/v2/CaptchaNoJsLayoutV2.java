@@ -35,7 +35,6 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -176,11 +175,6 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     @Override
     public void onCaptchaInfoParseError(Throwable error) {
         // called on a background thread
-
-        handleError(true, error);
-    }
-
-    private void handleError(boolean shouldFallback, Throwable error) {
         AndroidUtils.runOnUiThread(() -> {
             Logger.e(TAG, "CaptchaV2 error", error);
 
@@ -189,9 +183,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
 
             captchaVerifyButton.setEnabled(true);
 
-            if (shouldFallback) {
-                callback.onFallbackToV1CaptchaView();
-            }
+            callback.onFallbackToV1CaptchaView();
         });
     }
 

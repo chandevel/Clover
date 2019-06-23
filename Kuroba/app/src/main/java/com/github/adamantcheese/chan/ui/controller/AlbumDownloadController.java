@@ -242,6 +242,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
 
         Drawable drawable = context.getDrawable(checked ? R.drawable.ic_check_circle_white_24dp :
                 R.drawable.ic_radio_button_unchecked_white_24dp);
+        assert drawable != null;
 
         if (checked) {
             Drawable wrapped = DrawableCompat.wrap(drawable);

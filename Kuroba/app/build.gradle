@@ -11,6 +11,7 @@ android {
          * ------------------------------------------------------------
          *
          *              CHANGE PER RELEASE BUILD
+         *              SEE docs/release.txt FOR INFO
          *
          * ------------------------------------------------------------
          */
@@ -39,7 +40,7 @@ android {
         //these are your update and issues endpoints, change it to your repository
         //the issues endpoint is also used to calculate the base for linking to the github
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
-        buildConfigField "String", "ISSUES_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba/issues\""
+        buildConfigField "String", "GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba\""
 
         /**
          * ------------------------------------------------------------
@@ -57,7 +58,6 @@ android {
 
         android.applicationVariants.all { variant ->
             variant.outputs.all {
-                //see docs/release.txt for more info
                 outputFileName = manifestPlaceholders.get("appName").toString() + ".apk"
             }
         }

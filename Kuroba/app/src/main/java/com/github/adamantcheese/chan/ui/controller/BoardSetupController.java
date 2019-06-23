@@ -275,9 +275,11 @@ public class BoardSetupController extends Controller implements View.OnClickList
             description = itemView.findViewById(R.id.description);
             reorder = itemView.findViewById(R.id.reorder);
 
-            Drawable drawable = DrawableCompat.wrap(context.getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
-            DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));
-            reorder.setImageDrawable(drawable);
+            Drawable drawable = context.getDrawable(R.drawable.ic_reorder_black_24dp);
+            assert drawable != null;
+            Drawable drawableMutable = DrawableCompat.wrap(drawable).mutate();
+            DrawableCompat.setTint(drawableMutable, getAttrColor(context, R.attr.text_color_hint));
+            reorder.setImageDrawable(drawableMutable);
 
             reorder.setOnTouchListener((v, event) -> {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {

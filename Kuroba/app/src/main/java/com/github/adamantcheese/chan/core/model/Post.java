@@ -115,13 +115,7 @@ public class Post implements Comparable<Post> {
     private String title = "";
 
     public int compareTo(Post p) {
-        if (this.time < p.time) {
-            return 1;
-        } else if (this.time > p.time) {
-            return -1;
-        } else {
-            return 0;
-        }
+        return -Long.compare(this.time, p.time);
     }
 
     private Post(Builder builder) {

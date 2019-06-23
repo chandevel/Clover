@@ -39,8 +39,6 @@ import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.layout.BrowseBoardsFloatingMenu;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
-import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarContainer;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;

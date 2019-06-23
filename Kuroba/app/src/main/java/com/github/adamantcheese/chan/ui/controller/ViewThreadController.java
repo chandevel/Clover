@@ -265,7 +265,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             }
             navigationController.popController(false);
             //search after we're at the browse controller
-            if (searchQuery != null) {
+            if (searchQuery != null && browseController != null) {
                 Toolbar toolbar = browseController.getToolbar();
                 if (toolbar != null) {
                     toolbar.openSearch();

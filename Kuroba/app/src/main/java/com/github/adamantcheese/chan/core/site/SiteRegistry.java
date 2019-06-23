@@ -18,7 +18,7 @@ package com.github.adamantcheese.chan.core.site;
 
 import android.util.SparseArray;
 
-import com.github.adamantcheese.chan.core.site.sites.Wired7.Wired7;
+import com.github.adamantcheese.chan.core.site.sites.wired7.Wired7;
 import com.github.adamantcheese.chan.core.site.sites.arisuchan.Arisuchan;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.core.site.sites.chan8.Chan8;

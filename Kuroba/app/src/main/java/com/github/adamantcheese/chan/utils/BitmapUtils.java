@@ -174,7 +174,7 @@ public class BitmapUtils {
     }
 
     private static void deleteOldTempFiles(File[] files) {
-        if (files.length == 0) {
+        if (files == null || files.length == 0) {
             return;
         }
 

@@ -20,11 +20,8 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.di.NetModule;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
-
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -35,17 +32,9 @@ import okhttp3.Request;
  * Manages the {@link HttpCall} executions.
  */
 public class HttpCallManager {
-    private OkHttpClient client;
 
     @Inject
     public HttpCallManager() {
-        long timeout = ChanSettings.postingTimeout.get().getTimeoutValue();
-
-        client = new OkHttpClient.Builder()
-                .connectTimeout(timeout, TimeUnit.MILLISECONDS)
-                .readTimeout(timeout, TimeUnit.MILLISECONDS)
-                .writeTimeout(timeout, TimeUnit.MILLISECONDS)
-                .build();
     }
 
     public void makeHttpCall(

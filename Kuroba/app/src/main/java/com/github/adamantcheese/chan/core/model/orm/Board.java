@@ -248,7 +248,6 @@ public class Board implements Cloneable {
      *
      * @return copy of this board.
      */
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Board clone() {
         Board b = new Board();
         b.id = id;

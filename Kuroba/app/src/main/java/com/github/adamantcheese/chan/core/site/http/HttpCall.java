@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.site.http;
 
 import android.os.Handler;
 import android.os.Looper;
+
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.site.Site;

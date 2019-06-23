@@ -17,17 +17,13 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.view.View;
-import android.widget.Toast;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.SettingsPresenter;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.export.ImportExportSettingsController;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -43,7 +39,6 @@ public class MainSettingsController extends SettingsController implements Settin
     private SettingsPresenter presenter;
 
     private LinkSettingView watchLink;
-    private SettingView developerView;
     private LinkSettingView sitesSetting;
     private LinkSettingView filtersSetting;
 
@@ -57,16 +52,9 @@ public class MainSettingsController extends SettingsController implements Settin
         inject(this);
 
         navigation.setTitle(R.string.settings_screen);
-
         setupLayout();
-
         populatePreferences();
-
         buildPreferences();
-
-        if (!ChanSettings.developer.get()) {
-            developerView.view.setVisibility(View.GONE);
-        }
 
         presenter.create(this);
     }
@@ -146,21 +134,12 @@ public class MainSettingsController extends SettingsController implements Settin
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
         about.add(new LinkSettingView(this,
-                (String) getApplicationLabel(), BuildConfig.VERSION_NAME,
-                v -> {
-                    ChanSettings.developer.toggle();
-                    Toast.makeText(context, (ChanSettings.developer.get() ? "Enabled" : "Disabled") +
-                            " developer options", Toast.LENGTH_LONG).show();
-                    developerView.view.setVisibility(ChanSettings.developer.get() ? View.VISIBLE : View.GONE);
-                }));
-
-        about.add(new LinkSettingView(this,
-                R.string.settings_update_check, 0,
+                getApplicationLabel() + " " + BuildConfig.VERSION_NAME, "Tap to check for updates",
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()));
 
         about.add(new LinkSettingView(this,
                 "Find " + getApplicationLabel() + " on GitHub", "View the source code, give feedback, submit bug reports",
-                v -> AndroidUtils.openLink(BuildConfig.ISSUES_ENDPOINT.substring(0, BuildConfig.ISSUES_ENDPOINT.length() - 6))));
+                v -> AndroidUtils.openLink(BuildConfig.GITHUB_ENDPOINT)));
 
         about.add(new LinkSettingView(this,
                 R.string.settings_about_license, R.string.settings_about_license_description,
@@ -176,7 +155,7 @@ public class MainSettingsController extends SettingsController implements Settin
                                 getString(R.string.settings_about_licenses),
                                 "file:///android_asset/html/licenses.html"))));
 
-        developerView = about.add(new LinkSettingView(this,
+        about.add(new LinkSettingView(this,
                 R.string.settings_developer, 0,
                 v -> navigationController.pushController(
                         new DeveloperSettingsController(context))));

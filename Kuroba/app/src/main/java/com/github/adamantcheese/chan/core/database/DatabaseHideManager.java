@@ -97,8 +97,8 @@ public class DatabaseHideManager {
                                 true,
                                 false,
                                 false,
-                                hiddenPost.hideRepliesToThisPost,
-                                false);
+                                hiddenPost.hideRepliesToThisPost
+                        );
 
                         resultList.add(newPost);
                     } else {
@@ -244,8 +244,8 @@ public class DatabaseHideManager {
                         parentPost.filterStub,
                         parentPost.filterRemove,
                         parentPost.filterWatch,
-                        true,
-                        false);
+                        true
+                );
 
                 // assign the filter parameters to the child post
                 postsFastLookupMap.put(no, newPost);
@@ -266,8 +266,7 @@ public class DatabaseHideManager {
             boolean filterStub,
             boolean filterRemove,
             boolean filterWatch,
-            boolean filterReplies,
-            boolean filterOnlyOP
+            boolean filterReplies
     ) {
         return new Post.Builder()
                 .board(childPost.board)
@@ -290,7 +289,7 @@ public class DatabaseHideManager {
                 .images(childPost.images)
                 .moderatorCapcode(childPost.capcode)
                 .setHttpIcons(childPost.httpIcons)
-                .filter(filterHighlightedColor, filterStub, filterRemove, filterWatch, filterReplies, filterOnlyOP)
+                .filter(filterHighlightedColor, filterStub, filterRemove, filterWatch, filterReplies, false)
                 .isSavedReply(childPost.isSavedReply)
                 .spans(childPost.subjectSpan, childPost.nameTripcodeIdCapcodeSpan)
                 .linkables(childPost.linkables)
