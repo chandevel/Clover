@@ -35,6 +35,7 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class MainSettingsController extends SettingsController implements SettingsPresenter.Callback {
@@ -145,7 +146,7 @@ public class MainSettingsController extends SettingsController implements Settin
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
         about.add(new LinkSettingView(this,
-                "Kuroba", BuildConfig.VERSION_NAME,
+                (String) getApplicationLabel(), BuildConfig.VERSION_NAME,
                 v -> {
                     ChanSettings.developer.toggle();
                     Toast.makeText(context, (ChanSettings.developer.get() ? "Enabled" : "Disabled") +
@@ -158,12 +159,8 @@ public class MainSettingsController extends SettingsController implements Settin
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()));
 
         about.add(new LinkSettingView(this,
-                "Find Kuroba on GitHub", "View the source code, give feedback, submit bug reports",
-                v -> AndroidUtils.openLink("https://github.com/Adamantcheese/Kuroba")));
-
-        about.add(new LinkSettingView(this,
-                "Donate", "Support me on Ko-fi!",
-                v -> AndroidUtils.openLink("https://ko-fi.com/kuroba_chan")));
+                "Find " + getApplicationLabel() + " on GitHub", "View the source code, give feedback, submit bug reports",
+                v -> AndroidUtils.openLink(BuildConfig.ISSUES_ENDPOINT.substring(0, BuildConfig.ISSUES_ENDPOINT.length() - 6))));
 
         about.add(new LinkSettingView(this,
                 R.string.settings_about_license, R.string.settings_about_license_description,

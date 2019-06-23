@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:name=".Chan"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Kuroba"
+        android:label="${appName}"
         android:theme="@style/Chan.Theme">
 
         <uses-library

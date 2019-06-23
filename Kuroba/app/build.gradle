@@ -16,13 +16,24 @@ android {
         //bump the MINOR (YY) version when there are compatible changes between versions (ie database changes)
         //or if there are big application level changes like tearing out/adding major features
         //bump the PATCH (ZZ) version otherwise, for anything small
+
+        //versionName is only for displaying in the settings menu
         versionCode 40301
         versionName "v4.3.1-dev"
 
+        //if you change this, also change the AndroidManifest package
         applicationId "com.github.adamantcheese.chan"
-        //this is your update endpoint, change it to your repository
+        manifestPlaceholders = [appName: "Kuroba"]
+        //these are your update and issues endpoints, change it to your repository
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
         buildConfigField "String", "ISSUES_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba/issues\""
+
+        android.applicationVariants.all { variant ->
+            variant.outputs.all {
+                //see docs/release.txt for more info
+                outputFileName = manifestPlaceholders.get("appName").toString() + ".apk"
+            }
+        }
     }
 
     compileOptions {
@@ -36,15 +47,6 @@ android {
 
     // Needed for volley
     useLibrary 'org.apache.http.legacy'
-
-    android.applicationVariants.all { variant ->
-        variant.outputs.all {
-            //this is required for the auto-updater, set the APK to upload to github here
-            //if you change this, also change UpdateManager::doUpdate::onSuccess to have the same name
-            //see docs/release.txt for more info
-            outputFileName = "Kuroba.apk"
-        }
-    }
 
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
