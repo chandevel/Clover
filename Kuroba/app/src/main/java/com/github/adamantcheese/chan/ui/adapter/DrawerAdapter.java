@@ -268,7 +268,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 watchCount.setTextColor(0xff33B5E5);
             }
 
-            if (watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) {
+            if ((watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) ||
+                    (watchManager.getPinWatcher(pin).getImageCount() >= pin.loadable.board.imageLimit && pin.loadable.board.imageLimit > 0)) {
                 watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
             } else {
                 watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
