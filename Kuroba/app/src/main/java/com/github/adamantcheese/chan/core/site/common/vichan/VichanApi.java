@@ -266,7 +266,11 @@ public class VichanApi extends CommonSite.CommonApi {
             //workaround for weird 8chan error where extra_files has a random empty array in it
             reader.beginArray();
             reader.endArray();
-            reader.beginObject();
+            try {
+                reader.beginObject();
+            } catch (Exception e1) {
+                return null;
+            }
         }
 
         String fileId = null;
