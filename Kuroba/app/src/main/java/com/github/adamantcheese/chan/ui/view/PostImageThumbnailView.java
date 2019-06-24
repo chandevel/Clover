@@ -57,8 +57,16 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
             this.postImage = postImage;
 
             if (postImage != null) {
+                //if prefetch is on, and the file isn't a webm or a pdf
+                //  then if the image is spoilered and unspoilering is on
+                //      get the HQ image otherwise get the thumbnail
+                //  otherwise get the thumbnail
+                //otherwise get the thumbnail
                 String url = ChanSettings.autoLoadThreadImages.get() ?
-                        (!postImage.imageUrl.toString().contains("webm") && !postImage.imageUrl.toString().contains("pdf") ? postImage.imageUrl.toString() : postImage.getThumbnailUrl().toString()) :
+                        (!postImage.imageUrl.toString().contains("webm") && !postImage.imageUrl.toString().contains("pdf") ?
+                                (postImage.spoiler && ChanSettings.revealImageSpoilers.get() ?
+                                        postImage.imageUrl.toString() : postImage.getThumbnailUrl().toString()) :
+                                postImage.getThumbnailUrl().toString()) :
                         postImage.getThumbnailUrl().toString();
                 setUrl(url, width, height);
             } else {
