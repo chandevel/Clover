@@ -103,6 +103,21 @@ public class MultiImageView
 
     private Context context;
     private ImageView playView;
+    private GestureDetector swipeDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
+            float diffY = e2.getY() - e1.getY();
+            float diffX = e2.getX() - e1.getX();
+            if (Math.abs(diffY) > 150 && Math.abs(vy) > 500 && Math.abs(diffX) < 300) {
+                if (diffY <= 0) {
+                    callback.onSwipeTop();
+                } else {
+                    callback.onSwipeBottom();
+                }
+            }
+            return true;
+        }
+    });
     private GestureDetector exoDoubleTapDetector = new GestureDetector(context, new SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
@@ -289,6 +304,7 @@ public class MultiImageView
                         if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
                             ImageView thumbnail = new ImageView(getContext());
                             thumbnail.setImageBitmap(response.getBitmap());
+                    thumbnail.setOnTouchListener((view, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
 
                             onModeLoaded(Mode.LOWRES, thumbnail);
                         }
@@ -435,6 +451,10 @@ public class MultiImageView
 
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
+
+        // TODO: !!!!!!!!!!!!!!!!!!!!!!!
+        view.setOnTouchListener((view1, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
+        onModeLoaded(Mode.GIF, view);
         view.setOnClickListener(null);
         view.setOnTouchListener((view1, motionEvent) -> gifDoubleTapDetector.onTouchEvent(motionEvent));
         onModeLoaded(Mode.GIFIMAGE, view);
@@ -510,6 +530,9 @@ public class MultiImageView
 
             exoPlayer.prepare(videoSource);
             exoPlayer.addAudioListener(this);
+
+            // TODO: !!!!!!!!!!!!!!!!
+            exoVideoView.setOnTouchListener((view, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
             exoVideoView.setOnTouchListener((view, motionEvent) -> exoDoubleTapDetector.onTouchEvent(motionEvent));
 
             addView(exoVideoView);
@@ -599,6 +622,7 @@ public class MultiImageView
                 onBigImageError(wasInitial);
             }
         });
+        image.setOnTouchListener((view, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
     }
 
     private void onError() {
@@ -671,6 +695,10 @@ public class MultiImageView
 
     public interface Callback {
         void onTap();
+
+        void onSwipeTop();
+
+        void onSwipeBottom();
 
         void onDoubleTap();
 

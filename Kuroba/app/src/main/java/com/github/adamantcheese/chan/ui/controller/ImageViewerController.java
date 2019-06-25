@@ -404,6 +404,10 @@ public class ImageViewerController
         imageViewerCallback.scrollToImage(postImage);
     }
 
+    public void saveImage() {
+        saveShare(false, presenter.getCurrentPostImage());
+    }
+
     public void showProgress(boolean show) {
         loadingBar.setVisibility(show ? VISIBLE : GONE);
     }
