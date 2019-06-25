@@ -635,7 +635,7 @@ Don't have a 4chan Pass?<br>
 
     <string name="captcha_layout_v2_verify_button_text">Verify</string>
     <string name="captcha_layout_v2_reload">Reload</string>
-    <string name="captcha_layout_v2_use_old_captcha">Use old captcha</string>
+    <string name="captcha_layout_v2_use_old_captcha">Use old\ncaptcha</string>
     <string name="captcha_layout_v2_you_have_to_select_at_least_one_image">You have to select at least one image (if you see a captcha that does not have any matching images then it is probably a bug; fill an issue and use the old captcha)</string>
     <string name="captcha_layout_v2_verification_already_in_progress">Verification is already in progress</string>
     <string name="captcha_layout_v2_captcha_request_is_already_in_progress">Captcha request is already in progress</string>

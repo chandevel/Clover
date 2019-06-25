@@ -94,6 +94,7 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
                             Toast.makeText(context, "Folder must be a word, no spaces", Toast.LENGTH_SHORT).show();
                         } else {
                             File newDir = new File(fileWatcher.getCurrentPath().getAbsolutePath() + File.separator + dialogView.getFolderName());
+                            //noinspection ResultOfMethodCallIgnored
                             newDir.mkdir();
                             fileWatcher.navigateTo(newDir);
                             ChanSettings.saveLocation.set(fileWatcher.getCurrentPath().getAbsolutePath());

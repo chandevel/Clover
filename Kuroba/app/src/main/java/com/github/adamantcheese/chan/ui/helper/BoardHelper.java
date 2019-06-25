@@ -98,7 +98,7 @@ public class BoardHelper {
     private static int getTokenSortRatio(Board board, String query) {
         int code = FuzzySearch.ratio(board.code, query);
         int name = FuzzySearch.ratio(board.name, query);
-        int description = FuzzySearch.weightedRatio(String.valueOf(getDescription(board)), query);
+        int description = FuzzySearch.weightedRatio(getDescription(board), query);
 
         return code * 8 +
                 name * 5 +

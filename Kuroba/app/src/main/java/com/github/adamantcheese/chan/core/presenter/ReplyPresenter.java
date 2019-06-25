@@ -206,6 +206,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         if (draft.comment.trim().isEmpty()) {
             callback.openMessage(true, false, getAppContext().getString(R.string.reply_comment_empty), true);
+            return;
         }
 
         draft.loadable = loadable;

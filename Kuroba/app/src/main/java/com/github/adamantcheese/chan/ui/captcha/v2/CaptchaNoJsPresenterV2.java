@@ -89,19 +89,19 @@ public class CaptchaNoJsPresenterV2 {
     ) throws CaptchaNoJsV2Error {
         if (!verificationInProgress.compareAndSet(false, true)) {
             Logger.d(TAG, "Verify captcha request is already in progress");
-            return VerifyError.AlreadyInProgress;
+            return VerifyError.ALREADY_IN_PROGRESS;
         }
 
         if (executor.isShutdown()) {
             verificationInProgress.set(false);
             Logger.d(TAG, "Cannot verify, executor has been shut down");
-            return VerifyError.AlreadyShutdown;
+            return VerifyError.ALREADY_SHUTDOWN;
         }
 
         try {
             if (selectedIds.isEmpty()) {
                 verificationInProgress.set(false);
-                return VerifyError.NoImagesSelected;
+                return VerifyError.NO_IMAGES_SELECTED;
             }
 
             if (prevCaptchaInfo == null) {
@@ -147,7 +147,7 @@ public class CaptchaNoJsPresenterV2 {
                 }
             });
 
-            return VerifyError.Ok;
+            return VerifyError.OK;
         } catch (Throwable error) {
             verificationInProgress.set(false);
             throw error;
@@ -160,7 +160,7 @@ public class CaptchaNoJsPresenterV2 {
     public RequestCaptchaInfoError requestCaptchaInfo() {
         if (!captchaRequestInProgress.compareAndSet(false, true)) {
             Logger.d(TAG, "Request captcha request is already in progress");
-            return RequestCaptchaInfoError.AlreadyInProgress;
+            return RequestCaptchaInfoError.ALREADY_IN_PROGRESS;
         }
 
         try {
@@ -168,13 +168,13 @@ public class CaptchaNoJsPresenterV2 {
             if (System.currentTimeMillis() - lastTimeCaptchaRequest < CAPTCHA_REQUEST_THROTTLE_MS) {
                 captchaRequestInProgress.set(false);
                 Logger.d(TAG, "Requesting captcha info too fast");
-                return RequestCaptchaInfoError.HoldYourHorses;
+                return RequestCaptchaInfoError.HOLD_YOUR_HORSES;
             }
 
             if (executor.isShutdown()) {
                 captchaRequestInProgress.set(false);
                 Logger.d(TAG, "Cannot request captcha info, executor has been shut down");
-                return RequestCaptchaInfoError.AlreadyShutdown;
+                return RequestCaptchaInfoError.ALREADY_SHUTDOWN;
             }
 
             lastTimeCaptchaRequest = System.currentTimeMillis();
@@ -199,7 +199,7 @@ public class CaptchaNoJsPresenterV2 {
                 }
             });
 
-            return RequestCaptchaInfoError.Ok;
+            return RequestCaptchaInfoError.OK;
         } catch (Throwable error) {
             captchaRequestInProgress.set(false);
 
@@ -208,7 +208,7 @@ public class CaptchaNoJsPresenterV2 {
             }
 
             // return ok here too because we already handled this exception in the callback
-            return RequestCaptchaInfoError.Ok;
+            return RequestCaptchaInfoError.OK;
         }
     }
 
@@ -339,17 +339,17 @@ public class CaptchaNoJsPresenterV2 {
     }
 
     public enum VerifyError {
-        Ok,
-        NoImagesSelected,
-        AlreadyInProgress,
-        AlreadyShutdown
+        OK,
+        NO_IMAGES_SELECTED,
+        ALREADY_IN_PROGRESS,
+        ALREADY_SHUTDOWN
     }
 
     public enum RequestCaptchaInfoError {
-        Ok,
-        AlreadyInProgress,
-        HoldYourHorses,
-        AlreadyShutdown
+        OK,
+        ALREADY_IN_PROGRESS,
+        HOLD_YOUR_HORSES,
+        ALREADY_SHUTDOWN
     }
 
     public interface AuthenticationCallbacks {

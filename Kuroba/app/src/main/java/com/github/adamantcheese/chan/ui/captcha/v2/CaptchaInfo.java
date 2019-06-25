@@ -36,7 +36,7 @@ public class CaptchaInfo {
     CaptchaTitle captchaTitle;
 
     public CaptchaInfo() {
-        captchaType =  CaptchaType.Unknown;
+        captchaType =  CaptchaType.UNKNOWN;
         checkboxes = new ArrayList<>();
         cParameter = null;
         challengeImages = Collections.emptyList();
@@ -88,20 +88,20 @@ public class CaptchaInfo {
     }
 
     public enum CaptchaType {
-        Unknown,
+        UNKNOWN,
         // 3x3
-        Canonical,
+        CANONICAL,
         // 2x4
-        NoCanonical;
+        NO_CANONICAL;
 
         public static CaptchaType fromCheckboxesCount(int count) {
             if (count == 8) {
-                return NoCanonical;
+                return NO_CANONICAL;
             } else if (count == 9) {
-                return Canonical;
+                return CANONICAL;
             }
 
-            return Unknown;
+            return UNKNOWN;
         }
     }
 
