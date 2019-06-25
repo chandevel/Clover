@@ -303,6 +303,16 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     @Override
+    public void onSwipeTop() {
+        onExit();
+    }
+
+    @Override
+    public void onSwipeBottom() {
+        callback.saveImage();
+    }
+
+    @Override
     public void showProgress(MultiImageView multiImageView, boolean show) {
         for (int i = 0; i < images.size(); i++) {
             PostImage postImage = images.get(i);
@@ -392,6 +402,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         void setTitle(PostImage postImage, int index, int count, boolean spoiler);
 
         void scrollToImage(PostImage postImage);
+
+        void saveImage();
 
         MultiImageView.Mode getImageMode(PostImage postImage);
 

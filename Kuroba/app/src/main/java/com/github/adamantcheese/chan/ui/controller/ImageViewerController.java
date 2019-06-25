@@ -316,6 +316,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         imageViewerCallback.scrollToImage(postImage);
     }
 
+    public void saveImage() {
+        saveShare(false, presenter.getCurrentPostImage());
+    }
+
     public void showProgress(boolean show) {
         loadingBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
