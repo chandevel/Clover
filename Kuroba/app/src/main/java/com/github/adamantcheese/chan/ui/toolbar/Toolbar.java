@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -234,7 +235,7 @@ public class Toolbar extends LinearLayout implements
         return navigationItemContainer.isTransitioning();
     }
 
-    public void setNavigationItem(final boolean animate, final boolean pushing, final NavigationItem item) {
+    public void setNavigationItem(final boolean animate, final boolean pushing, final NavigationItem item, Theme theme) {
         ToolbarPresenter.AnimationStyle animationStyle;
         if (!animate) {
             animationStyle = ToolbarPresenter.AnimationStyle.NONE;
@@ -244,7 +245,7 @@ public class Toolbar extends LinearLayout implements
             animationStyle = ToolbarPresenter.AnimationStyle.POP;
         }
 
-        presenter.set(item, animationStyle);
+        presenter.set(item, theme, animationStyle);
     }
 
     public void beginTransition(NavigationItem newItem) {
@@ -280,8 +281,8 @@ public class Toolbar extends LinearLayout implements
 
     @Override
     public void showForNavigationItem(
-            NavigationItem item, ToolbarPresenter.AnimationStyle animation) {
-        navigationItemContainer.set(item, animation);
+            NavigationItem item, Theme theme, ToolbarPresenter.AnimationStyle animation) {
+        navigationItemContainer.set(item, theme, animation);
     }
 
     @Override

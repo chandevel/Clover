@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -133,14 +134,12 @@ public class PostRepliesController extends BaseFloatingController {
         TextView repliesCloseText = dataView.findViewById(R.id.replies_close_icon);
         repliesBackText.setCompoundDrawablesWithIntrinsicBounds(backDrawable, null, null, null);
         repliesCloseText.setCompoundDrawablesWithIntrinsicBounds(doneDrawable, null, null, null);
-        if (ThemeHelper.getTheme().isLightTheme) {
-            repliesBackText.setTextColor(0x8a000000);
-            repliesCloseText.setTextColor(0x8a000000);
-        } else {
-            repliesBackText.setTextColor(0xffffffff);
-            repliesCloseText.setTextColor(0xffffffff);
+        if (!ThemeHelper.getTheme().isLightTheme) {
             dataView.findViewById(R.id.container).setBackgroundResource(R.drawable.dialog_full_dark);
         }
+        repliesBackText.setTextColor(ThemeHelper.getTheme().textPrimary);
+        repliesCloseText.setTextColor(ThemeHelper.getTheme().textPrimary);
+        dataView.findViewById(R.id.container).setBackgroundTintList(ColorStateList.valueOf(ThemeHelper.getTheme().backColor));
 
         ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(context, 0) {
             @Override

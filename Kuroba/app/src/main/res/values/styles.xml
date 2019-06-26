@@ -303,6 +303,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="dropdown_dark_pressed_color">#6633b5e5</item>
     </style>
 
+    <style name="Chan.Theme.Holo" parent="Chan.Theme.Dark">
+        <item name="backcolor">#ff654c4f</item>
+        <item name="backcolor_secondary">#ff4a3335</item>
+
+        <item name="android:textColor">#fffffde8</item>
+        <item name="text_color_primary">#fffffde8</item>
+        <item name="text_color_secondary">#89fffde8</item>
+
+        <item name="post_subject_color">#ff666ec0</item>
+        <item name="post_quote_color">#ffd06448</item>
+        <item name="post_link_color">#ffd06448</item>
+        <item name="post_highlight_quote_color">#ffac653b</item>
+        <item name="post_details_color">#ffffffff</item>
+    </style>
+
     <!-- For FloatingMenu -->
     <style name="ToolbarDropDownListViewStyle" parent="Widget.AppCompat.ListView.DropDown">
         <item name="android:background">#ffffffff</item>

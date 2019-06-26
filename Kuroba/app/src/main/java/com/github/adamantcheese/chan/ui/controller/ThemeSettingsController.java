@@ -333,7 +333,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             final NavigationItem item = new NavigationItem();
             item.title = theme.displayName;
             item.hasBack = false;
-            toolbar.setNavigationItem(false, true, item);
+            toolbar.setNavigationItem(false, true, item, theme);
             toolbar.setOnClickListener(colorClick);
 
             linearLayout.addView(toolbar, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,

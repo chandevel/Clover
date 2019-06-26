@@ -47,7 +47,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
         super.transition(from, to, pushing, controllerTransition);
 
         if (to != null) {
-            toolbar.setNavigationItem(controllerTransition != null, pushing, to.navigation);
+            toolbar.setNavigationItem(controllerTransition != null, pushing, to.navigation, null);
             updateToolbarCollapse(to, controllerTransition != null);
         }
     }

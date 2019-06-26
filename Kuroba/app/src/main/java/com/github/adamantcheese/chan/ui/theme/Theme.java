@@ -62,6 +62,7 @@ public class Theme {
     public int savedReplyColor;
     public int selectedColor;
     public int textColorRevealSpoiler;
+    public int backColor;
     public int backColorSecondary;
 
     public ThemeDrawable settingsDrawable;
@@ -128,6 +129,7 @@ public class Theme {
                 R.attr.text_color_secondary,
                 R.attr.text_color_hint,
                 R.attr.text_color_reveal_spoiler,
+                R.attr.backcolor,
                 R.attr.backcolor_secondary
         });
 
@@ -149,7 +151,8 @@ public class Theme {
         textSecondary = ta.getColor(15, 0);
         textHint = ta.getColor(16, 0);
         textColorRevealSpoiler = ta.getColor(17, 0);
-        backColorSecondary = ta.getColor(18, 0);
+        backColor = ta.getColor(18, 0);
+        backColorSecondary = ta.getColor(19, 0);
 
         ta.recycle();
     }

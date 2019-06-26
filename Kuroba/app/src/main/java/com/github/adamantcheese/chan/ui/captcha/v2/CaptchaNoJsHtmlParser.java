@@ -158,12 +158,8 @@ public class CaptchaNoJsHtmlParser {
             throw error;
         }
 
-        if (captchaTitle == null) {
-            throw new CaptchaNoJsV2ParsingError("challengeTitle is null");
-        }
-
-        if (captchaTitle.isEmpty()) {
-            throw new CaptchaNoJsV2ParsingError("challengeTitle is empty");
+        if (captchaTitle == null || captchaTitle.isEmpty()) {
+            throw new CaptchaNoJsV2ParsingError("challengeTitle is null or empty");
         }
 
         captchaInfo.setCaptchaTitle(captchaTitle);

@@ -42,6 +42,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
 import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import java.util.HashMap;
@@ -108,14 +109,14 @@ public class ToolbarContainer extends FrameLayout {
         this.arrowMenu = arrowMenu;
     }
 
-    public void set(NavigationItem item, ToolbarPresenter.AnimationStyle animation) {
+    public void set(NavigationItem item, Theme theme, ToolbarPresenter.AnimationStyle animation) {
         if (transitionView != null) {
             throw new IllegalStateException("Currently in transition mode");
         }
 
         endAnimations();
 
-        ItemView itemView = new ItemView(item);
+        ItemView itemView = new ItemView(item, theme);
 
         previousView = currentView;
         currentView = itemView;
@@ -189,7 +190,7 @@ public class ToolbarContainer extends FrameLayout {
 
         endAnimations();
 
-        ItemView itemView = new ItemView(item);
+        ItemView itemView = new ItemView(item, null);
 
         transitionView = itemView;
         transitionAnimationStyle = style;
@@ -410,8 +411,8 @@ public class ToolbarContainer extends FrameLayout {
         @Nullable
         private ToolbarMenuView menuView;
 
-        public ItemView(NavigationItem item) {
-            this.view = createNavigationItemView(item);
+        public ItemView(NavigationItem item, Theme theme) {
+            this.view = createNavigationItemView(item, theme);
             this.item = item;
         }
 
@@ -427,16 +428,16 @@ public class ToolbarContainer extends FrameLayout {
             }
         }
 
-        private LinearLayout createNavigationItemView(final NavigationItem item) {
+        private LinearLayout createNavigationItemView(final NavigationItem item, Theme theme) {
             if (item.search) {
                 return createSearchLayout(item);
             } else {
-                return createNavigationLayout(item);
+                return createNavigationLayout(item, theme);
             }
         }
 
         @NonNull
-        private LinearLayout createNavigationLayout(NavigationItem item) {
+        private LinearLayout createNavigationLayout(NavigationItem item, Theme theme) {
             @SuppressLint("InflateParams")
             LinearLayout menu = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
             menu.setGravity(Gravity.CENTER_VERTICAL);
@@ -445,7 +446,7 @@ public class ToolbarContainer extends FrameLayout {
 
             // Title
             final TextView titleView = menu.findViewById(R.id.title);
-            titleView.setTypeface(ThemeHelper.getTheme().mainFont);
+            titleView.setTypeface(theme != null ? theme.mainFont : ThemeHelper.getTheme().mainFont);
             titleView.setText(item.title);
             titleView.setTextColor(0xffffffff);
 
