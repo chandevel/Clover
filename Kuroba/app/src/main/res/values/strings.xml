@@ -236,6 +236,8 @@ If the pattern matches then the post can be hidden, removed, highlighted, or aut
     <br>
     3. Regular expressions. <tt>/^>implying/</tt> for example. You can use <tt>/^>ImPlYiNg/<b>i</b></tt> to make the regex case insensitive.
 </p>
+<br>
+Note that for country code filtering, troll country codes should be prepended with "t_". In addition, a country code filter automatically implies the case insensitive flag for regex.
 ]]>
     </string>
 

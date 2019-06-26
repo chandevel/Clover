@@ -57,6 +57,7 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -336,7 +337,8 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     }
 
     private void updateFilterValidity() {
-        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, filter.action) != null;
+        int extraFlags = (filter.type & FilterType.COUNTRY_CODE.flag) != 0 ? Pattern.CASE_INSENSITIVE : 0;
+        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, filter.action, extraFlags) != null;
 
         if (valid != patternContainerErrorShowing) {
             patternContainerErrorShowing = valid;

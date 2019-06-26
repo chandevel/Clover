@@ -252,7 +252,7 @@ public class VichanApi extends CommonSite.CommonApi {
         if (trollCountryCode != null && countryName != null) {
             HttpUrl countryUrl = endpoints.icon("troll_country",
                     makeArgument("troll_country_code", trollCountryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/" + trollCountryCode));
+            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/t_" + trollCountryCode));
         }
 
         queue.addForParse(builder);
