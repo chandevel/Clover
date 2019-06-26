@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
@@ -57,7 +56,7 @@ public class AppearanceSettingsController extends SettingsController {
             SettingsGroup appearance = new SettingsGroup(R.string.settings_group_appearance);
 
             appearance.add(new LinkSettingView(this,
-                    getString(R.string.setting_theme), Chan.injector().instance(ThemeHelper.class).getTheme().displayName,
+                    getString(R.string.setting_theme), ThemeHelper.getTheme().displayName,
                     v -> navigationController.pushController(
                             new ThemeSettingsController(context))));
 
@@ -96,9 +95,9 @@ public class AppearanceSettingsController extends SettingsController {
             setupFontSizeSetting(post);
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.fontCondensed,
-                    R.string.setting_font_condensed,
-                    R.string.setting_font_condensed_description)));
+                    ChanSettings.fontAlternate,
+                    R.string.setting_font_alt,
+                    R.string.setting_font_alt_description)));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.postFullDate,

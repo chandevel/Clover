@@ -23,7 +23,6 @@ import android.text.style.BackgroundColorSpan;
 
 import androidx.annotation.AnyThread;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -60,7 +59,7 @@ public class DefaultPostParser implements PostParser {
     @Override
     public Post parse(Theme theme, Post.Builder builder, Callback callback) {
         if (theme == null) {
-            theme = Chan.injector().instance(ThemeHelper.class).getTheme();
+            theme = ThemeHelper.getTheme();
         }
 
         if (!TextUtils.isEmpty(builder.name)) {

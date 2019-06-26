@@ -105,7 +105,7 @@ public class ChanSettings {
     private static final StringSetting theme;
     public static final OptionsSetting<LayoutMode> layoutMode;
     public static final StringSetting fontSize;
-    public static final BooleanSetting fontCondensed;
+    public static final BooleanSetting fontAlternate;
     public static final BooleanSetting openLinkConfirmation;
     public static final BooleanSetting openLinkBrowser;
     public static final BooleanSetting autoRefreshThread;
@@ -182,7 +182,7 @@ public class ChanSettings {
         boolean tablet = AndroidUtils.getRes().getBoolean(R.bool.is_tablet);
 
         fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
-        fontCondensed = new BooleanSetting(p, "preference_font_condensed", false);
+        fontAlternate = new BooleanSetting(p, "preference_font_alternate", false);
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
         openLinkBrowser = new BooleanSetting(p, "preference_open_link_browser", false);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);

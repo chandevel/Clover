@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
@@ -40,6 +41,8 @@ public class Theme {
     public boolean isLightTheme = true;
     public ThemeHelper.PrimaryColor primaryColor;
     public ThemeHelper.PrimaryColor accentColor;
+    public Typeface mainFont;
+    public Typeface altFont;
 
     public int textPrimary;
     public int textSecondary;
@@ -71,11 +74,13 @@ public class Theme {
     public ThemeDrawable helpDrawable;
     public ThemeDrawable refreshDrawable;
 
-    public Theme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor) {
+    public Theme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor, Typeface mainFont, Typeface altFont) {
         this.displayName = displayName;
         this.name = name;
         this.resValue = resValue;
         this.primaryColor = primaryColor;
+        this.mainFont = mainFont;
+        this.altFont = altFont;
         accentColor = ThemeHelper.PrimaryColor.TEAL;
 
         resolveSpanColors();

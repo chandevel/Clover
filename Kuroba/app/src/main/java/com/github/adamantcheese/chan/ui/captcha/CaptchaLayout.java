@@ -30,7 +30,6 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -63,7 +62,7 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
     @Override
     public void initialize(Site site, AuthenticationLayoutCallback callback) {
         this.callback = callback;
-        this.lightTheme = Chan.injector().instance(ThemeHelper.class).getTheme().isLightTheme;
+        this.lightTheme = ThemeHelper.getTheme().isLightTheme;
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
 

@@ -36,7 +36,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -134,7 +133,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
         itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
 
         add.setOnClickListener(this);
-        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(add);
+        ThemeHelper.getTheme().applyFabColor(add);
         crossfadeView.toggle(false, false);
 
         // Presenter

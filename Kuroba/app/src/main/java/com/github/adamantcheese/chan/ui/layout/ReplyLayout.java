@@ -37,7 +37,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -181,11 +180,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         setRoundItemBackground(more);
         more.setOnClickListener(this);
 
-        Chan.injector().instance(ThemeHelper.class).getTheme().imageDrawable.apply(attach);
+        ThemeHelper.getTheme().imageDrawable.apply(attach);
         setRoundItemBackground(attach);
         attach.setOnClickListener(this);
 
-        Chan.injector().instance(ThemeHelper.class).getTheme().sendDrawable.apply(submit);
+        ThemeHelper.getTheme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);
 
@@ -196,7 +195,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         // Setup captcha layout views
         captchaContainer.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-        Chan.injector().instance(ThemeHelper.class).getTheme().refreshDrawable.apply(captchaHardReset);
+        ThemeHelper.getTheme().refreshDrawable.apply(captchaHardReset);
         setRoundItemBackground(captchaHardReset);
         captchaHardReset.setOnClickListener(this);
 
@@ -515,9 +514,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     @Override
     public void openPreview(boolean show, File previewFile) {
         if (show) {
-            Chan.injector().instance(ThemeHelper.class).getTheme().clearDrawable.apply(attach);
+            ThemeHelper.getTheme().clearDrawable.apply(attach);
         } else {
-            Chan.injector().instance(ThemeHelper.class).getTheme().imageDrawable.apply(attach);
+            ThemeHelper.getTheme().imageDrawable.apply(attach);
         }
 
         if (show) {

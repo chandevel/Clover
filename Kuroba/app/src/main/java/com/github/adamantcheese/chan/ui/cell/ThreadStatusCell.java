@@ -33,8 +33,7 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 public class ThreadStatusCell extends LinearLayout implements View.OnClickListener {
     private static final int UPDATE_INTERVAL = 1000;
@@ -68,7 +67,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
     protected void onFinishInflate() {
         super.onFinishInflate();
         text = findViewById(R.id.text);
-        text.setTypeface(ROBOTO_MEDIUM);
+        text.setTypeface(ThemeHelper.getTheme().mainFont);
 
         setOnClickListener(this);
     }

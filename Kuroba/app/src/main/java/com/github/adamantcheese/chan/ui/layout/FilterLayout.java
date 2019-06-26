@@ -39,7 +39,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatCheckBox;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
@@ -145,7 +144,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         patternPreviewStatus = findViewById(R.id.pattern_preview_status);
         enabled = findViewById(R.id.enabled);
         help = findViewById(R.id.help);
-        Chan.injector().instance(ThemeHelper.class).getTheme().helpDrawable.apply(help);
+        ThemeHelper.getTheme().helpDrawable.apply(help);
         help.setOnClickListener(this);
         colorContainer = findViewById(R.id.color_container);
         colorContainer.setOnClickListener(this);

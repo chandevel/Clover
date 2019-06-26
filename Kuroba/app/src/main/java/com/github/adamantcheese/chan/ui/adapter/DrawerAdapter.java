@@ -29,7 +29,6 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
@@ -47,7 +46,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
@@ -142,7 +140,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case TYPE_HEADER:
                 HeaderHolder headerHolder = (HeaderHolder) holder;
                 headerHolder.text.setText(R.string.drawer_pinned);
-                Chan.injector().instance(ThemeHelper.class).getTheme().clearDrawable.apply(headerHolder.clear);
+                ThemeHelper.getTheme().clearDrawable.apply(headerHolder.clear);
 
                 break;
             case TYPE_PIN:
@@ -156,11 +154,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 switch (position) {
                     case 0:
                         linkHolder.text.setText(R.string.drawer_settings);
-                        Chan.injector().instance(ThemeHelper.class).getTheme().settingsDrawable.apply(linkHolder.image);
+                        ThemeHelper.getTheme().settingsDrawable.apply(linkHolder.image);
                         break;
                     case 1:
                         linkHolder.text.setText(R.string.drawer_history);
-                        Chan.injector().instance(ThemeHelper.class).getTheme().historyDrawable.apply(linkHolder.image);
+                        ThemeHelper.getTheme().historyDrawable.apply(linkHolder.image);
                         break;
                 }
                 break;
@@ -313,9 +311,9 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             image = itemView.findViewById(R.id.thumb);
             image.setCircular(true);
             textView = itemView.findViewById(R.id.text);
-            textView.setTypeface(ROBOTO_MEDIUM);
+            textView.setTypeface(ThemeHelper.getTheme().mainFont);
             watchCountText = itemView.findViewById(R.id.watch_count);
-            watchCountText.setTypeface(ROBOTO_MEDIUM);
+            watchCountText.setTypeface(ThemeHelper.getTheme().mainFont);
 
             setRoundItemBackground(watchCountText);
 
@@ -342,7 +340,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private HeaderHolder(View itemView) {
             super(itemView);
             text = itemView.findViewById(R.id.text);
-            text.setTypeface(ROBOTO_MEDIUM);
+            text.setTypeface(ThemeHelper.getTheme().mainFont);
             clear = itemView.findViewById(R.id.clear);
             setRoundItemBackground(clear);
             clear.setOnClickListener(v -> callback.onHeaderClicked(HeaderAction.CLEAR));
@@ -361,7 +359,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             super(itemView);
             image = itemView.findViewById(R.id.image);
             text = itemView.findViewById(R.id.text);
-            text.setTypeface(ROBOTO_MEDIUM);
+            text.setTypeface(ThemeHelper.getTheme().mainFont);
 
             itemView.setOnClickListener(v -> {
                 switch (getAdapterPosition()) {

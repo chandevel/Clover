@@ -52,7 +52,6 @@ import androidx.annotation.NonNull;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
@@ -80,7 +79,6 @@ import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
 import static com.github.adamantcheese.chan.Chan.injector;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_CONDENSED_REGULAR;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
@@ -173,8 +171,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         comment.setTextSize(textSizeSp);
         comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
 
-        if (ChanSettings.fontCondensed.get()) {
-            comment.setTypeface(ROBOTO_CONDENSED_REGULAR);
+        if (ChanSettings.fontAlternate.get()) {
+            comment.setTypeface(ThemeHelper.getTheme().altFont);
         }
 
         replies.setTextSize(textSizeSp);
@@ -220,7 +218,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
     private void showOptions(View anchor, List<FloatingMenuItem> items,
                              List<FloatingMenuItem> extraItems,
                              Object extraOption) {
-        if (Chan.injector().instance(ThemeHelper.class).getTheme().isLightTheme) {
+        if (ThemeHelper.getTheme().isLightTheme) {
             options.setImageResource(R.drawable.ic_overflow_black);
         }
 
@@ -257,7 +255,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         super.onAttachedToWindow();
 
         if (post != null && !bound) {
-            bindPost(Chan.injector().instance(ThemeHelper.class).getTheme(), post);
+            bindPost(ThemeHelper.getTheme(), post);
         }
     }
 

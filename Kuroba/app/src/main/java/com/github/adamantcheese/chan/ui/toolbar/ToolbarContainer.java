@@ -42,7 +42,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
 import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -445,7 +445,7 @@ public class ToolbarContainer extends FrameLayout {
 
             // Title
             final TextView titleView = menu.findViewById(R.id.title);
-            titleView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+            titleView.setTypeface(ThemeHelper.getTheme().mainFont);
             titleView.setText(item.title);
             titleView.setTextColor(0xffffffff);
 

@@ -5,7 +5,6 @@ import android.graphics.drawable.StateListDrawable;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
@@ -33,7 +32,7 @@ public class FastScrollerHelper {
 
     private static StateListDrawable getThumb() {
         StateListDrawable list = new StateListDrawable();
-        Theme curTheme = Chan.injector().instance(ThemeHelper.class).getTheme();
+        Theme curTheme = ThemeHelper.getTheme();
         list.addState(new int[]{android.R.attr.state_pressed},
                 new ColorDrawable(curTheme.accentColor.color));
         list.addState(new int[]{}, new ColorDrawable(curTheme.textSecondary));
@@ -42,7 +41,7 @@ public class FastScrollerHelper {
 
     private static StateListDrawable getTrack() {
         StateListDrawable list = new StateListDrawable();
-        Theme curTheme = Chan.injector().instance(ThemeHelper.class).getTheme();
+        Theme curTheme = ThemeHelper.getTheme();
         list.addState(new int[]{android.R.attr.state_pressed},
                 new ColorDrawable(curTheme.textHint));
         list.addState(new int[]{}, new ColorDrawable(0));

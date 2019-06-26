@@ -75,7 +75,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
 
         download = view.findViewById(R.id.download);
         download.setOnClickListener(this);
-        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(download);
+        ThemeHelper.getTheme().applyFabColor(download);
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);

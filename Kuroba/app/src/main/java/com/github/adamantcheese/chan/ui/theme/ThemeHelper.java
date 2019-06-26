@@ -20,8 +20,11 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
+
 import androidx.annotation.AnyThread;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -30,25 +33,29 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+
 public class ThemeHelper {
     private static final String TAG = "ThemeHelper";
 
     private List<Theme> themes = new ArrayList<>();
 
     private Theme theme;
+    private static final Typeface ROBOTO_MEDIUM = Typeface.createFromAsset(getAppContext().getAssets(), "font/Roboto-Medium.ttf");
+    private static final Typeface ROBOTO_CONDENSED_REGULAR = Typeface.createFromAsset(getAppContext().getAssets(), "font/RobotoCondensed-Regular.ttf");
 
     public ThemeHelper() {
-        themes.add(new Theme("Light", "light", R.style.Chan_Theme, PrimaryColor.GREEN));
-        themes.add(new DarkTheme("Dark", "dark", R.style.Chan_Theme_Dark, PrimaryColor.DARK));
-        themes.add(new DarkTheme("Black", "black", R.style.Chan_Theme_Black, PrimaryColor.BLACK));
-        themes.add(new DarkTheme("Tomorrow", "tomorrow", R.style.Chan_Theme_Tomorrow, PrimaryColor.DARK));
-        themes.add(new Theme("Yotsuba", "yotsuba", R.style.Chan_Theme_Yotsuba, PrimaryColor.RED));
-        themes.add(new Theme("Yotsuba B", "yotsuba_b", R.style.Chan_Theme_YotsubaB, PrimaryColor.RED));
-        themes.add(new Theme("Photon", "photon", R.style.Chan_Theme_Photon, PrimaryColor.ORANGE));
-        themes.add(new DarkTheme("Insomnia", "insomnia", R.style.Chan_Theme_Insomnia, PrimaryColor.DARK));
-        themes.add(new DarkTheme("Gruvbox", "gruvbox", R.style.Chan_Theme_Gruvbox, PrimaryColor.DARK));
-        themes.add(new DarkTheme("Neon", "neon", R.style.Chan_Theme_Neon, PrimaryColor.DARK));
-        themes.add(new DarkTheme("Solarized Dark", "solarized_dark", R.style.Chan_Theme_SolarizedDark, PrimaryColor.ORANGE));
+        themes.add(new Theme("Light", "light", R.style.Chan_Theme, PrimaryColor.GREEN, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
+        themes.add(new DarkTheme("Dark", "dark", R.style.Chan_Theme_Dark, PrimaryColor.DARK, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
+        themes.add(new DarkTheme("Black", "black", R.style.Chan_Theme_Black, PrimaryColor.BLACK, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
+        themes.add(new DarkTheme("Tomorrow", "tomorrow", R.style.Chan_Theme_Tomorrow, PrimaryColor.DARK, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
+        themes.add(new Theme("Yotsuba", "yotsuba", R.style.Chan_Theme_Yotsuba, PrimaryColor.RED, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
+        themes.add(new Theme("Yotsuba B", "yotsuba_b", R.style.Chan_Theme_YotsubaB, PrimaryColor.RED, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
+        themes.add(new Theme("Photon", "photon", R.style.Chan_Theme_Photon, PrimaryColor.ORANGE, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
+        themes.add(new DarkTheme("Insomnia", "insomnia", R.style.Chan_Theme_Insomnia, PrimaryColor.DARK, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
+        themes.add(new DarkTheme("Gruvbox", "gruvbox", R.style.Chan_Theme_Gruvbox, PrimaryColor.DARK, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
+        themes.add(new DarkTheme("Neon", "neon", R.style.Chan_Theme_Neon, PrimaryColor.DARK, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
+        themes.add(new DarkTheme("Solarized Dark", "solarized_dark", R.style.Chan_Theme_SolarizedDark, PrimaryColor.ORANGE, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
 
         ChanSettings.ThemeColor settingTheme = ChanSettings.getThemeAndColor();
         for (Theme theme : themes) {
@@ -92,8 +99,8 @@ public class ThemeHelper {
     }
 
     @AnyThread
-    public Theme getTheme() {
-        return theme;
+    public static Theme getTheme() {
+        return Chan.injector().instance(ThemeHelper.class).theme;
     }
 
     public List<Theme> getThemes() {

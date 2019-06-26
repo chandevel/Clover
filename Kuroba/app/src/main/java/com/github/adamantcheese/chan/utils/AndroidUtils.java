@@ -31,7 +31,6 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -52,24 +51,17 @@ import android.widget.Toast;
 
 import androidx.browser.customtabs.CustomTabsIntent;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
-
-    private static HashMap<String, Typeface> typefaceCache = new HashMap<>();
-
-    public static Typeface ROBOTO_MEDIUM;
-    public static Typeface ROBOTO_CONDENSED_REGULAR;
 
     @SuppressLint("StaticFieldLeak")
     private static Application application;
@@ -79,9 +71,6 @@ public class AndroidUtils {
     public static void init(Application application) {
         if (AndroidUtils.application == null) {
             AndroidUtils.application = application;
-
-            ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
-            ROBOTO_CONDENSED_REGULAR = getTypeface("RobotoCondensed-Regular.ttf");
         }
     }
 
@@ -163,7 +152,7 @@ public class AndroidUtils {
 
         if (openWithCustomTabs) {
             CustomTabsIntent tabsIntent = new CustomTabsIntent.Builder()
-                    .setToolbarColor(Chan.injector().instance(ThemeHelper.class).getTheme().primaryColor.color)
+                    .setToolbarColor(ThemeHelper.getTheme().primaryColor.color)
                     .build();
             try {
                 tabsIntent.launchUrl(activity, Uri.parse(link));
@@ -229,14 +218,6 @@ public class AndroidUtils {
 
     public static int sp(float sp) {
         return (int) (sp * getRes().getDisplayMetrics().scaledDensity);
-    }
-
-    public static Typeface getTypeface(String name) {
-        if (!typefaceCache.containsKey(name)) {
-            Typeface typeface = Typeface.createFromAsset(getRes().getAssets(), "font/" + name);
-            typefaceCache.put(name, typeface);
-        }
-        return typefaceCache.get(name);
     }
 
     /**

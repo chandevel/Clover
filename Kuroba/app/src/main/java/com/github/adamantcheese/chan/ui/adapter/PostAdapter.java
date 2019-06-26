@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -117,7 +116,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         true,
                         postViewMode,
                         compact,
-                        Chan.injector().instance(ThemeHelper.class).getTheme());
+                        ThemeHelper.getTheme());
 
                 if (itemViewType == TYPE_POST_STUB) {
                     ((View) postViewHolder.postView).setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));

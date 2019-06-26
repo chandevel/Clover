@@ -57,7 +57,6 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ViewPagerAdapter;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -193,7 +192,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             }
             selectedPrimaryColors.add(primaryColor);
         }
-        selectedAccentColor = Chan.injector().instance(ThemeHelper.class).getTheme().accentColor;
+        selectedAccentColor = ThemeHelper.getTheme().accentColor;
         done.setBackgroundTintList(ColorStateList.valueOf(selectedAccentColor.color));
     }
 
@@ -374,7 +373,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             @SuppressLint("ViewHolder")
             TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.toolbar_menu_item, parent, false);
             textView.setText(getItem(position));
-            textView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+            textView.setTypeface(ThemeHelper.getTheme().mainFont);
 
             ColorsAdapterItem color = (ColorsAdapterItem) items.get(position).getId();
 
