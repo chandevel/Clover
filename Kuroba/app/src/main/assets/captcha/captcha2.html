@@ -14,6 +14,7 @@
         margin: 40px auto 0 auto;
     }
 
+
     </style>
 </head>
 <body>
@@ -33,7 +34,6 @@ window.globalOnCaptchaLoaded = function() {
         'theme': '__theme__',
         'callback': globalOnCaptchaEntered
     });
-    CaptchaCallback.onCaptchaLoaded();
     document.getElementById('captcha-loading').style.display = 'none';
 }
 
@@ -43,6 +43,7 @@ window.onerror = function(message, url, line) {
         'Captcha error at ' + line + ': ' + message + ' @ ' + url));
 }
 })();
+
 
 </script>
 

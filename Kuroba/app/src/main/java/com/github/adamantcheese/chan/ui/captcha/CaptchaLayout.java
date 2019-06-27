@@ -24,7 +24,6 @@ import android.util.AttributeSet;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -71,8 +70,7 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
 
         AndroidUtils.hideKeyboard(this);
 
-        WebSettings settings = getSettings();
-        settings.setJavaScriptEnabled(true);
+        getSettings().setJavaScriptEnabled(true);
 
         setWebChromeClient(new WebChromeClient() {
             @Override
