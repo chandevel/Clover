@@ -44,7 +44,7 @@ public class ThemeHelper {
     private static final Typeface ROBOTO_MEDIUM = Typeface.createFromAsset(getAppContext().getAssets(), "font/Roboto-Medium.ttf");
     private static final Typeface ROBOTO_CONDENSED_REGULAR = Typeface.createFromAsset(getAppContext().getAssets(), "font/RobotoCondensed-Regular.ttf");
     private static final Typeface TALLEYRAND = Typeface.createFromAsset(getAppContext().getAssets(), "font/Talleyrand.ttf");
-    private static final Typeface DUKE_PLUS = Typeface.createFromAsset(getAppContext().getAssets(), "font/DukePlus.ttf");
+    private static final Typeface OPTI_CUBA_LIBRE_TWO = Typeface.createFromAsset(getAppContext().getAssets(), "font/OPTICubaLibreTwo.otf");
 
     public ThemeHelper() {
         themes.add(new Theme("Light", "light", R.style.Chan_Theme, PrimaryColor.GREEN, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
@@ -58,7 +58,9 @@ public class ThemeHelper {
         themes.add(new DarkTheme("Gruvbox", "gruvbox", R.style.Chan_Theme_Gruvbox, PrimaryColor.DARK, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
         themes.add(new DarkTheme("Neon", "neon", R.style.Chan_Theme_Neon, PrimaryColor.DARK, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
         themes.add(new DarkTheme("Solarized Dark", "solarized_dark", R.style.Chan_Theme_SolarizedDark, PrimaryColor.ORANGE, ROBOTO_MEDIUM, ROBOTO_CONDENSED_REGULAR));
-        themes.add(new DarkTheme("Holo", "holo", R.style.Chan_Theme_Holo, PrimaryColor.BROWN, TALLEYRAND, DUKE_PLUS));
+        Theme holo = new DarkTheme("Holo", "holo", R.style.Chan_Theme_Holo, PrimaryColor.BROWN, TALLEYRAND, OPTI_CUBA_LIBRE_TWO);
+        holo.altFontIsMain = true;
+        themes.add(holo);
 
         ChanSettings.ThemeColor settingTheme = ChanSettings.getThemeAndColor();
         for (Theme theme : themes) {

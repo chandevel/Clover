@@ -171,10 +171,6 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         comment.setTextSize(textSizeSp);
         comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
 
-        if (ChanSettings.fontAlternate.get()) {
-            comment.setTypeface(ThemeHelper.getTheme().altFont);
-        }
-
         replies.setTextSize(textSizeSp);
         replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
 
@@ -420,6 +416,14 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             commentText = truncatePostComment(post);
         } else {
             commentText = post.comment;
+        }
+
+        if (!theme.altFontIsMain && ChanSettings.fontAlternate.get()) {
+            comment.setTypeface(theme.altFont);
+        }
+
+        if(theme.altFontIsMain) {
+            comment.setTypeface(ChanSettings.fontAlternate.get() ? Typeface.DEFAULT : theme.altFont);
         }
 
         comment.setVisibility(isEmpty(commentText) && post.images == null ? GONE : VISIBLE);

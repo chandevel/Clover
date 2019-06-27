@@ -39,6 +39,7 @@ public class Theme {
     public final String name;
     public final int resValue;
     public boolean isLightTheme = true;
+    public boolean altFontIsMain = false;
     public ThemeHelper.PrimaryColor primaryColor;
     public ThemeHelper.PrimaryColor accentColor;
     public Typeface mainFont;
