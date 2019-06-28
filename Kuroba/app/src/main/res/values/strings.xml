@@ -534,7 +534,7 @@ If disabled, save the image with the filename the uploader assigned."
     <string name="setting_video_auto_loop_description">Automatically loop video content</string>
 
     <string name="setting_auto_load_thread_images">Enable media prefetching</string>
-    <string name="setting_auto_load_thread_images_description">Loads all images or videos in a thread immediately, subject to the settings above</string>
+    <string name="setting_auto_load_thread_images_description">Loads all images or videos in a thread immediately, subject to the settings above; Increases the filecache size to 1GB</string>
 
 
     <!-- Save location settings -->
