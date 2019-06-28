@@ -41,8 +41,8 @@ public class ThemeHelper {
     private List<Theme> themes = new ArrayList<>();
 
     private Theme theme;
-    private static final Typeface ROBOTO_MEDIUM = Typeface.createFromAsset(getAppContext().getAssets(), "font/Roboto-Medium.ttf");
-    private static final Typeface ROBOTO_CONDENSED_REGULAR = Typeface.createFromAsset(getAppContext().getAssets(), "font/RobotoCondensed-Regular.ttf");
+    private static final Typeface ROBOTO_MEDIUM = Typeface.create("Roboto-Medium", Typeface.NORMAL);
+    private static final Typeface ROBOTO_CONDENSED_REGULAR = Typeface.create("RobotoCondensed-Regular", Typeface.NORMAL);
     private static final Typeface TALLEYRAND = Typeface.createFromAsset(getAppContext().getAssets(), "font/Talleyrand.ttf");
     private static final Typeface OPTI_CUBA_LIBRE_TWO = Typeface.createFromAsset(getAppContext().getAssets(), "font/OPTICubaLibreTwo.otf");
 
