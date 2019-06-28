@@ -283,7 +283,7 @@ public class DatabaseHideManager {
                 .closed(childPost.isClosed())
                 .subject(childPost.subject)
                 .name(childPost.name)
-                .comment(childPost.comment.toString())
+                .comment(childPost.comment)
                 .tripcode(childPost.tripcode)
                 .setUnixTimestampSeconds(childPost.time)
                 .images(childPost.images)

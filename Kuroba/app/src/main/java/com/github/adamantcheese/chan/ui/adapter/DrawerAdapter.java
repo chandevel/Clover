@@ -221,6 +221,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(pins.indexOf(pin) + PIN_OFFSET);
         if (holder != null) {
             updatePinViewHolder(holder, pin);
+            notifyItemChanged(pins.indexOf(pin) + PIN_OFFSET);
         }
     }
 
@@ -229,6 +230,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(i + PIN_OFFSET);
             if (holder != null) {
                 updatePinViewHolder(holder, pins.get(i));
+                notifyItemChanged(i + PIN_OFFSET);
             }
         }
     }
