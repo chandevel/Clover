@@ -422,7 +422,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             comment.setTypeface(theme.altFont);
         }
 
-        if(theme.altFontIsMain) {
+        if (theme.altFontIsMain) {
             comment.setTypeface(ChanSettings.fontAlternate.get() ? Typeface.DEFAULT : theme.altFont);
         }
 
