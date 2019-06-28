@@ -30,10 +30,10 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.greenrobot.eventbus.EventBus;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
