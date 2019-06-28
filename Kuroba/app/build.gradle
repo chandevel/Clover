@@ -41,6 +41,8 @@ android {
         //the issues endpoint is also used to calculate the base for linking to the github
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
         buildConfigField "String", "GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba\""
+        //this is for checking who's built what in debug logs
+        buildConfigField "String", "SIGNATURE", "\"8952c098\""
 
         /**
          * ------------------------------------------------------------

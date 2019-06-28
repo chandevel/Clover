@@ -134,7 +134,7 @@ public class MainSettingsController extends SettingsController implements Settin
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
         about.add(new LinkSettingView(this,
-                getApplicationLabel() + " " + BuildConfig.VERSION_NAME, "Tap to check for updates",
+                getApplicationLabel() + " " + BuildConfig.VERSION_NAME + " " + (AndroidUtils.getIsOfficial() ? "✓" : "✗"), "Tap to check for updates",
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()));
 
         about.add(new LinkSettingView(this,

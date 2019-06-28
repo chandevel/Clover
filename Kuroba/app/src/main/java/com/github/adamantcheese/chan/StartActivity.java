@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -148,6 +149,9 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             e.printStackTrace(pw);
             Logger.e("UNCAUGHT", sw.toString());
             Logger.e("UNCAUGHT", ".\n----------------------------------------\nEND OF CURRENT RUNTIME MESSAGES\n----------------------------------------\n.");
+            Logger.e("UNCAUGHT", "Android API Level: " + Build.VERSION.SDK_INT);
+            Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME + " " + (AndroidUtils.getIsOfficial() ? "Official" : "Unofficial"));
+            Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
             System.exit(999);
         });
     }

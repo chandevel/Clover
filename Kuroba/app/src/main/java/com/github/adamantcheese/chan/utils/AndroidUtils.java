@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -51,6 +52,7 @@ import android.widget.Toast;
 
 import androidx.browser.customtabs.CustomTabsIntent;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.google.android.material.snackbar.Snackbar;
@@ -92,6 +94,16 @@ public class AndroidUtils {
 
     public static SharedPreferences getPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(application);
+    }
+
+    public static boolean getIsOfficial() {
+        try {
+            @SuppressLint("PackageManagerGetSignatures")
+            Signature sig = application.getPackageManager().getPackageInfo(application.getPackageName(), PackageManager.GET_SIGNATURES).signatures[0];
+            return BuildConfig.SIGNATURE.equals(Integer.toHexString(sig.toCharsString().hashCode()));
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     /**
