@@ -183,13 +183,13 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     public void setPinHighlighted(Pin pin) {
         drawerAdapter.setPinHighlighted(pin);
         drawerAdapter.updateHighlighted(recyclerView);
-        recyclerView.postInvalidate();
+        forceRedraw();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         drawerAdapter.onPinAdded(message.pin);
-        recyclerView.postInvalidate();
+        forceRedraw();
         if (BackgroundUtils.isInForeground()) {
             drawerLayout.openDrawer(drawer);
         }
@@ -199,21 +199,21 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
         drawerAdapter.onPinRemoved(message.pin);
-        recyclerView.postInvalidate();
+        forceRedraw();
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinChangedMessage message) {
         drawerAdapter.onPinChanged(recyclerView, message.pin);
-        recyclerView.postInvalidate();
+        forceRedraw();
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
         drawerAdapter.onPinsChanged(message.pins);
-        recyclerView.postInvalidate();
+        forceRedraw();
         updateBadge();
     }
 
@@ -235,6 +235,12 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         if (getTop() != null) {
             getMainToolbarNavigationController().toolbar.getArrowMenuDrawable().setBadge(total, color);
         }
+    }
+
+    private void forceRedraw() {
+        recyclerView.setAdapter(null);
+        recyclerView.setAdapter(drawerAdapter);
+        recyclerView.postInvalidate();
     }
 
     private void openController(Controller controller) {
