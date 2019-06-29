@@ -84,7 +84,10 @@ public class WatchManager implements WakeManager.Wakeable {
 
     enum IntervalType {
         /**
-         * A timer that uses a {@link Handler} that calls {@link #update(boolean)} every {@value #FOREGROUND_INTERVAL}ms.
+         * A timer that uses a {@link Handler} that calls {@link #update(boolean)} every
+         * {@value #FOREGROUND_INTERVAL_ONLY_WATCHES} or
+         * {@value #FOREGROUND_INTERVAL_MIXED} or
+         * {@value FOREGROUND_INTERVAL_ONLY_DOWNLOADS} ms depending on the current pins.
          */
         FOREGROUND,
 
@@ -100,7 +103,18 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     private Handler handler;
-    private static final long FOREGROUND_INTERVAL = 15 * 1000;
+    /**
+     * When all pins have flag WatchNewPosts use short interval
+     * */
+    private static final long FOREGROUND_INTERVAL_ONLY_WATCHES = 15 * 1000;
+    /**
+     * When we have pins of both types use mixed interval
+     * */
+    private static final long FOREGROUND_INTERVAL_MIXED = 60 * 1000;
+    /**
+     * When all pins have flag DownloadNewPosts use long interval
+     * */
+    private static final long FOREGROUND_INTERVAL_ONLY_DOWNLOADS = 180 * 1000;
     private static final int MESSAGE_UPDATE = 1;
 
     private final DatabaseManager databaseManager;
@@ -252,6 +266,7 @@ public class WatchManager implements WakeManager.Wakeable {
             return;
         }
 
+        savedThread.isStopped = true;
         // Cache stopped savedThread so it's just faster to find it
         createOrUpdateSavedThread(savedThread);
         databaseManager.runTask(
@@ -624,7 +639,7 @@ public class WatchManager implements WakeManager.Wakeable {
             switch (currentInterval) {
                 case FOREGROUND:
                     // Schedule a delayed handler that will call update(false)
-                    handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), FOREGROUND_INTERVAL);
+                    handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), getInterval());
                     break;
                 case BACKGROUND:
                     // Start receiving scheduled broadcasts
@@ -734,7 +749,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
         if (currentInterval == IntervalType.FOREGROUND) {
             // reschedule handler message
-            handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), FOREGROUND_INTERVAL);
+            handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), getInterval());
         }
 
         // A set of watchers that all have to complete being updated
@@ -760,6 +775,40 @@ public class WatchManager implements WakeManager.Wakeable {
             Logger.i(TAG, "Acquiring wakelock for pin watcher updates");
             wakeManager.manageLock(true);
         }
+    }
+
+    /**
+     * This method figures out what kind of foreground interval we should use.
+     * */
+    private long getInterval() {
+        boolean hasAtLeastOneWatchNewPostsPin = false;
+        boolean hasAtLeastOneDownloadNewPostsPin = false;
+
+        for (Pin pin : pins) {
+            if (PinType.hasWatchNewPostsFlag(pin.pinType) && pin.watching) {
+                hasAtLeastOneWatchNewPostsPin = true;
+            }
+            if (PinType.hasDownloadFlag(pin.pinType)) {
+                hasAtLeastOneDownloadNewPostsPin = true;
+            }
+
+            if (hasAtLeastOneDownloadNewPostsPin && hasAtLeastOneWatchNewPostsPin) {
+                break;
+            }
+        }
+
+        if (hasAtLeastOneDownloadNewPostsPin && hasAtLeastOneWatchNewPostsPin) {
+            Logger.d(TAG, "Current interval is FOREGROUND_INTERVAL_MIXED");
+            return FOREGROUND_INTERVAL_MIXED;
+        }
+
+        if (hasAtLeastOneWatchNewPostsPin) {
+            Logger.d(TAG, "Current interval is FOREGROUND_INTERVAL_ONLY_WATCHES");
+            return FOREGROUND_INTERVAL_ONLY_WATCHES;
+        }
+
+        Logger.d(TAG, "Current interval is FOREGROUND_INTERVAL_ONLY_DOWNLOADS");
+        return FOREGROUND_INTERVAL_ONLY_DOWNLOADS;
     }
 
     private void pinWatcherUpdated(PinWatcher pinWatcher) {
