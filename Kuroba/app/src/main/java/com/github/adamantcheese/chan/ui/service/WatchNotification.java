@@ -266,17 +266,15 @@ public class WatchNotification extends Service {
         builder.setContentText(TextUtils.join(", ", expandedLines));
         builder.setOngoing(true);
 
-        //setup launch for target pin, if it isn't null
-        if (target != null) {
-            Intent intent = new Intent(this, StartActivity.class);
-            intent.setAction(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_LAUNCHER);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |
-                    Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-            intent.putExtra("pin_id", target.id);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setContentIntent(pendingIntent);
-        }
+        //setup launch action, add pin if there's only one thread watching
+        Intent intent = new Intent(this, StartActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |
+                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        intent.putExtra("pin_id", target != null ? target.id : -1);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
 
         //setup lights, sound, and peek
         if ((flags & NOTIFICATION_SOUND) != 0 || (flags & NOTIFICATION_PEEK) != 0) {
