@@ -195,8 +195,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 }
                 previewOpen = false;
             } else {
-                callback.getImagePickDelegate().pick(this);
                 pickingFile = true;
+                callback.getImagePickDelegate().pick(this);
             }
         }
     }
