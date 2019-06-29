@@ -61,7 +61,6 @@ import javax.inject.Inject;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.injector;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
@@ -152,7 +151,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
                 @Override
                 public void setup() {
                     setName("App Setup");
-                    setIcon(SiteIcon.fromDrawable(injector().instance(ThemeHelper.class).getTheme().settingsDrawable.makeDrawable(getAppContext())));
+                    setIcon(SiteIcon.fromDrawable(ThemeHelper.getTheme().settingsDrawable.makeDrawable(getAppContext())));
                     setBoardsType(BoardsType.STATIC);
                     setConfig(new CommonConfig() {
                     });
@@ -462,7 +461,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
             text = itemView.findViewById(R.id.text);
 
             // View setup
-            text.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+            text.setTypeface(ThemeHelper.getTheme().mainFont);
         }
 
         public void bind(Site site) {
@@ -498,7 +497,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
             text = (TextView) itemView;
 
             // View setup
-            text.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+            text.setTypeface(ThemeHelper.getTheme().mainFont);
         }
 
         public void bind(Board board) {

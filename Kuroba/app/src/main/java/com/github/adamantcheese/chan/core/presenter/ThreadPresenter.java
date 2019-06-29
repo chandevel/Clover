@@ -181,16 +181,20 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public void requestInitialData() {
-        if (chanLoader.getThread() == null) {
-            requestData();
-        } else {
-            chanLoader.quickLoad();
+        if (chanLoader != null) {
+            if (chanLoader.getThread() == null) {
+                requestData();
+            } else {
+                chanLoader.quickLoad();
+            }
         }
     }
 
     public void requestData() {
-        threadPresenterCallback.showLoading();
-        chanLoader.requestData();
+        if (chanLoader != null) {
+            threadPresenterCallback.showLoading();
+            chanLoader.requestData();
+        }
     }
 
     public void onForegroundChanged(boolean foreground) {
@@ -355,14 +359,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             searchQuery = null;
         }
 
-        if (chanLoader.getThread() != null) {
+        if (chanLoader != null && chanLoader.getThread() != null) {
             showPosts();
         }
     }
 
     public void onSearchEntered(String entered) {
         searchQuery = entered;
-        if (chanLoader.getThread() != null) {
+        if (chanLoader != null && chanLoader.getThread() != null) {
             showPosts();
             if (TextUtils.isEmpty(entered)) {
                 threadPresenterCallback.setSearchStatus(null, true, false);
@@ -375,18 +379,15 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     public void setOrder(PostsFilter.Order order) {
         if (this.order != order) {
             this.order = order;
-            if (chanLoader != null) {
-                ChanThread thread = chanLoader.getThread();
-                if (thread != null) {
-                    scrollTo(0, false);
-                    showPosts();
-                }
+            if (chanLoader != null && chanLoader.getThread() != null) {
+                scrollTo(0, false);
+                showPosts();
             }
         }
     }
 
     public void refreshUI() {
-        if (chanLoader.getThread() != null) {
+        if (chanLoader != null && chanLoader.getThread() != null) {
             showPosts();
         }
     }
@@ -421,7 +422,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
      */
     @Override
     public void onChanLoaderData(ChanThread result) {
-        if (isWatching()) {
+        if (isWatching() && chanLoader != null) {
             chanLoader.setTimer();
         }
 
@@ -463,7 +464,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             }
         }
 
-        if (loadable.markedNo >= 0) {
+        if (loadable.markedNo >= 0 && chanLoader != null) {
             Post markedPost = PostUtils.findPostById(loadable.markedNo, chanLoader.getThread());
             if (markedPost != null) {
                 highlightPost(markedPost);
@@ -485,7 +486,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
      */
     @Override
     public void onListScrolledToBottom() {
-        if (loadable.isThreadMode()) {
+        if (loadable.isThreadMode() && chanLoader != null && chanLoader.getThread() != null) {
             List<Post> posts = chanLoader.getThread().posts;
             loadable.setLastViewed(posts.get(posts.size() - 1).no);
         }
@@ -502,11 +503,13 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public void onNewPostsViewClicked() {
-        Post post = PostUtils.findPostById(loadable.lastViewed, chanLoader.getThread());
-        if (post != null) {
-            scrollToPost(post, true);
-        } else {
-            scrollTo(-1, true);
+        if (chanLoader != null) {
+            Post post = PostUtils.findPostById(loadable.lastViewed, chanLoader.getThread());
+            if (post != null) {
+                scrollToPost(post, true);
+            } else {
+                scrollTo(-1, true);
+            }
         }
     }
 
@@ -623,7 +626,9 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             }
         }
 
-        threadPresenterCallback.showImages(images, index, chanLoader.getLoadable(), thumbnail);
+        if (chanLoader != null) {
+            threadPresenterCallback.showImages(images, index, chanLoader.getLoadable(), thumbnail);
+        }
     }
 
     @Override
@@ -745,6 +750,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 break;
             case POST_OPTION_REMOVE:
             case POST_OPTION_HIDE:
+                if (chanLoader == null) {
+                    break;
+                }
+
                 boolean hide = ((Integer) id) == POST_OPTION_HIDE;
 
                 if (chanLoader.getThread().loadable.mode == Loadable.Mode.CATALOG) {
@@ -770,7 +779,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
     @Override
     public void onPostLinkableClicked(Post post, PostLinkable linkable) {
-        if (linkable.type == PostLinkable.Type.QUOTE) {
+        if (linkable.type == PostLinkable.Type.QUOTE && chanLoader != null) {
             Post linked = PostUtils.findPostById((int) linkable.value, chanLoader.getThread());
             if (linked != null) {
                 threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
@@ -816,9 +825,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         List<Post> posts = new ArrayList<>();
         synchronized (post.repliesFrom) {
             for (int no : post.repliesFrom) {
-                Post replyPost = PostUtils.findPostById(no, chanLoader.getThread());
-                if (replyPost != null) {
-                    posts.add(replyPost);
+                if (chanLoader != null) {
+                    Post replyPost = PostUtils.findPostById(no, chanLoader.getThread());
+                    if (replyPost != null) {
+                        posts.add(replyPost);
+                    }
                 }
             }
         }
@@ -832,13 +843,17 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
      */
     @Override
     public long getTimeUntilLoadMore() {
-        return chanLoader.getTimeUntilLoadMore();
+        if (chanLoader != null) {
+            return chanLoader.getTimeUntilLoadMore();
+        } else {
+            return 0L;
+        }
     }
 
     @Override
     public boolean isWatching() {
         return loadable.isThreadMode() && ChanSettings.autoRefreshThread.get() &&
-                ((Chan) Chan.injector().instance(Context.class)).getApplicationInForeground() && chanLoader.getThread() != null &&
+                ((Chan) Chan.injector().instance(Context.class)).getApplicationInForeground() && chanLoader != null && chanLoader.getThread() != null &&
                 !chanLoader.getThread().closed && !chanLoader.getThread().archived;
     }
 
@@ -853,7 +868,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
     @Override
     public void onListStatusClicked() {
-        if (!getChanThread().archived) {
+        if (getChanThread() != null && !getChanThread().archived) {
             chanLoader.requestMoreDataAndResetTimer();
         } else {
             @SuppressLint("InflateParams") final ArchivesLayout dialogView =
@@ -878,7 +893,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
     @Override
     public void requestNewPostLoad() {
-        if (loadable != null && loadable.isThreadMode()) {
+        if (chanLoader != null && loadable != null && loadable.isThreadMode()) {
             chanLoader.requestMoreDataAndResetTimer();
             pageRequestManager.forceUpdateForBoard(loadable.board);
         }
@@ -977,11 +992,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     private void showPosts() {
-        threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
+        if (chanLoader != null) {
+            threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
+        }
     }
 
     private void addHistory() {
-        if (!historyAdded
+        if (chanLoader != null &&
+                !historyAdded
                 && ChanSettings.historyEnabled.get()
                 && loadable.isThreadMode()
                 // Do not attempt to add a saved thread to the history
@@ -1002,20 +1020,22 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     public void hideOrRemovePosts(boolean hide, boolean wholeChain, Post post, int threadNo) {
         Set<Post> posts = new HashSet<>();
 
-        if (wholeChain) {
-            ChanThread thread = chanLoader.getThread();
-            if (thread != null) {
-                posts.addAll(PostUtils.findPostWithReplies(post.no, thread.posts));
+        if (chanLoader != null) {
+            if (wholeChain) {
+                ChanThread thread = chanLoader.getThread();
+                if (thread != null) {
+                    posts.addAll(PostUtils.findPostWithReplies(post.no, thread.posts));
+                }
+            } else {
+                posts.add(PostUtils.findPostById(post.no, chanLoader.getThread()));
             }
-        } else {
-            posts.add(PostUtils.findPostById(post.no, chanLoader.getThread()));
         }
 
         threadPresenterCallback.hideOrRemovePosts(hide, wholeChain, posts, threadNo);
     }
 
     public void showRemovedPostsDialog() {
-        if (chanLoader.getThread().loadable.mode != Loadable.Mode.THREAD) {
+        if (chanLoader == null || chanLoader.getThread().loadable.mode != Loadable.Mode.THREAD) {
             return;
         }
 
@@ -1025,6 +1045,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public void onRestoreRemovedPostsClicked(List<Integer> selectedPosts) {
+        if (chanLoader == null) return;
         int threadNo = chanLoader.getThread().op.no;
         Site site = chanLoader.getThread().loadable.site;
         String boardCode = chanLoader.getThread().loadable.boardCode;

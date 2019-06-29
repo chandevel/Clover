@@ -25,10 +25,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
-import androidx.appcompat.app.AlertDialog;
 import android.text.Html;
 import android.text.Spanned;
 import android.widget.Button;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.RequestQueue;
 import com.github.adamantcheese.chan.BuildConfig;
@@ -79,7 +80,7 @@ public class UpdateManager {
     public void autoUpdateCheck() {
         if (ChanSettings.previousVersion.get() < BuildConfig.VERSION_CODE
                 && ChanSettings.previousVersion.get() != 0) {
-            Spanned text = Html.fromHtml("<h3>Kuroba was updated</h3>Kuroba was updated to " + BuildConfig.VERSION_NAME);
+            Spanned text = Html.fromHtml("<h3>" + getApplicationLabel() + " was updated to " + BuildConfig.VERSION_NAME + "</h3>");
             final AlertDialog dialog = new AlertDialog.Builder(context)
                     .setMessage(text)
                     .setPositiveButton(R.string.ok, null)
@@ -174,7 +175,7 @@ public class UpdateManager {
                 updateDownloadDialog = null;
                 File copy = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS),
-                        "Kuroba.apk");
+                        getApplicationLabel() + ".apk");
                 try {
                     IOUtils.copyFile(file, copy);
                 } catch (IOException e) {

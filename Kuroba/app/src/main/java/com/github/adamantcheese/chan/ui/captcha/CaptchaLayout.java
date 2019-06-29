@@ -24,13 +24,11 @@ import android.util.AttributeSet;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -45,7 +43,6 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
     private boolean loaded = false;
     private String baseUrl;
     private String siteKey;
-    private boolean lightTheme;
 
     public CaptchaLayout(Context context) {
         super(context);
@@ -63,7 +60,6 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
     @Override
     public void initialize(Site site, AuthenticationLayoutCallback callback) {
         this.callback = callback;
-        this.lightTheme = Chan.injector().instance(ThemeHelper.class).getTheme().isLightTheme;
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
 
@@ -74,8 +70,7 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
 
         AndroidUtils.hideKeyboard(this);
 
-        WebSettings settings = getSettings();
-        settings.setJavaScriptEnabled(true);
+        getSettings().setJavaScriptEnabled(true);
 
         setWebChromeClient(new WebChromeClient() {
             @Override
@@ -116,7 +111,7 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
 
         String html = IOUtils.assetAsString(getContext(), "captcha/captcha2.html");
         html = html.replace("__site_key__", siteKey);
-        html = html.replace("__theme__", lightTheme ? "light" : "dark");
+        html = html.replace("__theme__", ThemeHelper.getTheme().isLightTheme ? "light" : "dark");
 
         loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
     }

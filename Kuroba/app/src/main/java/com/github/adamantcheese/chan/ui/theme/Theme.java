@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
@@ -38,8 +39,11 @@ public class Theme {
     public final String name;
     public final int resValue;
     public boolean isLightTheme = true;
+    public boolean altFontIsMain = false;
     public ThemeHelper.PrimaryColor primaryColor;
     public ThemeHelper.PrimaryColor accentColor;
+    public Typeface mainFont;
+    public Typeface altFont;
 
     public int textPrimary;
     public int textSecondary;
@@ -59,6 +63,7 @@ public class Theme {
     public int savedReplyColor;
     public int selectedColor;
     public int textColorRevealSpoiler;
+    public int backColor;
     public int backColorSecondary;
 
     public ThemeDrawable settingsDrawable;
@@ -71,11 +76,13 @@ public class Theme {
     public ThemeDrawable helpDrawable;
     public ThemeDrawable refreshDrawable;
 
-    public Theme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor) {
+    public Theme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor, Typeface mainFont, Typeface altFont) {
         this.displayName = displayName;
         this.name = name;
         this.resValue = resValue;
         this.primaryColor = primaryColor;
+        this.mainFont = mainFont;
+        this.altFont = altFont;
         accentColor = ThemeHelper.PrimaryColor.TEAL;
 
         resolveSpanColors();
@@ -123,6 +130,7 @@ public class Theme {
                 R.attr.text_color_secondary,
                 R.attr.text_color_hint,
                 R.attr.text_color_reveal_spoiler,
+                R.attr.backcolor,
                 R.attr.backcolor_secondary
         });
 
@@ -144,7 +152,8 @@ public class Theme {
         textSecondary = ta.getColor(15, 0);
         textHint = ta.getColor(16, 0);
         textColorRevealSpoiler = ta.getColor(17, 0);
-        backColorSecondary = ta.getColor(18, 0);
+        backColor = ta.getColor(18, 0);
+        backColorSecondary = ta.getColor(19, 0);
 
         ta.recycle();
     }

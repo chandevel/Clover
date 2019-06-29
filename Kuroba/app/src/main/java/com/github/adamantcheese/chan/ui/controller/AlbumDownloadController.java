@@ -75,7 +75,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
 
         download = view.findViewById(R.id.download);
         download.setOnClickListener(this);
-        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(download);
+        ThemeHelper.getTheme().applyFabColor(download);
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);
@@ -245,6 +245,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
 
         Drawable drawable = context.getDrawable(checked ? R.drawable.ic_check_circle_white_24dp :
                 R.drawable.ic_radio_button_unchecked_white_24dp);
+        assert drawable != null;
 
         if (checked) {
             Drawable wrapped = DrawableCompat.wrap(drawable);

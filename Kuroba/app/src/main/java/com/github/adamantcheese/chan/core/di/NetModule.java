@@ -32,10 +32,11 @@ import javax.inject.Singleton;
 import okhttp3.OkHttpClient;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 public class NetModule {
     private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
-    public static final String USER_AGENT = "Kuroba/" + BuildConfig.VERSION_NAME;
+    public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
 
     @Provides
     @Singleton

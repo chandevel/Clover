@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -37,8 +38,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class DeveloperSettingsController extends Controller {
-    private TextView summaryText;
-
     @Inject
     DatabaseManager databaseManager;
 
@@ -75,20 +74,20 @@ public class DeveloperSettingsController extends Controller {
         clearCacheButton.setOnClickListener(v -> {
             cache.clearCache();
             Toast.makeText(context, "Cleared image cache", Toast.LENGTH_SHORT).show();
-            clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize()/1024/1024 + "MB)");
+            clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize() / 1024 / 1024 + "MB)");
         });
-        clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize()/1024/1024 + "MB)");
+        clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize() / 1024 / 1024 + "MB)");
         wrapper.addView(clearCacheButton);
 
-        summaryText = new TextView(context);
+        TextView summaryText = new TextView(context);
+        summaryText.setText("Database summary:\n" + databaseManager.getSummary());
         summaryText.setPadding(dp(15), dp(5), 0, 0);
         wrapper.addView(summaryText);
-        setDbSummary();
 
         Button resetDbButton = new Button(context);
         resetDbButton.setOnClickListener(v -> {
             databaseManager.reset();
-            System.exit(0);
+            ((StartActivity) context).restartApp();
         });
         resetDbButton.setText("Delete database");
         wrapper.addView(resetDbButton);
@@ -97,12 +96,5 @@ public class DeveloperSettingsController extends Controller {
         scrollView.addView(wrapper);
         view = scrollView;
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
-    }
-
-    private void setDbSummary() {
-        String dbSummary = "";
-        dbSummary += "Database summary:\n";
-        dbSummary += databaseManager.getSummary();
-        summaryText.setText(dbSummary);
     }
 }

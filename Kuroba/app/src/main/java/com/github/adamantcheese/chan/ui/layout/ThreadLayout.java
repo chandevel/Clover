@@ -39,7 +39,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -164,7 +163,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
         imageReencodingHelper = new ImageOptionsHelper(getContext(), this);
         removedPostsHelper = new RemovedPostsHelper(getContext(), presenter, this);
-        errorText.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+        errorText.setTypeface(ThemeHelper.getTheme().mainFont);
         errorRetryButton.setOnClickListener(this);
 
         // Setup
@@ -174,7 +173,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         } else {
             replyButton.setOnClickListener(this);
             replyButton.setToolbar(callback.getToolbar());
-            Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(replyButton);
+            ThemeHelper.getTheme().applyFabColor(replyButton);
         }
 
         presenter.create(this);

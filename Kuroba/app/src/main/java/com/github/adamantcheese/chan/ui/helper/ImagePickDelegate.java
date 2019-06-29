@@ -17,12 +17,18 @@
 package com.github.adamantcheese.chan.ui.helper;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
+import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.core.cache.FileCache;
+import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -36,7 +42,10 @@ import java.io.OutputStream;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
+
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
 public class ImagePickDelegate implements Runnable {
@@ -67,6 +76,32 @@ public class ImagePickDelegate implements Runnable {
             return false;
         } else {
             this.callback = callback;
+
+            HttpUrl clipboardURL = null;
+            try {
+                ClipboardManager manager = (ClipboardManager) getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                clipboardURL = HttpUrl.get(manager.getPrimaryClip().getItemAt(0).getText().toString());
+                manager.setPrimaryClip(ClipData.newPlainText("", ""));
+            } catch (Exception ignored) {
+            }
+            if (clipboardURL != null) {
+                HttpUrl finalClipboardURL = clipboardURL;
+                Chan.injector().instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
+                    @Override
+                    public void onSuccess(File file) {
+                        Uri imageURL = Uri.parse(finalClipboardURL.toString());
+                        callback.onFilePicked(imageURL.getLastPathSegment(), file);
+                        reset();
+                    }
+
+                    @Override
+                    public void onFail(boolean notFound) {
+                        callback.onFilePickError(false);
+                        reset();
+                    }
+                });
+                return true;
+            }
 
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);

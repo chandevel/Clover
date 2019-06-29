@@ -98,7 +98,8 @@ public class DatabaseHideManager {
                                 false,
                                 false,
                                 hiddenPost.hideRepliesToThisPost,
-                                false);
+                                false
+                        );
 
                         resultList.add(newPost);
                     } else {
@@ -245,7 +246,8 @@ public class DatabaseHideManager {
                         parentPost.filterRemove,
                         parentPost.filterWatch,
                         true,
-                        false);
+                        parentPost.filterSaved
+                );
 
                 // assign the filter parameters to the child post
                 postsFastLookupMap.put(no, newPost);
@@ -267,7 +269,7 @@ public class DatabaseHideManager {
             boolean filterRemove,
             boolean filterWatch,
             boolean filterReplies,
-            boolean filterOnlyOP
+            boolean filterSaved
     ) {
         return new Post.Builder()
                 .board(childPost.board)
@@ -284,13 +286,13 @@ public class DatabaseHideManager {
                 .closed(childPost.isClosed())
                 .subject(childPost.subject)
                 .name(childPost.name)
-                .comment(childPost.comment.toString())
+                .comment(childPost.comment)
                 .tripcode(childPost.tripcode)
                 .setUnixTimestampSeconds(childPost.time)
                 .images(childPost.images)
                 .moderatorCapcode(childPost.capcode)
                 .setHttpIcons(childPost.httpIcons)
-                .filter(filterHighlightedColor, filterStub, filterRemove, filterWatch, filterReplies, filterOnlyOP)
+                .filter(filterHighlightedColor, filterStub, filterRemove, filterWatch, filterReplies, false, filterSaved)
                 .isSavedReply(childPost.isSavedReply)
                 .spans(childPost.subjectSpan, childPost.nameTripcodeIdCapcodeSpan)
                 .linkables(childPost.linkables)

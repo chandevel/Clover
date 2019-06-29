@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.site.sites.Wired7;
+package com.github.adamantcheese.chan.core.site.sites.wired7;
 
 import androidx.annotation.Nullable;
 
@@ -54,7 +54,7 @@ public class Wired7 extends CommonSite {
             } else if (loadable.isThreadMode()) {
                 return getUrl().newBuilder()
                         .addPathSegment(loadable.boardCode).addPathSegment("res")
-                        .addPathSegment(String.valueOf(loadable.no) + ".html")
+                        .addPathSegment(loadable.no + ".html")
                         .toString();
             } else {
                 return getUrl().toString();

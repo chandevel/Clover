@@ -179,6 +179,7 @@ public class FilterEngine {
             return false;
         }
         if (filter.onlyOnOP && !post.op) return false;
+        if (filter.applyToSaved && !post.isSavedReply) return false;
         if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, post.tripcode, false)) {
             return true;
         }
@@ -204,7 +205,7 @@ public class FilterEngine {
         if (post.httpIcons != null) {
             for (PostHttpIcon icon : post.httpIcons) {
                 if (icon.name.indexOf('/') != -1) {
-                    countryCode = icon.name.substring(icon.name.indexOf('/'));
+                    countryCode = icon.name.substring(icon.name.indexOf('/') + 1);
                     break;
                 }
             }
@@ -230,6 +231,7 @@ public class FilterEngine {
             return false;
         }
         if (filter.onlyOnOP && !post.isOP) return false;
+        if (filter.applyToSaved && !post.isSavedReply) return false;
         if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, post.tripcode, false)) {
             return true;
         }
@@ -255,7 +257,7 @@ public class FilterEngine {
         if (post.httpIcons != null) {
             for (PostHttpIcon icon : post.httpIcons) {
                 if (icon.name.indexOf('/') != -1) {
-                    countryCode = icon.name.substring(icon.name.indexOf('/'));
+                    countryCode = icon.name.substring(icon.name.indexOf('/') + 1);
                     break;
                 }
             }
@@ -289,7 +291,8 @@ public class FilterEngine {
         }
 
         if (pattern == null) {
-            pattern = compile(filter.pattern, filter.action);
+            int extraFlags = (filter.type & FilterType.COUNTRY_CODE.flag) != 0 ? Pattern.CASE_INSENSITIVE : 0;
+            pattern = compile(filter.pattern, filter.action, extraFlags);
             if (pattern != null) {
                 synchronized (patternCache) {
                     patternCache.put(filter.pattern, pattern);
@@ -317,7 +320,7 @@ public class FilterEngine {
     private static final Pattern wildcardPattern = Pattern.compile("\\\\\\*"); // an escaped \ and an escaped *, to replace an escaped * from escapeRegex
 
     @AnyThread
-    public Pattern compile(String rawPattern, int filterAction) {
+    public Pattern compile(String rawPattern, int filterAction, int extraPatternFlags) {
         if (TextUtils.isEmpty(rawPattern)) {
             return null;
         }
@@ -331,6 +334,9 @@ public class FilterEngine {
             int flags = 0;
             if (flagsGroup.contains("i")) {
                 flags |= Pattern.CASE_INSENSITIVE;
+            }
+            if (extraPatternFlags != 0) {
+                flags |= extraPatternFlags;
             }
 
             try {

@@ -16,11 +16,13 @@
  */
 package com.github.adamantcheese.chan.core.cache;
 
+import android.util.Pair;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
-import android.util.Pair;
 
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
@@ -34,8 +36,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class CacheHandler {
     private static final String TAG = "CacheHandler";
-    private static final int TRIM_TRIES = 20;
-    private static final long FILE_CACHE_DISK_SIZE = 100 * 1024 * 1024;
+    //1GB for prefetching, so that entire threads can be loaded at once more easily, otherwise 100MB is plenty
+    private static final long FILE_CACHE_DISK_SIZE = (ChanSettings.autoLoadThreadImages.get() ? 1000 : 100) * 1024 * 1024;
 
     private final ExecutorService pool = Executors.newFixedThreadPool(1);
 
@@ -94,6 +96,7 @@ public class CacheHandler {
         Logger.d(TAG, "Clearing cache");
 
         if (directory.exists() && directory.isDirectory()) {
+            //noinspection ConstantConditions
             for (File file : directory.listFiles()) {
                 if (!file.delete()) {
                     Logger.d(TAG, "Could not delete cache file while clearing cache " +
@@ -152,22 +155,34 @@ public class CacheHandler {
         // Sort by oldest first.
         Collections.sort(files, (o1, o2) -> Long.signum(o1.second - o2.second));
 
-        // Trim as long as the directory size exceeds the threshold and we haven't reached
-        // the trim limit.
+        //Pre-trim based on time, trash anything older than 6 hours
+        List<Pair<File, Long>> removed = new ArrayList<>();
+        for (Pair<File, Long> fileLongPair : files) {
+            if (fileLongPair.second + 6 * 60 * 60 * 1000 < System.currentTimeMillis()) {
+                Logger.d(TAG, "Delete for trim " + fileLongPair.first.getAbsolutePath());
+                if (!fileLongPair.first.delete()) {
+                    Logger.e(TAG, "Failed to delete cache file for trim");
+                }
+                removed.add(fileLongPair);
+            } else break; //only because we sorted earlier
+        }
+        for (Pair<File, Long> deleted : removed) {
+            files.remove(deleted);
+        }
+        recalculateSize();
+
+        // Trim as long as the directory size exceeds the threshold (note that oldest is still first)
         long workingSize = size.get();
-        for (int i = 0; workingSize >= FILE_CACHE_DISK_SIZE && i < Math.min(files.size(), TRIM_TRIES); i++) {
+        for (int i = 0; workingSize >= FILE_CACHE_DISK_SIZE; i++) {
             File file = files.get(i).first;
 
             Logger.d(TAG, "Delete for trim " + file.getAbsolutePath());
             workingSize -= file.length();
 
-            boolean deleteResult = file.delete();
-
-            if (!deleteResult) {
+            if (!file.delete()) {
                 Logger.e(TAG, "Failed to delete cache file for trim");
             }
         }
-
         recalculateSize();
     }
 

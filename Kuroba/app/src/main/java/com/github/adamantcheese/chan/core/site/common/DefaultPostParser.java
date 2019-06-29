@@ -23,7 +23,6 @@ import android.text.style.BackgroundColorSpan;
 
 import androidx.annotation.AnyThread;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -42,7 +41,6 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Parser;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +59,7 @@ public class DefaultPostParser implements PostParser {
     @Override
     public Post parse(Theme theme, Post.Builder builder, Callback callback) {
         if (theme == null) {
-            theme = Chan.injector().instance(ThemeHelper.class).getTheme();
+            theme = ThemeHelper.getTheme();
         }
 
         if (!TextUtils.isEmpty(builder.name)) {
@@ -204,7 +202,7 @@ public class DefaultPostParser implements PostParser {
         return total;
     }
 
-    private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) throws IOException {
+    private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
             SpannableString spannable = new SpannableString(text);

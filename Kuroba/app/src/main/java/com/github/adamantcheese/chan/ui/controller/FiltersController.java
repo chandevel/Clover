@@ -33,7 +33,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -134,11 +133,11 @@ public class FiltersController extends Controller implements
 
         add = view.findViewById(R.id.add);
         add.setOnClickListener(this);
-        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(add);
+        ThemeHelper.getTheme().applyFabColor(add);
 
         enable = view.findViewById(R.id.enable);
         enable.setOnClickListener(this);
-        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(enable);
+        ThemeHelper.getTheme().applyFabColor(enable);
     }
 
     @Override
@@ -170,7 +169,7 @@ public class FiltersController extends Controller implements
                 setFilters(enabledFilters, false);
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
-            Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(enable);
+            ThemeHelper.getTheme().applyFabColor(enable);
             adapter.reload();
         }
     }
@@ -198,7 +197,7 @@ public class FiltersController extends Controller implements
                     } else {
                         enable.setImageResource(R.drawable.ic_clear_white_24dp);
                     }
-                    Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(enable);
+                    ThemeHelper.getTheme().applyFabColor(enable);
                     EventBus.getDefault().post(new RefreshUIMessage("filters"));
                     adapter.reload();
                 })

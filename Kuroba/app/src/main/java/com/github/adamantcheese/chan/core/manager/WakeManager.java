@@ -27,15 +27,16 @@ import com.github.adamantcheese.chan.core.receiver.WakeUpdateReceiver;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 /**
  * Deals with background alarms specifically. No foreground stuff here.
@@ -121,7 +122,7 @@ public class WakeManager {
                 }
                 wakeLock = null;
             }
-            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Kuroba:WakeManagerUpdateLock");
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getApplicationLabel() + ":WakeManagerUpdateLock");
             wakeLock.setReferenceCounted(false);
             wakeLock.acquire(60 * 1000); //60 seconds max
         } else {

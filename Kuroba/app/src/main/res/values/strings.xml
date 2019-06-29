@@ -236,6 +236,8 @@ If the pattern matches then the post can be hidden, removed, highlighted, or aut
     <br>
     3. Regular expressions. <tt>/^>implying/</tt> for example. You can use <tt>/^>ImPlYiNg/<b>i</b></tt> to make the regex case insensitive.
 </p>
+<br>
+Note that for country code filtering, troll country codes should be prepended with "t_". In addition, a country code filter automatically implies the case insensitive flag for regex.
 ]]>
     </string>
 
@@ -456,8 +458,8 @@ If the pattern matches then the post can be hidden, removed, highlighted, or aut
     <string name="settings_group_post">Post</string>
     <string name="setting_font_size">Font size</string>
     <string name="setting_font_size_default">(default)</string>
-    <string name="setting_font_condensed">Use condensed font</string>
-    <string name="setting_font_condensed_description">Use a condensed font for the posts</string>
+    <string name="setting_font_alt">Use alternative font</string>
+    <string name="setting_font_alt_description">Use the theme\'s alt font for posts</string>
     <string name="setting_post_full_date">Show the full date on posts</string>
     <string name="setting_post_file_info">Show file info on posts</string>
     <string name="setting_post_filename">Show filename on posts</string>
@@ -498,6 +500,11 @@ If the pattern matches then the post can be hidden, removed, highlighted, or aut
     <string name="setting_proxy_address">Proxy server address</string>
     <string name="setting_proxy_port">Proxy server port</string>
 
+    <!-- Behavior actions group -->
+    <string name="settings_group_actions">Interactions</string>
+    <string name="setting_gallery_swipe">Enable gallery swipe actions</string>
+    <string name="setting_gallery_swipe_description">Swipe up to close images, down to save</string>
+
 
     <!-- Media -->
     <string name="settings_screen_media">Media</string>
@@ -537,7 +544,7 @@ If disabled, save the image with the filename the uploader assigned."
     <string name="setting_video_auto_loop_description">Automatically loop video content</string>
 
     <string name="setting_auto_load_thread_images">Enable media prefetching</string>
-    <string name="setting_auto_load_thread_images_description">Loads all images or videos in a thread immediately, subject to the settings above</string>
+    <string name="setting_auto_load_thread_images_description">Loads all images or videos in a thread immediately, subject to the settings above; Increases the filecache size to 1GB</string>
 
 
     <!-- Save location settings -->
@@ -621,6 +628,7 @@ Don't have a 4chan Pass?<br>
 
     <string name="apply_to_replies">Apply to replies</string>
     <string name="only_on_op">Only on OP</string>
+    <string name="apply_to_saved">Apply to own posts</string>
     <string name="thread_layout_hide_whole_chain">Hide whole chain</string>
     <string name="thread_layout_remove_whole_chain">Remove whole chain</string>
     <string name="thread_layout_hide_post">Hide post</string>
@@ -640,14 +648,12 @@ Don't have a 4chan Pass?<br>
 
     <string name="captcha_layout_v2_verify_button_text">Verify</string>
     <string name="captcha_layout_v2_reload">Reload</string>
-    <string name="captcha_layout_v2_use_old_captcha">Use old captcha</string>
+    <string name="captcha_layout_v2_use_old_captcha">Use old\ncaptcha</string>
     <string name="captcha_layout_v2_you_have_to_select_at_least_one_image">You have to select at least one image (if you see a captcha that does not have any matching images then it is probably a bug; fill an issue and use the old captcha)</string>
     <string name="captcha_layout_v2_verification_already_in_progress">Verification is already in progress</string>
     <string name="captcha_layout_v2_captcha_request_is_already_in_progress">Captcha request is already in progress</string>
     <string name="captcha_layout_v2_you_are_requesting_captcha_too_fast">You are requesting captcha too fast</string>
     <string name="captcha_layout_v2_refresh_cookies">Refresh cookies</string>
-
-    <string name="setting_posting_timeout_toggle_notice">Posting timeout will be applied on the next app start</string>
 
     <string name="file_url_copied_to_clipboard">File url copied to clipboard</string>
 

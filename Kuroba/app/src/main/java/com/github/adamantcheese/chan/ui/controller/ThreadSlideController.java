@@ -17,9 +17,10 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -296,7 +297,7 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
             navigation.swipeable = false;
             navigation.handlesToolbarInset = true;
             navigation.hasDrawer = true;
-            toolbar.setNavigationItem(false, true, navigation);
+            toolbar.setNavigationItem(false, true, navigation, null);
         }
     }
 

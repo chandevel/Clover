@@ -140,6 +140,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:textColor="?attr/text_color_secondary"
         android:textSize="16sp" />
 
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/apply_to_saved_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/apply_to_saved"
+        android:textColor="?attr/text_color_secondary"
+        android:textSize="16sp" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

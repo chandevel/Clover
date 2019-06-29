@@ -30,7 +30,6 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseHistoryManager;
@@ -250,7 +249,7 @@ public class HistoryController extends Controller implements
             subtext = itemView.findViewById(R.id.subtext);
             delete = itemView.findViewById(R.id.delete);
 
-            Chan.injector().instance(ThemeHelper.class).getTheme().clearDrawable.apply(delete);
+            ThemeHelper.getTheme().clearDrawable.apply(delete);
 
             delete.setOnClickListener(this);
 

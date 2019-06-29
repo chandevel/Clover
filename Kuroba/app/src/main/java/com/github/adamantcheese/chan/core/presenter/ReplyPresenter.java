@@ -43,7 +43,6 @@ import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.vdurmont.emoji.EmojiParser;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -197,8 +196,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 }
                 previewOpen = false;
             } else {
-                callback.getImagePickDelegate().pick(this);
                 pickingFile = true;
+                callback.getImagePickDelegate().pick(this);
             }
         }
     }
@@ -208,16 +207,12 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         if (draft.comment.trim().isEmpty()) {
             callback.openMessage(true, false, getAppContext().getString(R.string.reply_comment_empty), true);
+            return;
         }
 
         draft.loadable = loadable;
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
         draft.captchaResponse = null;
-        String test = EmojiParser.parseFromUnicode(draft.comment, e -> ":" + e.getEmoji().getAliases().get(0) + (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "") + ": ");
-        if (!test.equals(draft.comment)) {
-            ChanSettings.autoCrashEmoji.setSync(true);
-            throw new Error();
-        }
 
         //only 4chan seems to have the post delay, this is a hack for that
         if (draft.loadable.site.name().equals("4chan")) {
@@ -269,9 +264,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
         if (replyResponse.posted) {
             if (loadable.isThreadMode()) {
-                lastReplyRepository.putLastReply(draft.loadable.site, draft.loadable.board);
+                lastReplyRepository.putLastReply(loadable.site, draft.loadable.board);
             } else if (loadable.isCatalogMode()) {
-                lastReplyRepository.putLastThread(draft.loadable.site, draft.loadable.board);
+                lastReplyRepository.putLastThread(loadable.site, draft.loadable.board);
             }
 
             if (ChanSettings.postPinThread.get()) {

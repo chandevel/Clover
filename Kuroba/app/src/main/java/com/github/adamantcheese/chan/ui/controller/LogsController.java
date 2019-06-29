@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.Logger.TAG_PREFIX;
 
 public class LogsController extends Controller {
     private static final String TAG = "LogsController";
@@ -69,6 +70,7 @@ public class LogsController extends Controller {
 
     private void copyLogsClicked(ToolbarMenuSubItem item) {
         ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        assert clipboard != null;
         ClipData clip = ClipData.newPlainText("Logs", logText);
         clipboard.setPrimaryClip(clip);
         Toast.makeText(context, R.string.settings_logs_copied_to_clipboard, Toast.LENGTH_SHORT).show();
@@ -78,11 +80,7 @@ public class LogsController extends Controller {
         Process process;
         try {
             process = new ProcessBuilder()
-                    .command("logcat", "-d", "-v", "tag",
-                            //Silence these tags, useful for release version
-                            "libc:S", "chatty:S", "RenderThread:S", "VideoCapabilities:S",
-                            "SpannableStringBuilder:S", "TextClassifierService:S", "TextClassifierImpl:S",
-                            "Choreographer:S")
+                    .command("logcat", "-v", "tag", "-t", "250", "StrictMode:S")
                     .start();
         } catch (IOException e) {
             Logger.e(TAG, "Error starting logcat", e);
@@ -90,7 +88,12 @@ public class LogsController extends Controller {
         }
 
         InputStream outputStream = process.getInputStream();
-        logText = IOUtils.readString(outputStream);
+        //This filters our log output to just stuff we care about in-app (and if a crash happens, the uncaught handler gets it and this will still allow it through)
+        String filtered = "";
+        for (String line : IOUtils.readString(outputStream).split("\n")) {
+            if (line.contains(TAG_PREFIX)) filtered = filtered.concat(line).concat("\n");
+        }
+        logText = filtered;
         logTextView.setText(logText);
     }
 }

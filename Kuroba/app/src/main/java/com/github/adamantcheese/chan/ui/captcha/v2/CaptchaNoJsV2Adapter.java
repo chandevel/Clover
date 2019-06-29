@@ -2,12 +2,13 @@ package com.github.adamantcheese.chan.ui.captcha.v2;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.appcompat.widget.AppCompatImageView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.AndroidUtils;

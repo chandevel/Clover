@@ -32,7 +32,7 @@ import android.widget.TextView;
 import androidx.appcompat.widget.ListPopupWindow;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.List;
@@ -172,7 +172,7 @@ public class FloatingMenu {
 
         globalLayoutListener = () -> {
             if (popupWindow == null) {
-                Logger.w("FloatingMenu", "popupWindow null in layout listener");
+                Logger.d("FloatingMenu", "popupWindow null in layout listener");
             } else {
                 if (popupWindow.isShowing()) {
                     // Recalculate anchor position
@@ -268,7 +268,7 @@ public class FloatingMenu {
             textView.setText(item.getText());
             textView.setEnabled(item.isEnabled());
             textView.setTextColor(getAttrColor(getContext(), item.isEnabled() ? R.attr.text_color_primary : R.attr.text_color_hint));
-            textView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+            textView.setTypeface(ThemeHelper.getTheme().mainFont);
 
             return textView;
         }

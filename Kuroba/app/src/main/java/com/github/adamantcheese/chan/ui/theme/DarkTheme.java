@@ -16,11 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.theme;
 
+import android.graphics.Typeface;
+
 import com.github.adamantcheese.chan.R;
 
 public class DarkTheme extends Theme {
-    public DarkTheme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor) {
-        super(displayName, name, resValue, primaryColor);
+    public DarkTheme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor, Typeface mainFont, Typeface altFont) {
+        super(displayName, name, resValue, primaryColor, mainFont, altFont);
         isLightTheme = false;
     }
 

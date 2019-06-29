@@ -252,7 +252,7 @@ public class VichanApi extends CommonSite.CommonApi {
         if (trollCountryCode != null && countryName != null) {
             HttpUrl countryUrl = endpoints.icon("troll_country",
                     makeArgument("troll_country_code", trollCountryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/" + trollCountryCode));
+            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/t_" + trollCountryCode));
         }
 
         queue.addForParse(builder);
@@ -266,7 +266,11 @@ public class VichanApi extends CommonSite.CommonApi {
             //workaround for weird 8chan error where extra_files has a random empty array in it
             reader.beginArray();
             reader.endArray();
-            reader.beginObject();
+            try {
+                reader.beginObject();
+            } catch (Exception e1) {
+                return null;
+            }
         }
 
         String fileId = null;

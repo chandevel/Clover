@@ -150,7 +150,7 @@ public class CommentParser {
                     handlerLink.key = TextUtils.concat(handlerLink.key, OP_REPLY_SUFFIX);
                 }
 
-                // Append (You) when it's a reply to an saved reply
+                // Append (You) when it's a reply to a saved reply, (Me) if it's a self reply
                 if (callback.isSaved(postNo)) {
                     if (post.isSavedReply) {
                         handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_SELF_SUFFIX);

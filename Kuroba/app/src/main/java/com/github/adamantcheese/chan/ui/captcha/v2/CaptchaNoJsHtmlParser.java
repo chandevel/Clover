@@ -158,12 +158,8 @@ public class CaptchaNoJsHtmlParser {
             throw error;
         }
 
-        if (captchaTitle == null) {
-            throw new CaptchaNoJsV2ParsingError("challengeTitle is null");
-        }
-
-        if (captchaTitle.isEmpty()) {
-            throw new CaptchaNoJsV2ParsingError("challengeTitle is empty");
+        if (captchaTitle == null || captchaTitle.isEmpty()) {
+            throw new CaptchaNoJsV2ParsingError("challengeTitle is null or empty");
         }
 
         captchaInfo.setCaptchaTitle(captchaTitle);
@@ -223,12 +219,12 @@ public class CaptchaNoJsHtmlParser {
             CaptchaInfo.CaptchaType captchaType
     ) throws CaptchaNoJsV2ParsingError {
         switch (captchaType) {
-            case Canonical: {
+            case CANONICAL: {
                 // 3x3 captcha with square images
                 return new Pair<>(3, 3);
             }
 
-            case NoCanonical: {
+            case NO_CANONICAL: {
                 // 2x4 captcha with rectangle images (store fronts)
                 return new Pair<>(2, 4);
             }
@@ -301,7 +297,7 @@ public class CaptchaNoJsHtmlParser {
             throw error;
         }
 
-        if (captchaType == CaptchaInfo.CaptchaType.Unknown) {
+        if (captchaType == CaptchaInfo.CaptchaType.UNKNOWN) {
             throw new CaptchaNoJsV2ParsingError("Unknown captcha type");
         }
 

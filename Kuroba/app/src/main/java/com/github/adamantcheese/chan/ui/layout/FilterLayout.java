@@ -39,7 +39,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatCheckBox;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
@@ -57,6 +56,7 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -79,6 +79,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private View colorPreview;
     private AppCompatCheckBox applyToReplies;
     private AppCompatCheckBox onlyOnOP;
+    private AppCompatCheckBox applyToSaved;
 
     @Inject
     BoardManager boardManager;
@@ -144,13 +145,14 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         patternPreviewStatus = findViewById(R.id.pattern_preview_status);
         enabled = findViewById(R.id.enabled);
         help = findViewById(R.id.help);
-        Chan.injector().instance(ThemeHelper.class).getTheme().helpDrawable.apply(help);
+        ThemeHelper.getTheme().helpDrawable.apply(help);
         help.setOnClickListener(this);
         colorContainer = findViewById(R.id.color_container);
         colorContainer.setOnClickListener(this);
         colorPreview = findViewById(R.id.color_preview);
         applyToReplies = findViewById(R.id.apply_to_replies_checkbox);
         onlyOnOP = findViewById(R.id.only_on_op_checkbox);
+        applyToSaved = findViewById(R.id.apply_to_saved_checkbox);
 
         typeText.setOnClickListener(this);
         typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
@@ -186,6 +188,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         filter.enabled = enabled.isChecked();
         filter.applyToReplies = applyToReplies.isChecked();
         filter.onlyOnOP = onlyOnOP.isChecked();
+        filter.applyToSaved = applyToSaved.isChecked();
 
         return filter;
     }
@@ -336,7 +339,8 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     }
 
     private void updateFilterValidity() {
-        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, filter.action) != null;
+        int extraFlags = (filter.type & FilterType.COUNTRY_CODE.flag) != 0 ? Pattern.CASE_INSENSITIVE : 0;
+        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, filter.action, extraFlags) != null;
 
         if (valid != patternContainerErrorShowing) {
             patternContainerErrorShowing = valid;
@@ -363,10 +367,12 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         enabled.setChecked(filter.enabled);
         applyToReplies.setChecked(filter.applyToReplies);
         onlyOnOP.setChecked(filter.onlyOnOP);
+        applyToSaved.setChecked(filter.applyToSaved);
         if (filter.action == FilterAction.WATCH.id) {
             applyToReplies.setEnabled(false);
             onlyOnOP.setChecked(true);
             onlyOnOP.setEnabled(false);
+            applyToSaved.setEnabled(false);
         }
     }
 
@@ -382,9 +388,11 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             applyToReplies.setEnabled(true);
             onlyOnOP.setEnabled(true);
             onlyOnOP.setChecked(false);
+            applyToSaved.setEnabled(true);
         } else {
             applyToReplies.setEnabled(false);
             onlyOnOP.setEnabled(false);
+            applyToSaved.setEnabled(false);
             if (applyToReplies.isChecked()) {
                 applyToReplies.toggle();
                 filter.applyToReplies = false;
@@ -392,6 +400,10 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             if (!onlyOnOP.isChecked()) {
                 onlyOnOP.toggle();
                 filter.onlyOnOP = true;
+            }
+            if (applyToSaved.isChecked()) {
+                applyToSaved.toggle();
+                filter.applyToSaved = false;
             }
         }
     }

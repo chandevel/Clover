@@ -52,7 +52,6 @@ import androidx.annotation.NonNull;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
@@ -81,7 +80,6 @@ import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
 import static com.github.adamantcheese.chan.Chan.injector;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_CONDENSED_REGULAR;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
@@ -175,10 +173,6 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         comment.setTextSize(textSizeSp);
         comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
 
-        if (ChanSettings.fontCondensed.get()) {
-            comment.setTypeface(ROBOTO_CONDENSED_REGULAR);
-        }
-
         replies.setTextSize(textSizeSp);
         replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
 
@@ -222,7 +216,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
     private void showOptions(View anchor, List<FloatingMenuItem> items,
                              List<FloatingMenuItem> extraItems,
                              Object extraOption) {
-        if (Chan.injector().instance(ThemeHelper.class).getTheme().isLightTheme) {
+        if (ThemeHelper.getTheme().isLightTheme) {
             options.setImageResource(R.drawable.ic_overflow_black);
         }
 
@@ -259,7 +253,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         super.onAttachedToWindow();
 
         if (post != null && !bound) {
-            bindPost(Chan.injector().instance(ThemeHelper.class).getTheme(), post);
+            bindPost(ThemeHelper.getTheme(), post);
         }
     }
 
@@ -272,7 +266,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                         int markedNo,
                         boolean showDivider,
                         ChanSettings.PostViewMode postViewMode,
-                        boolean compact) {
+                        boolean compact,
+                        Theme theme) {
         if (this.post == post &&
                 this.selectable == selectable &&
                 this.highlighted == highlighted &&
@@ -296,7 +291,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         this.markedNo = markedNo;
         this.showDivider = showDivider;
 
-        bindPost(Chan.injector().instance(ThemeHelper.class).getTheme(), post);
+        bindPost(theme, post);
     }
 
     public Post getPost() {
@@ -425,6 +420,14 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             commentText = truncatePostComment(post);
         } else {
             commentText = post.comment;
+        }
+
+        if (!theme.altFontIsMain && ChanSettings.fontAlternate.get()) {
+            comment.setTypeface(theme.altFont);
+        }
+
+        if (theme.altFontIsMain) {
+            comment.setTypeface(ChanSettings.fontAlternate.get() ? Typeface.DEFAULT : theme.altFont);
         }
 
         comment.setVisibility(isEmpty(commentText) && post.images == null ? GONE : VISIBLE);
@@ -808,7 +811,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             httpIcons = new ArrayList<>(icons.size());
             for (int i = 0; i < icons.size(); i++) {
                 PostHttpIcon icon = icons.get(i);
-                PostIconsHttpIcon j = new PostIconsHttpIcon(this, icon.name.substring(0, icon.name.indexOf('/')), icon.url);
+                int codeIndex = icon.name.indexOf('/'); //this is for country codes
+                PostIconsHttpIcon j = new PostIconsHttpIcon(this, icon.name.substring(0, codeIndex != -1 ? codeIndex : icon.name.length()), icon.url);
                 httpIcons.add(j);
                 j.request();
             }

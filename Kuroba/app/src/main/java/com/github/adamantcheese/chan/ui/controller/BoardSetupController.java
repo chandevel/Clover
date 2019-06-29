@@ -36,7 +36,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -134,7 +133,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
         itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
 
         add.setOnClickListener(this);
-        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(add);
+        ThemeHelper.getTheme().applyFabColor(add);
         crossfadeView.toggle(false, false);
 
         // Presenter
@@ -275,9 +274,11 @@ public class BoardSetupController extends Controller implements View.OnClickList
             description = itemView.findViewById(R.id.description);
             reorder = itemView.findViewById(R.id.reorder);
 
-            Drawable drawable = DrawableCompat.wrap(context.getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
-            DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));
-            reorder.setImageDrawable(drawable);
+            Drawable drawable = context.getDrawable(R.drawable.ic_reorder_black_24dp);
+            assert drawable != null;
+            Drawable drawableMutable = DrawableCompat.wrap(drawable).mutate();
+            DrawableCompat.setTint(drawableMutable, getAttrColor(context, R.attr.text_color_hint));
+            reorder.setImageDrawable(drawableMutable);
 
             reorder.setOnTouchListener((v, event) -> {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {

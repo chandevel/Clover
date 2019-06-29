@@ -25,7 +25,6 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -33,6 +32,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.text.FastTextView;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -152,7 +152,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     public void setPost(Loadable loadable, final Post post, PostCellInterface.PostCellCallback callback,
                         boolean selectable, boolean highlighted, boolean selected, int markedNo,
                         boolean showDivider, ChanSettings.PostViewMode postViewMode,
-                        boolean compact) {
+                        boolean compact, Theme theme) {
         if (this.post == post) {
             return;
         }
@@ -221,7 +221,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         }
 
         comment.setText(commentText);
-        comment.setTextColor(Chan.injector().instance(ThemeHelper.class).getTheme().textPrimary);
+        comment.setTextColor(ThemeHelper.getTheme().textPrimary);
 
         replies.setText(getResources().getString(R.string.card_stats, post.getReplies(), post.getImagesCount()));
     }

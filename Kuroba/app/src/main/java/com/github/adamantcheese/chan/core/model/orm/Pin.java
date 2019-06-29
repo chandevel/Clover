@@ -107,7 +107,6 @@ public class Pin implements Comparable<Pin>, Cloneable {
         }
     }
 
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public Pin clone() {
         Pin copy = new Pin();

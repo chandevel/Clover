@@ -1,97 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/captcha_layout_v2_background"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/backcolor"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/captcha_layout_v2_title"
         android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="?attr/backcolor_secondary"
+        android:ellipsize="middle"
+        android:gravity="center"
+        android:maxLines="2"
+        android:padding="4dp"
+        android:text=""
+        android:textColor="?attr/text_color_primary"
+        android:textSize="18sp"
+        tools:text="Select all images with something" />
+
+    <!--
+        The layout_width and height here don't actually matter because they're programatically set for the orientation of the device
+        Also the numColumns is set here only for the design view in the editor, as it is also programatically changed
+     -->
+    <GridView
+        android:id="@+id/captcha_layout_v2_images_grid"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:numColumns="3"
+        app:layout_constraintEnd_toStartOf="@id/captcha_layout_v2_buttons"
+        app:layout_constraintStart_toEndOf="@id/captcha_layout_v2_title" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/captcha_layout_v2_title"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@color/accent"
-            android:ellipsize="middle"
-            android:gravity="center"
-            android:maxLines="2"
-            android:padding="4dp"
-            android:text=""
-            android:textColor="#ffffff"
-            android:textSize="18sp"
-            tools:text="Select all images with something" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/captcha_layout_v2_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="?attr/backcolor_secondary"
+        tools:layout_editor_absoluteY="40dp">
 
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/captcha_layout_v2_use_old_captcha_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="@string/captcha_layout_v2_use_old_captcha"
+            android:textColor="?attr/text_color_primary"
+            app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
+            app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_reload_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/captcha_layout_v2_verify_button" />
 
-            <com.github.adamantcheese.chan.ui.view.WrappingGridView
-                android:id="@+id/captcha_layout_v2_images_grid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:stretchMode="columnWidth" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/captcha_layout_v2_reload_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="@string/captcha_layout_v2_reload"
+            android:textColor="?attr/text_color_primary"
+            app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
+            app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_verify_button"
+            app:layout_constraintStart_toEndOf="@+id/captcha_layout_v2_use_old_captcha_button"
+            app:layout_constraintTop_toTopOf="@+id/captcha_layout_v2_verify_button" />
 
-        </androidx.core.widget.NestedScrollView>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/captcha_layout_v2_verify_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:enabled="false"
+            android:focusable="true"
+            android:text="@string/captcha_layout_v2_verify_button_text"
+            android:textColor="?attr/text_color_primary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/captcha_layout_v2_reload_button"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/captcha_layout_v2_buttons_holder"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:background="@color/accent"
-            tools:layout_editor_absoluteY="40dp">
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/captcha_layout_v2_use_old_captcha_button"
-                android:layout_width="112dp"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:text="@string/captcha_layout_v2_use_old_captcha"
-                android:textColor="#ffffff"
-                app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
-                app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_reload_button"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/captcha_layout_v2_verify_button" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/captcha_layout_v2_reload_button"
-                android:layout_width="64dp"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:text="@string/captcha_layout_v2_reload"
-                android:textColor="#ffffff"
-                app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
-                app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_verify_button"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/captcha_layout_v2_use_old_captcha_button"
-                app:layout_constraintTop_toTopOf="@+id/captcha_layout_v2_verify_button" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/captcha_layout_v2_verify_button"
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:text="@string/captcha_layout_v2_verify_button_text"
-                android:textColor="#ffffff"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/captcha_layout_v2_reload_button"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

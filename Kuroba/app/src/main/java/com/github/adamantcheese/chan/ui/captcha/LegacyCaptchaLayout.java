@@ -30,7 +30,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
@@ -84,7 +83,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
             return false;
         });
         submit = findViewById(R.id.submit);
-        Chan.injector().instance(ThemeHelper.class).getTheme().sendDrawable.apply(submit);
+        ThemeHelper.getTheme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);
 

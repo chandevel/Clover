@@ -37,7 +37,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter;
@@ -126,7 +125,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(sitesRecyclerview);
         addButton.setOnClickListener(this);
-        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(addButton);
+        ThemeHelper.getTheme().applyFabColor(addButton);
         crossfadeView.toggle(false, false);
 
         // Presenter
@@ -298,8 +297,8 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
             setRoundItemBackground(settings);
             setRoundItemBackground(removeSite);
-            Chan.injector().instance(ThemeHelper.class).getTheme().settingsDrawable.apply(settings);
-            Chan.injector().instance(ThemeHelper.class).getTheme().clearDrawable.apply(removeSite);
+            ThemeHelper.getTheme().settingsDrawable.apply(settings);
+            ThemeHelper.getTheme().clearDrawable.apply(removeSite);
 
             Drawable drawable = DrawableCompat.wrap(
                     context.getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();

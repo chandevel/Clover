@@ -1,12 +1,20 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 22
-        targetSdkVersion 29
+        targetSdkVersion 28
 
+        /**
+         * ------------------------------------------------------------
+         *
+         *              CHANGE PER RELEASE BUILD
+         *              SEE docs/release.txt FOR INFO
+         *
+         * ------------------------------------------------------------
+         */
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
         // (watch out for octal notation, never start with a 0)
         // version name should be of the form vXX.YY.ZZ
@@ -16,13 +24,45 @@ android {
         //bump the MINOR (YY) version when there are compatible changes between versions (ie database changes)
         //or if there are big application level changes like tearing out/adding major features
         //bump the PATCH (ZZ) version otherwise, for anything small
-        versionCode 40301
-        versionName "v4.3.1-dev"
+        versionCode 40400
 
+        /**
+         * ------------------------------------------------------------
+         *
+         *              CHANGE PER NEW FORK MODIFICATION
+         *              IF AND ONLY IF NECESSARY
+         *
+         * ------------------------------------------------------------
+         */
+        //if you change this, also change the AndroidManifest package
         applicationId "com.github.adamantcheese.chan"
-        //this is your update endpoint, change it to your repository
+        manifestPlaceholders = [appName: "Kuroba"]
+        //these are your update and issues endpoints, change it to your repository
+        //the issues endpoint is also used to calculate the base for linking to the github
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
-        buildConfigField "String", "ISSUES_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba/issues\""
+        buildConfigField "String", "GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba\""
+        //this is for checking who's built what in debug logs
+        buildConfigField "String", "SIGNATURE", "\"8952c098\""
+
+        /**
+         * ------------------------------------------------------------
+         *
+         *              DON'T CHANGE THESE AUTOCALCULATIONS
+         *              USED FOR VERSION NAME GENERATION AND
+         *              AUTO UPDATER NAMING CONSISTENCY
+         *
+         * ------------------------------------------------------------
+         */
+        int tempPatch = (int) (versionCode.intValue() / 1) % 100;
+        int tempMinor = (int) (versionCode.intValue() / 100) % 100;
+        int tempMajor = (int) (versionCode.intValue() / 10000) % 100;
+        versionName "v" + String.valueOf(tempMajor) + "." + String.valueOf(tempMinor) + "." + String.valueOf(tempPatch) + "-dev"
+
+        android.applicationVariants.all { variant ->
+            variant.outputs.all {
+                outputFileName = manifestPlaceholders.get("appName").toString() + ".apk"
+            }
+        }
     }
 
     compileOptions {
@@ -36,15 +76,6 @@ android {
 
     // Needed for volley
     useLibrary 'org.apache.http.legacy'
-
-    android.applicationVariants.all { variant ->
-        variant.outputs.all {
-            //this is required for the auto-updater, set the APK to upload to github here
-            //if you change this, also change UpdateManager::doUpdate::onSuccess to have the same name
-            //see docs/release.txt for more info
-            outputFileName = "Kuroba.apk"
-        }
-    }
 
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
@@ -129,5 +160,4 @@ dependencies {
     implementation 'com.vladsch.flexmark:flexmark-ext-gfm-issues:0.42.12'
     implementation "io.reactivex.rxjava2:rxjava:2.2.9"
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.vdurmont:emoji-java:4.0.0'
 }

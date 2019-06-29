@@ -18,13 +18,13 @@ package com.github.adamantcheese.chan.core.site;
 
 import android.util.SparseArray;
 
-import com.github.adamantcheese.chan.core.site.sites.Wired7.Wired7;
 import com.github.adamantcheese.chan.core.site.sites.arisuchan.Arisuchan;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.core.site.sites.chan8.Chan8;
 import com.github.adamantcheese.chan.core.site.sites.dvach.Dvach;
 import com.github.adamantcheese.chan.core.site.sites.lainchan.Lainchan;
 import com.github.adamantcheese.chan.core.site.sites.sushichan.Sushichan;
+import com.github.adamantcheese.chan.core.site.sites.wired7.Wired7;
 
 import java.util.ArrayList;
 import java.util.List;

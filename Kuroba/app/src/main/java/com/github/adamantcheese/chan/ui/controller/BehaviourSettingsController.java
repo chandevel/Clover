@@ -26,23 +26,15 @@ import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.ListSettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.github.adamantcheese.chan.Chan.injector;
 
 public class BehaviourSettingsController extends SettingsController {
-    private SettingView useNewCaptchaWindow;
-    private ListSettingView<ChanSettings.PostingTimeout> postingTimeoutSetting;
-
     public BehaviourSettingsController(Context context) {
         super(context);
     }
@@ -54,15 +46,6 @@ public class BehaviourSettingsController extends SettingsController {
 
         setupLayout();
         rebuildPreferences();
-    }
-
-    @Override
-    public void onPreferenceChange(SettingView item) {
-        super.onPreferenceChange(item);
-        if (item == postingTimeoutSetting) {
-            Toast.makeText(context, R.string.setting_posting_timeout_toggle_notice,
-                    Toast.LENGTH_LONG).show();
-        }
     }
 
     private void rebuildPreferences() {
@@ -160,7 +143,7 @@ public class BehaviourSettingsController extends SettingsController {
         {
             SettingsGroup captcha = new SettingsGroup(R.string.settings_captcha_group);
 
-            useNewCaptchaWindow = captcha.add(new BooleanSettingView(this,
+            captcha.add(new BooleanSettingView(this,
                     ChanSettings.useNewCaptchaWindow,
                     R.string.settings_use_new_captcha_window,
                     0));
@@ -183,20 +166,16 @@ public class BehaviourSettingsController extends SettingsController {
 
             groups.add(proxy);
         }
-    }
 
-    private ListSettingView<ChanSettings.PostingTimeout> addPostingTimeoutSetting() {
-        List<ListSettingView.Item> postTimeoutTypes = new ArrayList<>();
+        // Actions group
+        {
+            SettingsGroup actions = new SettingsGroup(R.string.settings_group_actions);
 
-        for (ChanSettings.PostingTimeout timeout : ChanSettings.PostingTimeout.values()) {
-            postTimeoutTypes.add(new ListSettingView.Item<>(timeout.getName(), timeout));
+            actions.add(new BooleanSettingView(this, ChanSettings.galleryFlingActions,
+                    R.string.setting_gallery_swipe, R.string.setting_gallery_swipe_description));
+
+            groups.add(actions);
         }
-
-        return new ListSettingView<>(
-                this,
-                ChanSettings.postingTimeout,
-                "Posting timeout",
-                postTimeoutTypes);
     }
 
     private void setupClearThreadHidesSetting(SettingsGroup post) {

@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
 
 public class ChanSettings {
@@ -98,41 +99,13 @@ public class ChanSettings {
         }
     }
 
-    public enum PostingTimeout implements OptionSettingItem {
-        THIRTY_SECONDS("30 seconds", 30_000L),
-        SIXTY_SECONDS("1 minute", 60_000L),
-        ONE_HUNDRED_EIGHTY("3 minutes", 180_000L),
-        THREE_HUNDRED("5 minutes", 300_000L);
-
-        String name;
-        Long timeInMs;
-
-        PostingTimeout(String name, Long timeInMs) {
-            this.name = name;
-            this.timeInMs = timeInMs;
-        }
-
-        @Override
-        public String getKey() {
-            return name().toLowerCase();
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Long getTimeoutValue() {
-            return timeInMs;
-        }
-    }
-
     private static Proxy proxy;
     private static final String sharedPrefsFile = "shared_prefs/com.github.adamantcheese.chan_preferences.xml";
 
     private static final StringSetting theme;
     public static final OptionsSetting<LayoutMode> layoutMode;
     public static final StringSetting fontSize;
-    public static final BooleanSetting fontCondensed;
+    public static final BooleanSetting fontAlternate;
     public static final BooleanSetting openLinkConfirmation;
     public static final BooleanSetting openLinkBrowser;
     public static final BooleanSetting autoRefreshThread;
@@ -147,8 +120,6 @@ public class ChanSettings {
     public static final StringSetting postDefaultName;
     public static final BooleanSetting postPinThread;
     public static final BooleanSetting shortPinInfo;
-
-    public static final BooleanSetting developer;
 
     public static final StringSetting saveLocation;
     public static final BooleanSetting saveServerFilename;
@@ -201,9 +172,7 @@ public class ChanSettings {
 
     public static final BooleanSetting useNewCaptchaWindow;
 
-    public static final OptionsSetting<PostingTimeout> postingTimeout;
-
-    public static final BooleanSetting autoCrashEmoji;
+    public static final BooleanSetting galleryFlingActions;
     public static final BooleanSetting incrementalThreadDownloadingEnabled;
 
     static {
@@ -216,7 +185,7 @@ public class ChanSettings {
         boolean tablet = AndroidUtils.getRes().getBoolean(R.bool.is_tablet);
 
         fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
-        fontCondensed = new BooleanSetting(p, "preference_font_condensed", false);
+        fontAlternate = new BooleanSetting(p, "preference_font_alternate", false);
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
         openLinkBrowser = new BooleanSetting(p, "preference_open_link_browser", false);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
@@ -232,9 +201,7 @@ public class ChanSettings {
         postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
         shortPinInfo = new BooleanSetting(p, "preference_short_pin_info", true);
 
-        developer = new BooleanSetting(p, "preference_developer", false);
-
-        saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Kuroba");
+        saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + getApplicationLabel());
         saveLocation.addCallback((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
         saveServerFilename = new BooleanSetting(p, "preference_image_save_original", false);
@@ -296,13 +263,11 @@ public class ChanSettings {
 
         updateCheckTime = new LongSetting(p, "update_check_time", 0L);
 
-        postingTimeout = new OptionsSetting<>(p, "posting_timeout", PostingTimeout.class, PostingTimeout.THIRTY_SECONDS);
-
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
 
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
 
-        autoCrashEmoji = new BooleanSetting(p, "crash_emoji", false);
+        galleryFlingActions = new BooleanSetting(p, "preference_gallery_fling_actions", true);
         incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
     }
 

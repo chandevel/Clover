@@ -22,7 +22,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
@@ -62,7 +61,6 @@ public class LoginController extends Controller implements View.OnClickListener,
         navigation.setTitle(R.string.settings_screen_pass);
 
         view = inflateRes(R.layout.controller_pass);
-        LinearLayout container = view.findViewById(R.id.container);
         crossfadeView = view.findViewById(R.id.crossfade);
         errors = view.findViewById(R.id.errors);
         button = view.findViewById(R.id.button);

@@ -887,6 +887,17 @@ public class WatchManager implements WakeManager.Wakeable {
             return 0;
         }
 
+        public int getImageCount() {
+            if (chanLoader != null && chanLoader.getThread() != null && chanLoader.getThread().posts != null) {
+                int total = 0;
+                for (Post p : chanLoader.getThread().posts) {
+                    if (!p.isOP) total += p.images.size();
+                }
+                return total;
+            }
+            return 0;
+        }
+
         public List<Post> getPosts() {
             return posts;
         }

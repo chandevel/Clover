@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.helper;
 import android.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
+
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class BoardHelper {
     }
 
     public static String getDescription(Board board) {
-        return board.description == null ? null : Parser.unescapeEntities(board.description, false);
+        return Parser.unescapeEntities(board.description, false);
     }
 
     public static List<Board> quickSearch(List<Board> from, String query) {
@@ -98,7 +99,7 @@ public class BoardHelper {
     private static int getTokenSortRatio(Board board, String query) {
         int code = FuzzySearch.ratio(board.code, query);
         int name = FuzzySearch.ratio(board.name, query);
-        int description = FuzzySearch.weightedRatio(String.valueOf(getDescription(board)), query);
+        int description = FuzzySearch.weightedRatio(getDescription(board), query);
 
         return code * 8 +
                 name * 5 +

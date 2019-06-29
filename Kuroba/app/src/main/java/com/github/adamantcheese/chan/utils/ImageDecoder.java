@@ -18,13 +18,19 @@ package com.github.adamantcheese.chan.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
+
+import com.github.adamantcheese.chan.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 /**
  * Simple ImageDecoder. Taken from Volley ImageRequest.
@@ -38,7 +44,18 @@ public class ImageDecoder {
             try {
                 MediaMetadataRetriever video = new MediaMetadataRetriever();
                 video.setDataSource(file.getAbsolutePath());
-                videoBitmap = video.getFrameAtTime();
+                Bitmap frameBitmap = video.getFrameAtTime();
+                Bitmap audioIconBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.ic_volume_up_white_24dp);
+                Bitmap audioBitmap = Bitmap.createScaledBitmap(audioIconBitmap, audioIconBitmap.getWidth() * 3, audioIconBitmap.getHeight() * 3, true);
+                boolean hasAudio = "yes".equals(video.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO));
+                if (hasAudio && frameBitmap != null) {
+                    videoBitmap = Bitmap.createBitmap(frameBitmap.getWidth(), frameBitmap.getHeight(), frameBitmap.getConfig());
+                    Canvas temp = new Canvas(videoBitmap);
+                    temp.drawBitmap(frameBitmap, new Matrix(), null);
+                    temp.drawBitmap(audioBitmap, frameBitmap.getWidth() - audioBitmap.getWidth(), frameBitmap.getHeight() - audioBitmap.getHeight(), null);
+                } else {
+                    videoBitmap = frameBitmap;
+                }
             } catch (Exception ignored) {
             }
 

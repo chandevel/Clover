@@ -21,7 +21,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -61,8 +63,6 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -87,6 +87,28 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     private Context context;
     private ImageView playView;
+    private GestureDetector swipeDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
+            float diffY = e2.getY() - e1.getY();
+            float diffX = e2.getX() - e1.getX();
+            if (Math.abs(diffY) > 250 && Math.abs(vy) > 1000 && Math.abs(diffX) < 300) {
+                //if the image is scaled up, ignore swipes so panning/zooming works normally
+                CustomScaleImageView currentImage = findScaleImageView();
+                if (currentImage != null && currentImage.getScale() > currentImage.getMinScale()) {
+                    return false;
+                }
+                if (ChanSettings.galleryFlingActions.get()) {
+                    if (diffY <= 0) {
+                        callback.onSwipeTop();
+                    } else {
+                        callback.onSwipeBottom();
+                    }
+                }
+            }
+            return true;
+        }
+    });
 
     private PostImage postImage;
     private Callback callback;
@@ -99,7 +121,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     private FileCacheDownloader videoRequest;
 
     private SimpleExoPlayer exoPlayer;
-    private ExecutorService threadPool = Executors.newCachedThreadPool();
 
     private boolean backgroundToggle;
 
@@ -255,6 +276,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                         if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
                             ImageView thumbnail = new ImageView(getContext());
                             thumbnail.setImageBitmap(response.getBitmap());
+                            thumbnail.setOnTouchListener((view, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
 
                             onModeLoaded(Mode.LOWRES, thumbnail);
                         }
@@ -379,6 +401,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
+        view.setOnTouchListener((view1, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
         onModeLoaded(Mode.GIF, view);
     }
 
@@ -441,6 +464,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             exoPlayer.prepare(videoSource);
             exoPlayer.addAudioListener(this);
+            exoVideoView.setOnTouchListener((view, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
 
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
@@ -541,6 +565,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                 onBigImageError(wasInitial);
             }
         });
+        image.setOnTouchListener((view, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
     }
 
     private void onError() {
@@ -613,6 +638,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     public interface Callback {
         void onTap();
+
+        void onSwipeTop();
+
+        void onSwipeBottom();
 
         void showProgress(MultiImageView multiImageView, boolean progress);
 

@@ -19,21 +19,22 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.appcompat.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.saver.FileWatcher;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.adapter.FilesAdapter;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.layout.FilesLayout;
 import com.github.adamantcheese.chan.ui.layout.NewFolderLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 
@@ -94,6 +95,7 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
                             Toast.makeText(context, "Folder must be a word, no spaces", Toast.LENGTH_SHORT).show();
                         } else {
                             File newDir = new File(fileWatcher.getCurrentPath().getAbsolutePath() + File.separator + dialogView.getFolderName());
+                            //noinspection ResultOfMethodCallIgnored
                             newDir.mkdir();
                             fileWatcher.navigateTo(newDir);
                             ChanSettings.saveLocation.set(fileWatcher.getCurrentPath().getAbsolutePath());
