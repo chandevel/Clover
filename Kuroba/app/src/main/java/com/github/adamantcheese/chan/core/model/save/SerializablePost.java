@@ -37,11 +37,6 @@ public class SerializablePost {
     private String capcode;
     @SerializedName("is_saved_reply")
     private boolean isSavedReply;
-//    private int filterHighlightedColor; // TODO: do we need this information in the saved thread?
-//    private boolean filterStub;
-//    private boolean filterRemove;
-//    private boolean filterWatch;
-//    private boolean filterReplies;
     @SerializedName("replies_to")
     private Set<Integer> repliesTo;
     @SerializedName("name_tripcode_id_capcode_span")

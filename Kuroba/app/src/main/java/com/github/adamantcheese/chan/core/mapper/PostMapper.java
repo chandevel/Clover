@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.core.mapper;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.save.SerializablePost;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class PostMapper {
+    private static final String TAG = "PostMapper";
     private static final Comparator<Post> POST_COMPARATOR = (p1, p2) -> Integer.compare(p1.no, p2.no);
 
     public static SerializablePost toSerializablePost(Post post) {
@@ -96,9 +98,23 @@ public class PostMapper {
 
     public static List<Post> fromSerializedPostList(Loadable loadable, List<SerializablePost> serializablePostList) {
         List<Post> posts = new ArrayList<>(serializablePostList.size());
+        Throwable firstException = null;
 
         for (SerializablePost serializablePost : serializablePostList) {
-            posts.add(fromSerializedPost(loadable, serializablePost));
+            try {
+                posts.add(fromSerializedPost(loadable, serializablePost));
+            } catch (Throwable error) {
+                // Skip post if could not deserialize
+                if (firstException == null) {
+                    // We will report only the first exception because there may be a lot of them
+                    // and they may all be the same
+                    firstException = error;
+                }
+            }
+        }
+
+        if (firstException != null) {
+            Logger.e(TAG, "There were at least one exception thrown while trying to deserialize posts", firstException);
         }
 
         Collections.sort(posts, POST_COMPARATOR);
