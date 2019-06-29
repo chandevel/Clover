@@ -39,7 +39,6 @@ import com.davemorrissey.labs.subscaleview.ImageViewState;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageViewerPresenter;
@@ -126,16 +125,12 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         menuBuilder.withItem(VOLUME_ID, R.drawable.ic_volume_off_white_24dp, this::volumeClicked);
 
         if (!loadable.isSavedCopy) {
-            // FIXME:
-            //  Disable saving images from archived threads (for now at least)
             menuBuilder.withItem(SAVE_ID, R.drawable.ic_file_download_white_24dp, this::saveClicked);
         }
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
         overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
         if (!loadable.isSavedCopy) {
-            // FIXME:
-            //  Disable sharing images from archived threads (for now at least)
             overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
         }
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
@@ -409,42 +404,26 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             }
         });
 
-        ImageLoader.ImageListener imageListener = new ImageLoader.ImageListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
-                startAnimation.start();
-            }
+        imageLoader.getImage(
+                loadable,
+                postImage,
+                previewImage.getWidth(),
+                previewImage.getHeight(),
+                new ImageLoader.ImageListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
+                        startAnimation.start();
+                    }
 
-            @Override
-            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                if (response.getBitmap() != null) {
-                    previewImage.setBitmap(response.getBitmap());
-                    startAnimation.start();
-                }
-            }
-        };
-
-        if (loadable.isSavedCopy) {
-            String formattedName = ThreadSaveManager.formatThumbnailImageName(
-                    postImage.originalName,
-                    postImage.extension
-            );
-
-            imageLoader.getFromDisk(
-                    loadable,
-                    formattedName,
-                    imageListener,
-                    previewImage.getWidth(),
-                    previewImage.getHeight());
-
-        } else {
-            imageLoader.get(
-                    postImage.getThumbnailUrl().toString(),
-                    imageListener,
-                    previewImage.getWidth(),
-                    previewImage.getHeight());
-        }
+                    @Override
+                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                        if (response.getBitmap() != null) {
+                            previewImage.setBitmap(response.getBitmap());
+                            startAnimation.start();
+                        }
+                    }
+                });
     }
 
     public void startPreviewOutTransition(Loadable loadable, final PostImage postImage) {
@@ -452,40 +431,27 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             return;
         }
 
-        ImageLoader.ImageListener imageListener = new ImageLoader.ImageListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");
-                doPreviewOutAnimation(postImage, null);
-            }
 
-            @Override
-            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                if (response.getBitmap() != null) {
-                    doPreviewOutAnimation(postImage, response.getBitmap());
+        imageLoader.getImage(
+                loadable,
+                postImage,
+                previewImage.getWidth(),
+                previewImage.getHeight(),
+                new ImageLoader.ImageListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");
+                        doPreviewOutAnimation(postImage, null);
+                    }
+
+                    @Override
+                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                        if (response.getBitmap() != null) {
+                            doPreviewOutAnimation(postImage, response.getBitmap());
+                        }
+                    }
                 }
-            }
-        };
-
-        if (loadable.isSavedCopy) {
-            String formattedName = ThreadSaveManager.formatThumbnailImageName(
-                    postImage.originalName,
-                    postImage.extension
-            );
-
-            imageLoader.getFromDisk(
-                    loadable,
-                    formattedName,
-                    imageListener,
-                    previewImage.getWidth(),
-                    previewImage.getHeight());
-        } else {
-            imageLoader.get(
-                    postImage.getThumbnailUrl().toString(),
-                    imageListener,
-                    previewImage.getWidth(),
-                    previewImage.getHeight());
-        }
+        );
     }
 
     private void doPreviewOutAnimation(PostImage postImage, Bitmap bitmap) {

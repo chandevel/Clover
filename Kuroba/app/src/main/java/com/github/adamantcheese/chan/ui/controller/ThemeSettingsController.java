@@ -339,7 +339,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     themeContext.getResources().getDimensionPixelSize(R.dimen.toolbar_height)));
 
             PostCell postCell = (PostCell) LayoutInflater.from(themeContext).inflate(R.layout.cell_post, null);
-            postCell.setPost(dummyLoadable, // TODO: may not work (test theme changer)
+            postCell.setPost(dummyLoadable,
                     post,
                     dummyPostCallback,
                     false,

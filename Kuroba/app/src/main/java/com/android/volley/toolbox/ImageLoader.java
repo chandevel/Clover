@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2013 The Android Open Source Project
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,7 @@
  */
 package com.android.volley.toolbox;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -27,9 +28,13 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
+import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
@@ -47,6 +52,7 @@ import java.util.LinkedList;
  */
 public class ImageLoader {
     private static final String TAG = "ImageLoader";
+    private static final String NOT_FOUND_IMAGE_TAG = "ic_404_image_not_found";
 
     /** RequestQueue for dispatching ImageRequests onto. */
     private final RequestQueue mRequestQueue;
@@ -56,6 +62,11 @@ public class ImageLoader {
 
     /** The cache implementation to be used as an L1 cache before calling into volley. */
     private final ImageCache mCache;
+
+    /** Application context */
+    private final Context applicationContext;
+
+    private final ThemeHelper themeHelper;
 
     /**
      * HashMap of Cache keys -> BatchedImageRequest used to track in-flight requests so
@@ -81,6 +92,7 @@ public class ImageLoader {
      */
     public interface ImageCache {
         public Bitmap getBitmap(String url);
+
         public void putBitmap(String url, Bitmap bitmap);
     }
 
@@ -89,7 +101,9 @@ public class ImageLoader {
      * @param queue The RequestQueue to use for making image requests.
      * @param imageCache The cache to use as an L1 cache.
      */
-    public ImageLoader(RequestQueue queue, ImageCache imageCache) {
+    public ImageLoader(Context applicationContext, RequestQueue queue, ThemeHelper themeHelper, ImageCache imageCache) {
+        this.applicationContext = applicationContext;
+        this.themeHelper = themeHelper;
         mRequestQueue = queue;
         mCache = imageCache;
     }
@@ -103,7 +117,7 @@ public class ImageLoader {
      * @param errorImageResId Error image resource ID to use, or 0 if it doesn't exist.
      */
     public static ImageListener getImageListener(final ImageView view,
-            final int defaultImageResId, final int errorImageResId) {
+                                                 final int defaultImageResId, final int errorImageResId) {
         return new ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -178,13 +192,40 @@ public class ImageLoader {
         return get(requestUrl, listener, 0, 0);
     }
 
+    public ImageContainer getImage(
+            Loadable loadable,
+            PostImage postImage,
+            int width,
+            int height,
+            ImageListener imageListener) {
+        if (loadable.isSavedCopy) {
+            String formattedName = ThreadSaveManager.formatThumbnailImageName(
+                    postImage.originalName,
+                    postImage.extension
+            );
+
+            return getFromDisk(
+                    loadable,
+                    formattedName,
+                    imageListener,
+                    width,
+                    height);
+        } else {
+            return get(
+                    postImage.getThumbnailUrl().toString(),
+                    imageListener,
+                    width,
+                    height);
+        }
+    }
+
     /**
      * Loads image from disk or gets it from the cache if it is already cached. Caches the image in
      * the cache if successfully loaded from the disk
      * */
     // TODO: when could not load an image from the disk show some kind of "404 not found" placeholder
     // TODO: do the same thing for ImageLoader.get()
-    public ImageContainer getFromDisk(
+    private ImageContainer getFromDisk(
             Loadable loadable,
             String filename,
             ImageListener imageListener,
@@ -197,11 +238,33 @@ public class ImageLoader {
         File imageOnDiskFile = new File(fullImagePath, filename);
 
         if (!imageOnDiskFile.exists() || !imageOnDiskFile.isFile() || !imageOnDiskFile.canRead()) {
-            Logger.e(TAG, "Could not load image from the disk: " +
+            Logger.d(TAG, "Could not load image from the disk: " +
                     "(exists = " + imageOnDiskFile.exists() +
                     ", isFile = " + imageOnDiskFile.isFile() +
                     ", canRead = " + imageOnDiskFile.canRead() + ")");
-            return null;
+
+            Bitmap drawableBitmap = mCache.getBitmap(NOT_FOUND_IMAGE_TAG);
+            if (drawableBitmap == null) {
+                boolean isLightTheme = themeHelper.getTheme().isLightTheme;
+
+                drawableBitmap = BitmapUtils.getBitmapFromVectorDrawable(
+                        applicationContext,
+                        width,
+                        height,
+                        R.drawable.ic_404_image_not_found,
+                        isLightTheme);
+                if (drawableBitmap == null) {
+                    Logger.e(TAG, "Could not decode ic_404_image_not_found drawable");
+                    return null;
+                }
+
+                String cacheKey = getCacheKey(NOT_FOUND_IMAGE_TAG, width, height);
+                mCache.putBitmap(cacheKey, drawableBitmap);
+            }
+
+            ImageContainer container = new ImageContainer(drawableBitmap, null, null, null);
+            imageListener.onResponse(container, true);
+            return container;
         }
 
         String imageOnDisk = imageOnDiskFile.getAbsolutePath();
@@ -239,7 +302,7 @@ public class ImageLoader {
      *     the currently available image (default if remote is not loaded).
      */
     public ImageContainer get(String requestUrl, ImageListener imageListener,
-            int maxWidth, int maxHeight) {
+                              int maxWidth, int maxHeight) {
         // only fulfill requests that were initiated from the main thread.
         throwIfNotOnMainThread();
 
@@ -286,7 +349,7 @@ public class ImageLoader {
                 onGetImageSuccess(cacheKey, response);
             }
         }, maxWidth, maxHeight,
-        Config.RGB_565, new ErrorListener() {
+                Config.RGB_565, new ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 onGetImageError(cacheKey, error);
@@ -367,7 +430,7 @@ public class ImageLoader {
          * @param cacheKey The cache key that identifies the requested URL for this container.
          */
         public ImageContainer(Bitmap bitmap, String requestUrl,
-                String cacheKey, ImageListener listener) {
+                              String cacheKey, ImageListener listener) {
             mBitmap = bitmap;
             mRequestUrl = requestUrl;
             mCacheKey = cacheKey;
@@ -525,6 +588,7 @@ public class ImageLoader {
             throw new IllegalStateException("ImageLoader must be invoked from the main thread.");
         }
     }
+
     /**
      * Creates a cache key for use with the L1 cache.
      * @param url The URL of the request.

@@ -463,8 +463,11 @@ public class ThreadSaveManager {
                 if (!checkWhetherAllPostImagesAreAlreadySaved(threadSaveDirImages, post)) {
                     // Some of the post's images could not be downloaded during the previous download
                     // so we need to download them now
-                    Logger.d(TAG, "Found not downloaded yet images for a post " + post.no +
-                            ", for loadable " + loadableToString(loadable));
+                    if (VERBOSE_LOG) {
+                        Logger.d(TAG, "Found not downloaded yet images for a post " + post.no +
+                                ", for loadable " + loadableToString(loadable));
+                    }
+
                     filteredPosts.add(post);
                     continue;
                 }
@@ -597,7 +600,10 @@ public class ThreadSaveManager {
         }
 
         if (!shouldDownloadImages()) {
-            Logger.d(TAG, "Cannot load images or videos with the current network");
+            if (VERBOSE_LOG) {
+                Logger.d(TAG, "Cannot load images or videos with the current network");
+            }
+
             return Flowable.just(false);
         }
 
@@ -733,7 +739,9 @@ public class ThreadSaveManager {
             String filename,
             HttpUrl imageUrl) throws IOException {
         if (!shouldDownloadImages()) {
-            Logger.d(TAG, "Cannot load images or videos with the current network");
+            if (VERBOSE_LOG) {
+                Logger.d(TAG, "Cannot load images or videos with the current network");
+            }
             return;
         }
 

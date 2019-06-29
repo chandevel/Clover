@@ -88,7 +88,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         saveIconOutline = context.getDrawable(R.drawable.ic_save_while_24dp)
                 .mutate();
-        DrawableCompat.setTint(saveIconOutline, 0xFFBBBBBB); // TODO: use different color, this one looks like ass
+        // TODO: use animated vector icon with different states for started downloading/being downloaded/completed
+        DrawableCompat.setTint(saveIconOutline, 0xFFBBBBBB);
 
         saveIconNormal = context.getDrawable(R.drawable.ic_save_while_24dp)
                 .mutate();

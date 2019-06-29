@@ -1,12 +1,17 @@
 package com.github.adamantcheese.chan.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.util.Pair;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
@@ -258,5 +263,39 @@ public class BitmapUtils {
         if (file == null) throw new IOException();
         Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
         return new Pair<>(bitmap.getWidth(), bitmap.getHeight());
+    }
+
+    @Nullable
+    public static Bitmap getBitmapFromVectorDrawable(
+            Context context,
+            int width,
+            int height,
+            @DrawableRes int drawableId,
+            boolean isLightTheme) {
+        Drawable originalDrawable = ContextCompat.getDrawable(context, drawableId);
+        if (originalDrawable == null) {
+            return null;
+        }
+
+        Drawable drawable;
+
+        if (isLightTheme) {
+            drawable = originalDrawable.mutate();
+            drawable.setTint(0xFF000000);
+        } else {
+            drawable = originalDrawable.mutate();
+            drawable.setTint(0xFFFFFFFF);
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(
+                width,
+                height,
+                Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
     }
 }

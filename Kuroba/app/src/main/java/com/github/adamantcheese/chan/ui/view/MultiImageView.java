@@ -43,7 +43,6 @@ import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.di.NetModule;
-import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -236,50 +235,32 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             return;
         }
 
-        ImageLoader.ImageListener imageListener = new ImageLoader.ImageListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                thumbnailRequest = null;
-                if (center) {
-                    onError();
-                }
-            }
+        thumbnailRequest = imageLoader.getImage(
+                loadable,
+                postImage,
+                getWidth(),
+                getHeight(),
+                new ImageLoader.ImageListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        thumbnailRequest = null;
+                        if (center) {
+                            onError();
+                        }
+                    }
 
-            @Override
-            public void onResponse(ImageContainer response, boolean isImmediate) {
-                thumbnailRequest = null;
-                if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
-                    ImageView thumbnail = new ImageView(getContext());
-                    thumbnail.setImageBitmap(response.getBitmap());
+                    @Override
+                    public void onResponse(ImageContainer response, boolean isImmediate) {
+                        thumbnailRequest = null;
+                        if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
+                            ImageView thumbnail = new ImageView(getContext());
+                            thumbnail.setImageBitmap(response.getBitmap());
 
-                    onModeLoaded(Mode.LOWRES, thumbnail);
-                }
-            }
-        };
+                            onModeLoaded(Mode.LOWRES, thumbnail);
+                        }
+                    }
+                });
 
-        if (loadable.isSavedCopy) {
-            String formattedImage = ThreadSaveManager.formatThumbnailImageName(
-                    postImage.originalName,
-                    postImage.extension
-            );
-
-            thumbnailRequest = imageLoader.getFromDisk(
-                    loadable,
-                    formattedImage,
-                    imageListener,
-                    getWidth(),
-                    getHeight());
-        } else {
-            // Also use volley for the thumbnails
-            thumbnailRequest = imageLoader.get(
-                    postImage.getThumbnailUrl().toString(),
-                    imageListener,
-                    getWidth(),
-                    getHeight());
-        }
-
-        // FIXME: (thumbnailRequest != null) this is probably a bug somewhere
-        //  in the imageLoader.getFromDisk()
         if (thumbnailRequest != null && thumbnailRequest.getBitmap() != null) {
             // Request was immediate and thumbnailRequest was first set to null in onResponse, and then set to the container
             // when the method returned

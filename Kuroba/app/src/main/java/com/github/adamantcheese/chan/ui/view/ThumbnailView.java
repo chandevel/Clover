@@ -42,6 +42,7 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
 import javax.inject.Inject;
@@ -117,13 +118,12 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
     }
 
-    public boolean setUrlFromDisk(
+    public void setUrlFromDisk(
             Loadable loadable,
-            String filename,
+            PostImage postImage,
             int width,
             int height) {
-        container = imageLoader.getFromDisk(loadable, filename, this, width, height);
-        return true;
+        container = imageLoader.getImage(loadable, postImage, width, height, this);
     }
 
     public void setCircular(boolean circular) {

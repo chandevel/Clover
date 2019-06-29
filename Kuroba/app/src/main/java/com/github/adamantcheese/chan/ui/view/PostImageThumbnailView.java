@@ -27,7 +27,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -61,13 +60,7 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
                 if (!loadable.isSavedCopy) {
                     setUrl(postImage.getThumbnailUrl().toString(), width, height);
                 } else {
-                    String filename = ThreadSaveManager.formatThumbnailImageName(
-                            postImage.originalName,
-                            postImage.extension);
-
-                    if (!setUrlFromDisk(loadable, filename, width, height)) {
-                        setUrl(null, width, height);
-                    }
+                    setUrlFromDisk(loadable, postImage, width, height);
                 }
             } else {
                 setUrl(null, width, height);
