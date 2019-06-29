@@ -134,6 +134,11 @@ public class MainSettingsController extends SettingsController implements Settin
                     R.string.settings_filters, 0,
                     v -> navigationController.pushController(new FiltersController(context))));
 
+            general.add(new LinkSettingView(this,
+                    R.string.settings_experimental_settings_title,
+                    R.string.settings_experimental_settings_description,
+                    v -> navigationController.pushController(new ExperimentalSettingsController(context))));
+
             groups.add(general);
         }
 

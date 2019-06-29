@@ -665,4 +665,9 @@ Don't have a 4chan Pass?<br>
     <string name="drawer_controller_do_not_delete">Do not delete</string>
     <string name="drawer_controller_delete_all_pins">Delete all pins</string>
     <string name="thread_layout_background_watcher_is_disabled_message">Thread is currently being downloaded but the background watcher is disabled so it won\'t be incrementally updated. To enable incremental thread updating you have to enable background thread watcher</string>
+    <string name="settings_experimental_settings_title">⚠ EXPERIMENTAL ⚠</string>
+    <string name="settings_experimental_settings_description">These settings may be in an unstable state. They are for testing. They may break the app and you may have to reset the app data. Use them at your own risk if you are really interested in some feature.</string>
+    <string name="incremental_thread_downloading_title">Incremental thread downloading</string>
+    <string name="incremental_thread_downloading_description">Allows you to download threads to view them after the original thread dies</string>
+    <string name="experimental_settings_group">Experimental settings</string>
 </resources>

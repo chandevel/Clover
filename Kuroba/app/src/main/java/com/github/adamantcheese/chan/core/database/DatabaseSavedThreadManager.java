@@ -176,4 +176,13 @@ public class DatabaseSavedThreadManager {
             return null;
         };
     }
+
+    public Callable<Void> deleteAllSavedThreads() {
+        return () -> {
+            DeleteBuilder<SavedThread, Integer> db = helper.savedThreadDao.deleteBuilder();
+            db.delete();
+
+            return null;
+        };
+    }
 }

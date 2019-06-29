@@ -131,7 +131,7 @@ public class DatabaseManager {
         return databaseHideManager;
     }
 
-    public DatabaseSavedThreadManager getDatabaseSavedThreadmanager() {
+    public DatabaseSavedThreadManager getDatabaseSavedThreadManager() {
         return databaseSavedThreadManager;
     }
     // Called when the app changes foreground state

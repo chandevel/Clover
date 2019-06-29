@@ -149,7 +149,7 @@ public class WatchManager implements WakeManager.Wakeable {
         this.threadSaveManager = threadSaveManager;
 
         databasePinManager = databaseManager.getDatabasePinManager();
-        databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadmanager();
+        databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadManager();
 
         pins = databaseManager.runTask(databasePinManager.getPins());
         Collections.sort(pins);
@@ -687,13 +687,13 @@ public class WatchManager implements WakeManager.Wakeable {
                 databaseManager.runTask(() -> {
                     // Update thread in the DB
                     if (savedThread.isStopped) {
-                        databaseManager.getDatabaseSavedThreadmanager()
+                        databaseManager.getDatabaseSavedThreadManager()
                                 .updateThreadStoppedFlagByLoadableId(pin.loadable.id, true).call();
                     }
 
                     // Update thread in the DB
                     if (savedThread.isFullyDownloaded) {
-                        databaseManager.getDatabaseSavedThreadmanager()
+                        databaseManager.getDatabaseSavedThreadManager()
                                 .updateThreadFullyDownloadedByLoadableId(pin.loadable.id).call();
                     }
 

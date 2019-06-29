@@ -477,7 +477,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
                 return null;
             }
 
-            return databaseManager.getDatabaseSavedThreadmanager()
+            return databaseManager.getDatabaseSavedThreadManager()
                     .getSavedThreadByLoadableId(pin.loadable.id)
                     .call();
         });

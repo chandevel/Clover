@@ -110,8 +110,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     protected void buildMenu() {
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu()
                 .withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
-                .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked)
-                .withItem(SAVE_THREAD_ID, downloadIconOutline, this::saveClicked);
+                .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked);
+
+        if (ChanSettings.incrementalThreadDownloadingEnabled.get()) {
+            menuBuilder.withItem(SAVE_THREAD_ID, downloadIconOutline, this::saveClicked);
+        }
 
         NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow();
 
@@ -381,7 +384,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         navigation.title = this.loadable.title;
 
         navigation.findItem(PIN_ID).setVisible(!loadable.isSavedCopy);
-        navigation.findItem(SAVE_THREAD_ID).setVisible(!loadable.isSavedCopy);
+
+        ToolbarMenuItem saveThreadItem = navigation.findItem(SAVE_THREAD_ID);
+        if (saveThreadItem != null) {
+            saveThreadItem.setVisible(!loadable.isSavedCopy);
+        }
 
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
         ((ToolbarNavigationController) navigationController).toolbar.updateViewForItem(navigation);

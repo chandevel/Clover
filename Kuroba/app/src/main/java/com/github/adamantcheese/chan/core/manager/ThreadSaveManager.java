@@ -103,7 +103,7 @@ public class ThreadSaveManager {
         this.gson = gson;
         this.databaseManager = databaseManager;
         this.savedThreadLoaderRepository = savedThreadLoaderRepository;
-        this.databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadmanager();
+        this.databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadManager();
 
         initRxWorkerQueue();
     }
@@ -191,6 +191,19 @@ public class ThreadSaveManager {
 
         // Enqueue the download
         workerQueue.onNext(loadable);
+    }
+
+    /**
+     * Cancels all downloads
+     * */
+    public void cancelAllDownloading() {
+        synchronized (activeDownloads) {
+            for (Map.Entry<Loadable, SaveThreadParameters> entry : activeDownloads.entrySet()) {
+                SaveThreadParameters parameters = entry.getValue();
+
+                parameters.cancel();
+            }
+        }
     }
 
     /**

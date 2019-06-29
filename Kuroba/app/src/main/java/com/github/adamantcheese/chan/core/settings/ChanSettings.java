@@ -204,6 +204,7 @@ public class ChanSettings {
     public static final OptionsSetting<PostingTimeout> postingTimeout;
 
     public static final BooleanSetting autoCrashEmoji;
+    public static final BooleanSetting incrementalThreadDownloadingEnabled;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -302,6 +303,7 @@ public class ChanSettings {
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
 
         autoCrashEmoji = new BooleanSetting(p, "crash_emoji", false);
+        incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
     }
 
     public static ThemeColor getThemeAndColor() {
