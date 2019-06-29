@@ -16,9 +16,7 @@ public class PostImageMapper {
                 postImage.imageWidth,
                 postImage.imageHeight,
                 postImage.spoiler,
-                postImage.size,
-                // TODO: delete
-                postImage.type.name()
+                postImage.size
         );
     }
 

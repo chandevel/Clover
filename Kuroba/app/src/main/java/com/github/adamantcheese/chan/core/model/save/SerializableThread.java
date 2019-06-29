@@ -14,28 +14,14 @@ import java.util.Set;
 public class SerializableThread {
     @SerializedName("post_list")
     private List<SerializablePost> postList;
-//    @SerializedName("closed")
-//    private boolean closed;
-//    @SerializedName("archived")
-//    private boolean archived;
 
-    public SerializableThread(List<SerializablePost> postList/*, boolean closed, boolean archived*/) {
+    public SerializableThread(List<SerializablePost> postList) {
         this.postList = postList;
-//        this.closed = closed;
-//        this.archived = archived;
     }
 
     public List<SerializablePost> getPostList() {
         return postList;
     }
-
-//    public boolean isClosed() {
-//        return closed;
-//    }
-//
-//    public boolean isArchived() {
-//        return archived;
-//    }
 
     public SerializableThread merge(List<Post> posts) {
         Set<SerializablePost> postsSet = new HashSet<>(posts.size() + postList.size());

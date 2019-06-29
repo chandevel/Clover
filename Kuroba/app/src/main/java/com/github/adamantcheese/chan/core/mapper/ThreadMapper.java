@@ -11,12 +11,9 @@ import java.util.List;
 
 public class ThreadMapper {
 
-    public static SerializableThread toSerializableThread(/*Loadable loadable, */List<Post> posts) {
+    public static SerializableThread toSerializableThread(List<Post> posts) {
         return new SerializableThread(
-                // TODO: delete commented out code
-                PostMapper.toSerializablePostList(posts)/*,
-                chanThread.closed,
-                chanThread.archived*/
+                PostMapper.toSerializablePostList(posts)
         );
     }
 
@@ -38,6 +35,9 @@ public class ThreadMapper {
         );
 
         chanThread.op = posts.get(0);
+        chanThread.archived = true;
+        chanThread.closed = true;
+
         return chanThread;
     }
 }

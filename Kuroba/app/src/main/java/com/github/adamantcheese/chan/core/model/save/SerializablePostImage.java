@@ -19,8 +19,6 @@ public class SerializablePostImage {
     private boolean spoiler;
     @SerializedName("size")
     private long size;
-    @SerializedName("type")
-    private String type;
 
     public SerializablePostImage(
             String originalName,
@@ -29,8 +27,7 @@ public class SerializablePostImage {
             int imageWidth,
             int imageHeight,
             boolean spoiler,
-            long size,
-            String type) {
+            long size) {
         this.originalName = originalName;
         this.filename = filename;
         this.extension = extension;
@@ -38,7 +35,6 @@ public class SerializablePostImage {
         this.imageHeight = imageHeight;
         this.spoiler = spoiler;
         this.size = size;
-        this.type = type;
     }
 
     public String getOriginalName() {
@@ -67,10 +63,6 @@ public class SerializablePostImage {
 
     public long getSize() {
         return size;
-    }
-
-    public String getType() {
-        return type;
     }
 
     @Override
