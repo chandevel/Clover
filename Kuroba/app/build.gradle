@@ -24,7 +24,7 @@ android {
         //bump the MINOR (YY) version when there are compatible changes between versions (ie database changes)
         //or if there are big application level changes like tearing out/adding major features
         //bump the PATCH (ZZ) version otherwise, for anything small
-        versionCode 40303
+        versionCode 40400
 
         /**
          * ------------------------------------------------------------
