@@ -172,6 +172,8 @@ public class ChanSettings {
 
     public static final BooleanSetting useNewCaptchaWindow;
 
+    public static final BooleanSetting galleryFlingActions;
+
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
@@ -263,6 +265,8 @@ public class ChanSettings {
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
 
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
+
+        galleryFlingActions = new BooleanSetting(p, "preference_gallery_fling_actions", true);
     }
 
     public static ThemeColor getThemeAndColor() {

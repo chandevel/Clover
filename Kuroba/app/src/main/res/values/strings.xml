@@ -495,6 +495,11 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_proxy_address">Proxy server address</string>
     <string name="setting_proxy_port">Proxy server port</string>
 
+    <!-- Behavior actions group -->
+    <string name="settings_group_actions">Interactions</string>
+    <string name="setting_gallery_swipe">Enable gallery swipe actions</string>
+    <string name="setting_gallery_swipe_description">Swipe up to close images, down to save</string>
+
 
     <!-- Media -->
     <string name="settings_screen_media">Media</string>

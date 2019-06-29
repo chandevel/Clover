@@ -97,10 +97,12 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                 if (currentImage != null && currentImage.getScale() > currentImage.getMinScale()) {
                     return false;
                 }
-                if (diffY <= 0) {
-                    callback.onSwipeTop();
-                } else {
-                    callback.onSwipeBottom();
+                if (ChanSettings.galleryFlingActions.get()) {
+                    if (diffY <= 0) {
+                        callback.onSwipeTop();
+                    } else {
+                        callback.onSwipeBottom();
+                    }
                 }
             }
             return true;
