@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.model.save;
 
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.core.model.save.spans.SerializableSpannableString;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -19,9 +20,9 @@ public class SerializablePost {
     @SerializedName("name")
     private String name;
     @SerializedName("comment")
-    private String comment;
+    private SerializableSpannableString comment;
     @SerializedName("subject")
-    private String subject;
+    private SerializableSpannableString subject;
     @SerializedName("time")
     private long time;
     @SerializedName("images")
@@ -43,10 +44,8 @@ public class SerializablePost {
 //    private boolean filterReplies;
     @SerializedName("replies_to")
     private Set<Integer> repliesTo;
-    @SerializedName("subject_span")
-    private String subjectSpan;
     @SerializedName("name_tripcode_id_capcode_span")
-    private String nameTripcodeIdCapcodeSpan;
+    private SerializableSpannableString nameTripcodeIdCapcodeSpan;
     @SerializedName("deleted")
     private Boolean deleted;
     @SerializedName("replies_from")
@@ -74,8 +73,8 @@ public class SerializablePost {
             int no,
             boolean isOP,
             String name,
-            String comment,
-            String subject,
+            SerializableSpannableString comment,
+            SerializableSpannableString subject,
             long time,
             List<SerializablePostImage> images,
             String tripcode,
@@ -84,8 +83,7 @@ public class SerializablePost {
             String capcode,
             boolean isSavedReply,
             Set<Integer> repliesTo,
-            String subjectSpan,
-            String nameTripcodeIdCapcodeSpan,
+            SerializableSpannableString nameTripcodeIdCapcodeSpan,
             Boolean deleted,
             List<Integer> repliesFrom,
             boolean sticky,
@@ -111,7 +109,6 @@ public class SerializablePost {
         this.capcode = capcode;
         this.isSavedReply = isSavedReply;
         this.repliesTo = repliesTo;
-        this.subjectSpan = subjectSpan;
         this.nameTripcodeIdCapcodeSpan = nameTripcodeIdCapcodeSpan;
         this.deleted = deleted;
         this.repliesFrom = repliesFrom;
@@ -141,11 +138,11 @@ public class SerializablePost {
         return name;
     }
 
-    public String getComment() {
+    public SerializableSpannableString getComment() {
         return comment;
     }
 
-    public String getSubject() {
+    public SerializableSpannableString getSubject() {
         return subject;
     }
 
@@ -181,11 +178,7 @@ public class SerializablePost {
         return repliesTo;
     }
 
-    public String getSubjectSpan() {
-        return subjectSpan;
-    }
-
-    public String getNameTripcodeIdCapcodeSpan() {
+    public SerializableSpannableString getNameTripcodeIdCapcodeSpan() {
         return nameTripcodeIdCapcodeSpan;
     }
 

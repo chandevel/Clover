@@ -182,6 +182,8 @@ public class ImageLoader {
      * Loads image from disk or gets it from the cache if it is already cached. Caches the image in
      * the cache if successfully loaded from the disk
      * */
+    // TODO: when could not load an image from the disk show some kind of "404 not found" placeholder
+    // TODO: do the same thing for ImageLoader.get()
     public ImageContainer getFromDisk(
             Loadable loadable,
             String filename,

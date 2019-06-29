@@ -1,14 +1,8 @@
 package com.github.adamantcheese.chan.core.mapper;
 
-import android.text.Html;
-import android.text.SpannableString;
-
-import androidx.annotation.Nullable;
-
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.save.SerializablePost;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,9 +12,6 @@ import java.util.List;
 public class PostMapper {
     private static final Comparator<Post> POST_COMPARATOR = (p1, p2) -> Integer.compare(p1.no, p2.no);
 
-    // TODO: figure out how to serialize spans because right now only handful of them
-    //  outlive serialization (greentext and something else, links/quotes etc do not work
-    //  after serialization)
     public static SerializablePost toSerializablePost(Post post) {
         return new SerializablePost(
                 post.boardId,
@@ -30,8 +21,8 @@ public class PostMapper {
                 post.no,
                 post.isOP,
                 post.name,
-                serializeSpannableString(post.comment),
-                post.subject,
+                SpannableStringMapper.serializeSpannableString(post.comment),
+                SpannableStringMapper.serializeSpannableString(post.subject),
                 post.time,
                 PostImageMapper.toSerializablePostImageList(post.images),
                 post.tripcode,
@@ -40,8 +31,7 @@ public class PostMapper {
                 post.capcode,
                 post.isSavedReply,
                 post.repliesTo,
-                serializeSpannableString(post.subjectSpan),
-                serializeSpannableString(post.nameTripcodeIdCapcodeSpan),
+                SpannableStringMapper.serializeSpannableString(post.nameTripcodeIdCapcodeSpan),
                 post.deleted.get(),
                 post.repliesFrom,
                 post.isSticky(),
@@ -55,19 +45,6 @@ public class PostMapper {
         );
     }
 
-    @Nullable
-    private static String serializeSpannableString(@Nullable CharSequence charSequence) {
-        if (charSequence == null) {
-            return null;
-        }
-
-        if (AndroidUtils.isNougat()) {
-            return Html.toHtml(new SpannableString(charSequence), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE);
-        } else {
-            return Html.toHtml(new SpannableString(charSequence));
-        }
-    }
-
     public static List<SerializablePost> toSerializablePostList(List<Post> postList) {
         List<SerializablePost> serializablePostList = new ArrayList<>(postList.size());
 
@@ -78,14 +55,16 @@ public class PostMapper {
         return serializablePostList;
     }
 
-    public static Post fromSeriazliedPost(Loadable loadable, SerializablePost serializablePost) {
+    public static Post fromSerializedPost(Loadable loadable, SerializablePost serializablePost) {
+        CharSequence subject = SpannableStringMapper.deserializeSpannableString(serializablePost.getSubject());
+
         Post.Builder postBuilder = new Post.Builder()
                 .board(loadable.board)
                 .id(serializablePost.getNo())
                 .op(serializablePost.isOP())
                 .name(serializablePost.getName())
-                .comment(deserializeSpannableStringSpannableString(serializablePost.getComment()))
-                .subject(serializablePost.getSubject())
+                .comment(SpannableStringMapper.deserializeSpannableString(serializablePost.getComment()))
+                .subject(subject.toString())
                 .setUnixTimestampSeconds(serializablePost.getTime())
                 .images(PostImageMapper.fromSerializablePostImageList(serializablePost.getImages()))
                 .tripcode(serializablePost.getTripcode())
@@ -94,8 +73,9 @@ public class PostMapper {
                 .isSavedReply(serializablePost.isSavedReply())
                 .repliesTo(serializablePost.getRepliesTo())
                 .spans(
-                        deserializeSpannableStringSpannableString(serializablePost.getSubjectSpan()),
-                        deserializeSpannableStringSpannableString(serializablePost.getNameTripcodeIdCapcodeSpan()))
+                        subject,
+                        SpannableStringMapper.deserializeSpannableString(serializablePost.getNameTripcodeIdCapcodeSpan())
+                )
                 .sticky(serializablePost.isSticky())
                 .archived(serializablePost.isArchived())
                 .replies(serializablePost.getReplies())
@@ -114,27 +94,13 @@ public class PostMapper {
         return post;
     }
 
-    @Nullable
-    private static CharSequence deserializeSpannableStringSpannableString(@Nullable String string) {
-        if (string == null) {
-            return null;
-        }
-
-        if (AndroidUtils.isNougat()) {
-            return Html.fromHtml(string, Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE);
-        } else {
-            return Html.fromHtml(string);
-        }
-    }
-
     public static List<Post> fromSerializedPostList(Loadable loadable, List<SerializablePost> serializablePostList) {
         List<Post> posts = new ArrayList<>(serializablePostList.size());
 
         for (SerializablePost serializablePost : serializablePostList) {
-            posts.add(fromSeriazliedPost(loadable, serializablePost));
+            posts.add(fromSerializedPost(loadable, serializablePost));
         }
 
-        // TODO: double check, may be wrong order
         Collections.sort(posts, POST_COMPARATOR);
         return posts;
     }

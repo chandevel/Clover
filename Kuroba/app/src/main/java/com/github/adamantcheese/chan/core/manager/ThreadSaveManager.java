@@ -733,7 +733,7 @@ public class ThreadSaveManager {
             String filename,
             HttpUrl imageUrl) throws IOException {
         if (!shouldDownloadImages()) {
-            Logger.d(TAG, "Cannot load images or videos with current network");
+            Logger.d(TAG, "Cannot load images or videos with the current network");
             return;
         }
 
