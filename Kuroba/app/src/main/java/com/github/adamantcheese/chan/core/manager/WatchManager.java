@@ -129,7 +129,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
     private final List<Pin> pins;
     private final List<SavedThread> savedThreads;
-    private boolean prevIncrementalThreadSavingEnabled = false;
+    private boolean prevIncrementalThreadSavingEnabled;
 
     private Map<Pin, PinWatcher> pinWatchers = new HashMap<>();
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
@@ -147,6 +147,7 @@ public class WatchManager implements WakeManager.Wakeable {
         this.wakeManager = wakeManager;
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
+        this.prevIncrementalThreadSavingEnabled = ChanSettings.watchEnabled.get() && ChanSettings.watchBackground.get();
 
         databasePinManager = databaseManager.getDatabasePinManager();
         databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadManager();

@@ -208,7 +208,7 @@ public class ThreadSaveManager {
 
     /**
      * Cancels a download associated with this loadable. Cancelling means that the user has completely
-     * removed the pin associated with it. This means that we need to delete thread's file in the disk
+     * removed the pin associated with it. This means that we need to delete thread's files from the disk
      * as well.
      * */
     public void cancelDownloading(Loadable loadable) {
@@ -339,8 +339,8 @@ public class ThreadSaveManager {
 
             // Get spoiler image url and extension
             // Pair<Extension, Url>
-            final Pair<String, HttpUrl> spoilerImageUrlAndExtension =
-                    getSpoilerImageUrlAndExtension(newPosts);
+            final Pair<String, HttpUrl> spoilerImageExtensionAndUrl =
+                    getSpoilerImageExtensionAndUrl(newPosts);
 
             // Try to load old serialized thread
             @Nullable SerializableThread serializableThread =
@@ -358,7 +358,7 @@ public class ThreadSaveManager {
                 Single.fromCallable(() -> downloadSpoilerImage(
                         loadable,
                         boardSaveDir,
-                        spoilerImageUrlAndExtension)
+                        spoilerImageExtensionAndUrl)
                 )
                 .flatMap((res) -> {
                     // For each post create a new inner rx stream (so they can be processed in parallel)
@@ -587,7 +587,7 @@ public class ThreadSaveManager {
     }
 
     @Nullable
-    private Pair<String, HttpUrl> getSpoilerImageUrlAndExtension(List<Post> posts) {
+    private Pair<String, HttpUrl> getSpoilerImageExtensionAndUrl(List<Post> posts) {
         for (Post post : posts) {
             if (post.images.size() > 0) {
                 return new Pair<>(
