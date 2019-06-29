@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
