@@ -48,7 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="24dp"
         android:layout_gravity="center_vertical"
         android:layout_marginRight="8dp"
-        android:src="@drawable/ic_save_while_24dp"
+        android:src="@drawable/ic_download0"
         android:visibility="gone" />
 
     <TextView

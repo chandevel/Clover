@@ -20,13 +20,13 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
@@ -50,6 +50,7 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.AnimationUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -67,11 +68,12 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     WatchManager watchManager;
 
     private boolean pinItemPinned = false;
-    private boolean saveItemSaved = false;
+    private ThreadPresenter.DownloadThreadState prevState = ThreadPresenter.DownloadThreadState.Default;
     private Loadable loadable;
 
-    private Drawable saveIconOutline;
-    private Drawable saveIconNormal;
+    private Drawable downloadIconOutline;
+    private Drawable downloadIconFilled;
+    private AnimationDrawable downloadAnimation;
 
     public ViewThreadController(Context context) {
         super(context);
@@ -86,14 +88,15 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         super.onCreate();
         inject(this);
 
-        saveIconOutline = context.getDrawable(R.drawable.ic_save_while_24dp)
-                .mutate();
-        // TODO: use animated vector icon with different states for started downloading/being downloaded/completed
-        DrawableCompat.setTint(saveIconOutline, 0xFFBBBBBB);
+        downloadAnimation = AnimationUtils.createAnimatedDownloadIcon(
+                context,
+                0xFFFFFFFF);
 
-        saveIconNormal = context.getDrawable(R.drawable.ic_save_while_24dp)
-                .mutate();
-        DrawableCompat.setTint(saveIconNormal, 0xFFFFFFFF);
+        downloadIconOutline = context.getDrawable(R.drawable.ic_download0).mutate();
+        downloadIconOutline.setTint(0xFFFFFFFF);
+
+        downloadIconFilled = context.getDrawable(R.drawable.ic_download5).mutate();
+        downloadIconFilled.setTint(0xFFFFFFFF);
 
         threadLayout.setPostViewMode(ChanSettings.PostViewMode.LIST);
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
@@ -108,7 +111,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu()
                 .withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
                 .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked)
-                .withItem(SAVE_THREAD_ID, saveIconOutline, this::saveClicked);
+                .withItem(SAVE_THREAD_ID, downloadIconOutline, this::saveClicked);
 
         NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow();
 
@@ -428,12 +431,12 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private void setSaveIconState(boolean animated) {
         ThreadPresenter presenter = threadLayout.getPresenter();
         if (presenter != null) {
-            setSaveIconStateDrawable(presenter.isSaved(), animated);
+            setSaveIconStateDrawable(presenter.getThreadDownloadState(), animated);
         }
     }
 
-    private void setSaveIconStateDrawable(boolean saved, boolean animated) {
-        if (saved == saveItemSaved) {
+    private void setSaveIconStateDrawable(ThreadPresenter.DownloadThreadState downloadThreadState, boolean animated) {
+        if (downloadThreadState == prevState) {
             return;
         }
 
@@ -442,10 +445,20 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             return;
         }
 
-        saveItemSaved = saved;
+        prevState = downloadThreadState;
 
-        Drawable drawable = saved ? saveIconNormal : saveIconOutline;
-        menuItem.setImage(drawable, animated);
+        switch (downloadThreadState) {
+            case Default:
+                menuItem.setImage(downloadIconOutline, animated);
+                break;
+            case DownloadInProgress:
+                menuItem.setImage(downloadAnimation, animated);
+                downloadAnimation.start();
+                break;
+            case FullyDownloaded:
+                menuItem.setImage(downloadIconFilled, animated);
+                break;
+        }
     }
 
     private void setPinIconStateDrawable(boolean pinned, boolean animated) {

@@ -43,6 +43,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
+import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -321,13 +322,30 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         return PinType.hasWatchNewPostsFlag(pin.pinType);
     }
 
-    public boolean isSaved() {
+    public DownloadThreadState getThreadDownloadState() {
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null) {
-            return false;
+            return DownloadThreadState.Default;
         }
 
-        return PinType.hasDownloadFlag(pin.pinType);
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            return DownloadThreadState.Default;
+        }
+
+        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        if (savedThread == null) {
+            return DownloadThreadState.Default;
+        }
+
+        if (savedThread.isStopped) {
+            return DownloadThreadState.Default;
+        }
+
+        if (savedThread.isFullyDownloaded) {
+            return DownloadThreadState.FullyDownloaded;
+        }
+
+        return DownloadThreadState.DownloadInProgress;
     }
 
     public void onSearchVisibilityChanged(boolean visible) {
@@ -1028,6 +1046,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
     public void updateLoadable(boolean isSavedCopy) {
         loadable.isSavedCopy = isSavedCopy;
+    }
+
+    public enum DownloadThreadState {
+        Default,
+        DownloadInProgress,
+        FullyDownloaded
     }
 
     public interface ThreadPresenterCallback {

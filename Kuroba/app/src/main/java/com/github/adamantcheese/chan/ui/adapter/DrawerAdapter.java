@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
+import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.PinHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
@@ -44,6 +46,7 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.AnimationUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +79,9 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Inject
     ThemeHelper themeHelper;
 
-    private Drawable threadDownloadIcon;
+    private Context context;
+    private Drawable downloadIconOutline;
+    private Drawable downloadIconFilled;
 
     private final Callback callback;
     private List<Pin> pins = new ArrayList<>();
@@ -85,14 +90,20 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public DrawerAdapter(Callback callback, Context context) {
         inject(this);
         this.callback = callback;
+        this.context = context;
         setHasStableIds(true);
 
         Theme currentTheme = themeHelper.getTheme();
 
-        threadDownloadIcon = context.getDrawable(R.drawable.ic_save_while_24dp)
+        downloadIconOutline = context.getDrawable(R.drawable.ic_download0)
                 .mutate();
-        threadDownloadIcon.setTint(currentTheme.textPrimary);
+        downloadIconOutline.setTint(currentTheme.textPrimary);
+
+        downloadIconFilled = context.getDrawable(R.drawable.ic_download5)
+                .mutate();
+        downloadIconFilled.setTint(currentTheme.textPrimary);
     }
+
 
     public void setPinHighlighted(Pin highlighted) {
         this.highlighted = highlighted;
@@ -300,12 +311,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 watchCount.setVisibility(View.GONE);
             }
 
-            if (PinType.hasDownloadFlag(pin.pinType)) {
-                holder.threadDownloadIcon.setImageDrawable(threadDownloadIcon);
-                holder.threadDownloadIcon.setVisibility(View.VISIBLE);
-            } else {
-                holder.threadDownloadIcon.setVisibility(View.GONE);
-            }
+            setPinDownloadIcon(holder, pin);
         } else {
             // The 16dp padding now belongs to the textview, for better ellipsize
             watchCount.setVisibility(View.GONE);
@@ -322,6 +328,35 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         } else if (!highlighted && holder.highlighted) {
             holder.itemView.setBackground(AndroidUtils.getAttrDrawable(holder.itemView.getContext(), android.R.attr.selectableItemBackground));
             holder.highlighted = false;
+        }
+    }
+
+    private void setPinDownloadIcon(PinViewHolder holder, Pin pin) {
+        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        if (savedThread == null) {
+            holder.threadDownloadIcon.setVisibility(View.GONE);
+            return;
+        }
+
+        holder.threadDownloadIcon.setVisibility(View.VISIBLE);
+
+        if (savedThread.isFullyDownloaded) {
+            holder.threadDownloadIcon.setImageDrawable(downloadIconFilled);
+            return;
+        }
+
+        if (savedThread.isStopped) {
+            holder.threadDownloadIcon.setImageDrawable(downloadIconOutline);
+            return;
+        }
+
+        AnimationDrawable downloadAnimation = AnimationUtils.createAnimatedDownloadIconWithThemeTextPrimaryColor(
+                context,
+                themeHelper.getTheme());
+        holder.threadDownloadIcon.setImageDrawable(downloadAnimation);
+
+        if (!downloadAnimation.isRunning()) {
+            downloadAnimation.start();
         }
     }
 
