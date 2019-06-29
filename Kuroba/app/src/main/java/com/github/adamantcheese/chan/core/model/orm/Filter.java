@@ -56,6 +56,9 @@ public class Filter implements Cloneable {
     @DatabaseField(canBeNull = false)
     public boolean onlyOnOP;
 
+    @DatabaseField(canBeNull = false)
+    public boolean applyToSaved;
+
     public boolean hasFilter(FilterType filterType) {
         return (type & filterType.flag) != 0;
     }
@@ -72,7 +75,7 @@ public class Filter implements Cloneable {
     public Filter() {
     }
 
-    public Filter(boolean enabled, int type, String pattern, boolean allBoards, String boards, int action, int color, boolean applyToReplies, int order, boolean onlyOnOP) {
+    public Filter(boolean enabled, int type, String pattern, boolean allBoards, String boards, int action, int color, boolean applyToReplies, int order, boolean onlyOnOP, boolean applyToSaved) {
         this.enabled = enabled;
         this.type = type;
         this.pattern = pattern;
@@ -83,6 +86,7 @@ public class Filter implements Cloneable {
         this.applyToReplies = applyToReplies;
         this.order = order;
         this.onlyOnOP = onlyOnOP;
+        this.applyToSaved = applyToSaved;
     }
 
     public void apply(Filter filter) {
@@ -109,7 +113,8 @@ public class Filter implements Cloneable {
                 color,
                 applyToReplies,
                 order,
-                onlyOnOP
+                onlyOnOP,
+                applyToSaved
         );
     }
 }

@@ -179,6 +179,7 @@ public class FilterEngine {
             return false;
         }
         if (filter.onlyOnOP && !post.op) return false;
+        if (filter.applyToSaved && !post.isSavedReply) return false;
         if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, post.tripcode, false)) {
             return true;
         }
@@ -230,6 +231,7 @@ public class FilterEngine {
             return false;
         }
         if (filter.onlyOnOP && !post.isOP) return false;
+        if (filter.applyToSaved && !post.isSavedReply) return false;
         if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, post.tripcode, false)) {
             return true;
         }

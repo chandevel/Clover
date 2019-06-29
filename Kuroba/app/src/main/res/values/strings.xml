@@ -618,6 +618,7 @@ Don't have a 4chan Pass?<br>
 
     <string name="apply_to_replies">Apply to replies</string>
     <string name="only_on_op">Only on OP</string>
+    <string name="apply_to_saved">Apply to own posts</string>
     <string name="thread_layout_hide_whole_chain">Hide whole chain</string>
     <string name="thread_layout_remove_whole_chain">Remove whole chain</string>
     <string name="thread_layout_hide_post">Hide post</string>

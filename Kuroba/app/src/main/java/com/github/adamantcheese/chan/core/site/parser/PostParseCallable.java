@@ -76,16 +76,16 @@ class PostParseCallable implements Callable<Post> {
                 FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
                 switch (action) {
                     case COLOR:
-                        post.filter(filter.color, false, false, false, filter.applyToReplies, filter.onlyOnOP);
+                        post.filter(filter.color, false, false, false, filter.applyToReplies, filter.onlyOnOP, filter.applyToSaved);
                         break;
                     case HIDE:
-                        post.filter(0, true, false, false, filter.applyToReplies, filter.onlyOnOP);
+                        post.filter(0, true, false, false, filter.applyToReplies, filter.onlyOnOP, false);
                         break;
                     case REMOVE:
-                        post.filter(0, false, true, false, filter.applyToReplies, filter.onlyOnOP);
+                        post.filter(0, false, true, false, filter.applyToReplies, filter.onlyOnOP, false);
                         break;
                     case WATCH:
-                        post.filter(0, false, false, true, false, true);
+                        post.filter(0, false, false, true, false, true, false);
                 }
             }
         }

@@ -79,6 +79,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private View colorPreview;
     private AppCompatCheckBox applyToReplies;
     private AppCompatCheckBox onlyOnOP;
+    private AppCompatCheckBox applyToSaved;
 
     @Inject
     BoardManager boardManager;
@@ -151,6 +152,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         colorPreview = findViewById(R.id.color_preview);
         applyToReplies = findViewById(R.id.apply_to_replies_checkbox);
         onlyOnOP = findViewById(R.id.only_on_op_checkbox);
+        applyToSaved = findViewById(R.id.apply_to_saved_checkbox);
 
         typeText.setOnClickListener(this);
         typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
@@ -186,6 +188,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         filter.enabled = enabled.isChecked();
         filter.applyToReplies = applyToReplies.isChecked();
         filter.onlyOnOP = onlyOnOP.isChecked();
+        filter.applyToSaved = applyToSaved.isChecked();
 
         return filter;
     }
@@ -364,10 +367,12 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         enabled.setChecked(filter.enabled);
         applyToReplies.setChecked(filter.applyToReplies);
         onlyOnOP.setChecked(filter.onlyOnOP);
+        applyToSaved.setChecked(filter.applyToSaved);
         if (filter.action == FilterAction.WATCH.id) {
             applyToReplies.setEnabled(false);
             onlyOnOP.setChecked(true);
             onlyOnOP.setEnabled(false);
+            applyToSaved.setEnabled(false);
         }
     }
 
@@ -383,9 +388,11 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             applyToReplies.setEnabled(true);
             onlyOnOP.setEnabled(true);
             onlyOnOP.setChecked(false);
+            applyToSaved.setEnabled(true);
         } else {
             applyToReplies.setEnabled(false);
             onlyOnOP.setEnabled(false);
+            applyToSaved.setEnabled(false);
             if (applyToReplies.isChecked()) {
                 applyToReplies.toggle();
                 filter.applyToReplies = false;
@@ -393,6 +400,10 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             if (!onlyOnOP.isChecked()) {
                 onlyOnOP.toggle();
                 filter.onlyOnOP = true;
+            }
+            if (applyToSaved.isChecked()) {
+                applyToSaved.toggle();
+                filter.applyToSaved = false;
             }
         }
     }

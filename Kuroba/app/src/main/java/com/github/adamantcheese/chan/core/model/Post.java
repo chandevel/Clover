@@ -80,6 +80,8 @@ public class Post implements Comparable<Post> {
 
     public final boolean filterOnlyOP;
 
+    public final boolean filterSaved;
+
     /**
      * This post replies to the these ids.
      */
@@ -160,6 +162,7 @@ public class Post implements Comparable<Post> {
         filterWatch = builder.filterWatch;
         filterReplies = builder.filterReplies;
         filterOnlyOP = builder.filterOnlyOP;
+        filterSaved = builder.filterSaved;
 
         isSavedReply = builder.isSavedReply;
 
@@ -334,6 +337,7 @@ public class Post implements Comparable<Post> {
         public boolean filterWatch;
         public boolean filterReplies;
         public boolean filterOnlyOP;
+        public boolean filterSaved;
 
         public boolean isSavedReply;
 
@@ -460,13 +464,14 @@ public class Post implements Comparable<Post> {
             return this;
         }
 
-        public Builder filter(int highlightedColor, boolean stub, boolean remove, boolean watch, boolean filterReplies, boolean onlyOnOp) {
+        public Builder filter(int highlightedColor, boolean stub, boolean remove, boolean watch, boolean filterReplies, boolean onlyOnOp, boolean filterSaved) {
             filterHighlightedColor = highlightedColor;
             filterStub = stub;
             filterRemove = remove;
             filterWatch = watch;
             this.filterReplies = filterReplies;
             filterOnlyOP = onlyOnOp;
+            this.filterSaved = filterSaved;
             return this;
         }
 
