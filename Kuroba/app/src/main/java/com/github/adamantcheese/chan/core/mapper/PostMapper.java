@@ -13,10 +13,14 @@ public class PostMapper {
     private static final Comparator<Post> POST_COMPARATOR = (p1, p2) -> Integer.compare(p1.no, p2.no);
 
     public static SerializablePost toSerializablePost(Post post) {
+        List<Integer> repliesFrom;
+
+        synchronized (post.repliesFrom) {
+            repliesFrom = new ArrayList<>(post.repliesFrom);
+        }
+
         return new SerializablePost(
                 post.boardId,
-                // TODO: delete? We don't really need it because we use loadable when
-                //  deserializing boards
                 BoardMapper.toSerializableBoard(post.board),
                 post.no,
                 post.isOP,
@@ -33,7 +37,7 @@ public class PostMapper {
                 post.repliesTo,
                 SpannableStringMapper.serializeSpannableString(post.nameTripcodeIdCapcodeSpan),
                 post.deleted.get(),
-                post.repliesFrom,
+                repliesFrom,
                 post.isSticky(),
                 post.isClosed(),
                 post.isArchived(),
@@ -83,13 +87,9 @@ public class PostMapper {
                 .uniqueIps(serializablePost.getUniqueIps())
                 .lastModified(serializablePost.getLastModified());
 
-        for (Integer replyFrom : serializablePost.getRepliesFrom()) {
-            postBuilder.addReplyTo(replyFrom); // TODO: may be wrong
-        }
-
         Post post = postBuilder.build();
         post.setTitle(serializablePost.getTitle());
-
+        post.repliesFrom.addAll(serializablePost.getRepliesFrom());
 
         return post;
     }

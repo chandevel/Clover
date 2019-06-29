@@ -732,7 +732,13 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 if (chanLoader.getThread().loadable.mode == Loadable.Mode.CATALOG) {
                     threadPresenterCallback.hideThread(post, post.no, hide);
                 } else {
-                    if (post.repliesFrom.isEmpty()) {
+                    boolean isEmpty = false;
+
+                    synchronized (post.repliesFrom) {
+                        isEmpty = post.repliesFrom.isEmpty();
+                    }
+
+                    if (isEmpty) {
                         // no replies to this post so no point in showing the dialog
                         hideOrRemovePosts(hide, false, post, chanLoader.getThread().op.no);
                     } else {
