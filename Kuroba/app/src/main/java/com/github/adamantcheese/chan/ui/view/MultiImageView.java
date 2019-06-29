@@ -91,7 +91,12 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
             float diffY = e2.getY() - e1.getY();
             float diffX = e2.getX() - e1.getX();
-            if (Math.abs(diffY) > 150 && Math.abs(vy) > 500 && Math.abs(diffX) < 300) {
+            if (Math.abs(diffY) > 250 && Math.abs(vy) > 1000 && Math.abs(diffX) < 300) {
+                //if the image is scaled up, ignore swipes so panning/zooming works normally
+                CustomScaleImageView currentImage = findScaleImageView();
+                if (currentImage != null && currentImage.getScale() > currentImage.getMinScale()) {
+                    return false;
+                }
                 if (diffY <= 0) {
                     callback.onSwipeTop();
                 } else {
