@@ -17,13 +17,14 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -97,7 +98,6 @@ public class ArchiveController extends Controller implements ArchivePresenter.Ca
         archiveRecyclerview.addItemDecoration(
                 new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         FastScrollerHelper.create(archiveRecyclerview);
-//        archiveRecyclerview.setVerticalScrollBarEnabled(false);
         crossfadeView.toggle(false, false);
         swipeRefreshLayout.setOnRefreshListener(this);
 
