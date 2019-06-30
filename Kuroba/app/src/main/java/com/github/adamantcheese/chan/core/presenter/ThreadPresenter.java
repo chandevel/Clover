@@ -473,7 +473,28 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             loadable.markedNo = -1;
         }
 
+        storeNewPostsIfThreadIsBeingDownloaded(loadable, result.posts);
         addHistory();
+    }
+
+    private void storeNewPostsIfThreadIsBeingDownloaded(Loadable loadable, List<Post> posts) {
+        if (loadable.isSavedCopy) {
+            // Do not save posts from already saved thread
+            return;
+        }
+
+        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
+        if (savedThread == null || savedThread.isStopped || savedThread.isFullyDownloaded) {
+            // Either the thread is not being downloaded or it is stopped or already fully downloaded
+            return;
+        }
+
+        if (posts.isEmpty()) {
+            // No posts to save
+            return;
+        }
+
+        threadSaveManager.enqueueThreadToSave(loadable, posts);
     }
 
     @Override
