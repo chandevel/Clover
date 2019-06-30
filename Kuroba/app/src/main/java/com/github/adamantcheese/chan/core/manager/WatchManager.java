@@ -907,7 +907,7 @@ public class WatchManager implements WakeManager.Wakeable {
         private final List<Post> quotes = new ArrayList<>();
         private boolean wereNewQuotes = false;
         private boolean wereNewPosts = false;
-        private boolean notified;
+        private boolean notified = true;
 
         public PinWatcher(Pin pin) {
             this.pin = pin;

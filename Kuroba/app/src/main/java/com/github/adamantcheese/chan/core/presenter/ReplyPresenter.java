@@ -205,7 +205,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public void onSubmitClicked() {
         callback.loadViewsIntoDraft(draft);
 
-        if (draft.comment.trim().isEmpty()) {
+        if (draft.comment.trim().isEmpty() && draft.file == null) {
             callback.openMessage(true, false, getAppContext().getString(R.string.reply_comment_empty), true);
             return;
         }
