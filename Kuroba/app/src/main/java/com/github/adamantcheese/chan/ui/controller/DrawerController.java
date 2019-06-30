@@ -268,11 +268,15 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         int total = 0;
         boolean color = false;
         for (Pin p : watchManager.getWatchingPins()) {
+            if (!PinType.hasWatchNewPostsFlag(p.pinType)) {
+                continue;
+            }
+
             total += p.getNewPostCount();
             color = color | p.getNewQuoteCount() > 0;
         }
 
-        if (getTop() != null) {
+        if (getTop() != null && total > 0) {
             getMainToolbarNavigationController().toolbar.getArrowMenuDrawable().setBadge(total, color);
         }
     }
