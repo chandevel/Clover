@@ -121,11 +121,17 @@ public class ThreadSaveManager {
         // is already enqueued so it's okay for us to rely on the buffering)
         workerQueue.onBackpressureBuffer().concatMapSingle((loadable) -> {
             SaveThreadParameters parameters;
+            List<Post> postsToSave = new ArrayList<>();
 
             synchronized (activeDownloads) {
                 Logger.d(TAG, "New downloading request started " + loadableToString(loadable)
                         + ", activeDownloads count = " + activeDownloads.size());
                 parameters = activeDownloads.get(loadable);
+
+                if (parameters != null) {
+                    // Use a copy of the list to avoid ConcurrentModificationExceptions
+                    postsToSave.addAll(parameters.postsToSave);
+                }
             }
 
             if (parameters == null) {
@@ -134,7 +140,7 @@ public class ThreadSaveManager {
                 return Single.just(false);
             }
 
-            return saveThreadInternal(loadable, parameters.getPostsToSave())
+            return saveThreadInternal(loadable, postsToSave)
                     // Use the executor's thread to process the queue elements. Everything above
                     // will executed on this executor's threads.
                     .subscribeOn(Schedulers.from(executorService))
@@ -327,6 +333,8 @@ public class ThreadSaveManager {
             }
 
             int postsWithImages = calculateAmountOfPostsWithImages(newPosts);
+            int maxImageIoErrors = calculateMaxImageIoErrors(postsWithImages);
+
             Logger.d(TAG, "" + newPosts.size() + " new posts for a thread " +
                     loadable.no + ", with images " + postsWithImages);
 
@@ -353,6 +361,7 @@ public class ThreadSaveManager {
                     threadSaveDir);
 
             AtomicInteger currentImageDownloadIndex = new AtomicInteger(0);
+            AtomicInteger imageDownloadsWithIoError = new AtomicInteger(0);
 
             try {
                 Single.fromCallable(() -> downloadSpoilerImage(
@@ -385,7 +394,9 @@ public class ThreadSaveManager {
                                         threadSaveDirImages,
                                         post,
                                         currentImageDownloadIndex,
-                                        postsWithImages);
+                                        postsWithImages,
+                                        imageDownloadsWithIoError,
+                                        maxImageIoErrors);
                             })
                             .toList()
                             .doOnSuccess((list) -> Logger.d(TAG, "PostImage download result list = " + list));
@@ -432,6 +443,15 @@ public class ThreadSaveManager {
 
             return true;
         });
+    }
+
+    private int calculateMaxImageIoErrors(int postsWithImages) {
+        int maxIoErrors = (int)(((float) postsWithImages / 100f) * 5f);
+        if (maxIoErrors == 0) {
+            maxIoErrors = 1;
+        }
+
+        return maxIoErrors;
     }
 
     /**
@@ -604,7 +624,9 @@ public class ThreadSaveManager {
             File threadSaveDirImages,
             Post post,
             AtomicInteger currentImageDownloadIndex,
-            int postsWithImagesCount) {
+            int postsWithImagesCount,
+            AtomicInteger imageDownloadsWithIoError,
+            int maxImageIoErrors) {
         if (post.images.isEmpty()) {
             if (VERBOSE_LOG) {
                 Logger.d(TAG, "Post " + post.no + " contains no images");
@@ -624,6 +646,11 @@ public class ThreadSaveManager {
                 .flatMapSingle((postImage) -> {
                     // Download each image in parallel using executorService
                     return Single.defer(() -> {
+                        if (imageDownloadsWithIoError.get() >= maxImageIoErrors) {
+                            Logger.d(TAG, "downloadImages terminated due to amount of IOExceptions");
+                            return Single.just(false);
+                        }
+
                         try {
                             downloadImageIntoFile(
                                     threadSaveDirImages,
@@ -652,6 +679,10 @@ public class ThreadSaveManager {
                     .retry(MAX_RETRY_ATTEMPTS)
                     .doOnError((error) -> {
                         Logger.e(TAG, "Error while trying to download image " + postImage.originalName, error);
+
+                        if (error instanceof IOException) {
+                            imageDownloadsWithIoError.incrementAndGet();
+                        }
                     })
                     .doOnEvent((result, event) -> {
                         logThreadDownloadingProgress(
@@ -773,8 +804,7 @@ public class ThreadSaveManager {
 
             try (Response response = okHttpClient.newCall(request).execute()) {
                 if (response.code() != 200) {
-                    Logger.d(TAG, "Download image request returned bad status code: " + response.code());
-                    return;
+                    throw new IOException("Download image request returned bad status code: " + response.code());
                 }
 
                 storeImageToFile(imageFile, response);

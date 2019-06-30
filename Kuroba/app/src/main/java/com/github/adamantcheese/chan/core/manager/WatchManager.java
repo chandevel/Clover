@@ -684,6 +684,7 @@ public class WatchManager implements WakeManager.Wakeable {
         }
 
         // Update notification state
+        // Do not start the service when all pins are either stopped ot fully downloaded
         if (watchEnabled && backgroundEnabled && !allPinsHaveCompletedDownloading) {
             getAppContext().startService(WATCH_NOTIFICATION_INTENT);
         } else {
@@ -1016,7 +1017,7 @@ public class WatchManager implements WakeManager.Wakeable {
                 NetworkResponse networkResponse = new NetworkResponse(
                         NetworkResponse.STATUS_NOT_FOUND,
                         EMPTY_BYTE_ARRAY,
-                        Collections.EMPTY_MAP,
+                        Collections.emptyMap(),
                         true);
                 ServerError serverError = new ServerError(networkResponse);
 
