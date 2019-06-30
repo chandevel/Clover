@@ -104,6 +104,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingRight="5dp"
             android:paddingBottom="15dp"
             android:src="?post_options_drawable"
+            android:tint="?attr/text_color_secondary"
             tools:ignore="ContentDescription" />
 
     </RelativeLayout>

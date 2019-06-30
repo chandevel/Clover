@@ -45,9 +45,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|right"
-                android:paddingRight="5dp"
                 android:paddingTop="5dp"
+                android:paddingRight="5dp"
                 android:src="?post_options_drawable"
+                android:tint="?attr/text_color_secondary"
                 tools:ignore="ContentDescription,RtlHardcoded" />
 
         </FrameLayout>
@@ -64,8 +65,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:maxLines="3"
             android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="8dp" />
+            android:paddingTop="8dp"
+            android:paddingRight="8dp" />
 
         <com.github.adamantcheese.chan.ui.text.FastTextView
             android:id="@+id/comment"
@@ -73,18 +74,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="0dp"
             android:layout_weight="1"
             android:paddingLeft="8dp"
-            android:paddingRight="8dp"
             android:paddingTop="8dp"
+            android:paddingRight="8dp"
             android:textColor="?attr/text_color_primary" />
 
         <TextView
             android:id="@+id/replies"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
             android:paddingLeft="8dp"
-            android:paddingRight="8dp"
             android:paddingTop="4dp"
+            android:paddingRight="8dp"
+            android:paddingBottom="8dp"
             android:singleLine="true"
             android:textColor="?attr/text_color_secondary" />
 
