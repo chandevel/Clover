@@ -99,7 +99,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         downloadIconFilled = context.getDrawable(R.drawable.ic_download5)
                 .mutate();
-        downloadIconFilled.setTint(currentTheme.textPrimary);
+        downloadIconFilled.setTint(0xFF808080);
     }
 
     public void setPinHighlighted(Pin highlighted) {
