@@ -16,7 +16,7 @@ public class SavedThread {
     @DatabaseField(columnName = ID, generatedId = true)
     public int id;
 
-    @DatabaseField(columnName = LOADABLE_ID)
+    @DatabaseField(columnName = LOADABLE_ID, index = true)
     public int loadableId;
 
     @DatabaseField(columnName = LAST_SAVED_POST_NO)

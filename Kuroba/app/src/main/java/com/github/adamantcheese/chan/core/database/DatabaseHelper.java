@@ -208,6 +208,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         if (oldVersion < 36) {
             try {
                 filterDao.executeRawNoArgs("CREATE TABLE `saved_thread` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `loadable_id` INTEGER NOT NULL , `last_saved_post_no` INTEGER NOT NULL DEFAULT 0, `is_fully_downloaded` INTEGER NOT NULL DEFAULT 0 , `is_stopped` INTEGER NOT NULL DEFAULT 0);");
+                filterDao.executeRawNoArgs("CREATE INDEX loadable_id_idx ON saved_thread(loadable_id);");
 
                 // Because pins now has different type (the ones that watch threads and ones that
                 // download them (also they can do both at the same time)) we need to use DEFAULT 1
