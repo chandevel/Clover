@@ -134,12 +134,6 @@ public class PostRepliesController extends BaseFloatingController {
         TextView repliesCloseText = dataView.findViewById(R.id.replies_close_icon);
         repliesBackText.setCompoundDrawablesWithIntrinsicBounds(backDrawable, null, null, null);
         repliesCloseText.setCompoundDrawablesWithIntrinsicBounds(doneDrawable, null, null, null);
-        if (!ThemeHelper.getTheme().isLightTheme) {
-            dataView.findViewById(R.id.container).setBackgroundResource(R.drawable.dialog_full_dark);
-        }
-        repliesBackText.setTextColor(ThemeHelper.getTheme().textPrimary);
-        repliesCloseText.setTextColor(ThemeHelper.getTheme().textPrimary);
-        dataView.findViewById(R.id.container).setBackgroundTintList(ColorStateList.valueOf(ThemeHelper.getTheme().backColor));
 
         ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(context, 0) {
             @Override
