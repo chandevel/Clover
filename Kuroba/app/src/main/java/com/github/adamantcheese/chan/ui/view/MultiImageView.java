@@ -53,8 +53,8 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioListener;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -86,25 +86,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     private Context context;
     private ImageView playView;
-    private GestureDetector swipeDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector exoDoubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
         @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
-            float diffY = e2.getY() - e1.getY();
-            float diffX = e2.getX() - e1.getX();
-            if (Math.abs(diffY) > 250 && Math.abs(vy) > 1000 && Math.abs(diffX) < 300) {
-                //if the image is scaled up, ignore swipes so panning/zooming works normally
-                CustomScaleImageView currentImage = findScaleImageView();
-                if (currentImage != null && currentImage.getScale() > currentImage.getMinScale()) {
-                    return false;
-                }
-                if (ChanSettings.galleryFlingActions.get()) {
-                    if (diffY <= 0) {
-                        callback.onSwipeTop();
-                    } else {
-                        callback.onSwipeBottom();
-                    }
-                }
-            }
+        public boolean onDoubleTap(MotionEvent e) {
+            callback.onExoDoubleTap();
             return true;
         }
     });
@@ -271,7 +256,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                 if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
                     ImageView thumbnail = new ImageView(getContext());
                     thumbnail.setImageBitmap(response.getBitmap());
-                    thumbnail.setOnTouchListener((view, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
 
                     onModeLoaded(Mode.LOWRES, thumbnail);
                 }
@@ -396,7 +380,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
-        view.setOnTouchListener((view1, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
         onModeLoaded(Mode.GIF, view);
     }
 
@@ -451,7 +434,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             exoVideoView.setPlayer(exoPlayer);
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
                     Util.getUserAgent(getContext(), NetModule.USER_AGENT));
-            MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+            MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(android.net.Uri.fromFile(file));
 
             exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
@@ -459,7 +442,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             exoPlayer.prepare(videoSource);
             exoPlayer.addAudioListener(this);
-            exoVideoView.setOnTouchListener((view, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
+            exoVideoView.setOnTouchListener((view, motionEvent) -> exoDoubleTapDetector.onTouchEvent(motionEvent));
 
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
@@ -560,7 +543,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                 onBigImageError(wasInitial);
             }
         });
-        image.setOnTouchListener((view, motionEvent) -> swipeDetector.onTouchEvent(motionEvent));
     }
 
     private void onError() {
@@ -634,9 +616,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     public interface Callback {
         void onTap();
 
-        void onSwipeTop();
-
-        void onSwipeBottom();
+        void onExoDoubleTap();
 
         void showProgress(MultiImageView multiImageView, boolean progress);
 
