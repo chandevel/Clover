@@ -620,9 +620,9 @@ public class WatchManager implements WakeManager.Wakeable {
             }
         }
 
-        // Changing interval type, like when watching is disabled or the app goes to the background
-        if (currentInterval != intervalType) {
-            // Handle the preview state
+        if (!hasActivePins()) {
+            Logger.d(TAG, "No active pins found, removing all wakeables");
+
             switch (currentInterval) {
                 case FOREGROUND:
                     // Stop receiving handler messages
@@ -633,24 +633,49 @@ public class WatchManager implements WakeManager.Wakeable {
                     wakeManager.unregisterWakeable(this);
                     break;
             }
+        } else {
+            // Changing interval type, like when watching is disabled or the app goes to the background
+            if (currentInterval != intervalType) {
+                // Handle the preview state
+                switch (currentInterval) {
+                    case FOREGROUND:
+                        // Stop receiving handler messages
+                        handler.removeMessages(MESSAGE_UPDATE);
+                        break;
+                    case BACKGROUND:
+                        // Stop receiving scheduled broadcasts
+                        wakeManager.unregisterWakeable(this);
+                        break;
+                }
 
-            Logger.d(TAG, "Setting interval type from " + currentInterval.name() + " to " + intervalType.name());
-            currentInterval = intervalType;
+                Logger.d(TAG, "Setting interval type from " + currentInterval.name() + " to " + intervalType.name());
+                currentInterval = intervalType;
 
-            switch (currentInterval) {
-                case FOREGROUND:
-                    // Schedule a delayed handler that will call update(false)
-                    handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), getInterval());
-                    break;
-                case BACKGROUND:
-                    // Start receiving scheduled broadcasts
-                    wakeManager.registerWakeable(this);
-                    break;
+                switch (currentInterval) {
+                    case FOREGROUND:
+                        // Schedule a delayed handler that will call update(false)
+                        handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), getInterval());
+                        break;
+                    case BACKGROUND:
+                        // Start receiving scheduled broadcasts
+                        wakeManager.registerWakeable(this);
+                        break;
+                }
             }
         }
 
+        boolean allPinsHaveCompletedDownloading = true;
+
         // Update pin watchers
         for (Pin pin : pins) {
+            SavedThread savedThread = findSavedThreadByLoadableId(pin.loadable.id);
+            boolean isStoppedOrCompleted = savedThread != null &&
+                    (savedThread.isStopped || savedThread.isFullyDownloaded);
+
+            if (!isStoppedOrCompleted) {
+                allPinsHaveCompletedDownloading = false;
+            }
+
             if (ChanSettings.watchEnabled.get()) {
                 createPinWatcher(pin);
             } else {
@@ -659,16 +684,26 @@ public class WatchManager implements WakeManager.Wakeable {
         }
 
         // Update notification state
-        if (watchEnabled && backgroundEnabled) {
+        if (watchEnabled && backgroundEnabled && !allPinsHaveCompletedDownloading) {
             getAppContext().startService(WATCH_NOTIFICATION_INTENT);
         } else {
             getAppContext().stopService(WATCH_NOTIFICATION_INTENT);
         }
     }
 
+    private boolean hasActivePins() {
+        for (Pin pin : pins) {
+            if (!pin.isError && !pin.archived) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void updateDeletedOrArchivedPins() {
         for (Pin pin : pins) {
-            if (pin.isError || pin.archived || !pin.watching) {
+            if (pin.isError || pin.archived) {
                 SavedThread savedThread = findSavedThreadByLoadableId(pin.loadable.id);
                 if (savedThread == null || savedThread.isStopped || savedThread.isFullyDownloaded) {
                     continue;
