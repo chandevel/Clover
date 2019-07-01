@@ -181,7 +181,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         return moreOpen;
     }
 
-    public void onAttachClicked() {
+    public void onAttachClicked(boolean longPressed) {
         if (!pickingFile) {
             if (previewOpen) {
                 callback.openPreview(false, null);
@@ -196,7 +196,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 previewOpen = false;
             } else {
                 pickingFile = true;
-                callback.getImagePickDelegate().pick(this);
+                callback.getImagePickDelegate().pick(this, longPressed);
             }
         }
     }

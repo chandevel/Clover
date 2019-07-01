@@ -183,6 +183,10 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         ThemeHelper.getTheme().imageDrawable.apply(attach);
         setRoundItemBackground(attach);
         attach.setOnClickListener(this);
+        attach.setOnLongClickListener(v -> {
+            presenter.onAttachClicked(true);
+            return true;
+        });
 
         ThemeHelper.getTheme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
@@ -242,7 +246,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         if (v == more) {
             presenter.onMoreClicked();
         } else if (v == attach) {
-            presenter.onAttachClicked();
+            presenter.onAttachClicked(false);
         } else if (v == submit) {
             presenter.onSubmitClicked();
         } else if (v == previewHolder) {
