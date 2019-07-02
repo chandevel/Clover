@@ -65,7 +65,6 @@ public class BrowseController extends ThreadController implements
     @Inject
     BrowsePresenter presenter;
 
-    private ChanSettings.PostViewMode postViewMode;
     private PostsFilter.Order order;
     public String searchQuery = null;
 
@@ -79,9 +78,8 @@ public class BrowseController extends ThreadController implements
         inject(this);
 
         // Initialization
-        postViewMode = ChanSettings.boardViewMode.get();
         order = PostsFilter.Order.find(ChanSettings.boardOrder.get());
-        threadLayout.setPostViewMode(postViewMode);
+        threadLayout.setPostViewMode(ChanSettings.boardViewMode.get());
         threadLayout.getPresenter().setOrder(order);
 
         // Navigation
@@ -132,7 +130,7 @@ public class BrowseController extends ThreadController implements
         }
 
         overflowBuilder.withSubItem(VIEW_MODE_ID,
-                postViewMode == ChanSettings.PostViewMode.LIST ?
+                ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST ?
                         R.string.action_switch_catalog : R.string.action_switch_board,
                 this::viewModeClicked);
 
@@ -282,6 +280,7 @@ public class BrowseController extends ThreadController implements
     }
 
     private void handleViewMode(ToolbarMenuSubItem item) {
+        ChanSettings.PostViewMode postViewMode = ChanSettings.boardViewMode.get();
         if (postViewMode == ChanSettings.PostViewMode.LIST) {
             postViewMode = ChanSettings.PostViewMode.CARD;
         } else {
