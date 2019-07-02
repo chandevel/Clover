@@ -263,9 +263,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
         if (replyResponse.posted) {
             if (loadable.isThreadMode()) {
-                lastReplyRepository.putLastReply(loadable.site, draft.loadable.board);
+                lastReplyRepository.putLastReply(loadable.site, loadable.board);
             } else if (loadable.isCatalogMode()) {
-                lastReplyRepository.putLastThread(loadable.site, draft.loadable.board);
+                lastReplyRepository.putLastThread(loadable.site, loadable.board);
             }
 
             if (ChanSettings.postPinThread.get()) {
