@@ -114,8 +114,6 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
 
         setFocusableInTouchMode(true);
         setFocusable(true);
-        //so it's at the same level as the drawer, to keep it visible
-        setElevation(dp(4));
     }
 
     public void show(ViewGroup baseView, View anchor, ClickCallback clickCallback,

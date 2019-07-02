@@ -21,8 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="match_parent"
     android:background="#88000000"
     android:clickable="true"
-    android:focusable="true"
-    android:elevation="4dp">
+    android:focusable="true">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/container"

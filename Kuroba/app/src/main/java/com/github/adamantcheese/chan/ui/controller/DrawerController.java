@@ -72,6 +72,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         view = inflateRes(R.layout.controller_navigation_drawer);
         container = view.findViewById(R.id.container);
         drawerLayout = view.findViewById(R.id.drawer_layout);
+        drawerLayout.setDrawerShadow(R.drawable.panel_shadow, Gravity.LEFT);
         drawer = view.findViewById(R.id.drawer);
         recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);

@@ -17,8 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <com.github.adamantcheese.chan.ui.layout.DrawerWidthAdjustingLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:elevation="4dp">
+    android:layout_height="match_parent">
 
     <com.github.adamantcheese.chan.ui.view.TouchBlockingFrameLayout
         android:id="@+id/container"
