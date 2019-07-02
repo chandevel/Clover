@@ -139,6 +139,8 @@ public class BrowseController extends ThreadController implements
                 .withSubItem(R.string.action_sort, this::orderClicked)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
+                .withSubItem(R.string.action_scroll_to_top, this::upClicked)
+                .withSubItem(R.string.action_scroll_to_bottom, this::downClicked)
                 .build()
                 .build();
 
@@ -220,6 +222,14 @@ public class BrowseController extends ThreadController implements
 
     private void shareClicked(ToolbarMenuSubItem item) {
         handleShareAndOpenInBrowser(threadLayout.getPresenter(), true);
+    }
+
+    private void upClicked(ToolbarMenuSubItem item) {
+        threadLayout.getPresenter().scrollTo(0, false);
+    }
+
+    private void downClicked(ToolbarMenuSubItem item) {
+        threadLayout.getPresenter().scrollTo(-1, false);
     }
 
     private void setupMiddleNavigation() {
