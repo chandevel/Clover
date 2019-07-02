@@ -281,6 +281,7 @@ public class Loadable implements Cloneable {
         parcel.writeInt(listViewTop);
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Loadable clone() {
         Loadable copy = new Loadable();
         copy.id = id;
