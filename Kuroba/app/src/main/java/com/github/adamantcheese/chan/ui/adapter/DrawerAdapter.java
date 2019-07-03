@@ -52,14 +52,14 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackg
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    public enum HeaderAction {
-        CLEAR, CLEAR_ALL
-    }
-
+    //PIN_OFFSET is the number of items before the pins
+    //(in this case, settings, history, and the bookmarked threads title)
     private static final int PIN_OFFSET = 3;
 
+    //NOTE: TYPE_PIN is public so that in DrawerController we can set it's recycled count to 0 in the pool
+    //We avoid recycling them as it was causing issues with the TextViews internal to those holders which update their text style
     private static final int TYPE_HEADER = 0;
-    private static final int TYPE_PIN = 1;
+    public static final int TYPE_PIN = 1;
     private static final int TYPE_LINK = 2;
     private static final int TYPE_BOARD_INPUT = 3;
     private static final int TYPE_DIVIDER = 4;
@@ -100,8 +100,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 if (getItemViewType(to) == TYPE_PIN) {
                     Pin item = pins.remove(from - PIN_OFFSET);
                     pins.add(to - PIN_OFFSET, item);
+                    watchManager.reorder(pins);
                     notifyItemMoved(from, to);
-                    applyOrder();
                     return true;
                 } else {
                     return false;
@@ -110,7 +110,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                // Will call #onPinRemoved, and remove the pin from pins
                 callback.onPinRemoved(pins.get(viewHolder.getAdapterPosition() - PIN_OFFSET));
             }
         };
@@ -162,10 +161,10 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         break;
                 }
                 break;
-            case TYPE_BOARD_INPUT:
-                break;
             case TYPE_DIVIDER:
                 ((DividerHolder) holder).withBackground(position != 0);
+                break;
+            default:
                 break;
         }
     }
@@ -208,13 +207,17 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onPinAdded(Pin pin) {
         pins.add(pin);
         Collections.sort(pins);
-        notifyDataSetChanged();
+        notifyItemInserted(pins.indexOf(pin) + PIN_OFFSET);
     }
 
-    public void onPinRemoved(Pin pin) {
-        pins.remove(pin);
-        Collections.sort(pins);
-        notifyDataSetChanged();
+    public void onPinRemoved(RecyclerView recyclerView, Pin pin) {
+        int index = pins.indexOf(pin) + PIN_OFFSET;
+        PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(index);
+        if (holder != null) {
+            pins.remove(pin);
+            Collections.sort(pins);
+            notifyItemRemoved(index);
+        }
     }
 
     public void onPinChanged(RecyclerView recyclerView, Pin pin) {
@@ -297,11 +300,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    private void applyOrder() {
-        watchManager.reorder(pins);
-        notifyDataSetChanged();
-    }
-
     private class PinViewHolder extends RecyclerView.ViewHolder {
         private boolean highlighted;
         private ThumbnailView image;
@@ -351,6 +349,10 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 return true;
             });
         }
+    }
+
+    public enum HeaderAction {
+        CLEAR, CLEAR_ALL
     }
 
     private class LinkHolder extends RecyclerView.ViewHolder {
