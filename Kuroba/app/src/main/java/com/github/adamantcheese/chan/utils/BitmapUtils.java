@@ -206,7 +206,25 @@ public class BitmapUtils {
         bitmap.setPixel(randomX, randomY, pixel);
     }
 
+    public static boolean isFileSupportedForReencoding(File file) {
+        try {
+            Bitmap.CompressFormat imageFormat = getImageFormat(file);
+            return imageFormat == Bitmap.CompressFormat.JPEG
+                    || imageFormat == Bitmap.CompressFormat.PNG;
+        } catch (IOException e) {
+            // ignore
+            return false;
+        }
+    }
+
     public static Bitmap.CompressFormat getImageFormat(File file) throws IOException {
+        if (!file.exists() || !file.isFile() || !file.canRead()) {
+            throw new IOException("File " + file.getAbsolutePath() + " is inaccessible " +
+                    "(exists = " + file.exists() +
+                    ", isFile = " + file.isFile() +
+                    ", canRead = " + file.canRead() + ")");
+        }
+
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
             byte[] header = new byte[16];
             raf.read(header);
@@ -243,7 +261,7 @@ public class BitmapUtils {
                 }
             }
 
-            throw new IllegalArgumentException("File " + file.getName() + " is neither PNG nor JPEG");
+            throw new IOException("File " + file.getName() + " is neither PNG nor JPEG");
         }
     }
 
