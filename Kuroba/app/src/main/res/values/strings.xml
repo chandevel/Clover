@@ -500,11 +500,6 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_proxy_address">Proxy server address</string>
     <string name="setting_proxy_port">Proxy server port</string>
 
-    <!-- Behavior actions group -->
-    <string name="settings_group_actions">Interactions</string>
-    <string name="setting_gallery_swipe">Enable gallery swipe actions</string>
-    <string name="setting_gallery_swipe_description">Swipe up to close images, down to save</string>
-
 
     <!-- Media -->
     <string name="settings_screen_media">Media</string>
@@ -665,6 +660,9 @@ Don't have a 4chan Pass?<br>
     <string name="setting_bookmark_short_info">Short bookmark info</string>
     <string name="setting_bookmark_short_info_description">Shorter information in the bookmark menu for unread and quoted posts</string>
     <string name="filter_removed_undo">Removed filter %1$s</string>
+    <string name="image_url_get_attempt">Getting image from clipboard URL</string>
+    <string name="image_url_get_failed">Failed to get image from clipboard</string>
+    <string name="image_url_get_success">Got image from clipboard; clipboard cleared</string>
     <string name="view_thread_controller_thread_downloading_requires_write_permission">Thread downloading requires WRITE_EXTERNAL_STORAGE permission</string>
     <string name="warning">Warning</string>
     <string name="drawer_controller_at_least_one_pin_has_download_flag">At least one pin has \"Download\" flag which makes this delete operation irreversible because this operation will delete all of the saved thread\'s files from the disk. Do you really want to delete all pins?</string>

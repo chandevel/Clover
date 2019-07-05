@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:scrollbars="vertical" />
+        android:scrollbars="none" />
 
     <com.github.adamantcheese.chan.ui.layout.ReplyLayout
         android:id="@+id/reply"

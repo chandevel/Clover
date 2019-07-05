@@ -75,13 +75,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentV
  */
 public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuPresenter.Callback,
         Observer {
-    private static final int MINIMAL_WIDTH_DP = 4 * 56;
-    private static final int ELEVATION_DP = 4;
-    private static final int OFFSET_X_DP = 5;
-    private static final int OFFSET_Y_DP = 5;
-    private static final int MARGIN_DP = 5;
-    private static final int ANIMATE_IN_TRANSLATION_Y_DP = 25;
-
     private View anchor;
     private RecyclerView recyclerView;
 
@@ -95,7 +88,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
     private BrowseBoardsAdapter adapter;
 
     private ClickCallback clickCallback;
-    private ViewTreeObserver.OnGlobalLayoutListener layoutListener;
+    private ViewTreeObserver.OnGlobalLayoutListener layoutListener = this::repositionToAnchor;
 
     public BrowseBoardsFloatingMenu(Context context) {
         this(context, null);
@@ -109,8 +102,6 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         super(context, attrs, defStyle);
 
         inject(this);
-
-        layoutListener = this::repositionToAnchor;
 
         setFocusableInTouchMode(true);
         setFocusable(true);
@@ -238,21 +229,12 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
 
         // View setup
         recyclerView.setBackgroundColor(AndroidUtils.getAttrColor(getContext(), R.attr.backcolor));
-        recyclerView.setElevation(dp(ELEVATION_DP));
+        recyclerView.setElevation(dp(4));
 
         // View attaching
-        int recyclerWidth = Math.max(
-                anchor.getWidth(),
-                dp(MINIMAL_WIDTH_DP));
-
-        LayoutParams params = new LayoutParams(
-                recyclerWidth,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        params.leftMargin = dp(MARGIN_DP);
-        params.topMargin = dp(MARGIN_DP);
-        params.rightMargin = dp(MARGIN_DP);
-        params.bottomMargin = dp(MARGIN_DP);
+        int recyclerWidth = Math.max(anchor.getWidth(), dp(4 * 56));
+        LayoutParams params = new LayoutParams(recyclerWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins(dp(5), dp(5), dp(5), dp(5));
         addView(recyclerView, params);
     }
 
@@ -266,8 +248,8 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         int[] recyclerViewPos = new int[2];
         anchor.getLocationInWindow(anchorPos);
         recyclerView.getLocationInWindow(recyclerViewPos);
-        anchorPos[0] += dp(OFFSET_X_DP);
-        anchorPos[1] += dp(OFFSET_Y_DP);
+        anchorPos[0] += dp(5);
+        anchorPos[1] += dp(5);
         recyclerViewPos[0] += -recyclerView.getTranslationX() - getTranslationX();
         recyclerViewPos[1] += -recyclerView.getTranslationY() - getTranslationY();
 
@@ -316,7 +298,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
 
     private void animateIn() {
         setAlpha(0f);
-        setTranslationY(-dp(ANIMATE_IN_TRANSLATION_Y_DP));
+        setTranslationY(-dp(25));
         post(() -> animate()
                 .alpha(1f)
                 .translationY(0f)
@@ -379,8 +361,8 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Item item = items.getAtPosition(position);
+            //noinspection StatementWithEmptyBody
             if (holder instanceof InputViewHolder) {
-                InputViewHolder inputViewHolder = ((InputViewHolder) holder);
             } else if (holder instanceof SiteViewHolder) {
                 SiteViewHolder siteViewHolder = ((SiteViewHolder) holder);
                 siteViewHolder.bind(item.site);

@@ -52,8 +52,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -137,10 +139,10 @@ public class WatchNotification extends Service {
         boolean notifyQuotesOnly = ChanSettings.watchNotifyMode.get().equals("quotes");
         boolean soundQuotesOnly = ChanSettings.watchSound.get().equals("quotes");
 
-        //A list of unviewed posts
-        List<Post> unviewedPosts = new ArrayList<>();
-        //A list of posts that quote the user
-        List<Post> listQuoting = new ArrayList<>();
+        //A set of unviewed posts
+        Set<Post> unviewedPosts = new HashSet<>();
+        //A set of posts that quote the user
+        Set<Post> listQuoting = new HashSet<>();
         //A list of pins that aren't errored or unwatched
         List<Pin> pins = new ArrayList<>();
         //A list of pins that had new posts in them, or had new quotes in them, depending on settings
@@ -243,8 +245,8 @@ public class WatchNotification extends Service {
             List<Pin> pins,
             List<Pin> subjectPins,
             List<Pin> threadDownloaderPins,
-            List<Post> unviewedPosts,
-            List<Post> listQuoting,
+            Set<Post> unviewedPosts,
+            Set<Post> listQuoting,
             boolean notifyQuotesOnly,
             int flags) {
         if (unviewedPosts.isEmpty()) {
@@ -260,7 +262,7 @@ public class WatchNotification extends Service {
         } else {
             // New posts notification
             String message;
-            List<Post> postsForExpandedLines;
+            Set<Post> postsForExpandedLines;
             if (notifyQuotesOnly) {
                 message = formatNotificationTitleNewQuotes(listQuoting.size(), threadDownloaderPins.size());
                 postsForExpandedLines = listQuoting;
@@ -273,9 +275,10 @@ public class WatchNotification extends Service {
                 }
             }
 
-            Collections.sort(postsForExpandedLines);
+            List<Post> finalPosts = new ArrayList<>(postsForExpandedLines);
+            Collections.sort(finalPosts);
             List<CharSequence> expandedLines = new ArrayList<>();
-            for (Post postForExpandedLine : postsForExpandedLines) {
+            for (Post postForExpandedLine : finalPosts) {
                 CharSequence prefix;
                 if (postForExpandedLine.getTitle().length() <= 6) {
                     prefix = postForExpandedLine.getTitle();

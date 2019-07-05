@@ -166,16 +166,6 @@ public class BehaviourSettingsController extends SettingsController {
 
             groups.add(proxy);
         }
-
-        // Actions group
-        {
-            SettingsGroup actions = new SettingsGroup(R.string.settings_group_actions);
-
-            actions.add(new BooleanSettingView(this, ChanSettings.galleryFlingActions,
-                    R.string.setting_gallery_swipe, R.string.setting_gallery_swipe_description));
-
-            groups.add(actions);
-        }
     }
 
     private void setupClearThreadHidesSetting(SettingsGroup post) {

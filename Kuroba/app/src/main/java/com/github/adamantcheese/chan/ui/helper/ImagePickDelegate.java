@@ -25,8 +25,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
+import android.widget.Toast;
 
 import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
@@ -71,50 +73,53 @@ public class ImagePickDelegate implements Runnable {
         inject(this);
     }
 
-    public boolean pick(ImagePickCallback callback) {
-        if (this.callback != null) {
-            return false;
-        } else {
+    public void pick(ImagePickCallback callback, boolean longPressed) {
+        if (this.callback == null) {
             this.callback = callback;
 
-            HttpUrl clipboardURL = null;
-            try {
-                ClipboardManager manager = (ClipboardManager) getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                clipboardURL = HttpUrl.get(manager.getPrimaryClip().getItemAt(0).getText().toString());
-                manager.setPrimaryClip(ClipData.newPlainText("", ""));
-            } catch (Exception ignored) {
-            }
-            if (clipboardURL != null) {
-                HttpUrl finalClipboardURL = clipboardURL;
-                Chan.injector().instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
-                    @Override
-                    public void onSuccess(File file) {
-                        Uri imageURL = Uri.parse(finalClipboardURL.toString());
-                        callback.onFilePicked(imageURL.getLastPathSegment(), file);
-                        reset();
-                    }
+            if (longPressed) {
+                Toast.makeText(activity, activity.getString(R.string.image_url_get_attempt), Toast.LENGTH_SHORT).show();
+                HttpUrl clipboardURL = null;
+                try {
+                    ClipboardManager manager = (ClipboardManager) getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    clipboardURL = HttpUrl.get(manager.getPrimaryClip().getItemAt(0).getText().toString());
+                    manager.setPrimaryClip(ClipData.newPlainText("", ""));
+                } catch (Exception ignored) {
+                    Toast.makeText(activity, activity.getString(R.string.image_url_get_failed), Toast.LENGTH_SHORT).show();
+                    callback.onFilePickError(true);
+                    reset();
+                }
+                if (clipboardURL != null) {
+                    HttpUrl finalClipboardURL = clipboardURL;
+                    Chan.injector().instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
+                        @Override
+                        public void onSuccess(File file) {
+                            Toast.makeText(activity, activity.getString(R.string.image_url_get_success), Toast.LENGTH_SHORT).show();
+                            Uri imageURL = Uri.parse(finalClipboardURL.toString());
+                            callback.onFilePicked(imageURL.getLastPathSegment(), file);
+                            reset();
+                        }
 
-                    @Override
-                    public void onFail(boolean notFound) {
-                        callback.onFilePickError(false);
-                        reset();
-                    }
-                });
-                return true;
-            }
-
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("*/*");
-
-            if (intent.resolveActivity(activity.getPackageManager()) != null) {
-                activity.startActivityForResult(intent, IMAGE_PICK_RESULT);
-                return true;
+                        @Override
+                        public void onFail(boolean notFound) {
+                            Toast.makeText(activity, activity.getString(R.string.image_url_get_failed), Toast.LENGTH_SHORT).show();
+                            callback.onFilePickError(true);
+                            reset();
+                        }
+                    });
+                }
             } else {
-                Logger.e(TAG, "No activity found to get file with");
-                callback.onFilePickError(false);
-                reset();
-                return false;
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+
+                if (intent.resolveActivity(activity.getPackageManager()) != null) {
+                    activity.startActivityForResult(intent, IMAGE_PICK_RESULT);
+                } else {
+                    Logger.e(TAG, "No activity found to get file with");
+                    callback.onFilePickError(false);
+                    reset();
+                }
             }
         }
     }

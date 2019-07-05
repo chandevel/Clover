@@ -172,7 +172,6 @@ public class ChanSettings {
 
     public static final BooleanSetting useNewCaptchaWindow;
 
-    public static final BooleanSetting galleryFlingActions;
     public static final BooleanSetting incrementalThreadDownloadingEnabled;
 
     static {
@@ -260,14 +259,9 @@ public class ChanSettings {
 
         historyOpenCounter = new CounterSetting(p, "counter_history_open");
         threadOpenCounter = new CounterSetting(p, "counter_thread_open");
-
         updateCheckTime = new LongSetting(p, "update_check_time", 0L);
-
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
-
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
-
-        galleryFlingActions = new BooleanSetting(p, "preference_gallery_fling_actions", true);
         incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
     }
 

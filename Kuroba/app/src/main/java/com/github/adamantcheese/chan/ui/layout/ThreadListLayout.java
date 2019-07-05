@@ -55,8 +55,6 @@ import com.github.adamantcheese.chan.ui.cell.PostStubCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
-import com.github.adamantcheese.chan.ui.view.FastScroller;
-import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
@@ -77,7 +75,6 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     private TextView searchStatus;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-    private FastScroller fastScroller;
     private PostAdapter postAdapter;
     private ChanThread showingThread;
     private ThreadListLayoutPresenterCallback callback;
@@ -127,8 +124,6 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postCellCallback, statusCellCallback);
         recyclerView.setAdapter(postAdapter);
         recyclerView.addOnScrollListener(scrollListener);
-
-        setFastScroll(false);
 
         attachToolbarScroll(true);
 
@@ -255,8 +250,6 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
             party();
         }
-
-        setFastScroll(true);
 
         /*
          * We call a blocking function that accesses the database from a background thread but doesn't
@@ -613,21 +606,6 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 toolbar.checkToolbarCollapseState(recyclerView);
             }
         }
-    }
-
-    private void setFastScroll(boolean enabled) {
-        if (!enabled) {
-            if (fastScroller != null) {
-                recyclerView.removeItemDecoration(fastScroller);
-                fastScroller = null;
-            }
-        } else {
-            if (fastScroller == null) {
-                fastScroller = FastScrollerHelper.create(recyclerView);
-            }
-        }
-
-        recyclerView.setVerticalScrollBarEnabled(!enabled);
     }
 
     private void setRecyclerViewPadding() {

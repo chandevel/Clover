@@ -300,13 +300,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     @Override
-    public void onSwipeTop() {
+    public void onExoDoubleTap() {
         onExit();
-    }
-
-    @Override
-    public void onSwipeBottom() {
-        callback.saveImage();
     }
 
     @Override

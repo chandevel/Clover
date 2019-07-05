@@ -48,6 +48,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.adapter.DrawerAdapter.TYPE_PIN;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 
 public class DrawerController extends Controller implements DrawerAdapter.Callback, View.OnClickListener {
@@ -74,11 +75,12 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         view = inflateRes(R.layout.controller_navigation_drawer);
         container = view.findViewById(R.id.container);
         drawerLayout = view.findViewById(R.id.drawer_layout);
-        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.LEFT);
+        drawerLayout.setDrawerShadow(R.drawable.panel_shadow, Gravity.LEFT);
         drawer = view.findViewById(R.id.drawer);
         recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_PIN, 0);
 
         drawerAdapter = new DrawerAdapter(this, context);
         recyclerView.setAdapter(drawerAdapter);
@@ -241,7 +243,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
-        drawerAdapter.onPinRemoved(message.pin);
+        drawerAdapter.onPinRemoved(recyclerView, message.pin);
         updateBadge();
     }
 

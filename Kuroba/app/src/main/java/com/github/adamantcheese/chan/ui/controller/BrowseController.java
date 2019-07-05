@@ -65,7 +65,6 @@ public class BrowseController extends ThreadController implements
     @Inject
     BrowsePresenter presenter;
 
-    private ChanSettings.PostViewMode postViewMode;
     private PostsFilter.Order order;
     public String searchQuery = null;
 
@@ -79,9 +78,8 @@ public class BrowseController extends ThreadController implements
         inject(this);
 
         // Initialization
-        postViewMode = ChanSettings.boardViewMode.get();
         order = PostsFilter.Order.find(ChanSettings.boardOrder.get());
-        threadLayout.setPostViewMode(postViewMode);
+        threadLayout.setPostViewMode(ChanSettings.boardViewMode.get());
         threadLayout.getPresenter().setOrder(order);
 
         // Navigation
@@ -132,7 +130,7 @@ public class BrowseController extends ThreadController implements
         }
 
         overflowBuilder.withSubItem(VIEW_MODE_ID,
-                postViewMode == ChanSettings.PostViewMode.LIST ?
+                ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST ?
                         R.string.action_switch_catalog : R.string.action_switch_board,
                 this::viewModeClicked);
 
@@ -141,6 +139,8 @@ public class BrowseController extends ThreadController implements
                 .withSubItem(R.string.action_sort, this::orderClicked)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
+                .withSubItem(R.string.action_scroll_to_top, this::upClicked)
+                .withSubItem(R.string.action_scroll_to_bottom, this::downClicked)
                 .build()
                 .build();
 
@@ -224,6 +224,14 @@ public class BrowseController extends ThreadController implements
         handleShareAndOpenInBrowser(threadLayout.getPresenter(), true);
     }
 
+    private void upClicked(ToolbarMenuSubItem item) {
+        threadLayout.getPresenter().scrollTo(0, false);
+    }
+
+    private void downClicked(ToolbarMenuSubItem item) {
+        threadLayout.getPresenter().scrollTo(-1, false);
+    }
+
     private void setupMiddleNavigation() {
         navigation.setMiddleMenu(anchor -> {
             BrowseBoardsFloatingMenu boardsFloatingMenu = new BrowseBoardsFloatingMenu(context);
@@ -282,6 +290,7 @@ public class BrowseController extends ThreadController implements
     }
 
     private void handleViewMode(ToolbarMenuSubItem item) {
+        ChanSettings.PostViewMode postViewMode = ChanSettings.boardViewMode.get();
         if (postViewMode == ChanSettings.PostViewMode.LIST) {
             postViewMode = ChanSettings.PostViewMode.CARD;
         } else {
