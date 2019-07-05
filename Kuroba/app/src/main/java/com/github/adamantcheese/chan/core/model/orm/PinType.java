@@ -6,7 +6,6 @@ package com.github.adamantcheese.chan.core.model.orm;
 public class PinType {
     public static final int WATCH_NEW_POSTS = 1;
     public static final int DOWNLOAD_NEW_POSTS = 1 << 1;
-    public static final int WATCH_AND_DOWNLOAD_POSTS = WATCH_NEW_POSTS | DOWNLOAD_NEW_POSTS;
 
     private PinType() {
     }

@@ -143,6 +143,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
     public void bindLoadable(Loadable loadable) {
         if (!loadable.equals(this.loadable)) {
+            if (this.loadable != null) {
+                stopSavingThreadIfItIsBeingSaved(this.loadable);
+            }
+
             if (chanLoader != null) {
                 unbindLoadable();
             }
@@ -155,10 +159,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 // and not in a separate loadable instance.
                 loadable = pin.loadable;
             }
+
             this.loadable = loadable;
 
+            startSavingThreadIfItIsNotBeingSaved(this.loadable);
             chanLoader = chanLoaderFactory.obtain(loadable, this);
-
             threadPresenterCallback.showLoading();
         }
     }
@@ -173,6 +178,94 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
             threadPresenterCallback.showNewPostsNotification(false, -1);
             threadPresenterCallback.showLoading();
+        }
+    }
+
+    private void stopSavingThreadIfItIsBeingSaved(Loadable loadable) {
+        if (ChanSettings.watchEnabled.get() && ChanSettings.watchBackground.get()) {
+            // Do not stop prev thread saving if background watcher is enabled
+            return;
+        }
+
+        if (loadable == null) {
+            return;
+        }
+
+        if (loadable.mode != Loadable.Mode.THREAD) {
+            // We are in the catalog probably
+            return;
+        }
+
+        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
+        if (savedThread == null) {
+            // We are not downloading this thread
+            return;
+        }
+
+        if (loadable.isSavedCopy) {
+            // We are viewing already saved copy of the thread
+            return;
+        }
+
+        if (savedThread.isFullyDownloaded) {
+            // Thread is already fully downloaded
+            return;
+        }
+
+        if (savedThread.isStopped) {
+            // Thread saving is already in progress
+            return;
+        }
+
+        watchManager.stopSavingThread(loadable);
+
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin != null) {
+            EventBus.getDefault().post(new WatchManager.PinMessages.PinChangedMessage(pin));
+        }
+    }
+
+    private void startSavingThreadIfItIsNotBeingSaved(Loadable loadable) {
+        if (ChanSettings.watchEnabled.get() && ChanSettings.watchBackground.get()) {
+            // Do not start thread saving if background watcher is enabled
+            return;
+        }
+
+        if (loadable == null) {
+            return;
+        }
+
+        if (loadable.mode != Loadable.Mode.THREAD) {
+            // We are in the catalog probably
+            return;
+        }
+
+        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
+        if (savedThread == null) {
+            // We are not downloading this thread
+            return;
+        }
+
+        if (loadable.isSavedCopy) {
+            // We are viewing already saved copy of the thread
+            return;
+        }
+
+        if (savedThread.isFullyDownloaded) {
+            // Thread is already fully downloaded
+            return;
+        }
+
+        if (!savedThread.isStopped) {
+            // Thread saving is already in progress
+            return;
+        }
+
+        watchManager.startSavingThread(loadable);
+
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin != null) {
+            EventBus.getDefault().post(new WatchManager.PinMessages.PinChangedMessage(pin));
         }
     }
 

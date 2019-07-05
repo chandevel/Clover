@@ -74,8 +74,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Inject
     WatchManager watchManager;
-    @Inject
-    ThemeHelper themeHelper;
 
     private Context context;
     private Drawable downloadIconOutline;
@@ -91,7 +89,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.context = context;
         setHasStableIds(true);
 
-        Theme currentTheme = themeHelper.getTheme();
+        Theme currentTheme = ThemeHelper.getTheme();
 
         downloadIconOutline = context.getDrawable(R.drawable.ic_download0)
                 .mutate();
@@ -310,8 +308,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 // FIXME: apparently we don't need to set the visibility to GONE here. Needs research.
                 watchCount.setVisibility(View.GONE);
             }
-
-            setPinDownloadIcon(holder, pin);
         } else {
             // The 16dp padding now belongs to the textview, for better ellipsize
             watchCount.setVisibility(View.GONE);
@@ -320,6 +316,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             bookmarkLabel.setPadding(bookmarkLabel.getPaddingLeft(), bookmarkLabel.getPaddingTop(),
                     dp(16), bookmarkLabel.getPaddingBottom());
         }
+
+        setPinDownloadIcon(holder, pin);
 
         boolean highlighted = pin == this.highlighted;
         if (highlighted && !holder.highlighted) {
@@ -352,7 +350,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         AnimationDrawable downloadAnimation = AnimationUtils.createAnimatedDownloadIconWithThemeTextPrimaryColor(
                 context,
-                themeHelper.getTheme());
+                ThemeHelper.getTheme());
         holder.threadDownloadIcon.setImageDrawable(downloadAnimation);
 
         if (!downloadAnimation.isRunning()) {

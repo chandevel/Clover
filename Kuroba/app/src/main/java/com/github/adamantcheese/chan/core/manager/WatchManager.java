@@ -232,14 +232,14 @@ public class WatchManager implements WakeManager.Wakeable {
     public void startSavingThread(
             Loadable loadable,
             List<Post> postsToSave) {
-        if (!startSavingThreadInternal(loadable)) {
+        if (!startSavingThread(loadable)) {
             return;
         }
 
         threadSaveManager.enqueueThreadToSave(loadable, postsToSave);
     }
 
-    private Boolean startSavingThreadInternal(Loadable loadable) {
+    public boolean startSavingThread(Loadable loadable) {
         SavedThread savedThread = findSavedThreadByLoadableId(loadable.id);
         if (savedThread != null && (savedThread.isFullyDownloaded)) {
             // If a thread is already fully downloaded or already being downloaded do not attempt to
@@ -773,7 +773,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
         for (Pin pin : pinsWithDownloadFlag) {
             if (isEnabled) {
-                startSavingThreadInternal(pin.loadable);
+                startSavingThread(pin.loadable);
             } else {
                 stopSavingThread(pin.loadable);
             }
