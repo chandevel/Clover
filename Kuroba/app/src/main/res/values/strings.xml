@@ -658,4 +658,7 @@ Don't have a 4chan Pass?<br>
     <string name="image_url_get_attempt">Getting image from clipboard URL</string>
     <string name="image_url_get_failed">Failed to get image from clipboard</string>
     <string name="image_url_get_success">Got image from clipboard; clipboard cleared</string>
+    <string name="settings_group_gallery">Gallery</string>
+    <string name="setting_gallery_immersive_mode_title">Use immersive mode for image gallery</string>
+    <string name="setting_gallery_immersive_mode_description">This will make image gallery view be fullscreen with statusbar/navbar hidden</string>
 </resources>

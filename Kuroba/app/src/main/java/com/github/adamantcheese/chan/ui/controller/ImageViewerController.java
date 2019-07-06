@@ -74,7 +74,8 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class ImageViewerController extends Controller implements ImageViewerPresenter.Callback {
+public class ImageViewerController extends Controller implements ImageViewerPresenter.Callback,
+        ToolbarMenuItem.ToobarThreedotMenuCallback {
     private static final String TAG = "ImageViewerController";
     private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
@@ -97,6 +98,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private TransitionImageView previewImage;
     private OptionalSwipeViewPager pager;
     private LoadingBar loadingBar;
+
+    private boolean isInImmersiveMode = false;
 
     public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
@@ -122,7 +125,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         menuBuilder.withItem(VOLUME_ID, R.drawable.ic_volume_off_white_24dp, this::volumeClicked);
         menuBuilder.withItem(SAVE_ID, R.drawable.ic_file_download_white_24dp, this::saveClicked);
 
-        NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
+        NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow(this);
         overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
         overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
@@ -132,6 +135,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         overflowBuilder.withSubItem(R.string.action_image_rotate_ccw, this::rotateImageCCW);
 
         overflowBuilder.build().build();
+
+        hideSystemUI();
 
         // View setup
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -222,6 +227,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     public void onDestroy() {
         super.onDestroy();
 
+        showSystemUI();
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -258,6 +264,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Override
     public boolean onBack() {
+        showSystemUI();
         presenter.onExit();
         return true;
     }
@@ -340,6 +347,16 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     public void resetDownloadButtonState() {
         navigation.findItem(SAVE_ID).setImage(R.drawable.ic_file_download_white_24dp);
         navigation.findItem(SAVE_ID).setCallback(this::saveClicked);
+    }
+
+    @Override
+    public void onMenuShown() {
+        showSystemUI();
+    }
+
+    @Override
+    public void onMenuHidden() {
+        hideSystemUI();
     }
 
     private void showImageSearchOptions() {
@@ -531,6 +548,42 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     private Window getWindow() {
         return ((Activity) context).getWindow();
+    }
+
+    private void hideSystemUI() {
+        if (!ChanSettings.useImmersiveModeForGallery.get()) {
+            return;
+        }
+
+        if (isInImmersiveMode) {
+            return;
+        }
+
+        isInImmersiveMode = true;
+
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
+    private void showSystemUI() {
+        if (!ChanSettings.useImmersiveModeForGallery.get()) {
+            return;
+        }
+
+        if (!isInImmersiveMode) {
+            return;
+        }
+
+        isInImmersiveMode = false;
+
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(0);
     }
 
     public interface ImageViewerCallback {

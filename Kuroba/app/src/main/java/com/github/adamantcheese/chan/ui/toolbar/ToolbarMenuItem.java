@@ -21,6 +21,8 @@ import android.graphics.drawable.TransitionDrawable;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -50,13 +52,30 @@ public class ToolbarMenuItem {
 
     private ClickCallback clicked;
 
+    @Nullable
+    private ToobarThreedotMenuCallback threedotMenuCallback;
+
     // Views, only non-null if attached to ToolbarMenuView.
     private ImageView view;
 
-    public ToolbarMenuItem(int id, int drawable, ClickCallback clicked) {
+    public ToolbarMenuItem(
+            int id,
+            int drawable,
+            ClickCallback clicked) {
         this.id = id;
         this.drawable = getAppContext().getDrawable(drawable);
         this.clicked = clicked;
+    }
+
+    public ToolbarMenuItem(
+            int id,
+            int drawable,
+            ClickCallback clicked,
+            @Nullable ToobarThreedotMenuCallback threedotMenuCallback) {
+        this.id = id;
+        this.drawable = getAppContext().getDrawable(drawable);
+        this.clicked = clicked;
+        this.threedotMenuCallback = threedotMenuCallback;
     }
 
     public void attach(ImageView view) {
@@ -144,9 +163,16 @@ public class ToolbarMenuItem {
 
             @Override
             public void onFloatingMenuDismissed(FloatingMenu menu) {
+                if (threedotMenuCallback != null) {
+                    threedotMenuCallback.onMenuHidden();
+                }
             }
         });
         overflowMenu.show();
+
+        if (threedotMenuCallback != null) {
+            threedotMenuCallback.onMenuShown();
+        }
     }
 
     public Object getId() {
@@ -165,5 +191,11 @@ public class ToolbarMenuItem {
 
     public interface ClickCallback {
         void clicked(ToolbarMenuItem item);
+    }
+
+    public interface ToobarThreedotMenuCallback {
+        void onMenuShown();
+
+        void onMenuHidden();
     }
 }
