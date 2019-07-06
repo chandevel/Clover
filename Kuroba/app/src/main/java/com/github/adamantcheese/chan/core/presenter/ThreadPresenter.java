@@ -489,7 +489,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             }
         }
 
-        if (chanLoader != null) {
+        if (chanLoader != null && !images.isEmpty()) {
             threadPresenterCallback.showImages(images, index, chanLoader.getLoadable(), thumbnail);
         }
     }
