@@ -76,7 +76,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                     startTask(task);
                     updateNotification();
                 } else {
-                    showToast(null, false);
+                    showToast(null, false, false);
                 }
             });
         }
@@ -93,7 +93,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                 if (granted) {
                     startBundledTaskInternal(subFolder, tasks);
                 } else {
-                    showToast(null, false);
+                    showToast(null, false, false);
                 }
             });
             return false;
@@ -119,12 +119,14 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     @Override
     public void imageSaveTaskFinished(ImageSaveTask task, boolean success) {
         doneTasks++;
+        boolean wasAlbumSave = false;
         if (doneTasks == totalTasks) {
+            wasAlbumSave = totalTasks > 1;
             totalTasks = 0;
             doneTasks = 0;
         }
         updateNotification();
-        showToast(task, success);
+        showToast(task, success, wasAlbumSave);
     }
 
     @Subscribe
@@ -170,16 +172,19 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         }
     }
 
-    private void showToast(ImageSaveTask task, boolean success) {
+    private void showToast(ImageSaveTask task, boolean success, boolean wasAlbumSave) {
+        if (task == null && success)
+            throw new IllegalArgumentException("Task succeeded but is null");
+
         if (toast != null) {
             toast.cancel();
         }
 
         String text = success ?
-                getAppContext().getString(R.string.image_save_as, task.getDestination().getName()) :
+                (wasAlbumSave ? getAppContext().getString(R.string.album_download_success, getSaveLocation(task).getPath()) : getAppContext().getString(R.string.image_save_as, task.getDestination().getName())) :
                 getString(R.string.image_save_failed);
         toast = Toast.makeText(getAppContext(), text, Toast.LENGTH_LONG);
-        if (!task.getShare()) {
+        if (task != null && !task.getShare()) {
             toast.show();
         }
     }

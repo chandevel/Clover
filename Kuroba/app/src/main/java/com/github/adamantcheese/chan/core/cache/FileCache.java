@@ -28,9 +28,8 @@ import java.util.concurrent.Executors;
 
 public class FileCache implements FileCacheDownloader.Callback {
     private static final String TAG = "FileCache";
-    private static final int DOWNLOAD_POOL_SIZE = 2;
 
-    private final ExecutorService downloadPool = Executors.newFixedThreadPool(DOWNLOAD_POOL_SIZE);
+    private final ExecutorService downloadPool = Executors.newCachedThreadPool();
 
     private final CacheHandler cacheHandler;
 
@@ -127,7 +126,7 @@ public class FileCache implements FileCacheDownloader.Callback {
         if (listener != null) {
             downloader.addListener(listener);
         }
-        downloader.execute(downloadPool);
+        downloadPool.submit(downloader);
         downloaders.add(downloader);
         return downloader;
     }
