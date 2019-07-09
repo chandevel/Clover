@@ -271,11 +271,10 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 watchCount.setTextColor(0xff33B5E5);
             }
 
+            watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
             if ((watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) ||
                     (watchManager.getPinWatcher(pin).getImageCount() >= pin.loadable.board.imageLimit && pin.loadable.board.imageLimit > 0)) {
                 watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
-            } else {
-                watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
             }
 
             // The 16dp padding now belongs to the counter, for a bigger touch area

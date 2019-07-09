@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.cell;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -426,7 +425,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             comment.setTypeface(ChanSettings.fontAlternate.get() ? Typeface.DEFAULT : theme.altFont);
         }
 
-        comment.setVisibility(isEmpty(commentText) && post.images == null ? GONE : VISIBLE);
+        comment.setVisibility(isEmpty(commentText) ? GONE : VISIBLE);
 
         if (threadMode) {
             if (selectable) {
@@ -521,6 +520,29 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         }
 
         divider.setVisibility(showDivider ? VISIBLE : GONE);
+
+        if (post.images.size() == 1) {
+            //we don't care about the widths here, but they need to be exact to avoid exceptions
+            title.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            icons.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            //You MUST measure a TextView before calling getLineCount, otherwise it will always return 0.
+            comment.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            if (comment.getLineCount() > 2) {
+                RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
+                commentParams.removeRule(RelativeLayout.RIGHT_OF);
+                if (title.getHeight() + (icons.getVisibility() == VISIBLE ? icons.getHeight() : 0) < getResources()
+                        .getDimensionPixelSize(R.dimen.cell_post_thumbnail_size)) {
+                    commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_view);
+                } else {
+                    commentParams.addRule(RelativeLayout.BELOW, (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title));
+                }
+                comment.setLayoutParams(commentParams);
+
+                RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
+                replyParams.removeRule(RelativeLayout.RIGHT_OF);
+                replies.setLayoutParams(replyParams);
+            }
+        }
     }
 
     private void buildThumbnails() {
@@ -568,9 +590,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
 
     private void unbindPost(Post post) {
         bound = false;
-
         icons.cancelRequests();
-
         setPostLinkableListener(post, false);
     }
 
@@ -727,18 +747,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         }
     }
 
-    private static Bitmap stickyIcon;
-    private static Bitmap closedIcon;
-    private static Bitmap trashIcon;
-    private static Bitmap archivedIcon;
-
-    static {
-        Resources res = AndroidUtils.getRes();
-        stickyIcon = BitmapFactory.decodeResource(res, R.drawable.sticky_icon);
-        closedIcon = BitmapFactory.decodeResource(res, R.drawable.closed_icon);
-        trashIcon = BitmapFactory.decodeResource(res, R.drawable.trash_icon);
-        archivedIcon = BitmapFactory.decodeResource(res, R.drawable.archived_icon);
-    }
+    private static Bitmap stickyIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.sticky_icon);
+    private static Bitmap closedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.closed_icon);
+    private static Bitmap trashIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.trash_icon);
+    private static Bitmap archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
 
     public static class PostIcons extends View {
         private static final int STICKY = 0x1;

@@ -61,6 +61,7 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import java.util.Calendar;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.TYPE_POST;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
@@ -123,6 +124,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postCellCallback, statusCellCallback);
         recyclerView.setAdapter(postAdapter);
+        recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_POST, 0);
         recyclerView.addOnScrollListener(scrollListener);
 
         attachToolbarScroll(true);
