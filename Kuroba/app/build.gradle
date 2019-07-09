@@ -15,16 +15,14 @@ android {
          *
          * ------------------------------------------------------------
          */
-        // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
-        // (watch out for octal notation, never start with a 0)
-        // version name should be of the form vXX.YY.ZZ
-
         //bump the MAJOR (XX) version when there are incompatible changes between versions
         //or major changes to the application that would require a reinstall
         //bump the MINOR (YY) version when there are compatible changes between versions (ie database changes)
         //or if there are big application level changes like tearing out/adding major features
         //bump the PATCH (ZZ) version otherwise, for anything small
-        versionCode 40402
+        int major = 4
+        int minor = 4
+        int patch = 2
 
         /**
          * ------------------------------------------------------------
@@ -37,7 +35,7 @@ android {
         //if you change this, also change the AndroidManifest package
         applicationId "com.github.adamantcheese.chan"
         //these are manifest placeholders for the application name and icon location
-        manifestPlaceholders = [appName: "13Chag", iconLoc: "@mipmap/ic_launcher_joke"]
+        manifestPlaceholders = [appName: "Kuroba", iconLoc: "@mipmap/ic_launcher"]
         //these are your update and issues endpoints, change it to your repository
         //the issues endpoint is also used to calculate the base for linking to the github
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
@@ -49,15 +47,14 @@ android {
          * ------------------------------------------------------------
          *
          *              DON'T CHANGE THESE AUTOCALCULATIONS
-         *              USED FOR VERSION NAME GENERATION AND
-         *              AUTO UPDATER NAMING CONSISTENCY
+         *              USED FOR VERSION CODE GENERATION
+         *              USED FOR VERSION NAME GENERATION
+         *              USED FOR AUTO UPDATER NAMING CONSISTENCY
          *
          * ------------------------------------------------------------
          */
-        int tempPatch = (int) (versionCode.intValue() / 1) % 100;
-        int tempMinor = (int) (versionCode.intValue() / 100) % 100;
-        int tempMajor = (int) (versionCode.intValue() / 10000) % 100;
-        versionName "v" + String.valueOf(tempMajor) + "." + String.valueOf(tempMinor) + "." + String.valueOf(tempPatch) + "-dev"
+        versionCode major * 10000 + minor * 100 + patch
+        versionName "v" + major + "." + minor + "." + patch + "-dev"
 
         android.applicationVariants.all { variant ->
             variant.outputs.all {

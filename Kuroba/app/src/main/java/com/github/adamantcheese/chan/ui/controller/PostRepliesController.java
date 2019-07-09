@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -31,7 +32,6 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -138,12 +138,8 @@ public class PostRepliesController extends BaseFloatingController {
         ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(context, 0) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                PostCellInterface postCell;
-                if (convertView instanceof PostCellInterface) {
-                    postCell = (PostCellInterface) convertView;
-                } else {
-                    postCell = (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
-                }
+                @SuppressLint("ViewHolder") //don't recycle due to dynamic view layout changes
+                        PostCellInterface postCell = (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
 
                 final Post p = getItem(position);
                 boolean showDivider = position < getCount() - 1;
@@ -164,12 +160,6 @@ public class PostRepliesController extends BaseFloatingController {
 
         adapter.addAll(data.posts);
         listView.setAdapter(adapter);
-        //don't recycle PostCells because of layout changes due to cell contents
-        listView.setRecyclerListener(view1 -> {
-            if (view1 instanceof PostCell) {
-                view1 = null;
-            }
-        });
 
         listView.setSelectionFromTop(data.listViewIndex, data.listViewTop);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
