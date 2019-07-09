@@ -33,6 +33,7 @@ import android.view.ViewPropertyAnimator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -563,6 +564,14 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     @Override
     public void showImageReencodingWindow() {
         threadListLayoutCallback.showImageReencodingWindow();
+    }
+
+    @Override
+    public void showAttachedImageNotSupportedForReencodingError() {
+        Toast.makeText(
+                getContext(),
+                R.string.thread_list_layout_attached_file_not_supported_for_reencoding,
+                Toast.LENGTH_SHORT).show();
     }
 
     public int[] getIndexAndTop() {

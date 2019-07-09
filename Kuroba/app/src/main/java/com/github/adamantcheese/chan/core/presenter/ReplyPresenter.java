@@ -41,6 +41,7 @@ import com.github.adamantcheese.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
@@ -56,6 +57,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteActions.PostListener {
+
     public enum Page {
         INPUT,
         AUTHENTICATION,
@@ -563,6 +565,14 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         draft.file = reply.file;
         draft.fileName = reply.fileName;
         showPreview(draft.fileName, draft.file);
+    }
+
+    public boolean isAttachedFileSupportedForReencoding() {
+        if (draft == null) {
+            return false;
+        }
+
+        return BitmapUtils.isFileSupportedForReencoding(draft.file);
     }
 
     public interface ReplyPresenterCallback {
