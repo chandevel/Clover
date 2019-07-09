@@ -125,7 +125,7 @@ public class UpdateManager {
         volleyRequestQueue.add(new UpdateApiRequest(response -> {
             if (!processUpdateApiResponse(response) && manual) {
                 new AlertDialog.Builder(context)
-                        .setTitle(R.string.update_none)
+                        .setTitle(context.getString(R.string.update_none, getApplicationLabel()))
                         .setPositiveButton(R.string.ok, null)
                         .show();
             }
@@ -214,7 +214,7 @@ public class UpdateManager {
         // First open the dialog that asks to retry and calls this method again.
         new AlertDialog.Builder(context)
                 .setTitle(R.string.update_retry_title)
-                .setMessage(R.string.update_retry)
+                .setMessage(context.getString(R.string.update_retry, getApplicationLabel()))
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.update_retry_button, (dialog, which) -> installApk(apk))
                 .show();

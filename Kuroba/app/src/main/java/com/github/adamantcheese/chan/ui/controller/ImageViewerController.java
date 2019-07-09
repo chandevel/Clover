@@ -182,7 +182,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     private void saveClicked(ToolbarMenuItem item) {
         item.setCallback(null);
-        item.setImage(R.drawable.ic_file_download_grey_24dp);
+        item.getView().getDrawable().setTint(Color.GRAY);
         saveShare(false, presenter.getCurrentPostImage());
     }
 
@@ -345,7 +345,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Override
     public void resetDownloadButtonState() {
-        navigation.findItem(SAVE_ID).setImage(R.drawable.ic_file_download_white_24dp);
+        navigation.findItem(SAVE_ID).getView().getDrawable().setTint(Color.WHITE);
         navigation.findItem(SAVE_ID).setCallback(this::saveClicked);
     }
 

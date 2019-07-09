@@ -36,7 +36,8 @@ android {
          */
         //if you change this, also change the AndroidManifest package
         applicationId "com.github.adamantcheese.chan"
-        manifestPlaceholders = [appName: "Kuroba"]
+        //these are manifest placeholders for the application name and icon location
+        manifestPlaceholders = [appName: "13Chag", iconLoc: "@mipmap/ic_launcher_joke"]
         //these are your update and issues endpoints, change it to your repository
         //the issues endpoint is also used to calculate the base for linking to the github
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""

@@ -70,6 +70,7 @@ import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 public class StartActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "StartActivity";
@@ -199,7 +200,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                 }
             } else {
                 new AlertDialog.Builder(this)
-                        .setMessage(R.string.open_link_not_matched)
+                        .setMessage(getString(R.string.open_link_not_matched, getApplicationLabel()))
                         .setPositiveButton(R.string.ok, (dialog, which) ->
                                 AndroidUtils.openLink(data.toString()))
                         .show();
