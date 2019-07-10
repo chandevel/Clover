@@ -112,7 +112,7 @@ public class ImageLoader {
      * The default implementation of ImageListener which handles basic functionality
      * of showing a default image until the network response is received, at which point
      * it will switch to either the actual image or the error image.
-     * @param imageView The imageView that the listener is associated with.
+     * @param view The imageView that the listener is associated with.
      * @param defaultImageResId Default image resource ID to use, or 0 if it doesn't exist.
      * @param errorImageResId Error image resource ID to use, or 0 if it doesn't exist.
      */
@@ -186,7 +186,6 @@ public class ImageLoader {
      * request is fulfilled.
      *
      * @param requestUrl The URL of the image to be loaded.
-     * @param defaultImage Optional default image to return until the actual image is loaded.
      */
     public ImageContainer get(String requestUrl, final ImageListener listener) {
         return get(requestUrl, listener, 0, 0);
@@ -223,9 +222,8 @@ public class ImageLoader {
      * Loads image from disk or gets it from the cache if it is already cached. Caches the image in
      * the cache if successfully loaded from the disk
      * */
-    // TODO: when could not load an image from the disk show some kind of "404 not found" placeholder
     // TODO: do the same thing for ImageLoader.get()
-    private ImageContainer getFromDisk(
+    public ImageContainer getFromDisk(
             Loadable loadable,
             String filename,
             ImageListener imageListener,
@@ -245,7 +243,7 @@ public class ImageLoader {
 
             Bitmap drawableBitmap = mCache.getBitmap(NOT_FOUND_IMAGE_TAG);
             if (drawableBitmap == null) {
-                boolean isLightTheme = themeHelper.getTheme().isLightTheme;
+                boolean isLightTheme = ThemeHelper.getTheme().isLightTheme;
 
                 drawableBitmap = BitmapUtils.getBitmapFromVectorDrawable(
                         applicationContext,

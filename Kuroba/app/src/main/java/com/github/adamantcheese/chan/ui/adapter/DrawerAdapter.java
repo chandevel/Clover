@@ -46,6 +46,7 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.AnimationUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -278,7 +279,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         TextView bookmarkLabel = holder.textView;
         bookmarkLabel.setText(text);
-        holder.image.setUrl(pin.thumbnailUrl, dp(40), dp(40));
+
+        loadBookmarkImage(holder, pin);
 
         if (ChanSettings.watchEnabled.get()) {
             if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
@@ -330,6 +332,22 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             holder.itemView.setBackground(AndroidUtils.getAttrDrawable(holder.itemView.getContext(), android.R.attr.selectableItemBackground));
             holder.highlighted = false;
         }
+    }
+
+    private void loadBookmarkImage(PinViewHolder holder, Pin pin) {
+        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        if (savedThread == null || !savedThread.isFullyDownloaded) {
+            holder.image.setUrl(pin.thumbnailUrl, dp(40), dp(40));
+            return;
+        }
+
+        String filename = StringUtils.convertThumbnailUrlToFilenameOnDisk(pin.thumbnailUrl);
+        if (filename == null || filename.isEmpty()) {
+            holder.image.setUrl(pin.thumbnailUrl, dp(40), dp(40));
+            return;
+        }
+
+        holder.image.setUrlFromDisk(pin.loadable, filename, dp(40), dp(40));
     }
 
     private void setPinDownloadIcon(PinViewHolder holder, Pin pin) {

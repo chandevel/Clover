@@ -18,6 +18,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -651,11 +652,21 @@ public class ThreadSaveManager {
                             return Single.just(false);
                         }
 
+                        String thumbnailExtension = StringUtils.extractFileExtensionFromImageUrl(
+                                postImage.thumbnailUrl.toString());
+
+                        if (thumbnailExtension == null) {
+                            Logger.d(TAG, "Could not extract thumbnail image extension, thumbnailUrl = "
+                                    + postImage.thumbnailUrl.toString());
+                            return Single.just(false);
+                        }
+
                         try {
                             downloadImageIntoFile(
                                     threadSaveDirImages,
                                     postImage.originalName,
                                     postImage.extension,
+                                    thumbnailExtension,
                                     postImage.imageUrl,
                                     postImage.thumbnailUrl,
                                     loadable);
@@ -745,7 +756,8 @@ public class ThreadSaveManager {
     private void downloadImageIntoFile(
             File threadSaveDirImages,
             String filename,
-            String extension,
+            String originalExtension,
+            String thumbnailExtension,
             HttpUrl imageUrl,
             HttpUrl thumbnailUrl,
             Loadable loadable) throws IOException {
@@ -757,12 +769,12 @@ public class ThreadSaveManager {
         downloadImage(
                 loadable,
                 threadSaveDirImages,
-                filename + "_" + ORIGINAL_FILE_NAME + "." + extension,
+                filename + "_" + ORIGINAL_FILE_NAME + "." + originalExtension,
                 imageUrl);
         downloadImage(
                 loadable,
                 threadSaveDirImages,
-                filename + "_" + THUMBNAIL_FILE_NAME + "." + extension,
+                filename + "_" + THUMBNAIL_FILE_NAME + "." + thumbnailExtension,
                 thumbnailUrl);
     }
 
