@@ -302,7 +302,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
     private Boolean onResponseInternal(ChanLoaderResponse response) {
         // The server returned us an archived thread
-        if (response.op.archived || response.op.closed) {
+        if (response.op.archived) {
             ChanThread chanThread = loadSavedThreadIfItExists();
             thread = chanThread;
 
