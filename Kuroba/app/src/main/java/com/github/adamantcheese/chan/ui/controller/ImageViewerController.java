@@ -346,8 +346,13 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Override
     public void resetDownloadButtonState() {
-        navigation.findItem(SAVE_ID).setImage(R.drawable.ic_file_download_white_24dp);
-        navigation.findItem(SAVE_ID).setCallback(this::saveClicked);
+        ToolbarMenuItem saveItem = navigation.findItem(SAVE_ID);
+        if (saveItem == null) {
+            return;
+        }
+
+        saveItem.setImage(R.drawable.ic_file_download_white_24dp);
+        saveItem.setCallback(this::saveClicked);
     }
 
     private void showImageSearchOptions() {
