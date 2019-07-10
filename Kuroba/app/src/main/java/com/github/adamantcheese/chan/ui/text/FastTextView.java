@@ -31,7 +31,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.utils.Logger;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -158,6 +157,7 @@ public class FastTextView extends View {
         }
 
         int width = 0;
+        int height = 0;
         if (widthMode == MeasureSpec.EXACTLY) {
             width = widthSize;
         } else if ((widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED) && !TextUtils.isEmpty(text)) {
@@ -176,7 +176,6 @@ public class FastTextView extends View {
             updateLayout();
 
             if (layout != null) {
-                int height;
                 if (heightMode == MeasureSpec.EXACTLY) {
                     height = heightSize;
                 } else {
@@ -185,22 +184,16 @@ public class FastTextView extends View {
                         height = Math.min(height, heightSize);
                     }
                 }
-
-                setMeasuredDimension(width, height);
             } else {
-                int height;
                 if (heightMode == MeasureSpec.EXACTLY) {
                     height = heightSize;
-                } else {
-                    height = 0;
                 }
-
-                setMeasuredDimension(width, height);
             }
         } else {
-            Logger.w(TAG, "Width = 0, ignoring");
-            setMeasuredDimension(0, 0);
+            width = 0;
         }
+
+        setMeasuredDimension(width, height);
     }
 
     private void updateLayout() {

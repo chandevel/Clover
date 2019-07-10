@@ -16,11 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -42,6 +44,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -522,16 +525,23 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         divider.setVisibility(showDivider ? VISIBLE : GONE);
 
         if (post.images.size() == 1) {
-            //we don't care about the widths here, but they need to be exact to avoid exceptions
-            title.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-            icons.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            //display width, we don't care about height here
+            Point displaySize = new Point();
+            WindowManager windowManager = (WindowManager) getContext().getSystemService(Activity.WINDOW_SERVICE);
+            windowManager.getDefaultDisplay().getSize(displaySize);
+
+            //thumbnail size
+            int thumbnailSize = getResources().getDimensionPixelSize(R.dimen.cell_post_thumbnail_size);
+
+            //we want the heights here, but the widths must be the exact size between the thumbnail and view edge so that we calculate offsets right
+            title.measure(MeasureSpec.makeMeasureSpec(displaySize.x - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            icons.measure(MeasureSpec.makeMeasureSpec(displaySize.x - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            comment.measure(MeasureSpec.makeMeasureSpec(displaySize.x - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
             //You MUST measure a TextView before calling getLineCount, otherwise it will always return 0.
-            comment.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
             if (comment.getLineCount() > 2) {
                 RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
                 commentParams.removeRule(RelativeLayout.RIGHT_OF);
-                if (title.getHeight() + (icons.getVisibility() == VISIBLE ? icons.getHeight() : 0) < getResources()
-                        .getDimensionPixelSize(R.dimen.cell_post_thumbnail_size)) {
+                if (title.getMeasuredHeight() + (icons.getVisibility() == VISIBLE ? icons.getHeight() : 0) < thumbnailSize) {
                     commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_view);
                 } else {
                     commentParams.addRule(RelativeLayout.BELOW, (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title));
