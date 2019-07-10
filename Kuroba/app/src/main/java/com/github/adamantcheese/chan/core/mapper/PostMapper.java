@@ -63,6 +63,7 @@ public class PostMapper {
 
     public static Post fromSerializedPost(Loadable loadable, SerializablePost serializablePost) {
         CharSequence subject = SpannableStringMapper.deserializeSpannableString(serializablePost.getSubject());
+        CharSequence subjectSpans = subject.length() == 0 ? null : subject;
 
         Post.Builder postBuilder = new Post.Builder()
                 .board(loadable.board)
@@ -79,7 +80,7 @@ public class PostMapper {
                 .isSavedReply(serializablePost.isSavedReply())
                 .repliesTo(serializablePost.getRepliesTo())
                 .spans(
-                        subject,
+                        subjectSpans,
                         SpannableStringMapper.deserializeSpannableString(serializablePost.getNameTripcodeIdCapcodeSpan())
                 )
                 .sticky(serializablePost.isSticky())
