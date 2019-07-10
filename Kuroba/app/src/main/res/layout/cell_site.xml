@@ -27,7 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="56dp"
         android:padding="12dp"
         android:scaleType="fitCenter"
-        tools:src="@drawable/ic_help_outline_black_24dp" />
+        android:tint="@android:color/black"
+        tools:src="@drawable/ic_help_outline_white_24dp" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -41,8 +42,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="28dp"
             android:ellipsize="end"
             android:paddingLeft="8dp"
-            android:paddingRight="8dp"
             android:paddingTop="8dp"
+            android:paddingRight="8dp"
             android:singleLine="true"
             android:textColor="?text_color_primary"
             android:textSize="14sp"
@@ -53,9 +54,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="28dp"
             android:ellipsize="end"
-            android:paddingBottom="8dp"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
+            android:paddingBottom="8dp"
             android:textColor="?text_color_secondary"
             android:textSize="12sp"
             tools:text="Description of this site" />
@@ -67,11 +68,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_gravity="center_vertical"
-        android:padding="12dp"
         android:clickable="true"
         android:focusable="true"
-        android:scaleType="center"
-        tools:src="@drawable/ic_clear_black_24dp" />
+        android:padding="12dp"
+        android:scaleType="center" />
 
     <ImageView
         android:id="@+id/settings"
@@ -79,8 +79,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="56dp"
         android:layout_gravity="center_vertical"
         android:padding="12dp"
-        android:scaleType="center"
-        tools:src="@drawable/ic_settings_black_24dp" />
+        android:scaleType="center" />
 
     <ImageView
         android:id="@+id/reorder"
@@ -88,7 +87,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="56dp"
         android:layout_gravity="center_vertical"
         android:padding="12dp"
-        android:scaleType="center"
-        tools:src="@drawable/ic_reorder_black_24dp" />
+        android:scaleType="center" />
 
 </LinearLayout>
