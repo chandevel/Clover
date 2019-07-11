@@ -107,6 +107,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
             callback.setImageMode(postImage, MultiImageView.Mode.LOWRES, true);
         }
 
+        callback.resetDownloadButtonState();
         callback.setPagerVisiblity(false);
         callback.setPreviewVisibility(true);
         callback.startPreviewOutTransition(postImage);

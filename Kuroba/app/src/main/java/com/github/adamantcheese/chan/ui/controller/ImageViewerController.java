@@ -266,7 +266,6 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     public boolean onBack() {
         showSystemUI();
         presenter.onExit();
-        resetDownloadButtonState();
         return true;
     }
 
