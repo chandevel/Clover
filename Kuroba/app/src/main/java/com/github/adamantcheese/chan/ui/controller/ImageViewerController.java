@@ -346,7 +346,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Override
     public void resetDownloadButtonState() {
-        navigation.findItem(SAVE_ID).getView().getDrawable().setTint(Color.WHITE);
+        navigation.findItem(SAVE_ID).getView().getDrawable().setTintList(null);
         navigation.findItem(SAVE_ID).setCallback(this::saveClicked);
     }
 
