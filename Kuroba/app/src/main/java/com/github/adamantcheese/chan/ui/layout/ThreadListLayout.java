@@ -196,6 +196,12 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                                 boolean focusedChildVisible) {
                             return false;
                         }
+
+                        @Override
+                        public int computeVerticalScrollExtent(RecyclerView.State state) {
+                            //sets the scroll bar to be a static size
+                            return recyclerView.getHeight() / 20;
+                        }
                     };
                     setRecyclerViewPadding();
                     recyclerView.setLayoutManager(linearLayoutManager);
@@ -635,6 +641,9 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         } else {
             if (fastScroller == null) {
                 fastScroller = FastScrollerHelper.create(recyclerView);
+                if (postViewMode == ChanSettings.PostViewMode.LIST) {
+                    fastScroller.overrideCalculatedExtents(true);
+                }
             }
         }
         recyclerView.setVerticalScrollBarEnabled(!enabled);
