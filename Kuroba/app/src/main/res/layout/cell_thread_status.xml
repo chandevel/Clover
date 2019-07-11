@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <com.github.adamantcheese.chan.ui.cell.ThreadStatusCell xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="66dp"
+    android:layout_height="88dp"
     android:orientation="horizontal">
 
     <TextView
