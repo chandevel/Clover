@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Pair;
@@ -41,6 +42,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -107,6 +109,12 @@ public class ImageOptionsController extends Controller implements
         removeFilename.setOnCheckedChangeListener(this);
         reencode.setOnCheckedChangeListener(this);
         changeImageChecksum.setOnCheckedChangeListener(this);
+
+        if (presenter.getImageFormat() != Bitmap.CompressFormat.JPEG) {
+            fixExif.setEnabled(false);
+            fixExif.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            fixExif.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+        }
 
         viewHolder.setOnClickListener(this);
         preview.setOnClickListener(v -> {
@@ -191,11 +199,11 @@ public class ImageOptionsController extends Controller implements
         presenter.setReencode(null);
     }
 
-    public void onReencodeOptionsSet(ImageReencodingPresenter.Reencode reencode) {
+    public void onReencodeOptionsSet(ImageReencodingPresenter.ReencodeSettings reencodeSettings) {
         removeMetadata.setChecked(true);
         removeMetadata.setEnabled(false);
 
-        presenter.setReencode(reencode);
+        presenter.setReencode(reencodeSettings);
     }
 
     @Override

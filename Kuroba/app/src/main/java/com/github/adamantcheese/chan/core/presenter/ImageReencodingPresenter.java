@@ -108,11 +108,11 @@ public class ImageReencodingPresenter {
         }
     }
 
-    public void setReencode(@Nullable Reencode reencode) {
-        if (reencode != null) {
-            imageOptions.setReencode(reencode);
+    public void setReencode(@Nullable ReencodeSettings reencodeSettings) {
+        if (reencodeSettings != null) {
+            imageOptions.setReencodeSettings(reencodeSettings);
         } else {
-            imageOptions.setReencode(null);
+            imageOptions.setReencodeSettings(null);
         }
     }
 
@@ -150,7 +150,7 @@ public class ImageReencodingPresenter {
                 && !imageOptions.getFixExif()
                 && !imageOptions.getRemoveMetadata()
                 && !imageOptions.getChangeImageChecksum()
-                && imageOptions.getReencode() == null) {
+                && imageOptions.getReencodeSettings() == null) {
             callback.onImageOptionsApplied(reply);
             return;
         }
@@ -160,7 +160,7 @@ public class ImageReencodingPresenter {
                 && !imageOptions.getFixExif()
                 && !imageOptions.getRemoveMetadata()
                 && !imageOptions.getChangeImageChecksum()
-                && imageOptions.getReencode() == null) {
+                && imageOptions.getReencodeSettings() == null) {
             reply.fileName = getNewImageName();
             callback.onImageOptionsApplied(reply);
             return;
@@ -180,7 +180,7 @@ public class ImageReencodingPresenter {
                         imageOptions.getFixExif(),
                         imageOptions.getRemoveMetadata(),
                         imageOptions.getChangeImageChecksum(),
-                        imageOptions.getReencode()
+                        imageOptions.getReencodeSettings()
                 );
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to re-encode bitmap file", error);
@@ -215,14 +215,14 @@ public class ImageReencodingPresenter {
         private boolean changeImageChecksum;
 
         @Nullable
-        private Reencode reencode;
+        private ReencodeSettings reencodeSettings;
 
         public ImageOptions() {
             this.fixExif = false;
             this.removeMetadata = false;
             this.removeFilename = false;
             this.changeImageChecksum = false;
-            this.reencode = null;
+            this.reencodeSettings = null;
         }
 
         public boolean getFixExif() {
@@ -250,12 +250,12 @@ public class ImageReencodingPresenter {
         }
 
         @Nullable
-        public Reencode getReencode() {
-            return reencode;
+        public ReencodeSettings getReencodeSettings() {
+            return reencodeSettings;
         }
 
-        public void setReencode(@Nullable Reencode reencode) {
-            this.reencode = reencode;
+        public void setReencodeSettings(@Nullable ReencodeSettings reencodeSettings) {
+            this.reencodeSettings = reencodeSettings;
         }
 
         public boolean getChangeImageChecksum() {
@@ -268,22 +268,22 @@ public class ImageReencodingPresenter {
 
         @Override
         public String toString() {
-            String reencodeStr = reencode != null ? reencode.toString() : "null";
+            String reencodeStr = reencodeSettings != null ? reencodeSettings.toString() : "null";
 
             return "fixExif = " + fixExif + ", removeMetadata = " + removeMetadata + ", removeFilename = " + removeFilename +
                     ", changeImageChecksum = " + changeImageChecksum + ", " + reencodeStr;
         }
     }
 
-    public static class Reencode {
+    public static class ReencodeSettings {
         private ReencodeType reencodeType;
         private int reencodeQuality;
-        private int reduce;
+        private int reducePercent;
 
-        public Reencode(ReencodeType reencodeType, int reencodeQuality, int reduce) {
+        public ReencodeSettings(ReencodeType reencodeType, int reencodeQuality, int reducePercent) {
             this.reencodeType = reencodeType;
             this.reencodeQuality = reencodeQuality;
-            this.reduce = reduce;
+            this.reducePercent = reducePercent;
         }
 
         public ReencodeType getReencodeType() {
@@ -302,22 +302,22 @@ public class ImageReencodingPresenter {
             this.reencodeQuality = reencodeQuality;
         }
 
-        public int getReduce() {
-            return reduce;
+        public int getReducePercent() {
+            return reducePercent;
         }
 
-        public void setReduce(int reduce) {
-            this.reduce = reduce;
+        public void setReducePercent(int reducePercent) {
+            this.reducePercent = reducePercent;
         }
 
         public boolean isDefault() {
-            return reencodeType == ReencodeType.AS_IS && reencodeQuality == 100 && reduce == 1;
+            return reencodeType == ReencodeType.AS_IS && reencodeQuality == 100 && reducePercent == 0;
         }
 
         @Override
         public String toString() {
             return "reencodeType = " + reencodeType + ", reencodeQuality = " + reencodeQuality +
-                    ", reduce = " + reduce;
+                    ", reducePercent = " + reducePercent;
         }
     }
 

@@ -46,15 +46,16 @@ public class ImageReencodeOptionsController extends Controller implements
     private SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if(progress <= 0) {
-                //for API 22-25
-                seekBar.setProgress(1);
-                progress = 1;
-            }
             if (seekBar == quality) {
+                if (progress < 1) {
+                    //for API <26; the quality can't be lower than 1
+                    seekBar.setProgress(1);
+                    progress = 1;
+                }
                 currentImageQuality.setText(context.getString(R.string.image_quality, progress));
             } else if (seekBar == reduce) {
-                currentImageReduce.setText(context.getString(R.string.scale_reduce, dims.first, dims.second, dims.first / progress, dims.second / progress));
+                currentImageReduce.setText(context.getString(R.string.scale_reduce, dims.first, dims.second,
+                        (int) (dims.first * ((100f - (float) progress) / 100f)), (int) (dims.second * ((100f - (float) progress) / 100f))));
             } else {
                 throw new RuntimeException("Unknown seekBar");
             }
@@ -164,8 +165,6 @@ public class ImageReencodeOptionsController extends Controller implements
             callbacks.onOk(getReencode());
         } else if (v == cancel || v == viewHolder) {
             callbacks.onCanceled();
-        } else {
-            throw new RuntimeException("onClick Unknown view clicked");
         }
     }
 
@@ -187,11 +186,11 @@ public class ImageReencodeOptionsController extends Controller implements
         }
     }
 
-    private ImageReencodingPresenter.Reencode getReencode() {
+    private ImageReencodingPresenter.ReencodeSettings getReencode() {
         int index = radioGroup.indexOfChild(radioGroup.findViewById(radioGroup.getCheckedRadioButtonId()));
         ImageReencodingPresenter.ReencodeType reencodeType = ImageReencodingPresenter.ReencodeType.fromInt(index);
 
-        return new ImageReencodingPresenter.Reencode(
+        return new ImageReencodingPresenter.ReencodeSettings(
                 reencodeType,
                 quality.getProgress(),
                 reduce.getProgress()
@@ -205,6 +204,6 @@ public class ImageReencodeOptionsController extends Controller implements
     public interface ImageReencodeOptionsCallbacks {
         void onCanceled();
 
-        void onOk(ImageReencodingPresenter.Reencode reencode);
+        void onOk(ImageReencodingPresenter.ReencodeSettings reencodeSettings);
     }
 }

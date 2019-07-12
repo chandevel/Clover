@@ -74,12 +74,12 @@ public class ImageOptionsHelper implements
     }
 
     @Override
-    public void onOk(ImageReencodingPresenter.Reencode reencode) {
+    public void onOk(ImageReencodingPresenter.ReencodeSettings reencodeSettings) {
         if (imageOptionsController != null) {
-            if (reencode.isDefault()) {
+            if (reencodeSettings.isDefault()) {
                 imageOptionsController.onReencodingCanceled();
             } else {
-                imageOptionsController.onReencodeOptionsSet(reencode);
+                imageOptionsController.onReencodeOptionsSet(reencodeSettings);
             }
         }
 
