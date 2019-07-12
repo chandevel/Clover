@@ -200,7 +200,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                         @Override
                         public int computeVerticalScrollExtent(RecyclerView.State state) {
                             //sets the scroll bar to be a static size
-                            return recyclerView.getHeight() / 20;
+                            return (int) (recyclerView.getHeight() * 0.05);
                         }
                     };
                     setRecyclerViewPadding();
