@@ -32,6 +32,10 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -131,8 +135,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
         overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
         overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
-        overflowBuilder.withSubItem(R.string.action_image_rotate_cw, this::rotateImageCW);
-        overflowBuilder.withSubItem(R.string.action_image_rotate_ccw, this::rotateImageCCW);
+        overflowBuilder.withSubItem(R.string.action_image_rotate, this::rotateImage);
 
         overflowBuilder.build().build();
 
@@ -215,12 +218,23 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage());
     }
 
-    private void rotateImageCW(ToolbarMenuSubItem item) {
-        ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(), true);
-    }
+    private void rotateImage(ToolbarMenuSubItem item) {
+        String[] rotateOptions = {"Clockwise", "Flip", "Counterclockwise"};
+        Integer[] rotateInts = {90, 180, -90};
+        ListView rotateImageList = new ListView(context);
 
-    private void rotateImageCCW(ToolbarMenuSubItem item) {
-        ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(), false);
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setView(rotateImageList)
+                .create();
+        dialog.setCanceledOnTouchOutside(true);
+
+        rotateImageList.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, rotateOptions));
+        rotateImageList.setOnItemClickListener((parent, view, position, id) -> {
+            ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(), rotateInts[position]);
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     @Override

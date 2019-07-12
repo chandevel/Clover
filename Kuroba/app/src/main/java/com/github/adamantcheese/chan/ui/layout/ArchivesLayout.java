@@ -1,12 +1,13 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+
+import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;

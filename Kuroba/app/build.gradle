@@ -36,8 +36,8 @@ android {
         applicationId "com.github.adamantcheese.chan"
         //these are manifest placeholders for the application name and icon location
         manifestPlaceholders = [appName: "Kuroba", iconLoc: "@mipmap/ic_launcher"]
-        //these are your update and issues endpoints, change it to your repository
-        //the issues endpoint is also used to calculate the base for linking to the github
+        //these are your update and github repo endpoints, change it to your repository
+        //the repo endpoint is also used to calculate the issues endpoint
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
         buildConfigField "String", "GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba\""
         //this is for checking who's built what in debug logs
@@ -92,14 +92,13 @@ android {
     buildTypes {
         release {
             /*
-            If you want to sign releases, make a file in app/keys.properties with the following content:
+            If you want to sign releases without using "Generate Signed APK", make a file in app/keys.properties with the following content:
             keystoreFile=yourkey.store
             keystorePass=pass
             keyAlias=alias
             keyPass=pass
             */
-            // This code exists specifically so you don't have to use the "Generate Signed APK" function in Android Studio
-            // Just select your build variant (debug/release) and do build -> APK
+            // Just select your build variant (debug/release) and do Build -> APK
             File f = file('keys.properties')
             if (f.exists()) {
                 Properties props = new Properties()
@@ -119,6 +118,7 @@ android {
                 signingConfig signingConfigs.release
             }
             // Because we're always on dev, don't minify to make sure that crash logs are intelligible
+            //You can turn this on if you wish
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
             debuggable = false
