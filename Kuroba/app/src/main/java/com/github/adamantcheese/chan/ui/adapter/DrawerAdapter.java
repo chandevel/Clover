@@ -303,23 +303,13 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 } else {
                     watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
                 }
-
-                // The 16dp padding now belongs to the counter, for a bigger touch area
-                bookmarkLabel.setPadding(bookmarkLabel.getPaddingLeft(), bookmarkLabel.getPaddingTop(),
-                        0, bookmarkLabel.getPaddingBottom());
-                watchCount.setPadding(dp(16), watchCount.getPaddingTop(),
-                        watchCount.getPaddingRight(), watchCount.getPaddingBottom());
             } else {
                 // FIXME: apparently we don't need to set the visibility to GONE here. Needs research.
                 watchCount.setVisibility(View.GONE);
             }
         } else {
-            // The 16dp padding now belongs to the textview, for better ellipsize
             watchCount.setVisibility(View.GONE);
             holder.threadDownloadIcon.setVisibility(View.GONE);
-
-            bookmarkLabel.setPadding(bookmarkLabel.getPaddingLeft(), bookmarkLabel.getPaddingTop(),
-                    dp(16), bookmarkLabel.getPaddingBottom());
         }
 
         setPinDownloadIcon(holder, pin);
