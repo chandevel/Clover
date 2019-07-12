@@ -554,6 +554,15 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
                 replyParams.removeRule(RelativeLayout.RIGHT_OF);
                 replies.setLayoutParams(replyParams);
+            } else if (comment.getVisibility() == GONE) {
+                RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
+                replyParams.removeRule(RelativeLayout.BELOW);
+                replyParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                replies.setLayoutParams(replyParams);
+
+                RelativeLayout.LayoutParams replyExtraParams = (RelativeLayout.LayoutParams) repliesAdditionalArea.getLayoutParams();
+                replyExtraParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                repliesAdditionalArea.setLayoutParams(replyExtraParams);
             }
         }
     }
