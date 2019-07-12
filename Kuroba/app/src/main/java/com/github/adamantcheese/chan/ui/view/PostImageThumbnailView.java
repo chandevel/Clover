@@ -72,8 +72,8 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
                             postImage.getThumbnailUrl().toString();
                     setUrl(url, width, height);
                 } else {
-                    // TODO: may not work
-                    setUrlFromDisk(loadable, postImage.filename, width, height);
+                    String fileName = String.format("%s_original.%s", postImage.originalName, postImage.extension);
+                    setUrlFromDisk(loadable, fileName, width, height);
                 }
             } else {
                 setUrl(null, width, height);
