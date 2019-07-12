@@ -556,7 +556,6 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 replies.setLayoutParams(replyParams);
             } else if (comment.getVisibility() == GONE) {
                 RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
-                replyParams.removeRule(RelativeLayout.BELOW);
                 replyParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
                 replies.setLayoutParams(replyParams);
 
