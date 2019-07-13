@@ -60,7 +60,7 @@ public class ImageReencodeOptionsController extends Controller implements
                     currentImageQuality.setText(context.getString(R.string.image_quality, progress));
                 } else if (seekBar == reduce) {
                     currentImageReduce.setText(context.getString(R.string.scale_reduce, dims.first, dims.second,
-                            (int) (dims.first * ((100f - (float) progress) / 100f)), (int) (dims.second * ((100f - (float) progress) / 100f)), progress));
+                            (int) (dims.first * ((100f - (float) progress) / 100f)), (int) (dims.second * ((100f - (float) progress) / 100f)), 100 - progress));
                 }
             }
         }
@@ -137,7 +137,7 @@ public class ImageReencodeOptionsController extends Controller implements
             AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
 
-        currentImageReduce.setText(context.getString(R.string.scale_reduce, dims.first, dims.second, dims.first, dims.second, reduce.getProgress()));
+        currentImageReduce.setText(context.getString(R.string.scale_reduce, dims.first, dims.second, dims.first, dims.second, 100 - reduce.getProgress()));
 
         if (lastSettings != null) {
             ignoreSetup = true; //this variable is to ignore any side effects of checking/setting progress on these views

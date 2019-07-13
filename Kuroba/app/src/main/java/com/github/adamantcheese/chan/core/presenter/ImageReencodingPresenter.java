@@ -342,7 +342,7 @@ public class ImageReencodingPresenter {
             }
             return "(" + type + ", " + (reencodeType == ReencodeType.AS_JPEG ||
                     (reencodeType == ReencodeType.AS_IS && currentFormat == Bitmap.CompressFormat.JPEG) ?
-                    reencodeQuality + ", " : "") + reducePercent + "%)";
+                    reencodeQuality + ", " : "") + (100 - reducePercent) + "%)";
         }
     }
 
