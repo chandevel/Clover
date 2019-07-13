@@ -171,6 +171,8 @@ public class ChanSettings {
     public static final BooleanSetting useNewCaptchaWindow;
     public static final BooleanSetting useImmersiveModeForGallery;
 
+    public static final StringSetting lastImageOptions;
+
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
@@ -261,6 +263,8 @@ public class ChanSettings {
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
         useImmersiveModeForGallery = new BooleanSetting(p, "use_immersive_mode_for_gallery", false);
+
+        lastImageOptions = new StringSetting(p, "last_image_options", "");
     }
 
     public static ThemeColor getThemeAndColor() {

@@ -72,18 +72,22 @@ public class ImageOptionsController extends Controller implements
     private AppCompatButton ok;
 
     private int statusBarColorPrevious;
+    private ImageReencodingPresenter.ImageOptions lastSettings;
+    private boolean ignoreSetup;
 
     public ImageOptionsController(
             Context context,
             ImageOptionsHelper imageReencodingHelper,
             ImageOptionsControllerCallbacks callbacks,
-            Loadable loadable
+            Loadable loadable,
+            ImageReencodingPresenter.ImageOptions lastOptions
     ) {
         super(context);
         this.imageReencodingHelper = imageReencodingHelper;
         this.callbacks = callbacks;
+        lastSettings = lastOptions;
 
-        presenter = new ImageReencodingPresenter(this, loadable);
+        presenter = new ImageReencodingPresenter(this, loadable, lastOptions);
     }
 
     @Override
@@ -139,6 +143,23 @@ public class ImageOptionsController extends Controller implements
         if (statusBarColorPrevious != 0) {
             AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
+
+        if (lastSettings != null) {
+            ignoreSetup = true; //this variable is to ignore any side effects of checking all these boxes
+            removeFilename.setChecked(lastSettings.getRemoveFilename());
+            changeImageChecksum.setChecked(lastSettings.getChangeImageChecksum());
+            fixExif.setChecked(lastSettings.getFixExif());
+            ImageReencodingPresenter.ReencodeSettings lastReencode = lastSettings.getReencodeSettings();
+            if(lastReencode != null) {
+                removeMetadata.setChecked(!lastReencode.isDefault());
+                removeMetadata.setEnabled(!lastReencode.isDefault());
+                reencode.setChecked(!lastReencode.isDefault());
+                reencode.setText("Re-encode " + lastReencode.prettyPrint(presenter.getImageFormat()));
+            } else {
+                removeMetadata.setChecked(lastSettings.getRemoveMetadata());
+            }
+            ignoreSetup = false;
+        }
     }
 
     @Override
@@ -169,20 +190,22 @@ public class ImageOptionsController extends Controller implements
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (buttonView == changeImageChecksum) {
-            presenter.changeImageChecksum(isChecked);
-        } else if (buttonView == fixExif) {
-            presenter.fixExif(isChecked);
-        } else if (buttonView == removeMetadata) {
-            presenter.removeMetadata(isChecked);
-        } else if (buttonView == removeFilename) {
-            presenter.removeFilename(isChecked);
-        } else if (buttonView == reencode) {
-            //isChecked here means whether the current click has made the button checked
-            if (!isChecked) {
-                onReencodingCanceled();
-            } else {
-                callbacks.onReencodeOptionClicked(presenter.getImageFormat(), presenter.getImageDims());
+        if(!ignoreSetup) { //this variable is to ignore any side effects of checking boxes when last settings are being put in
+            if (buttonView == changeImageChecksum) {
+                presenter.changeImageChecksum(isChecked);
+            } else if (buttonView == fixExif) {
+                presenter.fixExif(isChecked);
+            } else if (buttonView == removeMetadata) {
+                presenter.removeMetadata(isChecked);
+            } else if (buttonView == removeFilename) {
+                presenter.removeFilename(isChecked);
+            } else if (buttonView == reencode) {
+                //isChecked here means whether the current click has made the button checked
+                if (!isChecked) {
+                    onReencodingCanceled();
+                } else {
+                    callbacks.onReencodeOptionClicked(presenter.getImageFormat(), presenter.getImageDims());
+                }
             }
         }
     }
@@ -194,6 +217,8 @@ public class ImageOptionsController extends Controller implements
         removeMetadata.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
         reencode.setChecked(false);
 
+        reencode.setText(context.getString(R.string.image_options_re_encode));
+
         presenter.setReencode(null);
     }
 
@@ -202,6 +227,8 @@ public class ImageOptionsController extends Controller implements
         removeMetadata.setEnabled(false);
         removeMetadata.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
         removeMetadata.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+
+        reencode.setText("Re-encode " + reencodeSettings.prettyPrint(presenter.getImageFormat()));
 
         presenter.setReencode(reencodeSettings);
     }

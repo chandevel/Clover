@@ -23,11 +23,13 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.Gson;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -52,12 +54,16 @@ public class ImageReencodingPresenter {
     private ImageOptions imageOptions;
     private BackgroundUtils.Cancelable cancelable;
 
-    public ImageReencodingPresenter(ImageReencodingPresenterCallback callback, Loadable loadable) {
+    public ImageReencodingPresenter(ImageReencodingPresenterCallback callback, Loadable loadable, ImageOptions lastOptions) {
         inject(this);
 
         this.loadable = loadable;
         this.callback = callback;
-        this.imageOptions = new ImageOptions();
+        if (lastOptions != null) {
+            imageOptions = lastOptions;
+        } else {
+            imageOptions = new ImageOptions();
+        }
     }
 
     public void onDestroy() {
@@ -143,6 +149,7 @@ public class ImageReencodingPresenter {
             reply = replyManager.getReply(loadable);
         }
 
+        ChanSettings.lastImageOptions.set(new Gson().toJson(imageOptions));
         Logger.d(TAG, "imageOptions: [" + imageOptions.toString() + "]");
 
         //all options are default - do nothing
@@ -318,6 +325,24 @@ public class ImageReencodingPresenter {
         public String toString() {
             return "reencodeType = " + reencodeType + ", reencodeQuality = " + reencodeQuality +
                     ", reducePercent = " + reducePercent;
+        }
+
+        public String prettyPrint(Bitmap.CompressFormat currentFormat) {
+            String type = "Unknown";
+            switch (reencodeType) {
+                case AS_IS:
+                    type = "As-is";
+                    break;
+                case AS_PNG:
+                    type = "PNG";
+                    break;
+                case AS_JPEG:
+                    type = "JPEG";
+                    break;
+            }
+            return "(" + type + ", " + (reencodeType == ReencodeType.AS_JPEG ||
+                    (reencodeType == ReencodeType.AS_IS && currentFormat == Bitmap.CompressFormat.JPEG) ?
+                    reencodeQuality + ", " : "") + reducePercent + "%)";
         }
     }
 
