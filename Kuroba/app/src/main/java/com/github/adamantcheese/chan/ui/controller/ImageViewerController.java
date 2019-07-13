@@ -134,7 +134,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
         }
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
-        overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
+        if (!loadable.isSavedCopy) {
+            overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
+        }
         overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
         overflowBuilder.withSubItem(R.string.action_image_rotate_cw, this::rotateImageCW);
         overflowBuilder.withSubItem(R.string.action_image_rotate_ccw, this::rotateImageCCW);

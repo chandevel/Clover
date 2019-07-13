@@ -56,11 +56,6 @@ public class AlbumViewController extends Controller implements
     public void onCreate() {
         super.onCreate();
 
-        // Navigation
-        navigation.buildMenu().withOverflow()
-                .withSubItem(R.string.action_download_album, this::downloadAlbumClicked)
-                .build().build();
-
         // View setup
         view = inflateRes(R.layout.controller_album_view);
         recyclerView = view.findViewById(R.id.recycler_view);
@@ -78,6 +73,14 @@ public class AlbumViewController extends Controller implements
     public void setImages(Loadable loadable, List<PostImage> postImages, int index, String title) {
         this.loadable = loadable;
         this.postImages = postImages;
+
+        if (!loadable.isSavedCopy) {
+            // Navigation
+            navigation.buildMenu().withOverflow()
+                    .withSubItem(R.string.action_download_album, this::downloadAlbumClicked)
+                    .build().build();
+        }
+
         navigation.title = title;
         navigation.subtitle = context.getResources().getQuantityString(R.plurals.image, postImages.size(), postImages.size());
         targetIndex = index;

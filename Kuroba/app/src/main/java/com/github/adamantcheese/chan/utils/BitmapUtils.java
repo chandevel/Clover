@@ -270,21 +270,10 @@ public class BitmapUtils {
             Context context,
             int width,
             int height,
-            @DrawableRes int drawableId,
-            boolean isLightTheme) {
+            @DrawableRes int drawableId) {
         Drawable originalDrawable = ContextCompat.getDrawable(context, drawableId);
         if (originalDrawable == null) {
             return null;
-        }
-
-        Drawable drawable;
-
-        if (isLightTheme) {
-            drawable = originalDrawable.mutate();
-            drawable.setTint(0xFF000000);
-        } else {
-            drawable = originalDrawable.mutate();
-            drawable.setTint(0xFFFFFFFF);
         }
 
         Bitmap bitmap = Bitmap.createBitmap(
@@ -293,8 +282,8 @@ public class BitmapUtils {
                 Bitmap.Config.ARGB_8888);
 
         Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
+        originalDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        originalDrawable.draw(canvas);
 
         return bitmap;
     }

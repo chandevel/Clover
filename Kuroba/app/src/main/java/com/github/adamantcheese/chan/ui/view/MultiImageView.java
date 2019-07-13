@@ -259,10 +259,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                     @Override
                     public void onResponse(ImageContainer response, boolean isImmediate) {
                         thumbnailRequest = null;
+
                         if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
                             ImageView thumbnail = new ImageView(getContext());
                             thumbnail.setImageBitmap(response.getBitmap());
-
 
                             onModeLoaded(Mode.LOWRES, thumbnail);
                         }

@@ -296,22 +296,19 @@ public class ImageLoader {
                     ", isFile = " + imageOnDiskFile.isFile() +
                     ", canRead = " + imageOnDiskFile.canRead() + ")");
 
-            Bitmap drawableBitmap = mCache.getBitmap(NOT_FOUND_IMAGE_TAG);
+            String cacheKey = getCacheKey(NOT_FOUND_IMAGE_TAG, width, height);
+            Bitmap drawableBitmap = mCache.getBitmap(cacheKey);
             if (drawableBitmap == null) {
-                boolean isLightTheme = ThemeHelper.getTheme().isLightTheme;
-
                 drawableBitmap = BitmapUtils.getBitmapFromVectorDrawable(
                         applicationContext,
                         width,
                         height,
-                        R.drawable.ic_404_image_not_found,
-                        isLightTheme);
+                        R.drawable.ic_404_image_not_found);
                 if (drawableBitmap == null) {
                     Logger.e(TAG, "Could not decode ic_404_image_not_found drawable");
                     return null;
                 }
 
-                String cacheKey = getCacheKey(NOT_FOUND_IMAGE_TAG, width, height);
                 mCache.putBitmap(cacheKey, drawableBitmap);
             }
 

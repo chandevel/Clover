@@ -73,6 +73,11 @@ public class FileCache implements FileCacheDownloader.Callback {
             } else {
                 Logger.e(TAG, "Cannot load saved image from the disk, path: "
                         + imageOnDiskFile.getAbsolutePath());
+
+                if (listener != null) {
+                    listener.onFail(true);
+                    listener.onEnd();
+                }
             }
 
             return null;
