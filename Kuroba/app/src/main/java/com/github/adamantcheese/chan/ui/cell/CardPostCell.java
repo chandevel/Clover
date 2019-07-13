@@ -189,10 +189,10 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbnailView.setVisibility(View.VISIBLE);
-            thumbnailView.setPostImage(post.image(), thumbnailView.getWidth(), thumbnailView.getHeight());
+            thumbnailView.setPostImage(post.image(), false);
         } else {
             thumbnailView.setVisibility(View.GONE);
-            thumbnailView.setPostImage(null, 0, 0);
+            thumbnailView.setPostImage(null,  false);
         }
 
         if (post.filterHighlightedColor != 0) {

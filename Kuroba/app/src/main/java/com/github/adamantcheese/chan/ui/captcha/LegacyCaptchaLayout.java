@@ -132,7 +132,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
         String html = IOUtils.assetAsString(getContext(), "captcha/captcha_legacy.html");
         html = html.replace("__site_key__", siteKey);
         internalWebView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
-        image.setUrl(null, 0, 0);
+        image.setUrl(null);
         input.requestFocus();
     }
 
@@ -143,7 +143,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
 
     private void onCaptchaLoaded(final String imageUrl, final String challenge) {
         this.challenge = challenge;
-        image.setUrl(imageUrl, 300, 57);
+        image.setUrl(imageUrl);
     }
 
     public static class CaptchaInterface {

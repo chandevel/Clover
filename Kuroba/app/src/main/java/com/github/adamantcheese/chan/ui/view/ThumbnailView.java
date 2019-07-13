@@ -92,7 +92,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         textPaint.setTextSize(sp(14));
     }
 
-    public void setUrl(String url, int width, int height) {
+    public void setUrl(String url) {
         if (container != null && container.getRequestUrl().equals(url)) {
             return;
         }
@@ -105,7 +105,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
 
         if (!TextUtils.isEmpty(url)) {
-            container = injector().instance(ImageLoader.class).get(url, this, width, height);
+            container = injector().instance(ImageLoader.class).get(url, this, 0, 0);
         }
     }
 

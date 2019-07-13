@@ -179,7 +179,7 @@ public class HistoryController extends Controller implements
         @Override
         public void onBindViewHolder(HistoryCell holder, int position) {
             History history = displayList.get(position);
-            holder.thumbnail.setUrl(history.thumbnailUrl, dp(48), dp(48));
+            holder.thumbnail.setUrl(history.thumbnailUrl);
 
             holder.text.setText(history.loadable.title);
             Board board = history.loadable.board;

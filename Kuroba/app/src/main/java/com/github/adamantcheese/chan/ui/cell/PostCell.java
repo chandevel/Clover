@@ -595,7 +595,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                     p.addRule(RelativeLayout.BELOW, lastId);
                 }
 
-                v.setPostImage(image, size, size);
+                v.setPostImage(image, false);
                 v.setClickable(true);
                 v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 v.setRounding(dp(2));

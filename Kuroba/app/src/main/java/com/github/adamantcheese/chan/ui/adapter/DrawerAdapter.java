@@ -255,7 +255,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         TextView bookmarkLabel = holder.textView;
         bookmarkLabel.setText(text);
-        holder.image.setUrl(pin.thumbnailUrl, dp(40), dp(40));
+        holder.image.setUrl(pin.thumbnailUrl);
 
         if (ChanSettings.watchEnabled.get()) {
             String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());

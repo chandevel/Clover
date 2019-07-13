@@ -55,10 +55,7 @@ public class AlbumViewCell extends FrameLayout {
 
     public void setPostImage(PostImage postImage) {
         this.postImage = postImage;
-        // with height and width 0 the image loader won't rescale the bitmap
-        // this isn't tied to a setting because the entire image needs to be retrieved from the server anyways
-        // and the prefetch option takes care of changing this to be a thumbnail or an actual image
-        thumbnailView.setPostImage(postImage, 0, 0);
+        thumbnailView.setPostImage(postImage, true);
 
         String details = postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight +
                 " " + AndroidUtils.getReadableFileSize(postImage.size, false);
