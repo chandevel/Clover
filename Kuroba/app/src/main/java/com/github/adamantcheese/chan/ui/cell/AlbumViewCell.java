@@ -60,9 +60,8 @@ public class AlbumViewCell extends FrameLayout {
         this.postImage = postImage;
         this.loadable = loadable;
 
-        // Keep this the same as the normal thumbnails to improve performance
         int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
-        thumbnailView.setPostImage(loadable, postImage, thumbnailSize, thumbnailSize);
+        thumbnailView.setPostImage(loadable, postImage, true, thumbnailSize, thumbnailSize);
 
         String details = postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight +
                 " " + AndroidUtils.getReadableFileSize(postImage.size, false);

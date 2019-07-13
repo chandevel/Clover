@@ -322,6 +322,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
             siteIcon.get((siteIcon, icon) -> {
                 if (SiteCell.this.siteIcon == siteIcon) {
                     image.setImageDrawable(icon);
+                    image.getDrawable().setTintList(null);
                 }
             });
         }

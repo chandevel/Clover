@@ -21,7 +21,6 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 
 import com.github.adamantcheese.chan.core.cache.FileCache;
-import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -98,18 +97,8 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
                 // Manually call postFinished()
                 postFinished(success);
             } else {
-                FileCacheDownloader fileCacheDownloader =
-                        fileCache.downloadFile(loadable, postImage, this);
-
-                // If the fileCacheDownloader is null then the destination already existed and onSuccess() has been called.
-                // Wait otherwise for the download to finish to avoid that the next task is immediately executed.
-                if (fileCacheDownloader != null) {
-                    // If the file is now downloading
-                    fileCacheDownloader.getFuture().get();
-                }
+                fileCache.downloadFile(loadable, postImage, this);
             }
-        } catch (InterruptedException e) {
-            onInterrupted();
         } catch (Exception e) {
             Logger.e(TAG, "Uncaught exception", e);
         }
@@ -127,10 +116,6 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     @Override
     public void onEnd() {
         postFinished(success);
-    }
-
-    private void onInterrupted() {
-        deleteDestination();
     }
 
     private void deleteDestination() {

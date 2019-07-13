@@ -53,8 +53,9 @@ public class PostsFilter {
             (lhs, rhs) -> {
                 long currentTimeSeconds = System.currentTimeMillis() / 1000;
 
-                long score1 = (currentTimeSeconds - lhs.time) / (lhs.getReplies() != 0 ? lhs.getReplies() : 1);
-                long score2 = (currentTimeSeconds - rhs.time) / (rhs.getReplies() != 0 ? rhs.getReplies() : 1);
+                //we can't divide by zero, but we can divide by the smallest thing that's closest to 0 instead
+                long score1 = (long) ((currentTimeSeconds - lhs.time) / (lhs.getReplies() != 0 ? lhs.getReplies() : Float.MIN_NORMAL));
+                long score2 = (long) ((currentTimeSeconds - rhs.time) / (rhs.getReplies() != 0 ? rhs.getReplies() : Float.MIN_NORMAL));
 
                 return Long.compare(score1, score2);
             };

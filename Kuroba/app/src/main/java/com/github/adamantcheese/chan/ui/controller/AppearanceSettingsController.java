@@ -113,6 +113,18 @@ public class AppearanceSettingsController extends SettingsController {
 
             groups.add(post);
         }
+
+        //Gallery group
+        {
+            SettingsGroup gallery = new SettingsGroup(R.string.settings_group_gallery);
+
+            requiresUiRefresh.add(gallery.add(new BooleanSettingView(this,
+                    ChanSettings.useImmersiveModeForGallery,
+                    R.string.setting_gallery_immersive_mode_title,
+                    R.string.setting_gallery_immersive_mode_description)));
+
+            groups.add(gallery);
+        }
     }
 
     private void setupLayoutModeSetting(SettingsGroup layout) {

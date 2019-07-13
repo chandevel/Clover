@@ -16,12 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -43,6 +44,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -430,7 +432,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             comment.setTypeface(ChanSettings.fontAlternate.get() ? Typeface.DEFAULT : theme.altFont);
         }
 
-        comment.setVisibility(isEmpty(commentText) && post.images == null ? GONE : VISIBLE);
+        comment.setVisibility(isEmpty(commentText) ? GONE : VISIBLE);
 
         if (threadMode) {
             if (selectable) {
@@ -525,6 +527,47 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         }
 
         divider.setVisibility(showDivider ? VISIBLE : GONE);
+
+        if (post.images.size() == 1) {
+            //display width, we don't care about height here
+            Point displaySize = new Point();
+            WindowManager windowManager = (WindowManager) getContext().getSystemService(Activity.WINDOW_SERVICE);
+            windowManager.getDefaultDisplay().getSize(displaySize);
+
+            //thumbnail size
+            int thumbnailSize = getResources().getDimensionPixelSize(R.dimen.cell_post_thumbnail_size);
+
+            //get the width of the cell for calculations, height we don't need but measure it anyways
+            this.measure(MeasureSpec.makeMeasureSpec(displaySize.x, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(displaySize.y, MeasureSpec.AT_MOST));
+
+            //we want the heights here, but the widths must be the exact size between the thumbnail and view edge so that we calculate offsets right
+            title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            icons.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            //You MUST measure a TextView before calling getLineCount, otherwise it will always return 0.
+            if (comment.getLineCount() > 2) {
+                RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
+                commentParams.removeRule(RelativeLayout.RIGHT_OF);
+                if (title.getMeasuredHeight() + (icons.getVisibility() == VISIBLE ? icons.getMeasuredHeight() : 0) < thumbnailSize) {
+                    commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_view);
+                } else {
+                    commentParams.addRule(RelativeLayout.BELOW, (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title));
+                }
+                comment.setLayoutParams(commentParams);
+
+                RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
+                replyParams.removeRule(RelativeLayout.RIGHT_OF);
+                replies.setLayoutParams(replyParams);
+            } else if (comment.getVisibility() == GONE) {
+                RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
+                replyParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                replies.setLayoutParams(replyParams);
+
+                RelativeLayout.LayoutParams replyExtraParams = (RelativeLayout.LayoutParams) repliesAdditionalArea.getLayoutParams();
+                replyExtraParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                repliesAdditionalArea.setLayoutParams(replyExtraParams);
+            }
+        }
     }
 
     private void buildThumbnails() {
@@ -556,7 +599,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                     p.addRule(RelativeLayout.BELOW, lastId);
                 }
 
-                v.setPostImage(loadable, image, size, size);
+                v.setPostImage(loadable, image, false, size, size);
                 v.setClickable(true);
                 v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 v.setRounding(dp(2));
@@ -572,9 +615,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
 
     private void unbindPost(Post post) {
         bound = false;
-
         icons.cancelRequests();
-
         setPostLinkableListener(post, false);
     }
 
@@ -731,18 +772,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         }
     }
 
-    private static Bitmap stickyIcon;
-    private static Bitmap closedIcon;
-    private static Bitmap trashIcon;
-    private static Bitmap archivedIcon;
-
-    static {
-        Resources res = AndroidUtils.getRes();
-        stickyIcon = BitmapFactory.decodeResource(res, R.drawable.sticky_icon);
-        closedIcon = BitmapFactory.decodeResource(res, R.drawable.closed_icon);
-        trashIcon = BitmapFactory.decodeResource(res, R.drawable.trash_icon);
-        archivedIcon = BitmapFactory.decodeResource(res, R.drawable.archived_icon);
-    }
+    private static Bitmap stickyIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.sticky_icon);
+    private static Bitmap closedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.closed_icon);
+    private static Bitmap trashIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.trash_icon);
+    private static Bitmap archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
 
     public static class PostIcons extends View {
         private static final int STICKY = 0x1;

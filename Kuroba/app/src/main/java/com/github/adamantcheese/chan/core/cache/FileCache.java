@@ -33,9 +33,8 @@ import java.util.concurrent.Executors;
 
 public class FileCache implements FileCacheDownloader.Callback {
     private static final String TAG = "FileCache";
-    private static final int DOWNLOAD_POOL_SIZE = 2;
 
-    private final ExecutorService downloadPool = Executors.newFixedThreadPool(DOWNLOAD_POOL_SIZE);
+    private final ExecutorService downloadPool = Executors.newCachedThreadPool();
 
     private final CacheHandler cacheHandler;
 
@@ -160,12 +159,11 @@ public class FileCache implements FileCacheDownloader.Callback {
 
     private FileCacheDownloader handleStartDownload(
             FileCacheListener listener, File file, String url) {
-        FileCacheDownloader downloader = FileCacheDownloader.fromCallbackClientUrlOutputUserAgent(
-                this, url, file);
+        FileCacheDownloader downloader = new FileCacheDownloader(this, url, file);
         if (listener != null) {
             downloader.addListener(listener);
         }
-        downloader.execute(downloadPool);
+        downloadPool.submit(downloader);
         downloaders.add(downloader);
         return downloader;
     }

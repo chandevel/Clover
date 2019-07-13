@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -89,7 +90,8 @@ public class SearchLayout extends LinearLayout {
         addView(searchView, searchViewParams);
 
         clearButton.setAlpha(0f);
-        clearButton.setImageResource(R.drawable.ic_clear_black_24dp);
+        clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
+        clearButton.getDrawable().setTint(Color.BLACK);
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
         clearButton.setOnClickListener(v -> {
             searchView.setText("");
@@ -109,7 +111,7 @@ public class SearchLayout extends LinearLayout {
     public void setCatalogSearchColors() {
         searchView.setTextColor(0xffffffff);
         searchView.setHintTextColor(0x88ffffff);
-        clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
+        clearButton.getDrawable().setTintList(null);
     }
 
     public void openKeyboard() {

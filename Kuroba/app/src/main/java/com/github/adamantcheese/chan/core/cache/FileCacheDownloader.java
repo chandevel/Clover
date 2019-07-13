@@ -33,8 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.Call;
@@ -64,18 +62,12 @@ public class FileCacheDownloader implements Runnable {
     // Main and worker thread.
     private AtomicBoolean running = new AtomicBoolean(false);
     private AtomicBoolean cancel = new AtomicBoolean(false);
-    private Future<?> future;
 
     // Worker thread.
     private Call call;
     private ResponseBody body;
 
-    static FileCacheDownloader fromCallbackClientUrlOutputUserAgent(
-            Callback callback, String url, File output) {
-        return new FileCacheDownloader(callback, url, output);
-    }
-
-    private FileCacheDownloader(Callback callback, String url, File output) {
+    public FileCacheDownloader(Callback callback, String url, File output) {
         this.callback = callback;
         this.url = url;
         this.output = output;
@@ -84,18 +76,8 @@ public class FileCacheDownloader implements Runnable {
     }
 
     @MainThread
-    public void execute(ExecutorService executor) {
-        future = executor.submit(this);
-    }
-
-    @MainThread
     public String getUrl() {
         return url;
-    }
-
-    @AnyThread
-    public Future<?> getFuture() {
-        return future;
     }
 
     @MainThread
@@ -114,11 +96,6 @@ public class FileCacheDownloader implements Runnable {
                 callback.downloaderFinished(this);
             }
         }
-    }
-
-    @AnyThread
-    private void post(Runnable runnable) {
-        handler.post(runnable);
     }
 
     @AnyThread
@@ -167,7 +144,7 @@ public class FileCacheDownloader implements Runnable {
 
             log("done");
 
-            post(() -> {
+            handler.post(() -> {
                 if (callback != null) {
                     callback.downloaderAddedFile(output);
                     callback.downloaderFinished(this);
@@ -194,7 +171,7 @@ public class FileCacheDownloader implements Runnable {
 
             final boolean finalIsNotFound = isNotFound;
             final boolean finalCancelled = cancelled;
-            post(() -> {
+            handler.post(() -> {
                 purgeOutput();
                 for (FileCacheListener callback : listeners) {
                     if (finalCancelled) {
@@ -303,7 +280,7 @@ public class FileCacheDownloader implements Runnable {
 
     @WorkerThread
     private void postProgress(final long downloaded, final long total) {
-        post(() -> {
+        handler.post(() -> {
             for (FileCacheListener callback : listeners) {
                 callback.onProgress(downloaded, total);
             }
@@ -311,8 +288,6 @@ public class FileCacheDownloader implements Runnable {
     }
 
     private static class CancelException extends IOException {
-        public CancelException() {
-        }
     }
 
     private static class HttpCodeIOException extends IOException {

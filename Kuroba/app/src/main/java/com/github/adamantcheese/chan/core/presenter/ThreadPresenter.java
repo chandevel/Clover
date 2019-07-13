@@ -600,7 +600,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
      */
     @Override
     public void onListScrolledToBottom() {
-        if (loadable.isThreadMode() && chanLoader != null && chanLoader.getThread() != null) {
+        if (loadable.isThreadMode() && chanLoader != null && chanLoader.getThread() != null && chanLoader.getThread().posts.size() > 0) {
             List<Post> posts = chanLoader.getThread().posts;
             loadable.setLastViewed(posts.get(posts.size() - 1).no);
         }
@@ -740,7 +740,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             }
         }
 
-        if (chanLoader != null) {
+        if (chanLoader != null && !images.isEmpty()) {
             threadPresenterCallback.showImages(images, index, chanLoader.getLoadable(), thumbnail);
         }
     }

@@ -32,6 +32,10 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -75,7 +79,8 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class ImageViewerController extends Controller implements ImageViewerPresenter.Callback {
+public class ImageViewerController extends Controller implements ImageViewerPresenter.Callback,
+        ToolbarMenuItem.ToobarThreedotMenuCallback {
     private static final String TAG = "ImageViewerController";
     private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
@@ -99,6 +104,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private TransitionImageView previewImage;
     private OptionalSwipeViewPager pager;
     private LoadingBar loadingBar;
+
+    private boolean isInImmersiveMode = false;
 
     public ImageViewerController(Loadable loadable, Context context, Toolbar toolbar) {
         super(context);
@@ -128,7 +135,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             menuBuilder.withItem(SAVE_ID, R.drawable.ic_file_download_white_24dp, this::saveClicked);
         }
 
-        NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
+        NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow(this);
         overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
         if (!loadable.isSavedCopy) {
             overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
@@ -138,10 +145,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
         }
         overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
-        overflowBuilder.withSubItem(R.string.action_image_rotate_cw, this::rotateImageCW);
-        overflowBuilder.withSubItem(R.string.action_image_rotate_ccw, this::rotateImageCCW);
+        overflowBuilder.withSubItem(R.string.action_image_rotate, this::rotateImage);
 
         overflowBuilder.build().build();
+
+        hideSystemUI();
 
         // View setup
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -187,7 +195,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     private void saveClicked(ToolbarMenuItem item) {
         item.setCallback(null);
-        item.setImage(R.drawable.ic_file_download_grey_24dp);
+        item.getView().getDrawable().setTint(Color.GRAY);
         saveShare(false, presenter.getCurrentPostImage());
     }
 
@@ -220,18 +228,30 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage());
     }
 
-    private void rotateImageCW(ToolbarMenuSubItem item) {
-        ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(), true);
-    }
+    private void rotateImage(ToolbarMenuSubItem item) {
+        String[] rotateOptions = {"Clockwise", "Flip", "Counterclockwise"};
+        Integer[] rotateInts = {90, 180, -90};
+        ListView rotateImageList = new ListView(context);
 
-    private void rotateImageCCW(ToolbarMenuSubItem item) {
-        ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(), false);
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setView(rotateImageList)
+                .create();
+        dialog.setCanceledOnTouchOutside(true);
+
+        rotateImageList.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, rotateOptions));
+        rotateImageList.setOnItemClickListener((parent, view, position, id) -> {
+            ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(), rotateInts[position]);
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
+        showSystemUI();
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -268,6 +288,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Override
     public boolean onBack() {
+        showSystemUI();
         presenter.onExit();
         return true;
     }
@@ -353,8 +374,18 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             return;
         }
 
-        saveItem.setImage(R.drawable.ic_file_download_white_24dp);
+        saveItem.getView().getDrawable().setTintList(null);
         saveItem.setCallback(this::saveClicked);
+    }
+
+    @Override
+    public void onMenuShown() {
+        showSystemUI();
+    }
+
+    @Override
+    public void onMenuHidden() {
+        hideSystemUI();
     }
 
     private void showImageSearchOptions() {
@@ -560,6 +591,42 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     private Window getWindow() {
         return ((Activity) context).getWindow();
+    }
+
+    private void hideSystemUI() {
+        if (!ChanSettings.useImmersiveModeForGallery.get()) {
+            return;
+        }
+
+        if (isInImmersiveMode) {
+            return;
+        }
+
+        isInImmersiveMode = true;
+
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
+    private void showSystemUI() {
+        if (!ChanSettings.useImmersiveModeForGallery.get()) {
+            return;
+        }
+
+        if (!isInImmersiveMode) {
+            return;
+        }
+
+        isInImmersiveMode = false;
+
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(0);
     }
 
     public interface ImageViewerCallback {

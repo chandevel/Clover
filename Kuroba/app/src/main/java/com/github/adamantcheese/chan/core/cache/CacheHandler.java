@@ -39,7 +39,7 @@ public class CacheHandler {
     //1GB for prefetching, so that entire threads can be loaded at once more easily, otherwise 100MB is plenty
     private static final long FILE_CACHE_DISK_SIZE = (ChanSettings.autoLoadThreadImages.get() ? 1000 : 100) * 1024 * 1024;
 
-    private final ExecutorService pool = Executors.newFixedThreadPool(1);
+    private final ExecutorService pool = Executors.newSingleThreadExecutor();
 
     private final File directory;
 
@@ -65,8 +65,7 @@ public class CacheHandler {
     @MainThread
     public File get(String key) {
         createDirectories();
-
-        return new File(directory, hash(key));
+        return new File(directory, String.valueOf(key.hashCode()));
     }
 
     @MainThread
@@ -183,10 +182,5 @@ public class CacheHandler {
             }
         }
         recalculateSize();
-    }
-
-    @AnyThread
-    private String hash(String key) {
-        return String.valueOf(key.hashCode());
     }
 }

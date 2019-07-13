@@ -55,14 +55,14 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
         playIcon = context.getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
     }
 
-    public void setPostImage(Loadable loadable, PostImage postImage, int width, int height) {
+    public void setPostImage(Loadable loadable, PostImage postImage, boolean useHiRes, int width, int height) {
         if (this.postImage != postImage) {
             this.postImage = postImage;
 
             if (postImage != null) {
                 if (!loadable.isSavedCopy) {
-                    String url = getUrl(postImage);
-                    setUrl(url, width, height);
+                    String url = getUrl(postImage, useHiRes);
+                    setUrl(url);
                 } else {
                     String fileName;
 
@@ -83,30 +83,22 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
                     setUrlFromDisk(loadable, fileName, postImage.spoiler, width, height);
                 }
             } else {
-                setUrl(null, width, height);
+                setUrl(null);
             }
         }
     }
 
-    private String getUrl(PostImage postImage) {
-        //if prefetch is on, and the file isn't a webm or a pdf
-        //  then if the image is spoilered and unspoilering is on
-        //      get the HQ image otherwise get the thumbnail
-        //  otherwise get the thumbnail
-        //otherwise get the thumbnail
-
-        if (ChanSettings.autoLoadThreadImages.get()) {
-            boolean isNotWebmAndNotPdf = !postImage.imageUrl.toString().contains("webm")
-                    && !postImage.imageUrl.toString().contains("pdf");
-
-            if (isNotWebmAndNotPdf) {
-                if (postImage.spoiler && ChanSettings.revealImageSpoilers.get()) {
-                    return postImage.imageUrl.toString();
+    private String getUrl(PostImage postImage, boolean useHiRes) {
+        String url = postImage.thumbnailUrl.toString();
+        if(ChanSettings.autoLoadThreadImages.get() || useHiRes) {
+            if(!postImage.imageUrl.toString().contains("webm") && !postImage.imageUrl.toString().contains("pdf")) {
+                if(!postImage.spoiler || ChanSettings.revealImageSpoilers.get()) {
+                    url = postImage.imageUrl.toString();
                 }
             }
         }
 
-        return postImage.getThumbnailUrl().toString();
+        return url;
     }
 
     public void setRatio(float ratio) {

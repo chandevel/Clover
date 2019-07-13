@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Pair;
@@ -41,6 +42,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -70,18 +72,22 @@ public class ImageOptionsController extends Controller implements
     private AppCompatButton ok;
 
     private int statusBarColorPrevious;
+    private ImageReencodingPresenter.ImageOptions lastSettings;
+    private boolean ignoreSetup;
 
     public ImageOptionsController(
             Context context,
             ImageOptionsHelper imageReencodingHelper,
             ImageOptionsControllerCallbacks callbacks,
-            Loadable loadable
+            Loadable loadable,
+            ImageReencodingPresenter.ImageOptions lastOptions
     ) {
         super(context);
         this.imageReencodingHelper = imageReencodingHelper;
         this.callbacks = callbacks;
+        lastSettings = lastOptions;
 
-        presenter = new ImageReencodingPresenter(this, loadable);
+        presenter = new ImageReencodingPresenter(this, loadable, lastOptions);
     }
 
     @Override
@@ -108,6 +114,12 @@ public class ImageOptionsController extends Controller implements
         reencode.setOnCheckedChangeListener(this);
         changeImageChecksum.setOnCheckedChangeListener(this);
 
+        if (presenter.getImageFormat() != Bitmap.CompressFormat.JPEG) {
+            fixExif.setEnabled(false);
+            fixExif.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            fixExif.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+        }
+
         viewHolder.setOnClickListener(this);
         preview.setOnClickListener(v -> {
             boolean isCurrentlyVisible = optionsHolder.getVisibility() == View.VISIBLE;
@@ -130,6 +142,23 @@ public class ImageOptionsController extends Controller implements
         statusBarColorPrevious = getWindow().getStatusBarColor();
         if (statusBarColorPrevious != 0) {
             AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+        }
+
+        if (lastSettings != null) {
+            ignoreSetup = true; //this variable is to ignore any side effects of checking all these boxes
+            removeFilename.setChecked(lastSettings.getRemoveFilename());
+            changeImageChecksum.setChecked(lastSettings.getChangeImageChecksum());
+            fixExif.setChecked(lastSettings.getFixExif());
+            ImageReencodingPresenter.ReencodeSettings lastReencode = lastSettings.getReencodeSettings();
+            if(lastReencode != null) {
+                removeMetadata.setChecked(!lastReencode.isDefault());
+                removeMetadata.setEnabled(!lastReencode.isDefault());
+                reencode.setChecked(!lastReencode.isDefault());
+                reencode.setText("Re-encode " + lastReencode.prettyPrint(presenter.getImageFormat()));
+            } else {
+                removeMetadata.setChecked(lastSettings.getRemoveMetadata());
+            }
+            ignoreSetup = false;
         }
     }
 
@@ -156,46 +185,52 @@ public class ImageOptionsController extends Controller implements
             presenter.applyImageOptions();
         } else if (v == viewHolder) {
             imageReencodingHelper.pop();
-        } else {
-            throw new RuntimeException("onClick Unknown view clicked");
         }
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (buttonView == changeImageChecksum) {
-            presenter.changeImageChecksum(isChecked);
-        } else if (buttonView == fixExif) {
-            presenter.fixExif(isChecked);
-        } else if (buttonView == removeMetadata) {
-            presenter.removeMetadata(isChecked);
-        } else if (buttonView == removeFilename) {
-            presenter.removeFilename(isChecked);
-        } else if (buttonView == reencode) {
-            //isChecked here means whether the current click has made the button checked
-            if (!isChecked) {
-                onReencodingCanceled();
-            } else {
-                callbacks.onReencodeOptionClicked(presenter.getImageFormat(), presenter.getImageDims());
+        if(!ignoreSetup) { //this variable is to ignore any side effects of checking boxes when last settings are being put in
+            if (buttonView == changeImageChecksum) {
+                presenter.changeImageChecksum(isChecked);
+            } else if (buttonView == fixExif) {
+                presenter.fixExif(isChecked);
+            } else if (buttonView == removeMetadata) {
+                presenter.removeMetadata(isChecked);
+            } else if (buttonView == removeFilename) {
+                presenter.removeFilename(isChecked);
+            } else if (buttonView == reencode) {
+                //isChecked here means whether the current click has made the button checked
+                if (!isChecked) {
+                    onReencodingCanceled();
+                } else {
+                    callbacks.onReencodeOptionClicked(presenter.getImageFormat(), presenter.getImageDims());
+                }
             }
-        } else {
-            throw new RuntimeException("onCheckedChanged Unknown view clicked");
         }
     }
 
     public void onReencodingCanceled() {
         removeMetadata.setChecked(false);
         removeMetadata.setEnabled(true);
+        removeMetadata.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        removeMetadata.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
         reencode.setChecked(false);
+
+        reencode.setText(context.getString(R.string.image_options_re_encode));
 
         presenter.setReencode(null);
     }
 
-    public void onReencodeOptionsSet(ImageReencodingPresenter.Reencode reencode) {
+    public void onReencodeOptionsSet(ImageReencodingPresenter.ReencodeSettings reencodeSettings) {
         removeMetadata.setChecked(true);
         removeMetadata.setEnabled(false);
+        removeMetadata.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+        removeMetadata.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
 
-        presenter.setReencode(reencode);
+        reencode.setText("Re-encode " + reencodeSettings.prettyPrint(presenter.getImageFormat()));
+
+        presenter.setReencode(reencodeSettings);
     }
 
     @Override

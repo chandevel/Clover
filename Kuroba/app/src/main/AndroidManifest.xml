@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <application
         android:name=".Chan"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="${iconLoc}"
         android:label="${appName}"
         android:theme="@style/Chan.Theme">
 

@@ -279,6 +279,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         TextView bookmarkLabel = holder.textView;
         bookmarkLabel.setText(text);
+        holder.image.setUrl(pin.thumbnailUrl);
 
         loadBookmarkImage(holder, pin);
 
@@ -297,11 +298,10 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     watchCount.setTextColor(0xff33B5E5);
                 }
 
-                if ((watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) ||
+                watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);if ((watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) ||
                         (watchManager.getPinWatcher(pin).getImageCount() >= pin.loadable.board.imageLimit && pin.loadable.board.imageLimit > 0)) {
                     watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
-                } else {
-                    watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
+
                 }
             } else {
                 // FIXME: apparently we don't need to set the visibility to GONE here. Needs research.
@@ -327,13 +327,13 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private void loadBookmarkImage(PinViewHolder holder, Pin pin) {
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
         if (savedThread == null || !savedThread.isFullyDownloaded) {
-            holder.image.setUrl(pin.thumbnailUrl, dp(40), dp(40));
+            holder.image.setUrl(pin.thumbnailUrl);
             return;
         }
 
         String filename = StringUtils.convertThumbnailUrlToFilenameOnDisk(pin.thumbnailUrl);
         if (filename == null || filename.isEmpty()) {
-            holder.image.setUrl(pin.thumbnailUrl, dp(40), dp(40));
+            holder.image.setUrl(pin.thumbnailUrl);
             return;
         }
 

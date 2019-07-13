@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.helper;
 
 import android.app.Activity;
-import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
@@ -83,7 +82,6 @@ public class ImagePickDelegate implements Runnable {
                 try {
                     ClipboardManager manager = (ClipboardManager) getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
                     clipboardURL = HttpUrl.get(manager.getPrimaryClip().getItemAt(0).getText().toString());
-                    manager.setPrimaryClip(ClipData.newPlainText("", ""));
                 } catch (Exception ignored) {
                     Toast.makeText(activity, activity.getString(R.string.image_url_get_failed), Toast.LENGTH_SHORT).show();
                     callback.onFilePickError(true);

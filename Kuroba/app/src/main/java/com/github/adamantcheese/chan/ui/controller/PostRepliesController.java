@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -140,12 +141,8 @@ public class PostRepliesController extends BaseFloatingController {
         ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(context, 0) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                PostCellInterface postCell;
-                if (convertView instanceof PostCellInterface) {
-                    postCell = (PostCellInterface) convertView;
-                } else {
-                    postCell = (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
-                }
+                @SuppressLint("ViewHolder") //don't recycle due to dynamic view layout changes
+                        PostCellInterface postCell = (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
 
                 final Post p = getItem(position);
                 boolean showDivider = position < getCount() - 1;

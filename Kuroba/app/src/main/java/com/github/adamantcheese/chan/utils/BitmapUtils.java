@@ -29,8 +29,8 @@ public class BitmapUtils {
     private static final String TAG = "BitmapUtils";
     private static final int MIN_QUALITY = 1;
     private static final int MAX_QUALITY = 100;
-    private static final int MIN_REDUCE = 1;
-    private static final int MAX_REDUCE = 10;
+    private static final int MIN_REDUCE = 0;
+    private static final int MAX_REDUCE = 100;
     private static final int PIXEL_DIFF = 5;
     private static final String TEMP_FILE_EXTENSION = ".tmp";
     private static final String TEMP_FILE_NAME = "temp_file_name";
@@ -46,16 +46,16 @@ public class BitmapUtils {
             boolean fixExif,
             boolean removeMetadata,
             boolean changeImageChecksum,
-            @Nullable ImageReencodingPresenter.Reencode reencode
+            @Nullable ImageReencodingPresenter.ReencodeSettings reencodeSettings
     ) throws IOException {
         int quality = MAX_QUALITY;
         int reduce = MIN_REDUCE;
         ImageReencodingPresenter.ReencodeType reencodeType = ImageReencodingPresenter.ReencodeType.AS_IS;
 
-        if (reencode != null) {
-            quality = reencode.getReencodeQuality();
-            reduce = reencode.getReduce();
-            reencodeType = reencode.getReencodeType();
+        if (reencodeSettings != null) {
+            quality = reencodeSettings.getReencodeQuality();
+            reduce = reencodeSettings.getReducePercent();
+            reencodeType = reencodeSettings.getReencodeType();
         }
 
         if (quality < MIN_QUALITY) {
@@ -107,7 +107,7 @@ public class BitmapUtils {
 
             //scale the image down
             if (reduce != MIN_REDUCE) {
-                float scale = 1f / reduce;
+                float scale = (100f - (float) reduce) / 100f;
                 matrix.setScale(scale, scale);
             }
 
@@ -211,7 +211,25 @@ public class BitmapUtils {
         bitmap.setPixel(randomX, randomY, pixel);
     }
 
+    public static boolean isFileSupportedForReencoding(File file) {
+        try {
+            Bitmap.CompressFormat imageFormat = getImageFormat(file);
+            return imageFormat == Bitmap.CompressFormat.JPEG
+                    || imageFormat == Bitmap.CompressFormat.PNG;
+        } catch (IOException e) {
+            // ignore
+            return false;
+        }
+    }
+
     public static Bitmap.CompressFormat getImageFormat(File file) throws IOException {
+        if (!file.exists() || !file.isFile() || !file.canRead()) {
+            throw new IOException("File " + file.getAbsolutePath() + " is inaccessible " +
+                    "(exists = " + file.exists() +
+                    ", isFile = " + file.isFile() +
+                    ", canRead = " + file.canRead() + ")");
+        }
+
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
             byte[] header = new byte[16];
             raf.read(header);
@@ -248,7 +266,7 @@ public class BitmapUtils {
                 }
             }
 
-            throw new IllegalArgumentException("File " + file.getName() + " is neither PNG nor JPEG");
+            throw new IOException("File " + file.getName() + " is neither PNG nor JPEG");
         }
     }
 

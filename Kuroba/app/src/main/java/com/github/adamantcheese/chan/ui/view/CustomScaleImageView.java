@@ -20,7 +20,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
-
 import com.github.adamantcheese.chan.utils.Logger;
 
 public class CustomScaleImageView extends SubsamplingScaleImageView {
@@ -52,14 +51,13 @@ public class CustomScaleImageView extends SubsamplingScaleImageView {
                     setMaxScale(scale * 2f);
                 }
                 setMinimumScaleType(SCALE_TYPE_CUSTOM);
-
-                if (callback != null) {
-                    callback.onReady();
-                }
             }
 
             @Override
             public void onImageLoaded() {
+                if (callback != null) {
+                    callback.onReady();
+                }
             }
 
             @Override

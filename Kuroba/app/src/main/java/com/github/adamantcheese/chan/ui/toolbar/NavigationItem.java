@@ -108,6 +108,15 @@ public class NavigationItem {
                             ToolbarMenuItem::showSubmenu));
         }
 
+        public MenuOverflowBuilder withOverflow(ToolbarMenuItem.ToobarThreedotMenuCallback threedotMenuCallback) {
+            return new MenuOverflowBuilder(
+                    this,
+                    new ToolbarMenuItem(
+                            ToolbarMenu.OVERFLOW_ID,
+                            R.drawable.ic_more_vert_white_24dp,
+                            ToolbarMenuItem::showSubmenu,
+                            threedotMenuCallback));
+        }
         public ToolbarMenu build() {
             navigationItem.menu = menu;
             return menu;

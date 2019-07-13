@@ -136,7 +136,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     public void onPause() {
-        pauseVideo();
+        if (exoPlayer != null) {
+            exoPlayer.setPlayWhenReady(false);
+        }
     }
 
     public void bindPostImage(PostImage postImage, Callback callback) {
@@ -196,12 +198,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             }
         }
         return gif;
-    }
-
-    private void pauseVideo() {
-        if (exoPlayer != null) {
-            exoPlayer.setPlayWhenReady(false);
-        }
     }
 
     public void setVolume(boolean muted) {
@@ -488,9 +484,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         }
     }
 
-    public void rotateImage(boolean CW) {
+    public void rotateImage(int degrees) {
         CustomScaleImageView imageView = findScaleImageView();
         if (imageView == null) return;
+        if (degrees % 90 != 0 && degrees >= -90 && degrees <= 180)
+            throw new IllegalArgumentException("Degrees must be a multiple of 90 and in the range -90 < deg < 180");
         //swap the current scale to the opposite one every 90 degree increment
         //0 degrees is X scale, 90 is Y, 180 is X, 270 is Y
         float curScale = imageView.getScale();
@@ -501,32 +499,20 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         //orientation is internal to the subsamplingimageview's internal bitmap while rotation is on the entire view
         switch (imageView.getAppliedOrientation()) {
             case SubsamplingScaleImageView.ORIENTATION_0:
-                if (CW) {
-                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_90);
-                } else {
-                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_270);
-                }
+                //rotate from 0 (0 is 0, 90 is 90, 180 is 180, -90 is 270)
+                imageView.setOrientation(degrees >= 0 ? degrees : 360 + degrees);
                 break;
             case SubsamplingScaleImageView.ORIENTATION_90:
-                if (CW) {
-                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_180);
-                } else {
-                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_0);
-                }
+                //rotate from 90 (0 is 90, 90 is 180, 180 is 270, -90 is 0)
+                imageView.setOrientation(90 + degrees);
                 break;
             case SubsamplingScaleImageView.ORIENTATION_180:
-                if (CW) {
-                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_270);
-                } else {
-                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_90);
-                }
+                //rotate from 180 (0 is 180, 90 is 270, 180 is 0, -90 is 90)
+                imageView.setOrientation(degrees == 180 ? 0 : 180 + degrees);
                 break;
             case SubsamplingScaleImageView.ORIENTATION_270:
-                if (CW) {
-                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_0);
-                } else {
-                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_180);
-                }
+                //rotate from 270 (0 is 270, 90 is 0, 180 is 90, -90 is 180)
+                imageView.setOrientation(degrees >= 90 ? degrees - 90 : 270 + degrees);
                 break;
         }
     }

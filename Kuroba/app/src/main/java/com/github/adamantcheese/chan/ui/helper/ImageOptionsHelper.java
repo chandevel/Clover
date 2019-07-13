@@ -11,9 +11,11 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.ui.controller.ImageOptionsController;
 import com.github.adamantcheese.chan.ui.controller.ImageReencodeOptionsController;
+import com.google.gson.Gson;
 
 public class ImageOptionsHelper implements
         ImageOptionsController.ImageOptionsControllerCallbacks,
@@ -23,6 +25,8 @@ public class ImageOptionsHelper implements
     private ImageReencodeOptionsController imageReencodeOptionsController = null;
     private final ImageReencodingHelperCallback callbacks;
 
+    private ImageReencodingPresenter.ImageOptions lastImageOptions;
+
     public ImageOptionsHelper(Context context, ImageReencodingHelperCallback callbacks) {
         this.context = context;
         this.callbacks = callbacks;
@@ -30,7 +34,12 @@ public class ImageOptionsHelper implements
 
     public void showController(Loadable loadable) {
         if (imageOptionsController == null) {
-            imageOptionsController = new ImageOptionsController(context, this, this, loadable);
+            try { //load up the last image options every time this controller is created
+                lastImageOptions = new Gson().fromJson(ChanSettings.lastImageOptions.get(), ImageReencodingPresenter.ImageOptions.class);
+            } catch (Exception ignored) {
+                lastImageOptions = null;
+            }
+            imageOptionsController = new ImageOptionsController(context, this, this, loadable, lastImageOptions);
             callbacks.presentController(imageOptionsController);
         }
     }
@@ -52,7 +61,8 @@ public class ImageOptionsHelper implements
     @Override
     public void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat, @Nullable Pair<Integer, Integer> dims) {
         if (imageReencodeOptionsController == null && imageFormat != null && dims != null) {
-            imageReencodeOptionsController = new ImageReencodeOptionsController(context, this, this, imageFormat, dims);
+            imageReencodeOptionsController = new ImageReencodeOptionsController(context, this, this, imageFormat,
+                    dims, lastImageOptions != null ? lastImageOptions.getReencodeSettings() : null);
             callbacks.presentController(imageReencodeOptionsController);
         } else {
             Toast.makeText(context, context.getString(R.string.image_reencode_format_error), Toast.LENGTH_LONG).show();
@@ -74,12 +84,12 @@ public class ImageOptionsHelper implements
     }
 
     @Override
-    public void onOk(ImageReencodingPresenter.Reencode reencode) {
+    public void onOk(ImageReencodingPresenter.ReencodeSettings reencodeSettings) {
         if (imageOptionsController != null) {
-            if (reencode.isDefault()) {
+            if (reencodeSettings.isDefault()) {
                 imageOptionsController.onReencodingCanceled();
             } else {
-                imageOptionsController.onReencodeOptionsSet(reencode);
+                imageOptionsController.onReencodeOptionsSet(reencodeSettings);
             }
         }
 

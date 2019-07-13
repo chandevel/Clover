@@ -31,9 +31,9 @@ import androidx.core.app.NotificationCompat;
 
 import com.github.adamantcheese.chan.R;
 
-import javax.inject.Inject;
-
 import org.greenrobot.eventbus.EventBus;
+
+import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -93,24 +93,26 @@ public class SavingNotification extends Service {
     }
 
     private Notification getNotification() {
-        Intent intent = new Intent(this, SavingNotification.class);
-        intent.putExtra(CANCEL_KEY, true);
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        synchronized (this) {
+            Intent intent = new Intent(this, SavingNotification.class);
+            intent.putExtra(CANCEL_KEY, true);
+            PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext())
-                .setSmallIcon(R.drawable.ic_stat_notify)
-                .setContentTitle(getString(R.string.image_save_notification_downloading))
-                .setContentText(getString(R.string.image_save_notification_cancel))
-                .setProgress(totalTasks, doneTasks, false)
-                .setContentInfo(doneTasks + "/" + totalTasks)
-                .setContentIntent(pendingIntent)
-                .setOngoing(true);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext())
+                    .setSmallIcon(R.drawable.ic_stat_notify)
+                    .setContentTitle(getString(R.string.image_save_notification_downloading))
+                    .setContentText(getString(R.string.image_save_notification_cancel))
+                    .setProgress(totalTasks, doneTasks, false)
+                    .setContentInfo(doneTasks + "/" + totalTasks)
+                    .setContentIntent(pendingIntent)
+                    .setOngoing(true);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder.setChannelId(NOTIFICATION_ID_STR);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                builder.setChannelId(NOTIFICATION_ID_STR);
+            }
+
+            return builder.build();
         }
-
-        return builder.build();
     }
 
     public static class SavingCancelRequestMessage {

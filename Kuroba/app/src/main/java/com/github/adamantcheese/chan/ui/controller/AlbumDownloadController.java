@@ -195,7 +195,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
         public void onBindViewHolder(AlbumDownloadCell holder, int position) {
             AlbumDownloadItem item = items.get(position);
 
-            holder.thumbnailView.setPostImage(loadable, item.postImage, dp(100), dp(100));
+            holder.thumbnailView.setPostImage(loadable, item.postImage, false, dp(100), dp(100));
             setItemChecked(holder, item.checked, false);
         }
 
