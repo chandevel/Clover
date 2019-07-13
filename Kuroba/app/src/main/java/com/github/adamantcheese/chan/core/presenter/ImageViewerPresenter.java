@@ -203,6 +203,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
             callback.setImageMode(other, MultiImageView.Mode.LOWRES, false);
         }
 
+        cancelPreviousImageDownload(position);
+
         // Already in LOWRES mode
         if (callback.getImageMode(postImage) == MultiImageView.Mode.LOWRES) {
             onLowResInCenter();
@@ -275,6 +277,21 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
             preloadingImage.cancel();
         }
         preloadingImages.clear();
+    }
+
+    private void cancelPreviousImageDownload(int position) {
+        Set<FileCacheDownloader> toRemove = new HashSet<>();
+        for (FileCacheDownloader downloader : preloadingImages) {
+            if (position - 1 >= 0) {
+                if (downloader.getUrl().equals(images.get(position - 1).imageUrl.toString())) {
+                    toRemove.add(downloader);
+                }
+            }
+        }
+        for (FileCacheDownloader downloader : toRemove) {
+            downloader.cancel();
+        }
+        preloadingImages.removeAll(toRemove);
     }
 
     @Override

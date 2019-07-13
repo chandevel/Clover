@@ -135,7 +135,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     public void onPause() {
-        pauseVideo();
+        if (exoPlayer != null) {
+            exoPlayer.setPlayWhenReady(false);
+        }
     }
 
     public void bindPostImage(PostImage postImage, Callback callback) {
@@ -195,12 +197,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             }
         }
         return gif;
-    }
-
-    private void pauseVideo() {
-        if (exoPlayer != null) {
-            exoPlayer.setPlayWhenReady(false);
-        }
     }
 
     public void setVolume(boolean muted) {
