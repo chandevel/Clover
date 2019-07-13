@@ -164,8 +164,6 @@ public class ImageOptionsController extends Controller implements
             presenter.applyImageOptions();
         } else if (v == viewHolder) {
             imageReencodingHelper.pop();
-        } else {
-            throw new RuntimeException("onClick Unknown view clicked");
         }
     }
 
@@ -186,8 +184,6 @@ public class ImageOptionsController extends Controller implements
             } else {
                 callbacks.onReencodeOptionClicked(presenter.getImageFormat(), presenter.getImageDims());
             }
-        } else {
-            throw new RuntimeException("onCheckedChanged Unknown view clicked");
         }
     }
 
