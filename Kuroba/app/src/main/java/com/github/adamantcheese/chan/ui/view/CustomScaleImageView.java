@@ -52,14 +52,13 @@ public class CustomScaleImageView extends SubsamplingScaleImageView {
                     setMaxScale(scale * 2f);
                 }
                 setMinimumScaleType(SCALE_TYPE_CUSTOM);
-
-                if (callback != null) {
-                    callback.onReady();
-                }
             }
 
             @Override
             public void onImageLoaded() {
+                if (callback != null) {
+                    callback.onReady();
+                }
             }
 
             @Override

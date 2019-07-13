@@ -21,8 +21,8 @@ import androidx.annotation.MainThread;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
