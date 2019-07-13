@@ -266,6 +266,7 @@ Note that for country code filtering, troll country codes should be prepended wi
 
     <string name="drawer_pinned">Bookmarked threads</string>
     <string name="drawer_pin_removed">Removed \"%1$s\"</string>
+    <string name="drawer_pin_with_saved_thread_removed">Removed pin \"%1$s\" with saved thread</string>
     <string name="drawer_pins_cleared">%1$s cleared</string>
     <string name="drawer_pins_non_cleared">No bookmarks cleared.</string>
     <string name="drawer_pins_non_cleared_try_all">No bookmarks cleared. Hold to remove all.</string>

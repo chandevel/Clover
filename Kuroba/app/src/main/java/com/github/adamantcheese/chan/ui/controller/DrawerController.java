@@ -202,19 +202,24 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         final Pin undoPin = pin.clone();
         watchManager.deletePin(pin);
 
-        if (!PinType.hasDownloadFlag(pin.pinType)) {
-            // If this pin has a DownloadPostsFlag we can't readd it with snackbar because we delete
-            // all of the thread file from the disk, so we just don't show the snackbar in this case.
+        Snackbar snackbar;
 
-            Snackbar snackbar = Snackbar.make(
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            snackbar = Snackbar.make(
                     drawerLayout,
                     context.getString(R.string.drawer_pin_removed, pin.loadable.title),
                     Snackbar.LENGTH_LONG);
 
-            fixSnackbarText(context, snackbar);
             snackbar.setAction(R.string.undo, v -> watchManager.createPin(undoPin));
-            snackbar.show();
+        } else {
+            snackbar = Snackbar.make(
+                    drawerLayout,
+                    context.getString(R.string.drawer_pin_with_saved_thread_removed, pin.loadable.title),
+                    Snackbar.LENGTH_LONG);
         }
+
+        fixSnackbarText(context, snackbar);
+        snackbar.show();
     }
 
     @Override
