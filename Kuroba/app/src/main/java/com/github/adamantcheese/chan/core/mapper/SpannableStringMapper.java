@@ -188,6 +188,8 @@ public class SpannableStringMapper {
             case SPOILER:
                 postLinkableValueJson = gson.toJson(new PostLinkableSpoilerValue(
                         SerializablePostLinkableSpan.PostLinkableType.Spoiler));
+                serializablePostLinkableSpan.setPostLinkableType(
+                        SerializablePostLinkableSpan.PostLinkableType.Spoiler.getTypeValue());
                 break;
             case THREAD:
                 if (!(postLinkable.value instanceof CommentParser.ThreadLink)) {
@@ -201,11 +203,15 @@ public class SpannableStringMapper {
                         threadLink.board,
                         threadLink.threadId,
                         threadLink.postId));
+                serializablePostLinkableSpan.setPostLinkableType(
+                        SerializablePostLinkableSpan.PostLinkableType.Thread.getTypeValue());
                 break;
             case BOARD:
                 postLinkableValueJson = gson.toJson(new PostLinkableBoardLinkValue(
                         SerializablePostLinkableSpan.PostLinkableType.Board,
                         (String) postLinkable.value));
+                serializablePostLinkableSpan.setPostLinkableType(
+                        SerializablePostLinkableSpan.PostLinkableType.Board.getTypeValue());
                 break;
             case SEARCH:
                 if (!(postLinkable.value instanceof CommentParser.SearchLink)) {
@@ -218,6 +224,8 @@ public class SpannableStringMapper {
                         SerializablePostLinkableSpan.PostLinkableType.Search,
                         searchLink.board,
                         searchLink.search));
+                serializablePostLinkableSpan.setPostLinkableType(
+                        SerializablePostLinkableSpan.PostLinkableType.Search.getTypeValue());
                 break;
             default:
                 throw new IllegalArgumentException("Not implemented for type " + postLinkable.type.name());
