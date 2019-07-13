@@ -414,6 +414,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         });
 
         imageLoader.getImage(
+                true,
                 loadable,
                 postImage,
                 previewImage.getWidth(),
@@ -442,6 +443,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
 
         imageLoader.getImage(
+                true,
                 loadable,
                 postImage,
                 previewImage.getWidth(),

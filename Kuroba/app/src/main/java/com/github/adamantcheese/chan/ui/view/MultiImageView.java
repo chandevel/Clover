@@ -242,6 +242,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         }
 
         thumbnailRequest = imageLoader.getImage(
+                true,
                 loadable,
                 postImage,
                 getWidth(),

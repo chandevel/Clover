@@ -6,6 +6,8 @@ import com.github.adamantcheese.chan.core.model.save.SerializablePostImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.HttpUrl;
+
 public class PostImageMapper {
 
     public static SerializablePostImage toSerializablePostImage(PostImage postImage) {
@@ -13,6 +15,8 @@ public class PostImageMapper {
                 postImage.originalName,
                 postImage.filename,
                 postImage.extension,
+                postImage.thumbnailUrl.toString(),
+                postImage.spoilerThumbnailUrl.toString(),
                 postImage.imageWidth,
                 postImage.imageHeight,
                 postImage.spoiler,
@@ -35,6 +39,8 @@ public class PostImageMapper {
                 .originalName(serializablePostImage.getOriginalName())
                 .filename(serializablePostImage.getFilename())
                 .extension(serializablePostImage.getExtension())
+                .thumbnailUrl(HttpUrl.parse(serializablePostImage.getThumbnailUrlString()))
+                .spoilerThumbnailUrl(HttpUrl.parse(serializablePostImage.getSpoilerUrlString()))
                 .imageWidth(serializablePostImage.getImageWidth())
                 .imageHeight(serializablePostImage.getImageHeight())
                 .spoiler(serializablePostImage.isSpoiler())
@@ -42,7 +48,8 @@ public class PostImageMapper {
                 .build();
     }
 
-    public static List<PostImage> fromSerializablePostImageList(List<SerializablePostImage> serializablePostImageList) {
+    public static List<PostImage> fromSerializablePostImageList(
+            List<SerializablePostImage> serializablePostImageList) {
         List<PostImage> postImageList = new ArrayList<>(serializablePostImageList.size());
 
         for (SerializablePostImage serializablePostImage : serializablePostImageList) {

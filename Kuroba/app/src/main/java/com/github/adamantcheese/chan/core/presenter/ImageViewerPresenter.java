@@ -362,6 +362,11 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     private boolean videoAutoLoad(Loadable loadable, PostImage postImage) {
+        if (loadable.isSavedCopy) {
+            // All videos are stored locally when isSavedCopy is true
+            return true;
+        }
+
         return imageAutoLoad(loadable, postImage) && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
     }
 

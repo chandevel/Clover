@@ -11,6 +11,10 @@ public class SerializablePostImage {
     private String filename;
     @SerializedName("extension")
     private String extension;
+    @SerializedName("thumbnail_url")
+    private String thumbnailUrlString;
+    @SerializedName("spoiler_url")
+    private String spoilerUrlString;
     @SerializedName("image_width")
     private int imageWidth;
     @SerializedName("image_height")
@@ -24,6 +28,8 @@ public class SerializablePostImage {
             String originalName,
             String filename,
             String extension,
+            String thumbnailUrlString,
+            String spoilerUrlString,
             int imageWidth,
             int imageHeight,
             boolean spoiler,
@@ -31,6 +37,8 @@ public class SerializablePostImage {
         this.originalName = originalName;
         this.filename = filename;
         this.extension = extension;
+        this.thumbnailUrlString = thumbnailUrlString;
+        this.spoilerUrlString = spoilerUrlString;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.spoiler = spoiler;
@@ -47,6 +55,14 @@ public class SerializablePostImage {
 
     public String getExtension() {
         return extension;
+    }
+
+    public String getThumbnailUrlString() {
+        return thumbnailUrlString;
+    }
+
+    public String getSpoilerUrlString() {
+        return spoilerUrlString;
     }
 
     public int getImageWidth() {

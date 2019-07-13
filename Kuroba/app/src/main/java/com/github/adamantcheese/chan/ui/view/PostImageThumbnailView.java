@@ -27,10 +27,12 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 public class PostImageThumbnailView extends ThumbnailView implements View.OnLongClickListener {
     private PostImage postImage;
@@ -59,26 +61,52 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
 
             if (postImage != null) {
                 if (!loadable.isSavedCopy) {
-                    //if prefetch is on, and the file isn't a webm or a pdf
-                    //  then if the image is spoilered and unspoilering is on
-                    //      get the HQ image otherwise get the thumbnail
-                    //  otherwise get the thumbnail
-                    //otherwise get the thumbnail
-                    String url = ChanSettings.autoLoadThreadImages.get() ?
-                            (!postImage.imageUrl.toString().contains("webm") && !postImage.imageUrl.toString().contains("pdf") ?
-                                    (postImage.spoiler && ChanSettings.revealImageSpoilers.get() ?
-                                            postImage.imageUrl.toString() : postImage.getThumbnailUrl().toString()) :
-                                    postImage.getThumbnailUrl().toString()) :
-                            postImage.getThumbnailUrl().toString();
+                    String url = getUrl(postImage);
                     setUrl(url, width, height);
                 } else {
-                    String fileName = String.format("%s_original.%s", postImage.originalName, postImage.extension);
-                    setUrlFromDisk(loadable, fileName, width, height);
+                    String fileName;
+
+                    if (postImage.spoiler) {
+                        String extension = StringUtils.extractFileExtensionFromImageUrl(
+                                postImage.spoilerThumbnailUrl.toString());
+
+                        fileName = ThreadSaveManager.formatSpoilerImageName(extension);
+                    } else {
+                        String extension = StringUtils.extractFileExtensionFromImageUrl(
+                                postImage.thumbnailUrl.toString());
+
+                        fileName = ThreadSaveManager.formatThumbnailImageName(
+                                postImage.originalName,
+                                extension);
+                    }
+
+                    setUrlFromDisk(loadable, fileName, postImage.spoiler, width, height);
                 }
             } else {
                 setUrl(null, width, height);
             }
         }
+    }
+
+    private String getUrl(PostImage postImage) {
+        //if prefetch is on, and the file isn't a webm or a pdf
+        //  then if the image is spoilered and unspoilering is on
+        //      get the HQ image otherwise get the thumbnail
+        //  otherwise get the thumbnail
+        //otherwise get the thumbnail
+
+        if (ChanSettings.autoLoadThreadImages.get()) {
+            boolean isNotWebmAndNotPdf = !postImage.imageUrl.toString().contains("webm")
+                    && !postImage.imageUrl.toString().contains("pdf");
+
+            if (isNotWebmAndNotPdf) {
+                if (postImage.spoiler && ChanSettings.revealImageSpoilers.get()) {
+                    return postImage.imageUrl.toString();
+                }
+            }
+        }
+
+        return postImage.getThumbnailUrl().toString();
     }
 
     public void setRatio(float ratio) {

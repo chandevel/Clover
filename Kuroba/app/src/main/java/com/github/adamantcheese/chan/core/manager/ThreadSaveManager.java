@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.core.manager;
 
 import android.annotation.SuppressLint;
-import android.util.Pair;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -346,10 +345,8 @@ public class ThreadSaveManager {
                 throw new CouldNotCreateSpoilerImageDirectoryException(boardSaveDir);
             }
 
-            // Get spoiler image url and extension
-            // Pair<Extension, Url>
-            final Pair<String, HttpUrl> spoilerImageExtensionAndUrl =
-                    getSpoilerImageExtensionAndUrl(newPosts);
+            // Get spoiler image url
+            final HttpUrl spoilerImageUrl = getSpoilerImageUrl(newPosts);
 
             // Try to load old serialized thread
             @Nullable SerializableThread serializableThread =
@@ -368,7 +365,7 @@ public class ThreadSaveManager {
                 Single.fromCallable(() -> downloadSpoilerImage(
                         loadable,
                         boardSaveDir,
-                        spoilerImageExtensionAndUrl)
+                        spoilerImageUrl)
                 )
                 .flatMap((res) -> {
                     // For each post create a new inner rx stream (so they can be processed in parallel)
@@ -554,8 +551,10 @@ public class ThreadSaveManager {
             }
 
             {
+                String thumbnailExtension = StringUtils.extractFileExtensionFromImageUrl(
+                        postImage.thumbnailUrl.toString());
                 String thumbnailImageFilename = postImage.originalName + "_"
-                        + THUMBNAIL_FILE_NAME + "." + postImage.extension;
+                        + THUMBNAIL_FILE_NAME + "." + thumbnailExtension;
 
                 File thumbnailImage = new File(threadSaveDirImages, thumbnailImageFilename);
                 if (!thumbnailImage.exists()) {
@@ -586,10 +585,18 @@ public class ThreadSaveManager {
     private boolean downloadSpoilerImage(
             Loadable loadable,
             File threadSaveDirImages,
-            Pair<String, HttpUrl> spoilerImageUrlAndExtension) throws IOException {
+            HttpUrl spoilerImageUrl) throws IOException {
         // If the board uses spoiler image - download it
-        if (loadable.board.spoilers && spoilerImageUrlAndExtension != null) {
-            String spoilerImageName = SPOILER_FILE_NAME + "." + spoilerImageUrlAndExtension.first;
+        if (loadable.board.spoilers && spoilerImageUrl != null) {
+            String spoilerImageExtension = StringUtils.extractFileExtensionFromImageUrl(
+                    spoilerImageUrl.toString());
+            if (spoilerImageExtension == null) {
+                Logger.e(TAG, "Could not extract spoiler image extension from url, spoilerImageUrl = "
+                        + spoilerImageUrl.toString());
+                return false;
+            }
+
+            String spoilerImageName = SPOILER_FILE_NAME + "." + spoilerImageExtension;
             File spoilerImageFullPath = new File(threadSaveDirImages, spoilerImageName);
 
             if (spoilerImageFullPath.exists()) {
@@ -601,19 +608,17 @@ public class ThreadSaveManager {
                     loadable,
                     threadSaveDirImages,
                     spoilerImageName,
-                    spoilerImageUrlAndExtension.second);
+                    spoilerImageUrl);
         }
 
         return true;
     }
 
     @Nullable
-    private Pair<String, HttpUrl> getSpoilerImageExtensionAndUrl(List<Post> posts) {
+    private HttpUrl getSpoilerImageUrl(List<Post> posts) {
         for (Post post : posts) {
             if (post.images.size() > 0) {
-                return new Pair<>(
-                        post.images.get(0).extension,
-                        post.images.get(0).spoilerThumbnailUrl);
+                return post.images.get(0).spoilerThumbnailUrl;
             }
         }
 
@@ -629,17 +634,12 @@ public class ThreadSaveManager {
             AtomicInteger imageDownloadsWithIoError,
             int maxImageIoErrors) {
         if (post.images.isEmpty()) {
-            if (VERBOSE_LOG) {
-                Logger.d(TAG, "Post " + post.no + " contains no images");
-            }
+            Logger.d(TAG, "Post " + post.no + " contains no images");
             return Flowable.just(false);
         }
 
         if (!shouldDownloadImages()) {
-            if (VERBOSE_LOG) {
-                Logger.d(TAG, "Cannot load images or videos with the current network");
-            }
-
+            Logger.d(TAG, "Cannot load images or videos with the current network");
             return Flowable.just(false);
         }
 
@@ -716,10 +716,10 @@ public class ThreadSaveManager {
         int index = currentImageDownloadIndex.incrementAndGet();
         int percent = (int)(((float)index / (float) count) * 100f);
 
-        Logger.d(TAG, "Downloading is in progress for an image with loadable " + loadableToString(loadable) + ", " +
-                "percent = " + percent +
-                ", count = " + count +
-                ", index = " + index);
+        Logger.d(TAG, "Downloading is in progress for an image with loadable " + loadableToString(loadable) +
+                ", percent = " + percent +
+                ", total = " + count +
+                ", current = " + index);
     }
 
     private void deleteImageCompletely(
@@ -942,6 +942,11 @@ public class ThreadSaveManager {
         return originalName + "_" + ORIGINAL_FILE_NAME + "." + extension;
     }
 
+    public static String formatSpoilerImageName(String extension) {
+        // spoiler.jpg
+        return SPOILER_FILE_NAME + "." + extension;
+    }
+
     public static String getThreadSubDir(Loadable loadable) {
         // saved_threads/4chan/g/11223344
 
@@ -966,7 +971,7 @@ public class ThreadSaveManager {
     }
 
     public static String getBoardSubDir(Loadable loadable) {
-        // saved_threads/4chan/g/
+        // saved_threads/4chan/g
 
         return SAVED_THREADS_DIR_NAME +
                 File.separator +

@@ -120,9 +120,10 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     public void setUrlFromDisk(
             Loadable loadable,
             String filename,
+            boolean isSpoiler,
             int width,
             int height) {
-        container = imageLoader.getFromDisk(loadable, filename, this, width, height);
+        container = imageLoader.getFromDisk(loadable, filename, isSpoiler, this, width, height);
     }
 
     public void setCircular(boolean circular) {

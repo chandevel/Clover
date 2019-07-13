@@ -276,7 +276,7 @@ public class WatchManager implements WakeManager.Wakeable {
         threadSaveManager.stopDownloading(loadable);
     }
 
-    private void createOrUpdateSavedThread(SavedThread savedThread) {
+    public void createOrUpdateSavedThread(SavedThread savedThread) {
         for (int i = 0; i < savedThreads.size(); i++) {
             SavedThread st = savedThreads.get(i);
 

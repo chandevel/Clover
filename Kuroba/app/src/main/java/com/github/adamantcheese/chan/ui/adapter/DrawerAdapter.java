@@ -337,7 +337,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             return;
         }
 
-        holder.image.setUrlFromDisk(pin.loadable, filename, dp(40), dp(40));
+        holder.image.setUrlFromDisk(pin.loadable, filename, false, dp(40), dp(40));
     }
 
     private void setPinDownloadIcon(PinViewHolder holder, Pin pin) {
