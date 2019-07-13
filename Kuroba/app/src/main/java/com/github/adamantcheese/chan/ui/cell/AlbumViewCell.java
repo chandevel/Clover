@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 
 public class AlbumViewCell extends FrameLayout {
     private PostImage postImage;
@@ -56,9 +55,10 @@ public class AlbumViewCell extends FrameLayout {
 
     public void setPostImage(PostImage postImage) {
         this.postImage = postImage;
-        // Keep this the same as the normal thumbnails to improve performance
-        int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
-        thumbnailView.setPostImage(postImage, thumbnailSize, thumbnailSize);
+        // with height and width 0 the image loader won't rescale the bitmap
+        // this isn't tied to a setting because the entire image needs to be retrieved from the server anyways
+        // and the prefetch option takes care of changing this to be a thumbnail or an actual image
+        thumbnailView.setPostImage(postImage, 0, 0);
 
         String details = postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight +
                 " " + AndroidUtils.getReadableFileSize(postImage.size, false);
