@@ -55,7 +55,7 @@ public class ImageReencodeOptionsController extends Controller implements
                 currentImageQuality.setText(context.getString(R.string.image_quality, progress));
             } else if (seekBar == reduce) {
                 currentImageReduce.setText(context.getString(R.string.scale_reduce, dims.first, dims.second,
-                        (int) (dims.first * ((100f - (float) progress) / 100f)), (int) (dims.second * ((100f - (float) progress) / 100f))));
+                        (int) (dims.first * ((100f - (float) progress) / 100f)), (int) (dims.second * ((100f - (float) progress) / 100f)), progress));
             } else {
                 throw new RuntimeException("Unknown seekBar");
             }
@@ -118,8 +118,12 @@ public class ImageReencodeOptionsController extends Controller implements
         if (imageFormat == Bitmap.CompressFormat.PNG) {
             quality.setEnabled(false);
             reencodeImageAsPng.setEnabled(false);
+            reencodeImageAsPng.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            reencodeImageAsPng.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
         } else if (imageFormat == Bitmap.CompressFormat.JPEG) {
             reencodeImageAsJpeg.setEnabled(false);
+            reencodeImageAsJpeg.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            reencodeImageAsJpeg.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
         }
 
         statusBarColorPrevious = getWindow().getStatusBarColor();
@@ -127,7 +131,7 @@ public class ImageReencodeOptionsController extends Controller implements
             AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
 
-        currentImageReduce.setText(context.getString(R.string.scale_reduce, dims.first, dims.second, dims.first, dims.second));
+        currentImageReduce.setText(context.getString(R.string.scale_reduce, dims.first, dims.second, dims.first, dims.second, reduce.getProgress()));
     }
 
     private void setReencodeImageAsIsText() {

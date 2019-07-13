@@ -194,6 +194,8 @@ public class ImageOptionsController extends Controller implements
     public void onReencodingCanceled() {
         removeMetadata.setChecked(false);
         removeMetadata.setEnabled(true);
+        removeMetadata.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        removeMetadata.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
         reencode.setChecked(false);
 
         presenter.setReencode(null);
@@ -202,6 +204,8 @@ public class ImageOptionsController extends Controller implements
     public void onReencodeOptionsSet(ImageReencodingPresenter.ReencodeSettings reencodeSettings) {
         removeMetadata.setChecked(true);
         removeMetadata.setEnabled(false);
+        removeMetadata.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+        removeMetadata.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
 
         presenter.setReencode(reencodeSettings);
     }
