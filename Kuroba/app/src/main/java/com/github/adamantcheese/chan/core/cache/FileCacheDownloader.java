@@ -67,12 +67,7 @@ public class FileCacheDownloader implements Runnable {
     private Call call;
     private ResponseBody body;
 
-    static FileCacheDownloader fromCallbackClientUrlOutputUserAgent(
-            Callback callback, String url, File output) {
-        return new FileCacheDownloader(callback, url, output);
-    }
-
-    private FileCacheDownloader(Callback callback, String url, File output) {
+    public FileCacheDownloader(Callback callback, String url, File output) {
         this.callback = callback;
         this.url = url;
         this.output = output;

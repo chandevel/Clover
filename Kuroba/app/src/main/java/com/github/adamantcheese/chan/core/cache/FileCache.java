@@ -21,8 +21,8 @@ import androidx.annotation.MainThread;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -121,8 +121,7 @@ public class FileCache implements FileCacheDownloader.Callback {
 
     private FileCacheDownloader handleStartDownload(
             FileCacheListener listener, File file, String url) {
-        FileCacheDownloader downloader = FileCacheDownloader.fromCallbackClientUrlOutputUserAgent(
-                this, url, file);
+        FileCacheDownloader downloader = new FileCacheDownloader(this, url, file);
         if (listener != null) {
             downloader.addListener(listener);
         }

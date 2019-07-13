@@ -65,8 +65,7 @@ public class CacheHandler {
     @MainThread
     public File get(String key) {
         createDirectories();
-
-        return new File(directory, hash(key));
+        return new File(directory, String.valueOf(key.hashCode()));
     }
 
     @MainThread
@@ -183,10 +182,5 @@ public class CacheHandler {
             }
         }
         recalculateSize();
-    }
-
-    @AnyThread
-    private String hash(String key) {
-        return String.valueOf(key.hashCode());
     }
 }
