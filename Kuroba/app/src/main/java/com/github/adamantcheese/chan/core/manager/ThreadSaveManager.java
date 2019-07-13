@@ -634,12 +634,16 @@ public class ThreadSaveManager {
             AtomicInteger imageDownloadsWithIoError,
             int maxImageIoErrors) {
         if (post.images.isEmpty()) {
-            Logger.d(TAG, "Post " + post.no + " contains no images");
+            if (VERBOSE_LOG) {
+                Logger.d(TAG, "Post " + post.no + " contains no images");
+            }
             return Flowable.just(false);
         }
 
         if (!shouldDownloadImages()) {
-            Logger.d(TAG, "Cannot load images or videos with the current network");
+            if (VERBOSE_LOG) {
+                Logger.d(TAG, "Cannot load images or videos with the current network");
+            }
             return Flowable.just(false);
         }
 

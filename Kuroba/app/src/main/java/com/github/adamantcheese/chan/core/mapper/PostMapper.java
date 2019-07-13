@@ -36,6 +36,12 @@ public class PostMapper {
                 post.opId,
                 post.capcode,
                 post.isSavedReply,
+                post.filterHighlightedColor,
+                post.filterStub,
+                post.filterRemove,
+                post.filterReplies,
+                post.filterOnlyOP,
+                post.filterSaved,
                 post.repliesTo,
                 SpannableStringMapper.serializeSpannableString(post.nameTripcodeIdCapcodeSpan),
                 post.deleted.get(),
@@ -62,7 +68,8 @@ public class PostMapper {
     }
 
     public static Post fromSerializedPost(Loadable loadable, SerializablePost serializablePost) {
-        CharSequence subject = SpannableStringMapper.deserializeSpannableString(serializablePost.getSubject());
+        CharSequence subject = SpannableStringMapper.deserializeSpannableString(
+                serializablePost.getSubject());
         CharSequence subjectSpans = subject.length() == 0 ? null : subject;
 
         Post.Builder postBuilder = new Post.Builder()
@@ -78,10 +85,22 @@ public class PostMapper {
                 .opId(serializablePost.getOpId())
                 .moderatorCapcode(serializablePost.getCapcode())
                 .isSavedReply(serializablePost.isSavedReply())
+                .filter(
+                        serializablePost.getFilterHighlightedColor(),
+                        serializablePost.isFilterStub(),
+                        serializablePost.isFilterRemove(),
+                        // always false, doesn't make sense and may break everything otherwise
+                        false,
+                        serializablePost.isFilterReplies(),
+                        // TODO: should this be always false too? Won't this hide the whole thread?
+                        serializablePost.isFilterOnlyOP(),
+                        serializablePost.isFilterSaved()
+                )
                 .repliesTo(serializablePost.getRepliesTo())
                 .spans(
                         subjectSpans,
-                        SpannableStringMapper.deserializeSpannableString(serializablePost.getNameTripcodeIdCapcodeSpan())
+                        SpannableStringMapper.deserializeSpannableString(
+                                serializablePost.getNameTripcodeIdCapcodeSpan())
                 )
                 .sticky(serializablePost.isSticky())
                 .archived(serializablePost.isArchived())
@@ -97,7 +116,9 @@ public class PostMapper {
         return post;
     }
 
-    public static List<Post> fromSerializedPostList(Loadable loadable, List<SerializablePost> serializablePostList) {
+    public static List<Post> fromSerializedPostList(
+            Loadable loadable,
+            List<SerializablePost> serializablePostList) {
         List<Post> posts = new ArrayList<>(serializablePostList.size());
         Throwable firstException = null;
 
@@ -115,7 +136,8 @@ public class PostMapper {
         }
 
         if (firstException != null) {
-            Logger.e(TAG, "There were at least one exception thrown while trying to deserialize posts", firstException);
+            Logger.e(TAG, "There were at least one exception thrown while trying to deserialize posts",
+                    firstException);
         }
 
         Collections.sort(posts, POST_COMPARATOR);

@@ -37,6 +37,18 @@ public class SerializablePost {
     private String capcode;
     @SerializedName("is_saved_reply")
     private boolean isSavedReply;
+    @SerializedName("filter_highlighted_color")
+    private int filterHighlightedColor;
+    @SerializedName("filter_stub")
+    private boolean filterStub;
+    @SerializedName("filter_remove")
+    private boolean filterRemove;
+    @SerializedName("filter_replies")
+    private boolean filterReplies;
+    @SerializedName("filter_only_op")
+    private boolean filterOnlyOP;
+    @SerializedName("filter_saved")
+    private boolean filterSaved;
     @SerializedName("replies_to")
     private Set<Integer> repliesTo;
     @SerializedName("name_tripcode_id_capcode_span")
@@ -77,6 +89,12 @@ public class SerializablePost {
             int opId,
             String capcode,
             boolean isSavedReply,
+            int filterHighlightedColor,
+            boolean filterStub,
+            boolean filterRemove,
+            boolean filterReplies,
+            boolean filterOnlyOP,
+            boolean filterSaved,
             Set<Integer> repliesTo,
             SerializableSpannableString nameTripcodeIdCapcodeSpan,
             Boolean deleted,
@@ -103,6 +121,12 @@ public class SerializablePost {
         this.opId = opId;
         this.capcode = capcode;
         this.isSavedReply = isSavedReply;
+        this.filterHighlightedColor = filterHighlightedColor;
+        this.filterStub = filterStub;
+        this.filterRemove = filterRemove;
+        this.filterReplies = filterReplies;
+        this.filterOnlyOP = filterOnlyOP;
+        this.filterSaved = filterSaved;
         this.repliesTo = repliesTo;
         this.nameTripcodeIdCapcodeSpan = nameTripcodeIdCapcodeSpan;
         this.deleted = deleted;
@@ -167,6 +191,30 @@ public class SerializablePost {
 
     public boolean isSavedReply() {
         return isSavedReply;
+    }
+
+    public int getFilterHighlightedColor() {
+        return filterHighlightedColor;
+    }
+
+    public boolean isFilterStub() {
+        return filterStub;
+    }
+
+    public boolean isFilterRemove() {
+        return filterRemove;
+    }
+
+    public boolean isFilterReplies() {
+        return filterReplies;
+    }
+
+    public boolean isFilterOnlyOP() {
+        return filterOnlyOP;
+    }
+
+    public boolean isFilterSaved() {
+        return filterSaved;
     }
 
     public Set<Integer> getRepliesTo() {
