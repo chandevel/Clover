@@ -607,7 +607,7 @@ Don't have a 4chan Pass?<br>
     <string name="click_image_for_extra_options">Click image for extra options</string>
 
     <string name="settings_import_export">Import/Export</string>
-    <string name="settings_import_export_description">Import/Export settings/pins etc</string>
+    <string name="settings_import_export_description">Import/Export settings/pins etc.</string>
     <string name="import_or_export_settings">Import/Export settings</string>
     <string name="export_settings">Export settings</string>
     <string name="export_settings_to_a_file">Export settings to a file</string>

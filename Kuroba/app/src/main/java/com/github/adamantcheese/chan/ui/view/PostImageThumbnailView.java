@@ -57,12 +57,10 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
             this.postImage = postImage;
 
             if (postImage != null) {
-                String url = postImage.thumbnailUrl.toString();
-                if(ChanSettings.autoLoadThreadImages.get() || useHiRes) {
-                    if(!postImage.imageUrl.toString().contains("webm") && !postImage.imageUrl.toString().contains("pdf")) {
-                        if(!postImage.spoiler || ChanSettings.revealImageSpoilers.get()) {
-                            url = postImage.imageUrl.toString();
-                        }
+                String url = postImage.getThumbnailUrl().toString();
+                if (ChanSettings.autoLoadThreadImages.get() || useHiRes) {
+                    if (!postImage.spoiler || ChanSettings.revealImageSpoilers.get()) {
+                        url = postImage.imageUrl.toString();
                     }
                 }
                 setUrl(url);
