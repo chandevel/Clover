@@ -39,11 +39,14 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
@@ -59,6 +62,7 @@ import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -308,6 +312,20 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 thread.loadable.site.id(),
                 thread.loadable.board.code
         );
+
+        //Filter out any bookmarked threads from the catalog
+        if (thread.loadable.isCatalogMode()) {
+            List<Post> toRemove = new ArrayList<>();
+            for (Pin pin : Chan.injector().instance(WatchManager.class).getAllPins()) {
+                for (Post post : filteredPosts) {
+                    if (pin.loadable.equals(Loadable.forThread(thread.loadable.site, thread.loadable.board, post.no, ""))) {
+                        toRemove.add(post);
+                    }
+                }
+            }
+            filteredPosts.removeAll(toRemove);
+        }
+        
         postAdapter.setThread(thread, filteredPosts);
     }
 
