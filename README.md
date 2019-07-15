@@ -1,5 +1,4 @@
 # Kuroba - imageboard browser for Android  
-## This project is finished as of July 14th, 2019.
 [APK releases](https://github.com/Adamantcheese/Kuroba/releases)
 
 Kuroba is a fast Android app for browsing imageboards, such as 4chan and 8chan. It adds inline replying, thread watching, notifications, themes, pass support, filters and a whole lot more. It is based on Clover by Floens, but has additional features added in because Floens doesn't want to merge PRs. Credits to K1rakishou for a number of features.
