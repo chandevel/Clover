@@ -104,7 +104,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.github.adamantcheese.chan.fileprovider"
+            android:authorities="${fileProviderAuthority}"
             android:exported="false"
             android:grantUriPermissions="true">
 
