@@ -540,8 +540,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
             icons.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
             comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-            //You MUST measure a TextView before calling getLineCount, otherwise it will always return 0.
-            if (comment.getLineCount() > 2) {
+            if (title.getMeasuredHeight() + icons.getMeasuredHeight() + comment.getMeasuredHeight() >= 1.5 * thumbnailSize) {
                 RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
                 commentParams.removeRule(RelativeLayout.RIGHT_OF);
                 if (title.getMeasuredHeight() + (icons.getVisibility() == VISIBLE ? icons.getMeasuredHeight() : 0) < thumbnailSize) {
