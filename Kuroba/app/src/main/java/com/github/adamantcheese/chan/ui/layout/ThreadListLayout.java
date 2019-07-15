@@ -216,7 +216,10 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
                                 if (firstCompletePositionw != RecyclerView.NO_POSITION) {
                                     if (firstCompletePositionw != 0) {
-                                        recyclerView.scrollToPosition(0);
+                                        scrollToPosition(0);
+                                        mTopCutoff = getCutoff();
+                                        mThumbHeight = (int) (mTopCutoff * ITEM_HEIGHT);
+                                        scrollToPositionWithOffset(showingThread.loadable.listViewIndex, showingThread.loadable.listViewTop);
                                     } else {
                                         mTopCutoff = getCutoff();
                                         mThumbHeight = (int) (mTopCutoff * ITEM_HEIGHT);
