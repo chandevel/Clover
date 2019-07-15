@@ -34,8 +34,8 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.Logger.TAG_PREFIX;
 
 public class LogsController extends Controller {
     private static final String TAG = "LogsController";
@@ -91,7 +91,7 @@ public class LogsController extends Controller {
         //This filters our log output to just stuff we care about in-app (and if a crash happens, the uncaught handler gets it and this will still allow it through)
         String filtered = "";
         for (String line : IOUtils.readString(outputStream).split("\n")) {
-            if (line.contains(TAG_PREFIX)) filtered = filtered.concat(line).concat("\n");
+            if (line.contains(getApplicationLabel())) filtered = filtered.concat(line).concat("\n");
         }
         logText = filtered;
         logTextView.setText(logText);
