@@ -92,7 +92,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         textPaint.setTextSize(sp(14));
     }
 
-    public void setUrl(String url) {
+    public void setUrl(String url, int maxWidth, int maxHeight) {
         if (container != null && container.getRequestUrl().equals(url)) {
             return;
         }
@@ -105,8 +105,12 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
 
         if (!TextUtils.isEmpty(url)) {
-            container = injector().instance(ImageLoader.class).get(url, this, 0, 0);
+            container = injector().instance(ImageLoader.class).get(url, this, maxWidth, maxHeight);
         }
+    }
+
+    public void setUrl(String url) {
+        setUrl(url, 0, 0);
     }
 
     public void setCircular(boolean circular) {

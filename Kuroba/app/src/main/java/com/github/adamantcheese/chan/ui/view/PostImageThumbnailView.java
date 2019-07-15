@@ -16,14 +16,17 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
@@ -63,7 +66,7 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
                         url = postImage.imageUrl.toString();
                     }
                 }
-                setUrl(url);
+                setUrl(url, useHiRes ? 500 : 0, useHiRes ? 500 : 0);
             } else {
                 setUrl(null);
             }
