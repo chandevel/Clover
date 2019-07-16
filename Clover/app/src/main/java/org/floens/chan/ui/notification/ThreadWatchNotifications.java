@@ -12,6 +12,7 @@ import android.support.v4.app.NotificationCompat;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.ui.activity.BoardActivity;
 
 import java.util.List;
@@ -32,6 +33,8 @@ public class ThreadWatchNotifications extends NotificationHelper {
     private static final String POST_COMMENT_IMAGE_PREFIX = "(img) ";
     private static final Pattern POST_COMMENT_SHORTEN_NO_PATTERN =
             Pattern.compile(">>\\d+(?=\\d{4})(\\d{4})");
+
+    private int pendingIntentCounter = 0;
 
     @Inject
     public ThreadWatchNotifications(Context applicationContext) {
@@ -163,7 +166,8 @@ public class ThreadWatchNotifications extends NotificationHelper {
         intent.putExtra("pin_id", pinId);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(
-                applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                applicationContext, ++pendingIntentCounter,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         builder.setContentIntent(pendingIntent);
     }
