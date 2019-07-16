@@ -349,6 +349,8 @@ Abilita \"Riproduci video con un lettore esterno\" nelle impostazioni per riprod
         <item>Blu</item>
         <item>Viola</item>
     </string-array>
+    <string name="setting_watch_channel_normal">Notification settings for thread updates</string>
+    <string name="setting_watch_channel_mention">Notification settings for thread mentions</string>
     <!-- Main About group -->
     <string name="settings_group_about">Informazioni</string>
     <string name="settings_update_check">Verifica aggiornamenti</string>
