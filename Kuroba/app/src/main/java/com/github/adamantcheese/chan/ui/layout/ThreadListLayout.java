@@ -213,16 +213,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                                 ITEM_HEIGHT = (int) (recyclerView.getHeight() * 0.05f);
                             }
                             if (mThumbHeight == -1) {
-                                int firstCompletePositionw = findFirstCompletelyVisibleItemPosition();
-
-                                if (firstCompletePositionw != RecyclerView.NO_POSITION) {
-                                    if (firstCompletePositionw != 0) {
-                                        throw (new IllegalStateException());
-                                    } else {
-                                        mTopCutoff = getCutoff();
-                                        mThumbHeight = (int) (mTopCutoff * ITEM_HEIGHT);
-                                    }
-                                }
+                                mTopCutoff = getCutoff();
+                                mThumbHeight = (int) (mTopCutoff * ITEM_HEIGHT);
                             }
                             return getItemCount() * ITEM_HEIGHT;
                         }
