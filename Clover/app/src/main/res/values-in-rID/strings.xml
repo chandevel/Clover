@@ -334,6 +334,8 @@ Solusi adalah menggunakan pemutar media eksternal dengan dekoder perangkat lunak
         <item>Biru</item>
         <item>Ungu</item>
     </string-array>
+    <string name="setting_watch_channel_normal">Notification settings for thread updates</string>
+    <string name="setting_watch_channel_mention">Notification settings for thread mentions</string>
     <!-- Main About group -->
     <string name="settings_group_about">Tentang</string>
     <string name="settings_update_check">Periksa pembaruan</string>
