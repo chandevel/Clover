@@ -13,3 +13,6 @@ android:
     - android-28
 
 script: ./gradlew build --console plain -x lint
+
+after_success:
+  - bash scripts/update-apk.sh

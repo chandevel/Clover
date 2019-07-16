@@ -16,4 +16,4 @@ git commit -am "[Auto] Update Test Apk ($(date +%Y-%m-%d.%H:%M:%S))"
 git branch -D apk
 git branch -m apk
 
-git push origin apk --force --quiet > /dev/null
+git push origin apk --force --quiet > /dev/null 
