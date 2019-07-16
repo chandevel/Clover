@@ -59,6 +59,8 @@ import com.github.adamantcheese.chan.ui.cell.PostStubCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
+import com.github.adamantcheese.chan.ui.view.FastScroller;
+import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
@@ -81,6 +83,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     private TextView searchStatus;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
+    private FastScroller fastScroller;
     private PostAdapter postAdapter;
     private ChanThread showingThread;
     private ThreadListLayoutPresenterCallback callback;
@@ -88,6 +91,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     private boolean replyOpen;
     private ChanSettings.PostViewMode postViewMode;
     private int spanCount = 2;
+    private int background;
     private boolean searchOpen;
     private int lastPostCount;
 
@@ -96,22 +100,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            // onScrolled can be called after cleanup()
-            if (showingThread != null) {
-                int[] indexTop = getIndexAndTop();
-
-                showingThread.loadable.setListViewIndex(indexTop[0]);
-                showingThread.loadable.setListViewTop(indexTop[1]);
-
-                int last = getCompleteBottomAdapterPosition();
-                if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
-                    lastPostCount = last;
-
-                    // As requested by the RecyclerView, make sure that the adapter isn't changed
-                    // while in a layout pass. Postpone to the next frame.
-                    mainHandler.post(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
-                }
-            }
+            onRecyclerViewScrolled();
         }
     };
 
@@ -146,11 +135,32 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_POST, 0);
         recyclerView.addOnScrollListener(scrollListener);
 
+        setFastScroll(false);
+
         attachToolbarScroll(true);
 
         reply.setPadding(0, toolbarHeight(), 0, 0);
         searchStatus.setPadding(searchStatus.getPaddingLeft(), searchStatus.getPaddingTop() + toolbarHeight(),
                 searchStatus.getPaddingRight(), searchStatus.getPaddingBottom());
+    }
+
+    private void onRecyclerViewScrolled() {
+        // onScrolled can be called after cleanup()
+        if (showingThread != null) {
+            int[] indexTop = getIndexAndTop();
+
+            showingThread.loadable.setListViewIndex(indexTop[0]);
+            showingThread.loadable.setListViewTop(indexTop[1]);
+
+            int last = getCompleteBottomAdapterPosition();
+            if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
+                lastPostCount = last;
+
+                // As requested by the RecyclerView, make sure that the adapter isn't changed
+                // while in a layout pass. Postpone to the next frame.
+                mainHandler.post(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
+            }
+        }
     }
 
     @Override
@@ -183,7 +193,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
             switch (postViewMode) {
                 case LIST:
-                    layoutManager = new LinearLayoutManager(getContext()) {
+                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext()) {
                         @Override
                         public boolean requestChildRectangleOnScreen(
                                 RecyclerView parent, View child, Rect rect, boolean immediate,
@@ -191,64 +201,24 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                             return false;
                         }
 
-                        //THESE ARE FROM https://stackoverflow.com/questions/46033473/recyclerview-with-items-of-different-height-scrollbar
-                        private int mThumbHeight = -1; //these
-                        private float mTopCutoff = -1; //are
-                        private int ITEM_HEIGHT = 0;   //defaults
-
                         @Override
                         public int computeVerticalScrollExtent(RecyclerView.State state) {
-                            return (mThumbHeight == -1) ? 0 : mThumbHeight;
-                        }
-
-                        @Override
-                        public int computeVerticalScrollOffset(RecyclerView.State state) {
-                            return (mTopCutoff == -1) ? 0 : (int) ((getCutoff() - mTopCutoff) * ITEM_HEIGHT);
-                        }
-
-                        @Override
-                        public int computeVerticalScrollRange(RecyclerView.State state) {
-                            if (ITEM_HEIGHT == 0) {
-                                //this method is called after a measure, so we set our item height here instead of at the declaration
-                                ITEM_HEIGHT = (int) (recyclerView.getHeight() * 0.05f);
-                            }
-                            if (mThumbHeight == -1) {
-                                int firstCompletePositionw = findFirstCompletelyVisibleItemPosition();
-
-                                if (firstCompletePositionw != RecyclerView.NO_POSITION) {
-                                    if (firstCompletePositionw != 0) {
-                                        throw (new IllegalStateException());
-                                    } else {
-                                        mTopCutoff = getCutoff();
-                                        mThumbHeight = (int) (mTopCutoff * ITEM_HEIGHT);
-                                    }
-                                }
-                            }
-                            return getItemCount() * ITEM_HEIGHT;
-                        }
-
-                        private float getCutoff() {
-                            int lastVisibleItemPosition = findLastVisibleItemPosition();
-
-                            if (lastVisibleItemPosition == RecyclerView.NO_POSITION) {
-                                return 0f;
-                            }
-
-                            View view = findViewByPosition(lastVisibleItemPosition);
-                            float fractionOfView = 0;
-                            if (view != null && view.getBottom() >= getHeight()) { // last view is cut off and partially displayed
-                                fractionOfView = (float) (getHeight() - view.getTop()) / (float) view.getHeight();
-                            }
-                            return lastVisibleItemPosition + fractionOfView;
+                            //sets the scroll bar to be a static size
+                            return (int) (recyclerView.getHeight() * 0.05);
                         }
                     };
                     setRecyclerViewPadding();
-                    recyclerView.setLayoutManager(layoutManager);
-                    setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
+                    recyclerView.setLayoutManager(linearLayoutManager);
+                    layoutManager = linearLayoutManager;
+
+                    if (background != R.attr.backcolor) {
+                        background = R.attr.backcolor;
+                        setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
+                    }
 
                     break;
                 case CARD:
-                    layoutManager = new GridLayoutManager(
+                    GridLayoutManager gridLayoutManager = new GridLayoutManager(
                             null, spanCount, GridLayoutManager.VERTICAL, false) {
                         @Override
                         public boolean requestChildRectangleOnScreen(
@@ -258,8 +228,13 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                         }
                     };
                     setRecyclerViewPadding();
-                    recyclerView.setLayoutManager(layoutManager);
-                    setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor_secondary));
+                    recyclerView.setLayoutManager(gridLayoutManager);
+                    layoutManager = gridLayoutManager;
+
+                    if (background != R.attr.backcolor_secondary) {
+                        background = R.attr.backcolor_secondary;
+                        setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor_secondary));
+                    }
 
                     break;
             }
@@ -293,6 +268,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
             party();
         }
+
+        setFastScroll(true);
 
         /*
          * We call a blocking function that accesses the database from a background thread but doesn't
@@ -671,6 +648,23 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 toolbar.checkToolbarCollapseState(recyclerView);
             }
         }
+    }
+
+    private void setFastScroll(boolean enabled) {
+        if (!enabled) {
+            if (fastScroller != null) {
+                recyclerView.removeItemDecoration(fastScroller);
+                fastScroller = null;
+            }
+        } else {
+            if (fastScroller == null) {
+                fastScroller = FastScrollerHelper.create(recyclerView);
+                if (postViewMode == ChanSettings.PostViewMode.LIST) {
+                    fastScroller.overrideCalculatedExtents(true);
+                }
+            }
+        }
+        recyclerView.setVerticalScrollBarEnabled(!enabled);
     }
 
     private void setRecyclerViewPadding() {
