@@ -348,6 +348,8 @@ Zet \"Speel video\'s af met een externe mediaspeler\" aan in de instellingen om 
         <item>Blauw</item>
         <item>Paars</item>
     </string-array>
+    <string name="setting_watch_channel_normal">Notification settings for thread updates</string>
+    <string name="setting_watch_channel_mention">Notification settings for thread mentions</string>
     <!-- Main About group -->
     <string name="settings_group_about">Over deze app</string>
     <string name="settings_update_check">Op updates controleren</string>
