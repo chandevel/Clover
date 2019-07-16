@@ -347,6 +347,8 @@ Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwa
         <item>Blau</item>
         <item>Lila</item>
     </string-array>
+    <string name="setting_watch_channel_normal">Notification settings for thread updates</string>
+    <string name="setting_watch_channel_mention">Notification settings for thread mentions</string>
     <!-- Main About group -->
     <string name="settings_group_about">Info</string>
     <string name="settings_update_check">Nach Updates suchen</string>
