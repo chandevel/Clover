@@ -119,7 +119,7 @@ public class ThreadWatchNotifications extends NotificationHelper {
         addPostsToMessagingStyle(messagingStyle, posts);
         builder.setStyle(messagingStyle);
 
-        setNotificationIntent(builder);
+        setNotificationIntent(builder, pinWatcher.getPinId());
 
         return builder;
     }
@@ -151,7 +151,7 @@ public class ThreadWatchNotifications extends NotificationHelper {
         }
     }
 
-    private void setNotificationIntent(NotificationCompat.Builder builder) {
+    private void setNotificationIntent(NotificationCompat.Builder builder, int pinId) {
         Intent intent = new Intent(applicationContext, BoardActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -159,6 +159,8 @@ public class ThreadWatchNotifications extends NotificationHelper {
                 Intent.FLAG_ACTIVITY_SINGLE_TOP |
                 Intent.FLAG_ACTIVITY_NEW_TASK |
                 Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+
+        intent.putExtra("pin_id", pinId);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);

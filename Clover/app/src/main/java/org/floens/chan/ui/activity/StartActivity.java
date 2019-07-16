@@ -308,16 +308,16 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        // Handle WatchNotifier clicks
+        // Handle notification clicks
         if (intent.getExtras() != null) {
             int pinId = intent.getExtras().getInt("pin_id", -2);
-            if (pinId != -2 && mainNavigationController.getTop() instanceof BrowseController) {
+            if (pinId != -2) {
                 if (pinId == -1) {
                     drawerController.onMenuClicked();
                 } else {
                     Pin pin = watchManager.findPinById(pinId);
                     if (pin != null) {
-                        browseController.showThread(pin.loadable, false);
+                        drawerController.openPin(pin);
                     }
                 }
             }
