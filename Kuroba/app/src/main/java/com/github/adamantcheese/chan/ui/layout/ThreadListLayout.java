@@ -192,9 +192,9 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                         }
 
                         //THESE ARE FROM https://stackoverflow.com/questions/46033473/recyclerview-with-items-of-different-height-scrollbar
-                        private int mThumbHeight = -1;
-                        private float mTopCutoff = -1;
-                        private float ITEM_HEIGHT = -1;
+                        private int mThumbHeight = -1; //these
+                        private float mTopCutoff = -1; //are
+                        private int ITEM_HEIGHT = 0;   //defaults
 
                         @Override
                         public int computeVerticalScrollExtent(RecyclerView.State state) {
@@ -208,22 +208,23 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
                         @Override
                         public int computeVerticalScrollRange(RecyclerView.State state) {
-                            if (ITEM_HEIGHT == -1) {
-                                ITEM_HEIGHT = recyclerView.getHeight() * 0.05f;
+                            if (ITEM_HEIGHT == 0) {
+                                //this method is called after a measure, so we set our item height here instead of at the declaration
+                                ITEM_HEIGHT = (int) (recyclerView.getHeight() * 0.05f);
                             }
                             if (mThumbHeight == -1) {
                                 int firstCompletePositionw = findFirstCompletelyVisibleItemPosition();
 
                                 if (firstCompletePositionw != RecyclerView.NO_POSITION) {
                                     if (firstCompletePositionw != 0) {
-                                        recyclerView.scrollToPosition(0);
+                                        throw (new IllegalStateException());
                                     } else {
                                         mTopCutoff = getCutoff();
                                         mThumbHeight = (int) (mTopCutoff * ITEM_HEIGHT);
                                     }
                                 }
                             }
-                            return (int) (getItemCount() * ITEM_HEIGHT);
+                            return getItemCount() * ITEM_HEIGHT;
                         }
 
                         private float getCutoff() {
@@ -239,18 +240,6 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                                 fractionOfView = (float) (getHeight() - view.getTop()) / (float) view.getHeight();
                             }
                             return lastVisibleItemPosition + fractionOfView;
-                        }
-
-                        public void resetScrollbars() {
-                            mThumbHeight = -1;
-                            mTopCutoff = -1;
-                            ITEM_HEIGHT = -1;
-                        }
-
-                        @Override
-                        public int hashCode() {
-                            resetScrollbars();
-                            return super.hashCode();
                         }
                     };
                     setRecyclerViewPadding();
@@ -336,12 +325,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             }
             filteredPosts.removeAll(toRemove);
         }
-
-        //reset when the thread changes
-        if (layoutManager instanceof LinearLayoutManager && !postAdapter.getDisplayList().contains(thread.op)) {
-            layoutManager.hashCode();
-        }
-
+        
         postAdapter.setThread(thread, filteredPosts);
     }
 
