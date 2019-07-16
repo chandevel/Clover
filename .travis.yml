@@ -8,7 +8,7 @@ android:
     - tools
     - extra-android-m2repository
     - build-tools-28.0.3
-    - android-27
+    - android-28
 
 script: cd Clover && ./gradlew build --console plain -x lint
 

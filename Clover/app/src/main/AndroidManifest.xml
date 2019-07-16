@@ -81,10 +81,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </activity>
 
         <service
-            android:name=".ui.service.WatchNotifier"
-            android:exported="false" />
-
-        <service
             android:name=".ui.service.SavingNotification"
             android:exported="false" />
 

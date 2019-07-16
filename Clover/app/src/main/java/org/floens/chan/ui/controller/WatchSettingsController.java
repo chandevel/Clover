@@ -18,17 +18,25 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.v7.widget.SwitchCompat;
 import android.widget.CompoundButton;
 
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.notification.ThreadWatchNotifications;
 import org.floens.chan.ui.settings.BooleanSettingView;
+import org.floens.chan.ui.settings.LinkSettingView;
 import org.floens.chan.ui.settings.ListSettingView;
 import org.floens.chan.ui.settings.SettingView;
 import org.floens.chan.ui.settings.SettingsController;
 import org.floens.chan.ui.settings.SettingsGroup;
 import org.floens.chan.ui.view.CrossfadeView;
+import org.floens.chan.utils.AndroidUtils;
+
+import static org.floens.chan.Chan.injector;
 
 public class WatchSettingsController extends SettingsController implements CompoundButton.OnCheckedChangeListener {
     private CrossfadeView crossfadeView;
@@ -36,10 +44,8 @@ public class WatchSettingsController extends SettingsController implements Compo
     private SettingView enableBackground;
 
     private SettingView backgroundTimeout;
-    private SettingView notifyMode;
-    private SettingView soundMode;
-    private SettingView peekMode;
-    private SettingView ledMode;
+    private SettingView normalChannel;
+    private SettingView mentionChannel;
 
     public WatchSettingsController(Context context) {
         super(context);
@@ -70,10 +76,10 @@ public class WatchSettingsController extends SettingsController implements Compo
 
         if (!ChanSettings.watchBackground.get()) {
             setSettingViewVisibility(backgroundTimeout, false, false);
-            setSettingViewVisibility(notifyMode, false, false);
-            setSettingViewVisibility(soundMode, false, false);
-            setSettingViewVisibility(peekMode, false, false);
-            setSettingViewVisibility(ledMode, false, false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                setSettingViewVisibility(normalChannel, false, false);
+                setSettingViewVisibility(mentionChannel, false, false);
+            }
         }
     }
 
@@ -90,10 +96,10 @@ public class WatchSettingsController extends SettingsController implements Compo
         if (item == enableBackground) {
             boolean enabled = ChanSettings.watchBackground.get();
             setSettingViewVisibility(backgroundTimeout, enabled, true);
-            setSettingViewVisibility(notifyMode, enabled, true);
-            setSettingViewVisibility(soundMode, enabled, true);
-            setSettingViewVisibility(peekMode, enabled, true);
-            setSettingViewVisibility(ledMode, enabled, true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                setSettingViewVisibility(normalChannel, enabled, true);
+                setSettingViewVisibility(mentionChannel, enabled, true);
+            }
         }
     }
 
@@ -104,6 +110,7 @@ public class WatchSettingsController extends SettingsController implements Compo
         enableBackground = settings.add(new BooleanSettingView(this, ChanSettings.watchBackground, R.string.setting_watch_enable_background, R.string.setting_watch_enable_background_description));
 
         int[] timeouts = new int[]{
+                60 * 1000,
                 10 * 60 * 1000,
                 15 * 60 * 1000,
                 30 * 60 * 1000,
@@ -124,17 +131,23 @@ public class WatchSettingsController extends SettingsController implements Compo
             }
         });
 
-        notifyMode = settings.add(new ListSettingView<>(this, ChanSettings.watchNotifyMode, R.string.setting_watch_notify_mode,
-                context.getResources().getStringArray(R.array.setting_watch_notify_modes), new String[]{"all", "quotes"}));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            injector().instance(ThreadWatchNotifications.class).ensureChannels();
 
-        soundMode = settings.add(new ListSettingView<>(this, ChanSettings.watchSound, R.string.setting_watch_sound,
-                context.getResources().getStringArray(R.array.setting_watch_sounds), new String[]{"all", "quotes"}));
+            normalChannel = settings.add(new LinkSettingView(this, R.string.setting_watch_channel_normal, 0, v -> {
+                Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+                intent.putExtra(Settings.EXTRA_CHANNEL_ID, ThreadWatchNotifications.CHANNEL_ID_WATCH_NORMAL);
+                AndroidUtils.openIntent(intent);
+            }));
 
-        peekMode = settings.add(new BooleanSettingView(this, ChanSettings.watchPeek, R.string.setting_watch_peek, R.string.setting_watch_peek_description));
-
-        ledMode = settings.add(new ListSettingView<>(this, ChanSettings.watchLed, R.string.setting_watch_led,
-                context.getResources().getStringArray(R.array.setting_watch_leds),
-                new String[]{"-1", "ffffffff", "ffff0000", "ffffff00", "ff00ff00", "ff00ffff", "ff0000ff", "ffff00ff"}));
+            mentionChannel = settings.add(new LinkSettingView(this, R.string.setting_watch_channel_mention, 0, v -> {
+                Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+                intent.putExtra(Settings.EXTRA_CHANNEL_ID, ThreadWatchNotifications.CHANNEL_ID_WATCH_MENTION);
+                AndroidUtils.openIntent(intent);
+            }));
+        }
 
         groups.add(settings);
     }

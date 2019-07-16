@@ -142,6 +142,10 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         // TODO: probably twice because of some force redraw, fix that.
         drawerLayout.post(() -> drawerLayout.post(() -> drawerLayout.closeDrawer(drawer)));
 
+        openPin(pin);
+    }
+
+    public void openPin(Pin pin) {
         ThreadController threadController = getTopThreadController();
         if (threadController != null) {
             threadController.openPin(pin);
