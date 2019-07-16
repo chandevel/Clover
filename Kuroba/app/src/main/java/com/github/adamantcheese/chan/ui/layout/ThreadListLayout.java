@@ -30,6 +30,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
+import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -192,9 +193,10 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                         }
 
                         //THESE ARE FROM https://stackoverflow.com/questions/46033473/recyclerview-with-items-of-different-height-scrollbar
+                        //modified to work for this specific sort of layout and architecture
                         private int mThumbHeight = -1;
                         private float mTopCutoff = -1;
-                        private float ITEM_HEIGHT = -1;
+                        private int ITEM_HEIGHT = 10000;
 
                         @Override
                         public int computeVerticalScrollExtent(RecyclerView.State state) {
@@ -208,25 +210,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
                         @Override
                         public int computeVerticalScrollRange(RecyclerView.State state) {
-                            if (ITEM_HEIGHT == -1) {
-                                ITEM_HEIGHT = recyclerView.getHeight() * 0.05f;
-                            }
-                            if (mThumbHeight == -1) {
-                                int firstCompletePositionw = findFirstCompletelyVisibleItemPosition();
-
-                                if (firstCompletePositionw != RecyclerView.NO_POSITION) {
-                                    if (firstCompletePositionw != 0) {
-                                        scrollToPosition(0);
-                                        mTopCutoff = getCutoff();
-                                        mThumbHeight = (int) (mTopCutoff * ITEM_HEIGHT);
-                                        scrollToPositionWithOffset(showingThread.loadable.listViewIndex, showingThread.loadable.listViewTop);
-                                    } else {
-                                        mTopCutoff = getCutoff();
-                                        mThumbHeight = (int) (mTopCutoff * ITEM_HEIGHT);
-                                    }
-                                }
-                            }
-                            return (int) (getItemCount() * ITEM_HEIGHT);
+                            return getItemCount() * ITEM_HEIGHT;
                         }
 
                         private float getCutoff() {
@@ -245,11 +229,31 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                         }
 
                         public void resetScrollbars() {
+                            //reset for measurement
                             mThumbHeight = -1;
                             mTopCutoff = -1;
-                            ITEM_HEIGHT = -1;
+                            //turn off the scroll listener so we don't reset the saved positions
+                            recyclerView.removeOnScrollListener(scrollListener);
+                            //go to the top for measurement
+                            scrollToPositionWithOffset(0, 0);
+                            ViewTreeObserver.OnGlobalLayoutListener atTopListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+                                @Override
+                                public void onGlobalLayout() {
+                                    //make sure we're actually at the top
+                                    if (findFirstCompletelyVisibleItemPosition() == 0) {
+                                        //set the needed stuff for the scrollbar, turn the listener back on, go to the saved offset and remove this listener
+                                        mTopCutoff = getCutoff();
+                                        mThumbHeight = (int) (mTopCutoff * ITEM_HEIGHT);
+                                        recyclerView.addOnScrollListener(scrollListener);
+                                        scrollToPositionWithOffset(showingThread.loadable.listViewIndex, showingThread.loadable.listViewTop);
+                                        recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                    }
+                                }
+                            };
+                            recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(atTopListener);
                         }
 
+                        //hijack this method to get access into this inner class from outside of it
                         @Override
                         public int hashCode() {
                             resetScrollbars();
@@ -340,8 +344,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             filteredPosts.removeAll(toRemove);
         }
 
-        //reset when the thread changes
-        if (layoutManager instanceof LinearLayoutManager && !postAdapter.getDisplayList().contains(thread.op)) {
+        //this resets the scrollbars if it's a linear manager to make sure they're consistent and also scrolls to the last position afterwards so there's no inconsistencies
+        if (postAdapter.getDisplayList().size() < filteredPosts.size() || !postAdapter.getDisplayList().contains(thread.op)) {
             layoutManager.hashCode();
         }
 
