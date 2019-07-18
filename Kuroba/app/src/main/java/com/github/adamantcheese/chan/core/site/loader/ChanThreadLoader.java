@@ -28,6 +28,7 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
@@ -82,9 +83,6 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
     @Inject
     SavedThreadLoaderManager savedThreadLoaderManager;
-
-    @Inject
-    WatchManager watchManager;
 
     private final List<ChanLoaderCallback> listeners = new ArrayList<>();
     private final Loadable loadable;
@@ -322,6 +320,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             // Set isFullyDownloaded and isStopped to true so we can stop downloading it and stop
             // showing the download thread animated icon.
             AndroidUtils.runOnUiThread(() -> {
+                WatchManager watchManager = Chan.injector().instance(WatchManager.class);
                 SavedThread savedThread = watchManager.findSavedThreadByLoadableId(chanThread.loadable.id);
                 if (savedThread != null && !savedThread.isFullyDownloaded) {
                     savedThread.isFullyDownloaded = true;
@@ -421,7 +420,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     }
 
     /**
-     * Final processing af a response that needs to happen on the main thread.
+     * Final processing of a response that needs to happen on the main thread.
      */
     private void processResponse(Post.Builder fakeOp) {
         if (loadable.isThreadMode() && thread.posts.size() > 0) {

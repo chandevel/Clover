@@ -912,7 +912,7 @@ public class WatchManager implements WakeManager.Wakeable {
         public PinWatcher(Pin pin) {
             this.pin = pin;
 
-            Logger.d(TAG, "created for " + pin);
+            Logger.d(TAG, "created for " + pin.loadable.toString());
             chanLoader = chanLoaderFactory.obtain(pin.loadable, this);
             pageRequestManager.addListener(this);
         }
