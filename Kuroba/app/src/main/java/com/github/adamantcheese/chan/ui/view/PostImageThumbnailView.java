@@ -16,23 +16,22 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 
 public class PostImageThumbnailView extends ThumbnailView implements View.OnLongClickListener {
     private PostImage postImage;
@@ -58,15 +57,19 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
     public void setPostImage(PostImage postImage, boolean useHiRes) {
         if (this.postImage != postImage) {
             this.postImage = postImage;
+            int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
 
             if (postImage != null) {
                 String url = postImage.getThumbnailUrl().toString();
-                if (ChanSettings.autoLoadThreadImages.get() || useHiRes) {
+                if (ChanSettings.autoLoadThreadImages.get() && useHiRes) {
                     if (!postImage.spoiler || ChanSettings.revealImageSpoilers.get()) {
-                        url = postImage.imageUrl.toString();
+                        url = postImage.type == PostImage.Type.STATIC ? postImage.imageUrl.toString() : postImage.getThumbnailUrl().toString();
                     }
                 }
-                setUrl(url, useHiRes ? 500 : 0, useHiRes ? 500 : 0);
+                //500 is big enough for it to be high enough quality to be noticable and not rescale a lot
+                //but also not kill on memory usage (250 4K images at native would be 4GB RAM, rescaled it is 62.5MB)
+                setUrl(url, useHiRes && ChanSettings.autoLoadThreadImages.get() ? 500 : thumbnailSize,
+                        useHiRes && ChanSettings.autoLoadThreadImages.get() ? 500 : thumbnailSize);
             } else {
                 setUrl(null);
             }
