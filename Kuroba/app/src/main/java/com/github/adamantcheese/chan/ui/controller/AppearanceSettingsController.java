@@ -95,6 +95,10 @@ public class AppearanceSettingsController extends SettingsController {
             setupFontSizeSetting(post);
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.shiftPostFormat,
+                    context.getString(R.string.setting_shift_post), context.getString(R.string.setting_shift_post_description))));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.fontAlternate,
                     R.string.setting_font_alt,
                     R.string.setting_font_alt_description)));
@@ -110,6 +114,10 @@ public class AppearanceSettingsController extends SettingsController {
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.postFilename,
                     R.string.setting_post_filename, 0)));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.enableEmoji,
+                    context.getString(R.string.setting_enable_emoji), context.getString(R.string.setting_enable_emoji_description))));
 
             groups.add(post);
         }

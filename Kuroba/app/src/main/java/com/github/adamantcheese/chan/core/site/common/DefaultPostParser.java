@@ -17,13 +17,9 @@
 package com.github.adamantcheese.chan.core.site.common;
 
 
-import android.graphics.BitmapFactory;
 import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
-import android.text.style.ImageSpan;
-import android.util.ArrayMap;
 
 import androidx.annotation.AnyThread;
 
@@ -48,10 +44,7 @@ import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
@@ -188,7 +181,12 @@ public class DefaultPostParser implements PostParser {
         CharSequence total = new SpannableString("");
 
         try {
-            String comment = EmojiParser.parseToUnicode(commentRaw.toString()).replace("<wbr>", "");
+            String comment;
+            if (ChanSettings.enableEmoji.get()) {
+                comment = EmojiParser.parseToUnicode(commentRaw.toString().replace("<wbr>", ""));
+            } else {
+                comment = commentRaw.toString().replace("<wbr>", "");
+            }
 
             Document document = Jsoup.parseBodyFragment(comment);
 

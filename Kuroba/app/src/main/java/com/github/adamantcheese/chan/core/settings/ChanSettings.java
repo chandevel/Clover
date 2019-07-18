@@ -174,6 +174,7 @@ public class ChanSettings {
     public static final StringSetting lastImageOptions;
     public static final BooleanSetting removeWatchedFromCatalog;
     public static final BooleanSetting shiftPostFormat;
+    public static final BooleanSetting enableEmoji;
 
     public static final BooleanSetting experimentalFeatures;
 
@@ -271,6 +272,7 @@ public class ChanSettings {
         lastImageOptions = new StringSetting(p, "last_image_options", "");
         removeWatchedFromCatalog = new BooleanSetting(p, "remove_catalog_watch", false);
         shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
+        enableEmoji = new BooleanSetting(p, "enable_emoji", false);
 
         experimentalFeatures = new BooleanSetting(p, "experimental_features", true);
     }

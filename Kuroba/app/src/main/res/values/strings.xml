@@ -668,4 +668,6 @@ Don't have a 4chan Pass?<br>
     <string name="setting_shift_post">Shift post format</string>
     <string name="setting_shift_post_description">Shift the comment of long posts to start below the thumbnail</string>
     <string name="setting_remove_watched">Remove watched threads from the catalog</string>
+    <string name="setting_enable_emoji">Enable emoji</string>
+    <string name="setting_enable_emoji_description">Enable emoji posting and parsing</string>
 </resources>
