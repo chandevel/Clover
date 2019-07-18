@@ -94,6 +94,10 @@ public class BehaviourSettingsController extends SettingsController {
             SettingsGroup post = new SettingsGroup(R.string.settings_group_post);
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.shiftPostFormat,
+                    context.getString(R.string.setting_shift_post), context.getString(R.string.setting_shift_post_description))));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.textOnly,
                     R.string.setting_text_only, R.string.setting_text_only_description)));
 

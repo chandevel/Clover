@@ -132,7 +132,9 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postCellCallback, statusCellCallback);
         recyclerView.setAdapter(postAdapter);
-        recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_POST, 0);
+        if(ChanSettings.shiftPostFormat.get()) {
+            recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_POST, 0);
+        }
         recyclerView.addOnScrollListener(scrollListener);
 
         setFastScroll(false);
@@ -285,7 +287,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         );
 
         //Filter out any bookmarked threads from the catalog
-        if (thread.loadable.isCatalogMode()) {
+        if (ChanSettings.removeWatchedFromCatalog.get() && thread.loadable.isCatalogMode()) {
             List<Post> toRemove = new ArrayList<>();
             for (Pin pin : Chan.injector().instance(WatchManager.class).getAllPins()) {
                 for (Post post : filteredPosts) {

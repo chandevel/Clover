@@ -172,6 +172,10 @@ public class ChanSettings {
     public static final BooleanSetting useImmersiveModeForGallery;
 
     public static final StringSetting lastImageOptions;
+    public static final BooleanSetting removeWatchedFromCatalog;
+    public static final BooleanSetting shiftPostFormat;
+
+    public static final BooleanSetting experimentalFeatures;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -265,6 +269,10 @@ public class ChanSettings {
         useImmersiveModeForGallery = new BooleanSetting(p, "use_immersive_mode_for_gallery", false);
 
         lastImageOptions = new StringSetting(p, "last_image_options", "");
+        removeWatchedFromCatalog = new BooleanSetting(p, "remove_catalog_watch", false);
+        shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
+
+        experimentalFeatures = new BooleanSetting(p, "experimental_features", true);
     }
 
     public static ThemeColor getThemeAndColor() {

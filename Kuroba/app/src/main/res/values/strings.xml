@@ -664,4 +664,7 @@ Don't have a 4chan Pass?<br>
     <string name="image_url_get_failed">Failed to get image from clipboard</string>
     <string name="image_url_get_success">Got image from clipboard</string>
     <string name="thread_list_layout_attached_file_not_supported_for_reencoding">Attached file is not supported for reencoding</string>
+    <string name="setting_shift_post">Shift post format</string>
+    <string name="setting_shift_post_description">Shift the comment of long posts to start below the thumbnail</string>
+    <string name="setting_remove_watched">Remove watched threads from the catalog</string>
 </resources>

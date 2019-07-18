@@ -17,8 +17,9 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import androidx.appcompat.widget.SwitchCompat;
 import android.widget.CompoundButton;
+
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -36,6 +37,7 @@ public class WatchSettingsController extends SettingsController implements Compo
     private SettingView enableFilterWatch;
 
     private SettingView backgroundTimeout;
+    private SettingView removeWatched;
     private SettingView lastPageNotifyMode;
     private SettingView notifyMode;
     private SettingView soundMode;
@@ -70,6 +72,7 @@ public class WatchSettingsController extends SettingsController implements Compo
 
         if (!ChanSettings.watchBackground.get()) {
             setSettingViewVisibility(backgroundTimeout, false);
+            setSettingViewVisibility(removeWatched, false);
             setSettingViewVisibility(lastPageNotifyMode, false);
             setSettingViewVisibility(notifyMode, false);
             setSettingViewVisibility(soundMode, false);
@@ -91,6 +94,7 @@ public class WatchSettingsController extends SettingsController implements Compo
         if (item == enableBackground) {
             boolean enabled = ChanSettings.watchBackground.get();
             setSettingViewVisibility(backgroundTimeout, enabled);
+            setSettingViewVisibility(removeWatched, enabled);
             setSettingViewVisibility(lastPageNotifyMode, enabled);
             setSettingViewVisibility(notifyMode, enabled);
             setSettingViewVisibility(soundMode, enabled);
@@ -129,6 +133,8 @@ public class WatchSettingsController extends SettingsController implements Compo
                 return getString(R.string.setting_watch_background_timeout_description) + "\n\n" + items.get(selected).name;
             }
         });
+
+        removeWatched = settings.add(new BooleanSettingView(this, ChanSettings.removeWatchedFromCatalog, context.getString(R.string.setting_remove_watched), ""));
 
         lastPageNotifyMode = settings.add(new BooleanSettingView(this, ChanSettings.watchLastPageNotify, R.string.setting_thread_page_limit_notify, R.string.setting_thread_page_limit_notify_description));
 

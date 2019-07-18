@@ -30,6 +30,7 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
 import javax.inject.Inject;
 
@@ -91,6 +92,12 @@ public class DeveloperSettingsController extends Controller {
         });
         resetDbButton.setText("Delete database");
         wrapper.addView(resetDbButton);
+
+        Button experimentalButton = new Button(context);
+        experimentalButton.setOnClickListener(v -> {
+            ChanSettings.experimentalFeatures.toggle();
+        });
+        wrapper.addView(experimentalButton);
 
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);
