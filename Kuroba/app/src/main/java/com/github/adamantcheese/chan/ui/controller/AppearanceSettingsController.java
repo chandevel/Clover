@@ -94,7 +94,7 @@ public class AppearanceSettingsController extends SettingsController {
 
             setupFontSizeSetting(post);
 
-            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+            requiresRestart.add(post.add(new BooleanSettingView(this,
                     ChanSettings.shiftPostFormat,
                     context.getString(R.string.setting_shift_post), context.getString(R.string.setting_shift_post_description))));
 
