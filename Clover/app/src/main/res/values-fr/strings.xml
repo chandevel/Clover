@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_install_download_failed">Echec du telechargement</string>
     <string name="update_install_download_move_failed">Imossible de déplacer les fichiers téléchargés vers le dossier des téléchargements</string>
     <string name="update_retry_title">Retenter la mise à jour</string>
-    <string name="update_retry">Clover n\'as pas encore été mis à jour. Cliquez sur \"retenter\" pour réessayer l'installation.</string>
+    <string name="update_retry">Clover n\'as pas encore été mis à jour. Cliquez sur \"retenter\" pour réessayer l\'installation.</string>
     <string name="update_retry_button">Réessayer</string>
 
     <string name="update_storage_permission_required_title">Permission d\'accéder au stockage requise</string>
@@ -459,7 +459,7 @@ Ces rapport ne collectent aucune information personnellement identifiable."
 
     <!-- Behavior general group -->
     <string name="settings_group_general">General</string>
-    <string name="setting_force_english_locale">Toujours utiliser l\'Aanglais comme langage de l'application</string>
+    <string name="setting_force_english_locale">Toujours utiliser l\'Anglais comme langage de l\'application</string>
     <string name="setting_force_english_locale_toggle_notice">La langue sera changée au prochain redémarrage.</string>
     <string name="setting_auto_refresh_thread">Mettre à jour automatiquement les threads</string>
     <string name="setting_confirm_exit">Confirmer la sortie de l\'application</string>
@@ -536,7 +536,7 @@ Si l'option est désactivée, l'image sera sauvegardée avec le nom que l'envoye
     <string name="save_location_screen">Emplacement de sauvegarde</string>
     <string name="save_location_storage_permission_required_title">Permission de stockage requise</string>
     <string name="save_location_storage_permission_required">
-"La permission d\'acc"der au stockage est requise pour parcourir les fichiers.
+"La permission d\'accder au stockage est requise pour parcourir les fichiers.
 
 Merci de ré-activer cette permission dans les options du téléphone si vous l'avez désactivée."
     </string>
