@@ -134,7 +134,7 @@ public class WatchSettingsController extends SettingsController implements Compo
             }
         });
 
-        removeWatched = settings.add(new BooleanSettingView(this, ChanSettings.removeWatchedFromCatalog, context.getString(R.string.setting_remove_watched), ""));
+        removeWatched = settings.add(new BooleanSettingView(this, ChanSettings.removeWatchedFromCatalog, R.string.setting_remove_watched, R.string.empty));
 
         lastPageNotifyMode = settings.add(new BooleanSettingView(this, ChanSettings.watchLastPageNotify, R.string.setting_thread_page_limit_notify, R.string.setting_thread_page_limit_notify_description));
 
