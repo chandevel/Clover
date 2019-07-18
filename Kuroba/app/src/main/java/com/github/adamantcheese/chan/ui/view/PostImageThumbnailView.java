@@ -27,9 +27,12 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 
@@ -54,26 +57,49 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
         playIcon = context.getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
     }
 
-    public void setPostImage(PostImage postImage, boolean useHiRes) {
+    public void setPostImage(Loadable loadable, PostImage postImage, boolean useHiRes, int width, int height) {
         if (this.postImage != postImage) {
             this.postImage = postImage;
             int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
 
             if (postImage != null) {
-                String url = postImage.getThumbnailUrl().toString();
-                if (ChanSettings.autoLoadThreadImages.get() && useHiRes) {
-                    if (!postImage.spoiler || ChanSettings.revealImageSpoilers.get()) {
-                        url = postImage.type == PostImage.Type.STATIC ? postImage.imageUrl.toString() : postImage.getThumbnailUrl().toString();
+                if (!loadable.isSavedCopy) {
+                    String url = getUrl(postImage, useHiRes);
+                    setUrl(url);
+                } else {
+                    String fileName;
+
+                    if (postImage.spoiler) {
+                        String extension = StringUtils.extractFileExtensionFromImageUrl(
+                                postImage.spoilerThumbnailUrl.toString());
+
+                        fileName = ThreadSaveManager.formatSpoilerImageName(extension);
+                    } else {
+                        String extension = StringUtils.extractFileExtensionFromImageUrl(
+                                postImage.thumbnailUrl.toString());
+
+                        fileName = ThreadSaveManager.formatThumbnailImageName(
+                                postImage.originalName,
+                                extension);
                     }
+
+                    setUrlFromDisk(loadable, fileName, postImage.spoiler, width, height);
                 }
-                //500 is big enough for it to be high enough quality to be noticable and not rescale a lot
-                //but also not kill on memory usage (250 4K images at native would be 4GB RAM, rescaled it is 62.5MB)
-                setUrl(url, useHiRes && ChanSettings.autoLoadThreadImages.get() ? 500 : thumbnailSize,
-                        useHiRes && ChanSettings.autoLoadThreadImages.get() ? 500 : thumbnailSize);
             } else {
                 setUrl(null);
             }
         }
+    }
+
+    private String getUrl(PostImage postImage, boolean useHiRes) {
+        String url = postImage.getThumbnailUrl().toString();
+        if (ChanSettings.autoLoadThreadImages.get() && useHiRes) {
+            if (!postImage.spoiler || ChanSettings.revealImageSpoilers.get()) {
+                url = postImage.type == PostImage.Type.STATIC ? postImage.imageUrl.toString() : postImage.getThumbnailUrl().toString();
+            }
+        }
+
+        return url;
     }
 
     public void setRatio(float ratio) {

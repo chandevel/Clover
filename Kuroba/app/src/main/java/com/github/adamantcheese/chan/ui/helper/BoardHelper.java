@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.helper;
 import android.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
+
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;

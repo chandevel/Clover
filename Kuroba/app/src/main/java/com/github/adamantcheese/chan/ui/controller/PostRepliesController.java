@@ -30,6 +30,7 @@ import android.widget.TextView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
@@ -49,6 +50,7 @@ public class PostRepliesController extends BaseFloatingController {
     private LoadView loadView;
     private ListView listView;
     private PostPopupHelper.RepliesData displayingData;
+    private Loadable loadable;
 
     public PostRepliesController(Context context, PostPopupHelper postPopupHelper, ThreadPresenter presenter) {
         super(context);
@@ -95,8 +97,8 @@ public class PostRepliesController extends BaseFloatingController {
         }
     }
 
-    public void setPostRepliesData(PostPopupHelper.RepliesData data) {
-        displayData(data);
+    public void setPostRepliesData(Loadable loadable, PostPopupHelper.RepliesData data) {
+        displayData(loadable, data);
     }
 
     public List<Post> getPostRepliesData() {
@@ -107,8 +109,9 @@ public class PostRepliesController extends BaseFloatingController {
         listView.smoothScrollToPosition(displayPosition);
     }
 
-    private void displayData(final PostPopupHelper.RepliesData data) {
+    private void displayData(Loadable loadable, final PostPopupHelper.RepliesData data) {
         displayingData = data;
+        this.loadable = loadable;
 
         View dataView;
         if (ChanSettings.repliesButtonsBottom.get()) {
@@ -147,7 +150,9 @@ public class PostRepliesController extends BaseFloatingController {
 
                 final Post p = getItem(position);
                 boolean showDivider = position < getCount() - 1;
-                postCell.setPost(p,
+                postCell.setPost(
+                        loadable,
+                        p,
                         presenter,
                         false,
                         false,

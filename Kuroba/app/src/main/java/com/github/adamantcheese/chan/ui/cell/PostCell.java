@@ -59,6 +59,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
@@ -109,6 +110,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
     private boolean ignoreNextOnClick;
 
     private boolean bound = false;
+    private Loadable loadable;
     private Post post;
     private PostCellCallback callback;
     private boolean selectable;
@@ -257,7 +259,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         }
     }
 
-    public void setPost(final Post post,
+    public void setPost(Loadable loadable,
+                        final Post post,
                         PostCellInterface.PostCellCallback callback,
                         boolean selectable,
                         boolean highlighted,
@@ -281,6 +284,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             this.post = null;
         }
 
+        this.loadable = loadable;
         this.post = post;
         this.callback = callback;
         this.selectable = selectable;
@@ -594,7 +598,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                     p.addRule(RelativeLayout.BELOW, lastId);
                 }
 
-                v.setPostImage(image, false);
+                v.setPostImage(loadable, image, false, size, size);
                 v.setClickable(true);
                 v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 v.setRounding(dp(2));

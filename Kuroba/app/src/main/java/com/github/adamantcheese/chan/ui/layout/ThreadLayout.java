@@ -183,6 +183,14 @@ public class ThreadLayout extends CoordinatorLayout implements
         presenter.unbindLoadable();
     }
 
+    public void hideReplyButton() {
+        AndroidUtils.hideView(replyButton);
+    }
+
+    public void showReplyButton() {
+        AndroidUtils.showView(replyButton);
+    }
+
     @Override
     public void onClick(View v) {
         if (v == errorRetryButton) {
@@ -253,9 +261,17 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
+        if (thread.loadable.isSavedCopy) {
+            hideReplyButton();
+            getPresenter().updateLoadable(true);
+        } else {
+            showReplyButton();
+            getPresenter().updateLoadable(false);
+        }
+
         threadListLayout.showPosts(thread, filter, visible != Visible.THREAD);
         switchVisible(Visible.THREAD);
-        callback.onShowPosts();
+        callback.onShowPosts(thread.loadable);
     }
 
     @Override
@@ -586,6 +602,14 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
+    public void shownBackgroundWatcherIsDisabledToast() {
+        Toast.makeText(
+                getContext(),
+                R.string.thread_layout_background_watcher_is_disabled_message,
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
     public void showNewPostsNotification(boolean show, int more) {
         if (show) {
             if (!threadListLayout.scrolledToBottom()) {
@@ -761,11 +785,13 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         void showAlbum(List<PostImage> images, int index);
 
-        void onShowPosts();
+        void onShowPosts(Loadable loadable);
 
         void presentRepliesController(Controller controller);
 
         void presentImageReencodingController(Controller controller);
+
+        void presentLoadingViewController(Controller controller);
 
         void presenterRemovedPostsController(Controller controller);
 

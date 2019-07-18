@@ -16,13 +16,13 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.site.Site;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * A board is something that can be browsed, it is unique by it's site and code.

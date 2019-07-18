@@ -44,6 +44,7 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageViewerPresenter;
 import com.github.adamantcheese.chan.core.saver.ImageSaveTask;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
@@ -99,17 +100,19 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private ImageViewerPresenter presenter;
 
     private final Toolbar toolbar;
+    private Loadable loadable;
     private TransitionImageView previewImage;
     private OptionalSwipeViewPager pager;
     private LoadingBar loadingBar;
 
     private boolean isInImmersiveMode = false;
 
-    public ImageViewerController(Context context, Toolbar toolbar) {
+    public ImageViewerController(Loadable loadable, Context context, Toolbar toolbar) {
         super(context);
         inject(this);
 
         this.toolbar = toolbar;
+        this.loadable = loadable;
 
         presenter = new ImageViewerPresenter(this);
     }
@@ -127,13 +130,20 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         }
 
         menuBuilder.withItem(VOLUME_ID, R.drawable.ic_volume_off_white_24dp, this::volumeClicked);
-        menuBuilder.withItem(SAVE_ID, R.drawable.ic_file_download_white_24dp, this::saveClicked);
+
+        if (!loadable.isSavedCopy) {
+            menuBuilder.withItem(SAVE_ID, R.drawable.ic_file_download_white_24dp, this::saveClicked);
+        }
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow(this);
         overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
-        overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
+        if (!loadable.isSavedCopy) {
+            overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
+        }
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
-        overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
+        if (!loadable.isSavedCopy) {
+            overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
+        }
         overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
         overflowBuilder.withSubItem(R.string.action_image_rotate, this::rotateImage);
 
@@ -249,7 +259,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         if (share && ChanSettings.shareUrl.get()) {
             AndroidUtils.shareLink(postImage.imageUrl.toString());
         } else {
-            ImageSaveTask task = new ImageSaveTask(postImage);
+            ImageSaveTask task = new ImageSaveTask(loadable, postImage);
             task.setShare(share);
             if (ChanSettings.saveBoardFolder.get()) {
                 String subFolderName =
@@ -304,8 +314,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         pager.setSwipingEnabled(visible);
     }
 
-    public void setPagerItems(List<PostImage> images, int initialIndex) {
-        ImageViewerAdapter adapter = new ImageViewerAdapter(context, images, presenter);
+    public void setPagerItems(Loadable loadable, List<PostImage> images, int initialIndex) {
+        ImageViewerAdapter adapter = new ImageViewerAdapter(context, images, loadable, presenter);
         pager.setAdapter(adapter);
         pager.setCurrentItem(initialIndex);
     }
@@ -359,8 +369,13 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Override
     public void resetDownloadButtonState() {
-        navigation.findItem(SAVE_ID).getView().getDrawable().setTintList(null);
-        navigation.findItem(SAVE_ID).setCallback(this::saveClicked);
+        ToolbarMenuItem saveItem = navigation.findItem(SAVE_ID);
+        if (saveItem == null) {
+            return;
+        }
+
+        saveItem.getView().getDrawable().setTintList(null);
+        saveItem.setCallback(this::saveClicked);
     }
 
     @Override
@@ -400,7 +415,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         menu.show();
     }
 
-    public void startPreviewInTransition(PostImage postImage) {
+    public void startPreviewInTransition(Loadable loadable, PostImage postImage) {
         ThumbnailView startImageView = getTransitionImageView(postImage);
 
         if (!setTransitionViewData(startImageView)) {
@@ -431,42 +446,56 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             }
         });
 
-        imageLoader.get(postImage.getThumbnailUrl().toString(), new ImageLoader.ImageListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
-                startAnimation.start();
-            }
+        imageLoader.getImage(
+                true,
+                loadable,
+                postImage,
+                previewImage.getWidth(),
+                previewImage.getHeight(),
+                new ImageLoader.ImageListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
+                        startAnimation.start();
+                    }
 
-            @Override
-            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                if (response.getBitmap() != null) {
-                    previewImage.setBitmap(response.getBitmap());
-                    startAnimation.start();
-                }
-            }
-        }, previewImage.getWidth(), previewImage.getHeight());
+                    @Override
+                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                        if (response.getBitmap() != null) {
+                            previewImage.setBitmap(response.getBitmap());
+                            startAnimation.start();
+                        }
+                    }
+                });
     }
 
-    public void startPreviewOutTransition(final PostImage postImage) {
+    public void startPreviewOutTransition(Loadable loadable, final PostImage postImage) {
         if (startAnimation != null || endAnimation != null) {
             return;
         }
 
-        imageLoader.get(postImage.getThumbnailUrl().toString(), new ImageLoader.ImageListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");
-                doPreviewOutAnimation(postImage, null);
-            }
 
-            @Override
-            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                if (response.getBitmap() != null) {
-                    doPreviewOutAnimation(postImage, response.getBitmap());
+        imageLoader.getImage(
+                true,
+                loadable,
+                postImage,
+                previewImage.getWidth(),
+                previewImage.getHeight(),
+                new ImageLoader.ImageListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");
+                        doPreviewOutAnimation(postImage, null);
+                    }
+
+                    @Override
+                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                        if (response.getBitmap() != null) {
+                            doPreviewOutAnimation(postImage, response.getBitmap());
+                        }
+                    }
                 }
-            }
-        }, previewImage.getWidth(), previewImage.getHeight());
+        );
     }
 
     private void doPreviewOutAnimation(PostImage postImage, Bitmap bitmap) {

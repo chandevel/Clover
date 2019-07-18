@@ -176,7 +176,7 @@ public class ChanSettings {
     public static final BooleanSetting shiftPostFormat;
     public static final BooleanSetting enableEmoji;
 
-    public static final BooleanSetting experimentalFeatures;
+    public static final BooleanSetting incrementalThreadDownloadingEnabled;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -263,7 +263,6 @@ public class ChanSettings {
 
         historyOpenCounter = new CounterSetting(p, "counter_history_open");
         threadOpenCounter = new CounterSetting(p, "counter_thread_open");
-
         updateCheckTime = new LongSetting(p, "update_check_time", 0L);
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
@@ -274,7 +273,7 @@ public class ChanSettings {
         shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
         enableEmoji = new BooleanSetting(p, "enable_emoji", false);
 
-        experimentalFeatures = new BooleanSetting(p, "experimental_features", true);
+        incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
     }
 
     public static ThemeColor getThemeAndColor() {

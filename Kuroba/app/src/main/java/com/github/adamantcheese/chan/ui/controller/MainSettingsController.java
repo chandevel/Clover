@@ -22,7 +22,6 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.SettingsPresenter;
-import com.github.adamantcheese.chan.ui.controller.export.ImportExportSettingsController;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
@@ -123,6 +122,11 @@ public class MainSettingsController extends SettingsController implements Settin
             filtersSetting = (LinkSettingView) general.add(new LinkSettingView(this,
                     R.string.settings_filters, 0,
                     v -> navigationController.pushController(new FiltersController(context))));
+
+            general.add(new LinkSettingView(this,
+                    R.string.settings_experimental_settings_title,
+                    R.string.settings_experimental_settings_description,
+                    v -> navigationController.pushController(new ExperimentalSettingsController(context))));
 
             groups.add(general);
         }

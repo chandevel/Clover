@@ -16,17 +16,21 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -37,6 +41,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
+import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
@@ -45,6 +50,7 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.AnimationUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -56,12 +62,18 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback {
     private static final int PIN_ID = 1;
+    private static final int SAVE_THREAD_ID = 2;
 
     @Inject
     WatchManager watchManager;
 
     private boolean pinItemPinned = false;
+    private ThreadPresenter.DownloadThreadState prevState = ThreadPresenter.DownloadThreadState.Default;
     private Loadable loadable;
+
+    private Drawable downloadIconOutline;
+    private Drawable downloadIconFilled;
+    private AnimationDrawable downloadAnimation;
 
     public ViewThreadController(Context context) {
         super(context);
@@ -76,16 +88,35 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         super.onCreate();
         inject(this);
 
-        threadLayout.setPostViewMode(ChanSettings.PostViewMode.LIST);
+        downloadAnimation = AnimationUtils.createAnimatedDownloadIcon(
+                context,
+                0xFFFFFFFF);
 
+        downloadIconOutline = context.getDrawable(R.drawable.ic_download0).mutate();
+        downloadIconOutline.setTint(0xFFFFFFFF);
+
+        downloadIconFilled = context.getDrawable(R.drawable.ic_download5).mutate();
+        downloadIconFilled.setTint(0xFFFFFFFF);
+
+        threadLayout.setPostViewMode(ChanSettings.PostViewMode.LIST);
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
 
         navigation.hasDrawer = true;
 
-        NavigationItem.MenuOverflowBuilder menuOverflowBuilder = navigation.buildMenu()
+        buildMenu();
+        loadThread(loadable);
+    }
+
+    protected void buildMenu() {
+        NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu()
                 .withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
-                .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked)
-                .withOverflow();
+                .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked);
+
+        if (ChanSettings.incrementalThreadDownloadingEnabled.get()) {
+            menuBuilder.withItem(SAVE_THREAD_ID, downloadIconOutline, this::saveClicked);
+        }
+
+        NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow();
 
         if (!ChanSettings.enableReplyFab.get()) {
             menuOverflowBuilder.withSubItem(R.string.action_reply, this::replyClicked);
@@ -102,8 +133,6 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .withSubItem(R.string.action_scroll_to_bottom, this::downClicked)
                 .build()
                 .build();
-
-        loadThread(loadable);
     }
 
     private void albumClicked(ToolbarMenuItem item) {
@@ -111,9 +140,38 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void pinClicked(ToolbarMenuItem item) {
-        threadLayout.getPresenter().pin();
-        setPinIconState(true);
-        updateDrawerHighlighting(loadable);
+        if (threadLayout.getPresenter().pin()) {
+            setPinIconState(true);
+            setSaveIconState(true);
+
+            updateDrawerHighlighting(loadable);
+        }
+    }
+
+    private void saveClicked(ToolbarMenuItem item) {
+        RuntimePermissionsHelper runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
+        if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            saveClickedInternal();
+            return;
+        }
+
+        runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, (granted) -> {
+            if (granted) {
+                saveClickedInternal();
+            } else {
+                Toast.makeText(
+                        context,
+                        context.getString(R.string.view_thread_controller_thread_downloading_requires_write_permission),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void saveClickedInternal() {
+        if (threadLayout.getPresenter().save()) {
+            setSaveIconState(true);
+            updateDrawerHighlighting(loadable);
+        }
     }
 
     private void searchClicked(ToolbarMenuSubItem item) {
@@ -174,6 +232,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         ThreadPresenter presenter = threadLayout.getPresenter();
         if (presenter != null) {
             setPinIconState(false);
+            setSaveIconState(false);
         }
     }
 
@@ -192,25 +251,30 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         setPinIconState(true);
+        setSaveIconState(true);
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
         setPinIconState(true);
+        setSaveIconState(true);
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinChangedMessage message) {
         setPinIconState(false);
+        setSaveIconState(false);
+
         // Update title
         if (message.pin.loadable == loadable) {
-            onShowPosts();
+            onShowPosts(message.pin.loadable);
         }
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
         setPinIconState(true);
+        setSaveIconState(true);
     }
 
     @Override
@@ -282,7 +346,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             this.loadable = presenter.getLoadable();
             navigation.title = loadable.title;
             ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
+
             setPinIconState(false);
+            setSaveIconState(false);
+
             updateDrawerHighlighting(loadable);
             updateLeftPaneHighlighting(loadable);
             presenter.requestInitialData();
@@ -311,15 +378,24 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     @Override
-    public void onShowPosts() {
-        super.onShowPosts();
+    public void onShowPosts(Loadable loadable) {
+        super.onShowPosts(loadable);
 
-        navigation.title = loadable.title;
+        navigation.title = this.loadable.title;
+
+        navigation.findItem(PIN_ID).setVisible(!loadable.isSavedCopy);
+
+        ToolbarMenuItem saveThreadItem = navigation.findItem(SAVE_THREAD_ID);
+        if (saveThreadItem != null) {
+            saveThreadItem.setVisible(!loadable.isSavedCopy);
+        }
+
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
+        ((ToolbarNavigationController) navigationController).toolbar.updateViewForItem(navigation);
     }
 
     private void updateDrawerHighlighting(Loadable loadable) {
-        Pin pin = loadable == null ? null : watchManager.findPinByLoadable(loadable);
+        Pin pin = loadable == null ? null : watchManager.findPinByLoadableId(loadable.id);
 
         if (navigationController.parentController instanceof DrawerController) {
             ((DrawerController) navigationController.parentController).setPinHighlighted(pin);
@@ -359,10 +435,48 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         }
     }
 
+    private void setSaveIconState(boolean animated) {
+        ThreadPresenter presenter = threadLayout.getPresenter();
+        if (presenter != null) {
+            setSaveIconStateDrawable(presenter.getThreadDownloadState(), animated);
+        }
+    }
+
+    private void setSaveIconStateDrawable(ThreadPresenter.DownloadThreadState downloadThreadState, boolean animated) {
+        if (downloadThreadState == prevState) {
+            return;
+        }
+
+        ToolbarMenuItem menuItem = navigation.findItem(SAVE_THREAD_ID);
+        if (menuItem == null) {
+            return;
+        }
+
+        prevState = downloadThreadState;
+
+        switch (downloadThreadState) {
+            case Default:
+                menuItem.setImage(downloadIconOutline, animated);
+                break;
+            case DownloadInProgress:
+                menuItem.setImage(downloadAnimation, animated);
+                downloadAnimation.start();
+                break;
+            case FullyDownloaded:
+                menuItem.setImage(downloadIconFilled, animated);
+                break;
+        }
+    }
+
     private void setPinIconStateDrawable(boolean pinned, boolean animated) {
         if (pinned == pinItemPinned) {
             return;
         }
+        ToolbarMenuItem menuItem = navigation.findItem(PIN_ID);
+        if (menuItem == null) {
+            return;
+        }
+
         pinItemPinned = pinned;
 
         Drawable outline = context.getDrawable(
@@ -371,8 +485,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 R.drawable.ic_bookmark_white_24dp);
 
         Drawable drawable = pinned ? white : outline;
-
-        navigation.findItem(PIN_ID).setImage(drawable, animated);
+        menuItem.setImage(drawable, animated);
     }
 
     @Override

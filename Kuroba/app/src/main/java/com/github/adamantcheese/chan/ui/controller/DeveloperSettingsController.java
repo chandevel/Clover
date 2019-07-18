@@ -93,12 +93,6 @@ public class DeveloperSettingsController extends Controller {
         resetDbButton.setText("Delete database");
         wrapper.addView(resetDbButton);
 
-        Button experimentalButton = new Button(context);
-        experimentalButton.setOnClickListener(v -> {
-            ChanSettings.experimentalFeatures.toggle();
-        });
-        wrapper.addView(experimentalButton);
-
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);
         view = scrollView;

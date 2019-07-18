@@ -56,6 +56,12 @@ public class Pin implements Comparable<Pin>, Cloneable {
     @DatabaseField
     public boolean archived = false;
 
+    /**
+     * Pins can now be used to either watch new posts or save new posts or do both
+     * */
+    @DatabaseField(columnName = "pin_type")
+    public int pinType;
+
     public Pin() {
     }
 
@@ -69,7 +75,8 @@ public class Pin implements Comparable<Pin>, Cloneable {
             boolean isError,
             String thumbnailUrl,
             int order,
-            boolean archived
+            boolean archived,
+            int pinType
     ) {
         this.loadable = loadable;
         this.watching = watching;
@@ -81,6 +88,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
         this.thumbnailUrl = thumbnailUrl;
         this.order = order;
         this.archived = archived;
+        this.pinType = pinType;
     }
 
     public int getNewPostCount() {
@@ -114,6 +122,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
         copy.thumbnailUrl = thumbnailUrl;
         copy.order = order;
         copy.archived = archived;
+        copy.pinType = pinType;
         return copy;
     }
 
