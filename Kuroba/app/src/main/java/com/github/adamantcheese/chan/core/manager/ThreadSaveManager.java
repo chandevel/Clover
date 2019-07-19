@@ -18,7 +18,6 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
-import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,7 +63,6 @@ public class ThreadSaveManager {
     public static final String THUMBNAIL_FILE_NAME = "thumbnail";
     public static final String ORIGINAL_FILE_NAME = "original";
 
-    private Gson gson;
     private DatabaseManager databaseManager;
     private DatabaseSavedThreadManager databaseSavedThreadManager;
     private SavedThreadLoaderRepository savedThreadLoaderRepository;
@@ -97,10 +95,8 @@ public class ThreadSaveManager {
 
     @Inject
     public ThreadSaveManager(
-            Gson gson,
             DatabaseManager databaseManager,
             SavedThreadLoaderRepository savedThreadLoaderRepository) {
-        this.gson = gson;
         this.databaseManager = databaseManager;
         this.savedThreadLoaderRepository = savedThreadLoaderRepository;
         this.databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadManager();
@@ -299,6 +295,10 @@ public class ThreadSaveManager {
     @SuppressLint("CheckResult")
     private Single<Boolean> saveThreadInternal(@NonNull Loadable loadable, List<Post> postsToSave) {
         return Single.fromCallable(() -> {
+            if (BackgroundUtils.isMainThread()) {
+                throw new RuntimeException("Cannot be executed on the main thread!");
+            }
+
             if (!isCurrentDownloadRunning(loadable)) {
                 // This download was cancelled or stopped while waiting in the queue.
                 Logger.d(TAG, "Download for loadable " + loadableToString(loadable) +
@@ -308,10 +308,6 @@ public class ThreadSaveManager {
 
             Logger.d(TAG, "Starting a new download for " + loadableToString(loadable) +
                     ", on thread " + Thread.currentThread().getName());
-
-            if (BackgroundUtils.isMainThread()) {
-                throw new RuntimeException("Cannot be executed on the main thread!");
-            }
 
             String threadSubDir = getThreadSubDir(loadable);
             File threadSaveDir = new File(ChanSettings.saveLocation.get(), threadSubDir);
@@ -637,7 +633,8 @@ public class ThreadSaveManager {
             if (VERBOSE_LOG) {
                 Logger.d(TAG, "Post " + post.no + " contains no images");
             }
-            return Flowable.just(false);
+            // No images, so return true
+            return Flowable.just(true);
         }
 
         if (!shouldDownloadImages()) {
