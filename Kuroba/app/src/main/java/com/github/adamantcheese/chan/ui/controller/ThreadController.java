@@ -21,9 +21,10 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
@@ -42,10 +43,10 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import java.util.List;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
@@ -97,7 +98,6 @@ public abstract class ThreadController extends Controller implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         threadLayout.destroy();
 
         EventBus.getDefault().unregister(this);
@@ -178,6 +178,11 @@ public abstract class ThreadController extends Controller implements
     }
 
     @Override
+    public void presentLoadingViewController(Controller controller) {
+        presentController(controller);
+    }
+
+    @Override
     public void presenterRemovedPostsController(Controller controller) {
         presentController(controller);
     }
@@ -226,11 +231,15 @@ public abstract class ThreadController extends Controller implements
     }
 
     @Override
-    public void onShowPosts() {
+    public void onShowPosts(Loadable loadable) {
     }
 
     @Override
     public void hideSwipeRefreshLayout() {
+        if (swipeRefreshLayout == null) {
+            return;
+        }
+
         swipeRefreshLayout.setRefreshing(false);
     }
 

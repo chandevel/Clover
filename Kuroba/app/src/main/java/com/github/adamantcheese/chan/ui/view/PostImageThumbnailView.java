@@ -16,23 +16,25 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 
 public class PostImageThumbnailView extends ThumbnailView implements View.OnLongClickListener {
     private PostImage postImage;
@@ -55,22 +57,49 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
         playIcon = context.getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
     }
 
-    public void setPostImage(PostImage postImage, boolean useHiRes) {
+    public void setPostImage(Loadable loadable, PostImage postImage, boolean useHiRes, int width, int height) {
         if (this.postImage != postImage) {
             this.postImage = postImage;
+            int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
 
             if (postImage != null) {
-                String url = postImage.getThumbnailUrl().toString();
-                if (ChanSettings.autoLoadThreadImages.get() || useHiRes) {
-                    if (!postImage.spoiler || ChanSettings.revealImageSpoilers.get()) {
-                        url = postImage.imageUrl.toString();
+                if (!loadable.isSavedCopy) {
+                    String url = getUrl(postImage, useHiRes);
+                    setUrl(url);
+                } else {
+                    String fileName;
+
+                    if (postImage.spoiler) {
+                        String extension = StringUtils.extractFileExtensionFromImageUrl(
+                                postImage.spoilerThumbnailUrl.toString());
+
+                        fileName = ThreadSaveManager.formatSpoilerImageName(extension);
+                    } else {
+                        String extension = StringUtils.extractFileExtensionFromImageUrl(
+                                postImage.thumbnailUrl.toString());
+
+                        fileName = ThreadSaveManager.formatThumbnailImageName(
+                                postImage.originalName,
+                                extension);
                     }
+
+                    setUrlFromDisk(loadable, fileName, postImage.spoiler, width, height);
                 }
-                setUrl(url, useHiRes ? 500 : 0, useHiRes ? 500 : 0);
             } else {
                 setUrl(null);
             }
         }
+    }
+
+    private String getUrl(PostImage postImage, boolean useHiRes) {
+        String url = postImage.getThumbnailUrl().toString();
+        if ((ChanSettings.autoLoadThreadImages.get() || ChanSettings.highResCells.get()) && useHiRes) {
+            if (!postImage.spoiler || ChanSettings.revealImageSpoilers.get()) {
+                url = postImage.type == PostImage.Type.STATIC ? postImage.imageUrl.toString() : postImage.getThumbnailUrl().toString();
+            }
+        }
+
+        return url;
     }
 
     public void setRatio(float ratio) {

@@ -41,9 +41,13 @@ import com.android.volley.ParseError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
-import static com.github.adamantcheese.chan.Chan.injector;
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -72,6 +76,9 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Rect tmpTextRect = new Rect();
 
+    @Inject
+    public ImageLoader imageLoader;
+
     public ThumbnailView(Context context) {
         super(context);
         init();
@@ -90,6 +97,8 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private void init() {
         textPaint.setColor(0xff000000);
         textPaint.setTextSize(sp(14));
+
+        inject(this);
     }
 
     public void setUrl(String url, int maxWidth, int maxHeight) {
@@ -105,12 +114,21 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
 
         if (!TextUtils.isEmpty(url)) {
-            container = injector().instance(ImageLoader.class).get(url, this, maxWidth, maxHeight);
+            container = Chan.injector().instance(ImageLoader.class).get(url, this, maxWidth, maxHeight);
         }
     }
 
     public void setUrl(String url) {
         setUrl(url, 0, 0);
+    }
+
+    public void setUrlFromDisk(
+            Loadable loadable,
+            String filename,
+            boolean isSpoiler,
+            int width,
+            int height) {
+        container = imageLoader.getFromDisk(loadable, filename, isSpoiler, this, width, height);
     }
 
     public void setCircular(boolean circular) {

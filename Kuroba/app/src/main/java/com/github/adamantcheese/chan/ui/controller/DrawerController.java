@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -33,6 +34,7 @@ import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -80,7 +82,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_PIN, 0);
 
-        drawerAdapter = new DrawerAdapter(this);
+        drawerAdapter = new DrawerAdapter(this, context);
         recyclerView.setAdapter(drawerAdapter);
 
         drawerAdapter.onPinsChanged(watchManager.getAllPins());
@@ -133,6 +135,11 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
         ThreadController threadController = getTopThreadController();
         if (threadController != null) {
+            // Try to load saved copy of a thread of pinned thread is archived or has an error flag
+            if (pin.archived || pin.isError) {
+                pin.loadable.isSavedCopy = true;
+            }
+
             threadController.openPin(pin);
         }
     }
@@ -145,20 +152,48 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     @Override
     public void onHeaderClicked(DrawerAdapter.HeaderAction headerAction) {
         if (headerAction == DrawerAdapter.HeaderAction.CLEAR || headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL) {
-            boolean all = headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
-            final List<Pin> pins = watchManager.clearPins(all);
-            if (!pins.isEmpty()) {
+            final boolean all = headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
+            final boolean hasDownloadFlag = watchManager.hasAtLeastOnePinWithDownloadFlag();
+
+            if (all && hasDownloadFlag) {
+                // Some pins may have threads that have saved copies on the disk. We want to warn the
+                // user that this action will delete them as well
+                new AlertDialog.Builder(context)
+                        .setTitle(R.string.warning)
+                        .setMessage(R.string.drawer_controller_at_least_one_pin_has_download_flag)
+                        .setNegativeButton(R.string.drawer_controller_do_not_delete, (dialog, which) -> {
+                            dialog.dismiss();
+                        })
+                        .setPositiveButton(R.string.drawer_controller_delete_all_pins, ((dialog, which) -> {
+                            onHeaderClickedInternal(true, true);
+                        }))
+                        .create()
+                        .show();
+                return;
+            }
+
+            onHeaderClickedInternal(all, hasDownloadFlag);
+        }
+    }
+
+    private void onHeaderClickedInternal(boolean all, boolean hasDownloadFlag) {
+        final List<Pin> pins = watchManager.clearPins(all);
+        if (!pins.isEmpty()) {
+            if (!hasDownloadFlag) {
+                // We can't undo this operation when there is at least one pin that downloads a thread
+                // because we will be deleting files from the disk. We don't want to warn the user
+                // every time he deletes one pin.
                 String text = context.getResources().getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
                 Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pins_cleared, text), 4000);
                 fixSnackbarText(context, snackbar);
                 snackbar.setAction(R.string.undo, v -> watchManager.addAll(pins));
                 snackbar.show();
-            } else {
-                int text = watchManager.getAllPins().isEmpty() ? R.string.drawer_pins_non_cleared : R.string.drawer_pins_non_cleared_try_all;
-                Snackbar snackbar = Snackbar.make(drawerLayout, text, Snackbar.LENGTH_LONG);
-                fixSnackbarText(context, snackbar);
-                snackbar.show();
             }
+        } else {
+            int text = watchManager.getAllPins().isEmpty() ? R.string.drawer_pins_non_cleared : R.string.drawer_pins_non_cleared_try_all;
+            Snackbar snackbar = Snackbar.make(drawerLayout, text, Snackbar.LENGTH_LONG);
+            fixSnackbarText(context, snackbar);
+            snackbar.show();
         }
     }
 
@@ -166,9 +201,24 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     public void onPinRemoved(Pin pin) {
         final Pin undoPin = pin.clone();
         watchManager.deletePin(pin);
-        Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pin_removed, pin.loadable.title), Snackbar.LENGTH_LONG);
+
+        Snackbar snackbar;
+
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            snackbar = Snackbar.make(
+                    drawerLayout,
+                    context.getString(R.string.drawer_pin_removed, pin.loadable.title),
+                    Snackbar.LENGTH_LONG);
+
+            snackbar.setAction(R.string.undo, v -> watchManager.createPin(undoPin));
+        } else {
+            snackbar = Snackbar.make(
+                    drawerLayout,
+                    context.getString(R.string.drawer_pin_with_saved_thread_removed, pin.loadable.title),
+                    Snackbar.LENGTH_LONG);
+        }
+
         fixSnackbarText(context, snackbar);
-        snackbar.setAction(R.string.undo, v -> watchManager.createPin(undoPin));
         snackbar.show();
     }
 
@@ -225,11 +275,15 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         int total = 0;
         boolean color = false;
         for (Pin p : watchManager.getWatchingPins()) {
+            if (!PinType.hasWatchNewPostsFlag(p.pinType)) {
+                continue;
+            }
+
             total += p.getNewPostCount();
             color = color | p.getNewQuoteCount() > 0;
         }
 
-        if (getTop() != null) {
+        if (getTop() != null && total > 0) {
             getMainToolbarNavigationController().toolbar.getArrowMenuDrawable().setBadge(total, color);
         }
     }

@@ -116,7 +116,6 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
 
     private int mRecyclerViewWidth = 0;
     private int mRecyclerViewHeight = 0;
-    private boolean mOverrideCalculatedExtents = false;
 
     private int mRecyclerViewLeftPadding = 0;
     private int mRecyclerViewTopPadding = 0;
@@ -432,35 +431,23 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
             float middleScreenPos = offsetY + verticalVisibleLength / 2.0f;
             mVerticalThumbCenterY = mRecyclerViewTopPadding +
                     (int) ((verticalVisibleLength * middleScreenPos) / verticalContentLength);
-            if (mOverrideCalculatedExtents) {
-                mVerticalThumbHeight = mRecyclerView.computeVerticalScrollExtent();
-            } else {
-                int length = Math.min(verticalVisibleLength,
-                        (verticalVisibleLength * verticalVisibleLength) / verticalContentLength);
-                mVerticalThumbHeight = Math.max(mThumbMinLength, length);
-            }
+            int length = Math.min(verticalVisibleLength,
+                    (verticalVisibleLength * verticalVisibleLength) / verticalContentLength);
+            mVerticalThumbHeight = Math.max(mThumbMinLength, length);
         }
 
         if (mNeedHorizontalScrollbar) {
             float middleScreenPos = offsetX + horizontalVisibleLength / 2.0f;
             mHorizontalThumbCenterX = mRecyclerViewLeftPadding +
                     (int) ((horizontalVisibleLength * middleScreenPos) / horizontalContentLength);
-            if (mOverrideCalculatedExtents) {
-                mHorizontalThumbWidth = mRecyclerView.computeHorizontalScrollExtent();
-            } else {
-                int length = Math.min(horizontalVisibleLength,
-                        (horizontalVisibleLength * horizontalVisibleLength) / horizontalContentLength);
-                mHorizontalThumbWidth = Math.max(mThumbMinLength, length);
-            }
+            int length = Math.min(horizontalVisibleLength,
+                    (horizontalVisibleLength * horizontalVisibleLength) / horizontalContentLength);
+            mHorizontalThumbWidth = Math.max(mThumbMinLength, length);
         }
 
         if (mState == STATE_HIDDEN || mState == STATE_VISIBLE) {
             setState(STATE_VISIBLE);
         }
-    }
-
-    public void overrideCalculatedExtents(boolean override) {
-        mOverrideCalculatedExtents = override;
     }
 
     @Override

@@ -62,8 +62,12 @@ public class ToolbarMenuItem {
             int id,
             int drawable,
             ClickCallback clicked) {
+        this(id, getAppContext().getDrawable(drawable), clicked);
+    }
+
+    public ToolbarMenuItem(int id, Drawable drawable, ClickCallback clicked) {
         this.id = id;
-        this.drawable = getAppContext().getDrawable(drawable);
+        this.drawable = drawable;
         this.clicked = clicked;
     }
 

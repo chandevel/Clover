@@ -43,7 +43,13 @@ public class PostUtils {
             if (post.no == id && !postsSet.contains(post)) {
                 postsSet.add(post);
 
-                for (Integer replyId : post.repliesFrom) {
+                List<Integer> repliesFrom;
+
+                synchronized (post.repliesFrom) {
+                    repliesFrom = new ArrayList<>(post.repliesFrom);
+                }
+
+                for (Integer replyId : repliesFrom) {
                     findPostWithRepliesRecursive(replyId, posts, postsSet);
                 }
             }

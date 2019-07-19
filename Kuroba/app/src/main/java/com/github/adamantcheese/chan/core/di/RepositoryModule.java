@@ -16,15 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import com.google.gson.Gson;
-
-import org.codejargon.feather.Provides;
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
+import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
+import com.google.gson.Gson;
+
+import org.codejargon.feather.Provides;
 
 import javax.inject.Singleton;
 
@@ -61,5 +62,11 @@ public class RepositoryModule {
     @Singleton
     public LastReplyRepository provideLastReplyRepository() {
         return new LastReplyRepository();
+    }
+
+    @Provides
+    @Singleton
+    public SavedThreadLoaderRepository provideSavedThreadLoaderRepository(Gson gson) {
+        return new SavedThreadLoaderRepository(gson);
     }
 }

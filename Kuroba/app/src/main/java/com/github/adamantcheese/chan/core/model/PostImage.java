@@ -65,6 +65,10 @@ public class PostImage {
     }
 
     public boolean equalUrl(PostImage other) {
+        if (imageUrl == null || other.imageUrl == null) {
+            return originalName.equals(other.originalName);
+        }
+
         return imageUrl.equals(other.imageUrl);
     }
 

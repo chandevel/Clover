@@ -59,6 +59,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
@@ -109,6 +110,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
     private boolean ignoreNextOnClick;
 
     private boolean bound = false;
+    private Loadable loadable;
     private Post post;
     private PostCellCallback callback;
     private boolean selectable;
@@ -257,7 +259,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         }
     }
 
-    public void setPost(final Post post,
+    public void setPost(Loadable loadable,
+                        final Post post,
                         PostCellInterface.PostCellCallback callback,
                         boolean selectable,
                         boolean highlighted,
@@ -281,6 +284,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             this.post = null;
         }
 
+        this.loadable = loadable;
         this.post = post;
         this.callback = callback;
         this.selectable = selectable;
@@ -379,7 +383,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
 
                 boolean postFileName = ChanSettings.postFilename.get();
                 if (postFileName) {
-                    String filename = image.spoiler ? getString(R.string.image_spoiler_filename) : image.filename + "." + image.extension;
+                    //that special character forces it to be left-to-right, as textDirection didn't want to be obeyed
+                    String filename = '\u200E' + (image.spoiler ? getString(R.string.image_spoiler_filename) : image.filename + "." + image.extension);
                     SpannableString fileInfo = new SpannableString("\n" + filename);
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
@@ -524,7 +529,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
 
         divider.setVisibility(showDivider ? VISIBLE : GONE);
 
-        if (post.images.size() == 1) {
+        if (ChanSettings.shiftPostFormat.get() && post.images.size() == 1) {
             //display width, we don't care about height here
             Point displaySize = new Point();
             WindowManager windowManager = (WindowManager) getContext().getSystemService(Activity.WINDOW_SERVICE);
@@ -540,7 +545,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
             icons.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
             comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-            if (title.getMeasuredHeight() + icons.getMeasuredHeight() + comment.getMeasuredHeight() >= 1.5 * thumbnailSize) {
+            if (title.getMeasuredHeight() + icons.getMeasuredHeight() + comment.getMeasuredHeight() >= 2 * thumbnailSize) {
                 RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
                 commentParams.removeRule(RelativeLayout.RIGHT_OF);
                 if (title.getMeasuredHeight() + (icons.getVisibility() == VISIBLE ? icons.getMeasuredHeight() : 0) < thumbnailSize) {
@@ -594,7 +599,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                     p.addRule(RelativeLayout.BELOW, lastId);
                 }
 
-                v.setPostImage(image, false);
+                v.setPostImage(loadable, image, false, size, size);
                 v.setClickable(true);
                 v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 v.setRounding(dp(2));

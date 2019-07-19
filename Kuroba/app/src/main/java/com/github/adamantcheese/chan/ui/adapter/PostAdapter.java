@@ -48,6 +48,8 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final ThreadStatusCell.Callback statusCellCallback;
     private final List<Post> displayList = new ArrayList<>();
+
+    private Loadable loadable = null;
     private String error = null;
     private Post highlightedPost;
     private String highlightedPostId;
@@ -104,11 +106,17 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         switch (itemViewType) {
             case TYPE_POST:
             case TYPE_POST_STUB:
+                if (loadable == null) {
+                    throw new IllegalStateException("Loadable cannot be null");
+                }
+
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(getPostPosition(position));
                 boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo ||
                         post.tripcode.equals(highlightedPostTripcode);
-                ((PostCellInterface) postViewHolder.itemView).setPost(post,
+                ((PostCellInterface) postViewHolder.itemView).setPost(
+                        loadable,
+                        post,
                         postCellCallback,
                         true,
                         highlight,
@@ -183,6 +191,8 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be called on the main thread!");
         }
+
+        this.loadable = thread.loadable;
         showError(null);
 
         displayList.clear();

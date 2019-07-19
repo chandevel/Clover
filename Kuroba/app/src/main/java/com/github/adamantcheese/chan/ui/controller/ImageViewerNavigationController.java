@@ -52,7 +52,7 @@ public class ImageViewerNavigationController extends ToolbarNavigationController
     public void showImages(final List<PostImage> images, final int index, final Loadable loadable,
                            ImageViewerController.ImageViewerCallback imageViewerCallback,
                            ImageViewerController.GoPostCallback goPostCallback) {
-        ImageViewerController imageViewerController = new ImageViewerController(context, toolbar);
+        ImageViewerController imageViewerController = new ImageViewerController(loadable, context, toolbar);
         imageViewerController.setGoPostCallback(goPostCallback);
         pushController(imageViewerController, false);
         imageViewerController.setImageViewerCallback(imageViewerCallback);

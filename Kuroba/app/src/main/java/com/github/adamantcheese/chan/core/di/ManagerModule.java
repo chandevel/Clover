@@ -25,14 +25,18 @@ import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
+import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
+import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
+import com.google.gson.Gson;
 
 import org.codejargon.feather.Provides;
 
@@ -72,9 +76,16 @@ public class ManagerModule {
             DatabaseManager databaseManager,
             ChanLoaderFactory chanLoaderFactory,
             WakeManager wakeManager,
-            PageRequestManager pageRequestManager
+            PageRequestManager pageRequestManager,
+            ThreadSaveManager threadSaveManager
     ) {
-        return new WatchManager(databaseManager, chanLoaderFactory, wakeManager, pageRequestManager);
+        return new WatchManager(
+                databaseManager,
+                chanLoaderFactory,
+                wakeManager,
+                pageRequestManager,
+                threadSaveManager
+        );
     }
 
     @Provides
@@ -110,5 +121,29 @@ public class ManagerModule {
         chan4.initialize(9999, new SiteConfig(), new JsonSettings());
         chan4.postInitialize();
         return new ArchivesManager(chan4);
+    }
+
+    @Provides
+    @Singleton
+    public ThreadSaveManager provideSaveThreadManager(
+            Gson gson,
+            DatabaseManager databaseManager,
+            SavedThreadLoaderRepository savedThreadLoaderRepository) {
+        return new ThreadSaveManager(
+                gson,
+                databaseManager,
+                savedThreadLoaderRepository);
+    }
+
+    @Provides
+    @Singleton
+    public SavedThreadLoaderManager provideSavedThreadLoaderManager(
+            Gson gson,
+            DatabaseManager databaseManager,
+            SavedThreadLoaderRepository savedThreadLoaderRepository) {
+        return new SavedThreadLoaderManager(
+                gson,
+                databaseManager,
+                savedThreadLoaderRepository);
     }
 }

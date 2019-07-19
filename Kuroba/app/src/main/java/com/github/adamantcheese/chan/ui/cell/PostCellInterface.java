@@ -28,7 +28,8 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import java.util.List;
 
 public interface PostCellInterface {
-    void setPost(Post post,
+    void setPost(Loadable loadable,
+                 Post post,
                  PostCellCallback callback,
                  boolean selectable,
                  boolean highlighted,

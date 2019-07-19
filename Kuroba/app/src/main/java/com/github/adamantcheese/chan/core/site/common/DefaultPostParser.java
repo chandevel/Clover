@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.vdurmont.emoji.EmojiParser;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -181,6 +182,9 @@ public class DefaultPostParser implements PostParser {
 
         try {
             String comment = commentRaw.toString().replace("<wbr>", "");
+            if (ChanSettings.enableEmoji.get()) {
+                comment = EmojiParser.parseToUnicode(comment);
+            }
 
             Document document = Jsoup.parseBodyFragment(comment);
 

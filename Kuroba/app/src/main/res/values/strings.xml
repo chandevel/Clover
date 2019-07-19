@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
+    <string name="empty"></string>
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -266,6 +267,7 @@ Note that for country code filtering, troll country codes should be prepended wi
 
     <string name="drawer_pinned">Bookmarked threads</string>
     <string name="drawer_pin_removed">Removed \"%1$s\"</string>
+    <string name="drawer_pin_with_saved_thread_removed">Removed pin \"%1$s\" with saved thread</string>
     <string name="drawer_pins_cleared">%1$s cleared</string>
     <string name="drawer_pins_non_cleared">No bookmarks cleared.</string>
     <string name="drawer_pins_non_cleared_try_all">No bookmarks cleared. Hold to remove all.</string>
@@ -331,6 +333,11 @@ Note that for country code filtering, troll country codes should be prepended wi
     <plurals name="watch_title">
         <item quantity="one">Watching one thread</item>
         <item quantity="other">Watching %d threads</item>
+    </plurals>
+
+    <plurals name="download_title">
+        <item quantity="one">Downloading one thread</item>
+        <item quantity="other">Downloading %d threads</item>
     </plurals>
 
     <plurals name="watch_new_quotes">
@@ -664,4 +671,22 @@ Don't have a 4chan Pass?<br>
     <string name="image_url_get_failed">Failed to get image from clipboard</string>
     <string name="image_url_get_success">Got image from clipboard</string>
     <string name="thread_list_layout_attached_file_not_supported_for_reencoding">Attached file is not supported for reencoding</string>
+
+    <string name="setting_shift_post">Shift post format</string>
+    <string name="setting_shift_post_description">Shift the comment of long posts to start below the thumbnail</string>
+    <string name="setting_remove_watched">Remove watched threads from the catalog</string>
+    <string name="setting_enable_emoji">Enable emoji</string>
+    <string name="setting_enable_emoji_description">Enable emoji posting and parsing</string>
+
+    <string name="experimental_settings_group">Experimental settings</string>
+    <string name="view_thread_controller_thread_downloading_requires_write_permission">Thread downloading requires the WRITE_EXTERNAL_STORAGE permission</string>
+    <string name="warning">Warning</string>
+    <string name="drawer_controller_at_least_one_pin_has_download_flag">At least one pin has the \"Download\" flag, which makes this delete operation irreversible because this operation will delete all of the saved thread\'s files from the disk. Do you really want to delete all pins?</string>
+    <string name="drawer_controller_do_not_delete">Do not delete</string>
+    <string name="drawer_controller_delete_all_pins">Delete all pins</string>
+    <string name="thread_layout_background_watcher_is_disabled_message">Thread is currently being downloaded but the background watcher is disabled so it won\'t be incrementally updated. To enable incremental thread updating you have to enable background thread watcher</string>
+    <string name="settings_experimental_settings_title">⚠ EXPERIMENTAL ⚠</string>
+    <string name="settings_experimental_settings_description">These settings may be in an unstable state. They are for testing. They may break the app and you may have to reset the app data. Use them at your own risk if you are really interested in some feature. Backup your everything beforehand.</string>
+    <string name="incremental_thread_downloading_title">Incremental thread downloading</string>
+    <string name="incremental_thread_downloading_description">Allows you to download threads to view them after the original thread dies</string>
 </resources>

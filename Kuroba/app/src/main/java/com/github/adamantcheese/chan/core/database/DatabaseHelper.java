@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
+import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -42,7 +43,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 35;
+    private static final int DATABASE_VERSION = 36;
+
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -52,6 +54,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public Dao<History, Integer> historyDao;
     public Dao<Filter, Integer> filterDao;
     public Dao<SiteModel, Integer> siteDao;
+    public Dao<SavedThread, Integer> savedThreadDao;
 
     private final Context context;
 
@@ -70,6 +73,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             historyDao = getDao(History.class);
             filterDao = getDao(Filter.class);
             siteDao = getDao(SiteModel.class);
+            savedThreadDao = getDao(SavedThread.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating dao's", e);
         }
@@ -86,6 +90,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, History.class);
             TableUtils.createTable(connectionSource, Filter.class);
             TableUtils.createTable(connectionSource, SiteModel.class);
+            TableUtils.createTable(connectionSource, SavedThread.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating db", e);
             throw new RuntimeException(e);
@@ -197,6 +202,20 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN applyToSaved INTEGER default 0");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 35");
+            }
+        }
+
+        if (oldVersion < 36) {
+            try {
+                filterDao.executeRawNoArgs("CREATE TABLE `saved_thread` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `loadable_id` INTEGER NOT NULL , `last_saved_post_no` INTEGER NOT NULL DEFAULT 0, `is_fully_downloaded` INTEGER NOT NULL DEFAULT 0 , `is_stopped` INTEGER NOT NULL DEFAULT 0);");
+                filterDao.executeRawNoArgs("CREATE INDEX loadable_id_idx ON saved_thread(loadable_id);");
+
+                // Because pins now has different type (the ones that watch threads and ones that
+                // download them (also they can do both at the same time)) we need to use DEFAULT 1
+                // to set flag WatchNewPosts for all of the old pins
+                filterDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN pin_type INTEGER NOT NULL DEFAULT 1");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 36", e);
             }
         }
     }

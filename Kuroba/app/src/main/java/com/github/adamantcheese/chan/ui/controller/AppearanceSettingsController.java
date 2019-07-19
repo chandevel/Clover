@@ -94,6 +94,10 @@ public class AppearanceSettingsController extends SettingsController {
 
             setupFontSizeSetting(post);
 
+            requiresRestart.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.shiftPostFormat,
+                    context.getString(R.string.setting_shift_post), context.getString(R.string.setting_shift_post_description))));
+
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.fontAlternate,
                     R.string.setting_font_alt,
@@ -111,12 +115,21 @@ public class AppearanceSettingsController extends SettingsController {
                     ChanSettings.postFilename,
                     R.string.setting_post_filename, 0)));
 
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.enableEmoji,
+                    context.getString(R.string.setting_enable_emoji), context.getString(R.string.setting_enable_emoji_description))));
+
             groups.add(post);
         }
 
         //Gallery group
         {
             SettingsGroup gallery = new SettingsGroup(R.string.settings_group_gallery);
+
+            requiresUiRefresh.add(gallery.add(new BooleanSettingView(this,
+                    ChanSettings.highResCells,
+                    "High resolution cells",
+                    "Make the album view and card catalog images higher resolution by pre-rescaling full size images")));
 
             requiresUiRefresh.add(gallery.add(new BooleanSettingView(this,
                     ChanSettings.useImmersiveModeForGallery,

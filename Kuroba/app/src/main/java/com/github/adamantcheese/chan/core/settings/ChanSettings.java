@@ -172,6 +172,12 @@ public class ChanSettings {
     public static final BooleanSetting useImmersiveModeForGallery;
 
     public static final StringSetting lastImageOptions;
+    public static final BooleanSetting removeWatchedFromCatalog;
+    public static final BooleanSetting shiftPostFormat;
+    public static final BooleanSetting enableEmoji;
+    public static final BooleanSetting highResCells;
+
+    public static final BooleanSetting incrementalThreadDownloadingEnabled;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -258,13 +264,18 @@ public class ChanSettings {
 
         historyOpenCounter = new CounterSetting(p, "counter_history_open");
         threadOpenCounter = new CounterSetting(p, "counter_thread_open");
-
         updateCheckTime = new LongSetting(p, "update_check_time", 0L);
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
         useImmersiveModeForGallery = new BooleanSetting(p, "use_immersive_mode_for_gallery", false);
 
         lastImageOptions = new StringSetting(p, "last_image_options", "");
+        removeWatchedFromCatalog = new BooleanSetting(p, "remove_catalog_watch", false);
+        shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
+        enableEmoji = new BooleanSetting(p, "enable_emoji", false);
+        highResCells = new BooleanSetting(p, "high_res_cells", false);
+
+        incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
     }
 
     public static ThemeColor getThemeAndColor() {

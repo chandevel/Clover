@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.captcha.v2;
 
 import android.graphics.Bitmap;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 

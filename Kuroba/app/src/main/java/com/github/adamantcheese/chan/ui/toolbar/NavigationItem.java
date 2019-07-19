@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
+import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import com.github.adamantcheese.chan.R;
@@ -86,6 +87,10 @@ public class NavigationItem {
         }
 
         public MenuBuilder withItem(int id, int drawable, ToolbarMenuItem.ClickCallback clicked) {
+            return withItem(new ToolbarMenuItem(id, drawable, clicked));
+        }
+
+        public MenuBuilder withItem(int id, Drawable drawable, ToolbarMenuItem.ClickCallback clicked) {
             return withItem(new ToolbarMenuItem(id, drawable, clicked));
         }
 

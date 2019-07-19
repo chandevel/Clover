@@ -270,4 +270,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
         return response;
     }
+
+    public Loadable getLoadable() {
+        return loadable;
+    }
 }

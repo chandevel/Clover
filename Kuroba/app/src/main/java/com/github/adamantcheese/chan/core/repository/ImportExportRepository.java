@@ -261,7 +261,8 @@ public class ImportExportRepository {
                         exportedPin.isError(),
                         exportedPin.getThumbnailUrl(),
                         exportedPin.getOrder(),
-                        exportedPin.isArchived()
+                        exportedPin.isArchived(),
+                        exportedPin.getPinType()
                 );
                 databaseHelper.pinDao.createIfNotExists(pin);
             }
@@ -367,7 +368,8 @@ public class ImportExportRepository {
                     pin.watchLastCount,
                     pin.watchNewCount,
                     pin.watching,
-                    exportedLoadable
+                    exportedLoadable,
+                    pin.pinType
             );
 
             toExportMap.get(siteModel).add(exportedPin);

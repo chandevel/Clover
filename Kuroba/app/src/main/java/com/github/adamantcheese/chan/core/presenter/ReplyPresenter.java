@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -43,6 +44,7 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.vdurmont.emoji.EmojiParser;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -214,6 +216,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         draft.loadable = loadable;
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
         draft.captchaResponse = null;
+        if (ChanSettings.enableEmoji.get()) {
+            draft.comment = EmojiParser.parseFromUnicode(draft.comment, e -> ":" + e.getEmoji().getAliases().get(0) + (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "") + ": ");
+        }
 
         //only 4chan seems to have the post delay, this is a hack for that
         if (draft.loadable.site.name().equals("4chan")) {
@@ -274,7 +279,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 if (loadable.isThreadMode()) {
                     ChanThread thread = callback.getThread();
                     if (thread != null) {
-                        watchManager.createPin(loadable, thread.op);
+                        watchManager.createPin(loadable, thread.op, PinType.WATCH_NEW_POSTS);
                     }
                 } else {
                     Loadable postedLoadable = databaseManager.getDatabaseLoadableManager()
