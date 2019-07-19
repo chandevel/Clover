@@ -93,7 +93,7 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
 
     private String getUrl(PostImage postImage, boolean useHiRes) {
         String url = postImage.getThumbnailUrl().toString();
-        if (ChanSettings.autoLoadThreadImages.get() && useHiRes) {
+        if ((ChanSettings.autoLoadThreadImages.get() || ChanSettings.highResCells.get()) && useHiRes) {
             if (!postImage.spoiler || ChanSettings.revealImageSpoilers.get()) {
                 url = postImage.type == PostImage.Type.STATIC ? postImage.imageUrl.toString() : postImage.getThumbnailUrl().toString();
             }

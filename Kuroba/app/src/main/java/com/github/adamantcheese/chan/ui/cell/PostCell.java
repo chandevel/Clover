@@ -545,7 +545,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
             icons.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
             comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-            if (title.getMeasuredHeight() + icons.getMeasuredHeight() + comment.getMeasuredHeight() >= 2.5 * thumbnailSize) {
+            if (title.getMeasuredHeight() + icons.getMeasuredHeight() + comment.getMeasuredHeight() >= 2 * thumbnailSize) {
                 RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
                 commentParams.removeRule(RelativeLayout.RIGHT_OF);
                 if (title.getMeasuredHeight() + (icons.getVisibility() == VISIBLE ? icons.getMeasuredHeight() : 0) < thumbnailSize) {

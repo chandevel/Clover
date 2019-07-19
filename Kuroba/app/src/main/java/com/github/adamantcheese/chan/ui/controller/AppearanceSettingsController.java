@@ -127,6 +127,11 @@ public class AppearanceSettingsController extends SettingsController {
             SettingsGroup gallery = new SettingsGroup(R.string.settings_group_gallery);
 
             requiresUiRefresh.add(gallery.add(new BooleanSettingView(this,
+                    ChanSettings.highResCells,
+                    "High resolution cells",
+                    "Make the album view and card catalog images higher resolution by pre-rescaling full size images")));
+
+            requiresUiRefresh.add(gallery.add(new BooleanSettingView(this,
                     ChanSettings.useImmersiveModeForGallery,
                     R.string.setting_gallery_immersive_mode_title,
                     R.string.setting_gallery_immersive_mode_description)));
