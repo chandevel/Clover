@@ -34,8 +34,6 @@ android {
          */
         //if you change this, also change the AndroidManifest package
         applicationId "com.github.adamantcheese.chan"
-        //these are manifest placeholders for the application name and icon location
-        manifestPlaceholders = [appName: "Kuroba", iconLoc: "@mipmap/ic_launcher"]
         //these are your update and github repo endpoints, change it to your repository
         //the repo endpoint is also used to calculate the issues endpoint
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
@@ -126,6 +124,32 @@ android {
         debug {
             minifyEnabled false
             debuggable = true
+        }
+    }
+
+    flavorDimensions "default"
+
+    productFlavors {
+        stable {
+            dimension "default"
+            //these are manifest placeholders for the application name and icon location
+            manifestPlaceholders = [
+                    appName: "Kuroba",
+                    iconLoc: "@mipmap/ic_launcher",
+                    fileProviderAuthority:"${applicationIdSuffix}.fileprovider"
+            ]
+        }
+        dev {
+            dimension "default"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+
+            //these are manifest placeholders for the application name and icon location
+            manifestPlaceholders = [
+                    appName: "Kuroba${versionNameSuffix}",
+                    iconLoc: "@mipmap/ic_launcher",
+                    fileProviderAuthority:"${applicationIdSuffix}.fileprovider"
+            ]
         }
     }
 }
