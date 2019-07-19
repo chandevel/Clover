@@ -181,11 +181,9 @@ public class DefaultPostParser implements PostParser {
         CharSequence total = new SpannableString("");
 
         try {
-            String comment;
+            String comment = commentRaw.toString().replace("<wbr>", "");
             if (ChanSettings.enableEmoji.get()) {
-                comment = EmojiParser.parseToUnicode(commentRaw.toString().replace("<wbr>", ""));
-            } else {
-                comment = commentRaw.toString().replace("<wbr>", "");
+                comment = EmojiParser.parseToUnicode(comment);
             }
 
             Document document = Jsoup.parseBodyFragment(comment);

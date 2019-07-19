@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.site.parser;
 
 import android.graphics.Typeface;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
@@ -265,14 +266,11 @@ public class StyleRule {
 
     private SpannableString applySpan(CharSequence text, List<Object> spans) {
         SpannableString result = new SpannableString(text);
-        int l = result.length();
-
         for (Object span : spans) {
             if (span != null) {
-                result.setSpan(span, 0, l, 0);
+                result.setSpan(span, 0, result.length(), (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
             }
         }
-
         return result;
     }
 
