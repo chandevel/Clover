@@ -126,11 +126,9 @@ public class ManagerModule {
     @Provides
     @Singleton
     public ThreadSaveManager provideSaveThreadManager(
-            Gson gson,
             DatabaseManager databaseManager,
             SavedThreadLoaderRepository savedThreadLoaderRepository) {
         return new ThreadSaveManager(
-                gson,
                 databaseManager,
                 savedThreadLoaderRepository);
     }

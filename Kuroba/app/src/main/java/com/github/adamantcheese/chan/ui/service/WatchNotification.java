@@ -258,7 +258,8 @@ public class WatchNotification extends Service {
                     0,
                     false,
                     false,
-                    pins.size() > 0 ? pins.get(0) : null);
+                    pins.size() > 0 ? pins.get(0) : null,
+                    pins.size() > 0);
         } else {
             // New posts notification
             String message;
@@ -316,9 +317,13 @@ public class WatchNotification extends Service {
             boolean alert = ChanSettings.watchLastCount.get() < listQuoting.size();
             ChanSettings.watchLastCount.set(listQuoting.size());
 
-            return buildNotification(message, expandedLines, flags, alert,
+            return buildNotification(message,
+                    expandedLines,
+                    flags,
+                    alert,
                     ChanSettings.watchLastCount.get() > 0,
-                    subjectPins.size() == 1 ? subjectPins.get(0) : null);
+                    subjectPins.size() == 1 ? subjectPins.get(0) : null,
+                    pins.size() > 0);
         }
     }
 
@@ -420,7 +425,8 @@ public class WatchNotification extends Service {
             int flags,
             boolean alertIcon,
             boolean alertIconOverride,
-            Pin target) {
+            Pin target,
+            boolean hasWatchPins) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, alertIcon ? NOTIFICATION_ID_ALERT_STR : NOTIFICATION_ID_STR);
         builder.setContentTitle(title);
         builder.setContentText(TextUtils.join(", ", expandedLines));
@@ -456,13 +462,14 @@ public class WatchNotification extends Service {
             builder.setPriority(NotificationCompat.PRIORITY_MIN);
         }
 
-        // TODO: add pause downloading button
-        //setup the pause watch button
-        Intent pauseWatching = new Intent(this, WatchNotification.class);
-        pauseWatching.putExtra("pause_pins", true);
-        PendingIntent pauseWatchingPending = PendingIntent.getService(this, 0, pauseWatching,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.addAction(R.drawable.ic_action_pause, getString(R.string.watch_pause_pins), pauseWatchingPending);
+        if (hasWatchPins) {
+            //setup the pause watch button
+            Intent pauseWatching = new Intent(this, WatchNotification.class);
+            pauseWatching.putExtra("pause_pins", true);
+            PendingIntent pauseWatchingPending = PendingIntent.getService(this, 0, pauseWatching,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(R.drawable.ic_action_pause, getString(R.string.watch_pause_pins), pauseWatchingPending);
+        }
 
         //setup the display in the notification
         NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
