@@ -18,13 +18,12 @@ package com.github.adamantcheese.chan.core.model.orm;
 
 import android.util.Pair;
 
-import com.google.gson.Gson;
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
-
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.Gson;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import javax.inject.Inject;
 
@@ -68,9 +67,9 @@ public class SiteModel {
     }
 
     public Pair<SiteConfig, JsonSettings> loadConfigFields() {
-        return Pair.create(
-                gson.fromJson(this.configuration, SiteConfig.class),
-                gson.fromJson(this.userSettings, JsonSettings.class)
-        );
+        SiteConfig config = gson.fromJson(this.configuration, SiteConfig.class);
+        JsonSettings settings = gson.fromJson(this.userSettings, JsonSettings.class);
+        Logger.d("SiteModel", "Config: " + configuration + ", Settings: " + userSettings);
+        return Pair.create(config, settings);
     }
 }

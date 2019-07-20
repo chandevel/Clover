@@ -58,7 +58,7 @@ public class ImportExportRepository {
 
     // Don't forget to change this when changing any of the Export models.
     // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
-    public static final int CURRENT_EXPORT_SETTINGS_VERSION = 2;
+    public static final int CURRENT_EXPORT_SETTINGS_VERSION = 3;
 
     private DatabaseManager databaseManager;
     private DatabaseHelper databaseHelper;
@@ -299,6 +299,13 @@ public class ImportExportRepository {
         if (version < 2) {
             //clear the post hides for version 1, threadNo field was added
             appSettings.setExportedPostHides(new ArrayList<>());
+        }
+
+        if(version < 3) {
+            //clear the site model usersettings to be an empty JSON map for version 2, as they won't parse correctly otherwise
+            for(ExportedSite site : appSettings.getExportedSites()) {
+                site.setUserSettings("{}");
+            }
         }
         return appSettings;
     }

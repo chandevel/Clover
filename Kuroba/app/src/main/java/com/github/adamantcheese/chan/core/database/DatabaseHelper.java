@@ -43,7 +43,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 36;
+    private static final int DATABASE_VERSION = 37;
 
 
     public Dao<Pin, Integer> pinDao;
@@ -216,6 +216,15 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 filterDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN pin_type INTEGER NOT NULL DEFAULT 1");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 36", e);
+            }
+        }
+
+        if(oldVersion < 37) {
+            try {
+                //reset all settings, key was never saved which caused issues
+                siteDao.executeRawNoArgs("UPDATE site SET userSettings='{}'");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 37", e);
             }
         }
     }

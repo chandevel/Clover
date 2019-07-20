@@ -32,7 +32,7 @@ public class ExportedSite {
     @SerializedName("order")
     private int order;
     @SerializedName("user_settings")
-    @Nullable
+    @NonNull
     private String userSettings;
     @SerializedName("exported_pins")
     private List<ExportedPin> exportedPins;
@@ -66,9 +66,13 @@ public class ExportedSite {
         return order;
     }
 
-    @Nullable
+    @NonNull
     public String getUserSettings() {
         return userSettings;
+    }
+
+    public void setUserSettings(String settingsJson) {
+        userSettings = settingsJson;
     }
 
     public List<ExportedPin> getExportedPins() {
