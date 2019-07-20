@@ -22,7 +22,7 @@ android {
         //bump the PATCH (ZZ) version otherwise, for anything small
         int major = 4
         int minor = 4
-        int patch = 4
+        int patch = 5
 
         /**
          * ------------------------------------------------------------
@@ -54,7 +54,7 @@ android {
          * ------------------------------------------------------------
          */
         versionCode major * 10000 + minor * 100 + patch
-        versionName "v" + major + "." + minor + "." + patch
+        versionName "v" + major + "." + minor + "." + patch + "-dev"
 
         android.applicationVariants.all { variant ->
             variant.outputs.all {
