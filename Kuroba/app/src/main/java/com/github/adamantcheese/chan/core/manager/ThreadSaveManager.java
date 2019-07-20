@@ -69,6 +69,8 @@ public class ThreadSaveManager {
 
     @GuardedBy("itself")
     private final Map<Loadable, SaveThreadParameters> activeDownloads = new HashMap<>();
+    @GuardedBy("activeDownloads")
+    private final Map<Loadable, AdditionalThreadParameters> additionalThreadParameter = new HashMap<>();
 
     private OkHttpClient okHttpClient = new OkHttpClient()
             .newBuilder()
@@ -189,6 +191,10 @@ public class ThreadSaveManager {
         // Store the parameters of this download
         synchronized (activeDownloads) {
             activeDownloads.put(loadable, parameters);
+
+            if (!additionalThreadParameter.containsKey(loadable)) {
+                additionalThreadParameter.put(loadable, new AdditionalThreadParameters(loadable));
+            }
         }
 
         // Enqueue the download
@@ -205,6 +211,8 @@ public class ThreadSaveManager {
 
                 parameters.cancel();
             }
+
+            additionalThreadParameter.clear();
         }
     }
 
@@ -223,6 +231,7 @@ public class ThreadSaveManager {
             }
 
             Logger.d(TAG, "Cancelling a download for loadable " + loadableToString(loadable));
+            additionalThreadParameter.remove(loadable);
             parameters.cancel();
         }
     }
@@ -600,11 +609,18 @@ public class ThreadSaveManager {
                 return false;
             }
 
-            downloadImage(
-                    loadable,
-                    threadSaveDirImages,
-                    spoilerImageName,
-                    spoilerImageUrl);
+            try {
+                downloadImage(
+                        loadable,
+                        threadSaveDirImages,
+                        spoilerImageName,
+                        spoilerImageUrl);
+            } catch (ImageWasAlreadyDeletedException e) {
+                // If this ever happens that means that something has changed on the server
+                Logger.e(TAG, "Could not download spoiler image, got 404 for loadable "
+                        + loadableToString(loadable));
+                return false;
+            }
         }
 
         return true;
@@ -680,6 +696,18 @@ public class ThreadSaveManager {
                                     postImage.originalName,
                                     postImage.extension);
                             throw error;
+                        } catch (ImageWasAlreadyDeletedException error) {
+                            Logger.e(TAG, "Could not download an image " + postImage.originalName
+                                    + " for loadable " + loadableToString(loadable) +
+                                    ", got 404, adding it to the deletedImages set");
+
+                            addImageToAlreadyDeletedImage(loadable, postImage.originalName);
+
+                            deleteImageCompletely(
+                                    threadSaveDirImages,
+                                    postImage.originalName,
+                                    postImage.extension);
+                            return Single.just(false);
                         }
 
                         return Single.just(true);
@@ -708,6 +736,32 @@ public class ThreadSaveManager {
                 });
     }
 
+    private boolean isImageAlreadyDeletedFromTheServer(Loadable loadable, String filename) {
+        synchronized (activeDownloads) {
+            AdditionalThreadParameters parameters = additionalThreadParameter.get(loadable);
+            if (parameters == null) {
+                Logger.e(TAG, "isImageAlreadyDeletedFromTheServer parameters == null " +
+                        "for loadable " + loadableToString(loadable));
+                return true;
+            }
+
+            return parameters.isImageDeletedFromTheServer(filename);
+        }
+    }
+
+    private void addImageToAlreadyDeletedImage(Loadable loadable, String originalName) {
+        synchronized (activeDownloads) {
+            AdditionalThreadParameters parameters = additionalThreadParameter.get(loadable);
+            if (parameters == null) {
+                Logger.e(TAG, "addImageToAlreadyDeletedImage parameters == null " +
+                        "for loadable " + loadableToString(loadable));
+                return;
+            }
+
+            parameters.addDeletedImage(originalName);
+        }
+    }
+
     private void logThreadDownloadingProgress(
             Loadable loadable,
             AtomicInteger currentImageDownloadIndex,
@@ -717,7 +771,8 @@ public class ThreadSaveManager {
         int index = currentImageDownloadIndex.incrementAndGet();
         int percent = (int)(((float)index / (float) count) * 100f);
 
-        Logger.d(TAG, "Downloading is in progress for an image with loadable " + loadableToString(loadable) +
+        Logger.d(TAG, "Downloading is in progress for an image with loadable "
+                + loadableToString(loadable) +
                 ", percent = " + percent +
                 ", total = " + count +
                 ", current = " + index);
@@ -761,7 +816,15 @@ public class ThreadSaveManager {
             String thumbnailExtension,
             HttpUrl imageUrl,
             HttpUrl thumbnailUrl,
-            Loadable loadable) throws IOException {
+            Loadable loadable) throws IOException, ImageWasAlreadyDeletedException {
+        if (isImageAlreadyDeletedFromTheServer(loadable, filename)) {
+            // We have already tried to download this image and got 404, so it was probably deleted
+            // from the server so there is no point in trying to download it again
+            Logger.d(TAG, "Image " + filename + " was already deleted from the server for loadable "
+                    + loadableToString(loadable));
+            return;
+        }
+
         if (VERBOSE_LOG) {
             Logger.d(TAG, "Downloading a file with name " + filename + " on a thread " +
                     Thread.currentThread().getName() + " for loadable " + loadableToString(loadable));
@@ -794,7 +857,7 @@ public class ThreadSaveManager {
             Loadable loadable,
             File threadSaveDirImages,
             String filename,
-            HttpUrl imageUrl) throws IOException {
+            HttpUrl imageUrl) throws IOException, ImageWasAlreadyDeletedException {
         if (!shouldDownloadImages()) {
             if (VERBOSE_LOG) {
                 Logger.d(TAG, "Cannot load images or videos with the current network");
@@ -817,6 +880,10 @@ public class ThreadSaveManager {
 
             try (Response response = okHttpClient.newCall(request).execute()) {
                 if (response.code() != 200) {
+                    if (response.code() == 404) {
+                        throw new ImageWasAlreadyDeletedException(filename);
+                    }
+
                     throw new IOException("Download image request returned bad status code: " + response.code());
                 }
 
@@ -981,6 +1048,29 @@ public class ThreadSaveManager {
                 loadable.boardCode;
     }
 
+    /**
+     * The main difference between AdditionalThreadParameters and SaveThreadParameters is that
+     * SaveThreadParameters is getting deleted after each thread download attempt while
+     * AdditionalThreadParameters stay until app restart.
+     * */
+    public static class AdditionalThreadParameters {
+        private Loadable loadable;
+        private Set<String> deletedImages;
+
+        public AdditionalThreadParameters(Loadable loadable) {
+            this.loadable = loadable;
+            this.deletedImages = new HashSet<>();
+        }
+
+        public void addDeletedImage(String deletedImageFilename) {
+            deletedImages.add(deletedImageFilename);
+        }
+
+        public boolean isImageDeletedFromTheServer(String filename) {
+            return deletedImages.contains(filename);
+        }
+    }
+
     public static class SaveThreadParameters {
         private Loadable loadable;
         private List<Post> postsToSave;
@@ -1020,6 +1110,12 @@ public class ThreadSaveManager {
 
         public void cancel() {
             state.compareAndSet(DownloadRequestState.Running, DownloadRequestState.Cancelled);
+        }
+    }
+
+    class ImageWasAlreadyDeletedException extends Exception {
+        public ImageWasAlreadyDeletedException(String fileName) {
+            super("Image " + fileName + " was already deleted");
         }
     }
 

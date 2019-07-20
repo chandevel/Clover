@@ -382,12 +382,16 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         super.onShowPosts(loadable);
 
         navigation.title = this.loadable.title;
-
         navigation.findItem(PIN_ID).setVisible(!loadable.isSavedCopy);
 
         ToolbarMenuItem saveThreadItem = navigation.findItem(SAVE_THREAD_ID);
         if (saveThreadItem != null) {
-            saveThreadItem.setVisible(!loadable.isSavedCopy);
+            Pin pin = watchManager.findPinByLoadableId(loadable.id);
+            if (pin != null && (pin.archived || pin.isError)) {
+                saveThreadItem.setVisible(false);
+            } else {
+                saveThreadItem.setVisible(!loadable.isSavedCopy);
+            }
         }
 
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
