@@ -17,10 +17,14 @@
  */
 package org.floens.chan;
 
+import org.floens.chan.core.settings.ChanSettings;
+
+import io.sentry.Sentry;
+import io.sentry.android.AndroidSentryClientFactory;
+
 /**
- * The ChanApplication belonging to the debug configuration.
- *
- * It does not have acra enabled, unlike the release version, and immediately calls initialize.
+ * The ChanApplication wrapping our Chan application.
+ * For historical reasons the main application class needs to be 'org.floens.chan.ChanApplication'.
  */
 public class ChanApplication extends Chan {
     @Override
@@ -28,5 +32,12 @@ public class ChanApplication extends Chan {
         super.onCreate();
 
         initialize();
+
+        if (!ChanBuild.DEVELOPER_MODE && ChanSettings.isCrashReportingEnabled()) {
+            Sentry.init(
+                    BuildConfig.CRASH_REPORT_TOKEN,
+                    new AndroidSentryClientFactory(this)
+            );
+        }
     }
 }

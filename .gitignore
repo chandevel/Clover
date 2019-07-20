@@ -2,7 +2,7 @@ gps/
 Clover/app/keys.properties
 Clover/app/version.properties
 Clover/captures/
-
+Clover/sentry.properties
 
 #built application files
 # *.apk
