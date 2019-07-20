@@ -283,7 +283,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
             color = color | p.getNewQuoteCount() > 0;
         }
 
-        if (getTop() != null && total > 0) {
+        if (getTop() != null) {
             getMainToolbarNavigationController().toolbar.getArrowMenuDrawable().setBadge(total, color);
         }
     }
