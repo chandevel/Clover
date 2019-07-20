@@ -268,7 +268,8 @@ public class ImageLoader {
      * Loads image from disk or gets it from the cache if it is already cached. Caches the image in
      * the cache if successfully loaded from the disk
      */
-    // TODO: do the same thing for ImageLoader.get()
+    // TODO: This shouldn't be called on the main thread since it is slow as hell.
+    //  Move to a background thread.
     public ImageContainer getFromDisk(
             Loadable loadable,
             String filename,
@@ -288,7 +289,18 @@ public class ImageLoader {
 
         File fullImagePath = new File(ChanSettings.saveLocation.get(), imageDir);
         File imageOnDiskFile = new File(fullImagePath, filename);
+        String imageOnDisk = imageOnDiskFile.getAbsolutePath();
+        String cacheKey = getCacheKey(imageOnDisk, width, height);
+        Bitmap cachedBitmap = mCache.getBitmap(cacheKey);
 
+        if (cachedBitmap != null) {
+            // Fast path - image is in the cache
+            ImageContainer container = new ImageContainer(cachedBitmap, imageOnDisk, null, null);
+            imageListener.onResponse(container, true);
+            return container;
+        }
+
+        // Slow path, no image were found in the cache, check whether it exists on the disk
         if (!imageOnDiskFile.exists() || !imageOnDiskFile.isFile() || !imageOnDiskFile.canRead()) {
             Logger.d(TAG, "Could not load image from the disk: " +
                     "(path = " + imageOnDiskFile.getAbsolutePath() +
@@ -296,8 +308,8 @@ public class ImageLoader {
                     ", isFile = " + imageOnDiskFile.isFile() +
                     ", canRead = " + imageOnDiskFile.canRead() + ")");
 
-            String cacheKey = getCacheKey(NOT_FOUND_IMAGE_TAG, width, height);
-            Bitmap drawableBitmap = mCache.getBitmap(cacheKey);
+            String notFoundImageCacheKey = getCacheKey(NOT_FOUND_IMAGE_TAG, width, height);
+            Bitmap drawableBitmap = mCache.getBitmap(notFoundImageCacheKey);
             if (drawableBitmap == null) {
                 drawableBitmap = BitmapUtils.getBitmapFromVectorDrawable(
                         applicationContext,
@@ -309,7 +321,7 @@ public class ImageLoader {
                     return null;
                 }
 
-                mCache.putBitmap(cacheKey, drawableBitmap);
+                mCache.putBitmap(notFoundImageCacheKey, drawableBitmap);
             }
 
             ImageContainer container = new ImageContainer(drawableBitmap, null, null, null);
@@ -317,16 +329,7 @@ public class ImageLoader {
             return container;
         }
 
-        String imageOnDisk = imageOnDiskFile.getAbsolutePath();
-        String cacheKey = getCacheKey(imageOnDisk, width, height);
-        Bitmap cachedBitmap = mCache.getBitmap(cacheKey);
-
-        if (cachedBitmap != null) {
-            ImageContainer container = new ImageContainer(cachedBitmap, imageOnDisk, null, null);
-            imageListener.onResponse(container, true);
-            return container;
-        }
-
+        // Image exists on the disk - try to load it and put in the cache
         Bitmap bitmap = BitmapFactory.decodeFile(imageOnDisk);
         if (bitmap == null) {
             return null;
