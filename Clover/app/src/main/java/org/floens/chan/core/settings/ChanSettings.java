@@ -263,7 +263,8 @@ public class ChanSettings {
     }
 
     public static boolean isCrashReportingAvailable() {
-        return !BuildConfig.CRASH_REPORT_ENDPOINT.isEmpty();
+        //noinspection ConstantConditions
+        return !BuildConfig.CRASH_REPORT_TOKEN.isEmpty();
     }
 
     public static boolean isCrashReportingEnabled() {
