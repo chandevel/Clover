@@ -17,11 +17,14 @@
  */
 package org.floens.chan.ui.service;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -34,6 +37,8 @@ import de.greenrobot.event.EventBus;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 public class SavingNotification extends Service {
+    public static final String CHANNEL_ID_SAVING = "save:saving";
+
     public static final String DONE_TASKS_KEY = "done_tasks";
     public static final String TOTAL_TASKS_KEY = "total_tasks";
     private static final String CANCEL_KEY = "cancel";
@@ -75,6 +80,10 @@ public class SavingNotification extends Service {
                 doneTasks = extras.getInt(DONE_TASKS_KEY);
                 totalTasks = extras.getInt(TOTAL_TASKS_KEY);
 
+                if (isOreo()) {
+                    ensureChannels();
+                }
+
                 if (!inForeground) {
                     startForeground(NOTIFICATION_ID, getNotification());
                     inForeground = true;
@@ -87,8 +96,18 @@ public class SavingNotification extends Service {
         return START_STICKY;
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
+    public void ensureChannels() {
+        NotificationChannel normalChannel = new NotificationChannel(
+                CHANNEL_ID_SAVING, "Save notificatons",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        normalChannel.setDescription("Current save tasks");
+        notificationManager.createNotificationChannel(normalChannel);
+    }
+
     private Notification getNotification() {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext());
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                getAppContext(), CHANNEL_ID_SAVING);
         builder.setSmallIcon(R.drawable.ic_stat_notify);
         builder.setContentTitle(getString(R.string.image_save_notification_downloading));
         builder.setContentText(getString(R.string.image_save_notification_cancel));
@@ -97,12 +116,19 @@ public class SavingNotification extends Service {
 
         Intent intent = new Intent(this, SavingNotification.class);
         intent.putExtra(CANCEL_KEY, true);
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getService(
+                this, 0,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
 
         return builder.build();
     }
 
+    private boolean isOreo() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+    }
+
     public static class SavingCancelRequestMessage {
+
     }
 }
