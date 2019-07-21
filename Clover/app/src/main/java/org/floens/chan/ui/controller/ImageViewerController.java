@@ -388,7 +388,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         startAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                imageViewerCallback.onPreviewCreate(ImageViewerController.this);
+                imageViewerCallback.onPreviewCreate(
+                        ImageViewerController.this, postImage);
             }
 
             @Override
@@ -486,16 +487,17 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         endAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                previewOutAnimationEnded();
+                previewOutAnimationEnded(postImage);
             }
         });
         endAnimation.start();
+        imageViewerCallback.onBeforePreviewDestroy(this, postImage);
     }
 
-    private void previewOutAnimationEnded() {
+    private void previewOutAnimationEnded(PostImage postImage) {
         setBackgroundAlpha(0f);
 
-        imageViewerCallback.onPreviewDestroy(this);
+        imageViewerCallback.onPreviewDestroy(this, postImage);
         navigationController.stopPresenting(false);
     }
 
@@ -513,7 +515,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         startView.getLocationInWindow(loc);
         Point windowLocation = new Point(loc[0], loc[1]);
         Point size = new Point(startView.getWidth(), startView.getHeight());
-        previewImage.setSourceImageView(windowLocation, size, bitmap);
+        previewImage.setSourceImageView(windowLocation, size, bitmap, startView.getRounding());
         return true;
     }
 
@@ -556,9 +558,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     public interface ImageViewerCallback {
         ThumbnailView getPreviewImageTransitionView(ImageViewerController imageViewerController, PostImage postImage);
 
-        void onPreviewCreate(ImageViewerController imageViewerController);
+        void onPreviewCreate(ImageViewerController imageViewerController, PostImage postImage);
 
-        void onPreviewDestroy(ImageViewerController imageViewerController);
+        void onBeforePreviewDestroy(ImageViewerController imageViewerController, PostImage postImage);
+
+        void onPreviewDestroy(ImageViewerController imageViewerController, PostImage postImage);
 
         void scrollToImage(PostImage postImage);
     }

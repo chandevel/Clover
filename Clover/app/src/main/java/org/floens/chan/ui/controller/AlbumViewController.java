@@ -93,26 +93,44 @@ public class AlbumViewController extends Controller implements
 
     @Override
     public ThumbnailView getPreviewImageTransitionView(ImageViewerController imageViewerController, PostImage postImage) {
-        ThumbnailView thumbnail = null;
+        AlbumViewCell cell = findCellForImage(postImage);
+        if (cell != null) {
+            return cell.getThumbnailView();
+        }
+        return null;
+    }
+
+    @Override
+    public void onPreviewCreate(ImageViewerController imageViewerController, PostImage postImage) {
+    }
+
+    @Override
+    public void onBeforePreviewDestroy(ImageViewerController imageViewerController, PostImage postImage) {
+        AlbumViewCell cell = findCellForImage(postImage);
+        if (cell != null) {
+            cell.hideLabel();
+        }
+    }
+
+    @Override
+    public void onPreviewDestroy(ImageViewerController imageViewerController, PostImage postImage) {
+        AlbumViewCell cell = findCellForImage(postImage);
+        if (cell != null) {
+            cell.showLabel();
+        }
+    }
+
+    private AlbumViewCell findCellForImage(PostImage postImage) {
         for (int i = 0; i < recyclerView.getChildCount(); i++) {
             View view = recyclerView.getChildAt(i);
             if (view instanceof AlbumViewCell) {
                 AlbumViewCell cell = (AlbumViewCell) view;
                 if (postImage == cell.getPostImage()) {
-                    thumbnail = cell.getThumbnailView();
-                    break;
+                    return cell;
                 }
             }
         }
-        return thumbnail;
-    }
-
-    @Override
-    public void onPreviewCreate(ImageViewerController imageViewerController) {
-    }
-
-    @Override
-    public void onPreviewDestroy(ImageViewerController imageViewerController) {
+        return null;
     }
 
     @Override

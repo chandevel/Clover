@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="match_parent"
         android:layout_height="32dp"
         android:layout_gravity="bottom"
-        android:background="#8a000000"
+        android:background="@drawable/album_cell_info_background"
         android:gravity="center_vertical"
         android:maxLines="2"
         android:paddingLeft="8dp"

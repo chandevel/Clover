@@ -20,6 +20,7 @@ package org.floens.chan.utils;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -43,6 +44,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityManagerCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -71,6 +73,7 @@ public class AndroidUtils {
     @SuppressLint("StaticFieldLeak")
     private static Application application;
     private static ConnectivityManager connectivityManager;
+    private static ActivityManager activityManager;
 
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -84,6 +87,8 @@ public class AndroidUtils {
 
             connectivityManager = (ConnectivityManager)
                     application.getSystemService(Context.CONNECTIVITY_SERVICE);
+            activityManager = (ActivityManager)
+                    application.getSystemService(Context.ACTIVITY_SERVICE);
         }
     }
 
@@ -451,5 +456,10 @@ public class AndroidUtils {
     public static boolean isConnected(int type) {
         NetworkInfo networkInfo = connectivityManager.getNetworkInfo(type);
         return networkInfo != null && networkInfo.isConnected();
+    }
+
+    public static boolean enableHighEndAnimations() {
+        boolean lowRamDevice = ActivityManagerCompat.isLowRamDevice(activityManager);
+        return !lowRamDevice && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
 }

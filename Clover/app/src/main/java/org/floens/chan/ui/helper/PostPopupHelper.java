@@ -87,6 +87,10 @@ public class PostPopupHelper {
         return presentingController.getThumbnail(postImage);
     }
 
+    public List<ThumbnailView> getThumbnails() {
+        return presentingController.getThumbnails();
+    }
+
     public void postClicked(Post p) {
         popAll();
         presenter.highlightPost(p);

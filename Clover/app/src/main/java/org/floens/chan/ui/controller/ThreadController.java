@@ -194,18 +194,45 @@ public abstract class ThreadController extends Controller implements
         return threadLayout.getThumbnail(postImage);
     }
 
-    public void onPreviewCreate(ImageViewerController imageViewerController) {
-//        presentingImageView.setVisibility(View.INVISIBLE);
+    public void onPreviewCreate(ImageViewerController imageViewerController, PostImage postImage) {
+        ThumbnailView thumbnailView = getPreviewImageTransitionView(imageViewerController, postImage);
+        if (thumbnailView != null) {
+            thumbnailView.hide(false);
+        }
     }
 
     @Override
-    public void onPreviewDestroy(ImageViewerController imageViewerController) {
-//        presentingImageView.setVisibility(View.VISIBLE);
-//        presentingImageView = null;
+    public void onBeforePreviewDestroy(ImageViewerController imageViewerController, PostImage postImage) {
+    }
+
+    @Override
+    public void onPreviewDestroy(ImageViewerController imageViewerController, PostImage postImage) {
+        ThumbnailView thumbnail = threadLayout.getThumbnail(postImage);
+        if (thumbnail != null) {
+            thumbnail.show(false);
+        }
     }
 
     @Override
     public void scrollToImage(PostImage postImage) {
+        ThumbnailView focused = threadLayout.getThumbnail(postImage);
+        if (focused != null) {
+            focused.hide(true);
+        } else {
+            AndroidUtils.waitForLayout(threadLayout, (v) -> {
+                ThumbnailView focused2 = threadLayout.getThumbnail(postImage);
+                if (focused2 != null) {
+                    focused2.hide(true);
+                }
+                return true;
+            });
+        }
+        for (ThumbnailView visible : threadLayout.getAllVisibleThumbnails()) {
+            if (visible != focused) {
+                visible.show(true);
+            }
+        }
+
         threadLayout.getPresenter().scrollToImage(postImage, true);
     }
 

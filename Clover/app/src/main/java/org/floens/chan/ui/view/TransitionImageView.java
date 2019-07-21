@@ -22,11 +22,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
+
+import static org.floens.chan.utils.AndroidUtils.enableHighEndAnimations;
 
 public class TransitionImageView extends View {
     private static final String TAG = "TransitionImageView";
@@ -44,6 +47,8 @@ public class TransitionImageView extends View {
     private float stateBitmapScaleDiff;
     private PointF stateBitmapSize;
     private PointF statePos;
+    private float fromRounding = 0.0f;
+    private Path roundingPath = new Path();
 
     public TransitionImageView(Context context) {
         super(context);
@@ -84,8 +89,10 @@ public class TransitionImageView extends View {
         matrix.setRectToRect(bitmapRect, destRect, Matrix.ScaleToFit.FILL);
     }
 
-    public void setSourceImageView(Point windowLocation, Point viewSize, Bitmap bitmap) {
+    public void setSourceImageView(Point windowLocation, Point viewSize, Bitmap bitmap,
+                                   float rounding) {
         this.bitmap = bitmap;
+        this.fromRounding = rounding;
         bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
 
         if (stateBitmapSize != null) {
@@ -174,9 +181,17 @@ public class TransitionImageView extends View {
         if (bitmap != null) {
             canvas.save();
             if (progress < 1f) {
-                canvas.clipRect(destClip);
+                if (!enableHighEndAnimations()) {
+                    canvas.clipRect(destClip);
+                } else {
+                    float rounding = lerp(fromRounding, 0.0f, progress);
+                    roundingPath.reset();
+                    roundingPath.addRoundRect(destClip, rounding, rounding, Path.Direction.CW);
+                    canvas.clipPath(roundingPath);
+                }
             }
             canvas.drawBitmap(bitmap, matrix, paint);
+
             canvas.restore();
         }
     }

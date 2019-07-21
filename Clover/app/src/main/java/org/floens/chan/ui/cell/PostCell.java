@@ -84,6 +84,7 @@ import static android.text.TextUtils.isEmpty;
 import static org.floens.chan.Chan.injector;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_CONDENSED_REGULAR;
 import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.enableHighEndAnimations;
 import static org.floens.chan.utils.AndroidUtils.getString;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 import static org.floens.chan.utils.AndroidUtils.sp;
@@ -160,7 +161,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         filterMatchColor = findViewById(R.id.filter_match_color);
 
         int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
-        paddingPx = dp(textSizeSp - 6);
+        paddingPx = dp(textSizeSp - 7);
         detailsSizePx = sp(textSizeSp - 4);
         title.setTextSize(textSizeSp);
         title.setPadding(paddingPx, paddingPx, dp(52), 0);
@@ -378,7 +379,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             time = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(), DateUtils.SECOND_IN_MILLIS, 0);
         }
 
-        String noText = "No." + post.no;
+        String noText = "#" + post.no;
         SpannableString date = new SpannableString(noText + " " + time);
         date.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, date.length(), 0);
@@ -565,10 +566,14 @@ public class PostCell extends LinearLayout implements PostCellInterface {
                     p.addRule(RelativeLayout.BELOW, lastId);
                 }
 
+                p.topMargin = paddingPx;
+                p.leftMargin = paddingPx;
+                p.bottomMargin = paddingPx;
+
                 v.setPostImage(image, size, size);
                 v.setClickable(true);
                 v.setOnClickListener(v2 -> callback.onThumbnailClicked(post, image, v));
-                v.setRounding(dp(2));
+                v.setRounding(dp(enableHighEndAnimations() ? 8 : 2));
 
                 relativeLayoutContainer.addView(v, p);
                 thumbnailViews.add(v);

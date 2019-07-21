@@ -44,6 +44,8 @@ import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.ThumbnailView;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
@@ -125,6 +127,28 @@ public class PostRepliesController extends Controller {
         }
     }
 
+    public List<ThumbnailView> getThumbnails() {
+        if (listView == null) {
+            return Collections.emptyList();
+        } else {
+            List<ThumbnailView> thumbnails = new ArrayList<>(7);
+            for (int i = 0; i < listView.getChildCount(); i++) {
+                View view = listView.getChildAt(i);
+                if (view instanceof PostCellInterface) {
+                    PostCellInterface postView = (PostCellInterface) view;
+                    Post post = postView.getPost();
+
+                    if (!post.images.isEmpty()) {
+                        for (int j = 0; j < post.images.size(); j++) {
+                            thumbnails.add(postView.getThumbnailView(post.images.get(j)));
+                        }
+                    }
+                }
+            }
+            return thumbnails;
+        }
+    }
+
     public void setPostRepliesData(PostPopupHelper.RepliesData data) {
         displayData(data);
     }
@@ -180,7 +204,6 @@ public class PostRepliesController extends Controller {
         } else {
             repliesBackText.setTextColor(0xffffffff);
             repliesCloseText.setTextColor(0xffffffff);
-            dataView.findViewById(R.id.container).setBackgroundResource(R.drawable.dialog_full_dark);
         }
 
         ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(context, 0) {

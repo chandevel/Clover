@@ -56,6 +56,7 @@ import org.floens.chan.ui.view.FastScrollerHelper;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -455,6 +456,26 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             }
         }
         return null;
+    }
+
+    public List<ThumbnailView> getThumbnails() {
+        List<ThumbnailView> thumbnails = new ArrayList<>(7);
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+
+        for (int i = 0; i < layoutManager.getChildCount(); i++) {
+            View view = layoutManager.getChildAt(i);
+            if (view instanceof PostCellInterface) {
+                PostCellInterface postView = (PostCellInterface) view;
+                Post post = postView.getPost();
+
+                if (!post.images.isEmpty()) {
+                    for (PostImage image : post.images) {
+                        thumbnails.add(postView.getThumbnailView(image));
+                    }
+                }
+            }
+        }
+        return thumbnails;
     }
 
     public void scrollTo(int displayPosition, boolean smooth) {

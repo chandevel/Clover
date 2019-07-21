@@ -19,6 +19,7 @@ package org.floens.chan.ui.cell;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -53,6 +54,7 @@ public class AlbumViewCell extends FrameLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         thumbnailView = findViewById(R.id.thumbnail_view);
+        thumbnailView.setRounding(dp(8));
         text = findViewById(R.id.text);
     }
 
@@ -88,5 +90,13 @@ public class AlbumViewCell extends FrameLayout {
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
+    }
+
+    public void hideLabel() {
+        text.setAlpha(0f);
+    }
+
+    public void showLabel() {
+        text.animate().alpha(1f).setDuration(200).setInterpolator(new DecelerateInterpolator(2f));
     }
 }

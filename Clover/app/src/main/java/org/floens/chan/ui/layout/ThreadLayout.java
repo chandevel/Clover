@@ -509,6 +509,14 @@ public class ThreadLayout extends CoordinatorLayout implements
         }
     }
 
+    public List<ThumbnailView> getAllVisibleThumbnails() {
+        if (postPopupHelper.isOpen()) {
+            return postPopupHelper.getThumbnails();
+        } else {
+            return threadListLayout.getThumbnails();
+        }
+    }
+
     public boolean postRepliesOpen() {
         return postPopupHelper.isOpen();
     }

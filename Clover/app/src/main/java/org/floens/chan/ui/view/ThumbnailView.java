@@ -17,6 +17,9 @@
  */
 package org.floens.chan.ui.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -49,6 +52,8 @@ import static org.floens.chan.utils.AndroidUtils.sp;
 public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private ImageLoader.ImageContainer container;
     private int fadeTime = 200;
+    private ValueAnimator fadeAnimation;
+    private boolean hidden = false;
 
     private boolean circular = false;
     private int rounding = 0;
@@ -62,7 +67,8 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
     private Matrix matrix = new Matrix();
     BitmapShader bitmapShader;
-    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+    private Paint backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint bitmapPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
 
     private boolean foregroundCalculate = false;
     private Drawable foreground;
@@ -90,6 +96,14 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private void init() {
         textPaint.setColor(0xff000000);
         textPaint.setTextSize(sp(14));
+        backgroundPaint.setColor(0x22000000);
+        endAnimations();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        endAnimations();
     }
 
     public void setUrl(String url, int width, int height) {
@@ -115,6 +129,10 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
     public void setRounding(int rounding) {
         this.rounding = rounding;
+    }
+
+    public int getRounding() {
+        return rounding;
     }
 
     @SuppressWarnings({"deprecation", "ConstantConditions"})
@@ -153,6 +171,30 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         return bitmap;
     }
 
+    public void hide(boolean animateIfNeeded) {
+        hidden = true;
+        if (getAlpha() == 0f) return;
+
+        if (animateIfNeeded && fadeAnimation == null && bitmap != null && !calculate) {
+            animate().alpha(0f).setDuration(150);
+        } else {
+            setAlpha(0f);
+        }
+        endAnimations();
+    }
+
+    public void show(boolean animateIfNeeded) {
+        hidden = false;
+        if (getAlpha() == 1f) return;
+
+        if (animateIfNeeded && fadeAnimation == null && bitmap != null && !calculate) {
+            animate().alpha(1f).setDuration(150);
+        } else {
+            setAlpha(1f);
+        }
+        endAnimations();
+    }
+
     @Override
     public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
         if (response.getBitmap() != null) {
@@ -180,7 +222,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         if (error) {
             textPaint.setAlpha(alpha);
         } else {
-            paint.setAlpha(alpha);
+            bitmapPaint.setAlpha(alpha);
         }
         invalidate();
 
@@ -196,14 +238,11 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (getAlpha() == 0f) {
-            return;
-        }
-
         int width = getWidth() - getPaddingLeft() - getPaddingRight();
         int height = getHeight() - getPaddingTop() - getPaddingBottom();
 
         if (error) {
+            // Render a simple text if there was an error.
             canvas.save();
 
             textPaint.getTextBounds(errorText, 0, errorText.length(), tmpTextRect);
@@ -213,10 +252,23 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
             canvas.restore();
         } else {
+            outputRect.set(getPaddingLeft(), getPaddingTop(),
+                    getWidth() - getPaddingRight(), getHeight() - getPaddingBottom());
+
+            // Gray background if thumbnail is not yet loaded.
+            if (bitmap == null || fadeAnimation != null) {
+                if (circular) {
+                    canvas.drawRoundRect(outputRect, width / 2.0f, height / 2.0f, backgroundPaint);
+                } else {
+                    canvas.drawRoundRect(outputRect, rounding, rounding, backgroundPaint);
+                }
+            }
+
             if (bitmap == null) {
                 return;
             }
 
+            // If needed, calculate positions.
             if (calculate) {
                 calculate = false;
                 bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
@@ -231,21 +283,20 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
                 drawRect.set(-offsetX, -offsetY, scaledX - offsetX, scaledY - offsetY);
                 drawRect.offset(getPaddingLeft(), getPaddingTop());
 
-                outputRect.set(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight() - getPaddingBottom());
-
                 matrix.setRectToRect(bitmapRect, drawRect, Matrix.ScaleToFit.FILL);
 
                 bitmapShader.setLocalMatrix(matrix);
-                paint.setShader(bitmapShader);
+                bitmapPaint.setShader(bitmapShader);
             }
 
             canvas.save();
             canvas.clipRect(outputRect);
 
+            // Draw rounded bitmap.
             if (circular) {
-                canvas.drawRoundRect(outputRect, width / 2, height / 2, paint);
+                canvas.drawRoundRect(outputRect, width / 2.0f, height / 2.0f, bitmapPaint);
             } else {
-                canvas.drawRoundRect(outputRect, rounding, rounding, paint);
+                canvas.drawRoundRect(outputRect, rounding, rounding, bitmapPaint);
             }
 
             canvas.restore();
@@ -298,9 +349,8 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
     private void onImageSet(boolean isImmediate) {
         clearAnimation();
-        if (fadeTime > 0 && !isImmediate) {
-            setAlpha(0f);
-            animate().alpha(1f).setDuration(fadeTime);
+        if (fadeTime > 0 && !isImmediate && !hidden) {
+            runFadeInAnimation();
         } else {
             setAlpha(1f);
         }
@@ -308,13 +358,41 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
     private void setImageBitmap(Bitmap bitmap) {
         bitmapShader = null;
-        paint.setShader(null);
+        bitmapPaint.setShader(null);
 
         this.bitmap = bitmap;
         if (bitmap != null) {
             calculate = true;
             bitmapShader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
         }
+        endAnimations();
         invalidate();
+    }
+
+    private void runFadeInAnimation() {
+        fadeAnimation = ValueAnimator.ofFloat(0.0f, 1.0f);
+        fadeAnimation.setDuration(fadeTime);
+        fadeAnimation.addUpdateListener(v -> {
+            bitmapPaint.setAlpha((int) (((float) v.getAnimatedValue()) * 255));
+            invalidate();
+        });
+        fadeAnimation.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                fadeAnimation = null;
+                if (bitmapPaint.getAlpha() != ((int) getAlpha() * 255)) {
+                    bitmapPaint.setAlpha((int) (getAlpha() * 255));
+                    invalidate();
+                }
+            }
+        });
+        fadeAnimation.start();
+    }
+
+    private void endAnimations() {
+        if (fadeAnimation != null) {
+            fadeAnimation.end();
+            fadeAnimation = null;
+        }
     }
 }
