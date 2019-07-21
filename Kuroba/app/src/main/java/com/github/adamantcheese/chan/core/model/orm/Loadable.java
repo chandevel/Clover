@@ -94,6 +94,7 @@ public class Loadable implements Cloneable {
     }
 
     public static Loadable importLoadable(
+            int loadableId,
             int siteId,
             int mode,
             String boardCode,
@@ -105,6 +106,7 @@ public class Loadable implements Cloneable {
             int lastLoaded
     ) {
         Loadable loadable = new Loadable();
+        loadable.id = loadableId;
         loadable.siteId = siteId;
         loadable.mode = mode;
         loadable.boardCode = boardCode;

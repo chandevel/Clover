@@ -147,7 +147,7 @@ public class WatchManager implements WakeManager.Wakeable {
         this.wakeManager = wakeManager;
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
-        this.prevIncrementalThreadSavingEnabled = ChanSettings.watchEnabled.get() && ChanSettings.watchBackground.get();
+        this.prevIncrementalThreadSavingEnabled = false;
 
         databasePinManager = databaseManager.getDatabasePinManager();
         databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadManager();

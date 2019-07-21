@@ -42,6 +42,10 @@ public class SavedThread {
         this(0, isFullyDownloaded, isStopped, 0, loadableId);
     }
 
+    public SavedThread(boolean isFullyDownloaded, boolean isStopped, int lastSavedPostNo, int loadableId) {
+        this(0, isFullyDownloaded, isStopped, lastSavedPostNo, loadableId);
+    }
+
     public SavedThread(int id, boolean isFullyDownloaded, boolean isStopped, int lastSavedPostNo, int loadableId) {
         this.id = id;
         this.isFullyDownloaded = isFullyDownloaded;

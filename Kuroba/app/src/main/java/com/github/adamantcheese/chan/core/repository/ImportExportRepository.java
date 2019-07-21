@@ -28,12 +28,14 @@ import com.github.adamantcheese.chan.core.model.export.ExportedFilter;
 import com.github.adamantcheese.chan.core.model.export.ExportedLoadable;
 import com.github.adamantcheese.chan.core.model.export.ExportedPin;
 import com.github.adamantcheese.chan.core.model.export.ExportedPostHide;
+import com.github.adamantcheese.chan.core.model.export.ExportedSavedThread;
 import com.github.adamantcheese.chan.core.model.export.ExportedSite;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
+import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -238,17 +240,24 @@ public class ImportExportRepository {
             ));
 
             for (ExportedPin exportedPin : exportedSite.getExportedPins()) {
+                ExportedLoadable exportedLoadable = exportedPin.getExportedLoadable();
+                if (exportedLoadable == null) {
+                    continue;
+                }
+
                 Loadable loadable = Loadable.importLoadable(
+                        (int) exportedLoadable.getLoadableId(),
                         inserted.id,
-                        exportedPin.getExportedLoadable().getMode(),
-                        exportedPin.getExportedLoadable().getBoardCode(),
-                        exportedPin.getExportedLoadable().getNo(),
-                        exportedPin.getExportedLoadable().getTitle(),
-                        exportedPin.getExportedLoadable().getListViewIndex(),
-                        exportedPin.getExportedLoadable().getListViewTop(),
-                        exportedPin.getExportedLoadable().getLastViewed(),
-                        exportedPin.getExportedLoadable().getLastLoaded()
+                        exportedLoadable.getMode(),
+                        exportedLoadable.getBoardCode(),
+                        exportedLoadable.getNo(),
+                        exportedLoadable.getTitle(),
+                        exportedLoadable.getListViewIndex(),
+                        exportedLoadable.getListViewTop(),
+                        exportedLoadable.getLastViewed(),
+                        exportedLoadable.getLastLoaded()
                 );
+
                 databaseHelper.loadableDao.createIfNotExists(loadable);
 
                 Pin pin = new Pin(
@@ -292,6 +301,15 @@ public class ImportExportRepository {
             ));
         }
 
+        for (ExportedSavedThread exportedSavedThread : appSettings.getExportedSavedThreads()) {
+            databaseHelper.savedThreadDao.createIfNotExists(new SavedThread(
+                    exportedSavedThread.isFullyDownloaded,
+                    exportedSavedThread.isStopped,
+                    exportedSavedThread.lastSavedPostNo,
+                    exportedSavedThread.loadableId
+            ));
+        }
+
         ChanSettings.deserializeFromString(appSettingsParam.getSettings());
     }
 
@@ -301,9 +319,9 @@ public class ImportExportRepository {
             appSettings.setExportedPostHides(new ArrayList<>());
         }
 
-        if(version < 3) {
+        if (version < 3) {
             //clear the site model usersettings to be an empty JSON map for version 2, as they won't parse correctly otherwise
-            for(ExportedSite site : appSettings.getExportedSites()) {
+            for (ExportedSite site : appSettings.getExportedSites()) {
                 site.setUserSettings("{}");
             }
         }
@@ -460,6 +478,17 @@ public class ImportExportRepository {
             ));
         }
 
+        List<ExportedSavedThread> exportedSavedThreads = new ArrayList<>();
+
+        for (SavedThread savedThread : databaseHelper.savedThreadDao.queryForAll()) {
+            exportedSavedThreads.add(new ExportedSavedThread(
+                    savedThread.loadableId,
+                    savedThread.lastSavedPostNo,
+                    savedThread.isFullyDownloaded,
+                    savedThread.isStopped
+            ));
+        }
+
         String settings = ChanSettings.serializeToString();
 
         return new ExportedAppSettings(
@@ -467,6 +496,7 @@ public class ImportExportRepository {
                 exportedBoards,
                 exportedFilters,
                 exportedPostHides,
+                exportedSavedThreads,
                 settings
         );
     }
