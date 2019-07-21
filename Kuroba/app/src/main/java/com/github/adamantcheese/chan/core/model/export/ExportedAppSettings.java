@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.core.repository.ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION;
@@ -94,7 +95,7 @@ public class ExportedAppSettings {
     }
 
     public List<ExportedSavedThread> getExportedSavedThreads() {
-        return exportedSavedThreads;
+        return exportedSavedThreads != null ? exportedSavedThreads : Collections.emptyList();
     }
 
     public int getVersion() {
