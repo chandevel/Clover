@@ -21,9 +21,8 @@ import android.content.Context;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.ui.NavigationControllerContainerLayout;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.PostImage;
-import org.floens.chan.ui.toolbar.Toolbar;
+import org.floens.chan.core.model.orm.Loadable;
 
 import java.util.List;
 

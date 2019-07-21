@@ -70,7 +70,12 @@ import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class ReplyLayout extends LoadView implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher, ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener {
+public class ReplyLayout extends LoadView implements
+        View.OnClickListener,
+        ReplyPresenter.ReplyPresenterCallback,
+        TextWatcher,
+        ImageDecoder.ImageDecoderCallback,
+        SelectionListeningEditText.SelectionChangedListener {
     @Inject
     ReplyPresenter presenter;
 
@@ -228,15 +233,14 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
 
     @Override
     public void onClick(View v) {
+        // TODO handle preview
         if (v == more) {
             presenter.onMoreClicked();
         } else if (v == attach) {
             presenter.onAttachClicked();
         } else if (v == submit) {
             presenter.onSubmitClicked();
-        }/* else if (v == preview) {
-            // TODO
-        }*/ else if (v == captchaHardReset) {
+        } else if (v == captchaHardReset) {
             if (authenticationLayout != null) {
                 authenticationLayout.hardReset();
             }

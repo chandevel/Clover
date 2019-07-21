@@ -10,7 +10,7 @@ android:
     - build-tools-28.0.3
     - android-28
 
-script: cd Clover && ./gradlew build --console plain -x lint
+script: cd Clover && ./gradlew clean check --console plain
 
 notifications:
   email: false

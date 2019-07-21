@@ -222,7 +222,8 @@ public class FastTextView extends View {
 //                        Logger.test("staticlayout cache miss: text = %s", text);
                         cached = getStaticLayout(layoutWidth);
                         textCache.put(item, cached);
-                    }/* else {
+                    }
+                    /* else {
                         Logger.test("staticlayout cache hit");
                     }*/
 
