@@ -188,7 +188,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
         if (oldVersion < 19) {
             try {
-                filterDao.executeRawNoArgs("CREATE TABLE `filter` (`action` INTEGER NOT NULL , `allBoards` SMALLINT NOT NULL , `boards` VARCHAR NOT NULL , `color` INTEGER NOT NULL , `enabled` SMALLINT NOT NULL , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `pattern` VARCHAR NOT NULL , `type` INTEGER NOT NULL );");
+                filterDao.executeRawNoArgs("CREATE TABLE `filter` (`action` INTEGER NOT NULL , `allBoards` SMALLINT NOT NULL , `boards` VARCHAR NOT NULL , `color` INTEGER NOT NULL , " +
+                        "`enabled` SMALLINT NOT NULL , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `pattern` VARCHAR NOT NULL , `type` INTEGER NOT NULL );");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 19", e);
             }

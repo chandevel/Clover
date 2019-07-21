@@ -678,7 +678,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
     private Bitmap hat;
 
-    private final RecyclerView.ItemDecoration PARTY = new RecyclerView.ItemDecoration() {
+    private final RecyclerView.ItemDecoration party = new RecyclerView.ItemDecoration() {
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
             if (hat == null) {
@@ -705,13 +705,13 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         if (showingThread.loadable.site instanceof Chan4) {
             Calendar calendar = Calendar.getInstance();
             if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-                recyclerView.addItemDecoration(PARTY);
+                recyclerView.addItemDecoration(party);
             }
         }
     }
 
     private void noParty() {
-        recyclerView.removeItemDecoration(PARTY);
+        recyclerView.removeItemDecoration(party);
     }
 
     public interface ThreadListLayoutPresenterCallback {

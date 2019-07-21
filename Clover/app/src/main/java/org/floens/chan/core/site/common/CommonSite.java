@@ -239,7 +239,7 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonSiteUrlHandler implements SiteUrlHandler {
+    public abstract static class CommonSiteUrlHandler implements SiteUrlHandler {
         public abstract HttpUrl getUrl();
 
         public abstract String[] getNames();
@@ -315,7 +315,7 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonEndpoints implements SiteEndpoints {
+    public abstract static class CommonEndpoints implements SiteEndpoints {
         protected CommonSite site;
 
         public CommonEndpoints(CommonSite site) {
@@ -413,7 +413,7 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonActions implements SiteActions {
+    public abstract static class CommonActions implements SiteActions {
         protected CommonSite site;
 
         public CommonActions(CommonSite site) {
@@ -550,7 +550,7 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonApi implements ChanReader {
+    public abstract static class CommonApi implements ChanReader {
         protected CommonSite site;
 
         public CommonApi(CommonSite site) {

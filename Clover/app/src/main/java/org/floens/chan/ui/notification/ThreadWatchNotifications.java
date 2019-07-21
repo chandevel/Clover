@@ -12,7 +12,6 @@ import android.support.v4.app.NotificationCompat;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.ui.activity.BoardActivity;
 
 import java.util.List;
