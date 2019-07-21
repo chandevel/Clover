@@ -35,7 +35,10 @@ public class ChanApplication extends Chan {
 
         if (!ChanBuild.DEVELOPER_MODE && ChanSettings.isCrashReportingEnabled()) {
             Sentry.init(
-                    BuildConfig.CRASH_REPORT_TOKEN,
+                    BuildConfig.CRASH_REPORT_TOKEN +
+                            "?release=" + BuildConfig.VERSION_NAME +
+                            "&environment=" + BuildConfig.FLAVOR +
+                            "&extra=commit=" + BuildConfig.BUILD_HASH,
                     new AndroidSentryClientFactory(this)
             );
         }
