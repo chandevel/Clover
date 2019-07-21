@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.ui.captcha.v2;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,6 +66,8 @@ public class CaptchaNoJsV2Adapter extends BaseAdapter {
             imageView.setLayoutParams(layoutParams);
 
             imageView.setOnClickListener((view) -> {
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+
                 imageList.get(position).toggleChecked();
                 boolean isChecked = imageList.get(position).isChecked;
 
