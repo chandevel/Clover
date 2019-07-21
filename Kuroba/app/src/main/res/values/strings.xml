@@ -621,7 +621,7 @@ Don't have a 4chan Pass?<br>
     <string name="import_settings">Import settings</string>
     <string name="import_settings_from_a_file">Import settings from a file</string>
     <string name="import_warning_title">Warning</string>
-    <string name="import_warning_text">You are about to import settings/saved pins/filters/hidden posts from a file. The file must be located at \"%1$s\" and have a name \"%2$s\". This will clear all your existing settings/pins/threads and replace them with the ones from the file. You MAY LOOSE some of your settings/pins/hidden threads if you are trying to import a file with different app version (upgrade or downgrade). The app will be restarted. \nAre you sure you want to continue?</string>
+    <string name="import_warning_text">You are about to import settings/saved pins/filters/hidden posts from a file. The file must be located at \"%1$s\" and have a name \"%2$s\". This will clear all your existing settings/pins/threads and replace them with the ones from the file. You MAY LOSE some of your settings/pins/hidden threads if you are trying to import a file with different app version (upgrade or downgrade). The app will be restarted. \nAre you sure you want to continue?</string>
     <string name="successfully_exported_text">Exported successfully to \"%1$s\". File path has been copied to the clipboard"</string>
     <string name="error_external_storage_is_not_mounted">External storage is not mounted</string>
     <string name="could_not_create_dir_for_export_error_text">Could not create directory for export file %1$s; you probably won\'t be able to export settings</string>
