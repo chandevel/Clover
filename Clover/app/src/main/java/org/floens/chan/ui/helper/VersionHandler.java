@@ -25,7 +25,9 @@ import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.widget.Button;
+import android.widget.TextView;
 
 import org.floens.chan.BuildConfig;
 import org.floens.chan.R;
@@ -36,6 +38,8 @@ import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
 import java.io.File;
+
+import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class VersionHandler implements UpdateManager.UpdateCallback {
     private static final String TAG = "VersionHandler";
@@ -145,8 +149,13 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
     public void showUpdateAvailableDialog(final UpdateApiRequest.UpdateApiMessage message) {
         Spanned text = Html.fromHtml(message.messageHtml);
 
+        TextView textView = new TextView(context);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+        textView.setPadding(dp(16), dp(16), dp(16), dp(16));
+        textView.setText(text);
+
         final AlertDialog dialog = new AlertDialog.Builder(context)
-                .setMessage(text)
+                .setView(textView)
                 .setNegativeButton(R.string.update_later, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -160,6 +169,7 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
                     }
                 })
                 .create();
+
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
     }
