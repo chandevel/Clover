@@ -102,7 +102,9 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     }
 
     public void setUrl(String url, int maxWidth, int maxHeight) {
-        if (container != null && container.getRequestUrl().equals(url)) {
+        if (container != null &&
+                container.getRequestUrl() != null &&
+                container.getRequestUrl().equals(url)) {
             return;
         }
 
