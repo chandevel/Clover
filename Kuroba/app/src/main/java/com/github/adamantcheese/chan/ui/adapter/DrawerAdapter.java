@@ -264,12 +264,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private void updatePinViewHolder(PinViewHolder holder, Pin pin) {
         TextView watchCount = holder.watchCountText;
-        LinearLayout.LayoutParams newParams = new LinearLayout.LayoutParams(
-                watchCount.getLayoutParams().width,
-                watchCount.getLayoutParams().height,
-                ChanSettings.shortPinInfo.get() ? 1.5f : 2.5f);
-
-        watchCount.setLayoutParams(newParams);
 
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
