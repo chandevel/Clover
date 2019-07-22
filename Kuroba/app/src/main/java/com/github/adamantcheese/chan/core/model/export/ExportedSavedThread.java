@@ -1,6 +1,10 @@
 package com.github.adamantcheese.chan.core.model.export;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
+
+import java.util.Locale;
 
 public class ExportedSavedThread {
     @SerializedName("loadable_id")
@@ -37,5 +41,13 @@ public class ExportedSavedThread {
 
     public boolean isStopped() {
         return isStopped;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(Locale.US,
+                "loadableId: %d, lastSavedPostNo: %d, isFullyDownloaded: %b, isStopped: %b",
+                loadableId, lastSavedPostNo, isFullyDownloaded, isStopped);
     }
 }

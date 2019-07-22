@@ -82,19 +82,35 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
-            TableUtils.createTable(connectionSource, Pin.class);
-            TableUtils.createTable(connectionSource, Loadable.class);
-            TableUtils.createTable(connectionSource, SavedReply.class);
-            TableUtils.createTable(connectionSource, Board.class);
-            TableUtils.createTable(connectionSource, PostHide.class);
-            TableUtils.createTable(connectionSource, History.class);
-            TableUtils.createTable(connectionSource, Filter.class);
-            TableUtils.createTable(connectionSource, SiteModel.class);
-            TableUtils.createTable(connectionSource, SavedThread.class);
+            createTables(connectionSource);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating db", e);
             throw new RuntimeException(e);
         }
+    }
+
+    public void createTables(ConnectionSource connectionSource) throws SQLException {
+        TableUtils.createTable(connectionSource, Pin.class);
+        TableUtils.createTable(connectionSource, Loadable.class);
+        TableUtils.createTable(connectionSource, SavedReply.class);
+        TableUtils.createTable(connectionSource, Board.class);
+        TableUtils.createTable(connectionSource, PostHide.class);
+        TableUtils.createTable(connectionSource, History.class);
+        TableUtils.createTable(connectionSource, Filter.class);
+        TableUtils.createTable(connectionSource, SiteModel.class);
+        TableUtils.createTable(connectionSource, SavedThread.class);
+    }
+
+    public void dropTables(ConnectionSource connectionSource) throws SQLException {
+        TableUtils.dropTable(connectionSource, Pin.class, true);
+        TableUtils.dropTable(connectionSource, Loadable.class, true);
+        TableUtils.dropTable(connectionSource, SavedReply.class, true);
+        TableUtils.dropTable(connectionSource, Board.class, true);
+        TableUtils.dropTable(connectionSource, PostHide.class, true);
+        TableUtils.dropTable(connectionSource, History.class, true);
+        TableUtils.dropTable(connectionSource, Filter.class, true);
+        TableUtils.dropTable(connectionSource, SiteModel.class, true);
+        TableUtils.dropTable(connectionSource, SavedThread.class, true);
     }
 
     /**
