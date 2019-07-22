@@ -266,6 +266,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         }
     }
 
+    public int getCurrentOpNo() {
+        return loadable.no;
+    }
+
     @Override
     public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
         if (replyResponse.posted) {
@@ -578,6 +582,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         }
 
         return BitmapUtils.isFileSupportedForReencoding(draft.file);
+    }
+
+    public Board getBoard() {
+        return board;
     }
 
     public interface ReplyPresenterCallback {

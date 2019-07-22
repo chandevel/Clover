@@ -1,13 +1,19 @@
 package com.github.adamantcheese.chan.core.site.sites.chan55;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
+import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
@@ -15,14 +21,28 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
+import com.github.adamantcheese.chan.core.site.http.HttpCall;
+import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.http.Reply;
+import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
+import com.github.adamantcheese.chan.core.site.sites.dvach.Dvach;
+import com.github.adamantcheese.chan.core.site.sites.dvach.DvachReplyCall;
+import com.github.adamantcheese.chan.ui.layout.ReplyLayout;
 import com.github.adamantcheese.chan.utils.Logger;
 
+import org.jsoup.Jsoup;
+
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class Chan55 extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
@@ -55,7 +75,10 @@ public class Chan55 extends CommonSite {
             }
         }
     };
+
     private static final String TAG = "Chan55";
+    private static final String BASE_URL = "https://55chan.org";
+    private final Random secureRandom = new SecureRandom();
 
     @Override
     public void setup() {
@@ -68,14 +91,13 @@ public class Chan55 extends CommonSite {
         setConfig(new CommonConfig() {
             @Override
             public boolean feature(Feature feature) {
-                //return feature == Feature.POSTING || feature == Feature.POST_DELETE;
-                return false; // posting no supported yet
+                return feature == Feature.POSTING || feature == Feature.POST_DELETE;
             }
         });
 
         setEndpoints(new VichanEndpoints(this,
-                "https://55chan.org",
-                "https://55chan.org") {
+                BASE_URL,
+                BASE_URL) {
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
                 return root.builder().s(post.board.code).s("src").s(arg.get("tim") + "." + arg.get("ext")).url();
@@ -117,10 +139,48 @@ public class Chan55 extends CommonSite {
 
                 if (reply.loadable.isThreadMode()) {
                     // "thread" is already added in VichanActions.
-                    call.parameter("post", "New Reply");
+                    call.parameter("post", "Responder");
                 } else {
                     call.parameter("post", "New Thread");
                     call.parameter("page", "1");
+                }
+
+                call.parameter("json_response", "1");
+            }
+
+            @Override
+            public void handlePost(ReplyResponse replyResponse, Response response, String result) {
+                Matcher auth = Pattern.compile("dose").matcher(result);
+                Matcher banned = Pattern.compile("banned").matcher(result);
+                Matcher err = Pattern.compile("error").matcher(result);
+                Matcher postMatcher = Pattern.compile("\\.html#\\d+").matcher(result);
+                if (auth.find()) {
+                    replyResponse.requireAuthentication = true;
+                    replyResponse.errorMessage = "";
+                } else if (banned.find()) {
+                    replyResponse.errorMessage = "Você foi banido";
+                } else if (err.find()) {
+                    replyResponse.errorMessage = Jsoup.parse(result).body().text();
+                } else {
+                    Matcher m = Pattern.compile("\\d+.html").matcher(result);
+                    try {
+                        if (m.find()) {
+                            String thread = m.group(0);
+                            int dotIndex = thread.indexOf('.');
+                            replyResponse.threadNo = Integer.parseInt(thread.substring(0, dotIndex));
+
+                            if (postMatcher.find()) {
+                                String post = postMatcher.group(0);
+                                int hashIndex = post.indexOf('#');
+                                replyResponse.postNo = Integer.parseInt(post.substring(hashIndex + 1));
+                            } else {
+                                replyResponse.postNo = replyResponse.threadNo;
+                            }
+                            replyResponse.posted = true;
+                        }
+                    } catch (NumberFormatException ignored) {
+                        replyResponse.errorMessage = "Error posting: could not find posted thread.";
+                    }
                 }
             }
 
@@ -130,8 +190,10 @@ public class Chan55 extends CommonSite {
             }
 
             @Override
-            public void delete(DeleteRequest deleteRequest, DeleteListener deleteListener) {
-                super.delete(deleteRequest, deleteListener);
+            public SiteAuthentication postAuthenticate() {
+                return SiteAuthentication.fromUrl("https://55chan.org/dose_diaria.php",
+                        "errou o CAPTCHA",
+                        "pode retornar");
             }
 
             @Override
@@ -173,6 +235,64 @@ public class Chan55 extends CommonSite {
 
                 listener.onBoardsReceived(new Boards(all));
                 boardManager.updateAvailableBoardsForSite(Chan55.this, all);
+            }
+
+            @Override
+            public void post(Reply reply, PostListener postListener) {
+                ReplyResponse replyResponse = new ReplyResponse();
+
+                reply.password = Long.toHexString(secureRandom.nextLong());
+                replyResponse.password = reply.password;
+
+                MultipartHttpCall call = new MultipartHttpCall(site) {
+                    @Override
+                    public void process(Response response, String result) {
+                        handlePost(replyResponse, response, result);
+                    }
+
+                    @Override
+                    public void setup(
+                            Request.Builder requestBuilder,
+                            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+                    ) {
+                        super.setup(requestBuilder, progressListener);
+
+                        // Change referer
+                        ReplyPresenter repPres = (ReplyPresenter) postListener;
+                        requestBuilder.removeHeader("Referer");
+                        requestBuilder.addHeader("Referer", String.format("%s/%s/res/%s.html", BASE_URL, repPres.getBoard().code, String.valueOf(repPres.getCurrentOpNo())));
+                    }
+                };
+
+                call.url(site.endpoints().reply(reply.loadable));
+
+                if (requirePrepare()) {
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    new Thread(() -> {
+                        prepare(call, reply, replyResponse);
+                        handler.post(() -> {
+                            setupPost(reply, call);
+                            makePostCall(call, replyResponse, postListener);
+                        });
+                    }).start();
+                } else {
+                    setupPost(reply, call);
+                    makePostCall(call, replyResponse, postListener);
+                }
+            }
+
+            private void makePostCall(HttpCall call, ReplyResponse replyResponse, PostListener postListener) {
+                httpCallManager.makeHttpCall(call, new HttpCall.HttpCallback<HttpCall>() {
+                    @Override
+                    public void onHttpSuccess(HttpCall httpCall) {
+                        postListener.onPostComplete(httpCall, replyResponse);
+                    }
+
+                    @Override
+                    public void onHttpFail(HttpCall httpCall, Exception e) {
+                        postListener.onPostError(httpCall, e);
+                    }
+                });
             }
         });
 
