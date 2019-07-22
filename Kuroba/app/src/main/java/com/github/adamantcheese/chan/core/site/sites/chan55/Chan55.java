@@ -8,26 +8,19 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
-import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
-import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
-import com.github.adamantcheese.chan.core.site.sites.dvach.Dvach;
-import com.github.adamantcheese.chan.core.site.sites.dvach.DvachReplyCall;
-import com.github.adamantcheese.chan.ui.layout.ReplyLayout;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.Jsoup;
@@ -45,6 +38,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class Chan55 extends CommonSite {
+    private static final String TAG = "Chan55";
+    private static final String BASE_URL = "https://55chan.org";
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
@@ -64,24 +59,27 @@ public class Chan55 extends CommonSite {
         @Override
         public String desktopUrl(Loadable loadable, @Nullable Post post) {
             if (loadable.isCatalogMode()) {
-                return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
+                return String.format("%s/%s", BASE_URL, loadable.boardCode);
             } else if (loadable.isThreadMode()) {
-                return getUrl().newBuilder()
-                        .addPathSegment(loadable.boardCode).addPathSegment("res")
-                        .addPathSegment(loadable.no + ".html")
-                        .toString();
+                return String.format("%s/%s/res/%s.html", BASE_URL, loadable.boardCode, loadable.no);
             } else {
-                return getUrl().toString();
+                return BASE_URL;
             }
         }
     };
 
-    private static final String TAG = "Chan55";
-    private static final String BASE_URL = "https://55chan.org";
-    private final Random secureRandom = new SecureRandom();
+    private static final String errorPatternString = "\"error\":\"";
+    private static final Pattern authPattern = Pattern.compile("dose");
+    private static final Pattern bannedPattern = Pattern.compile("banned");
+    private static final Pattern errorPattern = Pattern.compile(errorPatternString);
+    private static final Pattern postPattern = Pattern.compile("\\.html#\\d+");
+    private static final Pattern threadPattern = Pattern.compile("\\d+.html");
+    private static final Random secureRandom = new SecureRandom();
+    private static final Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     public void setup() {
+        setBoardsType(BoardsType.STATIC);
         setName("55chan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://55chan.org/static/favicon.ico?v=2")));
         setBoardsType(BoardsType.STATIC);
@@ -105,25 +103,7 @@ public class Chan55 extends CommonSite {
 
             @Override
             public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
-                String ext;
-                switch (arg.get("ext")) {
-                    case "jpeg":
-                    case "jpg":
-                    case "png":
-                    case "gif":
-                        ext = arg.get("ext");
-                        break;
-                    default:
-                        ext = "jpg";
-                        break;
-                }
-
-                return root.builder().s(post.board.code).s("thumb").s(arg.get("tim") + "." + ext).url();
-            }
-
-            @Override
-            public HttpUrl boards() {
-                return root.builder().s("boards.json").url();
+                return root.builder().s(post.board.code).s("thumb").s(arg.get("tim") + "." + arg.get("ext")).url();
             }
 
             @Override
@@ -141,7 +121,7 @@ public class Chan55 extends CommonSite {
                     // "thread" is already added in VichanActions.
                     call.parameter("post", "Responder");
                 } else {
-                    call.parameter("post", "New Thread");
+                    call.parameter("post", "Nova Thread");
                     call.parameter("page", "1");
                 }
 
@@ -150,19 +130,21 @@ public class Chan55 extends CommonSite {
 
             @Override
             public void handlePost(ReplyResponse replyResponse, Response response, String result) {
-                Matcher auth = Pattern.compile("dose").matcher(result);
-                Matcher banned = Pattern.compile("banned").matcher(result);
-                Matcher err = Pattern.compile("error").matcher(result);
-                Matcher postMatcher = Pattern.compile("\\.html#\\d+").matcher(result);
+                Matcher auth = authPattern.matcher(result);
+                Matcher banned = bannedPattern.matcher(result);
+                Matcher err = errorPattern.matcher(result);
+                Matcher postMatcher = postPattern.matcher(result);
                 if (auth.find()) {
                     replyResponse.requireAuthentication = true;
                     replyResponse.errorMessage = "";
                 } else if (banned.find()) {
                     replyResponse.errorMessage = "Você foi banido";
                 } else if (err.find()) {
-                    replyResponse.errorMessage = Jsoup.parse(result).body().text();
+                    int start = result.indexOf(errorPatternString) + errorPatternString.length();
+                    int end = result.indexOf('\"', start);
+                    replyResponse.errorMessage = result.substring(start, end);
                 } else {
-                    Matcher m = Pattern.compile("\\d+.html").matcher(result);
+                    Matcher m = threadPattern.matcher(result);
                     try {
                         if (m.find()) {
                             String thread = m.group(0);
@@ -178,8 +160,10 @@ public class Chan55 extends CommonSite {
                             }
                             replyResponse.posted = true;
                         }
-                    } catch (NumberFormatException ignored) {
-                        replyResponse.errorMessage = "Error posting: could not find posted thread.";
+                    } catch (Exception ex) {
+                        String message = ex.getMessage();
+                        Logger.d(TAG, String.format("Error handling the post response : %s", message));
+                        replyResponse.errorMessage = String.format("Error posting: %s", message);
                     }
                 }
             }
@@ -258,16 +242,14 @@ public class Chan55 extends CommonSite {
                         super.setup(requestBuilder, progressListener);
 
                         // Change referer
-                        ReplyPresenter repPres = (ReplyPresenter) postListener;
                         requestBuilder.removeHeader("Referer");
-                        requestBuilder.addHeader("Referer", String.format("%s/%s/res/%s.html", BASE_URL, repPres.getBoard().code, String.valueOf(repPres.getCurrentOpNo())));
+                        requestBuilder.addHeader("Referer", String.format("%s/%s/res/%s.html", BASE_URL, reply.loadable.boardCode, String.valueOf(reply.loadable.no)));
                     }
                 };
 
                 call.url(site.endpoints().reply(reply.loadable));
 
                 if (requirePrepare()) {
-                    Handler handler = new Handler(Looper.getMainLooper());
                     new Thread(() -> {
                         prepare(call, reply, replyResponse);
                         handler.post(() -> {
@@ -299,10 +281,5 @@ public class Chan55 extends CommonSite {
         setApi(new VichanApi(this));
 
         setParser(new VichanCommentParser());
-    }
-
-    @Override
-    public BoardsType boardsType() {
-        return BoardsType.STATIC;
     }
 }
