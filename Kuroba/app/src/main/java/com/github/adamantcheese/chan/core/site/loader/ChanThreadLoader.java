@@ -311,60 +311,57 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
             // If saved thread was not found or it has no posts (deserialization error) switch to
             // the error route
-            if (chanThread == null || chanThread.posts.isEmpty()) {
-                onErrorResponse(new VolleyError("Could not load saved thread"));
-                return false;
-            }
+            if (chanThread != null && !chanThread.posts.isEmpty()) {
+                // Update SavedThread info in the database and in the watchManager.
+                // Set isFullyDownloaded and isStopped to true so we can stop downloading it and stop
+                // showing the download thread animated icon.
+                AndroidUtils.runOnUiThread(() -> {
+                    WatchManager watchManager = Chan.injector().instance(WatchManager.class);
+                    SavedThread savedThread = watchManager.findSavedThreadByLoadableId(chanThread.loadable.id);
+                    if (savedThread != null && !savedThread.isFullyDownloaded) {
+                        savedThread.isFullyDownloaded = true;
+                        savedThread.isStopped = true;
 
-            // Update SavedThread info in the database and in the watchManager.
-            // Set isFullyDownloaded and isStopped to true so we can stop downloading it and stop
-            // showing the download thread animated icon.
-            AndroidUtils.runOnUiThread(() -> {
-                WatchManager watchManager = Chan.injector().instance(WatchManager.class);
-                SavedThread savedThread = watchManager.findSavedThreadByLoadableId(chanThread.loadable.id);
-                if (savedThread != null && !savedThread.isFullyDownloaded) {
-                    savedThread.isFullyDownloaded = true;
-                    savedThread.isStopped = true;
+                        watchManager.createOrUpdateSavedThread(savedThread);
 
-                    watchManager.createOrUpdateSavedThread(savedThread);
+                        Pin pin = watchManager.findPinByLoadableId(savedThread.loadableId);
+                        if (pin != null) {
+                            // Trigger the drawer to be updated so the downloading icon is updated as well
+                            watchManager.updatePin(pin);
+                        }
 
-                    Pin pin = watchManager.findPinByLoadableId(savedThread.loadableId);
-                    if (pin != null) {
-                        // Trigger the drawer to be updated so the downloading icon is updated as well
-                        watchManager.updatePin(pin);
+                        databaseManager.runTask(() -> {
+                            databaseManager.getDatabaseSavedThreadManager().updateThreadStoppedFlagByLoadableId(
+                                    savedThread.loadableId,
+                                    true).call();
+                            databaseManager.getDatabaseSavedThreadManager().updateThreadFullyDownloadedByLoadableId(
+                                    savedThread.loadableId).call();
+
+                            return null;
+                        });
                     }
+                });
 
-                    databaseManager.runTask(() -> {
-                        databaseManager.getDatabaseSavedThreadManager().updateThreadStoppedFlagByLoadableId(
-                                savedThread.loadableId,
-                                true).call();
-                        databaseManager.getDatabaseSavedThreadManager().updateThreadFullyDownloadedByLoadableId(
-                                savedThread.loadableId).call();
-
-                        return null;
-                    });
-                }
-            });
-
-            // Otherwise pass it to the response parse method
-            onPreparedResponseInternal(chanThread, response.op.closed, response.op.archived);
-        } else {
-            // Normal thread, not archived/deleted
-            if (response.posts.isEmpty()) {
-                onErrorResponse(new VolleyError("Post size is 0"));
-                return false;
+                // Otherwise pass it to the response parse method
+                onPreparedResponseInternal(chanThread, response.op.closed, response.op.archived);
+                return true;
             }
-
-            if (thread == null) {
-                thread = new ChanThread(loadable, new ArrayList<>());
-            }
-
-            thread.posts.clear();
-            thread.posts.addAll(response.posts);
-
-            onResponseInternalNext(response.op);
         }
 
+        // Normal thread, not archived/deleted
+        if (response.posts.isEmpty()) {
+            onErrorResponse(new VolleyError("Post size is 0"));
+            return false;
+        }
+
+        if (thread == null) {
+            thread = new ChanThread(loadable, new ArrayList<>());
+        }
+
+        thread.posts.clear();
+        thread.posts.addAll(response.posts);
+
+        onResponseInternalNext(response.op);
         return true;
     }
 
@@ -465,21 +462,21 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
             return true;
         })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((result) -> {
-                    if (!result) {
-                        return;
-                    }
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe((result) -> {
+            if (!result) {
+                return;
+            }
 
-                    Logger.i(TAG, "Loading error", error);
-                    clearTimer();
-                    ChanLoaderException loaderException = new ChanLoaderException(error);
+            Logger.i(TAG, "Loading error", error);
+            clearTimer();
+            ChanLoaderException loaderException = new ChanLoaderException(error);
 
-                    for (ChanLoaderCallback l : listeners) {
-                        l.onChanLoaderError(loaderException);
-                    }
-                });
+            for (ChanLoaderCallback l : listeners) {
+                l.onChanLoaderError(loaderException);
+            }
+        });
 
         compositeDisposable.add(disposable);
     }
@@ -495,7 +492,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             if (savedThread != null) {
                 return savedThreadLoaderManager.loadSavedThread(loadable);
             } else {
-                Logger.e(TAG, "Could not file savedThread for loadable " + loadable.toString());
+                Logger.e(TAG, "Could not find savedThread for loadable " + loadable.toString());
             }
         } else {
             Logger.e(TAG, "Could not get current loadable, it's null");

@@ -77,6 +77,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
  * A layout that wraps around a {@link RecyclerView} and a {@link ReplyLayout} to manage showing and replying to posts.
  */
 public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLayoutCallback {
+    private static final String TAG = "ThreadListLayout";
     public static final int MAX_SMOOTH_SCROLL_DISTANCE = 20;
 
     private ReplyLayout reply;
@@ -132,7 +133,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postCellCallback, statusCellCallback);
         recyclerView.setAdapter(postAdapter);
-        if(ChanSettings.shiftPostFormat.get()) {
+        if (ChanSettings.shiftPostFormat.get()) {
             recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_POST, 0);
         }
         recyclerView.addOnScrollListener(scrollListener);

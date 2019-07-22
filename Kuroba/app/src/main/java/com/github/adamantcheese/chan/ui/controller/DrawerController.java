@@ -35,6 +35,7 @@ import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
+import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -135,8 +136,12 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
         ThreadController threadController = getTopThreadController();
         if (threadController != null) {
-            // Try to load saved copy of a thread of pinned thread is archived or has an error flag
-            if (pin.archived || pin.isError) {
+            SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+
+            // Try to load saved copy of a thread if pinned thread has an error flag but only if
+            // we are downloading this thread. Otherwise it will break archived threads that are not
+            // being downloaded
+            if (pin.isError && savedThread != null) {
                 pin.loadable.isSavedCopy = true;
             }
 
