@@ -49,25 +49,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/thread_download_icon"
-            android:layout_width="36dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:padding="4dp"
-            android:src="@drawable/ic_download0"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
         <TextView
             android:id="@+id/watch_count"
-            android:layout_width="36dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="?android:attr/selectableItemBackground"
             android:gravity="center"
             android:singleLine="true"
+            android:minWidth="32dp"
             android:textColor="?text_color_primary"
-            android:textSize="14sp" />
+            android:paddingEnd="8dp"
+            android:paddingStart="4dp"
+            android:textSize="14sp"
+            tools:text="1111/3331"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/thread_download_icon"
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:paddingEnd="8dp"
+            android:paddingStart="4dp"
+            android:src="@drawable/ic_download0"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
     </LinearLayout>
 
