@@ -119,6 +119,7 @@ public class FiltersController extends Controller implements
         navigation.swipeable = false;
         navigation.buildMenu()
                 .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
+                .withItem(R.drawable.ic_help_outline_white_24dp, this::helpClicked)
                 .build();
 
         adapter = new FilterAdapter();
@@ -183,6 +184,25 @@ public class FiltersController extends Controller implements
 
     private void searchClicked(ToolbarMenuItem item) {
         ((ToolbarNavigationController) navigationController).showSearch();
+    }
+
+    private void helpClicked(ToolbarMenuItem item) {
+        final AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle("Help")
+                .setMessage("Enabled filters have priority from top to bottom. Filter precedence for actions is as follows:\n" +
+                        "1) Capcode or sticky\n" +
+                        "2) OP\n" +
+                        "3) Saved replies (your posts)\n" +
+                        "4) Tripcode\n" +
+                        "5) Name\n" +
+                        "6) Comment\n" +
+                        "7) ID\n" +
+                        "8) Subject\n" +
+                        "9) Country Code\n" +
+                        "10) Filename")
+                .setPositiveButton("Close", null)
+                .show();
+        dialog.setCanceledOnTouchOutside(true);
     }
 
     public void showFilterDialog(final Filter filter) {

@@ -33,6 +33,8 @@ import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -395,5 +397,6 @@ public class FilterEngine {
 
         enabledFilters.clear();
         enabledFilters.addAll(enabled);
+        Collections.sort(enabledFilters, (o1, o2) -> o1.order - o2.order);
     }
 }
