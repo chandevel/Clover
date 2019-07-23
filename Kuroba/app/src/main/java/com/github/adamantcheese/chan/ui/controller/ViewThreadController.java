@@ -20,8 +20,11 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.AnimationDrawable;
+import android.graphics.Color;
+import android.graphics.drawable.Animatable2;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
@@ -73,7 +76,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private Drawable downloadIconOutline;
     private Drawable downloadIconFilled;
-    private AnimationDrawable downloadAnimation;
+    private AnimatedVectorDrawable downloadAnimation;
 
     public ViewThreadController(Context context) {
         super(context);
@@ -88,15 +91,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         super.onCreate();
         inject(this);
 
-        downloadAnimation = AnimationUtils.createAnimatedDownloadIcon(
-                context,
-                0xFFFFFFFF);
+        downloadAnimation = AnimationUtils.createAnimatedDownloadIcon(context, Color.WHITE);
 
-        downloadIconOutline = context.getDrawable(R.drawable.ic_download0).mutate();
-        downloadIconOutline.setTint(0xFFFFFFFF);
+        downloadIconOutline = context.getDrawable(R.drawable.ic_download_anim0);
+        downloadIconOutline.setTint(Color.WHITE);
 
-        downloadIconFilled = context.getDrawable(R.drawable.ic_download5).mutate();
-        downloadIconFilled.setTint(0xFFFFFFFF);
+        downloadIconFilled = context.getDrawable(R.drawable.ic_download_anim1);
+        downloadIconFilled.setTint(Color.WHITE);
 
         threadLayout.setPostViewMode(ChanSettings.PostViewMode.LIST);
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
@@ -460,13 +461,29 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         switch (downloadThreadState) {
             case Default:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    downloadAnimation.stop();
+                    downloadAnimation.clearAnimationCallbacks();
+                }
                 menuItem.setImage(downloadIconOutline, animated);
                 break;
             case DownloadInProgress:
                 menuItem.setImage(downloadAnimation, animated);
                 downloadAnimation.start();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    downloadAnimation.registerAnimationCallback(new Animatable2.AnimationCallback() {
+                        @Override
+                        public void onAnimationEnd(Drawable drawable) {
+                            downloadAnimation.start();
+                        }
+                    });
+                }
                 break;
             case FullyDownloaded:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    downloadAnimation.stop();
+                    downloadAnimation.clearAnimationCallbacks();
+                }
                 menuItem.setImage(downloadIconFilled, animated);
                 break;
         }

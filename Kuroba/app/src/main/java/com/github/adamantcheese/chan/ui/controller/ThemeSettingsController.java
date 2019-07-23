@@ -380,7 +380,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
             textView.setBackgroundColor(color.bg);
             boolean lightColor = (Color.red(color.bg) * 0.299f) + (Color.green(color.bg) * 0.587f) + (Color.blue(color.bg) * 0.114f) > 125f;
-            textView.setTextColor(lightColor ? 0xff000000 : 0xffffffff);
+            textView.setTextColor(lightColor ? Color.BLACK : Color.WHITE);
 
             return textView;
         }

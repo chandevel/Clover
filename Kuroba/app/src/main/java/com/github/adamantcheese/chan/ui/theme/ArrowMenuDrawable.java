@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.theme;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -59,7 +60,7 @@ public class ArrowMenuDrawable extends Drawable {
     private Rect badgeTextBounds = new Rect();
 
     public ArrowMenuDrawable() {
-        mPaint.setColor(0xffffffff);
+        mPaint.setColor(Color.WHITE);
         mPaint.setAntiAlias(true);
         mSize = dp(24f);
         mBarSize = dp(18f);
@@ -150,7 +151,7 @@ public class ArrowMenuDrawable extends Drawable {
                 textSize = badgeSize * 0.5f;
             }
 
-            badgePaint.setColor(0xffffffff);
+            badgePaint.setColor(Color.WHITE);
             badgePaint.setTextSize(textSize);
             badgePaint.getTextBounds(badgeText, 0, badgeText.length(), badgeTextBounds);
             canvas.drawText(badgeText, badgeX - badgeTextBounds.right / 2f, badgeY - badgeTextBounds.top / 2f, badgePaint);

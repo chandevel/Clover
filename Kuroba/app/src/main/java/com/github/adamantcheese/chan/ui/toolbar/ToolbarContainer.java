@@ -23,6 +23,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -448,7 +449,7 @@ public class ToolbarContainer extends FrameLayout {
             final TextView titleView = menu.findViewById(R.id.title);
             titleView.setTypeface(theme != null ? theme.mainFont : ThemeHelper.getTheme().mainFont);
             titleView.setText(item.title);
-            titleView.setTextColor(0xffffffff);
+            titleView.setTextColor(Color.WHITE);
 
             // Middle title with arrow and callback
             if (item.middleMenu != null) {
@@ -473,7 +474,7 @@ public class ToolbarContainer extends FrameLayout {
                 titleParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                 titleView.setLayoutParams(titleParams);
                 subtitleView.setText(item.subtitle);
-                subtitleView.setTextColor(0xffffffff);
+                subtitleView.setTextColor(Color.WHITE);
                 titleView.setPadding(titleView.getPaddingLeft(), dp(5f),
                         titleView.getPaddingRight(), titleView.getPaddingBottom());
             } else {

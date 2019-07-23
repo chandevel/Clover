@@ -109,7 +109,7 @@ public class SearchLayout extends LinearLayout {
     }
 
     public void setCatalogSearchColors() {
-        searchView.setTextColor(0xffffffff);
+        searchView.setTextColor(Color.WHITE);
         searchView.setHintTextColor(0x88ffffff);
         clearButton.getDrawable().setTintList(null);
     }

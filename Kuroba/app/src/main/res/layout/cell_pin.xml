@@ -75,7 +75,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             android:layout_margin="4dp"
-            android:src="@drawable/ic_download0"
+            android:src="@drawable/ic_download_anim0"
             android:visibility="gone"
             tools:ignore="RtlHardcoded"
             tools:visibility="visible" />

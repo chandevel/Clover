@@ -19,14 +19,16 @@ package com.github.adamantcheese.chan.ui.adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Animatable2;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.AppCompatImageView;
@@ -41,7 +43,6 @@ import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.PinHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
-import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -90,15 +91,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.context = context;
         setHasStableIds(true);
 
-        Theme currentTheme = ThemeHelper.getTheme();
+        downloadIconOutline = context.getDrawable(R.drawable.ic_download_anim0).mutate();
+        downloadIconOutline.setTint(ThemeHelper.getTheme().textPrimary);
 
-        downloadIconOutline = context.getDrawable(R.drawable.ic_download0)
-                .mutate();
-        downloadIconOutline.setTint(currentTheme.textPrimary);
-
-        downloadIconFilled = context.getDrawable(R.drawable.ic_download5)
-                .mutate();
-        downloadIconFilled.setTint(0xFF808080);
+        downloadIconFilled = context.getDrawable(R.drawable.ic_download_anim1).mutate();
+        downloadIconFilled.setTint(Color.GRAY);
     }
 
     public void setPinHighlighted(Pin highlighted) {
@@ -292,7 +289,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     watchCount.setTextColor(0xff33B5E5);
                 }
 
-                watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);if ((watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) ||
+                watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
+                if ((watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) ||
                         (watchManager.getPinWatcher(pin).getImageCount() >= pin.loadable.board.imageLimit && pin.loadable.board.imageLimit > 0)) {
                     watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
 
@@ -344,22 +342,43 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         holder.threadDownloadIcon.setVisibility(View.VISIBLE);
 
         if (savedThread.isFullyDownloaded) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable) {
+                    AnimatedVectorDrawable drawable = (AnimatedVectorDrawable) holder.threadDownloadIcon.getDrawable();
+                    drawable.stop();
+                    drawable.clearAnimationCallbacks();
+                }
+            }
             holder.threadDownloadIcon.setImageDrawable(downloadIconFilled);
             return;
         }
 
         if (savedThread.isStopped) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable) {
+                    AnimatedVectorDrawable drawable = (AnimatedVectorDrawable) holder.threadDownloadIcon.getDrawable();
+                    drawable.stop();
+                    drawable.clearAnimationCallbacks();
+                }
+            }
             holder.threadDownloadIcon.setImageDrawable(downloadIconOutline);
             return;
         }
 
-        AnimationDrawable downloadAnimation = AnimationUtils.createAnimatedDownloadIconWithThemeTextPrimaryColor(
-                context,
-                ThemeHelper.getTheme());
-        holder.threadDownloadIcon.setImageDrawable(downloadAnimation);
+        if (!(holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable)) {
+            AnimatedVectorDrawable downloadAnimation =
+                    AnimationUtils.createAnimatedDownloadIcon(context, ThemeHelper.getTheme().textPrimary);
+            holder.threadDownloadIcon.setImageDrawable(downloadAnimation);
 
-        if (!downloadAnimation.isRunning()) {
             downloadAnimation.start();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                downloadAnimation.registerAnimationCallback(new Animatable2.AnimationCallback() {
+                    @Override
+                    public void onAnimationEnd(Drawable drawable) {
+                        downloadAnimation.start();
+                    }
+                });
+            }
         }
     }
 
