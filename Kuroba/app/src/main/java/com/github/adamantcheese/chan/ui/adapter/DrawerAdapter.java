@@ -37,6 +37,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
+import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
@@ -290,8 +291,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
 
                 watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
-                if ((watchManager.getPinWatcher(pin).getReplyCount() >= pin.loadable.board.bumpLimit && pin.loadable.board.bumpLimit > 0) ||
-                        (watchManager.getPinWatcher(pin).getImageCount() >= pin.loadable.board.imageLimit && pin.loadable.board.imageLimit > 0)) {
+                WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
+                Board pinBoard = pin.loadable.board;
+                if ((pinWatcher.getReplyCount() >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) ||
+                        (pinWatcher.getImageCount() >= pinBoard.imageLimit && pinBoard.imageLimit > 0) ||
+                        (pinWatcher.latestKnownPage >= pinBoard.pages && pinBoard.pages > 0)) {
                     watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
 
                 }

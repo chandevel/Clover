@@ -105,15 +105,15 @@ public class WatchManager implements WakeManager.Wakeable {
     private Handler handler;
     /**
      * When all pins have flag WatchNewPosts use short interval
-     * */
+     */
     private static final long FOREGROUND_INTERVAL_ONLY_WATCHES = 15 * 1000;
     /**
      * When we have pins of both types use mixed interval
-     * */
+     */
     private static final long FOREGROUND_INTERVAL_MIXED = 60 * 1000;
     /**
      * When all pins have flag DownloadNewPosts use long interval
-     * */
+     */
     private static final long FOREGROUND_INTERVAL_ONLY_DOWNLOADS = 180 * 1000;
     private static final int MESSAGE_UPDATE = 1;
 
@@ -745,7 +745,7 @@ public class WatchManager implements WakeManager.Wakeable {
      * This method is getting called every time a user changes their watcher settings (watcher enabled and
      * background watcher enabled). isEnabled is true when both watchEnabled and backgroundEnabled are
      * true
-     * */
+     */
     private void switchIncrementalThreadDownloadingState(boolean isEnabled) {
         if (prevIncrementalThreadSavingEnabled == isEnabled) {
             return;
@@ -816,7 +816,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
     /**
      * This method figures out what kind of foreground interval we should use.
-     * */
+     */
     private long getInterval() {
         boolean hasAtLeastOneWatchNewPostsPin = false;
         boolean hasAtLeastOneDownloadNewPostsPin = false;
@@ -908,6 +908,7 @@ public class WatchManager implements WakeManager.Wakeable {
         private boolean wereNewQuotes = false;
         private boolean wereNewPosts = false;
         private boolean notified = true;
+        public int latestKnownPage = -1;
 
         public PinWatcher(Pin pin) {
             this.pin = pin;
@@ -983,6 +984,7 @@ public class WatchManager implements WakeManager.Wakeable {
                 //check last page stuff, get the page for the OP and notify in the onPages method
                 Chan4PagesRequest.Page page = pageRequestManager.getPage(chanLoader.getLoadable());
                 if (page != null) {
+                    latestKnownPage = page.page;
                     doPageNotification(page);
                 }
                 if (fromBackground) {
@@ -1111,6 +1113,7 @@ public class WatchManager implements WakeManager.Wakeable {
         public void onPagesReceived() {
             //this call will return the proper value now, but if it returns null just skip everything
             Chan4PagesRequest.Page p = pageRequestManager.getPage(chanLoader.getLoadable());
+            latestKnownPage = p.page;
             doPageNotification(p);
         }
 
