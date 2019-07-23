@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.repository;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -40,6 +41,7 @@ import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
+import com.j256.ormlite.support.ConnectionSource;
 
 import java.io.File;
 import java.io.FileReader;
@@ -193,12 +195,11 @@ public class ImportExportRepository {
             );
         }
 
-        databaseHelper.siteDao.deleteBuilder().delete();
-        databaseHelper.loadableDao.deleteBuilder().delete();
-        databaseHelper.pinDao.deleteBuilder().delete();
-        databaseHelper.boardsDao.deleteBuilder().delete();
-        databaseHelper.filterDao.deleteBuilder().delete();
-        databaseHelper.postHideDao.deleteBuilder().delete();
+        // recreate tables from scratch, because we need to reset database IDs as well
+        try (ConnectionSource cs = databaseHelper.getConnectionSource()) {
+            databaseHelper.dropTables(cs);
+            databaseHelper.createTables(cs);
+        }
 
         for (ExportedBoard exportedBoard : appSettings.getExportedBoards()) {
             assert exportedBoard.getDescription() != null;
@@ -239,6 +240,8 @@ public class ImportExportRepository {
                     exportedSite.getOrder()
             ));
 
+            List<ExportedSavedThread> exportedSavedThreads = appSettings.getExportedSavedThreads();
+
             for (ExportedPin exportedPin : exportedSite.getExportedPins()) {
                 ExportedLoadable exportedLoadable = exportedPin.getExportedLoadable();
                 if (exportedLoadable == null) {
@@ -246,7 +249,6 @@ public class ImportExportRepository {
                 }
 
                 Loadable loadable = Loadable.importLoadable(
-                        (int) exportedLoadable.getLoadableId(),
                         inserted.id,
                         exportedLoadable.getMode(),
                         exportedLoadable.getBoardCode(),
@@ -258,10 +260,29 @@ public class ImportExportRepository {
                         exportedLoadable.getLastLoaded()
                 );
 
-                databaseHelper.loadableDao.createIfNotExists(loadable);
+                Loadable insertedLoadable = databaseHelper.loadableDao.createIfNotExists(loadable);
+                ExportedSavedThread exportedSavedThread = findSavedThreadByOldLoadableId(
+                        exportedSavedThreads,
+                        (int) exportedLoadable.getLoadableId());
+
+                // ExportedSavedThreads may have their loadable ids noncontiguous. Like 1,3,4,5,21,152.
+                // SQLite does not like it and will be returning to us contiguous ids ignoring our ids.
+                // This will create a situation where savedThread.loadableId may not have a loadable.
+                // So we need to fix this by finding a saved thread by old loadable id and updating
+                // it's loadable id with the newly inserted id.
+                if (exportedSavedThread != null) {
+                    exportedSavedThread.loadableId = insertedLoadable.id;
+
+                    databaseHelper.savedThreadDao.createIfNotExists(new SavedThread(
+                            exportedSavedThread.isFullyDownloaded,
+                            exportedSavedThread.isStopped,
+                            exportedSavedThread.lastSavedPostNo,
+                            exportedSavedThread.loadableId
+                    ));
+                }
 
                 Pin pin = new Pin(
-                        loadable,
+                        insertedLoadable,
                         exportedPin.isWatching(),
                         exportedPin.getWatchLastCount(),
                         exportedPin.getWatchNewCount(),
@@ -301,16 +322,20 @@ public class ImportExportRepository {
             ));
         }
 
-        for (ExportedSavedThread exportedSavedThread : appSettings.getExportedSavedThreads()) {
-            databaseHelper.savedThreadDao.createIfNotExists(new SavedThread(
-                    exportedSavedThread.isFullyDownloaded,
-                    exportedSavedThread.isStopped,
-                    exportedSavedThread.lastSavedPostNo,
-                    exportedSavedThread.loadableId
-            ));
+        ChanSettings.deserializeFromString(appSettingsParam.getSettings());
+    }
+
+    @Nullable
+    private ExportedSavedThread findSavedThreadByOldLoadableId(
+            List<ExportedSavedThread> exportedSavedThreads,
+            int oldLoadableId) {
+        for (ExportedSavedThread exportedSavedThread : exportedSavedThreads) {
+            if (exportedSavedThread.loadableId == oldLoadableId) {
+                return exportedSavedThread;
+            }
         }
 
-        ChanSettings.deserializeFromString(appSettingsParam.getSettings());
+        return null;
     }
 
     private ExportedAppSettings onUpgrade(int version, ExportedAppSettings appSettings) {
@@ -385,7 +410,7 @@ public class ImportExportRepository {
                     pin.archived,
                     pin.id,
                     pin.isError,
-                    pin.loadable.id,
+                    loadable.id,
                     pin.order,
                     pin.quoteLastCount,
                     pin.quoteNewCount,
