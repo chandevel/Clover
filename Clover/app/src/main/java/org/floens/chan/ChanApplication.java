@@ -33,7 +33,7 @@ public class ChanApplication extends Chan {
 
         initialize();
 
-        if (!ChanBuild.DEVELOPER_MODE && ChanSettings.isCrashReportingEnabled()) {
+        if (!BuildConfig.DEVELOPER_MODE && ChanSettings.isCrashReportingEnabled()) {
             Sentry.init(
                     BuildConfig.CRASH_REPORT_TOKEN +
                             "?release=" + BuildConfig.VERSION_NAME +

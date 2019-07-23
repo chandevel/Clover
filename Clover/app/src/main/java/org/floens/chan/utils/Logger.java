@@ -19,14 +19,14 @@ package org.floens.chan.utils;
 
 import android.util.Log;
 
-import org.floens.chan.ChanBuild;
+import org.floens.chan.BuildConfig;
 
 public class Logger {
     private static final String TAG = "Clover";
     private static final String TAG_SPACER = " | ";
 
     public static boolean debugEnabled() {
-        return ChanBuild.DEVELOPER_MODE;
+        return BuildConfig.DEVELOPER_MODE;
     }
 
     public static void v(String tag, String message) {

@@ -139,11 +139,13 @@ android {
             }
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+            buildConfigField "boolean", "DEVELOPER_MODE", "false"
         }
 
         debug {
 //            minifyEnabled true
 //            proguardFiles 'proguard.cfg'
+            buildConfigField "boolean", "DEVELOPER_MODE", "true"
         }
     }
 }
