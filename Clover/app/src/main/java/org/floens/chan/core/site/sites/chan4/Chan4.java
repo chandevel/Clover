@@ -40,6 +40,7 @@ import org.floens.chan.core.site.SiteRequestModifier;
 import org.floens.chan.core.site.SiteSetting;
 import org.floens.chan.core.site.SiteUrlHandler;
 import org.floens.chan.core.site.common.CommonReplyHttpCall;
+import org.floens.chan.core.site.common.DefaultPostParser;
 import org.floens.chan.core.site.common.FutabaChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
@@ -47,6 +48,7 @@ import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.parser.ChanReader;
+import org.floens.chan.core.site.parser.CommentParser;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
@@ -77,7 +79,9 @@ public class Chan4 extends SiteBase {
         public boolean respondsTo(HttpUrl url) {
             return url.host().equals("4chan.org") ||
                     url.host().equals("www.4chan.org") ||
-                    url.host().equals("boards.4chan.org");
+                    url.host().equals("boards.4chan.org") ||
+                    url.host().equals("www.4channel.org") ||
+                    url.host().equals("boards.4channel.org");
         }
 
         @Override
@@ -562,7 +566,15 @@ public class Chan4 extends SiteBase {
 
     @Override
     public ChanReader chanReader() {
-        return new FutabaChanReader();
+        CommentParser commentParser = new CommentParser();
+        commentParser.addDefaultRules();
+        commentParser.addInternalDomain("4chan.org");
+        commentParser.addInternalDomain("www.4chan.org");
+        commentParser.addInternalDomain("boards.4chan.org");
+        commentParser.addInternalDomain("4channel.org");
+        commentParser.addInternalDomain("www.4channel.org");
+        commentParser.addInternalDomain("boards.4channel.org");
+        return new FutabaChanReader(new DefaultPostParser(commentParser));
     }
 
     @Override
