@@ -55,7 +55,7 @@ public class Chan8 extends CommonSite {
     @Override
     public void setup() {
         setName("8chan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://8ch.net/favicon.ico")));
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://8ch.net/static/favicon.ico")));
         setBoardsType(BoardsType.INFINITE);
 
         setResolvable(URL_HANDLER);
