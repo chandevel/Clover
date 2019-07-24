@@ -27,8 +27,11 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
@@ -77,6 +80,7 @@ import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ImageViewerController extends Controller implements ImageViewerPresenter.Callback,
@@ -606,12 +610,24 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                View.SYSTEM_UI_FLAG_IMMERSIVE
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
+
+        decorView.setOnSystemUiVisibilityChangeListener(visibility -> {
+            if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                showSystemUI();
+                new Handler(Looper.getMainLooper()).postDelayed(this::hideSystemUI, 2500);
+            }
+        });
+
+        //setting this to 0 because View.GONE doesn't seem to work?
+        ViewGroup.LayoutParams params = navigationController.getToolbar().getLayoutParams();
+        params.height = 0;
+        navigationController.getToolbar().setLayoutParams(params);
     }
 
     private void showSystemUI() {
@@ -626,7 +642,13 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         isInImmersiveMode = false;
 
         View decorView = getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener(null);
         decorView.setSystemUiVisibility(0);
+
+        //setting this to the toolbar height because View.VISIBLE doesn't seem to work?
+        ViewGroup.LayoutParams params = navigationController.getToolbar().getLayoutParams();
+        params.height = getDimen(context, R.dimen.toolbar_height);
+        navigationController.getToolbar().setLayoutParams(params);
     }
 
     public interface ImageViewerCallback {
