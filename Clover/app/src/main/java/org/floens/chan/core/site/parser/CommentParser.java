@@ -53,6 +53,7 @@ public class CommentParser {
     private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
 
     private Map<String, List<StyleRule>> rules = new HashMap<>();
+    private List<String> internalDomains = new ArrayList<>(0);
 
     public CommentParser() {
         // Required tags.
@@ -99,6 +100,10 @@ public class CommentParser {
 
     public void setFullQuotePattern(Pattern fullQuotePattern) {
         this.fullQuotePattern = fullQuotePattern;
+    }
+
+    public void addInternalDomain(String domain) {
+        this.internalDomains.add(domain);
     }
 
     public CharSequence handleTag(PostParser.Callback callback,
@@ -233,11 +238,29 @@ public class CommentParser {
 
     public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback) {
         String href = anchor.attr("href");
+        // For inner links we handle it as relative (for sites that have multiple domains).
+        String path = "";
+        if (href.startsWith("//") || href.startsWith("http://") || href.startsWith("https://")) {
+            int offset = href.startsWith("//") ? 2 : (href.startsWith("http://") ? 7 : 8);
+
+            String domain = href.substring(Math.min(href.length(), offset),
+                    Math.min(href.length(), href.indexOf('/', offset)));
+            // Whitelisting domains is optional.
+            // If you don't specify it it will purely use the quote patterns to match.
+            if (internalDomains.isEmpty() || internalDomains.contains(domain)) {
+                int pathStart = href.indexOf('/', offset);
+                if (pathStart >= 0) {
+                    path = href.substring(pathStart);
+                }
+            }
+        } else {
+            path = href;
+        }
 
         PostLinkable.Type t;
         Object value;
 
-        Matcher externalMatcher = fullQuotePattern.matcher(href);
+        Matcher externalMatcher = fullQuotePattern.matcher(path);
         if (externalMatcher.matches()) {
             String board = externalMatcher.group(1);
             int threadId = Integer.parseInt(externalMatcher.group(2));
@@ -251,12 +274,12 @@ public class CommentParser {
                 value = new PostLinkable.ThreadLink(board, threadId, postId);
             }
         } else {
-            Matcher quoteMatcher = quotePattern.matcher(href);
+            Matcher quoteMatcher = quotePattern.matcher(path);
             if (quoteMatcher.matches()) {
                 t = PostLinkable.Type.QUOTE;
                 value = Integer.parseInt(quoteMatcher.group(1));
             } else {
-                // normal link
+                // normal link, use original href
                 t = PostLinkable.Type.LINK;
                 value = href;
             }

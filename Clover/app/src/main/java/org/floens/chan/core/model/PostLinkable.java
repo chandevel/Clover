@@ -31,6 +31,7 @@ import org.floens.chan.ui.theme.Theme;
  * PostCell has a {@link PostCell.PostViewMovementMethod}, that searches spans at the location the TextView was tapped,
  * and handled if it was a PostLinkable.
  */
+@SuppressWarnings("JavadocReference")
 public class PostLinkable extends ClickableSpan {
     public enum Type {
         QUOTE, LINK, SPOILER, THREAD
