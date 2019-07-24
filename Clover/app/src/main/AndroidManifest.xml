@@ -77,6 +77,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <data android:host="4chan.org" />
                 <data android:host="www.4chan.org" />
                 <data android:host="boards.4chan.org" />
+                <data android:host="www.4channel.org" />
+                <data android:host="boards.4channel.org" />
                 <data android:host="8ch.net" />
             </intent-filter>
 
