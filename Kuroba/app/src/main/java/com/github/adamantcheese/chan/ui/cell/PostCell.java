@@ -433,7 +433,11 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             comment.setTypeface(ChanSettings.fontAlternate.get() ? Typeface.DEFAULT : theme.altFont);
         }
 
-        comment.setVisibility(isEmpty(commentText) ? GONE : VISIBLE);
+        if (ChanSettings.shiftPostFormat.get()) {
+            comment.setVisibility(isEmpty(commentText) ? GONE : VISIBLE);
+        } else {
+            comment.setVisibility(isEmpty(commentText) && post.images == null ? GONE : VISIBLE);
+        }
 
         if (threadMode) {
             if (selectable) {
