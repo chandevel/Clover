@@ -260,6 +260,11 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
+    public boolean threadBackPressed() {
+        return callback.threadBackPressed();
+    }
+
+    @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
         if (thread.loadable.isSavedCopy) {
             hideReplyButton();
@@ -725,12 +730,12 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void presentRepliesController(Controller controller) {
-        callback.presentRepliesController(controller);
+        callback.presentController(controller);
     }
 
     @Override
-    public void presentController(Controller controller) {
-        callback.presentImageReencodingController(controller);
+    public void presentReencodeOptionsController(Controller controller) {
+        callback.presentController(controller);
     }
 
     @Override
@@ -739,7 +744,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     public void presentRemovedPostsController(Controller controller) {
-        callback.presenterRemovedPostsController(controller);
+        callback.presentController(controller);
     }
 
     @Override
@@ -787,13 +792,7 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         void onShowPosts(Loadable loadable);
 
-        void presentRepliesController(Controller controller);
-
-        void presentImageReencodingController(Controller controller);
-
-        void presentLoadingViewController(Controller controller);
-
-        void presenterRemovedPostsController(Controller controller);
+        void presentController(Controller controller);
 
         void openReportController(Post post);
 
@@ -804,5 +803,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         boolean shouldToolbarCollapse();
 
         void openFilterForTripcode(String tripcode);
+
+        boolean threadBackPressed();
     }
 }

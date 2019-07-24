@@ -118,6 +118,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     private String searchQuery;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded;
+    private boolean addToLocalBackHistory;
     private Context context;
 
     @Inject
@@ -141,7 +142,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         threadPresenterCallback.showEmpty();
     }
 
-    public void bindLoadable(Loadable loadable) {
+    public void bindLoadable(Loadable loadable, boolean addToLocalBackHistory) {
         if (!loadable.equals(this.loadable)) {
             if (this.loadable != null) {
                 stopSavingThreadIfItIsBeingSaved(this.loadable);
@@ -161,11 +162,16 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             }
 
             this.loadable = loadable;
+            this.addToLocalBackHistory = addToLocalBackHistory;
 
             startSavingThreadIfItIsNotBeingSaved(this.loadable);
             chanLoader = chanLoaderFactory.obtain(loadable, this);
             threadPresenterCallback.showLoading();
         }
+    }
+
+    public void bindLoadable(Loadable loadable) {
+        bindLoadable(loadable, true);
     }
 
     public void unbindLoadable() {
@@ -175,6 +181,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             chanLoader = null;
             loadable = null;
             historyAdded = false;
+            addToLocalBackHistory = true;
 
             threadPresenterCallback.showNewPostsNotification(false, -1);
             threadPresenterCallback.showLoading();
@@ -1112,8 +1119,9 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     private void addHistory() {
-        if (chanLoader != null &&
-                !historyAdded
+        if (chanLoader != null
+                && !historyAdded
+                && addToLocalBackHistory
                 && ChanSettings.historyEnabled.get()
                 && loadable.isThreadMode()
                 // Do not attempt to add a saved thread to the history

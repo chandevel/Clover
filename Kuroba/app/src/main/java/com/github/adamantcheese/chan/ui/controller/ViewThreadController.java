@@ -57,6 +57,9 @@ import com.github.adamantcheese.chan.utils.AnimationUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
@@ -73,6 +76,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private boolean pinItemPinned = false;
     private ThreadPresenter.DownloadThreadState prevState = ThreadPresenter.DownloadThreadState.Default;
     private Loadable loadable;
+
+    private Deque<Loadable> threadFollowerpool = new ArrayDeque<>();
 
     private Drawable downloadIconOutline;
     private Drawable downloadIconFilled;
@@ -282,7 +287,12 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void showThread(final Loadable threadLoadable) {
         new AlertDialog.Builder(context)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.ok, (dialog, which) -> loadThread(threadLoadable))
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    if (loadable.isThreadMode()) {
+                        threadFollowerpool.addFirst(loadable);
+                    }
+                    loadThread(threadLoadable);
+                })
                 .setTitle(R.string.open_thread_confirmation)
                 .setMessage("/" + threadLoadable.boardCode + "/" + threadLoadable.no)
                 .show();
@@ -340,10 +350,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         }
     }
 
-    public void loadThread(Loadable loadable) {
+    public void loadThread(Loadable loadable, boolean addToLocalBackHistory) {
         ThreadPresenter presenter = threadLayout.getPresenter();
         if (!loadable.equals(presenter.getLoadable())) {
-            presenter.bindLoadable(loadable);
+            presenter.bindLoadable(loadable, addToLocalBackHistory);
             this.loadable = presenter.getLoadable();
             navigation.title = loadable.title;
             ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
@@ -357,6 +367,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
             showHints();
         }
+    }
+
+    public void loadThread(Loadable loadable) {
+        loadThread(loadable, true);
     }
 
     private void showHints() {
@@ -516,5 +530,15 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         String link = loadable.site.resolvable().desktopUrl(loadable, tempOP);
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
         AndroidUtils.openLinkInBrowser((Activity) context, link);
+    }
+
+    @Override
+    public boolean threadBackPressed() {
+        if (threadFollowerpool.isEmpty()) {
+            return false;
+        }
+        Loadable threadLoadable = threadFollowerpool.removeFirst();
+        loadThread(threadLoadable, false);
+        return true;
     }
 }

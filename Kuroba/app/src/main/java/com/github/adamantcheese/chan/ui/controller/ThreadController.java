@@ -168,25 +168,6 @@ public abstract class ThreadController extends Controller implements
         return message;
     }
 
-    public void presentRepliesController(Controller controller) {
-        presentController(controller);
-    }
-
-    @Override
-    public void presentImageReencodingController(Controller controller) {
-        presentController(controller);
-    }
-
-    @Override
-    public void presentLoadingViewController(Controller controller) {
-        presentController(controller);
-    }
-
-    @Override
-    public void presenterRemovedPostsController(Controller controller) {
-        presentController(controller);
-    }
-
     @Override
     public void openReportController(final Post post) {
         navigationController.pushController(new ReportController(context, post));
@@ -285,5 +266,10 @@ public abstract class ThreadController extends Controller implements
     @Override
     public void onSlideChanged() {
         threadLayout.gainedFocus();
+    }
+
+    @Override
+    public boolean threadBackPressed() {
+        return false;
     }
 }

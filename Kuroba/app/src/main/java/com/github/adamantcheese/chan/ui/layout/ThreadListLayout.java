@@ -310,7 +310,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             openReply(false);
             return true;
         } else {
-            return false;
+            return threadListLayoutCallback.threadBackPressed();
         }
     }
 
@@ -774,5 +774,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         boolean shouldToolbarCollapse();
 
         void showImageReencodingWindow();
+
+        boolean threadBackPressed();
     }
 }

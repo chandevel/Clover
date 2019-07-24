@@ -40,7 +40,7 @@ public class ImageOptionsHelper implements
                 lastImageOptions = null;
             }
             imageOptionsController = new ImageOptionsController(context, this, this, loadable, lastImageOptions);
-            callbacks.presentController(imageOptionsController);
+            callbacks.presentReencodeOptionsController(imageOptionsController);
         }
     }
 
@@ -63,7 +63,7 @@ public class ImageOptionsHelper implements
         if (imageReencodeOptionsController == null && imageFormat != null && dims != null) {
             imageReencodeOptionsController = new ImageReencodeOptionsController(context, this, this, imageFormat,
                     dims, lastImageOptions != null ? lastImageOptions.getReencodeSettings() : null);
-            callbacks.presentController(imageReencodeOptionsController);
+            callbacks.presentReencodeOptionsController(imageReencodeOptionsController);
         } else {
             Toast.makeText(context, context.getString(R.string.image_reencode_format_error), Toast.LENGTH_LONG).show();
         }
@@ -97,7 +97,7 @@ public class ImageOptionsHelper implements
     }
 
     public interface ImageReencodingHelperCallback {
-        void presentController(Controller controller);
+        void presentReencodeOptionsController(Controller controller);
 
         void onImageOptionsApplied(Reply reply);
     }
