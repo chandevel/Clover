@@ -244,7 +244,7 @@ public class CommentParser {
             int offset = href.startsWith("//") ? 2 : (href.startsWith("http://") ? 7 : 8);
 
             String domain = href.substring(Math.min(href.length(), offset),
-                    Math.min(href.length(), href.indexOf('/', offset)));
+                    Math.min(href.length(), Math.max(offset, href.indexOf('/', offset))));
             // Whitelisting domains is optional.
             // If you don't specify it it will purely use the quote patterns to match.
             if (internalDomains.isEmpty() || internalDomains.contains(domain)) {
