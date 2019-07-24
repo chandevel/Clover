@@ -44,6 +44,7 @@ android {
     buildToolsVersion '28.0.3'
 
     defaultConfig {
+        applicationId "org.floens.chan"
         minSdkVersion 15
         targetSdkVersion 28
 
@@ -70,10 +71,10 @@ android {
     keyPass=pass
     */
 
-    def hash = getCommitHash();
+    def hash = getCommitHash()
 
     File f = file('keys.properties')
-    boolean doSign = f.exists();
+    boolean doSign = f.exists()
 
     if (doSign) {
         Properties props = new Properties()
@@ -102,7 +103,6 @@ android {
         // the flavor name is appended to the name in the settings.
         "default" {
             dimension "default"
-            applicationId "org.floens.chan"
             resValue "string", "app_name", "Clover"
             resValue "string", "app_flavor_name", ""
             buildConfigField "String", "BUILD_HASH", "\"$hash\""
@@ -112,7 +112,7 @@ android {
 
         dev {
             dimension "default"
-            applicationId "org.floens.chan.dev"
+            applicationIdSuffix ".dev"
             resValue "string", "app_name", "Clover dev"
             resValue "string", "app_flavor_name", ""
             buildConfigField "String", "BUILD_HASH", "\"$hash\""
@@ -124,7 +124,6 @@ android {
 
         fdroid {
             dimension "default"
-            applicationId "org.floens.chan"
             resValue "string", "app_name", "Clover"
             resValue "string", "app_flavor_name", "F-Droid"
             buildConfigField "String", "BUILD_HASH", "\"$hash\""
@@ -140,11 +139,13 @@ android {
             }
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+            buildConfigField "boolean", "DEVELOPER_MODE", "false"
         }
 
         debug {
 //            minifyEnabled true
 //            proguardFiles 'proguard.cfg'
+            buildConfigField "boolean", "DEVELOPER_MODE", "true"
         }
     }
 }

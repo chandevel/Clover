@@ -107,7 +107,7 @@ public class Chan extends Application implements UserAgentProvider, Application.
         Time.endTiming("Initializing application", startTime);
 
         // Start watching for slow disk reads and writes after the heavy initializing is done
-        if (ChanBuild.DEVELOPER_MODE) {
+        if (BuildConfig.DEVELOPER_MODE) {
             StrictMode.setThreadPolicy(
                     new StrictMode.ThreadPolicy.Builder()
                             .detectCustomSlowCalls()
