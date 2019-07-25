@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.ui.captcha;
+package org.floens.chan.ui.captcha.v1;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,6 +32,8 @@ import android.webkit.WebViewClient;
 
 import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
+import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
@@ -48,7 +50,7 @@ import okhttp3.ResponseBody;
  * It directly loads the captcha2 fallback url into a webview, and on each requests it executes
  * some javascript that will tell the callback if the token is there.
  */
-public class CaptchaNojsLayout extends WebView implements AuthenticationLayoutInterface {
+public class CaptchaNojsLayoutV1 extends WebView implements AuthenticationLayoutInterface {
     private static final String TAG = "CaptchaNojsLayout";
 
     private AuthenticationLayoutCallback callback;
@@ -59,15 +61,15 @@ public class CaptchaNojsLayout extends WebView implements AuthenticationLayoutIn
 
     private String webviewUserAgent;
 
-    public CaptchaNojsLayout(Context context) {
+    public CaptchaNojsLayoutV1(Context context) {
         super(context);
     }
 
-    public CaptchaNojsLayout(Context context, AttributeSet attrs) {
+    public CaptchaNojsLayoutV1(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public CaptchaNojsLayout(Context context, AttributeSet attrs, int defStyle) {
+    public CaptchaNojsLayoutV1(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
@@ -114,7 +116,7 @@ public class CaptchaNojsLayout extends WebView implements AuthenticationLayoutIn
                     return false;
                 }
 
-                if (host.equals(Uri.parse(CaptchaNojsLayout.this.baseUrl).getHost())) {
+                if (host.equals(Uri.parse(CaptchaNojsLayoutV1.this.baseUrl).getHost())) {
                     return false;
                 } else {
                     AndroidUtils.openLink(url);
@@ -172,9 +174,9 @@ public class CaptchaNojsLayout extends WebView implements AuthenticationLayoutIn
     }
 
     public static class CaptchaInterface {
-        private final CaptchaNojsLayout layout;
+        private final CaptchaNojsLayoutV1 layout;
 
-        public CaptchaInterface(CaptchaNojsLayout layout) {
+        public CaptchaInterface(CaptchaNojsLayoutV1 layout) {
             this.layout = layout;
         }
 

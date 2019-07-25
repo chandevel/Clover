@@ -39,6 +39,7 @@ import static org.floens.chan.Chan.injector;
 
 public class BehaviourSettingsController extends SettingsController {
     private SettingView forceEnglishSetting;
+    private SettingView useNewCaptchaWindow;
 
     public BehaviourSettingsController(Context context) {
         super(context);
@@ -47,14 +48,10 @@ public class BehaviourSettingsController extends SettingsController {
     @Override
     public void onCreate() {
         super.onCreate();
-
         navigation.setTitle(R.string.settings_screen_behavior);
 
         setupLayout();
-
-        populatePreferences();
-
-        buildPreferences();
+        rebuildPreferences();
     }
 
     @Override
@@ -63,10 +60,33 @@ public class BehaviourSettingsController extends SettingsController {
         if (item == forceEnglishSetting) {
             Toast.makeText(context, R.string.setting_force_english_locale_toggle_notice,
                     Toast.LENGTH_LONG).show();
+        } else if (item == useNewCaptchaWindow) {
+            // when user disables the new captcha window also disable the usage of the google cookies
+            if (!ChanSettings.useNewCaptchaWindow.get()) {
+                ChanSettings.useRealGoogleCookies.set(false);
+
+                // Reset the old google cookie
+                ChanSettings.googleCookie.set("");
+
+                // and cookie update time as well
+                ChanSettings.lastGoogleCookieUpdateTime.set(0L);
+            }
+
+            rebuildPreferences();
         }
     }
 
+    private void rebuildPreferences() {
+        populatePreferences();
+        buildPreferences();
+    }
+
     private void populatePreferences() {
+        requiresUiRefresh.clear();
+        groups.clear();
+        requiresRestart.clear();
+
+
         // General group
         {
             SettingsGroup general = new SettingsGroup(R.string.settings_group_general);
@@ -150,6 +170,25 @@ public class BehaviourSettingsController extends SettingsController {
                     R.string.setting_open_link_browser, 0));
 
             groups.add(post);
+        }
+
+        // Captcha group
+        {
+            SettingsGroup captcha = new SettingsGroup(R.string.settings_captcha_group);
+
+            useNewCaptchaWindow = captcha.add(new BooleanSettingView(this,
+                    ChanSettings.useNewCaptchaWindow,
+                    R.string.settings_use_new_captcha_window,
+                    0));
+
+            if (ChanSettings.useNewCaptchaWindow.get()) {
+                captcha.add(new BooleanSettingView(this,
+                        ChanSettings.useRealGoogleCookies,
+                        R.string.settings_use_real_google_cookies,
+                        R.string.settings_use_real_google_cookies_description));
+            }
+
+            groups.add(captcha);
         }
 
         // Proxy group

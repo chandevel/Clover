@@ -140,6 +140,8 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     protected void buildPreferences() {
         LayoutInflater inf = LayoutInflater.from(context);
         boolean firstGroup = true;
+        content.removeAllViews();
+
         for (SettingsGroup group : groups) {
             LinearLayout groupLayout = (LinearLayout) inf.inflate(R.layout.setting_group, content, false);
             ((TextView) groupLayout.findViewById(R.id.header)).setText(group.name);

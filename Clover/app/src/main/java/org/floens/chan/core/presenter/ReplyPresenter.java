@@ -37,6 +37,7 @@ import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
 import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
+import org.floens.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.utils.Logger;
 
@@ -279,8 +280,20 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout, String challenge, String response) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
-        authenticationLayout.reset();
+
+        // we don't need this to be called for new captcha window.
+        // Otherwise "Request captcha request is already in progress" message will be shown
+        if (!(authenticationLayout instanceof CaptchaNoJsLayoutV2)) {
+            // should this be called here?
+            authenticationLayout.reset();
+        }
+
         makeSubmitCall();
+    }
+
+    @Override
+    public void onFallbackToV1CaptchaView() {
+        callback.onFallbackToV1CaptchaView();
     }
 
     public void onCommentTextChanged(CharSequence text) {
@@ -389,6 +402,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.openSpoiler(false, false);
         callback.openPreview(false, null);
         callback.openPreviewMessage(false, null);
+        callback.destroyCurrentAuthentication();
     }
 
     private void makeSubmitCall() {
@@ -396,8 +410,12 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         switchPage(Page.LOADING, true);
     }
 
-    private void switchPage(Page page, boolean animate) {
-        if (this.page != page) {
+    public void switchPage(Page page, boolean animate) {
+        switchPage(page, animate, ChanSettings.useNewCaptchaWindow.get());
+    }
+
+    public void switchPage(Page page, boolean animate, boolean useV2NoJsCaptcha) {
+        if (!useV2NoJsCaptcha || this.page != page) {
             this.page = page;
             switch (page) {
                 case LOADING:
@@ -409,7 +427,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 case AUTHENTICATION:
                     SiteAuthentication authentication = loadable.site.actions().postAuthenticate();
 
-                    callback.initializeAuthentication(loadable.site, authentication, this);
+                    // cleanup resources tied to the new captcha layout/presenter
+                    callback.destroyCurrentAuthentication();
+                    callback.initializeAuthentication(loadable.site, authentication, this, useV2NoJsCaptcha);
                     callback.setPage(Page.AUTHENTICATION, true);
 
                     break;
@@ -470,8 +490,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         void setPage(Page page, boolean animate);
 
-        void initializeAuthentication(Site site, SiteAuthentication authentication,
-                                      AuthenticationLayoutCallback callback);
+        void initializeAuthentication(Site site,
+                                      SiteAuthentication authentication,
+                                      AuthenticationLayoutCallback callback,
+                                      boolean useV2NoJsCaptcha);
 
         void resetAuthentication();
 
@@ -518,5 +540,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         ChanThread getThread();
 
         void focusComment();
+
+        void onFallbackToV1CaptchaView();
+
+        void destroyCurrentAuthentication();
     }
 }
