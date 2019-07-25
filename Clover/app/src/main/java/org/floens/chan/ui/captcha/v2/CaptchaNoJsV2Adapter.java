@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatImageView;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,6 +65,8 @@ public class CaptchaNoJsV2Adapter extends BaseAdapter {
             imageView.setLayoutParams(layoutParams);
 
             imageView.setOnClickListener((view) -> {
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+
                 imageList.get(position).toggleChecked();
                 boolean isChecked = imageList.get(position).isChecked;
 
