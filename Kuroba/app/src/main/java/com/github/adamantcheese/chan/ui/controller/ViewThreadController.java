@@ -77,7 +77,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private ThreadPresenter.DownloadThreadState prevState = ThreadPresenter.DownloadThreadState.Default;
     private Loadable loadable;
 
-    private Deque<Loadable> threadFollowerpool = new ArrayDeque<>();
+    //pairs of the current thread loadable and the thread we're going to's hashcode
+    private Deque<Pair<Loadable, Integer>> threadFollowerpool = new ArrayDeque<>();
 
     private Drawable downloadIconOutline;
     private Drawable downloadIconFilled;
@@ -288,7 +289,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         new AlertDialog.Builder(context)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    threadFollowerpool.addFirst(loadable);
+                    //clear the pool if the current thread isn't a part of this crosspost chain
+                    //ie a new thread is loaded and a new chain is started; this will never throw null pointer exceptions
+                    //noinspection ConstantConditions
+                    if (!threadFollowerpool.isEmpty() && threadFollowerpool.peekFirst().second != loadable.hashCode()) {
+                        threadFollowerpool.clear();
+                    }
+                    threadFollowerpool.addFirst(new Pair<>(loadable, threadLoadable.hashCode()));
                     loadThread(threadLoadable);
                 })
                 .setTitle(R.string.open_thread_confirmation)
@@ -535,7 +542,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         if (threadFollowerpool.isEmpty()) {
             return false;
         }
-        loadThread(threadFollowerpool.removeFirst(), false);
+        loadThread(threadFollowerpool.removeFirst().first, false);
         return true;
     }
 }
