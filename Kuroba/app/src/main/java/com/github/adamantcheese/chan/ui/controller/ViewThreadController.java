@@ -288,9 +288,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         new AlertDialog.Builder(context)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    if (loadable.isThreadMode()) {
-                        threadFollowerpool.addFirst(loadable);
-                    }
+                    threadFollowerpool.addFirst(loadable);
                     loadThread(threadLoadable);
                 })
                 .setTitle(R.string.open_thread_confirmation)
@@ -537,8 +535,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         if (threadFollowerpool.isEmpty()) {
             return false;
         }
-        Loadable threadLoadable = threadFollowerpool.removeFirst();
-        loadThread(threadLoadable, false);
+        loadThread(threadFollowerpool.removeFirst(), false);
         return true;
     }
 }
