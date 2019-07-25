@@ -18,10 +18,8 @@
 package org.floens.chan.ui.captcha.v2;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.BackgroundUtils;
 import org.floens.chan.utils.Logger;
 
@@ -31,10 +29,8 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
