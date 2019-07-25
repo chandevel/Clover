@@ -2,6 +2,7 @@ package org.floens.chan.ui.captcha.v2;
 
 import android.content.Context;
 
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -12,6 +13,7 @@ import java.util.List;
 import okhttp3.OkHttpClient;
 
 import static org.junit.Assert.assertEquals;
+
 
 public class CaptchaNoJsHtmlParserTest {
     private List<String> inputDataList = new ArrayList<>();

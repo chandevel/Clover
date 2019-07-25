@@ -60,19 +60,6 @@ public class BehaviourSettingsController extends SettingsController {
         if (item == forceEnglishSetting) {
             Toast.makeText(context, R.string.setting_force_english_locale_toggle_notice,
                     Toast.LENGTH_LONG).show();
-        } else if (item == useNewCaptchaWindow) {
-            // when user disables the new captcha window also disable the usage of the google cookies
-            if (!ChanSettings.useNewCaptchaWindow.get()) {
-                ChanSettings.useRealGoogleCookies.set(false);
-
-                // Reset the old google cookie
-                ChanSettings.googleCookie.set("");
-
-                // and cookie update time as well
-                ChanSettings.lastGoogleCookieUpdateTime.set(0L);
-            }
-
-            rebuildPreferences();
         }
     }
 
@@ -180,13 +167,6 @@ public class BehaviourSettingsController extends SettingsController {
                     ChanSettings.useNewCaptchaWindow,
                     R.string.settings_use_new_captcha_window,
                     0));
-
-            if (ChanSettings.useNewCaptchaWindow.get()) {
-                captcha.add(new BooleanSettingView(this,
-                        ChanSettings.useRealGoogleCookies,
-                        R.string.settings_use_real_google_cookies,
-                        R.string.settings_use_real_google_cookies_description));
-            }
 
             groups.add(captcha);
         }
