@@ -139,18 +139,6 @@ public class BehaviourSettingsController extends SettingsController {
             groups.add(post);
         }
 
-        // Captcha group
-        {
-            SettingsGroup captcha = new SettingsGroup(R.string.settings_captcha_group);
-
-            captcha.add(new BooleanSettingView(this,
-                    ChanSettings.useNewCaptchaWindow,
-                    R.string.settings_use_new_captcha_window,
-                    0));
-
-            groups.add(captcha);
-        }
-
         // Proxy group
         {
             SettingsGroup proxy = new SettingsGroup(R.string.settings_group_proxy);

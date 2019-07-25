@@ -489,7 +489,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     public void switchPage(Page page, boolean animate) {
-        switchPage(page, animate, ChanSettings.useNewCaptchaWindow.get());
+        switchPage(page, animate, true);
     }
 
     public void switchPage(Page page, boolean animate, boolean useV2NoJsCaptcha) {

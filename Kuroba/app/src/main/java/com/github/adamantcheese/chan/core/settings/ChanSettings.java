@@ -168,7 +168,6 @@ public class ChanSettings {
 
     public static final LongSetting updateCheckTime;
     public static final BooleanSetting reencodeHintShown;
-    public static final BooleanSetting useNewCaptchaWindow;
     public static final BooleanSetting useImmersiveModeForGallery;
 
     public static final StringSetting lastImageOptions;
@@ -266,7 +265,6 @@ public class ChanSettings {
         threadOpenCounter = new CounterSetting(p, "counter_thread_open");
         updateCheckTime = new LongSetting(p, "update_check_time", 0L);
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
-        useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
         useImmersiveModeForGallery = new BooleanSetting(p, "use_immersive_mode_for_gallery", false);
 
         lastImageOptions = new StringSetting(p, "last_image_options", "");

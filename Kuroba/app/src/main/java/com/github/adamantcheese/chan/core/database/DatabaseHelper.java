@@ -200,10 +200,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             }
         }
 
-        if (oldVersion < 33) {
-            //even though this isn't a database thing, it's an easy way of doing things only once
-            ChanSettings.useNewCaptchaWindow.set(true);
-        }
+        //33 set the new captcha window to default, but it's always on now so this was removed
 
         if (oldVersion < 34) {
             try {
