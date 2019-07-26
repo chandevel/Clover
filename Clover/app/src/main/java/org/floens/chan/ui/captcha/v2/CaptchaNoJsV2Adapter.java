@@ -8,17 +8,15 @@ import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.BaseAdapter;
 
 import org.floens.chan.R;
-import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CaptchaNoJsV2Adapter extends BaseAdapter {
-    private static final int ANIMATION_DURATION = 50;
-
     private LayoutInflater inflater;
     private int imageSize = 0;
 
@@ -57,26 +55,38 @@ public class CaptchaNoJsV2Adapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.layout_captcha_challenge_image, parent, false);
+        }
 
-            AppCompatImageView imageView = convertView.findViewById(R.id.captcha_challenge_image);
-            ConstraintLayout blueCheckmarkHolder = convertView.findViewById(R.id.captcha_challenge_blue_checkmark_holder);
+        AppCompatImageView imageView = convertView.findViewById(R.id.captcha_challenge_image);
+        imageView.setScaleX(1.0f);
+        imageView.setScaleY(1.0f);
+        ConstraintLayout blueCheckmarkHolder = convertView.findViewById(R.id.captcha_challenge_blue_checkmark_holder);
+        blueCheckmarkHolder.setAlpha(0.0f);
 
-            ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(imageSize, imageSize);
-            imageView.setLayoutParams(layoutParams);
+        ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(imageSize, imageSize);
+        imageView.setLayoutParams(layoutParams);
 
-            imageView.setOnClickListener((view) -> {
-                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+        imageView.setOnClickListener((view) -> {
+            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
 
-                imageList.get(position).toggleChecked();
-                boolean isChecked = imageList.get(position).isChecked;
+            imageList.get(position).toggleChecked();
+            boolean isChecked = imageList.get(position).isChecked;
 
-                AndroidUtils.animateViewScale(imageView, isChecked, ANIMATION_DURATION);
-                blueCheckmarkHolder.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            });
+            imageView.animate()
+                    .scaleX(isChecked ? 0.8f : 1.0f)
+                    .scaleY(isChecked ? 0.8f : 1.0f)
+                    .setInterpolator(new DecelerateInterpolator(2.0f))
+                    .setDuration(200)
+                    .start();
+            blueCheckmarkHolder.animate()
+                    .alpha(isChecked ? 1.0f : 0.0f)
+                    .setInterpolator(new DecelerateInterpolator(2.0f))
+                    .setDuration(200)
+                    .start();
+        });
 
-            if (position >= 0 && position <= imageList.size()) {
-                imageView.setImageBitmap(imageList.get(position).getBitmap());
-            }
+        if (position >= 0 && position <= imageList.size()) {
+            imageView.setImageBitmap(imageList.get(position).getBitmap());
         }
 
         return convertView;

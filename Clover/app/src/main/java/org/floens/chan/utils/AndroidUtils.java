@@ -51,8 +51,6 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.ScaleAnimation;
 
 import org.floens.chan.R;
 
@@ -458,40 +456,6 @@ public class AndroidUtils {
     public static boolean isConnected(int type) {
         NetworkInfo networkInfo = connectivityManager.getNetworkInfo(type);
         return networkInfo != null && networkInfo.isConnected();
-    }
-
-    public static void animateViewScale(View view, boolean zoomOut, int duration) {
-        ScaleAnimation scaleAnimation;
-        final float normalScale = 1.0f;
-        final float zoomOutScale = 0.8f;
-
-        if (zoomOut) {
-            scaleAnimation = new ScaleAnimation(
-                    normalScale,
-                    zoomOutScale,
-                    normalScale,
-                    zoomOutScale,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f);
-        } else {
-            scaleAnimation = new ScaleAnimation(
-                    zoomOutScale,
-                    normalScale,
-                    zoomOutScale,
-                    normalScale,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f);
-        }
-
-        scaleAnimation.setDuration(duration);
-        scaleAnimation.setFillAfter(true);
-        scaleAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        view.startAnimation(scaleAnimation);
     }
 
     public static boolean enableHighEndAnimations() {
