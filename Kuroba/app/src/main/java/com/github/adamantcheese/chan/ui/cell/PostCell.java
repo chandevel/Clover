@@ -608,11 +608,13 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 v.setClickable(true);
                 v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 v.setRounding(dp(2));
-                //pad top and left if setting is on, no right pad, pad bottom if last image to avoid clashing with divider
+                //pad top and left if setting is on, no right pad, pad bottom if last image to avoid clashing with divider, pad more if setting
                 v.setPadding(ChanSettings.padThumbs.get() ? dp(4) : 0,
                         ChanSettings.padThumbs.get() && first ? dp(4) : 0,
                         0,
-                        i + 1 == post.images.size() ? dp(1) : 0);
+                        i + 1 == post.images.size()
+                                ? ChanSettings.padThumbs.get() ? dp(4) : dp(1)
+                                : 0);
 
                 relativeLayoutContainer.addView(v, p);
                 thumbnailViews.add(v);
