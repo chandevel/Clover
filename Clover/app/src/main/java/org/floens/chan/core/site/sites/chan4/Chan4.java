@@ -358,17 +358,18 @@ public class Chan4 extends SiteBase {
 
         @Override
         public void post(Reply reply, final PostListener postListener) {
-            httpCallManager.makeHttpCall(new Chan4ReplyCall(Chan4.this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
-                @Override
-                public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                    postListener.onPostComplete(httpPost, httpPost.replyResponse);
-                }
+            httpCallManager.makeHttpCall(
+                    new Chan4ReplyCall(Chan4.this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
+                        @Override
+                        public void onHttpSuccess(CommonReplyHttpCall httpPost) {
+                            postListener.onPostComplete(httpPost, httpPost.replyResponse);
+                        }
 
-                @Override
-                public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                    postListener.onPostError(httpPost, e);
-                }
-            });
+                        @Override
+                        public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
+                            postListener.onPostError(httpPost, e);
+                        }
+                    }, postListener::onUploadingProgress);
         }
 
         @Override

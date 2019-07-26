@@ -17,8 +17,11 @@
  */
 package org.floens.chan.core.site.common;
 
+import android.support.annotation.Nullable;
+
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.HttpCall;
+import org.floens.chan.core.site.http.ProgressRequestBody;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.jsoup.Jsoup;
@@ -49,13 +52,16 @@ public abstract class CommonReplyHttpCall extends HttpCall {
     }
 
     @Override
-    public void setup(Request.Builder requestBuilder) {
+    public void setup(
+            Request.Builder requestBuilder,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    ) {
         replyResponse.password = Long.toHexString(RANDOM.nextLong());
 
         MultipartBody.Builder formBuilder = new MultipartBody.Builder();
         formBuilder.setType(MultipartBody.FORM);
 
-        addParameters(formBuilder);
+        addParameters(formBuilder, progressListener);
 
         HttpUrl replyUrl = site.endpoints().reply(this.reply.loadable);
         requestBuilder.url(replyUrl);
@@ -85,5 +91,8 @@ public abstract class CommonReplyHttpCall extends HttpCall {
         }
     }
 
-    public abstract void addParameters(MultipartBody.Builder builder);
+    public abstract void addParameters(
+            MultipartBody.Builder builder,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    );
 }

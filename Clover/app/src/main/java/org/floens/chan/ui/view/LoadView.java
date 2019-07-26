@@ -22,11 +22,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 
 import org.floens.chan.utils.AndroidUtils;
 
@@ -75,26 +74,22 @@ public class LoadView extends FrameLayout {
 
     /**
      * Set the content of this container. It will fade the attached views out with the
-     * new one. Set view to null to show the progressbar.
+     * new one.
      *
-     * @param newView the view or null for a progressbar.
+     * @param newView the view.
      */
-    public View setView(View newView) {
+    public View setView(@NonNull View newView) {
         return setView(newView, true);
     }
 
     /**
      * Set the content of this container. It will fade the attached views out with the
-     * new one. Set view to null to show the progressbar.
+     * new one.
      *
-     * @param newView the view or null for a progressbar.
+     * @param newView the view.
      * @param animate should it be animated
      */
-    public View setView(View newView, boolean animate) {
-        if (newView == null) {
-            newView = getViewForNull();
-        }
-
+    public View setView(@NonNull View newView, boolean animate) {
         if (animate) {
             // Fast forward possible pending animations (keeping the views attached.)
             animatorSet.cancel();
@@ -176,21 +171,6 @@ public class LoadView extends FrameLayout {
         }
 
         return newView;
-    }
-
-    protected View getViewForNull() {
-        // TODO: figure out why this is needed for the thread list layout view.
-        FrameLayout progressBarContainer = new FrameLayout(getContext());
-        progressBarContainer.setLayoutParams(
-                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-
-        View progressBar = new ProgressBar(getContext());
-        progressBar.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-
-        progressBarContainer.addView(progressBar);
-
-        return progressBarContainer;
     }
 
     protected void removeAndCallListener(View child) {
