@@ -365,6 +365,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     private void saveInternal() {
+        if (chanLoader.getThread() == null) {
+            return;
+        }
+
         Post op = chanLoader.getThread().op;
         List<Post> postsToSave = chanLoader.getThread().posts;
 
@@ -871,7 +875,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 break;
             case POST_OPTION_REMOVE:
             case POST_OPTION_HIDE:
-                if (chanLoader == null) {
+                if (chanLoader == null || chanLoader.getThread() == null) {
                     break;
                 }
 
@@ -1113,14 +1117,17 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     private void showPosts() {
-        if (chanLoader != null) {
+        if (chanLoader != null && chanLoader.getThread() != null) {
             threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
         }
     }
 
     private void addHistory() {
-        if (chanLoader != null
-                && !historyAdded
+        if (chanLoader == null || chanLoader.getThread() == null) {
+            return;
+        }
+
+        if (!historyAdded
                 && addToLocalBackHistory
                 && ChanSettings.historyEnabled.get()
                 && loadable.isThreadMode()
@@ -1157,7 +1164,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public void showRemovedPostsDialog() {
-        if (chanLoader == null || chanLoader.getThread().loadable.mode != Loadable.Mode.THREAD) {
+        if (chanLoader == null || chanLoader.getThread() == null) {
+            return;
+        }
+
+        if (chanLoader.getThread().loadable.mode != Loadable.Mode.THREAD) {
             return;
         }
 
@@ -1167,7 +1178,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public void onRestoreRemovedPostsClicked(List<Integer> selectedPosts) {
-        if (chanLoader == null) return;
+        if (chanLoader == null || chanLoader.getThread() == null) {
+            return;
+        }
+
         int threadNo = chanLoader.getThread().op.no;
         Site site = chanLoader.getThread().loadable.site;
         String boardCode = chanLoader.getThread().loadable.boardCode;

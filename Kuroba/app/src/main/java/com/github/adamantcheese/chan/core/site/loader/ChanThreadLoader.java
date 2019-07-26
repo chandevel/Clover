@@ -137,6 +137,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         }
     }
 
+    @Nullable
     public ChanThread getThread() {
         return thread;
     }
