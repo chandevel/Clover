@@ -25,7 +25,6 @@ import android.support.v4.util.Pair;
 
 import org.floens.chan.utils.BackgroundUtils;
 import org.floens.chan.utils.IOUtils;
-import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -111,9 +110,8 @@ public class CaptchaNoJsHtmlParser {
 
         try {
             token = matcher.group(1);
-        } catch (Throwable error) {
-            Logger.e(TAG, "Could not parse verification token", error);
-            throw error;
+        } catch (Exception error) {
+            throw new CaptchaNoJsV2ParsingError("Could not parse verification token", error);
         }
 
         if (token == null || token.isEmpty()) {
@@ -154,13 +152,8 @@ public class CaptchaNoJsHtmlParser {
                 // could not find it
                 captchaTitle = new CaptchaInfo.CaptchaTitle(title, -1, -1);
             }
-        } catch (Throwable error) {
-            Logger.e(TAG, "Error while trying to parse challenge title", error);
-            throw error;
-        }
-
-        if (captchaTitle == null) {
-            throw new CaptchaNoJsV2ParsingError("challengeTitle is null");
+        } catch (Exception error) {
+            throw new CaptchaNoJsV2ParsingError("Error while trying to parse challenge title", error);
         }
 
         if (captchaTitle.isEmpty()) {
@@ -184,9 +177,8 @@ public class CaptchaNoJsHtmlParser {
 
         try {
             challengeImageUrl = matcher.group(1);
-        } catch (Throwable error) {
-            Logger.e(TAG, "Error while trying to parse challenge image url", error);
-            throw error;
+        } catch (Exception error) {
+            throw new CaptchaNoJsV2ParsingError("Error while trying to parse challenge image url", error);
         }
 
         if (challengeImageUrl == null) {
@@ -253,9 +245,8 @@ public class CaptchaNoJsHtmlParser {
 
         try {
             cParameter = matcher.group(1);
-        } catch (Throwable error) {
-            Logger.e(TAG, "Error while trying to parse c parameter", error);
-            throw error;
+        } catch (Exception error) {
+            throw new CaptchaNoJsV2ParsingError("Error while trying to parse c parameter", error);
         }
 
         if (cParameter == null) {
@@ -281,9 +272,8 @@ public class CaptchaNoJsHtmlParser {
             try {
                 Integer checkboxId = Integer.parseInt(matcher.group(1));
                 checkboxesSet.add(checkboxId);
-            } catch (Throwable error) {
-                Logger.e(TAG, "Error while trying to parse checkbox with id (" + index + ")", error);
-                throw error;
+            } catch (Exception error) {
+                throw new CaptchaNoJsV2ParsingError("Error while trying to parse checkbox with id (" + index + ")", error);
             }
 
             ++index;
@@ -297,9 +287,8 @@ public class CaptchaNoJsHtmlParser {
 
         try {
             captchaType = CaptchaInfo.CaptchaType.fromCheckboxesCount(checkboxesSet.size());
-        } catch (Throwable error) {
-            Logger.e(TAG, "Error while trying to parse captcha type", error);
-            throw error;
+        } catch (Exception error) {
+            throw new CaptchaNoJsV2ParsingError("Error while trying to parse captcha type", error);
         }
 
         if (captchaType == CaptchaInfo.CaptchaType.Unknown) {
@@ -383,7 +372,7 @@ public class CaptchaNoJsHtmlParser {
             }
 
             return resultImages;
-        } catch (Throwable error) {
+        } catch (Exception error) {
             for (Bitmap bitmap : resultImages) {
                 if (!bitmap.isRecycled()) {
                     bitmap.recycle();
@@ -402,6 +391,10 @@ public class CaptchaNoJsHtmlParser {
     public static class CaptchaNoJsV2ParsingError extends Exception {
         public CaptchaNoJsV2ParsingError(String message) {
             super(message);
+        }
+
+        public CaptchaNoJsV2ParsingError(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 }

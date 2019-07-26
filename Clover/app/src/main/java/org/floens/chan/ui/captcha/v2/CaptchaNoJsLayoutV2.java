@@ -240,6 +240,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
 
             captchaVerifyButton.setEnabled(true);
         } catch (Throwable error) {
+            Logger.e(TAG, "renderCaptchaWindow", error);
             if (callback != null) {
                 callback.onFallbackToV1CaptchaView();
             }

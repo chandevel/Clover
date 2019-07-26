@@ -320,7 +320,7 @@ public class CaptchaNoJsPresenterV2 {
 
                 return captchaInfo;
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             Logger.e(TAG, "Error while trying to parse captcha html data", e);
 
             if (callbacks != null) {
