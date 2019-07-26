@@ -46,7 +46,6 @@ import java.util.LinkedList;
 @Deprecated
 public class ImageLoader {
     private static final String TAG = "ImageLoader";
-    private static final String NOT_FOUND_IMAGE_TAG = "ic_404_image_not_found";
 
     /**
      * RequestQueue for dispatching ImageRequests onto.
