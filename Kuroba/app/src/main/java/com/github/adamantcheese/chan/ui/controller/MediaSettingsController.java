@@ -130,6 +130,11 @@ public class MediaSettingsController extends SettingsController {
                     R.string.settings_reveal_image_spoilers,
                     R.string.settings_reveal_image_spoilers_description));
 
+            media.add(new BooleanSettingView(this,
+                    ChanSettings.allowMediaScannerToScanLocalThreads,
+                    R.string.settings_allow_media_scanner_scan_local_threads_title,
+                    R.string.settings_allow_media_scanner_scan_local_threads_description));
+
             groups.add(media);
         }
 

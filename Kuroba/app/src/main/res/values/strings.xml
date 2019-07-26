@@ -693,4 +693,6 @@ Don't have a 4chan Pass?<br>
     <string name="settings_experimental_settings_description">These settings may be in an unstable state. They are for testing. They may break the app and you may have to reset the app data. Use them at your own risk if you are really interested in some feature. Backup your everything beforehand.</string>
     <string name="incremental_thread_downloading_title">Incremental thread downloading</string>
     <string name="incremental_thread_downloading_description">Allows you to download threads to view them after the original thread dies</string>
+    <string name="settings_allow_media_scanner_scan_local_threads_title">Allow Android media scanner to scan images from local saved threads</string>
+    <string name="settings_allow_media_scanner_scan_local_threads_description">If enabled, images that were downloaded along with threads will appear in other applications, like galleries, messengers etc. When changing this setting you may have to restart your phone or wait a little bit for the changes to kick in</string>
 </resources>
