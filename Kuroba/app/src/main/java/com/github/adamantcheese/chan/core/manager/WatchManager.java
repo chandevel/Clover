@@ -1113,7 +1113,9 @@ public class WatchManager implements WakeManager.Wakeable {
         public void onPagesReceived() {
             //this call will return the proper value now, but if it returns null just skip everything
             Chan4PagesRequest.Page p = pageRequestManager.getPage(chanLoader.getLoadable());
-            latestKnownPage = p.page;
+            if (p != null) {
+                latestKnownPage = p.page;
+            }
             doPageNotification(p);
         }
 
