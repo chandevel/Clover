@@ -24,5 +24,9 @@ public interface AuthenticationLayoutInterface {
 
     void reset();
 
+    boolean requireResetAfterComplete();
+
     void hardReset();
+
+    void onDestroy();
 }

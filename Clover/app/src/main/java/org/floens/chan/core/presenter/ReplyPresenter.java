@@ -37,7 +37,6 @@ import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
 import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
-import org.floens.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.utils.Logger;
 
@@ -283,8 +282,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         // we don't need this to be called for new captcha window.
         // Otherwise "Request captcha request is already in progress" message will be shown
-        if (!(authenticationLayout instanceof CaptchaNoJsLayoutV2)) {
-            // should this be called here?
+        if (authenticationLayout.requireResetAfterComplete()) {
             authenticationLayout.reset();
         }
 

@@ -153,6 +153,17 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     }
 
     @Override
+    public boolean requireResetAfterComplete() {
+        return false;
+    }
+
+    @Override
+    public void onDestroy() {
+        adapter.onDestroy();
+        presenter.onDestroy();
+    }
+
+    @Override
     public void onCaptchaInfoParsed(CaptchaInfo captchaInfo) {
         // called on a background thread
 
@@ -171,8 +182,8 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
             callback.onAuthenticationComplete(this, null, verificationToken);
         });
     }
-
     // Called when we got response from re-captcha but could not parse some part of it
+
     @Override
     public void onCaptchaInfoParseError(Throwable error) {
         // called on a background thread
@@ -288,10 +299,5 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         } catch (Throwable error) {
             onCaptchaInfoParseError(error);
         }
-    }
-
-    public void onDestroy() {
-        adapter.onDestroy();
-        presenter.onDestroy();
     }
 }

@@ -365,12 +365,7 @@ public class ReplyLayout extends LoadView implements
             return;
         }
 
-        if (!(authenticationLayout instanceof CaptchaNoJsLayoutV2)) {
-            return;
-        }
-
-        // cleanup resources when switching from the new to the old captcha view
-        ((CaptchaNoJsLayoutV2) authenticationLayout).onDestroy();
+        authenticationLayout.onDestroy();
         captchaContainer.removeView((CaptchaNoJsLayoutV2) authenticationLayout);
         authenticationLayout = null;
     }

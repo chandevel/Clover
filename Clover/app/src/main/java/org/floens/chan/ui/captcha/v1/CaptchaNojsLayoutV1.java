@@ -134,8 +134,17 @@ public class CaptchaNojsLayoutV1 extends WebView implements AuthenticationLayout
     }
 
     @Override
+    public boolean requireResetAfterComplete() {
+        return true;
+    }
+
+    @Override
     public void hardReset() {
         loadRecaptchaAndSetWebViewData();
+    }
+
+    @Override
+    public void onDestroy() {
     }
 
     private void loadRecaptchaAndSetWebViewData() {

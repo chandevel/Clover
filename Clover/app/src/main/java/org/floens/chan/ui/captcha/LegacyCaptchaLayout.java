@@ -142,6 +142,16 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
         input.requestFocus();
     }
 
+    @Override
+    public boolean requireResetAfterComplete() {
+        return true;
+    }
+
+    @Override
+    public void onDestroy() {
+
+    }
+
     private void submitCaptcha() {
         AndroidUtils.hideKeyboard(this);
         callback.onAuthenticationComplete(this, challenge, input.getText().toString());

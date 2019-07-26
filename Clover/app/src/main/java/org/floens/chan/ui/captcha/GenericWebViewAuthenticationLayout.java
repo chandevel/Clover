@@ -80,6 +80,16 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
     public void hardReset() {
     }
 
+    @Override
+    public boolean requireResetAfterComplete() {
+        return true;
+    }
+
+    @Override
+    public void onDestroy() {
+
+    }
+
     private void checkText() {
         loadUrl("javascript:WebInterface.onAllText(document.documentElement.textContent)");
     }
