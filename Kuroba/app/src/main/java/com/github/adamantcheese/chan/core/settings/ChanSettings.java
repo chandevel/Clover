@@ -175,6 +175,7 @@ public class ChanSettings {
     public static final BooleanSetting shiftPostFormat;
     public static final BooleanSetting enableEmoji;
     public static final BooleanSetting highResCells;
+    public static final BooleanSetting padThumbs;
 
     public static final BooleanSetting incrementalThreadDownloadingEnabled;
 
@@ -272,6 +273,7 @@ public class ChanSettings {
         shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
         enableEmoji = new BooleanSetting(p, "enable_emoji", false);
         highResCells = new BooleanSetting(p, "high_res_cells", false);
+        padThumbs = new BooleanSetting(p, "pad_thumbnails", true);
 
         incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
     }

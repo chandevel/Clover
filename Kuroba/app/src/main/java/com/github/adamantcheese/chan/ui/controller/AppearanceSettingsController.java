@@ -122,21 +122,26 @@ public class AppearanceSettingsController extends SettingsController {
             groups.add(post);
         }
 
-        //Gallery group
+        //Image group
         {
-            SettingsGroup gallery = new SettingsGroup(R.string.settings_group_gallery);
+            SettingsGroup images = new SettingsGroup(R.string.settings_group_images);
 
-            requiresUiRefresh.add(gallery.add(new BooleanSettingView(this,
+            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
+                    ChanSettings.padThumbs,
+                    context.getString(R.string.setting_images_pad_thumbs),
+                    context.getString(R.string.setting_images_pad_thumbs_description))));
+
+            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
                     ChanSettings.highResCells,
-                    "High resolution cells",
-                    "Make the album view and card catalog images higher resolution by pre-rescaling full size images")));
+                    context.getString(R.string.setting_images_high_res),
+                    context.getString(R.string.setting_images_high_res_description))));
 
-            requiresUiRefresh.add(gallery.add(new BooleanSettingView(this,
+            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
                     ChanSettings.useImmersiveModeForGallery,
-                    R.string.setting_gallery_immersive_mode_title,
-                    R.string.setting_gallery_immersive_mode_description)));
+                    R.string.setting_images_immersive_mode_title,
+                    R.string.setting_images_immersive_mode_description)));
 
-            groups.add(gallery);
+            groups.add(images);
         }
     }
 

@@ -467,9 +467,13 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_post_filename">Show filename on posts</string>
 
     <!-- Appearance gallery group -->
-    <string name="settings_group_gallery">Gallery</string>
-    <string name="setting_gallery_immersive_mode_title">Use immersive mode for image gallery</string>
-    <string name="setting_gallery_immersive_mode_description">This will make image gallery view be fullscreen with statusbar/navbar hidden</string>
+    <string name="settings_group_images">Images</string>
+    <string name="setting_images_pad_thumbs">Pad thumbnails</string>
+    <string name="setting_images_pad_thumbs_description">Add extra space around thumbnails to move them away from the edges of the cell</string>
+    <string name="setting_images_high_res">High resolution cells</string>
+    <string name="setting_images_high_res_description">Make the album view and card catalog images higher resolution by pre-rescaling full size images</string>
+    <string name="setting_images_immersive_mode_title">Use immersive mode for image gallery</string>
+    <string name="setting_images_immersive_mode_description">This will make image gallery view be fullscreen with statusbar/navbar hidden</string>
 
     <!-- Behavior -->
     <string name="settings_screen_behavior">Behavior</string>

@@ -289,12 +289,6 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         new AlertDialog.Builder(context)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    //clear the pool if the current thread isn't a part of this crosspost chain
-                    //ie a new thread is loaded and a new chain is started; this will never throw null pointer exceptions
-                    //noinspection ConstantConditions
-                    if (!threadFollowerpool.isEmpty() && threadFollowerpool.peekFirst().second != loadable.hashCode()) {
-                        threadFollowerpool.clear();
-                    }
                     threadFollowerpool.addFirst(new Pair<>(loadable, threadLoadable.hashCode()));
                     loadThread(threadLoadable);
                 })
@@ -539,6 +533,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     @Override
     public boolean threadBackPressed() {
+        //clear the pool if the current thread isn't a part of this crosspost chain
+        //ie a new thread is loaded and a new chain is started; this will never throw null pointer exceptions
+        //noinspection ConstantConditions
+        if (!threadFollowerpool.isEmpty() && threadFollowerpool.peekFirst().second != loadable.hashCode()) {
+            threadFollowerpool.clear();
+        }
+        //if the thread is new, it'll be empty here, so we'll get back-to-catalog functionality
         if (threadFollowerpool.isEmpty()) {
             return false;
         }
