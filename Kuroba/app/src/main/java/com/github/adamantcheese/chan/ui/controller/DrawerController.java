@@ -98,6 +98,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     public void onDestroy() {
         super.onDestroy();
 
+        recyclerView.setAdapter(null);
         EventBus.getDefault().unregister(this);
     }
 
