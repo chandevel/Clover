@@ -332,6 +332,8 @@ public class ThreadSaveManager {
             }
 
             if (ChanSettings.allowMediaScannerToScanLocalThreads.get()) {
+                // .nomedia file being in the images directory "should" prevent media scanner to scan
+                // this directory
                 File noMediaFile = new File(threadSaveDirImages, NO_MEDIA_FILE_NAME);
                 if (!noMediaFile.exists() && !noMediaFile.createNewFile()) {
                     throw new CouldNotCreateNoMediaFile(threadSaveDirImages);
