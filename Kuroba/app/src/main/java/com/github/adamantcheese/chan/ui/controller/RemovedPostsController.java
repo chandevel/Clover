@@ -1,13 +1,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatCheckBox;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.AppCompatTextView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +8,19 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.android.volley.VolleyError;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.image.ImageContainer;
+import com.github.adamantcheese.chan.core.image.ImageListener;
+import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
@@ -37,7 +39,7 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
     private static final String TAG = "RemovedPostsController";
 
     @Inject
-    ImageLoader imageLoader;
+    ImageLoaderV2 imageLoaderV2;
 
     private RemovedPostsHelper removedPostsHelper;
 
@@ -98,7 +100,7 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
         if (adapter == null) {
             adapter = new RemovedPostAdapter(
                     context,
-                    imageLoader,
+                    imageLoaderV2,
                     R.layout.layout_removed_posts);
 
             postsListView.setAdapter(adapter);
@@ -168,12 +170,12 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
     }
 
     public static class RemovedPostAdapter extends ArrayAdapter<RemovedPost> {
-        private ImageLoader imageLoader;
+        private ImageLoaderV2 imageLoaderV2;
         private List<RemovedPost> removedPostsCopy = new ArrayList<>();
 
-        public RemovedPostAdapter(@NonNull Context context, ImageLoader imageLoader, int resource) {
+        public RemovedPostAdapter(@NonNull Context context, ImageLoaderV2 imageLoaderV2, int resource) {
             super(context, resource);
-            this.imageLoader = imageLoader;
+            this.imageLoaderV2 = imageLoaderV2;
         }
 
         @NonNull
@@ -208,9 +210,9 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
                 PostImage image = removedPost.getImages().get(0);
                 postImage.setVisibility(View.VISIBLE);
 
-                imageLoader.get(image.getThumbnailUrl().toString(), new ImageLoader.ImageListener() {
+                imageLoaderV2.get(image.getThumbnailUrl().toString(), new ImageListener() {
                     @Override
-                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                    public void onResponse(ImageContainer response, boolean isImmediate) {
                         postImage.setImageBitmap(response.getBitmap());
                     }
 

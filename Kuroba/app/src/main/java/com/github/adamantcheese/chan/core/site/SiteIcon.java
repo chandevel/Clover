@@ -21,7 +21,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
+import com.github.adamantcheese.chan.core.image.ImageContainer;
+import com.github.adamantcheese.chan.core.image.ImageListener;
+import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import okhttp3.HttpUrl;
@@ -55,9 +57,9 @@ public class SiteIcon {
         if (drawable != null) {
             result.onSiteIcon(SiteIcon.this, drawable);
         } else if (url != null) {
-            injector().instance(ImageLoader.class).get(url.toString(), new ImageLoader.ImageListener() {
+            injector().instance(ImageLoaderV2.class).get(url.toString(), new ImageListener() {
                 @Override
-                public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                public void onResponse(ImageContainer response, boolean isImmediate) {
                     if (response.getBitmap() != null) {
                         Drawable drawable = new BitmapDrawable(getAppContext().getResources(), response.getBitmap());
                         result.onSiteIcon(SiteIcon.this, drawable);

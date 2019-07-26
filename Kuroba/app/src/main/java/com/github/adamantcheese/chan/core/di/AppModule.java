@@ -21,6 +21,7 @@ import android.content.Context;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
+import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -46,16 +47,18 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public ImageLoader provideImageLoader(RequestQueue requestQueue,
-                                          Context applicationContext,
-                                          ThemeHelper themeHelper) {
+    public ImageLoaderV2 provideImageLoaderV2(RequestQueue requestQueue,
+                                              Context applicationContext,
+                                              ThemeHelper themeHelper) {
         final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         final int lruImageCacheSize = runtimeMemory / 8;
-        return new ImageLoader(
+        ImageLoader imageLoader = new ImageLoader(
                 applicationContext,
                 requestQueue,
                 themeHelper,
                 new BitmapLruImageCache(lruImageCacheSize));
+
+        return new ImageLoaderV2(imageLoader);
     }
 
     @Provides
