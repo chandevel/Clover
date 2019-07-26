@@ -121,6 +121,15 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
         loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
     }
 
+    @Override
+    public boolean requireResetAfterComplete() {
+        return true;
+    }
+
+    @Override
+    public void onDestroy() {
+    }
+
     private void onCaptchaLoaded() {
     }
 

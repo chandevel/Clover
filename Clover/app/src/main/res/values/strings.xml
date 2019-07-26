@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -579,4 +579,17 @@ Don't have a 4chan Pass?<br>
     "</string>
 
     <string name="settings_screen_theme">Themes</string>
+
+    <!-- Captcha settings -->
+    <string name="settings_captcha_group" tools:ignore="MissingTranslation">Captcha</string>
+    <string name="settings_use_new_captcha_window" tools:ignore="MissingTranslation">Use new captcha window for no-js captcha</string>
+
+    <string name="captcha_layout_v2_verify_button_text" tools:ignore="MissingTranslation">Verify</string>
+    <string name="captcha_layout_v2_reload" tools:ignore="MissingTranslation">Reload</string>
+    <string name="captcha_layout_v2_use_old_captcha" tools:ignore="MissingTranslation">Use old captcha</string>
+    <string name="captcha_layout_v2_you_have_to_select_at_least_one_image" tools:ignore="MissingTranslation">You have to select at least one image (if you see a captcha that does not have any matching images then it is probably a bug fill an issue and use old captcha for a while)</string>
+    <string name="captcha_layout_v2_verification_already_in_progress" tools:ignore="MissingTranslation">Verification is already in progress</string>
+    <string name="captcha_layout_v2_captcha_request_is_already_in_progress" tools:ignore="MissingTranslation">Captcha request is already in progress</string>
+    <string name="captcha_layout_v2_you_are_requesting_captcha_too_fast" tools:ignore="MissingTranslation">You are requesting captcha too fast</string>
+    <string name="captcha_layout_v2_refresh_cookies" tools:ignore="MissingTranslation">Refresh cookies</string>
 </resources>

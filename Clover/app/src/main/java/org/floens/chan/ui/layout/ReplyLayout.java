@@ -49,9 +49,10 @@ import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
 import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
 import org.floens.chan.ui.captcha.CaptchaLayout;
-import org.floens.chan.ui.captcha.CaptchaNojsLayout;
 import org.floens.chan.ui.captcha.GenericWebViewAuthenticationLayout;
 import org.floens.chan.ui.captcha.LegacyCaptchaLayout;
+import org.floens.chan.ui.captcha.v1.CaptchaNojsLayoutV1;
+import org.floens.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.view.LoadView;
@@ -258,8 +259,10 @@ public class ReplyLayout extends LoadView implements
     }
 
     @Override
-    public void initializeAuthentication(Site site, SiteAuthentication authentication,
-                                         AuthenticationLayoutCallback callback) {
+    public void initializeAuthentication(Site site,
+                                         SiteAuthentication authentication,
+                                         AuthenticationLayoutCallback callback,
+                                         boolean useV2NoJsCaptcha) {
         if (authenticationLayout == null) {
             switch (authentication.type) {
                 case CAPTCHA1: {
@@ -273,7 +276,25 @@ public class ReplyLayout extends LoadView implements
                     break;
                 }
                 case CAPTCHA2_NOJS:
-                    authenticationLayout = new CaptchaNojsLayout(getContext());
+                    if (useV2NoJsCaptcha) {
+                        // new captcha window without webview
+                        authenticationLayout = new CaptchaNoJsLayoutV2(getContext());
+                    } else {
+                        // default webview-based captcha view
+                        authenticationLayout = new CaptchaNojsLayoutV1(getContext());
+                    }
+
+                    ImageView resetButton = captchaContainer.findViewById(R.id.reset);
+                    if (resetButton != null) {
+                        if (useV2NoJsCaptcha) {
+                            // we don't need the default reset button because we have our own
+                            resetButton.setVisibility(View.GONE);
+                        } else {
+                            // restore the button's visibility when using old v1 captcha view
+                            resetButton.setVisibility(View.VISIBLE);
+                        }
+                    }
+
                     break;
                 case GENERIC_WEBVIEW: {
                     GenericWebViewAuthenticationLayout view = new GenericWebViewAuthenticationLayout(getContext());
@@ -336,6 +357,17 @@ public class ReplyLayout extends LoadView implements
     @Override
     public void resetAuthentication() {
         authenticationLayout.reset();
+    }
+
+    @Override
+    public void destroyCurrentAuthentication() {
+        if (authenticationLayout == null) {
+            return;
+        }
+
+        authenticationLayout.onDestroy();
+        captchaContainer.removeView((CaptchaNoJsLayoutV2) authenticationLayout);
+        authenticationLayout = null;
     }
 
     @Override
@@ -450,6 +482,12 @@ public class ReplyLayout extends LoadView implements
 
     public void focusComment() {
         comment.post(() -> AndroidUtils.requestViewAndKeyboardFocus(comment));
+    }
+
+    @Override
+    public void onFallbackToV1CaptchaView() {
+        // fallback to v1 captcha window
+        presenter.switchPage(ReplyPresenter.Page.AUTHENTICATION, true, false);
     }
 
     @Override

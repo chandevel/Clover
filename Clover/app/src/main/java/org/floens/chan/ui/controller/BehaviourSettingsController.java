@@ -39,6 +39,7 @@ import static org.floens.chan.Chan.injector;
 
 public class BehaviourSettingsController extends SettingsController {
     private SettingView forceEnglishSetting;
+    private SettingView useNewCaptchaWindow;
 
     public BehaviourSettingsController(Context context) {
         super(context);
@@ -47,14 +48,10 @@ public class BehaviourSettingsController extends SettingsController {
     @Override
     public void onCreate() {
         super.onCreate();
-
         navigation.setTitle(R.string.settings_screen_behavior);
 
         setupLayout();
-
-        populatePreferences();
-
-        buildPreferences();
+        rebuildPreferences();
     }
 
     @Override
@@ -66,7 +63,17 @@ public class BehaviourSettingsController extends SettingsController {
         }
     }
 
+    private void rebuildPreferences() {
+        populatePreferences();
+        buildPreferences();
+    }
+
     private void populatePreferences() {
+        requiresUiRefresh.clear();
+        groups.clear();
+        requiresRestart.clear();
+
+
         // General group
         {
             SettingsGroup general = new SettingsGroup(R.string.settings_group_general);
@@ -150,6 +157,18 @@ public class BehaviourSettingsController extends SettingsController {
                     R.string.setting_open_link_browser, 0));
 
             groups.add(post);
+        }
+
+        // Captcha group
+        {
+            SettingsGroup captcha = new SettingsGroup(R.string.settings_captcha_group);
+
+            useNewCaptchaWindow = captcha.add(new BooleanSettingView(this,
+                    ChanSettings.useNewCaptchaWindow,
+                    R.string.settings_use_new_captcha_window,
+                    0));
+
+            groups.add(captcha);
         }
 
         // Proxy group

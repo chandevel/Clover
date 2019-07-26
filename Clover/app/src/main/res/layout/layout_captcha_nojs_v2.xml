@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/captcha_layout_v2_background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/captcha_layout_v2_title"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@color/accent"
+            android:ellipsize="middle"
+            android:gravity="center"
+            android:maxLines="2"
+            android:padding="4dp"
+            android:text=""
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            tools:text="Select all images with something" />
+
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <org.floens.chan.ui.view.WrappingGridView
+                android:id="@+id/captcha_layout_v2_images_grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:stretchMode="columnWidth" />
+
+        </android.support.v4.widget.NestedScrollView>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/captcha_layout_v2_buttons_holder"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="@color/accent"
+            tools:layout_editor_absoluteY="40dp">
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/captcha_layout_v2_use_old_captcha_button"
+                android:layout_width="112dp"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/captcha_layout_v2_use_old_captcha"
+                android:textColor="#ffffff"
+                app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
+                app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_refresh_cookies"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/captcha_layout_v2_verify_button" />
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/captcha_layout_v2_refresh_cookies"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/captcha_layout_v2_refresh_cookies"
+                android:textColor="#ffffff"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
+                app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_reload_button"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/captcha_layout_v2_use_old_captcha_button"
+                app:layout_constraintTop_toTopOf="@+id/captcha_layout_v2_verify_button" />
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/captcha_layout_v2_reload_button"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/captcha_layout_v2_reload"
+                android:textColor="#ffffff"
+                app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
+                app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_verify_button"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/captcha_layout_v2_refresh_cookies"
+                app:layout_constraintTop_toTopOf="@+id/captcha_layout_v2_verify_button" />
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/captcha_layout_v2_verify_button"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/captcha_layout_v2_verify_button_text"
+                android:textColor="#ffffff"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/captcha_layout_v2_reload_button"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
+
+    </LinearLayout>
+
+</ScrollView>
