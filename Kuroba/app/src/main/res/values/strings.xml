@@ -695,4 +695,5 @@ Don't have a 4chan Pass?<br>
     <string name="incremental_thread_downloading_description">Allows you to download threads to view them after the original thread dies</string>
     <string name="view_local_version">View local version</string>
     <string name="view_view_version">View live version</string>
+    <string name="local_thread_text">Local thread</string>
 </resources>

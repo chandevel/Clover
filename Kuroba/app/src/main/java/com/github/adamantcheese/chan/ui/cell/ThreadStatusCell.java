@@ -102,7 +102,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
             SpannableStringBuilder builder = new SpannableStringBuilder();
 
             if (chanThread.loadable.isLocal()) {
-                builder.append("Local thread");
+                builder.append(getContext().getString(R.string.local_thread_text));
             } else {
                 if (chanThread.archived) {
                     builder.append(getContext().getString(R.string.thread_archived));
