@@ -492,6 +492,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         super.onShowPosts(loadable);
         navigation.title = getTitle(this.loadable);
 
+        setPinIconState(false);
+        setSaveIconState(false);
         populateLocalOrLiveVersionMenu();
 
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
