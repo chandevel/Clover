@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
@@ -141,10 +142,22 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
             // Try to load saved copy of a thread if pinned thread has an error flag but only if
             // we are downloading this thread. Otherwise it will break archived threads that are not
             // being downloaded
-            if (pin.isError && savedThread != null) {
-                pin.loadable.isSavedCopy = true;
+            Loadable.LoadableDownloadingState state = Loadable.LoadableDownloadingState.NotDownloading;
+
+            if (pin.isError) {
+                state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
+            } else if (savedThread != null) {
+                if (savedThread.isFullyDownloaded) {
+                    state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
+                } else {
+                    // TODO: we can check here that the user has no internet connection
+                    //  and load the local thread right away so the user doesn't have
+                    //  to do it manually
+                    state = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+                }
             }
 
+            pin.loadable.loadableDownloadingState = state;
             threadController.openPin(pin);
         }
     }

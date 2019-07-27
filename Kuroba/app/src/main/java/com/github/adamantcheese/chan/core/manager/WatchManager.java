@@ -254,6 +254,7 @@ public class WatchManager implements WakeManager.Wakeable {
             savedThread.isStopped = false;
         }
 
+        loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
         createOrUpdateSavedThread(savedThread);
         databaseManager.runTask(databaseSavedThreadManager.startSavingThread(savedThread));
         return true;
@@ -273,6 +274,7 @@ public class WatchManager implements WakeManager.Wakeable {
         databaseManager.runTask(
                 databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(loadable.id, true));
 
+        loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
         threadSaveManager.stopDownloading(loadable);
     }
 
@@ -704,6 +706,10 @@ public class WatchManager implements WakeManager.Wakeable {
 
     private void updateDeletedOrArchivedPins() {
         for (Pin pin : pins) {
+            if (pin.loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+                continue;
+            }
+
             if (pin.isError || pin.archived) {
                 SavedThread savedThread = findSavedThreadByLoadableId(pin.loadable.id);
                 if (savedThread == null || savedThread.isStopped || savedThread.isFullyDownloaded) {
@@ -972,7 +978,8 @@ public class WatchManager implements WakeManager.Wakeable {
 
         private void destroy() {
             if (chanLoader != null) {
-                Logger.d(TAG, "PinWatcher: destroyed for " + pin);
+                Logger.d(TAG, "PinWatcher: destroyed for pin with id " + pin.id
+                        + " and loadable" + pin.loadable.toString());
                 chanLoaderFactory.release(chanLoader, this);
                 chanLoader = null;
             }
@@ -1017,7 +1024,7 @@ public class WatchManager implements WakeManager.Wakeable {
         public void onChanLoaderData(ChanThread thread) {
             if (thread.archived || thread.closed) {
                 NetworkResponse networkResponse = new NetworkResponse(
-                        NetworkResponse.STATUS_NOT_FOUND,
+                        NetworkResponse.STATUS_SERVICE_UNAVAILABLE,
                         EMPTY_BYTE_ARRAY,
                         Collections.emptyMap(),
                         true);

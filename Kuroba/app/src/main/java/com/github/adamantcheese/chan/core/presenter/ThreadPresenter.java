@@ -209,7 +209,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             return;
         }
 
-        if (loadable.isSavedCopy) {
+        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
             // We are viewing already saved copy of the thread
             return;
         }
@@ -253,7 +253,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             return;
         }
 
-        if (loadable.isSavedCopy) {
+        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
             // We are viewing already saved copy of the thread
             return;
         }
@@ -365,8 +365,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     private void saveInternal() {
-        Post op = chanLoader.getThread().op;
-        List<Post> postsToSave = chanLoader.getThread().posts;
+        ChanThread thread = chanLoader.getThread();
+
+        Post op = thread.op;
+        List<Post> postsToSave = thread.posts;
 
         Pin oldPin = watchManager.findPinByLoadableId(loadable.id);
         if (oldPin != null) {
@@ -402,7 +404,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         }
 
         if (!ChanSettings.watchEnabled.get() || !ChanSettings.watchBackground.get()) {
-            threadPresenterCallback.shownBackgroundWatcherIsDisabledToast();
+            threadPresenterCallback.showBackgroundWatcherIsDisabledToast();
         }
     }
 
@@ -441,12 +443,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             return DownloadThreadState.Default;
         }
 
-        if (savedThread.isStopped) {
-            return DownloadThreadState.Default;
-        }
-
         if (savedThread.isFullyDownloaded) {
             return DownloadThreadState.FullyDownloaded;
+        }
+
+        if (savedThread.isStopped) {
+            return DownloadThreadState.Default;
         }
 
         return DownloadThreadState.DownloadInProgress;
@@ -578,7 +580,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     private void storeNewPostsIfThreadIsBeingDownloaded(Loadable loadable, List<Post> posts) {
-        if (loadable.isSavedCopy) {
+        if (loadable.mode != Loadable.Mode.THREAD) {
+            // We are not in a thread
+            return;
+        }
+
+        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
             // Do not save posts from already saved thread
             return;
         }
@@ -707,7 +714,13 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     @Override
     public void onPostClicked(Post post) {
         if (loadable.isCatalogMode()) {
-            Loadable threadLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.site, post.board, post.no, PostHelper.getTitle(post, loadable)));
+            Loadable newLoadable = Loadable.forThread(
+                    loadable.site,
+                    post.board,
+                    post.no,
+                    PostHelper.getTitle(post, loadable));
+
+            Loadable threadLoadable = databaseManager.getDatabaseLoadableManager().get(newLoadable);
             threadPresenterCallback.showThread(threadLoadable);
         }
     }
@@ -757,16 +770,17 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                                         List<FloatingMenuItem> extraMenu) {
         if (!loadable.isThreadMode()) {
             menu.add(new FloatingMenuItem(POST_OPTION_PIN, R.string.action_pin));
-        } else if (!loadable.isSavedCopy) {
+        } else if (!loadable.isLocal()) {
             menu.add(new FloatingMenuItem(POST_OPTION_QUOTE, R.string.post_quote));
             menu.add(new FloatingMenuItem(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
 
-        if (loadable.getSite().feature(Site.Feature.POST_REPORT) && !loadable.isSavedCopy) {
+        if (loadable.getSite().feature(Site.Feature.POST_REPORT) && !loadable.isLocal()) {
             menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
         }
 
-        if (!post.hasFilterParameters() && (loadable.isCatalogMode() || (loadable.isThreadMode() && !post.isOP)) && !loadable.isSavedCopy) {
+        if (!post.hasFilterParameters() && (loadable.isCatalogMode() ||
+                (loadable.isThreadMode() && !post.isOP)) && !loadable.isLocal()) {
             menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
             menu.add(new FloatingMenuItem(POST_OPTION_REMOVE, R.string.post_remove));
         }
@@ -784,7 +798,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
         if (loadable.site.feature(Site.Feature.POST_DELETE) &&
                 databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no) &&
-                !loadable.isSavedCopy) {
+                !loadable.isLocal()) {
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.post_delete));
         }
 
@@ -801,7 +815,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         extraMenu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
 
-        if (!loadable.isSavedCopy) {
+        if (!loadable.isLocal()) {
             boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
             extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, isSaved ? R.string.unsave : R.string.save));
         }
@@ -1125,7 +1139,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 && ChanSettings.historyEnabled.get()
                 && loadable.isThreadMode()
                 // Do not attempt to add a saved thread to the history
-                && !loadable.isSavedCopy) {
+                && !loadable.isLocal()) {
             historyAdded = true;
             History history = new History();
             history.loadable = loadable;
@@ -1187,8 +1201,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         this.context = context;
     }
 
-    public void updateLoadable(boolean isSavedCopy) {
-        loadable.isSavedCopy = isSavedCopy;
+    public void updateLoadable(Loadable.LoadableDownloadingState loadableDownloadingState) {
+        loadable.loadableDownloadingState = loadableDownloadingState;
     }
 
     public enum DownloadThreadState {
@@ -1278,6 +1292,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
         void onRestoreRemovedPostsClicked(int threadNo, Site site, String boardCode, List<Integer> selectedPosts);
 
-        void shownBackgroundWatcherIsDisabledToast();
+        void showBackgroundWatcherIsDisabledToast();
     }
 }

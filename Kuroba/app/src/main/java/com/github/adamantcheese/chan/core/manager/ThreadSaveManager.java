@@ -678,6 +678,11 @@ public class ThreadSaveManager {
                             return Single.just(false);
                         }
 
+                        if (postImage.imageUrl == null) {
+                            Logger.d(TAG, "postImage.imageUrl == null");
+                            return Single.just(false);
+                        }
+
                         try {
                             downloadImageIntoFile(
                                     threadSaveDirImages,

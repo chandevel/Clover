@@ -370,7 +370,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     private boolean imageAutoLoad(Loadable loadable, PostImage postImage) {
-        if (loadable.isSavedCopy) {
+        if (loadable.isLocal()) {
             // All images are stored locally when isSavedCopy is true
             return true;
         }
@@ -380,7 +380,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     private boolean videoAutoLoad(Loadable loadable, PostImage postImage) {
-        if (loadable.isSavedCopy) {
+        if (loadable.isLocal()) {
             // All videos are stored locally when isSavedCopy is true
             return true;
         }

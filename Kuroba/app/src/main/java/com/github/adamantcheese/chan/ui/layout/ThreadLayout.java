@@ -266,13 +266,13 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
-        if (thread.loadable.isSavedCopy) {
+        if (thread.loadable.isLocal()) {
             hideReplyButton();
-            getPresenter().updateLoadable(true);
         } else {
             showReplyButton();
-            getPresenter().updateLoadable(false);
         }
+
+        getPresenter().updateLoadable(thread.loadable.loadableDownloadingState);
 
         threadListLayout.showPosts(thread, filter, visible != Visible.THREAD);
         switchVisible(Visible.THREAD);
@@ -607,7 +607,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void shownBackgroundWatcherIsDisabledToast() {
+    public void showBackgroundWatcherIsDisabledToast() {
         Toast.makeText(
                 getContext(),
                 R.string.thread_layout_background_watcher_is_disabled_message,

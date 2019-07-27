@@ -216,7 +216,7 @@ public class ImageLoader {
             int width,
             int height,
             ImageListener imageListener) {
-        if (loadable.isSavedCopy) {
+        if (loadable.isLocal()) {
             String formattedName;
 
             if (postImage.spoiler) {

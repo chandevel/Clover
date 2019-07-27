@@ -74,7 +74,7 @@ public class AlbumViewController extends Controller implements
         this.loadable = loadable;
         this.postImages = postImages;
 
-        if (!loadable.isSavedCopy) {
+        if (!loadable.isLocal()) {
             // Navigation
             navigation.buildMenu().withOverflow()
                     .withSubItem(R.string.action_download_album, this::downloadAlbumClicked)
