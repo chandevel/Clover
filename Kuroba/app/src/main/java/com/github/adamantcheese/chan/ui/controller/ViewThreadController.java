@@ -424,7 +424,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         this.loadable = presenter.getLoadable();
 
         populateLocalOrLiveVersionMenu();
-        navigation.title = getTitle(loadable);
+        navigation.title = loadable.title;
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
 
         setPinIconState(false);
@@ -490,7 +490,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void onShowPosts(Loadable loadable) {
         super.onShowPosts(loadable);
-        navigation.title = getTitle(this.loadable);
+        navigation.title = this.loadable.title;
 
         setPinIconState(false);
         setSaveIconState(false);
@@ -498,21 +498,6 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
         ((ToolbarNavigationController) navigationController).toolbar.updateViewForItem(navigation);
-    }
-
-    /**
-     * Appends the "L" character before the thread title so it's obvious that we are viewing
-     * a local thread
-     * TODO: add setting?
-     * */
-    private String getTitle(Loadable l) {
-        String title = l.title;
-
-        if (l.isLocal()) {
-            return "(L) " + title;
-        }
-
-        return title;
     }
 
     private void updateDrawerHighlighting(Loadable loadable) {
