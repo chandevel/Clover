@@ -52,6 +52,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
     private AuthenticationLayoutCallback callback;
 
     private String challenge;
+    private boolean isAutoReply = true;
 
     public LegacyCaptchaLayout(Context context) {
         super(context);
@@ -64,6 +65,10 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
     public LegacyCaptchaLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
+
+    /**
+     * TODO: add support for the Captcha queueing {@link CaptchaHolder}
+     * */
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
@@ -112,7 +117,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
     }
 
     @Override
-    public void initialize(Site site, AuthenticationLayoutCallback callback) {
+    public void initialize(Site site, AuthenticationLayoutCallback callback, boolean ignored) {
         this.callback = callback;
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
@@ -138,7 +143,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
 
     private void submitCaptcha() {
         AndroidUtils.hideKeyboard(this);
-        callback.onAuthenticationComplete(this, challenge, input.getText().toString());
+        callback.onAuthenticationComplete(this, challenge, input.getText().toString(), isAutoReply);
     }
 
     private void onCaptchaLoaded(final String imageUrl, final String challenge) {

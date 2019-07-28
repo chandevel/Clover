@@ -23,6 +23,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import org.codejargon.feather.Provides;
@@ -74,5 +75,11 @@ public class AppModule {
     @Singleton
     public ImageSaver provideImageSaver() {
         return new ImageSaver();
+    }
+
+    @Provides
+    @Singleton
+    public CaptchaHolder provideCaptchaHolder() {
+        return new CaptchaHolder();
     }
 }

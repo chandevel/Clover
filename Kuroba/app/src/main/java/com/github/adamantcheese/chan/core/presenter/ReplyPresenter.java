@@ -205,49 +205,66 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         }
     }
 
-    public void onSubmitClicked() {
-        callback.loadViewsIntoDraft(draft);
+    public void onAuthenticateCalled() {
+        if (loadable.site.actions().postRequiresAuthentication()) {
+            if (!onPrepareToSubmit()) {
+                return;
+            }
 
-        if (draft.comment.trim().isEmpty() && draft.file == null) {
-            callback.openMessage(true, false, getAppContext().getString(R.string.reply_comment_empty), true);
-            return;
+            switchPage(Page.AUTHENTICATION, true, true, false);
         }
+    }
 
-        draft.loadable = loadable;
-        draft.spoilerImage = draft.spoilerImage && board.spoilers;
-        draft.captchaResponse = null;
-        if (ChanSettings.enableEmoji.get()) {
-            draft.comment = EmojiParser.parseFromUnicode(draft.comment, e -> ":" + e.getEmoji().getAliases().get(0) + (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "") + ": ");
+    public void onSubmitClicked() {
+        if (!onPrepareToSubmit()) {
+            return;
         }
 
         //only 4chan seems to have the post delay, this is a hack for that
         if (draft.loadable.site.name().equals("4chan")) {
             if (loadable.isThreadMode()) {
-                if (lastReplyRepository.canPostReply(draft.loadable.site, draft.loadable.board, draft.file != null)) {
+                if (lastReplyRepository.canPostReply(
+                        draft.loadable.site,
+                        draft.loadable.board,
+                        draft.file != null)) {
                     submitOrAuthenticate();
                 } else {
-                    long lastPostTime = lastReplyRepository.getLastReply(draft.loadable.site, draft.loadable.board);
-                    long waitTime = draft.file != null ? draft.loadable.board.cooldownImages : draft.loadable.board.cooldownReplies;
+                    long lastPostTime = lastReplyRepository.getLastReply(
+                            draft.loadable.site,
+                            draft.loadable.board);
+
+                    long waitTime = draft.file != null
+                            ? draft.loadable.board.cooldownImages
+                            : draft.loadable.board.cooldownReplies;
+
                     if (draft.loadable.site.actions().isLoggedIn()) {
                         waitTime /= 2;
                     }
+
                     long timeLeft = waitTime - ((System.currentTimeMillis() - lastPostTime) / 1000L);
                     String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_reply, timeLeft);
                     switchPage(Page.INPUT, true);
                     callback.openMessage(true, false, errorMessage, true);
                 }
             } else if (loadable.isCatalogMode()) {
-                if (lastReplyRepository.canPostThread(draft.loadable.site, draft.loadable.board)) {
+                if (lastReplyRepository.canPostThread(
+                        draft.loadable.site,
+                        draft.loadable.board)) {
                     submitOrAuthenticate();
                 } else {
-                    long lastThreadTime = lastReplyRepository.getLastThread(draft.loadable.site, draft.loadable.board);
+                    long lastThreadTime = lastReplyRepository.getLastThread(
+                            draft.loadable.site,
+                            draft.loadable.board);
+
                     long waitTime = draft.loadable.board.cooldownThreads;
                     if (draft.loadable.site.actions().isLoggedIn()) {
                         waitTime /= 2;
                     }
+
                     long timeLeft = waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
                     String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_thread, timeLeft);
                     switchPage(Page.INPUT, true);
+
                     callback.openMessage(true, false, errorMessage, true);
                 }
             } else {
@@ -264,6 +281,27 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         } else {
             makeSubmitCall();
         }
+    }
+
+    private boolean onPrepareToSubmit() {
+        callback.loadViewsIntoDraft(draft);
+
+        if (draft.comment.trim().isEmpty() && draft.file == null) {
+            callback.openMessage(true, false, getAppContext().getString(R.string.reply_comment_empty), true);
+            return false;
+        }
+
+        draft.loadable = loadable;
+        draft.spoilerImage = draft.spoilerImage && board.spoilers;
+        draft.captchaResponse = null;
+        if (ChanSettings.enableEmoji.get()) {
+            draft.comment = EmojiParser.parseFromUnicode(draft.comment, e -> {
+                return ":" + e.getEmoji().getAliases().get(0) +
+                        (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "") + ": ";
+            });
+        }
+
+        return true;
     }
 
     @Override
@@ -349,7 +387,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     @Override
-    public void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout, String challenge, String response) {
+    public void onAuthenticationComplete(
+            AuthenticationLayoutInterface authenticationLayout,
+            String challenge,
+            String response,
+            boolean autoReply) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
 
@@ -360,12 +402,16 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             authenticationLayout.reset();
         }
 
-        makeSubmitCall();
+        if (autoReply) {
+            makeSubmitCall();
+        } else {
+            switchPage(Page.INPUT, true);
+        }
     }
 
     @Override
-    public void onFallbackToV1CaptchaView() {
-        callback.onFallbackToV1CaptchaView();
+    public void onFallbackToV1CaptchaView(boolean autoReply) {
+        callback.onFallbackToV1CaptchaView(autoReply);
     }
 
     public void onCommentTextChanged(CharSequence text) {
@@ -489,10 +535,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     public void switchPage(Page page, boolean animate) {
-        switchPage(page, animate, true);
+        switchPage(page, animate, true, true);
     }
 
-    public void switchPage(Page page, boolean animate, boolean useV2NoJsCaptcha) {
+    public void switchPage(Page page, boolean animate, boolean useV2NoJsCaptcha, boolean autoReply) {
         if (!useV2NoJsCaptcha || this.page != page) {
             this.page = page;
             switch (page) {
@@ -507,7 +553,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
                     // cleanup resources tied to the new captcha layout/presenter
                     callback.destroyCurrentAuthentication();
-                    callback.initializeAuthentication(loadable.site, authentication, this, useV2NoJsCaptcha);
+                    callback.initializeAuthentication(loadable.site, authentication, this, useV2NoJsCaptcha, autoReply);
                     callback.setPage(Page.AUTHENTICATION, true);
 
                     break;
@@ -590,7 +636,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         void initializeAuthentication(Site site,
                                       SiteAuthentication authentication,
                                       AuthenticationLayoutCallback callback,
-                                      boolean useV2NoJsCaptcha);
+                                      boolean useV2NoJsCaptcha,
+                                      boolean autoReply);
 
         void resetAuthentication();
 
@@ -640,7 +687,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         void onUploadingProgress(int percent);
 
-        void onFallbackToV1CaptchaView();
+        void onFallbackToV1CaptchaView(boolean autoReply);
 
         void destroyCurrentAuthentication();
     }

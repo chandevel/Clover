@@ -48,6 +48,7 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaLayout;
 import com.github.adamantcheese.chan.ui.captcha.GenericWebViewAuthenticationLayout;
 import com.github.adamantcheese.chan.ui.captcha.LegacyCaptchaLayout;
@@ -72,9 +73,19 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class ReplyLayout extends LoadView implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher, ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener {
+public class ReplyLayout extends LoadView implements
+        View.OnClickListener,
+        ReplyPresenter.ReplyPresenterCallback,
+        TextWatcher,
+        ImageDecoder.ImageDecoderCallback,
+        SelectionListeningEditText.SelectionChangedListener,
+        CaptchaHolder.CaptchaValidationListener {
+    private static final String TAG = "ReplyLayout";
+
     @Inject
     ReplyPresenter presenter;
+    @Inject
+    CaptchaHolder captchaHolder;
 
     private ReplyLayoutCallback callback;
 
@@ -104,6 +115,8 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     private ImageView preview;
     private TextView previewMessage;
     private ImageView attach;
+    private ImageView captcha;
+    private TextView validCaptchasCount;
     private ImageView more;
     private ImageView submit;
     private DropdownArrowDrawable moreDropdown;
@@ -157,6 +170,8 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         previewHolder = replyInputLayout.findViewById(R.id.preview_holder);
         previewMessage = replyInputLayout.findViewById(R.id.preview_message);
         attach = replyInputLayout.findViewById(R.id.attach);
+        captcha = replyInputLayout.findViewById(R.id.captcha);
+        validCaptchasCount = replyInputLayout.findViewById(R.id.valid_captchas_count);
         more = replyInputLayout.findViewById(R.id.more);
         submit = replyInputLayout.findViewById(R.id.submit);
 
@@ -187,6 +202,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
             presenter.onAttachClicked(true);
             return true;
         });
+
+        setRoundItemBackground(captcha);
+        captcha.setOnClickListener(this);
 
         ThemeHelper.getTheme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
@@ -223,9 +241,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
 
     public void bindLoadable(Loadable loadable) {
         presenter.bindLoadable(loadable);
+        captchaHolder.addListener(TAG, this);
     }
 
     public void cleanup() {
+        captchaHolder.removeListener(TAG);
         presenter.unbindLoadable();
         removeCallbacks(closeMessageRunnable);
     }
@@ -247,6 +267,8 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
             presenter.onMoreClicked();
         } else if (v == attach) {
             presenter.onAttachClicked(false);
+        } else if (v == captcha) {
+            presenter.onAuthenticateCalled();
         } else if (v == submit) {
             presenter.onSubmitClicked();
         } else if (v == previewHolder) {
@@ -278,7 +300,8 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     public void initializeAuthentication(Site site,
                                          SiteAuthentication authentication,
                                          AuthenticationLayoutCallback callback,
-                                         boolean useV2NoJsCaptcha) {
+                                         boolean useV2NoJsCaptcha,
+                                         boolean autoReply) {
         if (authenticationLayout == null) {
             switch (authentication.type) {
                 case CAPTCHA1: {
@@ -338,7 +361,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
             AndroidUtils.hideKeyboard(this);
         }
 
-        authenticationLayout.initialize(site, callback);
+        authenticationLayout.initialize(site, callback, autoReply);
         authenticationLayout.reset();
     }
 
@@ -514,9 +537,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     }
 
     @Override
-    public void onFallbackToV1CaptchaView() {
+    public void onFallbackToV1CaptchaView(boolean autoReply) {
         // fallback to v1 captcha window
-        presenter.switchPage(ReplyPresenter.Page.AUTHENTICATION, true, false);
+        presenter.switchPage(ReplyPresenter.Page.AUTHENTICATION, true, false, autoReply);
     }
 
     @Override
@@ -633,6 +656,21 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
             }
 
             currentProgress.setText(String.valueOf(percent));
+        }
+    }
+
+    @Override
+    public void onCaptchaCountChanged(int validCaptchaCount) {
+        if (validCaptchaCount == 0) {
+            validCaptchasCount.setVisibility(INVISIBLE);
+        } else {
+            validCaptchasCount.setVisibility(VISIBLE);
+        }
+
+        if (validCaptchaCount > 99) {
+            validCaptchasCount.setText(R.string.more_than_99_valid_captchas_text);
+        } else {
+            validCaptchasCount.setText(String.valueOf(validCaptchaCount));
         }
     }
 

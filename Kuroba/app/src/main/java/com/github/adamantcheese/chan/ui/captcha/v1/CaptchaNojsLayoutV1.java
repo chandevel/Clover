@@ -35,10 +35,14 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -47,35 +51,50 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+
 /**
  * It directly loads the captcha2 fallback url into a webview, and on each requests it executes
  * some javascript that will tell the callback if the token is there.
  */
 public class CaptchaNojsLayoutV1 extends WebView implements AuthenticationLayoutInterface {
     private static final String TAG = "CaptchaNojsLayout";
+    private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
+
+    @Inject
+    CaptchaHolder captchaHolder;
 
     private AuthenticationLayoutCallback callback;
     private String baseUrl;
     private String siteKey;
 
     private String webviewUserAgent;
+    private boolean isAutoReply = true;
 
     public CaptchaNojsLayoutV1(Context context) {
         super(context);
+        init();
     }
 
     public CaptchaNojsLayoutV1(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public CaptchaNojsLayoutV1(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        init();
+    }
+
+    private void init() {
+        inject(this);
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
-    public void initialize(Site site, AuthenticationLayoutCallback callback) {
+    public void initialize(Site site, AuthenticationLayoutCallback callback, boolean autoReply) {
         this.callback = callback;
+        this.isAutoReply = autoReply;
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
 
@@ -129,6 +148,11 @@ public class CaptchaNojsLayoutV1 extends WebView implements AuthenticationLayout
     }
 
     public void reset() {
+        if (captchaHolder.hasToken() && isAutoReply) {
+            callback.onAuthenticationComplete(this, null, captchaHolder.getToken(), true);
+            return;
+        }
+
         hardReset();
     }
 
@@ -166,7 +190,17 @@ public class CaptchaNojsLayoutV1 extends WebView implements AuthenticationLayout
         if (TextUtils.isEmpty(response)) {
             reset();
         } else {
-            callback.onAuthenticationComplete(this, null, response);
+            captchaHolder.addNewToken(response, RECAPTCHA_TOKEN_LIVE_TIME);
+
+            String token;
+
+            if (isAutoReply) {
+                token = captchaHolder.getToken();
+            } else {
+                token = response;
+            }
+
+            callback.onAuthenticationComplete(this, null, token, isAutoReply);
         }
     }
 
