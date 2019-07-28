@@ -170,7 +170,7 @@ public class WatchNotification extends Service {
                 }
             }
 
-            if (pin.isError) {
+            if (pin.isError || pin.archived) {
                 continue;
             }
 
