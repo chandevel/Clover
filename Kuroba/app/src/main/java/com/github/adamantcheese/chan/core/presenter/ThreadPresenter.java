@@ -22,6 +22,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
@@ -978,6 +979,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 !chanLoader.getThread().closed && !chanLoader.getThread().archived;
     }
 
+    @Nullable
     @Override
     public ChanThread getChanThread() {
         return chanLoader == null ? null : chanLoader.getThread();

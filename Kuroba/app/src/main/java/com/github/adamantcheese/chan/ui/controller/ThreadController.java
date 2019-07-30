@@ -23,6 +23,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.widget.Toast;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -147,6 +148,14 @@ public abstract class ThreadController extends Controller implements
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
+        if (threadLayout.getPresenter().getChanThread() == null) {
+            Toast.makeText(
+                    context,
+                    R.string.cannot_send_thread_via_nfc_already_deleted,
+                    Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
         Loadable loadable = getLoadable();
         String url = null;
         NdefMessage message = null;
