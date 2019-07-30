@@ -546,7 +546,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 threadPresenterCallback.showNewPostsNotification(true, more);
             }
 
-            if (ChanSettings.autoLoadThreadImages.get()) {
+            if (ChanSettings.autoLoadThreadImages.get() && !loadable.isSavedCopy) {
                 FileCache cache = Chan.injector().instance(FileCache.class);
                 for (Post p : result.posts) {
                     if (p.images != null) {
