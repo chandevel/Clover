@@ -306,7 +306,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
     private Boolean onResponseInternal(ChanLoaderResponse response) {
         // The server returned us an archived thread
-        if (response.op.archived) {
+        if (response.op != null && response.op.archived) {
             ChanThread chanThread = loadSavedThreadIfItExists();
             thread = chanThread;
 
@@ -350,7 +350,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         }
 
         // Normal thread, not archived/deleted
-        if (response.posts.isEmpty()) {
+        if (response.posts != null && response.posts.isEmpty()) {
             onErrorResponse(new VolleyError("Post size is 0"));
             return false;
         }
