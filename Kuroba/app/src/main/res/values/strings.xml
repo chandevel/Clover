@@ -535,6 +535,8 @@ If disabled, save the image with the filename the uploader assigned."
     <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
     <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
     <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
+    <string name="settings_allow_media_scanner_scan_local_threads_title">Allow the Android media scanner to scan images from locally saved threads</string>
+    <string name="settings_allow_media_scanner_scan_local_threads_description">If enabled, images that were downloaded along with threads will appear in other applications, like galleries, messengers etc; You may have to restart your phone or wait for the changes to kick in</string>
 
     <!-- Media loading group -->
     <string name="settings_group_media_loading">Media loading</string>
@@ -693,6 +695,7 @@ Don't have a 4chan Pass?<br>
     <string name="settings_experimental_settings_description">These settings may be in an unstable state. They are for testing. They may break the app and you may have to reset the app data. Use them at your own risk if you are really interested in some feature. Backup your everything beforehand.</string>
     <string name="incremental_thread_downloading_title">Incremental thread downloading</string>
     <string name="incremental_thread_downloading_description">Allows you to download threads to view them after the original thread dies</string>
+
     <string name="cannot_open_thread_in_browser_already_deleted">Can\'t open this thread in your browser, it\'s probably already been deleted</string>
     <string name="cannot_send_thread_via_nfc_already_deleted">Can\'t send thread via the NFC, it\'s already been deleted</string>
     <string name="cannot_shared_thread_already_deleted">Can\'t share this thread, it\'s already been deleted</string>
