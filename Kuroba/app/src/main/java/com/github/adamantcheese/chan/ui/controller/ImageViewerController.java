@@ -185,10 +185,12 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             // where the new thumbnails are to get the bounds from to animate to
             this.imageViewerCallback = imageViewerCallback;
             AndroidUtils.waitForLayout(view, view -> {
+                showSystemUI();
                 presenter.onExit();
                 return false;
             });
         } else {
+            showSystemUI();
             presenter.onExit();
         }
     }
