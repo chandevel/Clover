@@ -50,7 +50,8 @@ public class ImageLoaderV2 {
                             postImage.thumbnailUrl.toString());
 
                     if (extension == null) {
-                        Logger.e(TAG, "Could not extract extension from a thumbnailUrl = "
+                        // We expect images to have extensions
+                        throw new NullPointerException("Could not extract extension from a thumbnailUrl = "
                                 + postImage.thumbnailUrl.toString());
                     }
 
