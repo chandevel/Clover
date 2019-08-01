@@ -117,6 +117,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     private ChanThreadLoader chanLoader;
     private boolean searchOpen;
     private String searchQuery;
+    private boolean forcePageUpdate = true;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded;
     private boolean addToLocalBackHistory;
@@ -548,6 +549,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
             if (more > 0) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
+            }
+
+            //deal with any "requests" for a page update
+            if (forcePageUpdate) {
+                pageRequestManager.forceUpdateForBoard(loadable.board);
+                forcePageUpdate = false;
             }
 
             if (ChanSettings.autoLoadThreadImages.get() && !loadable.isSavedCopy) {
@@ -1022,7 +1029,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     public void requestNewPostLoad() {
         if (chanLoader != null && loadable != null && loadable.isThreadMode()) {
             chanLoader.requestMoreDataAndResetTimer();
-            pageRequestManager.forceUpdateForBoard(loadable.board);
+            //put in a "request" for a page update whenever the next set of data comes in
+            forcePageUpdate = true;
         }
     }
 
