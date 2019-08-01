@@ -88,10 +88,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     private Context context;
     private ImageView playView;
-    private GestureDetector exoDoubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector doubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            callback.onExoDoubleTap();
+            callback.onDoubleTap();
             return true;
         }
     });
@@ -384,6 +384,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
+        view.setOnClickListener(null);
+        view.setOnTouchListener((view1, motionEvent) -> doubleTapDetector.onTouchEvent(motionEvent));
         onModeLoaded(Mode.GIF, view);
     }
 
@@ -446,7 +448,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             exoPlayer.prepare(videoSource);
             exoPlayer.addAudioListener(this);
-            exoVideoView.setOnTouchListener((view, motionEvent) -> exoDoubleTapDetector.onTouchEvent(motionEvent));
+            exoVideoView.setOnTouchListener((view, motionEvent) -> doubleTapDetector.onTouchEvent(motionEvent));
 
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
@@ -610,7 +612,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     public interface Callback {
         void onTap();
 
-        void onExoDoubleTap();
+        void onDoubleTap();
 
         void showProgress(MultiImageView multiImageView, boolean progress);
 
