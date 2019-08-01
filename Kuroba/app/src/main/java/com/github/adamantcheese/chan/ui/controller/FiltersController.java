@@ -18,7 +18,9 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -171,6 +173,7 @@ public class FiltersController extends Controller implements
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
             ThemeHelper.getTheme().applyFabColor(enable);
+            enableButton.getDrawable().setTint(Color.WHITE);
             adapter.reload();
         }
     }
@@ -189,17 +192,23 @@ public class FiltersController extends Controller implements
     private void helpClicked(ToolbarMenuItem item) {
         final AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle("Help")
-                .setMessage("Enabled filters have priority from top to bottom. Filter precedence for actions is as follows:\n" +
-                        "1) Capcode or sticky\n" +
-                        "2) OP\n" +
-                        "3) Saved replies (your posts)\n" +
-                        "4) Tripcode\n" +
-                        "5) Name\n" +
-                        "6) Comment\n" +
-                        "7) ID\n" +
-                        "8) Subject\n" +
-                        "9) Country Code\n" +
-                        "10) Filename")
+                .setMessage(Html.fromHtml("Actions do the following:<br>" +
+                        "<b>Hide:</b> Replace the post with a stub. You can tap it to un-hide it.<br>" +
+                        "<b>Highlight:</b> A colored bar of your choosing will appear on the left hand side of this post.<br>" +
+                        "<b>Remove:</b> Remove this post. It won't be visible at all.<br>" +
+                        "<b>Watch:</b> If you have the thread watcher enabled and background watching on, and the watch filters option checked, " +
+                        "catalogs will be periodically checked based on your interval setting and any OP that matches the filter will be put into your bookmarks.<br><br>" +
+                        "Enabled filters have priority from top to bottom. Filter precedence for actions is as follows:<br>" +
+                        "1) Capcode or sticky<br>" +
+                        "2) OP<br>" +
+                        "3) Saved replies (your posts)<br>" +
+                        "4) Tripcode<br>" +
+                        "5) Name<br>" +
+                        "6) Comment<br>" +
+                        "7) ID<br>" +
+                        "8) Subject<br>" +
+                        "9) Country Code<br>" +
+                        "10) Filename"))
                 .setPositiveButton("Close", null)
                 .show();
         dialog.setCanceledOnTouchOutside(true);
