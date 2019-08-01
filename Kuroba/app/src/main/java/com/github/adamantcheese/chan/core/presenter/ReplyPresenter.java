@@ -207,7 +207,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     public void onAuthenticateCalled() {
         if (loadable.site.actions().postRequiresAuthentication()) {
-            if (!onPrepareToSubmit()) {
+            if (!onPrepareToSubmit(true)) {
                 return;
             }
 
@@ -216,7 +216,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     public void onSubmitClicked() {
-        if (!onPrepareToSubmit()) {
+        if (!onPrepareToSubmit(false)) {
             return;
         }
 
@@ -283,10 +283,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         }
     }
 
-    private boolean onPrepareToSubmit() {
+    private boolean onPrepareToSubmit(boolean isAuthenticateOnly) {
         callback.loadViewsIntoDraft(draft);
 
-        if (draft.comment.trim().isEmpty() && draft.file == null) {
+        if (!isAuthenticateOnly && (draft.comment.trim().isEmpty() && draft.file == null)) {
             callback.openMessage(true, false, getAppContext().getString(R.string.reply_comment_empty), true);
             return false;
         }

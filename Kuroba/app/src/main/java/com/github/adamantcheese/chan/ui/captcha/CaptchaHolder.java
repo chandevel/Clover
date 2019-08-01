@@ -23,7 +23,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CaptchaHolder {
     private static final String TAG = "CaptchaHolder";
     private static final long INTERVAL = 5000;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+    private static final SimpleDateFormat sdf = new SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss",
+            Locale.US);
     private AtomicBoolean running = new AtomicBoolean(false);
 
     private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
@@ -36,13 +38,20 @@ public class CaptchaHolder {
 
     public void addListener(String tag, CaptchaValidationListener listener) {
         mainThreadHandler.post(() -> {
+            if (listeners.get(tag) != null) {
+                listeners.put(tag, null);
+            }
+
             listeners.put(tag, listener);
             notifyListeners();
         });
     }
 
     public void removeListener(String tag) {
-        mainThreadHandler.post(() -> listeners.remove(tag));
+        mainThreadHandler.post(() -> {
+            listeners.put(tag, null);
+            listeners.remove(tag);
+        });
     }
 
     public void addNewToken(String token, long tokenLifetime) {
@@ -50,7 +59,8 @@ public class CaptchaHolder {
 
         synchronized (captchaQueue) {
             captchaQueue.add(0, new CaptchaInfo(token, tokenLifetime + System.currentTimeMillis()));
-            Logger.d(TAG, "A new token has been added, validCount = " + captchaQueue.size() + ", token = " + token);
+            Logger.d(TAG, "A new token has been added, validCount = " +
+                    captchaQueue.size() + ", token = " + trimToken(token));
         }
 
         notifyListeners();
@@ -84,7 +94,7 @@ public class CaptchaHolder {
 
             String token = captchaQueue.get(lastIndex).getToken();
             captchaQueue.remove(lastIndex);
-            Logger.d(TAG, "getToken() token = " + token);
+            Logger.d(TAG, "getToken() token = " + trimToken(token));
 
             notifyListeners();
             return token;
@@ -123,7 +133,7 @@ public class CaptchaHolder {
 
                     Logger.d(TAG, "Captcha token got expired, now = " + sdf.format(now) +
                             ", token validUntil = " + sdf.format(captchaInfo.getValidUntil())
-                            + ", token = " + captchaInfo.getToken());
+                            + ", token = " + trimToken(captchaInfo.getToken()));
                 }
             }
 
@@ -211,7 +221,15 @@ public class CaptchaHolder {
         @NonNull
         @Override
         public String toString() {
-            return "validUntil = " + sdf.format(validUntil) + ", token = " + token;
+            return "validUntil = " + sdf.format(validUntil) + ", token = " + trimToken(token);
         }
+    }
+
+    private static String trimToken(String token) {
+        if (token.length() <= 16) {
+            return token;
+        }
+
+        return token.substring(0, 7) + "..." + token.substring(token.length() - 8);
     }
 }
