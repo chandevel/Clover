@@ -91,7 +91,7 @@ public class ImageLoaderV2 {
             ImageListener imageListener,
             int width,
             int height) {
-        ImageContainer container = new ImageContainer(null, null, null, null);
+        ImageContainer container = new ImageContainer(null, null, null, imageListener);
 
         diskLoaderExecutor.execute(() -> {
             String imageDir;
@@ -114,7 +114,9 @@ public class ImageLoaderV2 {
                 Logger.e(TAG, errorMessage);
 
                 mainThreadHandler.post(() -> {
-                    container.getListener().onErrorResponse(new VolleyError(errorMessage));
+                    if (container.getListener() != null) {
+                        container.getListener().onErrorResponse(new VolleyError(errorMessage));
+                    }
                 });
                 return;
             }
@@ -129,7 +131,9 @@ public class ImageLoaderV2 {
                 Logger.e(TAG, "Could not decode bitmap");
 
                 mainThreadHandler.post(() -> {
-                    container.getListener().onErrorResponse(new VolleyError("Could not decode bitmap"));
+                    if (container.getListener() != null) {
+                        container.getListener().onErrorResponse(new VolleyError("Could not decode bitmap"));
+                    }
                 });
                 return;
             }

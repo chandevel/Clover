@@ -2,6 +2,8 @@ package com.github.adamantcheese.chan.core.image;
 
 import android.graphics.Bitmap;
 
+import androidx.annotation.Nullable;
+
 /**
  * Container object for all of the data surrounding an image request.
  */
@@ -50,6 +52,7 @@ public class ImageContainer {
         return mCacheKey;
     }
 
+    @Nullable
     public ImageListener getListener() {
         return mListener;
     }
