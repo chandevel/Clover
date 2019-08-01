@@ -556,8 +556,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 }
             }
 
-            if (ChanSettings.autoLoadThreadImages.get() &&
-                    loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+            if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal()) {
                 FileCache cache = Chan.injector().instance(FileCache.class);
                 for (Post p : result.posts) {
                     if (p.images != null) {
