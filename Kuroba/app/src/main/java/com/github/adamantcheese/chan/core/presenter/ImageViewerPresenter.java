@@ -318,7 +318,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     @Override
-    public void onExoDoubleTap() {
+    public void onDoubleTap() {
         onExit();
     }
 

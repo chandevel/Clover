@@ -47,6 +47,7 @@ import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -277,6 +278,8 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             List<FloatingMenuItem> menuItems = new ArrayList<>(6);
 
             for (FilterAction action : FilterAction.values()) {
+                //don't display the watch action unless it's been enabled
+                if (action == FilterAction.WATCH && !ChanSettings.watchFilterWatch.get()) continue;
                 menuItems.add(new FloatingMenuItem(action, FilterAction.actionName(action)));
             }
 
