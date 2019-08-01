@@ -549,12 +549,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
             if (more > 0) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
-            }
-
-            //deal with any "requests" for a page update
-            if (forcePageUpdate) {
-                pageRequestManager.forceUpdateForBoard(loadable.board);
-                forcePageUpdate = false;
+                //deal with any "requests" for a page update
+                if (forcePageUpdate) {
+                    pageRequestManager.forceUpdateForBoard(loadable.board);
+                    forcePageUpdate = false;
+                }
             }
 
             if (ChanSettings.autoLoadThreadImages.get() && !loadable.isSavedCopy) {
