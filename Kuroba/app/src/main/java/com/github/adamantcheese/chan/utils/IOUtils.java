@@ -122,8 +122,11 @@ public class IOUtils {
 
     public static void deleteDirWithContents(File dir) {
         if (dir.isDirectory()) {
-            for (File c : dir.listFiles()) {
-                deleteDirWithContents(c);
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File c : files) {
+                    deleteDirWithContents(c);
+                }
             }
         }
 

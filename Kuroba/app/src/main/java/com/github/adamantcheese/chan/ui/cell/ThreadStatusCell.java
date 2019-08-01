@@ -28,6 +28,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -220,6 +222,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
         boolean isWatching();
 
+        @Nullable
         ChanThread getChanThread();
 
         Chan4PagesRequest.Page getPage(Post op);

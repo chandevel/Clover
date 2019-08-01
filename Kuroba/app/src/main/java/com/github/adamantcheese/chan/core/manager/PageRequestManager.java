@@ -16,9 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -37,7 +34,6 @@ import java.util.concurrent.ConcurrentMap;
 public class PageRequestManager implements SiteActions.PagesListener {
     private static final String TAG = "PageRequestManager";
     private static final int THREE_MINUTES = 3 * 60 * 1000;
-    private static final int THIRTY_SECONDS = 30 * 1000;
 
     private Set<String> requestedBoards = Collections.synchronizedSet(new HashSet<>());
     private Set<String> savedBoards = Collections.synchronizedSet(new HashSet<>());
@@ -61,10 +57,8 @@ public class PageRequestManager implements SiteActions.PagesListener {
     }
 
     public void forceUpdateForBoard(Board b) {
-        final Board localBoardCopy = b.clone(); //clone the board so that if for any reason the GC decides
-        // to eat the other variable, this one is still around for the delayed function call
-        Handler mainThread = new Handler(Looper.getMainLooper());
-        mainThread.postDelayed(() -> shouldUpdate(localBoardCopy, true), THIRTY_SECONDS);
+        Logger.d(TAG, "Requesting existing board pages, forced");
+        requestBoard(b);
     }
 
     private Chan4PagesRequest.Page findPage(Board board, int opNo) {
@@ -84,7 +78,7 @@ public class PageRequestManager implements SiteActions.PagesListener {
         if (savedBoards.contains(b.code)) {
             //if we have it stored already, return the pages for it
             //also issue a new request if 3 minutes have passed
-            shouldUpdate(b, false);
+            shouldUpdate(b);
             return boardPagesMap.get(b.code);
         } else {
             //otherwise, get the site for the board and request the pages for it
@@ -94,12 +88,12 @@ public class PageRequestManager implements SiteActions.PagesListener {
         }
     }
 
-    private void shouldUpdate(Board b, boolean forceUpdate) {
+    private void shouldUpdate(Board b) {
         if (b == null) return; //if for any reason the board is null, don't do anything
         Long lastUpdate = boardTimeMap.get(b.code); //had some null issues for some reason? arisuchan in particular?
         long lastUpdateTime = lastUpdate != null ? lastUpdate : 0L;
-        if (lastUpdateTime + THREE_MINUTES <= System.currentTimeMillis() || forceUpdate) {
-            Logger.d(TAG, "Requesting existing board pages, " + (forceUpdate ? "forced update" : "timeout"));
+        if (lastUpdateTime + THREE_MINUTES <= System.currentTimeMillis()) {
+            Logger.d(TAG, "Requesting existing board pages, timeout");
             requestBoard(b);
         }
     }

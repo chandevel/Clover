@@ -137,6 +137,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         }
     }
 
+    @Nullable
     public ChanThread getThread() {
         return thread;
     }
@@ -347,7 +348,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
     private Boolean onResponseInternal(ChanLoaderResponse response) {
         // The server returned us a closed or an archived thread
-        if (response.op.closed || response.op.archived) {
+        if (response.op != null && response.op.closed || response.op.archived) {
             if (onThreadArchived(response.op.closed, response.op.archived)) {
                 return true;
             }

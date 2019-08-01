@@ -22,6 +22,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
@@ -116,6 +117,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     private ChanThreadLoader chanLoader;
     private boolean searchOpen;
     private String searchQuery;
+    private boolean forcePageUpdate = true;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded;
     private boolean addToLocalBackHistory;
@@ -365,10 +367,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     private void saveInternal() {
-        ChanThread thread = chanLoader.getThread();
+        if (chanLoader.getThread() == null) {
+            return;
+        }
 
-        Post op = thread.op;
-        List<Post> postsToSave = thread.posts;
+        Post op = chanLoader.getThread().op;
+        List<Post> postsToSave = chanLoader.getThread().posts;
 
         Pin oldPin = watchManager.findPinByLoadableId(loadable.id);
         if (oldPin != null) {
@@ -545,14 +549,23 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
             if (more > 0) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
+                //deal with any "requests" for a page update
+                if (forcePageUpdate) {
+                    pageRequestManager.forceUpdateForBoard(loadable.board);
+                    forcePageUpdate = false;
+                }
             }
 
-            if (ChanSettings.autoLoadThreadImages.get()) {
+            if (ChanSettings.autoLoadThreadImages.get() &&
+                    loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.AlreadyDownloaded) {
                 FileCache cache = Chan.injector().instance(FileCache.class);
                 for (Post p : result.posts) {
                     if (p.images != null) {
                         for (PostImage postImage : p.images) {
-                            if (cache.exists(postImage.imageUrl.toString())) continue;
+                            if (cache.exists(postImage.imageUrl.toString())) {
+                                continue;
+                            }
+                            
                             if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
                                     && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
                                 cache.downloadFile(loadable, postImage, null);
@@ -885,7 +898,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 break;
             case POST_OPTION_REMOVE:
             case POST_OPTION_HIDE:
-                if (chanLoader == null) {
+                if (chanLoader == null || chanLoader.getThread() == null) {
                     break;
                 }
 
@@ -992,6 +1005,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 !chanLoader.getThread().closed && !chanLoader.getThread().archived;
     }
 
+    @Nullable
     @Override
     public ChanThread getChanThread() {
         return chanLoader == null ? null : chanLoader.getThread();
@@ -1030,7 +1044,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     public void requestNewPostLoad() {
         if (chanLoader != null && loadable != null && loadable.isThreadMode()) {
             chanLoader.requestMoreDataAndResetTimer();
-            pageRequestManager.forceUpdateForBoard(loadable.board);
+            //put in a "request" for a page update whenever the next set of data comes in
+            forcePageUpdate = true;
         }
     }
 
@@ -1127,14 +1142,17 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     private void showPosts() {
-        if (chanLoader != null) {
+        if (chanLoader != null && chanLoader.getThread() != null) {
             threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
         }
     }
 
     private void addHistory() {
-        if (chanLoader != null
-                && !historyAdded
+        if (chanLoader == null || chanLoader.getThread() == null) {
+            return;
+        }
+
+        if (!historyAdded
                 && addToLocalBackHistory
                 && ChanSettings.historyEnabled.get()
                 && loadable.isThreadMode()
@@ -1171,7 +1189,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public void showRemovedPostsDialog() {
-        if (chanLoader == null || chanLoader.getThread().loadable.mode != Loadable.Mode.THREAD) {
+        if (chanLoader == null || chanLoader.getThread() == null) {
+            return;
+        }
+
+        if (chanLoader.getThread().loadable.mode != Loadable.Mode.THREAD) {
             return;
         }
 
@@ -1181,7 +1203,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public void onRestoreRemovedPostsClicked(List<Integer> selectedPosts) {
-        if (chanLoader == null) return;
+        if (chanLoader == null || chanLoader.getThread() == null) {
+            return;
+        }
+
         int threadNo = chanLoader.getThread().op.no;
         Site site = chanLoader.getThread().loadable.site;
         String boardCode = chanLoader.getThread().loadable.boardCode;

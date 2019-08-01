@@ -2,6 +2,8 @@ package com.github.adamantcheese.chan.utils;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
@@ -18,7 +20,7 @@ public class PostUtils {
     private PostUtils() {
     }
 
-    public static Post findPostById(int id, ChanThread thread) {
+    public static Post findPostById(int id, @Nullable ChanThread thread) {
         if (thread != null) {
             for (Post post : thread.posts) {
                 if (post.no == id) {

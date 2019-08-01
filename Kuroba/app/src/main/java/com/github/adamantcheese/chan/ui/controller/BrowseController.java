@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -278,6 +279,14 @@ public class BrowseController extends ThreadController implements
 
     private void handleShareAndOpenInBrowser(ThreadPresenter presenter, boolean share) {
         if (presenter.isBound()) {
+            if (presenter.getChanThread() == null) {
+                Toast.makeText(
+                        context,
+                        R.string.cannot_open_thread_in_browser_already_deleted,
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             Loadable loadable = presenter.getLoadable();
             String link = loadable.site.resolvable().desktopUrl(loadable, presenter.getChanThread().op);
 

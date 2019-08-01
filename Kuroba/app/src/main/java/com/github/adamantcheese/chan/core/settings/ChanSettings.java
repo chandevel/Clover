@@ -144,6 +144,7 @@ public class ChanSettings {
     public static final BooleanSetting videoDefaultMuted;
     public static final BooleanSetting videoAutoLoop;
     public static final BooleanSetting autoLoadThreadImages;
+    public static final BooleanSetting allowMediaScannerToScanLocalThreads;
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchBackground;
@@ -230,6 +231,7 @@ public class ChanSettings {
         videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
         videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
         autoLoadThreadImages = new BooleanSetting(p, "preference_auto_load_thread", false);
+        allowMediaScannerToScanLocalThreads = new BooleanSetting(p, "allow_media_scanner_to_scan_local_threads", false);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
         watchEnabled.addCallback((setting, value) ->

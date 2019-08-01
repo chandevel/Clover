@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Animatable2;
 import android.graphics.drawable.AnimatedVectorDrawable;
@@ -291,14 +292,34 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
 
                 watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
+                watchCount.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
                 WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
                 Board pinBoard = pin.loadable.board;
-                if ((pinWatcher.getReplyCount() >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) ||
-                        (pinWatcher.getImageCount() >= pinBoard.imageLimit && pinBoard.imageLimit > 0) ||
-                        (pinWatcher.latestKnownPage >= pinBoard.pages && pinBoard.pages > 0)) {
-                    watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
-
+                boolean italicize = false, bold = false;
+                if (pinWatcher.getReplyCount() >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) {
+                    //italics for bump limit
+                    italicize = true;
                 }
+
+                if (pinWatcher.getImageCount() >= pinBoard.imageLimit && pinBoard.imageLimit > 0) {
+                    //bold for image limit
+                    bold = true;
+                }
+
+                if (italicize && bold) {
+                    watchCount.setTypeface(watchCount.getTypeface(), Typeface.BOLD_ITALIC);
+                } else if (italicize) {
+                    watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
+                } else if (bold) {
+                    watchCount.setTypeface(watchCount.getTypeface(), Typeface.BOLD);
+                }
+
+                if (pinWatcher.latestKnownPage >= pinBoard.pages && pinBoard.pages > 0) {
+                    //underline for page limit
+                    watchCount.setPaintFlags(watchCount.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                }
+
+                watchCount.setPaintFlags(watchCount.getPaintFlags());
             } else {
                 // FIXME: apparently we don't need to set the visibility to GONE here. Needs research.
                 watchCount.setVisibility(View.GONE);

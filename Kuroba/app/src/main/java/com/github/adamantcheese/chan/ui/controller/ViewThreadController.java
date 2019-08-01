@@ -235,14 +235,34 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
+        if (threadLayout.getPresenter().getChanThread() == null) {
+            Toast.makeText(
+                    context,
+                    R.string.cannot_open_thread_in_browser_already_deleted,
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().op);
+        String link = loadable.site.resolvable().desktopUrl(
+                loadable,
+                threadLayout.getPresenter().getChanThread().op);
         AndroidUtils.openLinkInBrowser((Activity) context, link);
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
+        if (threadLayout.getPresenter().getChanThread() == null) {
+            Toast.makeText(
+                    context,
+                    R.string.cannot_shared_thread_already_deleted,
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().op);
+        String link = loadable.site.resolvable().desktopUrl(
+                loadable,
+                threadLayout.getPresenter().getChanThread().op);
         AndroidUtils.shareLink(link);
     }
 

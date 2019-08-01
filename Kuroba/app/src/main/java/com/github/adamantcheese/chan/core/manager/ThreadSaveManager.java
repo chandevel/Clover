@@ -62,6 +62,7 @@ public class ThreadSaveManager {
     public static final String SPOILER_FILE_NAME = "spoiler";
     public static final String THUMBNAIL_FILE_NAME = "thumbnail";
     public static final String ORIGINAL_FILE_NAME = "original";
+    public static final String NO_MEDIA_FILE_NAME = ".nomedia";
 
     private DatabaseManager databaseManager;
     private DatabaseSavedThreadManager databaseSavedThreadManager;
@@ -328,6 +329,21 @@ public class ThreadSaveManager {
             File threadSaveDirImages = new File(threadSaveDir, IMAGES_DIR_NAME);
             if (!threadSaveDirImages.exists() && !threadSaveDirImages.mkdirs()) {
                 throw new CouldNotCreateImagesDirectoryException(threadSaveDirImages);
+            }
+
+            if (ChanSettings.allowMediaScannerToScanLocalThreads.get()) {
+                // .nomedia file being in the images directory "should" prevent media scanner from
+                // scanning this directory
+                File noMediaFile = new File(threadSaveDirImages, NO_MEDIA_FILE_NAME);
+                if (!noMediaFile.exists() && !noMediaFile.createNewFile()) {
+                    throw new CouldNotCreateNoMediaFile(threadSaveDirImages);
+                }
+            } else {
+                File noMediaFile = new File(threadSaveDirImages, NO_MEDIA_FILE_NAME);
+                if (noMediaFile.exists() && !noMediaFile.delete()) {
+                    Logger.e(TAG, "Could not delete .nomedia file from directory "
+                            + threadSaveDirImages.getAbsolutePath());
+                }
             }
 
             // Filter out already saved posts and sort new posts in ascending order
@@ -1134,6 +1150,12 @@ public class ThreadSaveManager {
         public CouldNotCreateThreadDirectoryException(File threadSaveDir) {
             super("Could not create a directory to save the thread " +
                     "to (full path: " + threadSaveDir.getAbsolutePath() + ")");
+        }
+    }
+
+    class CouldNotCreateNoMediaFile extends Exception {
+        public CouldNotCreateNoMediaFile(File threadSaveDirImages) {
+            super("Could not create .nomedia file in directory " + threadSaveDirImages.getAbsolutePath());
         }
     }
 
