@@ -372,11 +372,18 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
     private boolean onThreadArchived(boolean closed, boolean archived) {
         ChanThread chanThread = loadSavedThreadIfItExists();
+        if (chanThread == null) {
+            // We don't have this thread locally saved, so return false and DO NOT SET thread to
+            // chanThread because this will close this thread (user will see 404 not found error)
+            // which we don't want.
+            return false;
+        }
+
         thread = chanThread;
 
         // If saved thread was not found or it has no posts (deserialization error) switch to
         // the error route
-        if (chanThread != null && !chanThread.posts.isEmpty()) {
+        if (!chanThread.posts.isEmpty()) {
             // Update SavedThread info in the database and in the watchManager.
             // Set isFullyDownloaded and isStopped to true so we can stop downloading it and stop
             // showing the download thread animated icon.
