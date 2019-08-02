@@ -175,36 +175,37 @@ public class WatchNotification extends Service {
                     }
                 }
 
-            if (PinType.hasDownloadFlag(pin.pinType)) {
-                threadDownloaderPins.add(pin);
-            }
+                if (PinType.hasDownloadFlag(pin.pinType)) {
+                    threadDownloaderPins.add(pin);
+                }
 
-            if (PinType.hasWatchNewPostsFlag(pin.pinType) && pin.watching) {
-                pins.add(pin);
+                if (PinType.hasWatchNewPostsFlag(pin.pinType) && pin.watching) {
+                    pins.add(pin);
 
-                if (notifyQuotesOnly) {
-                    unviewedPosts.addAll(watcher.getUnviewedQuotes());
-                    listQuoting.addAll(watcher.getUnviewedQuotes());
-                    if (watcher.getWereNewQuotes()) {
-                        flags |= NOTIFICATION_LIGHT | NOTIFICATION_PEEK | NOTIFICATION_SOUND;
-                    }
-                    if (pin.getNewQuoteCount() > 0) {
-                        subjectPins.add(pin);
-                    }
-                } else {
-                    unviewedPosts.addAll(watcher.getUnviewedPosts());
-                    listQuoting.addAll(watcher.getUnviewedQuotes());
-                    if (watcher.getWereNewPosts()) {
-                        flags |= NOTIFICATION_LIGHT;
-                        if (!soundQuotesOnly) {
+                    if (notifyQuotesOnly) {
+                        unviewedPosts.addAll(watcher.getUnviewedQuotes());
+                        listQuoting.addAll(watcher.getUnviewedQuotes());
+                        if (watcher.getWereNewQuotes()) {
+                            flags |= NOTIFICATION_LIGHT | NOTIFICATION_PEEK | NOTIFICATION_SOUND;
+                        }
+                        if (pin.getNewQuoteCount() > 0) {
+                            subjectPins.add(pin);
+                        }
+                    } else {
+                        unviewedPosts.addAll(watcher.getUnviewedPosts());
+                        listQuoting.addAll(watcher.getUnviewedQuotes());
+                        if (watcher.getWereNewPosts()) {
+                            flags |= NOTIFICATION_LIGHT;
+                            if (!soundQuotesOnly) {
+                                flags |= NOTIFICATION_PEEK | NOTIFICATION_SOUND;
+                            }
+                        }
+                        if (watcher.getWereNewQuotes()) {
                             flags |= NOTIFICATION_PEEK | NOTIFICATION_SOUND;
                         }
-                    }
-                    if (watcher.getWereNewQuotes()) {
-                        flags |= NOTIFICATION_PEEK | NOTIFICATION_SOUND;
-                    }
-                    if (pin.getNewPostCount() > 0) {
-                        subjectPins.add(pin);
+                        if (pin.getNewPostCount() > 0) {
+                            subjectPins.add(pin);
+                        }
                     }
                 }
             }
