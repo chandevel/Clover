@@ -19,9 +19,9 @@ package com.github.adamantcheese.chan.core.net;
 import android.graphics.Bitmap;
 import android.util.LruCache;
 
-import com.android.volley.toolbox.ImageLoader.ImageCache;
+import com.android.volley.toolbox.ImageLoader;
 
-public class BitmapLruImageCache extends LruCache<String, Bitmap> implements ImageCache {
+public class BitmapLruImageCache extends LruCache<String, Bitmap> implements ImageLoader.ImageCache {
     public BitmapLruImageCache(int maxSize) {
         super(maxSize);
     }

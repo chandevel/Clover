@@ -22,8 +22,8 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.android.volley.toolbox.ImageLoader.ImageListener;
+import com.github.adamantcheese.chan.core.image.ImageContainer;
+import com.github.adamantcheese.chan.core.image.ImageListener;
 
 /**
  * Handles fetching an image from a URL as well as the life-cycle of the
@@ -121,7 +121,7 @@ public class NetworkImageView extends ImageView {
         // currently loaded image.
         if (TextUtils.isEmpty(mUrl)) {
             if (mImageContainer != null) {
-                mImageContainer.cancelRequest();
+                mImageLoader.cancelRequest(mImageContainer);
                 mImageContainer = null;
             }
             setDefaultImageOrNull();
@@ -135,7 +135,7 @@ public class NetworkImageView extends ImageView {
                 return;
             } else {
                 // if there is a pre-existing request, cancel it if it's fetching a different URL.
-                mImageContainer.cancelRequest();
+                mImageLoader.cancelRequest(mImageContainer);
                 setDefaultImageOrNull();
             }
         }
@@ -203,7 +203,7 @@ public class NetworkImageView extends ImageView {
         if (mImageContainer != null) {
             // If the view was bound to an image request, cancel it and clear
             // out the image from the view.
-            mImageContainer.cancelRequest();
+            mImageLoader.cancelRequest(mImageContainer);
             setImageBitmap(null);
             // also clear out the container so we can reload the image if necessary.
             mImageContainer = null;

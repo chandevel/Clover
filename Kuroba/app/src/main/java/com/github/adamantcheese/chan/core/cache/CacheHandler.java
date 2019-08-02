@@ -74,8 +74,8 @@ public class CacheHandler {
     }
 
     @MainThread
-    protected void fileWasAdded(File file) {
-        long adjustedSize = size.addAndGet(file.length());
+    protected void fileWasAdded(long fileLen) {
+        long adjustedSize = size.addAndGet(fileLen);
 
         if (adjustedSize > FILE_CACHE_DISK_SIZE && trimRunning.compareAndSet(false, true)) {
             pool.submit(() -> {

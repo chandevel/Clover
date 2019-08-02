@@ -19,7 +19,9 @@ package com.github.adamantcheese.chan.ui.helper;
 public class PinHelper {
     public static String getShortUnreadCount(int value) {
         String count;
-        if (value < 1000) {
+        if (value < 0) {
+            count = "?";
+        } else if (value < 1000) {
             count = String.valueOf(value);
         } else {
             int k = value / 1000;

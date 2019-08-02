@@ -46,6 +46,9 @@ import com.davemorrissey.labs.subscaleview.ImageViewState;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.core.image.ImageContainer;
+import com.github.adamantcheese.chan.core.image.ImageListener;
+import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageViewerPresenter;
@@ -93,7 +96,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private static final int SAVE_ID = 2;
 
     @Inject
-    ImageLoader imageLoader;
+    ImageLoaderV2 imageLoaderV2;
 
     private int statusBarColorPrevious;
     private AnimatorSet startAnimation;
@@ -452,13 +455,13 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             }
         });
 
-        imageLoader.getImage(
+        imageLoaderV2.getImage(
                 true,
                 loadable,
                 postImage,
                 previewImage.getWidth(),
                 previewImage.getHeight(),
-                new ImageLoader.ImageListener() {
+                new ImageListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
@@ -466,7 +469,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                     }
 
                     @Override
-                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                    public void onResponse(ImageContainer response, boolean isImmediate) {
                         if (response.getBitmap() != null) {
                             previewImage.setBitmap(response.getBitmap());
                             startAnimation.start();
@@ -481,13 +484,13 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         }
 
 
-        imageLoader.getImage(
+        imageLoaderV2.getImage(
                 true,
                 loadable,
                 postImage,
                 previewImage.getWidth(),
                 previewImage.getHeight(),
-                new ImageLoader.ImageListener() {
+                new ImageListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");
@@ -495,7 +498,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                     }
 
                     @Override
-                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                    public void onResponse(ImageContainer response, boolean isImmediate) {
                         if (response.getBitmap() != null) {
                             doPreviewOutAnimation(postImage, response.getBitmap());
                         }

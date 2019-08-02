@@ -343,7 +343,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updateFilterValidity() {
         int extraFlags = (filter.type & FilterType.COUNTRY_CODE.flag) != 0 ? Pattern.CASE_INSENSITIVE : 0;
-        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, filter.action, extraFlags) != null;
+        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, extraFlags) != null;
 
         if (valid != patternContainerErrorShowing) {
             patternContainerErrorShowing = valid;

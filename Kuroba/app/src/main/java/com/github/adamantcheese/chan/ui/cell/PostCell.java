@@ -53,8 +53,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.image.ImageContainer;
+import com.github.adamantcheese.chan.core.image.ImageListener;
+import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -943,32 +945,34 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         }
     }
 
-    private static class PostIconsHttpIcon implements ImageLoader.ImageListener {
+    private static class PostIconsHttpIcon implements ImageListener {
         private final PostIcons postIcons;
         private final String name;
         private final HttpUrl url;
-        private ImageLoader.ImageContainer request;
+        private ImageContainer request;
         private Bitmap bitmap;
+        private ImageLoaderV2 imageLoaderV2;
 
         private PostIconsHttpIcon(PostIcons postIcons, String name, HttpUrl url) {
             this.postIcons = postIcons;
             this.name = name;
             this.url = url;
+            this.imageLoaderV2 = injector().instance(ImageLoaderV2.class);
         }
 
         private void request() {
-            request = injector().instance(ImageLoader.class).get(url.toString(), this);
+            request = imageLoaderV2.get(url.toString(), this);
         }
 
         private void cancel() {
             if (request != null) {
-                request.cancelRequest();
+                imageLoaderV2.cancelRequest(request);
                 request = null;
             }
         }
 
         @Override
-        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+        public void onResponse(ImageContainer response, boolean isImmediate) {
             if (response.getBitmap() != null) {
                 bitmap = response.getBitmap();
                 postIcons.invalidate();

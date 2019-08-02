@@ -32,9 +32,11 @@ import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
+import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -294,7 +296,7 @@ public class FilterEngine {
 
         if (pattern == null) {
             int extraFlags = (filter.type & FilterType.COUNTRY_CODE.flag) != 0 ? Pattern.CASE_INSENSITIVE : 0;
-            pattern = compile(filter.pattern, filter.action, extraFlags);
+            pattern = compile(filter.pattern, extraFlags);
             if (pattern != null) {
                 synchronized (patternCache) {
                     patternCache.put(filter.pattern, pattern);
@@ -304,7 +306,7 @@ public class FilterEngine {
         }
 
         if (pattern != null) {
-            Matcher matcher = pattern.matcher(text);
+            Matcher matcher = pattern.matcher(Parser.unescapeEntities(text, false));
             try {
                 return matcher.find();
             } catch (IllegalArgumentException e) {
@@ -318,11 +320,11 @@ public class FilterEngine {
     }
 
     private static final Pattern isRegexPattern = Pattern.compile("^/(.*)/(i?)$");
-    private static final Pattern filterFilthyPattern = Pattern.compile("(\\.|\\^|\\$|\\*|\\+|\\?|\\(|\\)|\\[|\\]|\\{|\\}|\\\\|\\||\\-)");
+    private static final Pattern filterFilthyPattern = Pattern.compile("([.^$*+?()\\]\\[{}\\\\|-])");
     private static final Pattern wildcardPattern = Pattern.compile("\\\\\\*"); // an escaped \ and an escaped *, to replace an escaped * from escapeRegex
 
     @AnyThread
-    public Pattern compile(String rawPattern, int filterAction, int extraPatternFlags) {
+    public Pattern compile(String rawPattern, int extraPatternFlags) {
         if (TextUtils.isEmpty(rawPattern)) {
             return null;
         }
@@ -342,23 +344,14 @@ public class FilterEngine {
             }
 
             try {
-                //the filter watch manager deals with exact comments and not HTML, so we don't escape for that
-                if (filterAction != FilterAction.WATCH.id) {
-                    pattern = Pattern.compile(Html.escapeHtml(isRegex.group(1)), flags);
-                } else {
-                    pattern = Pattern.compile(isRegex.group(1), flags);
-                }
+                pattern = Pattern.compile(isRegex.group(1), flags);
             } catch (PatternSyntaxException e) {
                 return null;
             }
         } else if (rawPattern.length() >= 2 && rawPattern.charAt(0) == '"' && rawPattern.charAt(rawPattern.length() - 1) == '"') {
             // "matches an exact sentence"
             String text = escapeRegex(rawPattern.substring(1, rawPattern.length() - 1));
-            if (filterAction != FilterAction.WATCH.id) {
-                pattern = Pattern.compile(Html.escapeHtml(text), Pattern.CASE_INSENSITIVE);
-            } else {
-                pattern = Pattern.compile(text, Pattern.CASE_INSENSITIVE);
-            }
+            pattern = Pattern.compile(text, Pattern.CASE_INSENSITIVE);
         } else {
             String[] words = rawPattern.split(" ");
             StringBuilder text = new StringBuilder();
@@ -372,11 +365,7 @@ public class FilterEngine {
                 }
             }
 
-            if (filterAction != FilterAction.WATCH.id) {
-                pattern = Pattern.compile(Html.escapeHtml(text.toString()), Pattern.CASE_INSENSITIVE);
-            } else {
-                pattern = Pattern.compile(text.toString(), Pattern.CASE_INSENSITIVE);
-            }
+            pattern = Pattern.compile(text.toString(), Pattern.CASE_INSENSITIVE);
         }
 
         return pattern;

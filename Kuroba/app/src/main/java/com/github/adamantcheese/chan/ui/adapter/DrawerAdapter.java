@@ -278,7 +278,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (ChanSettings.watchEnabled.get()) {
             if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
                 String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
-                String totalCount = PinHelper.getShortUnreadCount(watchManager.getPinWatcher(pin).getReplyCount());
+                String totalCount = PinHelper.getShortUnreadCount(pin.watchNewCount - 1);
                 watchCount.setVisibility(View.VISIBLE);
                 watchCount.setText(ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount);
 
@@ -295,7 +295,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
                 Board pinBoard = pin.loadable.board;
                 boolean italicize = false, bold = false;
-                if (pinWatcher.getReplyCount() >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) {
+                if (pin.watchNewCount - 1 >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) {
                     //italics for bump limit
                     italicize = true;
                 }

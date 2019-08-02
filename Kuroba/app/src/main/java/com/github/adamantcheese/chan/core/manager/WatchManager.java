@@ -967,6 +967,7 @@ public class WatchManager implements WakeManager.Wakeable {
                 }
                 return total;
             }
+
             return 0;
         }
 
