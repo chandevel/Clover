@@ -272,7 +272,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         TextView bookmarkLabel = holder.textView;
         bookmarkLabel.setText(text);
-        holder.image.setUrl(pin.thumbnailUrl);
 
         loadBookmarkImage(holder, pin);
 
