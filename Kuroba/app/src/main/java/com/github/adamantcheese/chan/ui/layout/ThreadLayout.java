@@ -183,14 +183,6 @@ public class ThreadLayout extends CoordinatorLayout implements
         presenter.unbindLoadable();
     }
 
-    public void hideReplyButton() {
-        AndroidUtils.hideView(replyButton);
-    }
-
-    public void showReplyButton() {
-        AndroidUtils.showView(replyButton);
-    }
-
     @Override
     public void onClick(View v) {
         if (v == errorRetryButton) {
@@ -267,10 +259,14 @@ public class ThreadLayout extends CoordinatorLayout implements
     @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
         if (thread.loadable.isSavedCopy) {
-            hideReplyButton();
+            if(replyButton.getVisibility() == View.VISIBLE) {
+                replyButton.hide();
+            }
             getPresenter().updateLoadable(true);
         } else {
-            showReplyButton();
+            if(replyButton.getVisibility() != View.VISIBLE) {
+                replyButton.show();
+            }
             getPresenter().updateLoadable(false);
         }
 

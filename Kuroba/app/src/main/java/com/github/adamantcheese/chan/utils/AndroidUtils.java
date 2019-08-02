@@ -280,14 +280,6 @@ public class AndroidUtils {
         return String.format(Locale.US, "%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
-    public static void hideView(View view) {
-        view.setVisibility(View.GONE);
-    }
-
-    public static void showView(View view) {
-        view.setVisibility(View.VISIBLE);
-    }
-
     public interface OnMeasuredCallback {
         /**
          * Called when the layout is done.
