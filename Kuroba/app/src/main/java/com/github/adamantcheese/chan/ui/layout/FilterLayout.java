@@ -419,6 +419,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updatePatternPreview() {
         String text = patternPreview.getText().toString();
+        text = filter.action == FilterAction.WATCH.id ? text : Html.escapeHtml(text);
         boolean matches = text.length() > 0 && filterEngine.matches(filter, text, true);
         patternPreviewStatus.setText(matches ? R.string.filter_matches : R.string.filter_no_matches);
     }
