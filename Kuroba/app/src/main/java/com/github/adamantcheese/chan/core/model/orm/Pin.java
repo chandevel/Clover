@@ -130,4 +130,10 @@ public class Pin implements Comparable<Pin>, Cloneable {
     public int compareTo(@NonNull Pin o) {
         return this.order - o.order;
     }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "PIN[id = " + id + ", isError = " + isError + ", isArchived = " + archived + "]";
+    }
 }

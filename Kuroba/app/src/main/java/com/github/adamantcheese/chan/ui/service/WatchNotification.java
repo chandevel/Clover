@@ -160,19 +160,20 @@ public class WatchNotification extends Service {
                 continue;
             }
 
-            SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-            if (savedThread != null && savedThread.isRunning()) {
-                // Just pass all the posts to the threadSaveManager. It will figure out new posts by itself
-                List<Post> allPosts = watcher.getPosts();
-                if (!allPosts.isEmpty()) {
-                    // Add all posts to the map
-                    unviewedPostsByThread.put(savedThread, new Pair<>(pin.loadable, allPosts));
-                }
-            }
-
             if (pin.isError || pin.archived) {
                 continue;
             }
+
+            if (PinType.hasDownloadFlag(pin.pinType)) {
+                SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+                if (savedThread != null && savedThread.isRunning()) {
+                    // Just pass all the posts to the threadSaveManager. It will figure out new posts by itself
+                    List<Post> allPosts = watcher.getPosts();
+                    if (!allPosts.isEmpty()) {
+                        // Add all posts to the map
+                        unviewedPostsByThread.put(savedThread, new Pair<>(pin.loadable, allPosts));
+                    }
+                }
 
             if (PinType.hasDownloadFlag(pin.pinType)) {
                 threadDownloaderPins.add(pin);

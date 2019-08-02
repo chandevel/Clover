@@ -447,6 +447,10 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     public void toggleWatch(Pin pin) {
+        if (pin.archived || pin.isError) {
+            return;
+        }
+
         pin.watching = !pin.watching;
 
         updateState();
@@ -540,7 +544,10 @@ public class WatchManager implements WakeManager.Wakeable {
             for (Pin pin : pins) {
                 //if we're watching and a pin isn't being watched and has no flags, it's a candidate for clearing
                 //if the pin is archived or errored out, it's a candidate for clearing
-                if ((ChanSettings.watchEnabled.get() && !pin.watching && PinType.hasNoFlags(pin.pinType)) || (pin.archived || pin.isError)) {
+                if ((ChanSettings.watchEnabled.get()
+                        && !pin.watching
+                        && PinType.hasNoFlags(pin.pinType))
+                        || (pin.archived || pin.isError)) {
                     toRemove.add(pin);
                 }
             }
