@@ -918,13 +918,6 @@ public class WatchManager implements WakeManager.Wakeable {
             pageRequestManager.addListener(this);
         }
 
-        public int getReplyCount() {
-            if (chanLoader != null && chanLoader.getThread() != null && chanLoader.getThread().posts != null) {
-                return chanLoader.getThread().posts.size() - 1;
-            }
-            return 0;
-        }
-
         public int getImageCount() {
             if (chanLoader != null && chanLoader.getThread() != null && chanLoader.getThread().posts != null) {
                 int total = 0;
