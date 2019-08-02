@@ -158,9 +158,9 @@ public class FilterWatchManager implements WakeManager.Wakeable {
             //Match filters and ignores
             List<Filter> filters = filterEngine.getEnabledWatchFilters();
             for (Filter f : filters) {
-                for (Post p : result.posts) {
+                for (Post p : result.getPostsUnsafe()) {
                     if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
-                        Loadable pinLoadable = Loadable.forThread(result.loadable.site, p.board, p.no, PostHelper.getTitle(p, result.loadable));
+                        Loadable pinLoadable = Loadable.forThread(result.getLoadable().site, p.board, p.no, PostHelper.getTitle(p, result.getLoadable()));
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
                         watchManager.createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
                         toAdd.add(p.no);
@@ -169,7 +169,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
             }
             //add all posts to ignore
             ignoredPosts.addAll(toAdd);
-            lastCheckedPosts.addAll(result.posts);
+            lastCheckedPosts.addAll(result.getPostsUnsafe());
             synchronized (this) {
                 numBoardsChecked--;
                 if (numBoardsChecked <= 0) {

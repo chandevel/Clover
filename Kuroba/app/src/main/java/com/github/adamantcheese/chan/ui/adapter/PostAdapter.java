@@ -192,18 +192,18 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             throw new RuntimeException("Must be called on the main thread!");
         }
 
-        this.loadable = thread.loadable;
+        this.loadable = thread.getLoadable();
         showError(null);
 
         displayList.clear();
         displayList.addAll(posts);
 
         lastSeenIndicatorPosition = -1;
-        if (thread.loadable.lastViewed >= 0) {
+        if (thread.getLoadable().lastViewed >= 0) {
             // Do not process the last post, the indicator does not have to appear at the bottom
             for (int i = 0, displayListSize = displayList.size() - 1; i < displayListSize; i++) {
                 Post post = displayList.get(i);
-                if (post.no == thread.loadable.lastViewed) {
+                if (post.no == thread.getLoadable().lastViewed) {
                     lastSeenIndicatorPosition = i + 1;
                     break;
                 }

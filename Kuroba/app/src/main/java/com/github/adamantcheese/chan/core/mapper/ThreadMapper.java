@@ -37,8 +37,8 @@ public class ThreadMapper {
                 posts
         );
 
-        chanThread.op = posts.get(0);
-        chanThread.archived = true;
+        chanThread.setOp(posts.get(0));
+        chanThread.setArchived(true);
 
         return chanThread;
     }

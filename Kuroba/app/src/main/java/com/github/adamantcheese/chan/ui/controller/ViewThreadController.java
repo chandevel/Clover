@@ -246,7 +246,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         Loadable loadable = threadLayout.getPresenter().getLoadable();
         String link = loadable.site.resolvable().desktopUrl(
                 loadable,
-                threadLayout.getPresenter().getChanThread().op);
+                threadLayout.getPresenter().getChanThread().getOp());
         AndroidUtils.openLinkInBrowser((Activity) context, link);
     }
 
@@ -262,7 +262,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         Loadable loadable = threadLayout.getPresenter().getLoadable();
         String link = loadable.site.resolvable().desktopUrl(
                 loadable,
-                threadLayout.getPresenter().getChanThread().op);
+                threadLayout.getPresenter().getChanThread().getOp());
         AndroidUtils.shareLink(link);
     }
 
@@ -350,9 +350,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         setPinIconState(false);
         setSaveIconState(false);
 
+        // Does this ever happen?
         // Update title
         if (message.pin.loadable == loadable) {
-            onShowPosts(message.pin.loadable);
+            onShowPosts();
         }
     }
 
@@ -508,8 +509,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     @Override
-    public void onShowPosts(Loadable loadable) {
-        super.onShowPosts(loadable);
+    public void onShowPosts() {
+        super.onShowPosts();
         navigation.title = this.loadable.title;
 
         setPinIconState(false);

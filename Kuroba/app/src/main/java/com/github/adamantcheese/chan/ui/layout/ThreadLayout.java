@@ -266,17 +266,17 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
-        if (thread.loadable.isLocal()) {
+        if (thread.getLoadable().isLocal()) {
             hideReplyButton();
         } else {
             showReplyButton();
         }
 
-        getPresenter().updateLoadable(thread.loadable.loadableDownloadingState);
+        getPresenter().updateLoadable(thread.getLoadable().loadableDownloadingState);
 
         threadListLayout.showPosts(thread, filter, visible != Visible.THREAD);
         switchVisible(Visible.THREAD);
-        callback.onShowPosts(thread.loadable);
+        callback.onShowPosts();
     }
 
     @Override
@@ -790,7 +790,7 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         void showAlbum(List<PostImage> images, int index);
 
-        void onShowPosts(Loadable loadable);
+        void onShowPosts();
 
         void presentController(Controller controller);
 

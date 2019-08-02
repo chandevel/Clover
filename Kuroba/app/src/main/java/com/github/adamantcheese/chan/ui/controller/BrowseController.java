@@ -288,7 +288,9 @@ public class BrowseController extends ThreadController implements
             }
 
             Loadable loadable = presenter.getLoadable();
-            String link = loadable.site.resolvable().desktopUrl(loadable, presenter.getChanThread().op);
+            String link = loadable.site.resolvable().desktopUrl(
+                    loadable,
+                    presenter.getChanThread().getOp());
 
             if (share) {
                 AndroidUtils.shareLink(link);

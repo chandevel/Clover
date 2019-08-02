@@ -605,7 +605,55 @@ public class WatchManager implements WakeManager.Wakeable {
 
         updateDeletedOrArchivedPins();
         switchIncrementalThreadDownloadingState(watchEnabled && backgroundEnabled);
+        updateIntervals(watchEnabled, backgroundEnabled);
 
+        // Update pin watchers
+        boolean allPinsHaveCompletedDownloading = updatePinWatchers();
+
+        // Update notification state
+        // Do not start the service when all pins are either stopped ot fully downloaded
+        if (watchEnabled && backgroundEnabled && !allPinsHaveCompletedDownloading) {
+            getAppContext().startService(WATCH_NOTIFICATION_INTENT);
+        } else {
+            getAppContext().stopService(WATCH_NOTIFICATION_INTENT);
+        }
+    }
+
+    private boolean updatePinWatchers() {
+        boolean allPinsHaveCompletedDownloading = true;
+        List<Pin> pinsToUpdateInDatabase = new ArrayList<>();
+
+        for (Pin pin : pins) {
+            SavedThread savedThread = findSavedThreadByLoadableId(pin.loadable.id);
+            if (pin.isError && savedThread == null) {
+                // When a thread gets deleted (and are not downloading) just mark all posts as read
+                // since there is no way for us to read them anyway
+                pin.watchLastCount = pin.watchNewCount;
+                pinsToUpdateInDatabase.add(pin);
+            }
+
+            boolean isStoppedOrCompleted = savedThread != null &&
+                    (savedThread.isStopped || savedThread.isFullyDownloaded);
+
+            if (!isStoppedOrCompleted) {
+                allPinsHaveCompletedDownloading = false;
+            }
+
+            if (ChanSettings.watchEnabled.get()) {
+                createPinWatcher(pin);
+            } else {
+                destroyPinWatcher(pin);
+            }
+        }
+
+        if (pinsToUpdateInDatabase.size() > 0) {
+            databaseManager.runTask(databasePinManager.updatePins(pinsToUpdateInDatabase));
+        }
+
+        return allPinsHaveCompletedDownloading;
+    }
+
+    private void updateIntervals(boolean watchEnabled, boolean backgroundEnabled) {
         //determine expected interval type for current settings
         IntervalType intervalType;
         if (!watchEnabled) {
@@ -664,40 +712,6 @@ public class WatchManager implements WakeManager.Wakeable {
                         break;
                 }
             }
-        }
-
-        boolean allPinsHaveCompletedDownloading = true;
-
-        // Update pin watchers
-        for (Pin pin : pins) {
-            SavedThread savedThread = findSavedThreadByLoadableId(pin.loadable.id);
-            if (pin.isError && savedThread == null) {
-                // When a thread gets deleted (and are not downloading) just mark all posts as read
-                // since there is no way for us to read them anyway
-                pin.watchLastCount = pin.watchNewCount;
-                updatePin(pin);
-            }
-
-            boolean isStoppedOrCompleted = savedThread != null &&
-                    (savedThread.isStopped || savedThread.isFullyDownloaded);
-
-            if (!isStoppedOrCompleted) {
-                allPinsHaveCompletedDownloading = false;
-            }
-
-            if (ChanSettings.watchEnabled.get()) {
-                createPinWatcher(pin);
-            } else {
-                destroyPinWatcher(pin);
-            }
-        }
-
-        // Update notification state
-        // Do not start the service when all pins are either stopped ot fully downloaded
-        if (watchEnabled && backgroundEnabled && !allPinsHaveCompletedDownloading) {
-            getAppContext().startService(WATCH_NOTIFICATION_INTENT);
-        } else {
-            getAppContext().stopService(WATCH_NOTIFICATION_INTENT);
         }
     }
 
@@ -932,16 +946,16 @@ public class WatchManager implements WakeManager.Wakeable {
         }
 
         public int getReplyCount() {
-            if (chanLoader != null && chanLoader.getThread() != null && chanLoader.getThread().posts != null) {
-                return chanLoader.getThread().posts.size() - 1;
+            if (chanLoader != null && chanLoader.getThread() != null) {
+                return chanLoader.getThread().getPostsCount() - 1;
             }
             return 0;
         }
 
         public int getImageCount() {
-            if (chanLoader != null && chanLoader.getThread() != null && chanLoader.getThread().posts != null) {
+            if (chanLoader != null && chanLoader.getThread() != null) {
                 int total = 0;
-                for (Post p : chanLoader.getThread().posts) {
+                for (Post p : chanLoader.getThread().getPostsUnsafe()) {
                     if (!p.isOP) total += p.images.size();
                 }
                 return total;
@@ -1029,7 +1043,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
         @Override
         public void onChanLoaderData(ChanThread thread) {
-            if (thread.archived || thread.closed) {
+            if (thread.isArchived() || thread.isClosed()) {
                 NetworkResponse networkResponse = new NetworkResponse(
                         NetworkResponse.STATUS_SERVICE_UNAVAILABLE,
                         EMPTY_BYTE_ARRAY,
@@ -1050,22 +1064,22 @@ public class WatchManager implements WakeManager.Wakeable {
              * The thread title will be updated as soon as the site has the thread listed in the thread directory
              *
              */
-            pin.loadable.setTitle(PostHelper.getTitle(thread.op, pin.loadable));
+            pin.loadable.setTitle(PostHelper.getTitle(thread.getOp(), pin.loadable));
 
-            if (pin.thumbnailUrl == null && thread.op != null && thread.op.image() != null) {
-                pin.thumbnailUrl = thread.op.image().getThumbnailUrl().toString();
+            if (pin.thumbnailUrl == null && thread.getOp() != null && thread.getOp().image() != null) {
+                pin.thumbnailUrl = thread.getOp().image().getThumbnailUrl().toString();
             }
 
             // Populate posts list
             posts.clear();
-            posts.addAll(thread.posts);
+            posts.addAll(thread.getPostsUnsafe());
 
             // Populate quotes list
             quotes.clear();
 
             // Get list of saved replies from this thread
             List<Post> savedReplies = new ArrayList<>();
-            for (Post item : thread.posts) {
+            for (Post item : thread.getPostsUnsafe()) {
                 // saved.title = pin.loadable.title;
 
                 if (item.isSavedReply) {
@@ -1074,7 +1088,7 @@ public class WatchManager implements WakeManager.Wakeable {
             }
 
             // Now get a list of posts that have a quote to a saved reply, but not self-replies
-            for (Post post : thread.posts) {
+            for (Post post : thread.getPostsUnsafe()) {
                 for (Post saved : savedReplies) {
                     if (post.repliesTo.contains(saved.no) && !post.isSavedReply) {
                         quotes.add(post);
@@ -1115,7 +1129,7 @@ public class WatchManager implements WakeManager.Wakeable {
                         pin.quoteNewCount, wereNewQuotes, chanLoader.getTimeUntilLoadMore() / 1000));
             }
 
-            if (thread.archived || thread.closed) {
+            if (thread.isArchived() || thread.isClosed()) {
                 pin.archived = true;
                 pin.watching = false;
             }

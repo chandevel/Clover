@@ -103,17 +103,17 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
             SpannableStringBuilder builder = new SpannableStringBuilder();
 
-            if (chanThread.loadable.isLocal()) {
+            if (chanThread.getLoadable().isLocal()) {
                 builder.append(getContext().getString(R.string.local_thread_text));
             } else {
-                if (chanThread.archived) {
+                if (chanThread.isArchived()) {
                     builder.append(getContext().getString(R.string.thread_archived));
-                } else if (chanThread.closed) {
+                } else if (chanThread.isClosed()) {
                     builder.append(getContext().getString(R.string.thread_closed));
                 }
             }
 
-            if (!chanThread.archived && !chanThread.closed && !chanThread.loadable.isLocal()) {
+            if (!chanThread.isArchived() && !chanThread.isClosed() && !chanThread.getLoadable().isLocal()) {
                 long time = callback.getTimeUntilLoadMore() / 1000L;
                 if (!callback.isWatching()) {
                     builder.append(getContext().getString(R.string.thread_refresh_bar_inactive));
@@ -125,7 +125,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                 update = true;
             }
 
-            Post op = chanThread.op;
+            Post op = chanThread.getOp();
             Board board = op.board;
             if (board != null) {
                 boolean hasReplies = op.getReplies() >= 0;
@@ -151,7 +151,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                         builder.append(" / ").append(ips);
                     }
 
-                    if (!chanThread.loadable.isLocal()) {
+                    if (!chanThread.getLoadable().isLocal()) {
                         builder.append(" / ").append(getContext().getString(R.string.thread_page_no)).append(' ');
 
                         Chan4PagesRequest.Page p = callback.getPage(op);

@@ -185,14 +185,14 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             // saved thread instead
 
             ChanThread chanThread = loadSavedThreadIfItExists();
-            if (chanThread != null && chanThread.posts.size() > 0) {
+            if (chanThread != null && chanThread.getPostsCount() > 0) {
                 thread = chanThread;
 
                 onPreparedResponseInternal(
                         chanThread,
                         loadable.loadableDownloadingState,
-                        chanThread.closed,
-                        chanThread.archived);
+                        chanThread.isClosed(),
+                        chanThread.isArchived());
 
                 return true;
             }
@@ -315,7 +315,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
         Logger.d(TAG, "Requested " + loadable.boardCode + ", " + loadable.no);
 
-        List<Post> cached = thread == null ? new ArrayList<>() : thread.posts;
+        List<Post> cached = thread == null ? new ArrayList<>() : thread.getPosts();
         ChanReader chanReader = loadable.getSite().chanReader();
 
         ChanLoaderRequestParams requestParams = new ChanLoaderRequestParams(
@@ -364,9 +364,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             thread = new ChanThread(loadable, new ArrayList<>());
         }
 
-        thread.posts.clear();
-        thread.posts.addAll(response.posts);
-
+        thread.setNewPosts(response.posts);
         onResponseInternalNext(response.op);
         return true;
     }
@@ -384,17 +382,17 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
         // If saved thread was not found or it has no posts (deserialization error) switch to
         // the error route
-        if (!chanThread.posts.isEmpty()) {
+        if (chanThread.getPostsCount() > 0) {
             // Update SavedThread info in the database and in the watchManager.
             // Set isFullyDownloaded and isStopped to true so we can stop downloading it and stop
             // showing the download thread animated icon.
             AndroidUtils.runOnUiThread(() -> {
                 WatchManager watchManager = Chan.injector().instance(WatchManager.class);
-                SavedThread savedThread = watchManager.findSavedThreadByLoadableId(chanThread.loadable.id);
+                SavedThread savedThread = watchManager.findSavedThreadByLoadableId(chanThread.getLoadableId());
                 if (savedThread != null && !savedThread.isFullyDownloaded) {
                     savedThread.isFullyDownloaded = true;
                     savedThread.isStopped = true;
-                    chanThread.loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.AlreadyDownloaded;
+                    chanThread.updateLoadableState(Loadable.LoadableDownloadingState.AlreadyDownloaded);
 
                     watchManager.createOrUpdateSavedThread(savedThread);
 
@@ -435,10 +433,10 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             boolean closed,
             boolean archived) {
         Post.Builder fakeOp = new Post.Builder();
-        Post savedOp = chanThread.posts.get(0);
+        Post savedOp = chanThread.getOp();
 
-        thread.closed = closed;
-        thread.archived = archived;
+        thread.setClosed(closed);
+        thread.setArchived(archived);
 
         fakeOp.closed(closed);
         fakeOp.archived(archived);
@@ -448,7 +446,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         fakeOp.uniqueIps(savedOp.getUniqueIps());
         fakeOp.lastModified(savedOp.getLastModified());
 
-        chanThread.loadable.loadableDownloadingState = state;
+        chanThread.updateLoadableState(state);
         onResponseInternalNext(fakeOp);
     }
 
@@ -456,16 +454,16 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         processResponse(fakeOp);
 
         if (TextUtils.isEmpty(loadable.title)) {
-            loadable.setTitle(PostHelper.getTitle(thread.op, loadable));
+            loadable.setTitle(PostHelper.getTitle(thread.getOp(), loadable));
         }
 
-        for (Post post : thread.posts) {
+        for (Post post : thread.getPostsUnsafe()) {
             post.setTitle(loadable.title);
         }
 
         lastLoadTime = System.currentTimeMillis();
 
-        int postCount = thread.posts.size();
+        int postCount = thread.getPostsCount();
         if (postCount > lastPostCount) {
             lastPostCount = postCount;
             currentTimeout = 0;
@@ -484,21 +482,22 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
      * Final processing of a response that needs to happen on the main thread.
      */
     private void processResponse(Post.Builder fakeOp) {
-        if (loadable.isThreadMode() && thread.posts.size() > 0) {
+        if (loadable.isThreadMode() && thread.getPostsCount() > 0) {
             // Replace some op parameters to the real op (index 0).
             // This is done on the main thread to avoid race conditions.
-            Post realOp = thread.posts.get(0);
-            thread.op = realOp;
+            Post realOp = thread.getOp();
+            thread.setOp(realOp);
             if (fakeOp != null) {
                 realOp.setClosed(fakeOp.closed);
-                thread.closed = realOp.isClosed();
                 realOp.setArchived(fakeOp.archived);
-                thread.archived = realOp.isArchived();
                 realOp.setSticky(fakeOp.sticky);
                 realOp.setReplies(fakeOp.replies);
                 realOp.setImagesCount(fakeOp.imagesCount);
                 realOp.setUniqueIps(fakeOp.uniqueIps);
                 realOp.setLastModified(fakeOp.lastModified);
+
+                thread.setClosed(realOp.isClosed());
+                thread.setArchived(realOp.isArchived());
             } else {
                 Logger.e(TAG, "Thread has no op!");
             }
@@ -516,14 +515,14 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
                     loadable != null &&
                     loadable.mode == Loadable.Mode.THREAD) {
                 ChanThread chanThread = loadSavedThreadIfItExists();
-                thread = chanThread;
+                if (chanThread != null && chanThread.getPostsCount() > 0) {
+                    thread = chanThread;
 
-                if (chanThread != null && chanThread.posts.size() > 0) {
                     onPreparedResponseInternal(
                             chanThread,
                             Loadable.LoadableDownloadingState.AlreadyDownloaded,
-                            chanThread.closed,
-                            chanThread.archived);
+                            chanThread.isClosed(),
+                            chanThread.isArchived());
                     return false;
                 }
             }

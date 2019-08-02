@@ -57,7 +57,7 @@ public class Chan55 extends CommonSite {
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, @Nullable Post post) {
+        public String desktopUrl(Loadable loadable, @Nullable final Post post) {
             if (loadable.isCatalogMode()) {
                 return String.format("%s/%s", BASE_URL, loadable.boardCode);
             } else if (loadable.isThreadMode()) {
