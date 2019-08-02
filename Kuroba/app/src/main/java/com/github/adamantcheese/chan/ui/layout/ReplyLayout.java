@@ -241,11 +241,11 @@ public class ReplyLayout extends LoadView implements
 
     public void bindLoadable(Loadable loadable) {
         presenter.bindLoadable(loadable);
-        captchaHolder.addListener(TAG, this);
+        captchaHolder.setListener(this);
     }
 
     public void cleanup() {
-        captchaHolder.removeListener(TAG);
+        captchaHolder.removeListener();
         presenter.unbindLoadable();
         removeCallbacks(closeMessageRunnable);
     }

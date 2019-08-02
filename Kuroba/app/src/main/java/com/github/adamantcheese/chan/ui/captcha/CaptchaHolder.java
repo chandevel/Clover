@@ -11,11 +11,9 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,26 +29,22 @@ public class CaptchaHolder {
     private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
     private Timer timer;
 
-    private Map<String, CaptchaValidationListener> listeners = new HashMap<>();
+    @Nullable
+    private CaptchaValidationListener captchaValidationListener;
 
     @GuardedBy("itself")
     private final List<CaptchaInfo> captchaQueue = new ArrayList<>();
 
-    public void addListener(String tag, CaptchaValidationListener listener) {
+    public void setListener(CaptchaValidationListener listener) {
         mainThreadHandler.post(() -> {
-            if (listeners.get(tag) != null) {
-                listeners.put(tag, null);
-            }
-
-            listeners.put(tag, listener);
-            notifyListeners();
+            captchaValidationListener = listener;
+            notifyListener();
         });
     }
 
-    public void removeListener(String tag) {
+    public void removeListener() {
         mainThreadHandler.post(() -> {
-            listeners.put(tag, null);
-            listeners.remove(tag);
+            captchaValidationListener = null;
         });
     }
 
@@ -63,7 +57,7 @@ public class CaptchaHolder {
                     captchaQueue.size() + ", token = " + trimToken(token));
         }
 
-        notifyListeners();
+        notifyListener();
         startTimer();
     }
 
@@ -96,7 +90,7 @@ public class CaptchaHolder {
             captchaQueue.remove(lastIndex);
             Logger.d(TAG, "getToken() token = " + trimToken(token));
 
-            notifyListeners();
+            notifyListener();
             return token;
         }
     }
@@ -143,11 +137,11 @@ public class CaptchaHolder {
         }
 
         if (captchasCountDecreased) {
-            notifyListeners();
+            notifyListener();
         }
     }
 
-    private void notifyListeners() {
+    private void notifyListener() {
         mainThreadHandler.post(() -> {
             int count = 0;
 
@@ -155,10 +149,8 @@ public class CaptchaHolder {
                 count = captchaQueue.size();
             }
 
-            Logger.d(TAG, "notifyListeners() listeners count = " + listeners.size());
-
-            for (CaptchaValidationListener listener : listeners.values()) {
-                listener.onCaptchaCountChanged(count);
+            if (captchaValidationListener != null) {
+                captchaValidationListener.onCaptchaCountChanged(count);
             }
         });
     }
