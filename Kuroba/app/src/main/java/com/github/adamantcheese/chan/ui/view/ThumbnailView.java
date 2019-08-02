@@ -40,9 +40,11 @@ import com.android.volley.NetworkError;
 import com.android.volley.ParseError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.image.ImageContainer;
+import com.github.adamantcheese.chan.core.image.ImageListener;
+import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
 import javax.inject.Inject;
@@ -51,8 +53,8 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
-public class ThumbnailView extends View implements ImageLoader.ImageListener {
-    private ImageLoader.ImageContainer container;
+public class ThumbnailView extends View implements ImageListener {
+    private ImageContainer container;
 
     private boolean circular = false;
     private int rounding = 0;
@@ -77,7 +79,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private Rect tmpTextRect = new Rect();
 
     @Inject
-    public ImageLoader imageLoader;
+    public ImageLoaderV2 imageLoaderV2;
 
     public ThumbnailView(Context context) {
         super(context);
@@ -109,14 +111,14 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
 
         if (container != null) {
-            container.cancelRequest();
+            imageLoaderV2.cancelRequest(container);
             container = null;
             error = false;
             setImageBitmap(null);
         }
 
         if (!TextUtils.isEmpty(url)) {
-            container = Chan.injector().instance(ImageLoader.class).get(url, this, maxWidth, maxHeight);
+            container = Chan.injector().instance(ImageLoaderV2.class).get(url, this, maxWidth, maxHeight);
         }
     }
 
@@ -130,7 +132,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
             boolean isSpoiler,
             int width,
             int height) {
-        container = imageLoader.getFromDisk(loadable, filename, isSpoiler, this, width, height);
+        container = imageLoaderV2.getFromDisk(loadable, filename, isSpoiler, this, width, height);
     }
 
     public void setCircular(boolean circular) {
@@ -171,7 +173,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     }
 
     @Override
-    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+    public void onResponse(ImageContainer response, boolean isImmediate) {
         if (response.getBitmap() != null) {
             setImageBitmap(response.getBitmap());
             onImageSet(isImmediate);

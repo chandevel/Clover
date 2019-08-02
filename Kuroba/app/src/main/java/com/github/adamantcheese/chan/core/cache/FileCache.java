@@ -130,8 +130,8 @@ public class FileCache implements FileCacheDownloader.Callback {
     }
 
     @Override
-    public void downloaderAddedFile(File file) {
-        cacheHandler.fileWasAdded(file);
+    public void downloaderAddedFile(long fileLen) {
+        cacheHandler.fileWasAdded(fileLen);
     }
 
     public boolean exists(String key) {

@@ -144,9 +144,11 @@ public class FileCacheDownloader implements Runnable {
 
             log("done");
 
+            long fileLen = output.length();
+
             handler.post(() -> {
                 if (callback != null) {
-                    callback.downloaderAddedFile(output);
+                    callback.downloaderAddedFile(fileLen);
                     callback.downloaderFinished(this);
                 }
                 for (FileCacheListener callback : listeners) {
@@ -301,6 +303,6 @@ public class FileCacheDownloader implements Runnable {
     public interface Callback {
         void downloaderFinished(FileCacheDownloader fileCacheDownloader);
 
-        void downloaderAddedFile(File file);
+        void downloaderAddedFile(long fileLen);
     }
 }
