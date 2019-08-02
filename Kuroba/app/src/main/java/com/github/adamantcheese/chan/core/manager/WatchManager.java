@@ -671,6 +671,13 @@ public class WatchManager implements WakeManager.Wakeable {
         // Update pin watchers
         for (Pin pin : pins) {
             SavedThread savedThread = findSavedThreadByLoadableId(pin.loadable.id);
+            if (pin.isError && savedThread == null) {
+                // When a thread gets deleted (and are not downloading) just mark all posts as read
+                // since there is no way for us to read them anyway
+                pin.watchLastCount = pin.watchNewCount;
+                updatePin(pin);
+            }
+
             boolean isStoppedOrCompleted = savedThread != null &&
                     (savedThread.isStopped || savedThread.isFullyDownloaded);
 
