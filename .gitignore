@@ -1,5 +1,6 @@
 gps/
-Clover/app/keys.properties
+**/keys.properties
+**/keystore.jks
 Clover/app/version.properties
 Clover/captures/
 Clover/sentry.properties
@@ -27,6 +28,8 @@ local.properties
 .gradle
 build/
 *.iml
+# Layout captures
+**/*.li
 
 ## Windows detritus
 #############
