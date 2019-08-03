@@ -39,17 +39,23 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 public class CaptchaNoJsLayoutV2 extends FrameLayout
         implements AuthenticationLayoutInterface,
         CaptchaNoJsPresenterV2.AuthenticationCallbacks {
     private static final String TAG = "CaptchaNoJsLayoutV2";
+    private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
     private AppCompatTextView captchaChallengeTitle;
     private GridView captchaImagesGrid;
@@ -60,12 +66,19 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     private Context context;
     private AuthenticationLayoutCallback callback;
 
+    private boolean isAutoReply = true;
+
+    @Inject
+    CaptchaHolder captchaHolder;
+
     public CaptchaNoJsLayoutV2(@NonNull Context context) {
         this(context, null, 0);
+        init();
     }
 
     public CaptchaNoJsLayoutV2(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
+        init();
     }
 
     public CaptchaNoJsLayoutV2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -83,8 +96,14 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         AppCompatButton reloadCaptchaButton = view.findViewById(R.id.captcha_layout_v2_reload_button);
 
         captchaVerifyButton.setOnClickListener(v -> sendVerificationResponse());
-        useOldCaptchaButton.setOnClickListener(v -> callback.onFallbackToV1CaptchaView());
+        useOldCaptchaButton.setOnClickListener(v -> callback.onFallbackToV1CaptchaView(isAutoReply));
         reloadCaptchaButton.setOnClickListener(v -> reset());
+
+        init();
+    }
+
+    private void init() {
+        inject(this);
     }
 
     @Override
@@ -95,12 +114,13 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     }
 
     @Override
-    public void initialize(Site site, AuthenticationLayoutCallback callback) {
+    public void initialize(Site site, AuthenticationLayoutCallback callback, boolean autoReply) {
         this.callback = callback;
+        this.isAutoReply = autoReply;
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
         if (authentication.type != SiteAuthentication.Type.CAPTCHA2_NOJS) {
-            callback.onFallbackToV1CaptchaView();
+            callback.onFallbackToV1CaptchaView(isAutoReply);
             return;
         }
 
@@ -109,6 +129,11 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
 
     @Override
     public void reset() {
+        if (captchaHolder.hasToken() && isAutoReply) {
+            callback.onAuthenticationComplete(this, null, captchaHolder.getToken(), true);
+            return;
+        }
+
         hardReset();
     }
 
@@ -142,8 +167,18 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     @Override
     public void onVerificationDone(String verificationToken) {
         AndroidUtils.runOnUiThread(() -> {
+            captchaHolder.addNewToken(verificationToken, RECAPTCHA_TOKEN_LIVE_TIME);
+
+            String token;
+
+            if (isAutoReply) {
+                token = captchaHolder.getToken();
+            } else {
+                token = verificationToken;
+            }
+
             captchaVerifyButton.setEnabled(true);
-            callback.onAuthenticationComplete(this, null, verificationToken);
+            callback.onAuthenticationComplete(this, null, token, isAutoReply);
         });
     }
 
@@ -154,7 +189,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
             Logger.e(TAG, "CaptchaV2 error", error);
             showToast(error.getMessage());
             captchaVerifyButton.setEnabled(true);
-            callback.onFallbackToV1CaptchaView();
+            callback.onFallbackToV1CaptchaView(isAutoReply);
         });
     }
 
@@ -195,7 +230,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
             captchaVerifyButton.setEnabled(true);
         } catch (Throwable error) {
             if (callback != null) {
-                callback.onFallbackToV1CaptchaView();
+                callback.onFallbackToV1CaptchaView(isAutoReply);
             }
         }
     }

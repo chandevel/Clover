@@ -37,6 +37,11 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
     private AuthenticationLayoutCallback callback;
     private SiteAuthentication authentication;
     private boolean resettingFromFoundText = false;
+    private boolean isAutoReply = true;
+
+    /**
+     * TODO: add support for the Captcha queueing {@link CaptchaHolder}
+     * */
 
     public GenericWebViewAuthenticationLayout(Context context) {
         this(context, null);
@@ -54,7 +59,7 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
-    public void initialize(Site site, AuthenticationLayoutCallback callback) {
+    public void initialize(Site site, AuthenticationLayoutCallback callback, boolean ignored) {
         this.callback = callback;
 
         authentication = site.actions().postAuthenticate();
@@ -90,7 +95,7 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
                 }, 1000);
             }
         } else if (success) {
-            callback.onAuthenticationComplete(this, "", "");
+            callback.onAuthenticationComplete(this, "", "", isAutoReply);
         }
     }
 

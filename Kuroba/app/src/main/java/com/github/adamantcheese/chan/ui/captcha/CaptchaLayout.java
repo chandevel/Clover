@@ -56,9 +56,13 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
         super(context, attrs, defStyle);
     }
 
+    /**
+     * TODO: add support for the Captcha queueing {@link CaptchaHolder}
+     * */
+
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
-    public void initialize(Site site, AuthenticationLayoutCallback callback) {
+    public void initialize(Site site, AuthenticationLayoutCallback callback, boolean ignored) {
         this.callback = callback;
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
@@ -120,7 +124,7 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
         if (TextUtils.isEmpty(response)) {
             reset();
         } else {
-            callback.onAuthenticationComplete(this, challenge, response);
+            callback.onAuthenticationComplete(this, challenge, response, true);
         }
     }
 

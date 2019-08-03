@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:animateLayoutChanges="true"
     android:baselineAligned="false"
     android:minHeight="124dp"
@@ -49,14 +50,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:textColor="#fff44336"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
             <LinearLayout
                 android:id="@+id/name_options"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <EditText
                     android:id="@+id/name"
@@ -87,7 +90,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:inputType="textCapSentences|textAutoCorrect"
                 android:singleLine="true"
                 android:textSize="16sp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -135,7 +139,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:text="@string/reply_comment_button_quote"
                     android:textAllCaps="false"
                     android:textSize="15dp"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
 
                 <Button
                     android:id="@+id/comment_spoiler"
@@ -147,7 +152,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:text="@string/reply_comment_button_spoiler"
                     android:textAllCaps="false"
                     android:textSize="15dp"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
 
                 <Button
                     android:id="@+id/comment_code"
@@ -159,7 +165,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:text="@string/reply_comment_button_code"
                     android:textAllCaps="false"
                     android:textSize="15dp"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
 
             </LinearLayout>
 
@@ -169,14 +176,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="wrap_content"
                 android:text="@string/reply_spoiler_image"
                 android:textSize="14sp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
             <LinearLayout
                 android:id="@+id/preview_holder"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:orientation="horizontal"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <View
                     android:layout_width="0dp"
@@ -201,7 +210,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
             <EditText
                 android:id="@+id/file_name"
@@ -210,7 +220,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:hint="@string/reply_file_name"
                 android:singleLine="true"
                 android:textSize="16sp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
         </LinearLayout>
 
@@ -232,6 +243,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:padding="6dp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="36dp"
+                android:layout_height="36dp">
+
+                <ImageView
+                    android:id="@+id/captcha"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_captcha"/>
+
+                <TextView
+                    android:id="@+id/valid_captchas_count"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:textColor="#fff"
+                    android:gravity="center"
+                    android:background="@drawable/circle_background"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:textSize="12sp"
+                    tools:text="99+" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ImageView
                 android:id="@+id/submit"

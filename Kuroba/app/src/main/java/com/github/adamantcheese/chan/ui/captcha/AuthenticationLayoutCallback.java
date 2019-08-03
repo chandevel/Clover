@@ -18,6 +18,8 @@ package com.github.adamantcheese.chan.ui.captcha;
 
 public interface AuthenticationLayoutCallback {
     void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout,
-                                  String challenge, String response);
-    void onFallbackToV1CaptchaView();
+                                  String challenge,
+                                  String response,
+                                  boolean autoReply);
+    void onFallbackToV1CaptchaView(boolean autoReply);
 }
