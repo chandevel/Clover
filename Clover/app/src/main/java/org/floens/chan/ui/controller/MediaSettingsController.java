@@ -37,6 +37,8 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class MediaSettingsController extends SettingsController {
     // Special setting views
+    private BooleanSettingView boardFolderSetting;
+    private BooleanSettingView threadFolderSetting;
     private LinkSettingView saveLocation;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
@@ -60,6 +62,8 @@ public class MediaSettingsController extends SettingsController {
         buildPreferences();
 
         onPreferenceChange(imageAutoLoadView);
+
+        threadFolderSetting.setEnabled(ChanSettings.saveBoardFolder.get());
     }
 
     @Override
@@ -75,6 +79,8 @@ public class MediaSettingsController extends SettingsController {
 
         if (item == imageAutoLoadView) {
             updateVideoLoadModes();
+        } else if (item == boardFolderSetting) {
+            updateThreadFolderSetting();
         }
     }
 
@@ -91,10 +97,15 @@ public class MediaSettingsController extends SettingsController {
 
             setupSaveLocationSetting(media);
 
-            media.add(new BooleanSettingView(this,
+            boardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
                     ChanSettings.saveBoardFolder,
                     R.string.setting_save_board_folder,
                     R.string.setting_save_board_folder_description));
+
+            threadFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+                    ChanSettings.saveThreadFolder,
+                    R.string.setting_save_thread_folder,
+                    R.string.setting_save_thread_folder_description));
 
             media.add(new BooleanSettingView(this,
                     ChanSettings.saveOriginalFilename,
@@ -132,9 +143,9 @@ public class MediaSettingsController extends SettingsController {
             setupMediaLoadTypesSetting(loading);
 
             loading.add(new BooleanSettingView(this,
-                ChanSettings.videoAutoLoop,
-                R.string.setting_video_auto_loop,
-                R.string.setting_video_auto_loop_description));
+                    ChanSettings.videoAutoLoop,
+                    R.string.setting_video_auto_loop,
+                    R.string.setting_video_auto_loop_description));
 
             groups.add(loading);
         }
@@ -201,6 +212,18 @@ public class MediaSettingsController extends SettingsController {
                 R.string.save_location_screen, 0,
                 v -> navigationController.pushController(new SaveLocationController(context))));
         updateSaveLocationSetting();
+    }
+
+    private void updateThreadFolderSetting() {
+        if (ChanSettings.saveBoardFolder.get()) {
+            threadFolderSetting.setEnabled(true);
+        } else if (!ChanSettings.saveBoardFolder.get()) {
+            if (ChanSettings.saveThreadFolder.get()) {
+                threadFolderSetting.onClick(threadFolderSetting.view);
+            }
+            threadFolderSetting.setEnabled(false);
+            ChanSettings.saveThreadFolder.set(false);
+        }
     }
 
     private void updateSaveLocationSetting() {

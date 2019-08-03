@@ -504,8 +504,10 @@ Crash reports do not collect any personally identifiable information."
     <!-- Media general group -->
     <string name="settings_group_media">Media</string>
 
-    <string name="setting_save_board_folder">Save images in a board folder</string>
-    <string name="setting_save_board_folder_description">Create a folder for each board to store images in</string>
+    <string name="setting_save_board_folder">Save images in board folders</string>
+    <string name="setting_save_board_folder_description">Create a folder for each board when saving</string>
+    <string name="setting_save_thread_folder">Save images in thread folders</string>
+    <string name="setting_save_thread_folder_description">Create a folder for each thread when saving</string>
     <string name="setting_save_original_filename">Save original filename</string>
     <string name="setting_save_original_filename_description">
 "Save the image with the filename the site assigned.
