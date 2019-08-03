@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.ui.captcha;
 import com.github.adamantcheese.chan.core.site.Site;
 
 public interface AuthenticationLayoutInterface {
-    void initialize(Site site, AuthenticationLayoutCallback callback);
+    void initialize(Site site, AuthenticationLayoutCallback callback, boolean autoReply);
 
     void reset();
 
