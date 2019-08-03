@@ -263,8 +263,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         pager.setCurrentItem(initialIndex);
     }
 
-    public void setImageMode(PostImage postImage, MultiImageView.Mode mode) {
-        ((ImageViewerAdapter) pager.getAdapter()).setMode(postImage, mode);
+    public void setImageMode(PostImage postImage, MultiImageView.Mode mode, boolean center) {
+        ((ImageViewerAdapter) pager.getAdapter()).setMode(postImage, mode, center);
     }
 
     @Override
