@@ -20,6 +20,8 @@ package org.floens.chan.ui.view;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -102,6 +104,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     private MediaPlayer mediaPlayer;
     private SimpleExoPlayer exoPlayer;
 
+    private boolean backgroundToggle;
+
     public MultiImageView(Context context) {
         this(context, null);
     }
@@ -178,6 +182,16 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             }
         }
         return bigImage;
+    }
+
+    public GifImageView findGifImageView() {
+        GifImageView gif = null;
+        for (int i = 0; i < getChildCount(); i++) {
+            if (getChildAt(i) instanceof GifImageView) {
+                gif = (GifImageView) getChildAt(i);
+            }
+        }
+        return gif;
     }
 
     public void setVolume(boolean muted) {
@@ -508,6 +522,29 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     private void cleanupVideo(PlayerView videoView) {
         videoView.getPlayer().release();
+    }
+
+    public void toggleTransparency() {
+        final int BACKGROUND_COLOR = Color.argb(255, 211, 217, 241);
+        CustomScaleImageView imageView = findScaleImageView();
+        GifImageView gifView = findGifImageView();
+        if (imageView == null && gifView == null) return;
+        boolean isImage = imageView != null && gifView == null;
+        if (backgroundToggle) {
+            if (isImage) {
+                imageView.setTileBackgroundColor(Color.TRANSPARENT);
+            } else {
+                gifView.getDrawable().setColorFilter(Color.TRANSPARENT, PorterDuff.Mode.DST_OVER);
+            }
+            backgroundToggle = false;
+        } else {
+            if (isImage) {
+                imageView.setTileBackgroundColor(BACKGROUND_COLOR);
+            } else {
+                gifView.getDrawable().setColorFilter(BACKGROUND_COLOR, PorterDuff.Mode.DST_OVER);
+            }
+            backgroundToggle = true;
+        }
     }
 
     private void setBitImageFileInternal(File file, boolean tiling, final Mode forMode) {
