@@ -372,12 +372,19 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     private boolean onThreadArchived(boolean closed, boolean archived) {
         ChanThread chanThread = loadSavedThreadIfItExists();
         if (chanThread == null) {
+            if (loadable != null) {
+                Logger.d(TAG, "Thread " + loadable.no + " is archived but we don't have a local " +
+                        "copy of the thread");
+            }
+
             // We don't have this thread locally saved, so return false and DO NOT SET thread to
             // chanThread because this will close this thread (user will see 404 not found error)
             // which we don't want.
             return false;
         }
 
+        Logger.d(TAG, "Thread " + chanThread.getLoadable().no + " " +
+                "is archived (" + archived + ") or closed (" + closed + ")");
         thread = chanThread;
 
         // If saved thread was not found or it has no posts (deserialization error) switch to
@@ -407,6 +414,8 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
                     closed,
                     archived);
             return true;
+        } else {
+            Logger.d(TAG, "Thread " + chanThread.getLoadable().no + " has no posts");
         }
 
         return false;
@@ -449,6 +458,9 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
             return null;
         });
+
+        Logger.d(TAG, "Successfully updated thread " + chanThread.getLoadable().no +
+                " as fully downloaded");
     }
 
     private void onPreparedResponseInternal(
@@ -539,9 +551,12 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
                     error.networkResponse.statusCode == 404 &&
                     loadable != null &&
                     loadable.mode == Loadable.Mode.THREAD) {
+                Logger.d(TAG, "Got 404 status for a thread " + loadable.no);
+
                 ChanThread chanThread = loadSavedThreadIfItExists();
                 if (chanThread != null && chanThread.getPostsCount() > 0) {
                     thread = chanThread;
+                    Logger.d(TAG, "Successfully loaded local thread " + loadable.no + " from the disk ");
 
                     onPreparedResponseInternal(
                             chanThread,
@@ -584,10 +599,10 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             if (savedThread != null) {
                 return savedThreadLoaderManager.loadSavedThread(loadable);
             } else {
-                Logger.e(TAG, "Could not find savedThread for loadable " + loadable.toString());
+                Logger.d(TAG, "Could not find savedThread for loadable " + loadable.toString());
             }
         } else {
-            Logger.e(TAG, "Could not get current loadable, it's null");
+            Logger.d(TAG, "Could not get current loadable, it's null");
         }
 
         return null;

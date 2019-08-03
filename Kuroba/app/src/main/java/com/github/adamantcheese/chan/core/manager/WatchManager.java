@@ -1099,7 +1099,9 @@ public class WatchManager implements WakeManager.Wakeable {
         @Override
         public void onChanLoaderData(ChanThread thread) {
             // This route is only for downloading threads, to mark them as completely downloaded
-            if (PinType.hasDownloadFlag(pin.pinType) && (thread.isArchived() || thread.isClosed())) {
+            if (PinType.hasDownloadFlag(pin.pinType)
+                    && !pin.loadable.isLocal()
+                    && (thread.isArchived() || thread.isClosed())) {
                 pin.archived = thread.isArchived();
                 pin.watching = false;
 
@@ -1188,7 +1190,7 @@ public class WatchManager implements WakeManager.Wakeable {
                         pin.quoteNewCount, wereNewQuotes, chanLoader.getTimeUntilLoadMore() / 1000));
             }
 
-            if (thread.isArchived() || thread.isClosed()) {
+            if (!pin.loadable.isLocal() && (thread.isArchived() || thread.isClosed())) {
                 pin.archived = true;
                 pin.watching = false;
             }

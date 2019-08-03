@@ -370,6 +370,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                     watchManager.updatePin(pin);
                     watchManager.stopSavingThread(pin.loadable);
                 }
+
+                loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
             } else {
                 saveInternal();
             }
@@ -542,6 +544,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
      */
     @Override
     public void onChanLoaderData(ChanThread result) {
+        loadable.loadableDownloadingState = result.getLoadable().loadableDownloadingState;
+
         if (isWatching() && chanLoader != null) {
             chanLoader.setTimer();
         }

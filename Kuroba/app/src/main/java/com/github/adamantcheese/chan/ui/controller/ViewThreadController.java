@@ -177,6 +177,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void saveClicked(ToolbarMenuItem item) {
+        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+            // Too many problems with this thing, just disable it while viewing downloading thread
+            return;
+        }
+
         RuntimePermissionsHelper runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
         if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             saveClickedInternal();
@@ -279,8 +284,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
      * Replaces the current live thread with the local thread
      * */
     private void handleClickViewLocalVersion(ToolbarMenuSubItem item) {
-        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
-            throw new IllegalStateException("Already in DownloadingAndViewable state!");
+        if (loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
+            populateLocalOrLiveVersionMenu();
+            return;
         }
 
         loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndViewable;
@@ -297,8 +303,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
      * Replaces the current local thread with the live thread
      * */
     private void handleClickViewLiveVersion(ToolbarMenuSubItem item) {
-        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
-            throw new IllegalStateException("Already in DownloadingAndNotViewable state!");
+        if (loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+            populateLocalOrLiveVersionMenu();
+            return;
         }
 
         loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
@@ -581,7 +588,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         }
     }
 
-    private void setSaveIconStateDrawable(ThreadPresenter.DownloadThreadState downloadThreadState, boolean animated) {
+    private void setSaveIconStateDrawable(
+            ThreadPresenter.DownloadThreadState downloadThreadState,
+            boolean animated) {
         if (downloadThreadState == prevState) {
             return;
         }
