@@ -545,7 +545,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             int thumbnailSize = getResources().getDimensionPixelSize(R.dimen.cell_post_thumbnail_size);
 
             //get the width of the cell for calculations, height we don't need but measure it anyways
-            this.measure(MeasureSpec.makeMeasureSpec(displaySize.x, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(displaySize.y, MeasureSpec.AT_MOST));
+            this.measure(MeasureSpec.makeMeasureSpec(ChanSettings.layoutMode.get() == ChanSettings.LayoutMode.SPLIT ? displaySize.x / 2 : displaySize.x, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(displaySize.y, MeasureSpec.AT_MOST));
 
             //we want the heights here, but the widths must be the exact size between the thumbnail and view edge so that we calculate offsets right
             title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
