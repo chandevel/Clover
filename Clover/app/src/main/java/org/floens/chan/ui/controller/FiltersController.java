@@ -64,6 +64,7 @@ public class FiltersController extends Controller implements
 
     private RecyclerView recyclerView;
     private FloatingActionButton add;
+    private FloatingActionButton enable;
     private FilterAdapter adapter;
 
     public FiltersController(Context context) {
@@ -121,6 +122,10 @@ public class FiltersController extends Controller implements
         add.setOnClickListener(this);
         theme().applyFabColor(add);
 
+        enable = view.findViewById(R.id.enable);
+        enable.setOnClickListener(this);
+        theme().applyFabColor(enable);
+
         adapter = new FilterAdapter();
         recyclerView.setAdapter(adapter);
         adapter.load();
@@ -130,6 +135,31 @@ public class FiltersController extends Controller implements
     public void onClick(View v) {
         if (v == add) {
             showFilterDialog(new Filter());
+        } else if (v == enable) {
+            FloatingActionButton enableButton = (FloatingActionButton) v;
+            //if every filter is disabled, enable all of them and set the drawable to be an x
+            //if every filter is enabled, disable all of them and set the drawable to be a checkmark
+            //if some filters are enabled, disable them and set the drawable to be a checkmark
+            List<Filter> enabledFilters = filterEngine.getEnabledFilters();
+            List<Filter> allFilters = filterEngine.getAllFilters();
+            if (enabledFilters.isEmpty()) {
+                setFilters(allFilters, true);
+                enableButton.setImageResource(R.drawable.ic_clear_white_24dp);
+            } else if (enabledFilters.size() == allFilters.size()) {
+                setFilters(allFilters, false);
+                enableButton.setImageResource(R.drawable.ic_done_white_24dp);
+            } else {
+                setFilters(enabledFilters, false);
+                enableButton.setImageResource(R.drawable.ic_done_white_24dp);
+            }
+            adapter.load();
+        }
+    }
+
+    private void setFilters(List<Filter> filters, boolean enabled) {
+        for (Filter filter : filters) {
+            filter.enabled = enabled;
+            filterEngine.createOrUpdateFilter(filter);
         }
     }
 
@@ -146,6 +176,11 @@ public class FiltersController extends Controller implements
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         filterEngine.createOrUpdateFilter(filterLayout.getFilter());
+                        if (filterEngine.getEnabledFilters().isEmpty()) {
+                            enable.setImageResource(R.drawable.ic_done_white_24dp);
+                        } else {
+                            enable.setImageResource(R.drawable.ic_clear_white_24dp);
+                        }
                         EventBus.getDefault().post(new RefreshUIMessage("filters"));
                         adapter.load();
                     }

@@ -102,6 +102,15 @@ public class FilterEngine {
         return enabledFilters;
     }
 
+    public List<Filter> getAllFilters() {
+        try {
+            return databaseFilterManager.getFilters().call();
+        } catch (Exception e) {
+            Logger.wtf(TAG, "Couldn't get all filters for some reason.");
+            return new ArrayList<>();
+        }
+    }
+
     @AnyThread
     public boolean matchesBoard(Filter filter, Board board) {
         if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
