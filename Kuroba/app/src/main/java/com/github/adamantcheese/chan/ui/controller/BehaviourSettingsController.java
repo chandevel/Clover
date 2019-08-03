@@ -143,8 +143,8 @@ public class BehaviourSettingsController extends SettingsController {
         {
             SettingsGroup proxy = new SettingsGroup(R.string.settings_group_proxy);
 
-            proxy.add(new BooleanSettingView(this, ChanSettings.proxyEnabled,
-                    R.string.setting_proxy_enabled, 0));
+            requiresRestart.add(proxy.add(new BooleanSettingView(this, ChanSettings.proxyEnabled,
+                    R.string.setting_proxy_enabled, 0)));
 
             proxy.add(new StringSettingView(this, ChanSettings.proxyAddress,
                     R.string.setting_proxy_address, R.string.setting_proxy_address));
