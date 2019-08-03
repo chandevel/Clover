@@ -486,7 +486,7 @@ public class ThreadPresenter implements
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.post_delete));
         }
 
-        if(ChanSettings.accessibleInfo.get()){
+        if (ChanSettings.accessibleInfo.get()) {
             //Accessible info enabled
             menu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
         } else {
@@ -721,8 +721,8 @@ public class ThreadPresenter implements
         }
 
         if (post.httpIcons != null && !post.httpIcons.isEmpty()) {
-            for(PostHttpIcon icon : post.httpIcons) {
-                if(icon.url.toString().contains("troll")) {
+            for (PostHttpIcon icon : post.httpIcons) {
+                if (icon.url.toString().contains("troll")) {
                     text.append("\nTroll Country: ").append(icon.name);
                 } else if (icon.url.toString().contains("country")) {
                     text.append("\nCountry: ").append(icon.name);

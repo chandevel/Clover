@@ -76,6 +76,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     private static final String TAG = "MultiImageView";
+    //for checkstyle to not be dumb about local final vars
+    private final int BACKGROUND_COLOR = Color.argb(255, 211, 217, 241);
 
     @Inject
     FileCache fileCache;
@@ -525,7 +527,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     public void toggleTransparency() {
-        final int BACKGROUND_COLOR = Color.argb(255, 211, 217, 241);
         CustomScaleImageView imageView = findScaleImageView();
         GifImageView gifView = findGifImageView();
         if (imageView == null && gifView == null) return;
