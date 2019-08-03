@@ -352,7 +352,7 @@ public class Toolbar extends LinearLayout implements
         } else if (layoutManager instanceof LinearLayoutManager) {
             firstVisibleElement = ((LinearLayoutManager) layoutManager)
                     .findFirstCompletelyVisibleItemPosition();
-        }  else {
+        } else {
             throw new IllegalStateException("Not implemented for " +
                     layoutManager.getClass().getName());
         }
