@@ -48,7 +48,7 @@ import okio.Source;
 
 public class FileCacheDownloader implements Runnable {
     private static final String TAG = "FileCacheDownloader";
-    private static final long BUFFER_SIZE = 32768;
+    private static final long BUFFER_SIZE = 8192;
     private static final long NOTIFY_SIZE = BUFFER_SIZE * 8;
 
     private final String url;
