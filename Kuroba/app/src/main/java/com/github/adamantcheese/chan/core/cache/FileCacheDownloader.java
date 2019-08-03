@@ -48,7 +48,7 @@ import okio.Source;
 
 public class FileCacheDownloader implements Runnable {
     private static final String TAG = "FileCacheDownloader";
-    private static final long BUFFER_SIZE = 8192;
+    private static final long BUFFER_SIZE = 32768;
     private static final long NOTIFY_SIZE = BUFFER_SIZE * 8;
 
     private final String url;
@@ -58,6 +58,7 @@ public class FileCacheDownloader implements Runnable {
     // Main thread only.
     private final Callback callback;
     private final List<FileCacheListener> listeners = new ArrayList<>();
+    private final OkHttpClient okHttpClient;
 
     // Main and worker thread.
     private AtomicBoolean running = new AtomicBoolean(false);
@@ -71,6 +72,10 @@ public class FileCacheDownloader implements Runnable {
         this.callback = callback;
         this.url = url;
         this.output = output;
+
+        okHttpClient = new OkHttpClient().newBuilder()
+                .proxy(ChanSettings.getProxy())
+                .build();
 
         handler = new Handler(Looper.getMainLooper());
     }
@@ -209,12 +214,9 @@ public class FileCacheDownloader implements Runnable {
                 .header("User-Agent", NetModule.USER_AGENT)
                 .build();
 
-        call = Chan.injector().instance(OkHttpClient.class).newBuilder()
-                .proxy(ChanSettings.getProxy())
-                .build()
-                .newCall(request);
-
+        call = okHttpClient.newCall(request);
         Response response = call.execute();
+        
         if (!response.isSuccessful()) {
             throw new HttpCodeIOException(response.code());
         }
