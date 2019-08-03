@@ -383,35 +383,20 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         // If saved thread was not found or it has no posts (deserialization error) switch to
         // the error route
         if (chanThread.getPostsCount() > 0) {
+            WatchManager watchManager = Chan.injector().instance(WatchManager.class);
+            final SavedThread savedThread = watchManager.findSavedThreadByLoadableId(
+                    chanThread.getLoadableId());
+
             // Update SavedThread info in the database and in the watchManager.
             // Set isFullyDownloaded and isStopped to true so we can stop downloading it and stop
             // showing the download thread animated icon.
             AndroidUtils.runOnUiThread(() -> {
-                WatchManager watchManager = Chan.injector().instance(WatchManager.class);
-                SavedThread savedThread = watchManager.findSavedThreadByLoadableId(chanThread.getLoadableId());
                 if (savedThread != null && !savedThread.isFullyDownloaded) {
-                    savedThread.isFullyDownloaded = true;
-                    savedThread.isStopped = true;
-                    chanThread.updateLoadableState(Loadable.LoadableDownloadingState.AlreadyDownloaded);
-
-                    watchManager.createOrUpdateSavedThread(savedThread);
-
-                    Pin pin = watchManager.findPinByLoadableId(savedThread.loadableId);
-                    if (pin != null) {
-                        pin.archived = archived;
-                        // Trigger the drawer to be updated so the downloading icon is updated as well
-                        watchManager.updatePin(pin);
-                    }
-
-                    databaseManager.runTask(() -> {
-                        databaseManager.getDatabaseSavedThreadManager().updateThreadStoppedFlagByLoadableId(
-                                savedThread.loadableId,
-                                true).call();
-                        databaseManager.getDatabaseSavedThreadManager().updateThreadFullyDownloadedByLoadableId(
-                                savedThread.loadableId).call();
-
-                        return null;
-                    });
+                    updateThreadAsDownloaded(
+                            archived,
+                            chanThread,
+                            watchManager,
+                            savedThread);
                 }
             });
 
@@ -425,6 +410,45 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         }
 
         return false;
+    }
+
+    private void updateThreadAsDownloaded(
+            boolean archived,
+            ChanThread chanThread,
+            WatchManager watchManager,
+            SavedThread savedThread) {
+        savedThread.isFullyDownloaded = true;
+        savedThread.isStopped = true;
+
+        chanThread.updateLoadableState(Loadable.LoadableDownloadingState.AlreadyDownloaded);
+        watchManager.createOrUpdateSavedThread(savedThread);
+
+        Pin pin = watchManager.findPinByLoadableId(savedThread.loadableId);
+        if (pin == null) {
+            pin = databaseManager.runTask(
+                    databaseManager.getDatabasePinManager().getPinByLoadableId(savedThread.loadableId));
+        }
+
+        if (pin == null) {
+            throw new RuntimeException(
+                    "Wtf? We have saved thread but we don't have a pin associated with it?");
+        }
+
+        pin.archived = archived;
+        pin.watching = false;
+
+        // Trigger the drawer to be updated so the downloading icon is updated as well
+        watchManager.updatePin(pin);
+
+        databaseManager.runTask(() -> {
+            databaseManager.getDatabaseSavedThreadManager().updateThreadStoppedFlagByLoadableId(
+                    savedThread.loadableId,
+                    true).call();
+            databaseManager.getDatabaseSavedThreadManager().updateThreadFullyDownloadedByLoadableId(
+                    savedThread.loadableId).call();
+
+            return null;
+        });
     }
 
     private void onPreparedResponseInternal(
@@ -457,6 +481,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             loadable.setTitle(PostHelper.getTitle(thread.getOp(), loadable));
         }
 
+        // TODO: do we really need to do this?
         for (Post post : thread.getPostsUnsafe()) {
             post.setTitle(loadable.title);
         }

@@ -389,15 +389,57 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     public void updatePin(Pin pin) {
-        databaseManager.runTask(() -> {
-            databasePinManager.updatePin(pin).call();
+        updatePin(pin, true);
+    }
 
-            // TODO: update saved thread (do we need tho? Like what is there to even update?)
+    public void updatePin(Pin pin, boolean updateState) {
+        databaseManager.runTask(() -> {
+            updatePinsInternal(Collections.singletonList(pin));
+            databasePinManager.updatePin(pin).call();
             return null;
         });
 
-        updateState();
+        if (updateState) {
+            updateState();
+        }
+
         EventBus.getDefault().post(new PinMessages.PinChangedMessage(pin));
+    }
+
+    public void updatePins(List<Pin> updatedPins, boolean updateState) {
+        databaseManager.runTask(() -> {
+            updatePinsInternal(updatedPins);
+            databasePinManager.updatePins(pins).call();
+            return null;
+        });
+
+        if (updateState) {
+            updateState();
+        }
+
+        for (Pin updatedPin : updatedPins) {
+            EventBus.getDefault().post(new PinMessages.PinChangedMessage(updatedPin));
+        }
+    }
+
+    private void updatePinsInternal(List<Pin> updatedPins) {
+        Set<Pin> foundPins = new HashSet<>();
+
+        for (Pin updatedPin : updatedPins) {
+            for (int i = 0; i < pins.size(); i++) {
+                if (pins.get(i).loadable.id == updatedPin.loadable.id) {
+                    pins.set(i, updatedPin);
+                    foundPins.add(updatedPin);
+                    break;
+                }
+            }
+        }
+
+        for (Pin updatedPin : updatedPins) {
+            if (!foundPins.contains(updatedPin)) {
+                pins.add(updatedPin);
+            }
+        }
     }
 
     public Pin findPinByLoadableId(int loadableId) {
@@ -632,6 +674,10 @@ public class WatchManager implements WakeManager.Wakeable {
 
         for (Pin pin : pins) {
             SavedThread savedThread = findSavedThreadByLoadableId(pin.loadable.id);
+            if (pin.isError || pin.archived) {
+                pin.watching = false;
+            }
+
             if (pin.isError && savedThread == null) {
                 // When a thread gets deleted (and are not downloading) just mark all posts as read
                 // since there is no way for us to read them anyway
@@ -654,7 +700,7 @@ public class WatchManager implements WakeManager.Wakeable {
         }
 
         if (pinsToUpdateInDatabase.size() > 0) {
-            databaseManager.runTask(databasePinManager.updatePins(pinsToUpdateInDatabase));
+            updatePins(pinsToUpdateInDatabase, false);
         }
 
         return allPinsHaveCompletedDownloading;
@@ -768,9 +814,10 @@ public class WatchManager implements WakeManager.Wakeable {
                                 .updateThreadFullyDownloadedByLoadableId(pin.loadable.id).call();
                     }
 
-                    databasePinManager.updatePin(pin).call();
                     return null;
                 });
+
+                updatePin(pin, false);
             }
         }
     }
@@ -1051,7 +1098,11 @@ public class WatchManager implements WakeManager.Wakeable {
 
         @Override
         public void onChanLoaderData(ChanThread thread) {
-            if (thread.isArchived() || thread.isClosed()) {
+            // This route is only for downloading threads, to mark them as completely downloaded
+            if (PinType.hasDownloadFlag(pin.pinType) && (thread.isArchived() || thread.isClosed())) {
+                pin.archived = thread.isArchived();
+                pin.watching = false;
+
                 NetworkResponse networkResponse = new NetworkResponse(
                         NetworkResponse.STATUS_SERVICE_UNAVAILABLE,
                         EMPTY_BYTE_ARRAY,

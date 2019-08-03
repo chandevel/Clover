@@ -138,23 +138,28 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
         ThreadController threadController = getTopThreadController();
         if (threadController != null) {
-            SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-
-            // Try to load saved copy of a thread if pinned thread has an error flag but only if
-            // we are downloading this thread. Otherwise it will break archived threads that are not
-            // being downloaded
             Loadable.LoadableDownloadingState state = Loadable.LoadableDownloadingState.NotDownloading;
 
-            if (pin.isError) {
-                state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
-            } else if (savedThread != null) {
-                if (savedThread.isFullyDownloaded) {
-                    state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
-                } else {
-                    // TODO: we can check here that the user has no internet connection
-                    //  and load the local thread right away so the user doesn't have
-                    //  to do it manually
-                    state = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+            if (PinType.hasDownloadFlag(pin.pinType)) {
+                // Try to load saved copy of a thread if pinned thread has an error flag but only if
+                // we are downloading this thread. Otherwise it will break archived threads that are not
+                // being downloaded
+                SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+                if (savedThread != null) {
+                    // Do not check for isArchived here since we don't want to show archived threads
+                    // as local threads
+                    if (pin.isError) {
+                        state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
+                    } else {
+                        if (savedThread.isFullyDownloaded) {
+                            state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
+                        } else {
+                            // TODO: we can check here that the user has no internet connection
+                            //  and load the local thread right away so the user doesn't have
+                            //  to do it manually
+                            state = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+                        }
+                    }
                 }
             }
 

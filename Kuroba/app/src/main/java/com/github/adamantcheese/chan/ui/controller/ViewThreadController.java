@@ -41,6 +41,7 @@ import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -463,6 +464,17 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
      * FIXME: figure out how to do this normally by rebuilding the menu instead of using "enabled" flag
      * */
     private void populateLocalOrLiveVersionMenu() {
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            // No pin for this loadable we are probably not downloading this thread
+            return;
+        }
+
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            // Pin has no downloading flag
+            return;
+        }
+
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
         if (savedThread == null) {
             return;

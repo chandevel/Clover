@@ -11,6 +11,7 @@ import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -36,6 +37,10 @@ public class ImageLoaderV2 {
             int width,
             int height,
             ImageListener imageListener) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be executed on the main thread!");
+        }
+
         if (loadable.isLocal()) {
             String formattedName;
 
@@ -92,6 +97,10 @@ public class ImageLoaderV2 {
             ImageListener imageListener,
             int width,
             int height) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be executed on the main thread!");
+        }
+
         ImageContainer container = new ImageContainer(null, null, null, imageListener);
 
         diskLoaderExecutor.execute(() -> {
@@ -142,7 +151,10 @@ public class ImageLoaderV2 {
             mainThreadHandler.post(() -> {
                 container.setBitmap(bitmap);
                 container.setRequestUrl(imageDir);
-                imageListener.onResponse(container, true);
+
+                if (container.getListener() != null) {
+                    container.getListener().onResponse(container, true);
+                }
             });
         });
 
@@ -150,12 +162,20 @@ public class ImageLoaderV2 {
     }
 
     public void cancelRequest(ImageContainer container) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be executed on the main thread!");
+        }
+
         imageLoader.cancelRequest(container);
     }
 
     public ImageContainer get(
             String requestUrl,
             ImageListener listener) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be executed on the main thread!");
+        }
+
         return imageLoader.get(requestUrl, listener);
     }
 
@@ -164,6 +184,10 @@ public class ImageLoaderV2 {
             ImageListener listener,
             int width,
             int height) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be executed on the main thread!");
+        }
+
         return imageLoader.get(requestUrl, listener, width, height);
     }
 }

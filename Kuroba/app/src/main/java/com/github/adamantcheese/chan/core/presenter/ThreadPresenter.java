@@ -205,6 +205,17 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             return;
         }
 
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            // No pin for this loadable we are probably not downloading this thread
+            return;
+        }
+
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            // Pin has no downloading flag
+            return;
+        }
+
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
         if (savedThread == null) {
             // We are not downloading this thread
@@ -227,11 +238,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         }
 
         watchManager.stopSavingThread(loadable);
-
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin != null) {
-            EventBus.getDefault().post(new WatchManager.PinMessages.PinChangedMessage(pin));
-        }
+        EventBus.getDefault().post(new WatchManager.PinMessages.PinChangedMessage(pin));
     }
 
     private void startSavingThreadIfItIsNotBeingSaved(Loadable loadable) {
@@ -246,6 +253,17 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
         if (loadable.mode != Loadable.Mode.THREAD) {
             // We are in the catalog probably
+            return;
+        }
+
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            // No pin for this loadable we are probably not downloading this thread
+            return;
+        }
+
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            // Pin has no downloading flag
             return;
         }
 
@@ -271,11 +289,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         }
 
         watchManager.startSavingThread(loadable);
-
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin != null) {
-            EventBus.getDefault().post(new WatchManager.PinMessages.PinChangedMessage(pin));
-        }
+        EventBus.getDefault().post(new WatchManager.PinMessages.PinChangedMessage(pin));
     }
 
     public boolean isBound() {
@@ -545,6 +559,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                     }
                 }
             }
+
             loadable.setLastLoaded(result.getPostsUnsafe().get(result.getPostsCount() - 1).no);
 
             if (more > 0) {
@@ -564,7 +579,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                             if (cache.exists(postImage.imageUrl.toString())) {
                                 continue;
                             }
-                            
+
                             if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
                                     && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
                                 cache.downloadFile(loadable, postImage, null);
@@ -589,6 +604,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
         storeNewPostsIfThreadIsBeingDownloaded(loadable, result.getPostsUnsafe());
         addHistory();
+
+        // Update loadable in the database
+        databaseManager.runTaskAsync(
+                databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
     }
 
     private void storeNewPostsIfThreadIsBeingDownloaded(Loadable loadable, List<Post> posts) {
@@ -599,6 +618,17 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
         if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
             // Do not save posts from already saved thread
+            return;
+        }
+
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            // No pin for this loadable we are probably not downloading this thread
+            return;
+        }
+
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            // Pin has no downloading flag
             return;
         }
 
@@ -640,6 +670,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
         // Update the last seen indicator
         showPosts();
+
+        // Update loadable in the database
+        databaseManager.runTaskAsync(
+                databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
     }
 
     public void onNewPostsViewClicked() {

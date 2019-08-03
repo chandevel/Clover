@@ -86,6 +86,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final Callback callback;
     private List<Pin> pins = new ArrayList<>();
     private Pin highlighted;
+    private Bitmap archivedIcon;
 
     public DrawerAdapter(Callback callback, Context context) {
         inject(this);
@@ -98,6 +99,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         downloadIconFilled = context.getDrawable(R.drawable.ic_download_anim1).mutate();
         downloadIconFilled.setTint(Color.GRAY);
+
+        archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
     }
 
     public void setPinHighlighted(Pin highlighted) {
@@ -266,7 +269,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
-            Bitmap archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
             text = PostHelper.prependIcon(text, archivedIcon, sp(16));
         }
 
@@ -280,7 +282,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
                 String totalCount = PinHelper.getShortUnreadCount(pin.watchNewCount - 1);
                 watchCount.setVisibility(View.VISIBLE);
-                watchCount.setText(ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount);
+
+                String watchCountText = ChanSettings.shortPinInfo.get()
+                        ? newCount
+                        : totalCount + " / " + newCount;
+                watchCount.setText(watchCountText);
 
                 if (!pin.watching) {
                     watchCount.setTextColor(0xff898989); // TODO material colors
@@ -335,13 +341,22 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             holder.itemView.setBackgroundColor(0x22000000);
             holder.highlighted = true;
         } else if (!highlighted && holder.highlighted) {
-            holder.itemView.setBackground(AndroidUtils.getAttrDrawable(holder.itemView.getContext(), android.R.attr.selectableItemBackground));
+            Drawable attrDrawable = AndroidUtils.getAttrDrawable(
+                    holder.itemView.getContext(),
+                    android.R.attr.selectableItemBackground);
+
+            holder.itemView.setBackground(attrDrawable);
             holder.highlighted = false;
         }
     }
 
     private void loadBookmarkImage(PinViewHolder holder, Pin pin) {
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        SavedThread savedThread = null;
+
+        if (PinType.hasDownloadFlag(pin.pinType)) {
+            savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        }
+
         if (savedThread == null || !savedThread.isFullyDownloaded) {
             holder.image.setUrl(pin.thumbnailUrl);
             return;
@@ -357,7 +372,12 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private void setPinDownloadIcon(PinViewHolder holder, Pin pin) {
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        SavedThread savedThread = null;
+
+        if (PinType.hasDownloadFlag(pin.pinType)) {
+            savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        }
+
         if (savedThread == null) {
             holder.threadDownloadIcon.setVisibility(View.GONE);
             return;

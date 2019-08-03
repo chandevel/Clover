@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.model.orm;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -131,9 +132,40 @@ public class Pin implements Comparable<Pin>, Cloneable {
         return this.order - o.order;
     }
 
+    @Override
+    public int hashCode() {
+        return 31 * loadable.id + 31 * id;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Pin other = (Pin) obj;
+
+        return this.id == other.id
+                && this.loadable.id == other.loadable.id;
+    }
+
     @NonNull
     @Override
     public String toString() {
-        return "PIN[id = " + id + ", isError = " + isError + ", isArchived = " + archived + "]";
+        return "[id = " + id +
+                ", isError = " + isError +
+                ", isArchived = " + archived +
+                ", watching = " + watching +
+                ", (active) = " + (!isError && !archived)+
+                ", no = " + loadable.no +
+                "]";
     }
 }
