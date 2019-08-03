@@ -485,9 +485,16 @@ public class ThreadPresenter implements
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.post_delete));
         }
 
+        if(ChanSettings.accessibleInfo.get()){
+            //Accessible info enabled
+            menu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+        } else {
+            extraMenu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+        }
+
         menu.add(new FloatingMenuItem(POST_OPTION_EXTRA, R.string.post_more));
 
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+
         extraMenu.add(new FloatingMenuItem(POST_OPTION_LINKS, R.string.post_show_links));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
