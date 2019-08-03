@@ -340,6 +340,9 @@ public class Toolbar extends LinearLayout implements
 
     private boolean isAtTheTopOfThread(RecyclerView recyclerView) {
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager == null) {
+            return false;
+        }
 
         int firstVisibleElement = -1;
 
@@ -349,6 +352,9 @@ public class Toolbar extends LinearLayout implements
         } else if (layoutManager instanceof LinearLayoutManager) {
             firstVisibleElement = ((LinearLayoutManager) layoutManager)
                     .findFirstCompletelyVisibleItemPosition();
+        }  else {
+            throw new IllegalStateException("Not implemented for " +
+                    layoutManager.getClass().getName());
         }
 
         return firstVisibleElement == 0;
