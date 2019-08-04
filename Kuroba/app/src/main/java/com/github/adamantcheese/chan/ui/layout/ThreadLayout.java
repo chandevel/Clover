@@ -259,12 +259,12 @@ public class ThreadLayout extends CoordinatorLayout implements
     @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
         if (thread.loadable.isSavedCopy) {
-            if(replyButton.getVisibility() == View.VISIBLE) {
+            if (replyButton.getVisibility() == View.VISIBLE) {
                 replyButton.hide();
             }
             getPresenter().updateLoadable(true);
         } else {
-            if(replyButton.getVisibility() != View.VISIBLE) {
+            if (replyButton.getVisibility() != View.VISIBLE) {
                 replyButton.show();
             }
             getPresenter().updateLoadable(false);
@@ -402,6 +402,7 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail) {
+        AndroidUtils.hideKeyboard(this.getFocusedChild());
         callback.showImages(images, index, loadable, thumbnail);
     }
 
