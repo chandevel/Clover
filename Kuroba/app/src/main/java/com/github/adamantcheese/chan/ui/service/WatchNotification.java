@@ -291,6 +291,8 @@ public class WatchNotification extends Service {
 
                 CharSequence comment = postForExpandedLine.image() != null ? "(img) " : "";
                 if (postForExpandedLine.comment.length() > 0) {
+                    // FIXME: this thing is pretty slow sometimes (50-200ms).
+                    //  Can we replace it with something faster?
                     comment = TextUtils.concat(comment, postForExpandedLine.comment);
                 }
 

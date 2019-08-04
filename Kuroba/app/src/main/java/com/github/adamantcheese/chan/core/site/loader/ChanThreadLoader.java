@@ -37,6 +37,7 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderRequest;
@@ -84,6 +85,8 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     @Inject
     SavedThreadLoaderManager savedThreadLoaderManager;
 
+    private WatchManager watchManager;
+
     private final List<ChanLoaderCallback> listeners = new ArrayList<>();
     private final Loadable loadable;
     private ChanThread thread;
@@ -100,8 +103,9 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     /**
      * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link com.github.adamantcheese.chan.core.pool.ChanLoaderFactory}</b>
      */
-    public ChanThreadLoader(Loadable loadable) {
+    public ChanThreadLoader(Loadable loadable, WatchManager watchManager) {
         this.loadable = loadable;
+        this.watchManager = watchManager;
 
         inject(this);
     }
@@ -595,6 +599,15 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     private ChanThread loadSavedThreadIfItExists() {
         Loadable loadable = getLoadable();
         if (loadable != null) {
+            Pin pin = watchManager.findPinByLoadableId(loadable.id);
+            if (pin == null) {
+                return null;
+            }
+
+            if (!PinType.hasDownloadFlag(pin.pinType)) {
+                return null;
+            }
+
             SavedThread savedThread = getSavedThreadByThreadLoadable(loadable);
             if (savedThread != null) {
                 return savedThreadLoaderManager.loadSavedThread(loadable);

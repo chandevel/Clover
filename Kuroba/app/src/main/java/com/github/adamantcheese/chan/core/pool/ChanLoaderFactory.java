@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.pool;
 
 import android.util.LruCache;
 
+import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -38,7 +39,17 @@ public class ChanLoaderFactory {
     private Map<Loadable, ChanThreadLoader> threadLoaders = new HashMap<>();
     private LruCache<Loadable, ChanThreadLoader> threadLoadersCache = new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
 
+    private WatchManager watchManager = null;
+
+    public void init(WatchManager watchManager) {
+        this.watchManager = watchManager;
+    }
+
     public ChanThreadLoader obtain(Loadable loadable, ChanThreadLoader.ChanLoaderCallback listener) {
+        if (watchManager == null) {
+            throw new RuntimeException("init was not called!");
+        }
+
         ChanThreadLoader chanLoader;
         if (loadable.isThreadMode()) {
             if (!loadable.isFromDatabase()) {
@@ -55,11 +66,11 @@ public class ChanLoaderFactory {
             }
 
             if (chanLoader == null) {
-                chanLoader = new ChanThreadLoader(loadable);
+                chanLoader = new ChanThreadLoader(loadable, watchManager);
                 threadLoaders.put(loadable, chanLoader);
             }
         } else {
-            chanLoader = new ChanThreadLoader(loadable);
+            chanLoader = new ChanThreadLoader(loadable, watchManager);
         }
 
         chanLoader.addListener(listener);
@@ -68,6 +79,10 @@ public class ChanLoaderFactory {
     }
 
     public void release(ChanThreadLoader chanLoader, ChanThreadLoader.ChanLoaderCallback listener) {
+        if (watchManager == null) {
+            throw new RuntimeException("init was not called!");
+        }
+
         Loadable loadable = chanLoader.getLoadable();
         if (loadable.isThreadMode()) {
             ChanThreadLoader foundChanLoader = threadLoaders.get(loadable);

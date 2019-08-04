@@ -149,6 +149,9 @@ public class WatchManager implements WakeManager.Wakeable {
         this.threadSaveManager = threadSaveManager;
         this.prevIncrementalThreadSavingEnabled = false;
 
+        // Hack
+        chanLoaderFactory.init(this);
+
         databasePinManager = databaseManager.getDatabasePinManager();
         databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadManager();
 
@@ -293,6 +296,17 @@ public class WatchManager implements WakeManager.Wakeable {
 
     @Nullable
     public SavedThread findSavedThreadByLoadableId(int loadableId) {
+        Pin pin = findPinByLoadableId(loadableId);
+        if (pin == null) {
+            // We have no pin for this loadable
+            return null;
+        }
+
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            // This pin does not download new posts
+            return null;
+        }
+
         for (SavedThread savedThread : savedThreads) {
             if (savedThread.loadableId == loadableId) {
                 return savedThread;
