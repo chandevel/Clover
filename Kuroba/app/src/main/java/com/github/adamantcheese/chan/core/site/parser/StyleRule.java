@@ -268,6 +268,8 @@ public class StyleRule {
         SpannableString result = new SpannableString(text);
         for (Object span : spans) {
             if (span != null) {
+                //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
+                //we use 1000 here for to go above everything else
                 result.setSpan(span, 0, result.length(), (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
             }
         }
