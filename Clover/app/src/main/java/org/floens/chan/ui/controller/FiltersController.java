@@ -39,6 +39,7 @@ import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.FilterLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
+import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,23 +144,25 @@ public class FiltersController extends Controller implements
             List<Filter> enabledFilters = filterEngine.getEnabledFilters();
             List<Filter> allFilters = filterEngine.getAllFilters();
             if (enabledFilters.isEmpty()) {
-                setFilters(allFilters, true);
+                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, true));
                 enableButton.setImageResource(R.drawable.ic_clear_white_24dp);
             } else if (enabledFilters.size() == allFilters.size()) {
-                setFilters(allFilters, false);
+                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             } else {
-                setFilters(enabledFilters, false);
+                AndroidUtils.runOnUiThread(() -> setFilters(enabledFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
-            adapter.load();
         }
     }
 
     private void setFilters(List<Filter> filters, boolean enabled) {
-        for (Filter filter : filters) {
-            filter.enabled = enabled;
-            filterEngine.createOrUpdateFilter(filter);
+        synchronized (context) {
+            for (Filter filter : filters) {
+                filter.enabled = enabled;
+                filterEngine.createOrUpdateFilter(filter);
+            }
+            adapter.load();
         }
     }
 
