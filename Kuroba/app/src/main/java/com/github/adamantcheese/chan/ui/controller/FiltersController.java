@@ -195,7 +195,9 @@ public class FiltersController extends Controller implements
     private void helpClicked(ToolbarMenuItem item) {
         final AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle("Help")
-                .setMessage(Html.fromHtml("Actions do the following:<br>" +
+                .setMessage(Html.fromHtml("You can use RegExr for more comprehensive explanations " +
+                        "of your regular expressions, or as a playground for figuring out an expression.<br><br>" +
+                        "Actions do the following:<br>" +
                         "<b>Hide:</b> Replace the post with a stub. You can tap it to un-hide it.<br>" +
                         "<b>Highlight:</b> A colored bar of your choosing will appear on the left hand side of this post.<br>" +
                         "<b>Remove:</b> Remove this post. It won't be visible at all.<br>" +
@@ -213,6 +215,7 @@ public class FiltersController extends Controller implements
                         "9) Country Code<br>" +
                         "10) Filename"))
                 .setPositiveButton("Close", null)
+                .setNegativeButton("Open RegExr", (dialog1, which) -> AndroidUtils.openLink("https://regexr.com/"))
                 .show();
         dialog.setCanceledOnTouchOutside(true);
     }
