@@ -29,10 +29,15 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -273,7 +278,12 @@ public class CommentParser {
                 } else if (boardSearchMatcher.matches()) {
                     //search link
                     String board = boardSearchMatcher.group(1);
-                    String search = boardSearchMatcher.group(2);
+                    String search = null;
+                    try {
+                        search = URLDecoder.decode(boardSearchMatcher.group(2), "US-ASCII");
+                    } catch (UnsupportedEncodingException e) {
+                        search = boardSearchMatcher.group(2);
+                    }
                     t = PostLinkable.Type.SEARCH;
                     value = new SearchLink(board, search);
                 } else {
