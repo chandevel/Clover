@@ -46,6 +46,7 @@ import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -163,25 +164,27 @@ public class FiltersController extends Controller implements
             List<Filter> enabledFilters = filterEngine.getEnabledFilters();
             List<Filter> allFilters = filterEngine.getAllFilters();
             if (enabledFilters.isEmpty()) {
-                setFilters(allFilters, true);
+                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, true));
                 enableButton.setImageResource(R.drawable.ic_clear_white_24dp);
             } else if (enabledFilters.size() == allFilters.size()) {
-                setFilters(allFilters, false);
+                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             } else {
-                setFilters(enabledFilters, false);
+                AndroidUtils.runOnUiThread(() -> setFilters(enabledFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
             ThemeHelper.getTheme().applyFabColor(enable);
             enableButton.getDrawable().setTint(Color.WHITE);
-            adapter.reload();
         }
     }
 
     private void setFilters(List<Filter> filters, boolean enabled) {
-        for (Filter filter : filters) {
-            filter.enabled = enabled;
-            filterEngine.createOrUpdateFilter(filter);
+        synchronized (context) {
+            for (Filter filter : filters) {
+                filter.enabled = enabled;
+                filterEngine.createOrUpdateFilter(filter);
+            }
+            adapter.reload();
         }
     }
 
