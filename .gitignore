@@ -1,7 +1,7 @@
 gps/
-Kuroba/app/keys.properties
-Kuroba/app/version.properties
-Kuroba/captures/
+**/keys.properties
+**/keystore.jks
+**/version.properties
 
 
 #built application files
@@ -27,6 +27,8 @@ local.properties
 .gradle
 build/
 *.iml
+# Layout captures
+**/*.li
 
 ## Windows detritus
 #############
@@ -43,4 +45,4 @@ $RECYCLE.BIN/
 
 # Mac crap
 .DS_Store
-Kuroba/app/keystore.jks
+
