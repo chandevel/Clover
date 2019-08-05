@@ -27,6 +27,7 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.widget.Button;
 
 import androidx.appcompat.app.AlertDialog;
@@ -145,8 +146,8 @@ public class UpdateManager {
     private boolean processUpdateApiResponse(UpdateApiRequest.UpdateApiResponse response) {
         if (response.versionCode > BuildConfig.VERSION_CODE) {
             AlertDialog dialog = new AlertDialog.Builder(context)
-                    .setTitle(Html.fromHtml(getApplicationLabel() + " " + response.versionCodeString + " available"))
-                    .setMessage(response.body)
+                    .setTitle(getApplicationLabel() + " " + response.versionCodeString + " available")
+                    .setMessage(TextUtils.concat(response.updateTitle, "; ", response.body))
                     .setNegativeButton(R.string.update_later, null)
                     .setPositiveButton(R.string.update_install, (dialog1, which) -> updateInstallRequested(response))
                     .create();
