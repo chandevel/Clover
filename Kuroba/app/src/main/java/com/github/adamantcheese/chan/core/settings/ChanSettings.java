@@ -172,6 +172,8 @@ public class ChanSettings {
     public static final BooleanSetting useImmersiveModeForGallery;
 
     public static final StringSetting lastImageOptions;
+    public static final StringSetting filterWatchIgnored;
+
     public static final BooleanSetting removeWatchedFromCatalog;
     public static final BooleanSetting shiftPostFormat;
     public static final BooleanSetting enableEmoji;
@@ -271,6 +273,8 @@ public class ChanSettings {
         useImmersiveModeForGallery = new BooleanSetting(p, "use_immersive_mode_for_gallery", false);
 
         lastImageOptions = new StringSetting(p, "last_image_options", "");
+        filterWatchIgnored = new StringSetting(p, "filter_watch_last_ignored_set", "");
+
         removeWatchedFromCatalog = new BooleanSetting(p, "remove_catalog_watch", false);
         shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
         enableEmoji = new BooleanSetting(p, "enable_emoji", false);
