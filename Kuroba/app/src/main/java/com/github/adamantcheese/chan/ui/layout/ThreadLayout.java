@@ -402,7 +402,11 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail) {
-        AndroidUtils.hideKeyboard(this.getFocusedChild());
+        if(this.getFocusedChild() != null) {
+            View currentFocus = this.getFocusedChild();
+            AndroidUtils.hideKeyboard(currentFocus);
+            currentFocus.clearFocus();
+        }
         callback.showImages(images, index, loadable, thumbnail);
     }
 
