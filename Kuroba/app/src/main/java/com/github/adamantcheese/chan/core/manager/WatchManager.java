@@ -908,6 +908,8 @@ public class WatchManager implements WakeManager.Wakeable {
         private boolean wereNewQuotes = false;
         private boolean wereNewPosts = false;
         private boolean notified = true;
+
+        public int lastReplyCount = -1;
         public int latestKnownPage = -1;
 
         public PinWatcher(Pin pin) {
@@ -1008,6 +1010,11 @@ public class WatchManager implements WakeManager.Wakeable {
 
         @Override
         public void onChanLoaderData(ChanThread thread) {
+            if (thread.op != null) {
+                lastReplyCount = thread.op.getReplies();
+            } else {
+                lastReplyCount = -1;
+            }
             if (thread.archived || thread.closed) {
                 NetworkResponse networkResponse = new NetworkResponse(
                         NetworkResponse.STATUS_NOT_FOUND,

@@ -278,8 +278,10 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         if (ChanSettings.watchEnabled.get()) {
             if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
+                WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
                 String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
-                String totalCount = PinHelper.getShortUnreadCount(pin.watchNewCount - 1);
+                //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
+                String totalCount = PinHelper.getShortUnreadCount(pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1);
                 watchCount.setVisibility(View.VISIBLE);
                 watchCount.setText(ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount);
 
@@ -293,10 +295,10 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
                 watchCount.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
-                WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
                 Board pinBoard = pin.loadable.board;
                 boolean italicize = false, bold = false;
-                if (pin.watchNewCount - 1 >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) {
+                //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
+                if ((pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1) >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) {
                     //italics for bump limit
                     italicize = true;
                 }
