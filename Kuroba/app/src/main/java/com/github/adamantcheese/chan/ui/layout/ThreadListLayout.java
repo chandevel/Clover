@@ -41,6 +41,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -419,7 +420,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             if (open) {
                 searchStatus.setText(R.string.search_empty);
             } else {
-                threadListLayoutCallback.getToolbar().closeSearch();
+                threadListLayoutCallback.getToolbar().closeSearchPhoneMode();
             }
 
             attachToolbarScroll(!(open || replyOpen));

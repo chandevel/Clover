@@ -245,11 +245,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void upClicked(ToolbarMenuSubItem item) {
-        threadLayout.getPresenter().scrollTo(0, false);
+        threadLayout.scrollTo(0, false);
     }
 
     private void downClicked(ToolbarMenuSubItem item) {
-        threadLayout.getPresenter().scrollTo(-1, false);
+        threadLayout.scrollTo(-1, false);
     }
 
     @Override

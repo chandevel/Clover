@@ -119,7 +119,7 @@ public class ToolbarPresenter {
         }
     }
 
-    private boolean closeSearchIfNeeded() {
+    public boolean closeSearchIfNeeded() {
         // Cancel search, but don't unmark it as a search item so that onback will automatically pull up the search window
         if (item != null && item.search) {
             callback.onSearchVisibilityChanged(item, false);

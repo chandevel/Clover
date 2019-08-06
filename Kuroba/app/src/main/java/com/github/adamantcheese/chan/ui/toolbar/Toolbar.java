@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -235,6 +236,14 @@ public class Toolbar extends LinearLayout implements
 
     public boolean closeSearch() {
         return presenter.closeSearch();
+    }
+
+    public void closeSearchPhoneMode() {
+        if (ChanSettings.layoutMode.get() == ChanSettings.LayoutMode.PHONE) {
+            presenter.closeSearchIfNeeded();
+        } else {
+            presenter.closeSearch();
+        }
     }
 
     public boolean isTransitioning() {
