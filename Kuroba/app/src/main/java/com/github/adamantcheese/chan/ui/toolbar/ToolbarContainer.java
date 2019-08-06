@@ -167,6 +167,13 @@ public class ToolbarContainer extends FrameLayout {
         return itemView == null ? null : itemView.view;
     }
 
+    public View getCurrentView() {
+        if (currentView != null) {
+            return currentView.view;
+        }
+        return null;
+    }
+
     private ItemView itemViewForItem(NavigationItem item) {
         if (currentView != null && item == currentView.item) {
             return currentView;
