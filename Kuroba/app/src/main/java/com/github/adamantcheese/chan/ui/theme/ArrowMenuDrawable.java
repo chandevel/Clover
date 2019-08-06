@@ -64,7 +64,7 @@ public class ArrowMenuDrawable extends Drawable {
         mPaint.setColor(Color.WHITE);
         mPaint.setAntiAlias(true);
         mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
+        mPaint.setStrokeJoin(Paint.Join.MITER);
         mPaint.setStrokeCap(Paint.Cap.SQUARE);
         mPaint.setStrokeWidth(mBarThickness);
         badgePaint.setAntiAlias(true);
@@ -106,7 +106,6 @@ public class ArrowMenuDrawable extends Drawable {
         // bottom bar
         mPath.moveTo(arrowEdge, -topBottomBarOffset);
         mPath.rLineTo(arrowWidth, -arrowHeight);
-        mPath.close();
 
         canvas.save();
         // Rotate the whole canvas if spinning.
