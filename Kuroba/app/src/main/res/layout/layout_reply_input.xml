@@ -105,7 +105,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:imeActionLabel="@string/reply_submit"
                     android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
                     android:maxLines="6"
-                    android:minHeight="107dp"
+                    android:minHeight="144dp"
                     android:textSize="16sp" />
 
                 <TextView
