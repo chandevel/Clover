@@ -79,7 +79,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     WatchManager watchManager;
 
     private boolean pinItemPinned = false;
-    private ThreadPresenter.DownloadThreadState prevState = ThreadPresenter.DownloadThreadState.Default;
+    private DownloadThreadState prevState = DownloadThreadState.Default;
     private Loadable loadable;
 
     //pairs of the current thread loadable and the thread we're going to's hashcode
@@ -282,7 +282,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     /**
      * Replaces the current live thread with the local thread
-     * */
+     */
     private void handleClickViewLocalVersion(ToolbarMenuSubItem item) {
         if (loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
             populateLocalOrLiveVersionMenu();
@@ -301,7 +301,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     /**
      * Replaces the current local thread with the live thread
-     * */
+     */
     private void handleClickViewLiveVersion(ToolbarMenuSubItem item) {
         if (loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndViewable) {
             populateLocalOrLiveVersionMenu();
@@ -468,8 +468,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     /**
      * Shows two menu items: view local thread and view live thread
-     * FIXME: figure out how to do this normally by rebuilding the menu instead of using "enabled" flag
-     * */
+     * FIXME: Current implementation is kinda retarded because I couldn't do it normally (with just
+     *  one menu option instead of the two, it just doesn't work for some unknown reason).
+     *  Gotta figure out how to make it properly some time in the future.
+     */
     private void populateLocalOrLiveVersionMenu() {
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null) {
@@ -584,13 +586,40 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private void setSaveIconState(boolean animated) {
         ThreadPresenter presenter = threadLayout.getPresenter();
         if (presenter != null) {
-            setSaveIconStateDrawable(presenter.getThreadDownloadState(), animated);
+            setSaveIconStateDrawable(getThreadDownloadState(), animated);
         }
     }
 
+    private DownloadThreadState getThreadDownloadState() {
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            return DownloadThreadState.Default;
+        }
+
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            return DownloadThreadState.Default;
+        }
+
+        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        if (savedThread == null) {
+            return DownloadThreadState.Default;
+        }
+
+        if (savedThread.isFullyDownloaded) {
+            return DownloadThreadState.FullyDownloaded;
+        }
+
+        if (savedThread.isStopped) {
+            return DownloadThreadState.Default;
+        }
+
+        return DownloadThreadState.DownloadInProgress;
+    }
+
     private void setSaveIconStateDrawable(
-            ThreadPresenter.DownloadThreadState downloadThreadState,
-            boolean animated) {
+            DownloadThreadState downloadThreadState,
+            boolean animated
+    ) {
         if (downloadThreadState == prevState) {
             return;
         }
@@ -611,8 +640,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 menuItem.setImage(downloadIconOutline, animated);
                 break;
             case DownloadInProgress:
+                // FIXME: sometimes animations starts in the "completed" state and doesn't do anything
+                //  anymore (even though onAnimationEnd callback is getting called normally)
                 menuItem.setImage(downloadAnimation, animated);
                 downloadAnimation.start();
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     downloadAnimation.registerAnimationCallback(new Animatable2.AnimationCallback() {
                         @Override
@@ -675,5 +707,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         }
         loadThread(threadFollowerpool.removeFirst().first, false);
         return true;
+    }
+
+    public enum DownloadThreadState {
+        Default,
+        DownloadInProgress,
+        FullyDownloaded
     }
 }

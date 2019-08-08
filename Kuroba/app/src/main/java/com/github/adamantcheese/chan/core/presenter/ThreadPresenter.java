@@ -448,32 +448,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         return PinType.hasWatchNewPostsFlag(pin.pinType);
     }
 
-    public DownloadThreadState getThreadDownloadState() {
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null) {
-            return DownloadThreadState.Default;
-        }
-
-        if (!PinType.hasDownloadFlag(pin.pinType)) {
-            return DownloadThreadState.Default;
-        }
-
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-        if (savedThread == null) {
-            return DownloadThreadState.Default;
-        }
-
-        if (savedThread.isFullyDownloaded) {
-            return DownloadThreadState.FullyDownloaded;
-        }
-
-        if (savedThread.isStopped) {
-            return DownloadThreadState.Default;
-        }
-
-        return DownloadThreadState.DownloadInProgress;
-    }
-
     public void onSearchVisibilityChanged(boolean visible) {
         searchOpen = visible;
         threadPresenterCallback.showSearch(visible);
@@ -1268,12 +1242,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
     public void updateLoadable(Loadable.LoadableDownloadingState loadableDownloadingState) {
         loadable.loadableDownloadingState = loadableDownloadingState;
-    }
-
-    public enum DownloadThreadState {
-        Default,
-        DownloadInProgress,
-        FullyDownloaded
     }
 
     public interface ThreadPresenterCallback {
