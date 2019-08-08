@@ -21,16 +21,15 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Animatable2;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -87,7 +86,16 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private Drawable downloadIconOutline;
     private Drawable downloadIconFilled;
-    private AnimatedVectorDrawable downloadAnimation;
+    private AnimatedVectorDrawableCompat downloadAnimation;
+
+    private Animatable2Compat.AnimationCallback downloadAnimationCallback =  new Animatable2Compat.AnimationCallback() {
+        @Override
+        public void onAnimationEnd(Drawable drawable) {
+            super.onAnimationEnd(drawable);
+
+            downloadAnimation.start();
+        }
+    };
 
     public ViewThreadController(Context context) {
         super(context);
@@ -102,7 +110,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         super.onCreate();
         inject(this);
 
-        downloadAnimation = AnimationUtils.createAnimatedDownloadIcon(context, Color.WHITE);
+        downloadAnimation = (AnimatedVectorDrawableCompat)
+                AnimationUtils.createAnimatedDownloadIcon(context, Color.WHITE).mutate();
 
         downloadIconOutline = context.getDrawable(R.drawable.ic_download_anim0);
         downloadIconOutline.setTint(Color.WHITE);
@@ -327,6 +336,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             setPinIconState(false);
             setSaveIconState(false);
         }
+    }
+
+    @Override
+    public void onHide() {
+        super.onHide();
+
+        downloadAnimation.unregisterAnimationCallback(downloadAnimationCallback);
     }
 
     @Override
@@ -633,32 +649,23 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         switch (downloadThreadState) {
             case Default:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    downloadAnimation.stop();
-                    downloadAnimation.clearAnimationCallbacks();
-                }
+                downloadAnimation.stop();
+                downloadAnimation.clearAnimationCallbacks();
+
                 menuItem.setImage(downloadIconOutline, animated);
                 break;
             case DownloadInProgress:
-                // FIXME: sometimes animations starts in the "completed" state and doesn't do anything
-                //  anymore (even though onAnimationEnd callback is getting called normally)
                 menuItem.setImage(downloadAnimation, animated);
                 downloadAnimation.start();
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    downloadAnimation.registerAnimationCallback(new Animatable2.AnimationCallback() {
-                        @Override
-                        public void onAnimationEnd(Drawable drawable) {
-                            downloadAnimation.start();
-                        }
-                    });
-                }
+                // Don't forget to remove the old callback before adding a new one
+                downloadAnimation.unregisterAnimationCallback(downloadAnimationCallback);
+                downloadAnimation.registerAnimationCallback(downloadAnimationCallback);
                 break;
             case FullyDownloaded:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    downloadAnimation.stop();
-                    downloadAnimation.clearAnimationCallbacks();
-                }
+                downloadAnimation.stop();
+                downloadAnimation.clearAnimationCallbacks();
+
                 menuItem.setImage(downloadIconFilled, animated);
                 break;
         }

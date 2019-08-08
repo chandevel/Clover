@@ -22,10 +22,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.drawable.Animatable2;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +32,8 @@ import android.widget.TextView;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -388,43 +387,43 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         holder.threadDownloadIcon.setVisibility(View.VISIBLE);
 
         if (savedThread.isFullyDownloaded) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable) {
-                    AnimatedVectorDrawable drawable = (AnimatedVectorDrawable) holder.threadDownloadIcon.getDrawable();
-                    drawable.stop();
-                    drawable.clearAnimationCallbacks();
-                }
+            if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
+                AnimatedVectorDrawableCompat drawable =
+                        (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
+                drawable.stop();
+                drawable.clearAnimationCallbacks();
             }
+
             holder.threadDownloadIcon.setImageDrawable(downloadIconFilled);
             return;
         }
 
         if (savedThread.isStopped) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable) {
-                    AnimatedVectorDrawable drawable = (AnimatedVectorDrawable) holder.threadDownloadIcon.getDrawable();
-                    drawable.stop();
-                    drawable.clearAnimationCallbacks();
-                }
+            if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
+                AnimatedVectorDrawableCompat drawable =
+                        (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
+                drawable.stop();
+                drawable.clearAnimationCallbacks();
             }
+
             holder.threadDownloadIcon.setImageDrawable(downloadIconOutline);
             return;
         }
 
-        if (!(holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable)) {
-            AnimatedVectorDrawable downloadAnimation =
+        if (!(holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat)) {
+            AnimatedVectorDrawableCompat downloadAnimation =
                     AnimationUtils.createAnimatedDownloadIcon(context, ThemeHelper.getTheme().textPrimary);
             holder.threadDownloadIcon.setImageDrawable(downloadAnimation);
 
             downloadAnimation.start();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                downloadAnimation.registerAnimationCallback(new Animatable2.AnimationCallback() {
-                    @Override
-                    public void onAnimationEnd(Drawable drawable) {
-                        downloadAnimation.start();
-                    }
-                });
-            }
+            downloadAnimation.registerAnimationCallback(new Animatable2Compat.AnimationCallback() {
+                @Override
+                public void onAnimationEnd(Drawable drawable) {
+                    super.onAnimationEnd(drawable);
+
+                    downloadAnimation.start();
+                }
+            });
         }
     }
 
