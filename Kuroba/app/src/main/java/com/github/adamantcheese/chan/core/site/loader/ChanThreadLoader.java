@@ -190,6 +190,14 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
             ChanThread chanThread = loadSavedThreadIfItExists();
             if (chanThread != null && chanThread.getPostsCount() > 0) {
+                // HACK: When opening a pin with local thread that is not yet fully downloaded
+                // we don't want to set the thread as archived/closed because it will make
+                // it permanently archived (fully downloaded)
+                if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+                    chanThread.setArchived(false);
+                    chanThread.setClosed(false);
+                }
+
                 thread = chanThread;
 
                 onPreparedResponseInternal(
@@ -365,7 +373,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         }
 
         if (thread == null) {
-            thread = new ChanThread(loadable, new ArrayList<>());
+             thread = new ChanThread(loadable, new ArrayList<>());
         }
 
         thread.setNewPosts(response.posts);
