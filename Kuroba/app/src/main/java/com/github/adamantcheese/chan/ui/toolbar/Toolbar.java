@@ -28,9 +28,12 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -46,12 +49,16 @@ public class Toolbar extends LinearLayout implements
         View.OnClickListener, ToolbarPresenter.Callback, ToolbarContainer.Callback {
     public static final int TOOLBAR_COLLAPSE_HIDE = 1000000;
     public static final int TOOLBAR_COLLAPSE_SHOW = -1000000;
-    private Runnable searchFunc;
+    private boolean searchFuncEnabled;
 
     private final RecyclerView.OnScrollListener recyclerViewOnScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            processScrollCollapse(dy, false);
+            if (isAtTheTopOfThread(recyclerView)) {
+                setCollapse(TOOLBAR_COLLAPSE_SHOW, false);
+            } else {
+                processScrollCollapse(dy, false);
+            }
         }
 
         @Override
@@ -175,9 +182,9 @@ public class Toolbar extends LinearLayout implements
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     //pseudo callback here if set
-                    if (searchFunc != null) {
-                        searchFunc.run();
-                        searchFunc = null;
+                    if (searchFuncEnabled && navigationItemContainer.getCurrentView() instanceof SearchLayout) {
+                        ((SearchLayout) navigationItemContainer.getCurrentView()).openKeyboard();
+                        searchFuncEnabled = false;
                     }
                 }
 
@@ -229,6 +236,14 @@ public class Toolbar extends LinearLayout implements
 
     public boolean closeSearch() {
         return presenter.closeSearch();
+    }
+
+    public void closeSearchPhoneMode() {
+        if (ChanSettings.layoutMode.get() == ChanSettings.LayoutMode.PHONE) {
+            presenter.closeSearchIfNeeded();
+        } else {
+            presenter.closeSearch();
+        }
     }
 
     public boolean isTransitioning() {
@@ -314,9 +329,8 @@ public class Toolbar extends LinearLayout implements
             hideKeyboard(navigationItemContainer);
         } else {
             //set a pseudo callback because I'm not doing a bunch of actual callbacks to get back to this same class
-            if (navigationItemContainer.viewForItem(item) instanceof SearchLayout && searchFunc == null) {
-                final SearchLayout search = ((SearchLayout) navigationItemContainer.viewForItem(item));
-                searchFunc = search::openKeyboard;
+            if (navigationItemContainer.viewForItem(item) instanceof SearchLayout && !searchFuncEnabled) {
+                searchFuncEnabled = true;
             }
         }
     }
@@ -330,6 +344,28 @@ public class Toolbar extends LinearLayout implements
     @Override
     public void updateViewForItem(NavigationItem item) {
         navigationItemContainer.update(item);
+    }
+
+    private boolean isAtTheTopOfThread(RecyclerView recyclerView) {
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager == null) {
+            return false;
+        }
+
+        int firstVisibleElement = -1;
+
+        if (layoutManager instanceof GridLayoutManager) {
+            firstVisibleElement = ((GridLayoutManager) layoutManager)
+                    .findFirstCompletelyVisibleItemPosition();
+        } else if (layoutManager instanceof LinearLayoutManager) {
+            firstVisibleElement = ((LinearLayoutManager) layoutManager)
+                    .findFirstCompletelyVisibleItemPosition();
+        } else {
+            throw new IllegalStateException("Not implemented for " +
+                    layoutManager.getClass().getName());
+        }
+
+        return firstVisibleElement == 0;
     }
 
     public interface ToolbarCallback {

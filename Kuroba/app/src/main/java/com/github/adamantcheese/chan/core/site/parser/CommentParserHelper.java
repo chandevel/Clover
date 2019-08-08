@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.site.parser;
 
 import androidx.annotation.AnyThread;
 import android.text.SpannableString;
+import android.text.Spanned;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
@@ -50,7 +51,9 @@ public class CommentParserHelper {
         for (final LinkSpan link : links) {
             final String linkText = text.substring(link.getBeginIndex(), link.getEndIndex());
             final PostLinkable pl = new PostLinkable(theme, linkText, linkText, PostLinkable.Type.LINK);
-            spannable.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), 0);
+            //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
+            //we use 500 here for to go below post linkables, but above everything else basically
+            spannable.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
             post.addLinkable(pl);
         }
     }

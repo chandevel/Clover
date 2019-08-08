@@ -41,7 +41,6 @@ import android.widget.ListView;
 import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.davemorrissey.labs.subscaleview.ImageViewState;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
@@ -113,6 +112,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private LoadingBar loadingBar;
 
     private boolean isInImmersiveMode = false;
+    private Handler mainHandler = new Handler(Looper.getMainLooper());
+    private Runnable uiHideCall = this::hideSystemUI;
 
     public ImageViewerController(Loadable loadable, Context context, Toolbar toolbar) {
         super(context);
@@ -189,11 +190,13 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             this.imageViewerCallback = imageViewerCallback;
             AndroidUtils.waitForLayout(view, view -> {
                 showSystemUI();
+                mainHandler.removeCallbacks(uiHideCall);
                 presenter.onExit();
                 return false;
             });
         } else {
             showSystemUI();
+            mainHandler.removeCallbacks(uiHideCall);
             presenter.onExit();
         }
     }
@@ -261,6 +264,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         super.onDestroy();
 
         showSystemUI();
+        mainHandler.removeCallbacks(uiHideCall);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -298,6 +302,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     @Override
     public boolean onBack() {
         showSystemUI();
+        mainHandler.removeCallbacks(uiHideCall);
         presenter.onExit();
         return true;
     }
@@ -603,11 +608,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     private void hideSystemUI() {
-        if (!ChanSettings.useImmersiveModeForGallery.get()) {
-            return;
-        }
-
-        if (isInImmersiveMode) {
+        if (!ChanSettings.useImmersiveModeForGallery.get() || isInImmersiveMode) {
             return;
         }
 
@@ -623,9 +624,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
 
         decorView.setOnSystemUiVisibilityChangeListener(visibility -> {
-            if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+            if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0 && isInImmersiveMode) {
                 showSystemUI();
-                new Handler(Looper.getMainLooper()).postDelayed(this::hideSystemUI, 2500);
+                mainHandler.postDelayed(uiHideCall, 2500);
             }
         });
 
@@ -636,11 +637,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     private void showSystemUI() {
-        if (!ChanSettings.useImmersiveModeForGallery.get()) {
-            return;
-        }
-
-        if (!isInImmersiveMode) {
+        if (!ChanSettings.useImmersiveModeForGallery.get() || !isInImmersiveMode) {
             return;
         }
 

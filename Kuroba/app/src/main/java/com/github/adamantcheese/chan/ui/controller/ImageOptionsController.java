@@ -150,7 +150,7 @@ public class ImageOptionsController extends Controller implements
             changeImageChecksum.setChecked(lastSettings.getChangeImageChecksum());
             fixExif.setChecked(lastSettings.getFixExif());
             ImageReencodingPresenter.ReencodeSettings lastReencode = lastSettings.getReencodeSettings();
-            if(lastReencode != null) {
+            if (lastReencode != null) {
                 removeMetadata.setChecked(!lastReencode.isDefault());
                 removeMetadata.setEnabled(!lastReencode.isDefault());
                 reencode.setChecked(!lastReencode.isDefault());
@@ -190,17 +190,17 @@ public class ImageOptionsController extends Controller implements
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if(!ignoreSetup) { //this variable is to ignore any side effects of checking boxes when last settings are being put in
-            if (buttonView == changeImageChecksum) {
-                presenter.changeImageChecksum(isChecked);
-            } else if (buttonView == fixExif) {
-                presenter.fixExif(isChecked);
-            } else if (buttonView == removeMetadata) {
-                presenter.removeMetadata(isChecked);
-            } else if (buttonView == removeFilename) {
-                presenter.removeFilename(isChecked);
-            } else if (buttonView == reencode) {
-                //isChecked here means whether the current click has made the button checked
+        if (buttonView == changeImageChecksum) {
+            presenter.changeImageChecksum(isChecked);
+        } else if (buttonView == fixExif) {
+            presenter.fixExif(isChecked);
+        } else if (buttonView == removeMetadata) {
+            presenter.removeMetadata(isChecked);
+        } else if (buttonView == removeFilename) {
+            presenter.removeFilename(isChecked);
+        } else if (buttonView == reencode) {
+            //isChecked here means whether the current click has made the button checked
+            if (!ignoreSetup) { //this variable is to ignore any side effects of checking boxes when last settings are being put in
                 if (!isChecked) {
                     onReencodingCanceled();
                 } else {

@@ -16,10 +16,10 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
-import android.text.Html;
 import android.text.TextUtils;
 
 import androidx.annotation.AnyThread;
+import androidx.core.text.HtmlCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
@@ -31,9 +31,6 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.utils.Logger;
-
-import org.jsoup.Jsoup;
-import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -306,7 +303,7 @@ public class FilterEngine {
         }
 
         if (pattern != null) {
-            Matcher matcher = pattern.matcher(Parser.unescapeEntities(text, false));
+            Matcher matcher = pattern.matcher(HtmlCompat.fromHtml(text, 0).toString());
             try {
                 return matcher.find();
             } catch (IllegalArgumentException e) {

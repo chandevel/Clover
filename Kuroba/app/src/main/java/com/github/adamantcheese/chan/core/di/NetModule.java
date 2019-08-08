@@ -21,6 +21,7 @@ import com.android.volley.toolbox.Volley;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
 
 import org.codejargon.feather.Provides;
@@ -72,6 +73,19 @@ public class NetModule {
     @Provides
     @Singleton
     public OkHttpClient provideBasicOkHttpClient() {
-        return new OkHttpClient();
+        return new ProxiedOkHttpClient();
     }
+
+    //this is basically the same as OkHttpClient, but with a singleton for a proxy instance
+    public class ProxiedOkHttpClient extends OkHttpClient {
+        private OkHttpClient proxiedClient;
+
+        public OkHttpClient getProxiedClient() {
+            if (proxiedClient == null) {
+                proxiedClient = newBuilder().proxy(ChanSettings.getProxy()).build();
+            }
+            return proxiedClient;
+        }
+    }
+
 }

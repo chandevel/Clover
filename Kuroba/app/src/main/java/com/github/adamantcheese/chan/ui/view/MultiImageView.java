@@ -384,7 +384,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
-        view.setOnClickListener(null);
+        view.setOnClickListener((view1) -> {
+            if (drawable.isPlaying()) {
+                drawable.pause();
+            } else {
+                drawable.start();
+            }
+        });
         view.setOnTouchListener((view1, motionEvent) -> doubleTapDetector.onTouchEvent(motionEvent));
         onModeLoaded(Mode.GIF, view);
     }

@@ -62,6 +62,9 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                         throw new VolleyError("Tag name wasn't of the form v(major).(minor).(patch)!");
                     }
                     break;
+                case "name":
+                    response.updateTitle = reader.nextString();
+                    break;
                 case "assets":
                     try {
                         reader.beginArray();
@@ -109,6 +112,7 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
     public static class UpdateApiResponse {
         public int versionCode;
         public String versionCodeString;
+        public String updateTitle;
         public HttpUrl apkURL;
         public Spanned body;
     }

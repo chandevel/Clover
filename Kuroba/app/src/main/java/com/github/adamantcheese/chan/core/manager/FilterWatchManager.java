@@ -30,6 +30,8 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -64,6 +66,8 @@ public class FilterWatchManager implements WakeManager.Wakeable {
     private int numBoardsChecked = 0;
     private Set<Post> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
 
+    private final Gson serializer = new Gson();
+
     @Inject
     public FilterWatchManager(WakeManager wakeManager,
                               FilterEngine filterEngine,
@@ -81,6 +85,9 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         if (ChanSettings.watchFilterWatch.get()) {
             wakeManager.registerWakeable(this);
         }
+
+        Set<Integer> previousIgnore = serializer.fromJson(ChanSettings.filterWatchIgnored.get(), new TypeToken<Set<Integer>>() {}.getType());
+        if (previousIgnore != null) ignoredPosts.addAll(previousIgnore);
 
         EventBus.getDefault().register(this);
     }
@@ -179,6 +186,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                         lastCheckedPostNumbers.add(post.no);
                     }
                     ignoredPosts.retainAll(lastCheckedPostNumbers);
+                    ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
                     lastCheckedPosts.clear();
                 }
             }

@@ -26,7 +26,6 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -159,7 +158,6 @@ public class ReplyLayout extends LoadView implements
         options = replyInputLayout.findViewById(R.id.options);
         fileName = replyInputLayout.findViewById(R.id.file_name);
         nameOptions = replyInputLayout.findViewById(R.id.name_options);
-        ViewGroup commentButtons = replyInputLayout.findViewById(R.id.comment_buttons);
         commentQuoteButton = replyInputLayout.findViewById(R.id.comment_quote);
         commentSpoilerButton = replyInputLayout.findViewById(R.id.comment_spoiler);
         commentCodeButton = replyInputLayout.findViewById(R.id.comment_code);
@@ -240,6 +238,9 @@ public class ReplyLayout extends LoadView implements
     }
 
     public void bindLoadable(Loadable loadable) {
+        if (!loadable.site.actions().postRequiresAuthentication()) {
+            findViewById(R.id.captcha_container).setVisibility(GONE);
+        }
         presenter.bindLoadable(loadable);
         captchaHolder.setListener(this);
     }

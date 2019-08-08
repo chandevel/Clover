@@ -25,7 +25,6 @@ import androidx.annotation.WorkerThread;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.di.NetModule;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.Closeable;
@@ -209,12 +208,11 @@ public class FileCacheDownloader implements Runnable {
                 .header("User-Agent", NetModule.USER_AGENT)
                 .build();
 
-        call = Chan.injector().instance(OkHttpClient.class).newBuilder()
-                .proxy(ChanSettings.getProxy())
-                .build()
-                .newCall(request);
-
+        //we want to use the proxy instance here
+        call = ((NetModule.ProxiedOkHttpClient) Chan.injector().instance(OkHttpClient.class))
+                .getProxiedClient().newCall(request);
         Response response = call.execute();
+
         if (!response.isSuccessful()) {
             throw new HttpCodeIOException(response.code());
         }

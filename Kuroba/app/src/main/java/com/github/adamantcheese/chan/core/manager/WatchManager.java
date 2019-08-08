@@ -1003,6 +1003,8 @@ public class WatchManager implements WakeManager.Wakeable {
         private boolean wereNewQuotes = false;
         private boolean wereNewPosts = false;
         private boolean notified = true;
+
+        public int lastReplyCount = -1;
         public int latestKnownPage = -1;
 
         public PinWatcher(Pin pin) {
@@ -1112,13 +1114,16 @@ public class WatchManager implements WakeManager.Wakeable {
 
         @Override
         public void onChanLoaderData(ChanThread thread) {
+            if (thread.getOp() != null) {
+                lastReplyCount = thread.getOp().getReplies();
+            } else {
+                lastReplyCount = -1;
+            }
+
             // This route is only for downloading threads, to mark them as completely downloaded
             if (PinType.hasDownloadFlag(pin.pinType)
                     && !pin.loadable.isLocal()
                     && (thread.isArchived() || thread.isClosed())) {
-                pin.archived = thread.isArchived();
-                pin.watching = false;
-
                 NetworkResponse networkResponse = new NetworkResponse(
                         NetworkResponse.STATUS_SERVICE_UNAVAILABLE,
                         EMPTY_BYTE_ARRAY,

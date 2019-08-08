@@ -46,6 +46,7 @@ import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -163,25 +164,27 @@ public class FiltersController extends Controller implements
             List<Filter> enabledFilters = filterEngine.getEnabledFilters();
             List<Filter> allFilters = filterEngine.getAllFilters();
             if (enabledFilters.isEmpty()) {
-                setFilters(allFilters, true);
+                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, true));
                 enableButton.setImageResource(R.drawable.ic_clear_white_24dp);
             } else if (enabledFilters.size() == allFilters.size()) {
-                setFilters(allFilters, false);
+                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             } else {
-                setFilters(enabledFilters, false);
+                AndroidUtils.runOnUiThread(() -> setFilters(enabledFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
             ThemeHelper.getTheme().applyFabColor(enable);
             enableButton.getDrawable().setTint(Color.WHITE);
-            adapter.reload();
         }
     }
 
     private void setFilters(List<Filter> filters, boolean enabled) {
-        for (Filter filter : filters) {
-            filter.enabled = enabled;
-            filterEngine.createOrUpdateFilter(filter);
+        synchronized (context) {
+            for (Filter filter : filters) {
+                filter.enabled = enabled;
+                filterEngine.createOrUpdateFilter(filter);
+            }
+            adapter.reload();
         }
     }
 
@@ -192,7 +195,9 @@ public class FiltersController extends Controller implements
     private void helpClicked(ToolbarMenuItem item) {
         final AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle("Help")
-                .setMessage(Html.fromHtml("Actions do the following:<br>" +
+                .setMessage(Html.fromHtml("You can use Regex101 for more comprehensive explanations " +
+                        "of your regular expressions, or as a playground for figuring out an expression. Use Javascript to test.<br><br>" +
+                        "Actions do the following:<br>" +
                         "<b>Hide:</b> Replace the post with a stub. You can tap it to un-hide it.<br>" +
                         "<b>Highlight:</b> A colored bar of your choosing will appear on the left hand side of this post.<br>" +
                         "<b>Remove:</b> Remove this post. It won't be visible at all.<br>" +
@@ -210,6 +215,7 @@ public class FiltersController extends Controller implements
                         "9) Country Code<br>" +
                         "10) Filename"))
                 .setPositiveButton("Close", null)
+                .setNegativeButton("Open Regex101", (dialog1, which) -> AndroidUtils.openLink("https://regex101.com/"))
                 .show();
         dialog.setCanceledOnTouchOutside(true);
     }
