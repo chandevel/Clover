@@ -22,6 +22,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -204,6 +206,12 @@ public class ThumbnailView extends View implements ImageListener {
         invalidate();
 
         return true;
+    }
+
+    public void setGreyscale(boolean grey) {
+        ColorMatrix greyMatrix = new ColorMatrix();
+        greyMatrix.setSaturation(0);
+        paint.setColorFilter(grey ? new ColorMatrixColorFilter(greyMatrix) : null);
     }
 
     @Override
