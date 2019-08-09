@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <uses-library
             android:name="org.apache.http.legacy"
-            android:required="true" />
+            android:required="false" />
 
         <!--Dual Window support for Samsung and LG-->
         <meta-data
@@ -60,8 +60,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <activity
             android:name=".StartActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
-            android:screenOrientation="fullUser">
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

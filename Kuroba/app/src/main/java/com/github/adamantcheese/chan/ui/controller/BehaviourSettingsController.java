@@ -71,6 +71,10 @@ public class BehaviourSettingsController extends SettingsController {
                     ChanSettings.controllerSwipeable,
                     R.string.setting_controller_swipeable, 0)));
 
+            requiresRestart.add(general.add(new BooleanSettingView(this,
+                    ChanSettings.fullUserRotationEnable,
+                    R.string.setting_full_screen_rotation, 0)));
+
             setupClearThreadHidesSetting(general);
 
             groups.add(general);

@@ -182,6 +182,8 @@ public class ChanSettings {
 
     public static final BooleanSetting incrementalThreadDownloadingEnabled;
 
+    public static final BooleanSetting fullUserRotationEnable;
+
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
@@ -282,6 +284,8 @@ public class ChanSettings {
         padThumbs = new BooleanSetting(p, "pad_thumbnails", true);
 
         incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
+
+        fullUserRotationEnable = new BooleanSetting(p, "full_user_rotation_enable", true);
     }
 
     public static ThemeColor getThemeAndColor() {
