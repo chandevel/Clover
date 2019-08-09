@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <uses-library
             android:name="org.apache.http.legacy"
-            android:required="true" />
+            android:required="false" />
 
         <!--Dual Window support for Samsung and LG-->
         <meta-data
