@@ -22,7 +22,6 @@ import com.github.adamantcheese.chan.core.site.sites.wired7.Wired7;
 import com.github.adamantcheese.chan.core.site.sites.arisuchan.Arisuchan;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.core.site.sites.chan8.Chan8;
-import com.github.adamantcheese.chan.core.site.sites.chan55.Chan55;
 import com.github.adamantcheese.chan.core.site.sites.dvach.Dvach;
 import com.github.adamantcheese.chan.core.site.sites.lainchan.Lainchan;
 import com.github.adamantcheese.chan.core.site.sites.sushichan.Sushichan;
@@ -45,7 +44,6 @@ public class SiteRegistry {
         URL_HANDLERS.add(Sushichan.URL_HANDLER);
         URL_HANDLERS.add(Dvach.URL_HANDLER);
         URL_HANDLERS.add(Wired7.URL_HANDLER);
-        URL_HANDLERS.add(Chan55.URL_HANDLER);
     }
 
     static {
@@ -60,6 +58,5 @@ public class SiteRegistry {
         SITE_CLASSES.put(4, Sushichan.class);
         SITE_CLASSES.put(5, Dvach.class);
         SITE_CLASSES.put(6, Wired7.class);
-        SITE_CLASSES.put(7, Chan55.class);
     }
 }
