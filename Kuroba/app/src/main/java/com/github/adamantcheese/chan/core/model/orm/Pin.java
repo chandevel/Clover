@@ -161,6 +161,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
     @Override
     public String toString() {
         return "[id = " + id +
+                ", pinType = " + pinType +
                 ", isError = " + isError +
                 ", isArchived = " + archived +
                 ", watching = " + watching +
