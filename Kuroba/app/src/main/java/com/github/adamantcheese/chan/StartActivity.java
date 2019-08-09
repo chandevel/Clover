@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -155,6 +156,10 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
             System.exit(999);
         });
+
+        if(ChanSettings.fullUserRotationEnable.get()) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+        }
     }
 
     private void setupFromStateOrFreshLaunch(Bundle savedInstanceState) {

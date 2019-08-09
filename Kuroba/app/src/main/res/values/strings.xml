@@ -700,4 +700,5 @@ Don't have a 4chan Pass?<br>
     <string name="cannot_send_thread_via_nfc_already_deleted">Can\'t send thread via the NFC, it\'s already been deleted</string>
     <string name="cannot_shared_thread_already_deleted">Can\'t share this thread, it\'s already been deleted</string>
     <string name="more_than_99_valid_captchas_text">99+</string>
+    <string name="setting_full_screen_rotation">Allow full sensor rotation</string>
 </resources>
