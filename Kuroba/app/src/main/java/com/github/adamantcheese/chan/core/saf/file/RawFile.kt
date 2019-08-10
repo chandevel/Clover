@@ -81,11 +81,8 @@ class RawFile(
     override fun name(): String? = root.name()
 
     private fun toFile(): File {
-        return if (segments.isEmpty()) {
-            when (root) {
-                is Root.DirRoot -> root.holder
-                is Root.FileRoot -> root.holder
-            }
+        val uri = if (segments.isEmpty()) {
+            root.holder
         } else {
             var newFile = root.holder
 
@@ -93,10 +90,12 @@ class RawFile(
                 newFile = File(newFile, segment.name)
             }
 
-            when (root) {
-                is Root.DirRoot -> newFile
-                is Root.FileRoot -> newFile
-            }
+            newFile
+        }
+
+        return when (root) {
+            is Root.DirRoot -> uri
+            is Root.FileRoot -> uri
         }
     }
 

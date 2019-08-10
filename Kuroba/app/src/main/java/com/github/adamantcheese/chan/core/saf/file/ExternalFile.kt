@@ -121,21 +121,18 @@ class ExternalFile(
     override fun name(): String? = root.name()
 
     private fun toDocumentFile(): DocumentFile? {
-        return if (segments.isEmpty()) {
-            when (root) {
-                is Root.DirRoot -> DocumentFile.fromTreeUri(appContext, root.holder)
-                is Root.FileRoot -> DocumentFile.fromSingleUri(appContext, root.holder)
-            }
+        val uri = if (segments.isEmpty()) {
+            root.holder
         } else {
-            val fullUri = root.holder
+            root.holder
                     .buildUpon()
                     .appendManyEncoded(segments.map { segment -> segment.name })
                     .build()
+        }
 
-            when (root) {
-                is Root.DirRoot -> DocumentFile.fromTreeUri(appContext, fullUri)
-                is Root.FileRoot -> DocumentFile.fromSingleUri(appContext, fullUri)
-            }
+        return when (root) {
+            is Root.DirRoot -> DocumentFile.fromTreeUri(appContext, uri)
+            is Root.FileRoot -> DocumentFile.fromSingleUri(appContext, uri)
         }
     }
 
