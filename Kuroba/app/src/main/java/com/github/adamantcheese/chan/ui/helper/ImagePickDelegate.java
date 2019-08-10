@@ -122,49 +122,54 @@ public class ImagePickDelegate implements Runnable {
         }
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (callback == null) {
-            return;
+            return false;
+        }
+
+        if (requestCode != IMAGE_PICK_RESULT) {
+            return false;
         }
 
         boolean ok = false;
         boolean cancelled = false;
-        if (requestCode == IMAGE_PICK_RESULT) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                uri = data.getData();
 
-                Cursor returnCursor = activity.getContentResolver().query(uri, null, null, null, null);
-                if (returnCursor != null) {
-                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    returnCursor.moveToFirst();
-                    if (nameIndex > -1) {
-                        fileName = returnCursor.getString(nameIndex);
-                    }
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            uri = data.getData();
 
-                    returnCursor.close();
+            Cursor returnCursor = activity.getContentResolver().query(uri, null, null, null, null);
+            if (returnCursor != null) {
+                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                returnCursor.moveToFirst();
+                if (nameIndex > -1) {
+                    fileName = returnCursor.getString(nameIndex);
                 }
 
-                if (fileName == null) {
-                    // As per the comment on OpenableColumns.DISPLAY_NAME:
-                    // If this is not provided then the name should default to the last segment of the file's URI.
-                    fileName = uri.getLastPathSegment();
-                }
-
-                if (fileName == null) {
-                    fileName = DEFAULT_FILE_NAME;
-                }
-
-                new Thread(this).start();
-                ok = true;
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                cancelled = true;
+                returnCursor.close();
             }
+
+            if (fileName == null) {
+                // As per the comment on OpenableColumns.DISPLAY_NAME:
+                // If this is not provided then the name should default to the last segment of the file's URI.
+                fileName = uri.getLastPathSegment();
+            }
+
+            if (fileName == null) {
+                fileName = DEFAULT_FILE_NAME;
+            }
+
+            new Thread(this).start();
+            ok = true;
+        } else if (resultCode == Activity.RESULT_CANCELED) {
+            cancelled = true;
         }
 
         if (!ok) {
             callback.onFilePickError(cancelled);
             reset();
         }
+
+        return true;
     }
 
     @Override

@@ -45,6 +45,8 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
+import com.github.adamantcheese.chan.core.saf.FileManager;
+import com.github.adamantcheese.chan.core.saf.callback.StartActivityCallbacks;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
@@ -62,6 +64,8 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -73,7 +77,10 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
-public class StartActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
+public class StartActivity
+        extends AppCompatActivity
+        implements NfcAdapter.CreateNdefMessageCallback,
+        StartActivityCallbacks {
     private static final String TAG = "StartActivity";
 
     private static final String STATE_KEY = "chan_state";
@@ -104,6 +111,9 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     @Inject
     SiteService siteService;
 
+    @Inject
+    FileManager fileManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,6 +124,8 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         }
 
         Chan.injector().instance(ThemeHelper.class).setupContext(this);
+
+        fileManager.setCallbacks(this);
 
         imagePickDelegate = new ImagePickDelegate(this);
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
@@ -534,6 +546,8 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             return;
         }
 
+        fileManager.removeCallbacks();
+
         // TODO: clear whole stack?
         stackTop().onHide();
         stackTop().onDestroy();
@@ -544,7 +558,13 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        imagePickDelegate.onActivityResult(requestCode, resultCode, data);
+        if (fileManager.onActivityResult(requestCode, resultCode, data)) {
+            return;
+        }
+
+        if (imagePickDelegate.onActivityResult(requestCode, resultCode, data)) {
+            return;
+        }
     }
 
     private Controller stackTop() {
@@ -580,5 +600,15 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         finish();
 
         Runtime.getRuntime().exit(0);
+    }
+
+    @Override
+    public boolean myStartActivityForResult(@NotNull Intent intent, int requestCode) {
+        if (intent.resolveActivity(getPackageManager()) == null) {
+            return false;
+        }
+
+        startActivityForResult(intent, requestCode);
+        return true;
     }
 }

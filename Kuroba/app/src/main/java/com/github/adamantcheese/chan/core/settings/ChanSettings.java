@@ -121,7 +121,9 @@ public class ChanSettings {
     public static final BooleanSetting postPinThread;
     public static final BooleanSetting shortPinInfo;
 
+    @Deprecated
     public static final StringSetting saveLocation;
+    public static final StringSetting saveLocationUri;
     public static final BooleanSetting saveServerFilename;
     public static final BooleanSetting shareUrl;
     public static final BooleanSetting enableReplyFab;
@@ -211,6 +213,8 @@ public class ChanSettings {
         shortPinInfo = new BooleanSetting(p, "preference_short_pin_info", true);
 
         saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + getApplicationLabel());
+        saveLocationUri = new StringSetting(p, "preference_image_save_location_uri", "");
+
         saveLocation.addCallback((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
         saveServerFilename = new BooleanSetting(p, "preference_image_save_original", false);
