@@ -157,7 +157,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             System.exit(999);
         });
 
-        if(ChanSettings.fullUserRotationEnable.get()) {
+        if (ChanSettings.fullUserRotationEnable.get()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
         }
     }

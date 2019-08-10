@@ -18,7 +18,10 @@ package com.github.adamantcheese.chan.core.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
+import android.util.Pair;
 
+import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.History;
@@ -28,14 +31,19 @@ import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -43,7 +51,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 37;
+    private static final int DATABASE_VERSION = 38;
 
 
     public Dao<Pin, Integer> pinDao;
@@ -232,12 +240,22 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             }
         }
 
-        if(oldVersion < 37) {
+        if (oldVersion < 37) {
             try {
                 //reset all settings, key was never saved which caused issues
                 siteDao.executeRawNoArgs("UPDATE site SET userSettings='{}'");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 37", e);
+            }
+        }
+
+        if (oldVersion < 38) {
+            try {
+                Logger.d(TAG, "Removing Chan55");
+                deleteSiteByRegistryID(7);
+                Logger.d(TAG, "Removed Chan55 successfully");
+            } catch (Exception e) {
+                Logger.e(TAG, "Error upgrading to version 38");
             }
         }
     }
@@ -253,5 +271,106 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         if (context.deleteDatabase(DATABASE_NAME)) {
             Logger.i(TAG, "Deleted database");
         }
+    }
+
+    /**
+     * This method deletes a site by the id it was given in SiteRegistry, but in the database rather than in the application
+     * This is useful for when a site's classes have been removed from the application
+     *
+     * @param id The ID given in SiteRegistry before this site's class was removed
+     */
+    public void deleteSiteByRegistryID(int id) throws SQLException {
+        //NOTE: most of this is a copy of the methods used by the runtime version, but condensed down into one method
+        //convert the SiteRegistry id to the actual database id
+        List<SiteModel> allSites = siteDao.queryForAll();
+        SiteModel toDelete = null;
+        for (SiteModel siteModel : allSites) {
+            Pair<SiteConfig, JsonSettings> siteModelConfig = siteModel.loadConfigFields();
+            if (siteModelConfig.first.classId == id) {
+                toDelete = siteModel;
+                break;
+            }
+        }
+        //if we can't find it then it doesn't exist so we don't need to delete anything
+        if (toDelete == null) return;
+
+        //filters
+        List<Filter> filtersToDelete = new ArrayList<>();
+
+        for (Filter filter : filterDao.queryForAll()) {
+            if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
+                continue;
+            }
+
+            for (String uniqueId : filter.boards.split(",")) {
+                String[] split = uniqueId.split(":");
+                if (split.length == 2 && Integer.parseInt(split[0]) == toDelete.id) {
+                    filtersToDelete.add(filter);
+                    break;
+                }
+            }
+        }
+
+        Set<Integer> filterIdSet = new HashSet<>();
+        for (Filter filter : filtersToDelete) {
+            filterIdSet.add(filter.id);
+        }
+
+        DeleteBuilder<Filter, Integer> filterDelete = filterDao.deleteBuilder();
+        filterDelete.where().in("id", filterIdSet);
+
+        int deletedCountFilters = filterDelete.delete();
+        if (deletedCountFilters != filterIdSet.size()) {
+            throw new IllegalStateException("Deleted count didn't equal filterIdList.size(). (deletedCount = "
+                    + deletedCountFilters + "), " + "(filterIdSet = " + filterIdSet.size() + ")");
+        }
+
+        //boards
+        DeleteBuilder boardDelete = boardsDao.deleteBuilder();
+        boardDelete.where().eq("site", toDelete.id);
+        boardDelete.delete();
+
+        //loadables (pins, history, loadbles)
+        List<Loadable> siteLoadables = loadableDao.queryForEq("site", toDelete.id);
+        if (!siteLoadables.isEmpty()) {
+            Set<Integer> loadableIdSet = new HashSet<>();
+            for (Loadable loadable : siteLoadables) {
+                loadableIdSet.add(loadable.id);
+            }
+            //pins
+            DeleteBuilder<Pin, Integer> pinDelete = pinDao.deleteBuilder();
+            pinDelete.where().in("loadable_id", loadableIdSet);
+            pinDelete.delete();
+
+            //history
+            DeleteBuilder<History, Integer> historyDelete = historyDao.deleteBuilder();
+            historyDelete.where().in("loadable_id", loadableIdSet);
+            historyDelete.delete();
+
+            //loadables
+            DeleteBuilder<Loadable, Integer> loadableDelete = loadableDao.deleteBuilder();
+            loadableDelete.where().in("id", loadableIdSet);
+
+            int deletedCountLoadables = loadableDelete.delete();
+            if (loadableIdSet.size() != deletedCountLoadables) {
+                throw new IllegalStateException("Deleted count didn't equal loadableIdSet.size(). (deletedCount = "
+                        + deletedCountLoadables + "), " + "(loadableIdSet = " + loadableIdSet.size() + ")");
+            }
+        }
+
+        //saved replies
+        DeleteBuilder<SavedReply, Integer> savedReplyDelete = savedDao.deleteBuilder();
+        savedReplyDelete.where().eq("site", toDelete.id);
+        savedReplyDelete.delete();
+
+        //thread hides
+        DeleteBuilder<PostHide, Integer> threadHideDelete = postHideDao.deleteBuilder();
+        threadHideDelete.where().eq("site", toDelete.id);
+        threadHideDelete.delete();
+
+        //site itself
+        DeleteBuilder<SiteModel, Integer> siteDelete = siteDao.deleteBuilder();
+        siteDelete.where().eq("id", toDelete.id);
+        siteDelete.delete();
     }
 }
