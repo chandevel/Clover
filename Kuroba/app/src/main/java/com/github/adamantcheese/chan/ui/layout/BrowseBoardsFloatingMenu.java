@@ -21,6 +21,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -142,7 +144,9 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
                 @Override
                 public void setup() {
                     setName("App Setup");
-                    setIcon(SiteIcon.fromDrawable(ThemeHelper.getTheme().settingsDrawable.makeDrawable(getAppContext())));
+                    Drawable setupIcon = ThemeHelper.getTheme().settingsDrawable.makeDrawable(getAppContext());
+                    setupIcon.setColorFilter(ThemeHelper.getTheme().textPrimary, PorterDuff.Mode.SRC_IN);
+                    setIcon(SiteIcon.fromDrawable(setupIcon));
                     setBoardsType(BoardsType.STATIC);
                     setConfig(new CommonConfig() {
                     });
