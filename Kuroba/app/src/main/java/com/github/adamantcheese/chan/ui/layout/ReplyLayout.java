@@ -240,6 +240,7 @@ public class ReplyLayout extends LoadView implements
     public void bindLoadable(Loadable loadable) {
         if (!loadable.site.actions().postRequiresAuthentication()) {
             findViewById(R.id.captcha_container).setVisibility(GONE);
+            comment.setMinHeight(dp(108));
         }
         presenter.bindLoadable(loadable);
         captchaHolder.setListener(this);
