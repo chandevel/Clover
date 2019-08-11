@@ -21,17 +21,10 @@ import javax.inject.Inject;
 public class SavedThreadLoaderManager {
     private final static String TAG = "SavedThreadLoaderManager";
 
-    private Gson gson;
-    private DatabaseManager databaseManager;
     private SavedThreadLoaderRepository savedThreadLoaderRepository;
 
     @Inject
-    public SavedThreadLoaderManager(
-            Gson gson,
-            DatabaseManager databaseManager,
-            SavedThreadLoaderRepository savedThreadLoaderRepository) {
-        this.gson = gson;
-        this.databaseManager = databaseManager;
+    public SavedThreadLoaderManager(SavedThreadLoaderRepository savedThreadLoaderRepository) {
         this.savedThreadLoaderRepository = savedThreadLoaderRepository;
     }
 

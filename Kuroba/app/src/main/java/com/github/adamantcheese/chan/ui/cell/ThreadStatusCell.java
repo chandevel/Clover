@@ -103,13 +103,17 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
             SpannableStringBuilder builder = new SpannableStringBuilder();
 
-            if (chanThread.archived) {
-                builder.append(getContext().getString(R.string.thread_archived));
-            } else if (chanThread.closed) {
-                builder.append(getContext().getString(R.string.thread_closed));
+            if (chanThread.getLoadable().isLocal()) {
+                builder.append(getContext().getString(R.string.local_thread_text));
+            } else {
+                if (chanThread.isArchived()) {
+                    builder.append(getContext().getString(R.string.thread_archived));
+                } else if (chanThread.isClosed()) {
+                    builder.append(getContext().getString(R.string.thread_closed));
+                }
             }
 
-            if (!chanThread.archived && !chanThread.closed) {
+            if (!chanThread.isArchived() && !chanThread.isClosed() && !chanThread.getLoadable().isLocal()) {
                 long time = callback.getTimeUntilLoadMore() / 1000L;
                 if (!callback.isWatching()) {
                     builder.append(getContext().getString(R.string.thread_refresh_bar_inactive));
@@ -121,7 +125,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                 update = true;
             }
 
-            Post op = chanThread.op;
+            Post op = chanThread.getOp();
             Board board = op.board;
             if (board != null) {
                 boolean hasReplies = op.getReplies() >= 0;
@@ -147,17 +151,19 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                         builder.append(" / ").append(ips);
                     }
 
-                    builder.append(" / ").append(getContext().getString(R.string.thread_page_no)).append(' ');
+                    if (!chanThread.getLoadable().isLocal()) {
+                        builder.append(" / ").append(getContext().getString(R.string.thread_page_no)).append(' ');
 
-                    Chan4PagesRequest.Page p = callback.getPage(op);
-                    if (p != null) {
-                        SpannableString page = new SpannableString(String.valueOf(p.page));
-                        if (p.page >= board.pages) {
-                            page.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
+                        Chan4PagesRequest.Page p = callback.getPage(op);
+                        if (p != null) {
+                            SpannableString page = new SpannableString(String.valueOf(p.page));
+                            if (p.page >= board.pages) {
+                                page.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
+                            }
+                            builder.append(page);
+                        } else {
+                            builder.append('?');
                         }
-                        builder.append(page);
-                    } else {
-                        builder.append('?');
                     }
                 }
             }

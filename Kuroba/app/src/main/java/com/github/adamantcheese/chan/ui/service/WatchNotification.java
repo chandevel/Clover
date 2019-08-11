@@ -32,6 +32,7 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.github.adamantcheese.chan.Chan;
@@ -47,6 +48,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -130,11 +132,20 @@ public class WatchNotification extends Service {
         if (intent != null && intent.getExtras() != null && intent.getExtras().getBoolean("pause_pins", false)) {
             watchManager.pauseAll();
         } else {
-            notificationManager.notify(NOTIFICATION_ID, createNotification());
+            Notification notification = createNotification();
+            if (notification == null) {
+                Logger.d(TAG, "createNotification returned null");
+
+                stopSelf();
+                return START_NOT_STICKY;
+            }
+
+            notificationManager.notify(NOTIFICATION_ID, notification);
         }
         return START_STICKY;
     }
 
+    @Nullable
     private Notification createNotification() {
         boolean notifyQuotesOnly = ChanSettings.watchNotifyMode.get().equals("quotes");
         boolean soundQuotesOnly = ChanSettings.watchSound.get().equals("quotes");
@@ -160,22 +171,29 @@ public class WatchNotification extends Service {
                 continue;
             }
 
-            SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-            if (savedThread != null && savedThread.isRunning()) {
-                // Just pass all the posts to the threadSaveManager. It will figure out new posts by itself
-                List<Post> allPosts = watcher.getPosts();
-                if (!allPosts.isEmpty()) {
-                    // Add all posts to the map
-                    unviewedPostsByThread.put(savedThread, new Pair<>(pin.loadable, allPosts));
-                }
+            if (pin.isError || pin.archived) {
+                continue;
             }
 
-            if (pin.isError) {
+            if (PinType.hasNoFlags(pin.pinType)) {
+                Logger.d(TAG, "Pin " + pin.toString() + " has no flags");
                 continue;
             }
 
             if (PinType.hasDownloadFlag(pin.pinType)) {
-                threadDownloaderPins.add(pin);
+                SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+                if (savedThread != null && savedThread.isRunning()) {
+                    // Just pass all the posts to the threadSaveManager. It will figure out new posts by itself
+                    List<Post> allPosts = watcher.getPosts();
+                    if (!allPosts.isEmpty()) {
+                        // Add all posts to the map
+                        unviewedPostsByThread.put(savedThread, new Pair<>(pin.loadable, allPosts));
+                    }
+                }
+
+                if (savedThread != null) {
+                    threadDownloaderPins.add(pin);
+                }
             }
 
             if (PinType.hasWatchNewPostsFlag(pin.pinType) && pin.watching) {
@@ -220,6 +238,11 @@ public class WatchNotification extends Service {
 
         if (unviewedPostsByThread.size() > 0) {
             updateSavedThreads(unviewedPostsByThread);
+        }
+
+        if (pins.isEmpty() && threadDownloaderPins.isEmpty()) {
+            Logger.d(TAG, "Both pins or threadDownloaderPins are empty");
+            return null;
         }
 
         return setupNotificationTextFields(
@@ -289,6 +312,8 @@ public class WatchNotification extends Service {
 
                 CharSequence comment = postForExpandedLine.image() != null ? "(img) " : "";
                 if (postForExpandedLine.comment.length() > 0) {
+                    // FIXME: this thing is pretty slow sometimes (50-200ms).
+                    //  Can we replace it with something faster?
                     comment = TextUtils.concat(comment, postForExpandedLine.comment);
                 }
 

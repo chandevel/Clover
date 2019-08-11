@@ -161,7 +161,9 @@ public abstract class ThreadController extends Controller implements
         NdefMessage message = null;
 
         if (loadable != null) {
-            url = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().op);
+            url = loadable.site.resolvable().desktopUrl(
+                    loadable,
+                    threadLayout.getPresenter().getChanThread().getOp());
         }
 
         if (url != null) {
@@ -221,7 +223,7 @@ public abstract class ThreadController extends Controller implements
     }
 
     @Override
-    public void onShowPosts(Loadable loadable) {
+    public void onShowPosts() {
     }
 
     @Override

@@ -45,6 +45,7 @@ public class DatabaseLoadableManager {
     @Inject
     DatabaseHelper helper;
 
+    // Uhhh, should this really be like this?
     private Map<Loadable, Loadable> cachedLoadables = new HashMap<>();
 
     public DatabaseLoadableManager() {
@@ -191,6 +192,20 @@ public class DatabaseLoadableManager {
                         + deletedCount + "), " + "(loadableIdSet = " + loadableIdSet.size() + ")");
             }
 
+            return null;
+        };
+    }
+
+    public Callable<Void> updateLoadable(Loadable updatedLoadable) {
+        return () -> {
+            for (Loadable key : cachedLoadables.keySet()) {
+                if (key.id == updatedLoadable.id) {
+                    cachedLoadables.put(key, updatedLoadable);
+                    break;
+                }
+            }
+
+            helper.loadableDao.update(updatedLoadable);
             return null;
         };
     }

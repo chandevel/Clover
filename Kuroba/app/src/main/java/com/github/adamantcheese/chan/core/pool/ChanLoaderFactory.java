@@ -18,12 +18,17 @@ package com.github.adamantcheese.chan.core.pool;
 
 import android.util.LruCache;
 
+import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
 
 /**
  * ChanLoaderFactory is a factory for ChanLoaders. ChanLoaders for threads are cached.

@@ -18,9 +18,11 @@ package com.github.adamantcheese.chan.core.di;
 
 import android.content.Context;
 
-import org.codejargon.feather.Provides;
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.utils.Logger;
+
+import org.codejargon.feather.Provides;
 
 import javax.inject.Singleton;
 
@@ -29,6 +31,7 @@ public class DatabaseModule {
     @Provides
     @Singleton
     public DatabaseHelper provideDatabaseHelper(Context applicationContext) {
+        Logger.d(AppModule.DI_TAG, "Database helper");
         return new DatabaseHelper(applicationContext);
     }
 
@@ -36,6 +39,7 @@ public class DatabaseModule {
     @Singleton
     public DatabaseManager provideDatabaseManager(
     ) {
+        Logger.d(AppModule.DI_TAG, "Database manager");
         return new DatabaseManager();
     }
 }

@@ -22,10 +22,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.drawable.Animatable2;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +32,8 @@ import android.widget.TextView;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -86,6 +85,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final Callback callback;
     private List<Pin> pins = new ArrayList<>();
     private Pin highlighted;
+    private Bitmap archivedIcon;
 
     public DrawerAdapter(Callback callback, Context context) {
         inject(this);
@@ -98,6 +98,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         downloadIconFilled = context.getDrawable(R.drawable.ic_download_anim1).mutate();
         downloadIconFilled.setTint(Color.GRAY);
+
+        archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
     }
 
     public void setPinHighlighted(Pin highlighted) {
@@ -266,16 +268,13 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
-            Bitmap archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
             text = PostHelper.prependIcon(text, archivedIcon, sp(16));
         }
 
         TextView bookmarkLabel = holder.textView;
         bookmarkLabel.setText(text);
-        holder.image.setUrl(pin.thumbnailUrl);
-        holder.image.setGreyscale(!pin.watching);
-
         loadBookmarkImage(holder, pin);
+        holder.image.setGreyscale(!pin.watching);
 
         if (ChanSettings.watchEnabled.get()) {
             if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
@@ -284,7 +283,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
                 String totalCount = PinHelper.getShortUnreadCount(pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1);
                 watchCount.setVisibility(View.VISIBLE);
-                watchCount.setText(ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount);
+
+                String watchCountText = ChanSettings.shortPinInfo.get()
+                        ? newCount
+                        : totalCount + " / " + newCount;
+                watchCount.setText(watchCountText);
 
                 if (!pin.watching) {
                     watchCount.setTextColor(0xff898989); // TODO material colors
@@ -339,13 +342,22 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             holder.itemView.setBackgroundColor(0x22000000);
             holder.highlighted = true;
         } else if (!highlighted && holder.highlighted) {
-            holder.itemView.setBackground(AndroidUtils.getAttrDrawable(holder.itemView.getContext(), android.R.attr.selectableItemBackground));
+            Drawable attrDrawable = AndroidUtils.getAttrDrawable(
+                    holder.itemView.getContext(),
+                    android.R.attr.selectableItemBackground);
+
+            holder.itemView.setBackground(attrDrawable);
             holder.highlighted = false;
         }
     }
 
     private void loadBookmarkImage(PinViewHolder holder, Pin pin) {
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        SavedThread savedThread = null;
+
+        if (PinType.hasDownloadFlag(pin.pinType)) {
+            savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        }
+
         if (savedThread == null || !savedThread.isFullyDownloaded) {
             holder.image.setUrl(pin.thumbnailUrl);
             return;
@@ -361,7 +373,12 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private void setPinDownloadIcon(PinViewHolder holder, Pin pin) {
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        SavedThread savedThread = null;
+
+        if (PinType.hasDownloadFlag(pin.pinType)) {
+            savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        }
+
         if (savedThread == null) {
             holder.threadDownloadIcon.setVisibility(View.GONE);
             return;
@@ -370,43 +387,43 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         holder.threadDownloadIcon.setVisibility(View.VISIBLE);
 
         if (savedThread.isFullyDownloaded) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable) {
-                    AnimatedVectorDrawable drawable = (AnimatedVectorDrawable) holder.threadDownloadIcon.getDrawable();
-                    drawable.stop();
-                    drawable.clearAnimationCallbacks();
-                }
+            if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
+                AnimatedVectorDrawableCompat drawable =
+                        (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
+                drawable.stop();
+                drawable.clearAnimationCallbacks();
             }
+
             holder.threadDownloadIcon.setImageDrawable(downloadIconFilled);
             return;
         }
 
         if (savedThread.isStopped) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable) {
-                    AnimatedVectorDrawable drawable = (AnimatedVectorDrawable) holder.threadDownloadIcon.getDrawable();
-                    drawable.stop();
-                    drawable.clearAnimationCallbacks();
-                }
+            if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
+                AnimatedVectorDrawableCompat drawable =
+                        (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
+                drawable.stop();
+                drawable.clearAnimationCallbacks();
             }
+
             holder.threadDownloadIcon.setImageDrawable(downloadIconOutline);
             return;
         }
 
-        if (!(holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable)) {
-            AnimatedVectorDrawable downloadAnimation =
+        if (!(holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat)) {
+            AnimatedVectorDrawableCompat downloadAnimation =
                     AnimationUtils.createAnimatedDownloadIcon(context, ThemeHelper.getTheme().textPrimary);
             holder.threadDownloadIcon.setImageDrawable(downloadAnimation);
 
             downloadAnimation.start();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                downloadAnimation.registerAnimationCallback(new Animatable2.AnimationCallback() {
-                    @Override
-                    public void onAnimationEnd(Drawable drawable) {
-                        downloadAnimation.start();
-                    }
-                });
-            }
+            downloadAnimation.registerAnimationCallback(new Animatable2Compat.AnimationCallback() {
+                @Override
+                public void onAnimationEnd(Drawable drawable) {
+                    super.onAnimationEnd(drawable);
+
+                    downloadAnimation.start();
+                }
+            });
         }
     }
 

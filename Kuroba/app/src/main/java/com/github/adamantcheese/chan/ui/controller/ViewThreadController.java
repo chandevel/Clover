@@ -21,16 +21,15 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Animatable2;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -41,6 +40,8 @@ import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
+import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
@@ -70,11 +71,14 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private static final int PIN_ID = 1;
     private static final int SAVE_THREAD_ID = 2;
 
+    private static final int VIEW_LOCAL_COPY_SUBMENU_ID = 1000;
+    private static final int VIEW_LIVE_COPY_SUBMENU_ID = 1001;
+
     @Inject
     WatchManager watchManager;
 
     private boolean pinItemPinned = false;
-    private ThreadPresenter.DownloadThreadState prevState = ThreadPresenter.DownloadThreadState.Default;
+    private DownloadThreadState prevState = DownloadThreadState.Default;
     private Loadable loadable;
 
     //pairs of the current thread loadable and the thread we're going to's hashcode
@@ -82,7 +86,16 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private Drawable downloadIconOutline;
     private Drawable downloadIconFilled;
-    private AnimatedVectorDrawable downloadAnimation;
+    private AnimatedVectorDrawableCompat downloadAnimation;
+
+    private Animatable2Compat.AnimationCallback downloadAnimationCallback =  new Animatable2Compat.AnimationCallback() {
+        @Override
+        public void onAnimationEnd(Drawable drawable) {
+            super.onAnimationEnd(drawable);
+
+            downloadAnimation.start();
+        }
+    };
 
     public ViewThreadController(Context context) {
         super(context);
@@ -97,7 +110,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         super.onCreate();
         inject(this);
 
-        downloadAnimation = AnimationUtils.createAnimatedDownloadIcon(context, Color.WHITE);
+        downloadAnimation = (AnimatedVectorDrawableCompat)
+                AnimationUtils.createAnimatedDownloadIcon(context, Color.WHITE).mutate();
 
         downloadIconOutline = context.getDrawable(R.drawable.ic_download_anim0);
         downloadIconOutline.setTint(Color.WHITE);
@@ -137,8 +151,24 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
-                .withSubItem(R.string.action_scroll_to_bottom, this::downClicked)
-                .build()
+                .withSubItem(R.string.action_scroll_to_bottom, this::downClicked);
+
+
+        // FIXME: figure out how to do this normally by rebuilding the menu instead of using "enabled" flag
+        menuOverflowBuilder.withSubItem(
+                VIEW_LOCAL_COPY_SUBMENU_ID,
+                R.string.view_local_version,
+                false,
+                this::handleClickViewLocalVersion);
+
+        // FIXME: figure out how to do this normally by rebuilding the menu instead of using "enabled" flag
+        menuOverflowBuilder.withSubItem(
+                VIEW_LIVE_COPY_SUBMENU_ID,
+                R.string.view_view_version,
+                false,
+                this::handleClickViewLiveVersion);
+
+        menuOverflowBuilder.build()
                 .build();
     }
 
@@ -156,6 +186,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void saveClicked(ToolbarMenuItem item) {
+        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+            // Too many problems with this thing, just disable it while viewing downloading thread
+            return;
+        }
+
         RuntimePermissionsHelper runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
         if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             saveClickedInternal();
@@ -178,6 +213,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         if (threadLayout.getPresenter().save()) {
             setSaveIconState(true);
             updateDrawerHighlighting(loadable);
+
+            populateLocalOrLiveVersionMenu();
         }
     }
 
@@ -224,7 +261,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         Loadable loadable = threadLayout.getPresenter().getLoadable();
         String link = loadable.site.resolvable().desktopUrl(
                 loadable,
-                threadLayout.getPresenter().getChanThread().op);
+                threadLayout.getPresenter().getChanThread().getOp());
         AndroidUtils.openLinkInBrowser((Activity) context, link);
     }
 
@@ -240,7 +277,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         Loadable loadable = threadLayout.getPresenter().getLoadable();
         String link = loadable.site.resolvable().desktopUrl(
                 loadable,
-                threadLayout.getPresenter().getChanThread().op);
+                threadLayout.getPresenter().getChanThread().getOp());
         AndroidUtils.shareLink(link);
     }
 
@@ -252,6 +289,44 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         threadLayout.scrollTo(-1, false);
     }
 
+    /**
+     * Replaces the current live thread with the local thread
+     */
+    private void handleClickViewLocalVersion(ToolbarMenuSubItem item) {
+        if (loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
+            populateLocalOrLiveVersionMenu();
+            return;
+        }
+
+        loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndViewable;
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin != null) {
+            pin.loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndViewable;
+            watchManager.updatePin(pin);
+        }
+
+        threadLayout.getPresenter().requestData();
+    }
+
+    /**
+     * Replaces the current local thread with the live thread
+     */
+    private void handleClickViewLiveVersion(ToolbarMenuSubItem item) {
+        if (loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+            populateLocalOrLiveVersionMenu();
+            return;
+        }
+
+        loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin != null) {
+            pin.loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+            watchManager.updatePin(pin);
+        }
+
+        threadLayout.getPresenter().requestData();
+    }
+
     @Override
     public void onShow() {
         super.onShow();
@@ -261,6 +336,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             setPinIconState(false);
             setSaveIconState(false);
         }
+    }
+
+    @Override
+    public void onHide() {
+        super.onHide();
+
+        downloadAnimation.unregisterAnimationCallback(downloadAnimationCallback);
     }
 
     @Override
@@ -292,9 +374,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         setPinIconState(false);
         setSaveIconState(false);
 
+        // Does this ever happen?
         // Update title
         if (message.pin.loadable == loadable) {
-            onShowPosts(message.pin.loadable);
+            onShowPosts();
         }
     }
 
@@ -372,19 +455,70 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void loadThread(Loadable loadable, boolean addToLocalBackHistory) {
         ThreadPresenter presenter = threadLayout.getPresenter();
         if (!loadable.equals(presenter.getLoadable())) {
-            presenter.bindLoadable(loadable, addToLocalBackHistory);
-            this.loadable = presenter.getLoadable();
-            navigation.title = loadable.title;
-            ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
+            loadThreadInternal(loadable, addToLocalBackHistory);
+            return;
+        }
 
-            setPinIconState(false);
-            setSaveIconState(false);
+        populateLocalOrLiveVersionMenu();
+    }
 
-            updateDrawerHighlighting(loadable);
-            updateLeftPaneHighlighting(loadable);
-            presenter.requestInitialData();
+    private void loadThreadInternal(Loadable loadable, boolean addToLocalBackHistory) {
+        ThreadPresenter presenter = threadLayout.getPresenter();
 
-            showHints();
+        presenter.bindLoadable(loadable, addToLocalBackHistory);
+        this.loadable = presenter.getLoadable();
+
+        populateLocalOrLiveVersionMenu();
+        navigation.title = loadable.title;
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
+
+        setPinIconState(false);
+        setSaveIconState(false);
+
+        updateDrawerHighlighting(loadable);
+        updateLeftPaneHighlighting(loadable);
+        presenter.requestInitialData();
+
+        showHints();
+    }
+
+    /**
+     * Shows two menu items: view local thread and view live thread
+     * FIXME: Current implementation is kinda retarded because I couldn't do it normally (with just
+     *  one menu option instead of the two, it just doesn't work for some unknown reason).
+     *  Gotta figure out how to make it properly some time in the future.
+     */
+    private void populateLocalOrLiveVersionMenu() {
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            // No pin for this loadable we are probably not downloading this thread
+            return;
+        }
+
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            // Pin has no downloading flag
+            return;
+        }
+
+        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
+        if (savedThread == null) {
+            return;
+        }
+
+        if (savedThread.isFullyDownloaded ||
+                loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded ||
+                loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.NotDownloading) {
+            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
+            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
+            return;
+        }
+
+        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
+            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = true;
+            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
+        } else if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
+            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = true;
         }
     }
 
@@ -412,21 +546,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     @Override
-    public void onShowPosts(Loadable loadable) {
-        super.onShowPosts(loadable);
-
+    public void onShowPosts() {
+        super.onShowPosts();
         navigation.title = this.loadable.title;
-        navigation.findItem(PIN_ID).setVisible(!loadable.isSavedCopy);
 
-        ToolbarMenuItem saveThreadItem = navigation.findItem(SAVE_THREAD_ID);
-        if (saveThreadItem != null) {
-            Pin pin = watchManager.findPinByLoadableId(loadable.id);
-            if (pin != null && (pin.archived || pin.isError)) {
-                saveThreadItem.setVisible(false);
-            } else {
-                saveThreadItem.setVisible(!loadable.isSavedCopy);
-            }
-        }
+        setPinIconState(false);
+        setSaveIconState(false);
+        populateLocalOrLiveVersionMenu();
 
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
         ((ToolbarNavigationController) navigationController).toolbar.updateViewForItem(navigation);
@@ -476,11 +602,40 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private void setSaveIconState(boolean animated) {
         ThreadPresenter presenter = threadLayout.getPresenter();
         if (presenter != null) {
-            setSaveIconStateDrawable(presenter.getThreadDownloadState(), animated);
+            setSaveIconStateDrawable(getThreadDownloadState(), animated);
         }
     }
 
-    private void setSaveIconStateDrawable(ThreadPresenter.DownloadThreadState downloadThreadState, boolean animated) {
+    private DownloadThreadState getThreadDownloadState() {
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            return DownloadThreadState.Default;
+        }
+
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            return DownloadThreadState.Default;
+        }
+
+        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        if (savedThread == null) {
+            return DownloadThreadState.Default;
+        }
+
+        if (savedThread.isFullyDownloaded) {
+            return DownloadThreadState.FullyDownloaded;
+        }
+
+        if (savedThread.isStopped) {
+            return DownloadThreadState.Default;
+        }
+
+        return DownloadThreadState.DownloadInProgress;
+    }
+
+    private void setSaveIconStateDrawable(
+            DownloadThreadState downloadThreadState,
+            boolean animated
+    ) {
         if (downloadThreadState == prevState) {
             return;
         }
@@ -494,29 +649,23 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         switch (downloadThreadState) {
             case Default:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    downloadAnimation.stop();
-                    downloadAnimation.clearAnimationCallbacks();
-                }
+                downloadAnimation.stop();
+                downloadAnimation.clearAnimationCallbacks();
+
                 menuItem.setImage(downloadIconOutline, animated);
                 break;
             case DownloadInProgress:
                 menuItem.setImage(downloadAnimation, animated);
                 downloadAnimation.start();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    downloadAnimation.registerAnimationCallback(new Animatable2.AnimationCallback() {
-                        @Override
-                        public void onAnimationEnd(Drawable drawable) {
-                            downloadAnimation.start();
-                        }
-                    });
-                }
+
+                // Don't forget to remove the old callback before adding a new one
+                downloadAnimation.unregisterAnimationCallback(downloadAnimationCallback);
+                downloadAnimation.registerAnimationCallback(downloadAnimationCallback);
                 break;
             case FullyDownloaded:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    downloadAnimation.stop();
-                    downloadAnimation.clearAnimationCallbacks();
-                }
+                downloadAnimation.stop();
+                downloadAnimation.clearAnimationCallbacks();
+
                 menuItem.setImage(downloadIconFilled, animated);
                 break;
         }
@@ -565,5 +714,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         }
         loadThread(threadFollowerpool.removeFirst().first, false);
         return true;
+    }
+
+    public enum DownloadThreadState {
+        Default,
+        DownloadInProgress,
+        FullyDownloaded
     }
 }

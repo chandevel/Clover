@@ -331,7 +331,7 @@ public class ThreadSaveManager {
                 throw new CouldNotCreateImagesDirectoryException(threadSaveDirImages);
             }
 
-            if (ChanSettings.allowMediaScannerToScanLocalThreads.get()) {
+            if (!ChanSettings.allowMediaScannerToScanLocalThreads.get()) {
                 // .nomedia file being in the images directory "should" prevent media scanner from
                 // scanning this directory
                 File noMediaFile = new File(threadSaveDirImages, NO_MEDIA_FILE_NAME);
@@ -691,6 +691,11 @@ public class ThreadSaveManager {
                         if (thumbnailExtension == null) {
                             Logger.d(TAG, "Could not extract thumbnail image extension, thumbnailUrl = "
                                     + postImage.thumbnailUrl.toString());
+                            return Single.just(false);
+                        }
+
+                        if (postImage.imageUrl == null) {
+                            Logger.d(TAG, "postImage.imageUrl == null");
                             return Single.just(false);
                         }
 

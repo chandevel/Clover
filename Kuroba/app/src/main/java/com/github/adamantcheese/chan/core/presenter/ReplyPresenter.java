@@ -317,7 +317,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 if (loadable.isThreadMode()) {
                     ChanThread thread = callback.getThread();
                     if (thread != null) {
-                        watchManager.createPin(loadable, thread.op, PinType.WATCH_NEW_POSTS);
+                        watchManager.createPin(loadable, thread.getOp(), PinType.WATCH_NEW_POSTS);
                     }
                 } else {
                     Loadable postedLoadable = databaseManager.getDatabaseLoadableManager()

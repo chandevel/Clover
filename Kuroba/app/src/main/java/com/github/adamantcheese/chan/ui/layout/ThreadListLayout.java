@@ -153,8 +153,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         if (showingThread != null) {
             int[] indexTop = getIndexAndTop();
 
-            showingThread.loadable.setListViewIndex(indexTop[0]);
-            showingThread.loadable.setListViewTop(indexTop[1]);
+            showingThread.getLoadable().setListViewIndex(indexTop[0]);
+            showingThread.getLoadable().setListViewTop(indexTop[1]);
 
             int last = getCompleteBottomAdapterPosition();
             if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
@@ -246,14 +246,14 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     public void showPosts(ChanThread thread, PostsFilter filter, boolean initial) {
         showingThread = thread;
         if (initial) {
-            reply.bindLoadable(showingThread.loadable);
+            reply.bindLoadable(showingThread.getLoadable());
 
             recyclerView.setLayoutManager(null);
             recyclerView.setLayoutManager(layoutManager);
             recyclerView.getRecycledViewPool().clear();
 
-            int index = thread.loadable.listViewIndex;
-            int top = thread.loadable.listViewTop;
+            int index = thread.getLoadable().listViewIndex;
+            int top = thread.getLoadable().listViewTop;
 
             switch (postViewMode) {
                 case LIST:
@@ -283,17 +283,17 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
          * BUT if for some reason it starts to cause ANRs then we will have to apply the callback solution.
          */
         List<Post> filteredPosts = filter.apply(
-                thread.posts,
-                thread.loadable.site.id(),
-                thread.loadable.board.code
+                thread.getPosts(),
+                thread.getLoadable().site.id(),
+                thread.getLoadable().board.code
         );
 
         //Filter out any bookmarked threads from the catalog
-        if (ChanSettings.removeWatchedFromCatalog.get() && thread.loadable.isCatalogMode()) {
+        if (ChanSettings.removeWatchedFromCatalog.get() && thread.getLoadable().isCatalogMode()) {
             List<Post> toRemove = new ArrayList<>();
             for (Pin pin : Chan.injector().instance(WatchManager.class).getAllPins()) {
                 for (Post post : filteredPosts) {
-                    if (pin.loadable.equals(Loadable.forThread(thread.loadable.site, thread.loadable.board, post.no, ""))) {
+                    if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().site, thread.getLoadable().board, post.no, ""))) {
                         toRemove.add(post);
                     }
                 }
@@ -743,7 +743,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     };
 
     private void party() {
-        if (showingThread.loadable.site instanceof Chan4) {
+        if (showingThread.getLoadable().site instanceof Chan4) {
             Calendar calendar = Calendar.getInstance();
             if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
                 recyclerView.addItemDecoration(PARTY);

@@ -22,7 +22,7 @@ public class PostUtils {
 
     public static Post findPostById(int id, @Nullable ChanThread thread) {
         if (thread != null) {
-            for (Post post : thread.posts) {
+            for (Post post : thread.getPostsUnsafe()) {
                 if (post.no == id) {
                     return post;
                 }

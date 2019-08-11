@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.codejargon.feather.Provides;
 
@@ -42,6 +43,7 @@ public class NetModule {
     @Provides
     @Singleton
     public RequestQueue provideRequestQueue() {
+        Logger.d(AppModule.DI_TAG, "Request queue");
         File cacheDir = getCacheDir();
         return Volley.newRequestQueue(getAppContext(),
                 USER_AGENT,
@@ -52,6 +54,7 @@ public class NetModule {
     @Provides
     @Singleton
     public FileCache provideFileCache() {
+        Logger.d(AppModule.DI_TAG, "File cache");
         return new FileCache(new File(getCacheDir(), "filecache"));
     }
 
@@ -67,12 +70,14 @@ public class NetModule {
     @Provides
     @Singleton
     public HttpCallManager provideHttpCallManager() {
+        Logger.d(AppModule.DI_TAG, "Http call manager");
         return new HttpCallManager();
     }
 
     @Provides
     @Singleton
     public OkHttpClient provideBasicOkHttpClient() {
+        Logger.d(AppModule.DI_TAG, "OkHTTP client");
         return new ProxiedOkHttpClient();
     }
 

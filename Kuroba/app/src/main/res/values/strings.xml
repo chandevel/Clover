@@ -699,6 +699,9 @@ Don't have a 4chan Pass?<br>
     <string name="cannot_open_thread_in_browser_already_deleted">Can\'t open this thread in your browser, it\'s probably already been deleted</string>
     <string name="cannot_send_thread_via_nfc_already_deleted">Can\'t send thread via the NFC, it\'s already been deleted</string>
     <string name="cannot_shared_thread_already_deleted">Can\'t share this thread, it\'s already been deleted</string>
+    <string name="view_local_version">View local version</string>
+    <string name="view_view_version">View live version</string>
+    <string name="local_thread_text">Local thread</string>
     <string name="more_than_99_valid_captchas_text">99+</string>
     <string name="setting_full_screen_rotation">Allow full sensor rotation</string>
 </resources>

@@ -57,7 +57,7 @@ public class FileCache implements FileCacheDownloader.Callback {
             Loadable loadable,
             @NonNull PostImage postImage,
             FileCacheListener listener) {
-        if (loadable.isSavedCopy) {
+        if (loadable.isLocal()) {
             String filename = ThreadSaveManager.formatOriginalImageName(
                     postImage.originalName, postImage.extension);
 

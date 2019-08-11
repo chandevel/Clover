@@ -139,17 +139,17 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
         menuBuilder.withItem(VOLUME_ID, R.drawable.ic_volume_off_white_24dp, this::volumeClicked);
 
-        if (!loadable.isSavedCopy) {
+        if (!loadable.isLocal()) {
             menuBuilder.withItem(SAVE_ID, R.drawable.ic_file_download_white_24dp, this::saveClicked);
         }
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow(this);
         overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
-        if (!loadable.isSavedCopy) {
+        if (!loadable.isLocal()) {
             overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
         }
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
-        if (!loadable.isSavedCopy) {
+        if (!loadable.isLocal()) {
             overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
         }
         overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);

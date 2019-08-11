@@ -15,6 +15,7 @@ public class PostImageMapper {
                 postImage.originalName,
                 postImage.filename,
                 postImage.extension,
+                postImage.imageUrl.toString(),
                 postImage.thumbnailUrl.toString(),
                 postImage.spoilerThumbnailUrl.toString(),
                 postImage.imageWidth,
@@ -35,10 +36,17 @@ public class PostImageMapper {
     }
 
     public static PostImage fromSerializablePostImage(SerializablePostImage serializablePostImage) {
+        HttpUrl imageUrl = null;
+
+        if (serializablePostImage.getImageUrl() != null) {
+            imageUrl = HttpUrl.parse(serializablePostImage.getImageUrl());
+        }
+
         return new PostImage.Builder()
                 .originalName(serializablePostImage.getOriginalName())
                 .filename(serializablePostImage.getFilename())
                 .extension(serializablePostImage.getExtension())
+                .imageUrl(imageUrl)
                 .thumbnailUrl(HttpUrl.parse(serializablePostImage.getThumbnailUrlString()))
                 .spoilerThumbnailUrl(HttpUrl.parse(serializablePostImage.getSpoilerUrlString()))
                 .imageWidth(serializablePostImage.getImageWidth())
