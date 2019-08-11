@@ -24,8 +24,10 @@ import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.saf.FileManager;
+import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
+import com.github.adamantcheese.chan.core.saf.file.RawFile;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
@@ -41,11 +43,13 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     @Inject
     FileCache fileCache;
+    @Inject
+    FileManager fileManager;
 
     private PostImage postImage;
     private Loadable loadable;
     private ImageSaveTaskCallback callback;
-    private File destination;
+    private AbstractFile destination;
     private boolean share;
     private String subFolder;
 
@@ -73,11 +77,11 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         return postImage;
     }
 
-    public void setDestination(File destination) {
+    public void setDestination(AbstractFile destination) {
         this.destination = destination;
     }
 
-    public File getDestination() {
+    public AbstractFile getDestination() {
         return destination;
     }
 
@@ -128,7 +132,10 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     private void onDestination() {
         success = true;
-        MediaScannerConnection.scanFile(getAppContext(), new String[]{destination.getAbsolutePath()}, null, (path, uri) -> {
+        String[] paths = {destination.getFullPath()};
+
+        // TODO: may not work
+        MediaScannerConnection.scanFile(getAppContext(), paths, null, (path, uri) -> {
             // Runs on a binder thread
             AndroidUtils.runOnUiThread(() -> afterScan(uri));
         });
@@ -138,16 +145,27 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         boolean result = false;
 
         try {
-            File parent = destination.getParentFile();
-            if (!parent.mkdirs() && !parent.isDirectory()) {
-                throw new IOException("Could not create parent directory");
+            AbstractFile createdDestinationFile = destination.createNew();
+            if (createdDestinationFile == null) {
+                throw new IOException("Could not create destination file, path = " + destination.getFullPath());
             }
 
-            if (destination.isDirectory()) {
+            // If destination is a raw file then we need to check whether the parent directory exists.
+            // Otherwise we don't
+            if (createdDestinationFile instanceof RawFile) {
+                AbstractFile parent = fileManager.fromAbstractFile(createdDestinationFile).getParent();
+                if (parent == null || (!parent.create() && !parent.isDirectory())) {
+                    throw new IOException("Could not create parent directory");
+                }
+            }
+
+            if (createdDestinationFile.isDirectory()) {
                 throw new IOException("Destination file is already a directory");
             }
 
-            IOUtils.copyFile(source, destination);
+            if (!fileManager.copyFile(fileManager.fromRawFile(source), createdDestinationFile)) {
+                throw new IOException("Could not copy source file into destination");
+            }
 
             result = true;
         } catch (IOException e) {

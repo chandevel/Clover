@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.saf.FileManager;
 import com.github.adamantcheese.chan.core.saf.callback.DirectoryChooserCallback;
+import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
 import com.github.adamantcheese.chan.core.saf.file.ExternalFile;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
@@ -245,6 +246,8 @@ public class MediaSettingsController extends SettingsController {
                 ChanSettings.saveLocation.set("");
 
                 saveLocation.setDescription(uri.toString());
+
+//                testMethod(uri);
             }
 
             @Override
@@ -256,6 +259,50 @@ public class MediaSettingsController extends SettingsController {
         if (!result) {
             Toast.makeText(context, "Could not start activity for result", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void testMethod(@NotNull Uri uri) {
+        ExternalFile externalFile1 = fileManager.fromUri(uri)
+                .appendSubDirSegment("123")
+                .appendSubDirSegment("456")
+                .appendSubDirSegment("789")
+                .appendFileNameSegment("test123.txt")
+                .createNew();
+
+        boolean exists = fileManager.fromUri(uri)
+                .appendSubDirSegment("123")
+                .appendSubDirSegment("456")
+                .appendSubDirSegment("789")
+                .exists();
+
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+        AbstractFile file = fileManager.newFile()
+                .appendSubDirSegment("1234")
+                .appendSubDirSegment("4566")
+                .appendFileNameSegment("filename.json")
+                .createNew();
+
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
+//        AbstractFile newDir = fileManager.newDir(externalFile, "test2");
+//        AbstractFile createdDir = fileManager.createDir(newDir);
+//
+//        AbstractFile newDir2 = fileManager.newDir(createdDir, "test2");
+//        AbstractFile createdDir2 = fileManager.createDir(newDir2);
+//
+//        AbstractFile newFile2 = fileManager.newFile(createdDir2, "test123.wav");
+//        AbstractFile createdFile2 = fileManager.createFile(newFile2);
+//
+//        System.out.println(createdFile2.isDirectory());
+//        System.out.println(createdFile2.isFile());
+//        System.out.println(createdFile2.isRawFile());
+
     }
 
     private void updateThreadFolderSetting() {

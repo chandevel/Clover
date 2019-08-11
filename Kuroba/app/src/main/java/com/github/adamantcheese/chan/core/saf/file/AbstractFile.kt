@@ -1,6 +1,9 @@
 package com.github.adamantcheese.chan.core.saf.file
 
-abstract class AbstractFile<T>(
+import java.io.InputStream
+import java.io.OutputStream
+
+abstract class AbstractFile(
         /**
          * /test/123/test2/filename.txt -> 4 segments
          * */
@@ -15,17 +18,21 @@ abstract class AbstractFile<T>(
     /**
      * Appends a new subdirectory to the root directory
      * */
-    abstract fun appendSubDirSegment(name: String): T
+    abstract fun <T : AbstractFile> appendSubDirSegment(name: String): T
 
     /**
      * Appends a file name to the root directory
      * */
-    abstract fun appendFileNameSegment(name: String): T
+    abstract fun <T : AbstractFile> appendFileNameSegment(name: String): T
 
     /**
      * Creates a new file that consists of the root directory and segments (sub dirs or the file name)
      * */
-    abstract fun create(): T?
+    abstract fun <T : AbstractFile> createNew(): T?
+
+    fun <T : AbstractFile> create(): Boolean {
+        return createNew<T>() != null
+    }
 
     abstract fun exists(): Boolean
     abstract fun isFile(): Boolean
@@ -33,8 +40,13 @@ abstract class AbstractFile<T>(
     abstract fun canRead(): Boolean
     abstract fun canWrite(): Boolean
     abstract fun name(): String?
-    abstract fun getParent(): T?
+    abstract fun <T : AbstractFile> getParent(): T?
     abstract fun getFullPath(): String
+    abstract fun delete(): Boolean
+    abstract fun getInputStream(): InputStream?
+    abstract fun getOutputStream(): OutputStream?
+    abstract fun <T> getFullRoot(): Root<T>
+    abstract fun getName(): String
 
     fun segmentsCount(): Int = segments.size
 

@@ -35,7 +35,7 @@ fun Uri.removeLastSegment(): Uri? {
     }
 
     val newSegments = this.pathSegments
-            .subList(0, pathSegments.lastIndex - 1)
+            .subList(0, pathSegments.lastIndex)
 
     return Uri.Builder()
             .appendManyEncoded(newSegments)

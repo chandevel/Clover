@@ -77,12 +77,6 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public ImageSaver provideImageSaver() {
-        return new ImageSaver();
-    }
-
-    @Provides
-    @Singleton
     public CaptchaHolder provideCaptchaHolder() {
         return new CaptchaHolder();
     }
@@ -91,5 +85,11 @@ public class AppModule {
     @Singleton
     public FileManager provideFileManager() {
         return new FileManager(applicationContext);
+    }
+
+    @Provides
+    @Singleton
+    public ImageSaver provideImageSaver(FileManager fileManager) {
+        return new ImageSaver(fileManager);
     }
 }

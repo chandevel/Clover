@@ -25,6 +25,8 @@ import android.widget.Toast;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.saf.FileManager;
+import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
@@ -32,7 +34,6 @@ import com.github.adamantcheese.chan.ui.service.SavingNotification;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,12 +46,16 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private static final String TAG = "ImageSaver";
     private static final int MAX_NAME_LENGTH = 50;
     private static final Pattern UNSAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._\\\\ -]");
+
+    private FileManager fileManager;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private int doneTasks = 0;
     private int totalTasks = 0;
     private Toast toast;
 
-    public ImageSaver() {
+    public ImageSaver(FileManager fileManager) {
+        this.fileManager = fileManager;
+
         EventBus.getDefault().register(this);
     }
 
@@ -58,11 +63,20 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         PostImage postImage = task.getPostImage();
         String name = ChanSettings.saveServerFilename.get() ? postImage.originalName : postImage.filename;
         String fileName = filterName(name + "." + postImage.extension);
-        File saveFile = new File(getSaveLocation(task), fileName);
+
+        AbstractFile saveLocation = getSaveLocation(task);
+        AbstractFile saveFile = saveLocation.appendFileNameSegment(fileName);
+
         while (saveFile.exists()) {
-            fileName = filterName(name + "_" + Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX) + "." + postImage.extension);
-            saveFile = new File(getSaveLocation(task), fileName);
+            String resultFileName = name + "_" +
+                    Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX)
+                    + "." + postImage.extension;
+
+            fileName = filterName(resultFileName);
+            saveFile = fileManager.fromAbstractFile(saveLocation)
+                    .appendFileNameSegment(fileName);
         }
+
         task.setDestination(saveFile);
 
         if (hasPermission(context)) {
@@ -106,14 +120,15 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         return filtered;
     }
 
-    public File getSaveLocation(ImageSaveTask task) {
-        String base = ChanSettings.saveLocation.get();
+    public AbstractFile getSaveLocation(ImageSaveTask task) {
         String subFolder = task.getSubFolder();
+        AbstractFile destination = fileManager.newFile();
+
         if (subFolder != null) {
-            return new File(base + File.separator + subFolder);
-        } else {
-            return new File(base);
+            destination.appendSubDirSegment(subFolder);
         }
+
+        return destination;
     }
 
     @Override
@@ -145,10 +160,15 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
             String fileName = filterName(postImage.originalName + "." + postImage.extension);
-            task.setDestination(new File(getSaveLocation(task) + File.separator + subFolder + File.separator + fileName));
 
+            AbstractFile saveLocation = getSaveLocation(task)
+                    .appendSubDirSegment(subFolder)
+                    .appendFileNameSegment(fileName);
+
+            task.setDestination(saveLocation);
             startTask(task);
         }
+
         updateNotification();
     }
 
@@ -180,13 +200,31 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             toast.cancel();
         }
 
-        String text = success ?
-                (wasAlbumSave ? getAppContext().getString(R.string.album_download_success, getSaveLocation(task).getPath()) : getAppContext().getString(R.string.image_save_as, task.getDestination().getName())) :
-                getString(R.string.image_save_failed);
+        String text = getText(task, success, wasAlbumSave);
         toast = Toast.makeText(getAppContext(), text, Toast.LENGTH_LONG);
+
         if (task != null && !task.getShare()) {
             toast.show();
         }
+    }
+
+    private String getText(ImageSaveTask task, boolean success, boolean wasAlbumSave) {
+        String text;
+        if (success) {
+            if (wasAlbumSave) {
+                text = getAppContext().getString(
+                        R.string.album_download_success,
+                        getSaveLocation(task).getFullPath());
+            } else {
+                text = getAppContext().getString(
+                        R.string.image_save_as,
+                        task.getDestination().getName());
+            }
+        } else {
+            text = getString(R.string.image_save_failed);
+        }
+
+        return text;
     }
 
     private String filterName(String name) {
