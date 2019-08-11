@@ -20,8 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
-
-import java.io.File;
+import com.github.adamantcheese.chan.core.saf.file.ExternalFile;
 
 import javax.inject.Inject;
 
@@ -45,7 +44,7 @@ public class ImportExportSettingsPresenter {
         this.callbacks = null;
     }
 
-    public void doExport(File settingsFile) {
+    public void doExport(ExternalFile settingsFile) {
         importExportRepository.exportTo(settingsFile, new ImportExportRepository.ImportExportCallbacks() {
             @Override
             public void onSuccess(ImportExportRepository.ImportExport importExport) {
@@ -76,7 +75,7 @@ public class ImportExportSettingsPresenter {
         });
     }
 
-    public void doImport(File settingsFile) {
+    public void doImport(ExternalFile settingsFile) {
         importExportRepository.importFrom(settingsFile, new ImportExportRepository.ImportExportCallbacks() {
             @Override
             public void onSuccess(ImportExportRepository.ImportExport importExport) {

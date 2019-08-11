@@ -34,6 +34,7 @@ abstract class AbstractFile<T>(
     abstract fun canWrite(): Boolean
     abstract fun name(): String?
     abstract fun getParent(): T?
+    abstract fun getFullPath(): String
 
     fun segmentsCount(): Int = segments.size
 

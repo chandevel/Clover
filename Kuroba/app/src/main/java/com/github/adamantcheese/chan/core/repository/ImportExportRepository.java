@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.repository;
 
 import android.annotation.SuppressLint;
+import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,12 +39,13 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
+import com.github.adamantcheese.chan.core.saf.file.ExternalFile;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 import com.j256.ormlite.support.ConnectionSource;
 
-import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -79,7 +81,7 @@ public class ImportExportRepository {
         this.gson = gson;
     }
 
-    public void exportTo(File settingsFile, ImportExportCallbacks callbacks) {
+    public void exportTo(ExternalFile settingsFile, ImportExportCallbacks callbacks) {
         databaseManager.runTask(() -> {
             try {
                 ExportedAppSettings appSettings = readSettingsFromDatabase();
@@ -90,41 +92,47 @@ public class ImportExportRepository {
 
                 String json = gson.toJson(appSettings);
 
-                if (settingsFile.exists()) {
-                    if (!settingsFile.isFile()) {
-                        throw new IOException(
-                                "Settings file is not a file (???) " + settingsFile.getAbsolutePath()
-                        );
-                    }
-
-                    if (!settingsFile.delete()) {
-                        Logger.w(TAG, "Could not delete export file before exporting " + settingsFile.getAbsolutePath());
-                    }
-                }
-
-                if (!settingsFile.createNewFile()) {
-                    throw new IOException(
-                            "Could not create a file for exporting " + settingsFile.getAbsolutePath()
-                    );
-                }
-
                 if (!settingsFile.exists() || !settingsFile.canWrite()) {
                     throw new IOException(
                             "Something wrong with export file (Can't write or it doesn't exist) "
-                                    + settingsFile.getAbsolutePath()
+                                    + settingsFile.getFullPath()
                     );
                 }
 
-                try (FileWriter writer = new FileWriter(settingsFile)) {
-                    writer.write(json);
-                }
+                try (ParcelFileDescriptor parcelFileDescriptor = settingsFile.getParcelFileDescriptor(
+                        ExternalFile.FileDescriptorMode.Write)) {
 
-                Logger.d(TAG, "Exporting done!");
-                callbacks.onSuccess(ImportExport.Export);
+                    if (parcelFileDescriptor == null) {
+                        IllegalStateException exception = new IllegalStateException(
+                                "parcelFileDescriptor is null, path = " + settingsFile.getFullPath());
+
+                        callbacks.onError(
+                                exception,
+                                ImportExport.Export);
+                        return null;
+                    }
+
+                    FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                    if (fileDescriptor == null) {
+                        IllegalStateException exception = new IllegalStateException(
+                                "fileDescriptor is null, path = " + settingsFile.getFullPath());
+
+                        callbacks.onError(
+                                exception,
+                                ImportExport.Export);
+                        return null;
+                    }
+
+                    try (FileWriter writer = new FileWriter(fileDescriptor)) {
+                        writer.write(json);
+                    }
+
+                    Logger.d(TAG, "Exporting done!");
+                    callbacks.onSuccess(ImportExport.Export);
+                }
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to export settings", error);
 
-                deleteExportFile(settingsFile);
                 callbacks.onError(error, ImportExport.Export);
             }
 
@@ -132,11 +140,12 @@ public class ImportExportRepository {
         });
     }
 
-    public void importFrom(File settingsFile, ImportExportCallbacks callbacks) {
+    public void importFrom(ExternalFile settingsFile, ImportExportCallbacks callbacks) {
         databaseManager.runTask(() -> {
             try {
                 if (!settingsFile.exists()) {
-                    Logger.i(TAG, "There is nothing to import, importFile does not exist " + settingsFile.getAbsolutePath());
+                    Logger.i(TAG, "There is nothing to import, importFile does not exist "
+                            + settingsFile.getFullPath());
                     callbacks.onNothingToImportExport(ImportExport.Import);
                     return null;
                 }
@@ -144,26 +153,52 @@ public class ImportExportRepository {
                 if (!settingsFile.canRead()) {
                     throw new IOException(
                             "Something wrong with import file (Can't read or it doesn't exist) "
-                                    + settingsFile.getAbsolutePath()
+                                    + settingsFile.getFullPath()
                     );
                 }
 
-                ExportedAppSettings appSettings;
+                try (ParcelFileDescriptor parcelFileDescriptor = settingsFile.getParcelFileDescriptor(
+                        ExternalFile.FileDescriptorMode.Read)) {
 
-                try (FileReader reader = new FileReader(settingsFile)) {
-                    appSettings = gson.fromJson(reader, ExportedAppSettings.class);
+                    if (parcelFileDescriptor == null) {
+                        IllegalStateException exception = new IllegalStateException(
+                                "parcelFileDescriptor is null, path = " + settingsFile.getFullPath());
+
+                        callbacks.onError(
+                                exception,
+                                ImportExport.Import);
+                        return null;
+                    }
+
+                    FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                    if (fileDescriptor == null) {
+                        IllegalStateException exception = new IllegalStateException(
+                                "fileDescriptor is null, path = " + settingsFile.getFullPath());
+
+                        callbacks.onError(
+                                exception,
+                                ImportExport.Import);
+                        return null;
+                    }
+
+                    ExportedAppSettings appSettings;
+
+                    try (FileReader reader = new FileReader(fileDescriptor)) {
+                        appSettings = gson.fromJson(reader, ExportedAppSettings.class);
+                    }
+
+                    if (appSettings.isEmpty()) {
+                        Logger.i(TAG, "There is nothing to import, appSettings is empty");
+                        callbacks.onNothingToImportExport(ImportExport.Import);
+                        return null;
+                    }
+
+                    writeSettingsToDatabase(appSettings);
+
+                    Logger.d(TAG, "Importing done!");
+                    callbacks.onSuccess(ImportExport.Import);
+
                 }
-
-                if (appSettings.isEmpty()) {
-                    Logger.i(TAG, "There is nothing to import, appSettings is empty");
-                    callbacks.onNothingToImportExport(ImportExport.Import);
-                    return null;
-                }
-
-                writeSettingsToDatabase(appSettings);
-
-                Logger.d(TAG, "Importing done!");
-                callbacks.onSuccess(ImportExport.Import);
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to import settings", error);
                 callbacks.onError(error, ImportExport.Import);
@@ -171,14 +206,6 @@ public class ImportExportRepository {
 
             return null;
         });
-    }
-
-    private void deleteExportFile(File exportFile) {
-        if (exportFile != null) {
-            if (!exportFile.delete()) {
-                Logger.w(TAG, "Could not delete export file " + exportFile.getAbsolutePath());
-            }
-        }
     }
 
     private void writeSettingsToDatabase(@NonNull ExportedAppSettings appSettingsParam)

@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.saf.file
 
+import com.github.adamantcheese.chan.core.appendMany
 import com.github.adamantcheese.chan.core.extension
 import com.github.adamantcheese.chan.utils.Logger
 import java.io.File
@@ -89,17 +90,17 @@ class RawFile(
         return RawFile(Root.DirRoot(root.holder.parentFile))
     }
 
+    override fun getFullPath(): String {
+        return root.holder
+                .appendMany(segments.map { segment -> segment.name })
+                .absolutePath
+    }
+
     private fun toFile(): File {
         val uri = if (segments.isEmpty()) {
             root.holder
         } else {
-            var newFile = root.holder
-
-            for (segment in segments) {
-                newFile = File(newFile, segment.name)
-            }
-
-            newFile
+            root.holder.appendMany(segments.map { segment -> segment.name })
         }
 
         return when (root) {

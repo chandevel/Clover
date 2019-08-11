@@ -49,15 +49,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
 
-    <string name="storage_permission_required_to_export_settings">
-"Permission to access storage is required to export settings.
-
-Re-enable this permission in the app settings if you permanently disabled it."</string>
-
-    <string name="storage_permission_required_to_import_settings">
-"Permission to access storage is required to import settings.
-
-Re-enable this permission in the app settings if you permanently disabled it."</string>
     <string name="minutes">%d minutes</string>
 
     <plurals name="posts">
@@ -627,13 +618,8 @@ Don't have a 4chan Pass?<br>
     <string name="export_settings_to_a_file">Export settings to a file</string>
     <string name="import_settings">Import settings</string>
     <string name="import_settings_from_a_file">Import settings from a file</string>
-    <string name="import_warning_title">Warning</string>
-    <string name="import_warning_text">You are about to import settings/saved pins/filters/hidden posts from a file. The file must be located at \"%1$s\" and have a name \"%2$s\". This will clear all your existing settings/pins/threads and replace them with the ones from the file. You MAY LOSE some of your settings/pins/hidden threads if you are trying to import a file with different app version (upgrade or downgrade). The app will be restarted. \nAre you sure you want to continue?</string>
-    <string name="successfully_exported_text">Exported successfully to \"%1$s\". File path has been copied to the clipboard"</string>
-    <string name="error_external_storage_is_not_mounted">External storage is not mounted</string>
+    <string name="successfully_exported_text">Exported successfully"</string>
     <string name="could_not_create_dir_for_export_error_text">Could not create directory for export file %1$s; you probably won\'t be able to export settings</string>
-    <string name="default_directory_may_not_exist_message">The default directory may not exist yet. Do you want to check whether the directory exists and create it automatically?</string>
-    <string name="default_directory_may_not_exist_title">Default directory may not exist</string>
 
     <string name="apply_to_replies">Apply to replies</string>
     <string name="only_on_op">Only on OP</string>

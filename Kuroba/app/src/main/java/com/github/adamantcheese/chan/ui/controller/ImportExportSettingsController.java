@@ -16,46 +16,51 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.Manifest;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
-import android.os.Environment;
+import android.net.Uri;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.saf.FileManager;
+import com.github.adamantcheese.chan.core.saf.callback.FileChooserCallback;
+import com.github.adamantcheese.chan.core.saf.callback.FileCreateCallback;
+import com.github.adamantcheese.chan.core.saf.file.ExternalFile;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-import java.io.File;
+import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 public class ImportExportSettingsController extends SettingsController implements
         ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
     public static final String EXPORT_FILE_NAME = getApplicationLabel() + "_exported_settings.json";
 
-    @Nullable
+    @Inject
+    FileManager fileManager;
+
     private ImportExportSettingsPresenter presenter;
 
     @Nullable
     private OnExportSuccessCallbacks callbacks;
 
     private LoadingViewController loadingViewController;
-    private File settingsFile = new File(ChanSettings.saveLocation.get(), EXPORT_FILE_NAME);
 
     public ImportExportSettingsController(Context context, @NonNull OnExportSuccessCallbacks callbacks) {
         super(context);
+
+        inject(this);
 
         this.callbacks = callbacks;
         this.loadingViewController = new LoadingViewController(context, true);
@@ -72,8 +77,6 @@ public class ImportExportSettingsController extends SettingsController implement
         setupLayout();
         populatePreferences();
         buildPreferences();
-
-        showCreateDirectoryDialog();
     }
 
     @Override
@@ -112,103 +115,47 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     private void onExportClicked() {
-        String state = Environment.getExternalStorageState();
-        if (!Environment.MEDIA_MOUNTED.equals(state)) {
-            showMessage(context.getString(R.string.error_external_storage_is_not_mounted));
-            return;
-        }
+        fileManager.openCreateFileDialog(EXPORT_FILE_NAME, new FileCreateCallback() {
+            @Override
+            public void onResult(@NotNull Uri uri) {
+                ExternalFile externalFile = fileManager.fromUri(uri);
+                if (externalFile == null) {
+                    showMessage("fileManager.fromUri() returned null externalFile, " +
+                            "uri = " + uri.toString());
+                    return;
+                }
 
-        ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
-            if (granted && presenter != null) {
                 navigationController.presentController(loadingViewController);
-                presenter.doExport(settingsFile);
-            } else {
-                ((StartActivity) context).getRuntimePermissionsHelper().showPermissionRequiredDialog(context,
-                        context.getString(R.string.update_storage_permission_required_title),
-                        context.getString(R.string.storage_permission_required_to_export_settings),
-                        this::onExportClicked);
+                presenter.doExport(externalFile);
+            }
+
+            @Override
+            public void onCancel(@NotNull String reason) {
+                showMessage(reason);
             }
         });
-    }
-
-    private void showCreateDirectoryDialog() {
-        String state = Environment.getExternalStorageState();
-        if (!Environment.MEDIA_MOUNTED.equals(state)) {
-            showMessage(context.getString(R.string.error_external_storage_is_not_mounted));
-            return;
-        }
-
-        // if we already have the permission and the default directory already exists - do not show
-        // the dialog again
-        if (((StartActivity) context).getRuntimePermissionsHelper().hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            if (settingsFile.getParentFile().exists()) {
-                return;
-            }
-        }
-
-        // Ask the user's permission to check whether the default directory exists and create it if it doesn't
-        new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.default_directory_may_not_exist_title))
-                .setMessage(context.getString(R.string.default_directory_may_not_exist_message))
-                .setPositiveButton(context.getString(R.string.create), (dialog1, which) -> ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
-                    if (granted) {
-                        onPermissionGrantedForDirectoryCreation();
-                    }
-                }))
-                .setNegativeButton(context.getString(R.string.do_not), null)
-                .create()
-                .show();
-    }
-
-    private void onPermissionGrantedForDirectoryCreation() {
-        if (settingsFile.getParentFile().exists()) {
-            return;
-        }
-
-        if (!settingsFile.getParentFile().mkdirs()) {
-            showMessage(context.getString(R.string.could_not_create_dir_for_export_error_text, settingsFile.getParentFile().getAbsolutePath()));
-        }
     }
 
     private void onImportClicked() {
-        String state = Environment.getExternalStorageState();
-        if (!Environment.MEDIA_MOUNTED.equals(state)) {
-            showMessage(context.getString(R.string.error_external_storage_is_not_mounted));
-            return;
-        }
+        fileManager.openChooseFileDialog(new FileChooserCallback() {
+            @Override
+            public void onResult(@NotNull Uri uri) {
+                ExternalFile externalFile = fileManager.fromUri(uri);
+                if (externalFile == null) {
+                    showMessage("fileManager.fromUri() returned null externalFile, " +
+                            "uri = " + uri.toString());
+                    return;
+                }
 
-        ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted -> {
-            if (granted) {
-                onPermissionGrantedForImport();
-            } else {
-                ((StartActivity) context).getRuntimePermissionsHelper().showPermissionRequiredDialog(context,
-                        context.getString(R.string.update_storage_permission_required_title),
-                        context.getString(R.string.storage_permission_required_to_import_settings),
-                        this::onImportClicked);
+                navigationController.presentController(loadingViewController);
+                presenter.doImport(externalFile);
+            }
+
+            @Override
+            public void onCancel(@NotNull String reason) {
+                showMessage(reason);
             }
         });
-    }
-
-    private void onPermissionGrantedForImport() {
-        String warningMessage = context.getString(R.string.import_warning_text,
-                settingsFile.getParentFile().getPath(),
-                settingsFile.getName());
-
-        AlertDialog dialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.import_warning_title)
-                .setMessage(warningMessage)
-                .setPositiveButton(R.string.continue_text, (dialog1, which) -> onStartImportButtonClicked())
-                .setNegativeButton(R.string.cancel, null)
-                .create();
-
-        dialog.show();
-    }
-
-    private void onStartImportButtonClicked() {
-        if (presenter != null) {
-            navigationController.presentController(loadingViewController);
-            presenter.doImport(settingsFile);
-        }
     }
 
     @Override
@@ -219,11 +166,8 @@ public class ImportExportSettingsController extends SettingsController implement
                 if (importExport == ImportExportRepository.ImportExport.Import) {
                     ((StartActivity) context).restartApp();
                 } else {
-                    copyDirPathToClipboard();
                     clearAllChildControllers();
-
-                    showMessage(context.getString(R.string.successfully_exported_text,
-                            settingsFile.getAbsolutePath()));
+                    showMessage(context.getString(R.string.successfully_exported_text));
 
                     if (callbacks != null) {
                         callbacks.finish();
@@ -233,14 +177,6 @@ public class ImportExportSettingsController extends SettingsController implement
         }
     }
 
-    private void copyDirPathToClipboard() {
-        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("exported_file_path", settingsFile.getPath());
-
-        if (clipboard != null) {
-            clipboard.setPrimaryClip(clip);
-        }
-    }
 
     @Override
     public void onError(String message) {

@@ -1,7 +1,10 @@
 package com.github.adamantcheese.chan.core
 
 import android.net.Uri
+import android.webkit.MimeTypeMap
+import java.io.File
 
+private const val BINARY_FILE_MIME_TYPE = "application/octet-stream"
 
 fun String.extension(): String? {
     val index = this.indexOfLast { ch -> ch == '.' }
@@ -37,4 +40,28 @@ fun Uri.removeLastSegment(): Uri? {
     return Uri.Builder()
             .appendManyEncoded(newSegments)
             .build()
+}
+
+fun MimeTypeMap.getMimeFromFilename(filename: String): String {
+    val extension = filename.extension()
+    if (extension == null) {
+        return BINARY_FILE_MIME_TYPE
+    }
+
+    val mimeType = this.getMimeTypeFromExtension(extension)
+    if (mimeType == null || mimeType.isEmpty()) {
+        return BINARY_FILE_MIME_TYPE
+    }
+
+    return mimeType
+}
+
+fun File.appendMany(segments: List<String>): File {
+    var newFile = File(this.absolutePath)
+
+    for (segment in segments) {
+        newFile = File(newFile, segment)
+    }
+
+    return newFile
 }
