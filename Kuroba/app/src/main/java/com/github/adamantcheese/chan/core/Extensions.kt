@@ -9,6 +9,11 @@ fun String.extension(): String? {
         return null
     }
 
+    if (index == this.lastIndex) {
+        // The dot is at the very end of the string, so there is no extension
+        return null
+    }
+
     return this.substring(index + 1)
 }
 
@@ -18,4 +23,18 @@ fun Uri.Builder.appendManyEncoded(segments: List<String>): Uri.Builder {
     }
 
     return this
+}
+
+fun Uri.removeLastSegment(): Uri? {
+    if (this.pathSegments.size <= 1) {
+        // I think we shouldn't return "/" directory here since android won't let us access it anyway
+        return null
+    }
+
+    val newSegments = this.pathSegments
+            .subList(0, pathSegments.lastIndex - 1)
+
+    return Uri.Builder()
+            .appendManyEncoded(newSegments)
+            .build()
 }

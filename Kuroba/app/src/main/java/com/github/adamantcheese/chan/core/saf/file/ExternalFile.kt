@@ -6,6 +6,7 @@ import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.github.adamantcheese.chan.core.appendManyEncoded
 import com.github.adamantcheese.chan.core.extension
+import com.github.adamantcheese.chan.core.removeLastSegment
 import com.github.adamantcheese.chan.utils.Logger
 
 class ExternalFile(
@@ -119,6 +120,21 @@ class ExternalFile(
     override fun canRead(): Boolean = toDocumentFile()?.canRead() ?: false
     override fun canWrite(): Boolean = toDocumentFile()?.canWrite() ?: false
     override fun name(): String? = root.name()
+
+    override fun getParent(): ExternalFile? {
+        if (segments.isNotEmpty()) {
+            removeLastSegment()
+            return this
+        }
+
+        val newUri = root.holder.removeLastSegment()
+        if (newUri == null) {
+            Logger.e(TAG, "getParent() removeLastSegment() returned null")
+            return null
+        }
+
+        return ExternalFile(appContext, Root.DirRoot(newUri))
+    }
 
     private fun toDocumentFile(): DocumentFile? {
         val uri = if (segments.isEmpty()) {

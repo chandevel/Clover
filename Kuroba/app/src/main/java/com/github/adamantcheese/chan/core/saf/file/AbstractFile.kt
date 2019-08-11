@@ -1,6 +1,9 @@
 package com.github.adamantcheese.chan.core.saf.file
 
 abstract class AbstractFile<T>(
+        /**
+         * /test/123/test2/filename.txt -> 4 segments
+         * */
         protected val segments: MutableList<Segment> = mutableListOf()
 ) {
     /**
@@ -30,11 +33,13 @@ abstract class AbstractFile<T>(
     abstract fun canRead(): Boolean
     abstract fun canWrite(): Boolean
     abstract fun name(): String?
+    abstract fun getParent(): T?
 
     fun segmentsCount(): Int = segments.size
 
     /**
      * Removes the last appended segment if there are any
+     * e.g: /test/123/test2 -> /test/123 -> /test
      * */
     fun removeLastSegment(): Boolean {
         if (segments.isEmpty()) {
@@ -63,12 +68,29 @@ abstract class AbstractFile<T>(
             return null
         }
 
+        /**
+         * /test/123/test2
+         * or
+         * /test/123/test2/5/6/7/8/112233
+         *
+         * Cannot have an extension!
+         * */
         class DirRoot<T>(holder: T) : Root<T>(holder)
+
+        /**
+         * /test/123/test2/filename.txt
+         * where holder = /test/123/test2/filename.txt (Uri),
+         * fileName = filename.txt (may have no extension)
+         * */
         class FileRoot<T>(holder: T, val fileName: String) : Root<T>(holder)
     }
 
     /**
-     * Segment represents a sub directory or a file name
+     * Segment represents a sub directory or a file name, e.g:
+     * /test/123/test2/filename.txt
+     *  ^   ^    ^     ^
+     *  |   |    |     +--- File name segment (name = filename.txt, isFileName == true)
+     *  +---+----+-- Directory segments (names = [test, 123, test2], isFileName == false)
      * */
     class Segment(
             val name: String,

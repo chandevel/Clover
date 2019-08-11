@@ -80,6 +80,15 @@ class RawFile(
     override fun canWrite(): Boolean = toFile().canWrite()
     override fun name(): String? = root.name()
 
+    override fun getParent(): RawFile? {
+        if (segments.isNotEmpty()) {
+            removeLastSegment()
+            return this
+        }
+
+        return RawFile(Root.DirRoot(root.holder.parentFile))
+    }
+
     private fun toFile(): File {
         val uri = if (segments.isEmpty()) {
             root.holder
