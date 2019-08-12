@@ -27,6 +27,7 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -184,6 +185,16 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 repliesFromSize = post.repliesFrom.size();
             }
             return ((long) repliesFromSize << 32L) + (long) post.no + (compact ? 1L : 0L);
+        }
+    }
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder.itemView instanceof PostCell) {
+            PostCell cell = (PostCell) holder.itemView;
+            cell.findViewById(R.id.comment).setEnabled(false);
+            cell.findViewById(R.id.comment).setEnabled(true);
         }
     }
 
