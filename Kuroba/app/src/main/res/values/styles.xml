@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="Chan.Theme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorAccent">#009688</item>
 
-        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowBackground">@drawable/ic_splash_screen</item>
         <item name="windowActionModeOverlay">true</item>
 
         <item name="dropDownListViewStyle">@style/ToolbarDropDownListViewStyle</item>
