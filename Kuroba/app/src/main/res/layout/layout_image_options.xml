@@ -134,7 +134,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_marginEnd="8dp"
                         android:layout_marginRight="8dp"
                         android:buttonTint="?text_color_primary"
-                        android:text="@string/ok"
+                        android:text="@string/apply_options"
                         android:textColor="?text_color_primary"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />

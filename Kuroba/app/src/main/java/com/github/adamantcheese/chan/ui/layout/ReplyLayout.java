@@ -274,11 +274,7 @@ public class ReplyLayout extends LoadView implements
         } else if (v == submit) {
             presenter.onSubmitClicked();
         } else if (v == previewHolder) {
-            if (presenter.isAttachedFileSupportedForReencoding()) {
-                callback.showImageReencodingWindow();
-            } else {
-                callback.showAttachedImageNotSupportedForReencodingError();
-            }
+            callback.showImageReencodingWindow(presenter.isAttachedFileSupportedForReencoding());
         } else if (v == captchaHardReset) {
             if (authenticationLayout != null) {
                 authenticationLayout.hardReset();
@@ -687,8 +683,6 @@ public class ReplyLayout extends LoadView implements
 
         ChanThread getThread();
 
-        void showImageReencodingWindow();
-
-        void showAttachedImageNotSupportedForReencodingError();
+        void showImageReencodingWindow(boolean supportsReencode);
     }
 }

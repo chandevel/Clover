@@ -591,16 +591,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     }
 
     @Override
-    public void showImageReencodingWindow() {
-        threadListLayoutCallback.showImageReencodingWindow();
-    }
-
-    @Override
-    public void showAttachedImageNotSupportedForReencodingError() {
-        Toast.makeText(
-                getContext(),
-                R.string.thread_list_layout_attached_file_not_supported_for_reencoding,
-                Toast.LENGTH_SHORT).show();
+    public void showImageReencodingWindow(boolean supportsReencode) {
+        threadListLayoutCallback.showImageReencodingWindow(supportsReencode);
     }
 
     public int[] getIndexAndTop() {
@@ -774,7 +766,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         boolean shouldToolbarCollapse();
 
-        void showImageReencodingWindow();
+        void showImageReencodingWindow(boolean supportsReencode);
 
         boolean threadBackPressed();
     }

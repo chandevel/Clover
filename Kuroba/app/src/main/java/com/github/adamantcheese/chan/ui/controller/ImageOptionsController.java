@@ -74,18 +74,21 @@ public class ImageOptionsController extends Controller implements
     private int statusBarColorPrevious;
     private ImageReencodingPresenter.ImageOptions lastSettings;
     private boolean ignoreSetup;
+    private boolean reencodeEnabled;
 
     public ImageOptionsController(
             Context context,
             ImageOptionsHelper imageReencodingHelper,
             ImageOptionsControllerCallbacks callbacks,
             Loadable loadable,
-            ImageReencodingPresenter.ImageOptions lastOptions
+            ImageReencodingPresenter.ImageOptions lastOptions,
+            boolean supportsReencode
     ) {
         super(context);
         this.imageReencodingHelper = imageReencodingHelper;
         this.callbacks = callbacks;
         lastSettings = lastOptions;
+        reencodeEnabled = supportsReencode;
 
         presenter = new ImageReencodingPresenter(this, loadable, lastOptions);
     }
@@ -114,10 +117,48 @@ public class ImageOptionsController extends Controller implements
         reencode.setOnCheckedChangeListener(this);
         changeImageChecksum.setOnCheckedChangeListener(this);
 
+        //setup last settings first before checking other conditions to enable/disable stuff
+        if (lastSettings != null) {
+            ignoreSetup = true; //this variable is to ignore any side effects of checking all these boxes
+            removeFilename.setChecked(lastSettings.getRemoveFilename());
+            changeImageChecksum.setChecked(lastSettings.getChangeImageChecksum());
+            fixExif.setChecked(lastSettings.getFixExif());
+            ImageReencodingPresenter.ReencodeSettings lastReencode = lastSettings.getReencodeSettings();
+            if (lastReencode != null) {
+                removeMetadata.setChecked(!lastReencode.isDefault());
+                removeMetadata.setEnabled(!lastReencode.isDefault());
+                reencode.setChecked(!lastReencode.isDefault());
+                reencode.setText("Re-encode " + lastReencode.prettyPrint(presenter.getImageFormat()));
+            } else {
+                removeMetadata.setChecked(lastSettings.getRemoveMetadata());
+            }
+            ignoreSetup = false;
+        }
+
         if (presenter.getImageFormat() != Bitmap.CompressFormat.JPEG) {
+            fixExif.setChecked(false);
             fixExif.setEnabled(false);
             fixExif.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
             fixExif.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+        }
+
+        if (!reencodeEnabled) {
+            changeImageChecksum.setChecked(false);
+            changeImageChecksum.setEnabled(false);
+            changeImageChecksum.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            changeImageChecksum.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            fixExif.setChecked(false);
+            fixExif.setEnabled(false);
+            fixExif.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            fixExif.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            removeMetadata.setChecked(false);
+            removeMetadata.setEnabled(false);
+            removeMetadata.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            removeMetadata.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            reencode.setChecked(false);
+            reencode.setEnabled(false);
+            reencode.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            reencode.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
         }
 
         viewHolder.setOnClickListener(this);
@@ -142,23 +183,6 @@ public class ImageOptionsController extends Controller implements
         statusBarColorPrevious = getWindow().getStatusBarColor();
         if (statusBarColorPrevious != 0) {
             AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
-        }
-
-        if (lastSettings != null) {
-            ignoreSetup = true; //this variable is to ignore any side effects of checking all these boxes
-            removeFilename.setChecked(lastSettings.getRemoveFilename());
-            changeImageChecksum.setChecked(lastSettings.getChangeImageChecksum());
-            fixExif.setChecked(lastSettings.getFixExif());
-            ImageReencodingPresenter.ReencodeSettings lastReencode = lastSettings.getReencodeSettings();
-            if (lastReencode != null) {
-                removeMetadata.setChecked(!lastReencode.isDefault());
-                removeMetadata.setEnabled(!lastReencode.isDefault());
-                reencode.setChecked(!lastReencode.isDefault());
-                reencode.setText("Re-encode " + lastReencode.prettyPrint(presenter.getImageFormat()));
-            } else {
-                removeMetadata.setChecked(lastSettings.getRemoveMetadata());
-            }
-            ignoreSetup = false;
         }
     }
 

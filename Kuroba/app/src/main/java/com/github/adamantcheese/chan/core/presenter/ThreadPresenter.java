@@ -1158,8 +1158,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         }
     }
 
-    public void showImageReencodingWindow() {
-        threadPresenterCallback.showImageReencodingWindow(loadable);
+    public void showImageReencodingWindow(boolean supportsReencode) {
+        threadPresenterCallback.showImageReencodingWindow(loadable, supportsReencode);
     }
 
     public void hideOrRemovePosts(boolean hide, boolean wholeChain, Post post, int threadNo) {
@@ -1288,7 +1288,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
         void showNewPostsNotification(boolean show, int more);
 
-        void showImageReencodingWindow(Loadable loadable);
+        void showImageReencodingWindow(Loadable loadable, boolean supportsReencode);
 
         void showHideOrRemoveWholeChainDialog(boolean hide, Post post, int threadNo);
 

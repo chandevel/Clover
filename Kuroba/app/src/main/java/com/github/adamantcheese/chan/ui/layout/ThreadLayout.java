@@ -247,8 +247,8 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void showImageReencodingWindow() {
-        presenter.showImageReencodingWindow();
+    public void showImageReencodingWindow(boolean supportsReencode) {
+        presenter.showImageReencodingWindow(supportsReencode);
     }
 
     @Override
@@ -639,8 +639,8 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void showImageReencodingWindow(Loadable loadable) {
-        imageReencodingHelper.showController(loadable);
+    public void showImageReencodingWindow(Loadable loadable, boolean supportsReencode) {
+        imageReencodingHelper.showController(loadable, supportsReencode);
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {
