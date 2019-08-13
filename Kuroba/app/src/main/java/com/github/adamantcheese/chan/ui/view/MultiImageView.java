@@ -293,7 +293,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             @Override
             public void onSuccess(File file) {
-                setBigImageFile(file);
+                setBitImageFileInternal(file, true, Mode.BIGIMAGE);
             }
 
             @Override
@@ -311,10 +311,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                 callback.showProgress(MultiImageView.this, false);
             }
         });
-    }
-
-    private void setBigImageFile(File file) {
-        setBitImageFileInternal(file, true, Mode.BIGIMAGE);
     }
 
     private void setGif(Loadable loadable, PostImage postImage) {

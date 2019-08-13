@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
-import android.util.AttributeSet;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -27,24 +26,12 @@ public class CustomScaleImageView extends SubsamplingScaleImageView {
 
     private Callback callback;
 
-    public CustomScaleImageView(Context context, AttributeSet attr) {
-        super(context, attr);
-        init();
-    }
-
     public CustomScaleImageView(Context context) {
         super(context);
-        init();
-    }
-
-    public void setCallback(Callback callback) {
-        this.callback = callback;
-    }
-
-    private void init() {
-        setOnImageEventListener(new OnImageEventListener() {
+        setOnImageEventListener(new DefaultOnImageEventListener() {
             @Override
             public void onReady() {
+                Logger.d(TAG, "onReady");
                 float scale = Math.min(getWidth() / (float) getSWidth(), getHeight() / (float) getSHeight());
 
                 if (getMaxScale() < scale * 2f) {
@@ -55,17 +42,10 @@ public class CustomScaleImageView extends SubsamplingScaleImageView {
 
             @Override
             public void onImageLoaded() {
+                Logger.d(TAG, "onImageLoaded");
                 if (callback != null) {
                     callback.onReady();
                 }
-            }
-
-            @Override
-            public void onPreviewLoadError(Exception e) {
-            }
-
-            @Override
-            public void onPreviewReleased() {
             }
 
             @Override
@@ -84,6 +64,10 @@ public class CustomScaleImageView extends SubsamplingScaleImageView {
                 }
             }
         });
+    }
+
+    public void setCallback(Callback callback) {
+        this.callback = callback;
     }
 
     public interface Callback {
