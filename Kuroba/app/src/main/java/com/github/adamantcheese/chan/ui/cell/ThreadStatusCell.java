@@ -125,6 +125,8 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                 update = true;
             }
 
+            builder.append('\n'); //to split up the cell into the top and bottom rows
+
             Post op = chanThread.getOp();
             Board board = op.board;
             if (board != null) {
@@ -144,7 +146,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                         images.setSpan(new StyleSpan(Typeface.ITALIC), 0, images.length(), 0);
                     }
 
-                    builder.append('\n').append(replies).append(" / ").append(images);
+                    builder.append(replies).append(" / ").append(images);
 
                     if (op.getUniqueIps() >= 0) {
                         String ips = op.getUniqueIps() + "P";
@@ -152,17 +154,13 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     }
 
                     if (!chanThread.getLoadable().isLocal()) {
-                        builder.append(" / ").append(getContext().getString(R.string.thread_page_no)).append(' ');
-
                         Chan4PagesRequest.Page p = callback.getPage(op);
                         if (p != null) {
                             SpannableString page = new SpannableString(String.valueOf(p.page));
                             if (p.page >= board.pages) {
                                 page.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
                             }
-                            builder.append(page);
-                        } else {
-                            builder.append('?');
+                            builder.append(" / ").append(getContext().getString(R.string.thread_page_no)).append(' ').append(page);
                         }
                     }
                 }
