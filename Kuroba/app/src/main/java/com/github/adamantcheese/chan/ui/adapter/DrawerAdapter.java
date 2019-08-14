@@ -446,6 +446,13 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             setRoundItemBackground(watchCountText);
 
+            image.setOnClickListener(v -> {
+                int pos = getAdapterPosition() - PIN_OFFSET;
+                if (pos >= 0 && pos < pins.size()) {
+                    callback.onWatchCountClicked(pins.get(pos));
+                }
+            });
+
             itemView.setOnClickListener(v -> {
                 int pos = getAdapterPosition() - PIN_OFFSET;
                 if (pos >= 0 && pos < pins.size()) {

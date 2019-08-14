@@ -476,8 +476,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
     public void reorder(List<Pin> pins) {
         for (int i = 0; i < pins.size(); i++) {
-            Pin pin = pins.get(i);
-            pin.order = i;
+            pins.get(i).order = i;
         }
         updatePinsInDatabase();
     }
