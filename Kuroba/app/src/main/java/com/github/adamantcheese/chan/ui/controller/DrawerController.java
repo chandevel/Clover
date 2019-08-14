@@ -87,8 +87,6 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         drawerAdapter = new DrawerAdapter(this, context);
         recyclerView.setAdapter(drawerAdapter);
 
-        drawerAdapter.onPinsChanged(watchManager.getAllPins());
-
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(drawerAdapter.getItemTouchHelperCallback());
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
@@ -264,6 +262,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         drawerAdapter.onPinAdded(message.pin);
+        // TODO #281
         if (BackgroundUtils.isInForeground()) {
             drawerLayout.openDrawer(drawer);
         }
@@ -272,7 +271,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
-        drawerAdapter.onPinRemoved(recyclerView, message.pin);
+        drawerAdapter.onPinRemoved(message.index);
         updateBadge();
     }
 
@@ -284,7 +283,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
     @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
-        drawerAdapter.onPinsChanged(message.pins);
+        drawerAdapter.notifyDataSetChanged();
         updateBadge();
     }
 

@@ -50,10 +50,6 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.AnimationUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
@@ -83,7 +79,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private Drawable downloadIconFilled;
 
     private final Callback callback;
-    private List<Pin> pins = new ArrayList<>();
     private Pin highlighted;
     private Bitmap archivedIcon;
 
@@ -123,9 +118,9 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 int to = target.getAdapterPosition();
 
                 if (getItemViewType(to) == TYPE_PIN) {
-                    Pin item = pins.remove(from - PIN_OFFSET);
-                    pins.add(to - PIN_OFFSET, item);
-                    watchManager.reorder(pins);
+                    Pin item = watchManager.getAllPins().remove(from - PIN_OFFSET);
+                    watchManager.getAllPins().add(to - PIN_OFFSET, item);
+                    watchManager.reorder();
                     notifyItemMoved(from, to);
                     return true;
                 } else {
@@ -135,7 +130,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                callback.onPinRemoved(pins.get(viewHolder.getAdapterPosition() - PIN_OFFSET));
+                callback.onPinRemoved(watchManager.getAllPins().get(viewHolder.getAdapterPosition() - PIN_OFFSET));
             }
         };
     }
@@ -168,7 +163,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 break;
             case TYPE_PIN:
-                final Pin pin = pins.get(position - PIN_OFFSET);
+                final Pin pin = watchManager.getAllPins().get(position - PIN_OFFSET);
                 PinViewHolder pinHolder = (PinViewHolder) holder;
                 updatePinViewHolder(pinHolder, pin);
 
@@ -196,14 +191,14 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemCount() {
-        return pins.size() + PIN_OFFSET;
+        return watchManager.getAllPins().size() + PIN_OFFSET;
     }
 
     @Override
     public long getItemId(int position) {
         position -= PIN_OFFSET;
-        if (position >= 0 && position < pins.size()) {
-            return pins.get(position).id + 10;
+        if (position >= 0 && position < watchManager.getAllPins().size()) {
+            return watchManager.getAllPins().get(position).id + 10;
         } else {
             return position;
         }
@@ -222,42 +217,27 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public void onPinsChanged(List<Pin> pins) {
-        this.pins.clear();
-        this.pins.addAll(pins);
-        Collections.sort(pins);
-        notifyDataSetChanged();
-    }
-
     public void onPinAdded(Pin pin) {
-        pins.add(pin);
-        Collections.sort(pins);
-        notifyItemInserted(pins.indexOf(pin) + PIN_OFFSET);
+        notifyItemInserted(watchManager.getAllPins().indexOf(pin) + PIN_OFFSET);
     }
 
-    public void onPinRemoved(RecyclerView recyclerView, Pin pin) {
-        int index = pins.indexOf(pin) + PIN_OFFSET;
-        PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(index);
-        if (holder != null) {
-            pins.remove(pin);
-            Collections.sort(pins);
-            notifyItemRemoved(index);
-        }
+    public void onPinRemoved(int index) {
+        notifyItemRemoved(index + PIN_OFFSET);
     }
 
     public void onPinChanged(RecyclerView recyclerView, Pin pin) {
-        PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(pins.indexOf(pin) + PIN_OFFSET);
+        PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(watchManager.getAllPins().indexOf(pin) + PIN_OFFSET);
         if (holder != null) {
             updatePinViewHolder(holder, pin);
-            notifyItemChanged(pins.indexOf(pin) + PIN_OFFSET);
+            notifyItemChanged(watchManager.getAllPins().indexOf(pin) + PIN_OFFSET);
         }
     }
 
     public void updateHighlighted(RecyclerView recyclerView) {
-        for (int i = 0; i < pins.size(); i++) {
+        for (int i = 0; i < watchManager.getAllPins().size(); i++) {
             PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(i + PIN_OFFSET);
             if (holder != null) {
-                updatePinViewHolder(holder, pins.get(i));
+                updatePinViewHolder(holder, watchManager.getAllPins().get(i));
                 notifyItemChanged(i + PIN_OFFSET);
             }
         }
@@ -448,22 +428,22 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             image.setOnClickListener(v -> {
                 int pos = getAdapterPosition() - PIN_OFFSET;
-                if (pos >= 0 && pos < pins.size()) {
-                    callback.onWatchCountClicked(pins.get(pos));
+                if (pos >= 0 && pos < watchManager.getAllPins().size()) {
+                    callback.onWatchCountClicked(watchManager.getAllPins().get(pos));
                 }
             });
 
             itemView.setOnClickListener(v -> {
                 int pos = getAdapterPosition() - PIN_OFFSET;
-                if (pos >= 0 && pos < pins.size()) {
-                    callback.onPinClicked(pins.get(pos));
+                if (pos >= 0 && pos < watchManager.getAllPins().size()) {
+                    callback.onPinClicked(watchManager.getAllPins().get(pos));
                 }
             });
 
             watchCountText.setOnClickListener(v -> {
                 int pos = getAdapterPosition() - PIN_OFFSET;
-                if (pos >= 0 && pos < pins.size()) {
-                    callback.onWatchCountClicked(pins.get(pos));
+                if (pos >= 0 && pos < watchManager.getAllPins().size()) {
+                    callback.onWatchCountClicked(watchManager.getAllPins().get(pos));
                 }
             });
         }

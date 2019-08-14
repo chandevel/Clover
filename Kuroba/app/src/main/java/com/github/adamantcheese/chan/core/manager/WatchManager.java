@@ -219,7 +219,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
         // apply orders.
         Collections.sort(pins);
-        reorder(pins);
+        reorder();
         updateState();
 
         if (sendBroadcast) {
@@ -332,6 +332,7 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     public void deletePin(Pin pin) {
+        int index = pins.indexOf(pin);
         pins.remove(pin);
 
         destroyPinWatcher(pin);
@@ -348,10 +349,10 @@ public class WatchManager implements WakeManager.Wakeable {
 
         // Update the new orders
         Collections.sort(pins);
-        reorder(pins);
+        reorder();
         updateState();
 
-        EventBus.getDefault().post(new PinMessages.PinRemovedMessage(pin));
+        EventBus.getDefault().post(new PinMessages.PinRemovedMessage(index));
     }
 
     private void deleteSavedThread(int loadableId) {
@@ -392,7 +393,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
         // Update the new orders
         Collections.sort(pins);
-        reorder(pins);
+        reorder();
         updatePinsInDatabase();
 
         updateState();
@@ -474,7 +475,7 @@ public class WatchManager implements WakeManager.Wakeable {
         return null;
     }
 
-    public void reorder(List<Pin> pins) {
+    public void reorder() {
         for (int i = 0; i < pins.size(); i++) {
             pins.get(i).order = i;
         }
@@ -964,10 +965,10 @@ public class WatchManager implements WakeManager.Wakeable {
         }
 
         public static class PinRemovedMessage {
-            public Pin pin;
+            public int index;
 
-            public PinRemovedMessage(Pin pin) {
-                this.pin = pin;
+            public PinRemovedMessage(int index) {
+                this.index = index;
             }
         }
 
