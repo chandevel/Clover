@@ -21,6 +21,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -39,7 +40,6 @@ import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -262,9 +262,15 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         drawerAdapter.onPinAdded(message.pin);
-        // TODO #281
-        if (BackgroundUtils.isInForeground()) {
+        if (ChanSettings.drawerAutoOpenCount.get() < 5 || ChanSettings.alwaysOpenDrawer.get()) {
             drawerLayout.openDrawer(drawer);
+            //max out at 5
+            int curCount = ChanSettings.drawerAutoOpenCount.get();
+            ChanSettings.drawerAutoOpenCount.set(curCount + 1 > 5 ? 5 : curCount + 1);
+            if (ChanSettings.drawerAutoOpenCount.get() < 5 && !ChanSettings.alwaysOpenDrawer.get()) {
+                int countLeft = 5 - ChanSettings.drawerAutoOpenCount.get();
+                Toast.makeText(context, "Drawer will auto-show " + countLeft + " more time" + (countLeft == 1 ? "" : "s") + " as a reminder.", Toast.LENGTH_SHORT).show();
+            }
         }
         updateBadge();
     }
