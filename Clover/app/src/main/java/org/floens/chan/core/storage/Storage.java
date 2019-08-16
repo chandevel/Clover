@@ -17,6 +17,7 @@
  */
 package org.floens.chan.core.storage;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -25,8 +26,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.provider.DocumentsContract;
 import android.support.annotation.RequiresApi;
+import android.util.Pair;
 
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.settings.StringSetting;
@@ -36,6 +40,9 @@ import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,7 +57,7 @@ import javax.inject.Singleton;
  * https://commonsware.com/blog/2017/11/14/storage-situation-external-storage.html
  * https://commonsware.com/blog/2017/11/15/storage-situation-removable-storage.html
  * <p>
- * The Android Storage Access Framework can be used from Android 5.0 and higher. Since Android 5.0
+ * The Android Storage Access Framework is used from Android 5.0 and higher. Since Android 5.0
  * it has support for granting permissions for a directory, which we want to save our files to.
  * <p>
  * Otherwise a fallback is provided for only saving on the primary volume with the older APIs.
@@ -101,40 +108,28 @@ public class Storage {
      * legacy install settings.
      */
     public Mode mode() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return Mode.FILE;
-        }
-
-        // File by default.
-        if (saveLocation.get().isEmpty() && saveLocationTreeUri.get().isEmpty()) {
-            return Mode.FILE;
-        }
-
-        if (!saveLocationTreeUri.get().isEmpty()) {
-            return Mode.STORAGE_ACCESS_FRAMEWORK;
-        }
-
-        return Mode.FILE;
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ?
+                Mode.FILE : Mode.STORAGE_ACCESS_FRAMEWORK;
     }
 
+    // Settings controller:
     public Mode getModeForNewLocation() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return Mode.FILE;
-        } else {
-            return Mode.STORAGE_ACCESS_FRAMEWORK;
-        }
+        return mode();
     }
 
+    // Settings controller:
     public String getFileSaveLocation() {
         prepareDefaultFileSaveLocation();
         return saveLocation.get();
     }
 
+    // Settings controller:
     public void setFileSaveLocation(String location) {
         saveLocation.set(location);
         saveLocationTreeUri.set("");
     }
 
+    // Settings controller:
     public String currentStorageName() {
         switch (mode()) {
             case FILE: {
@@ -151,6 +146,19 @@ public class Storage {
         throw new IllegalStateException();
     }
 
+    // For the settings controller:
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void setupNewSAFSaveLocation(Runnable handled) {
+        Intent openTreeIntent = getOpenTreeIntent();
+        results.getResultFromIntent(openTreeIntent, (resultCode, result) -> {
+            if (resultCode == Activity.RESULT_OK) {
+                handleOpenTreeIntent(result, false);
+                handled.run();
+            }
+        });
+    }
+
+    // When using FILE mode, create the directory.
     private void prepareDefaultFileSaveLocation() {
         if (saveLocation.get().isEmpty()) {
             File pictures = Environment.getExternalStoragePublicDirectory(
@@ -161,19 +169,38 @@ public class Storage {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void setupNewSAFSaveLocation(Runnable handled) {
-        Intent openTreeIntent = getOpenTreeIntent();
-        results.getResultFromIntent(openTreeIntent, (resultCode, result) -> {
-            if (resultCode == Activity.RESULT_OK) {
-                handleOpenTreeIntent(result);
-                handled.run();
+    public void prepareForSave(Runnable handled) {
+        if (mode() == Mode.FILE) {
+            prepareDefaultFileSaveLocation();
+            handled.run();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // lint
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                // If possible, ask to store at "Pictures/Clover" with SAF.
+                // If the user wants to change that, they can do so at the settings controller with
+                // more fine-grained control.
+                StorageManager sm = (StorageManager)
+                        applicationContext.getSystemService(Context.STORAGE_SERVICE);
+                StorageVolume primaryStorageVolume = sm.getPrimaryStorageVolume();
+                Intent accessIntent =
+                        primaryStorageVolume.createAccessIntent(Environment.DIRECTORY_PICTURES);
+
+                Logger.i(TAG, "Requesting access to pictures with scoped saf");
+
+                results.getResultFromIntent(accessIntent, (resultCode, result) -> {
+                    if (resultCode == Activity.RESULT_OK) {
+                        handleOpenTreeIntent(result, true);
+                        handled.run();
+                    }
+                });
+            } else {
+                // Api 21-23 SAF can't have such a popup, open the normal selection screen.
+                setupNewSAFSaveLocation(handled);
             }
-        });
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public Intent getOpenTreeIntent() {
+    private Intent getOpenTreeIntent() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION |
                 Intent.FLAG_GRANT_READ_URI_PERMISSION |
@@ -183,7 +210,7 @@ public class Storage {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void handleOpenTreeIntent(Intent intent) {
+    private void handleOpenTreeIntent(Intent intent, boolean appendBaseDir) {
         boolean read = (intent.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION) != 0;
         boolean write = (intent.getFlags() & Intent.FLAG_GRANT_WRITE_URI_PERMISSION) != 0;
 
@@ -203,14 +230,50 @@ public class Storage {
             return;
         }
 
+        Logger.i(TAG, "handle open (" + uri.toString() + ")");
+
         String documentId = DocumentsContract.getTreeDocumentId(uri);
         Uri treeDocumentUri = DocumentsContract.buildDocumentUriUsingTree(uri, documentId);
+
+        Logger.i(TAG, "documentId = " + documentId);
+        Logger.i(TAG, "treeDocumentUri = " + treeDocumentUri.toString());
+
+        if (appendBaseDir) {
+            Logger.i(TAG, "appending base dir");
+            ContentResolver contentResolver = applicationContext.getContentResolver();
+            try {
+                documentId = DocumentsContract.getTreeDocumentId(treeDocumentUri);
+                Uri treeDocUri = DocumentsContract.buildDocumentUriUsingTree(treeDocumentUri, documentId);
+
+                List<Pair<String, String>> files = listTree(treeDocumentUri);
+                boolean createSubdir = true;
+                for (Pair<String, String> file : files) {
+                    if (file.second.equals(DEFAULT_DIRECTORY_NAME)) {
+                        treeDocumentUri = DocumentsContract.buildDocumentUriUsingTree(treeDocumentUri, file.first);
+                        createSubdir = false;
+                        break;
+                    }
+                }
+                if (createSubdir) {
+                    treeDocumentUri = DocumentsContract.createDocument(
+                            contentResolver, treeDocUri,
+                            DocumentsContract.Document.MIME_TYPE_DIR, DEFAULT_DIRECTORY_NAME);
+                }
+
+                Logger.i(TAG, "documentId = " + documentId);
+                Logger.i(TAG, "treeDocumentUri = " + treeDocumentUri.toString());
+
+            } catch (FileNotFoundException e) {
+                Logger.e(TAG, "Could not create subdir", e);
+            }
+        }
 
         ContentResolver contentResolver = applicationContext.getContentResolver();
 
         int flags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
         contentResolver.takePersistableUriPermission(uri, flags);
 
+        Logger.i(TAG, "saving as " + treeDocumentUri.toString());
         saveLocationTreeUri.set(treeDocumentUri.toString());
     }
 
@@ -225,13 +288,15 @@ public class Storage {
 
         ContentResolver contentResolver = applicationContext.getContentResolver();
 
-        String documentId = DocumentsContract.getTreeDocumentId(treeUri);
+        String documentId = DocumentsContract.getDocumentId(treeUri);
         Uri treeDocumentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
+
+        Logger.i(TAG, "saving, documentId = " + documentId + ", treeDocumentUri = " + treeDocumentUri);
 
         Uri docUri;
         try {
             docUri = DocumentsContract.createDocument(contentResolver, treeDocumentUri,
-                    "text", name);
+                    "text", name); // TODO
         } catch (FileNotFoundException e) {
             Logger.e(TAG, "obtainStorageFileForName createDocument", e);
             return null;
@@ -265,5 +330,26 @@ public class Storage {
         }
 
         return null;
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private List<Pair<String, String>> listTree(Uri tree) {
+        ContentResolver contentResolver = applicationContext.getContentResolver();
+
+        String documentId = DocumentsContract.getTreeDocumentId(tree);
+
+        try (Cursor c = contentResolver.query(
+                DocumentsContract.buildChildDocumentsUriUsingTree(tree, documentId),
+                new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                        DocumentsContract.Document.COLUMN_DISPLAY_NAME},
+                null, null, null)) {
+            if (c == null) return Collections.emptyList();
+
+            List<Pair<String, String>> result = new ArrayList<>();
+            while (c.moveToNext()) {
+                result.add(new Pair<>(c.getString(0), c.getString(1)));
+            }
+            return result;
+        }
     }
 }

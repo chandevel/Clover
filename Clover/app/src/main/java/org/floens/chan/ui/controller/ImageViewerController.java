@@ -53,6 +53,7 @@ import org.floens.chan.core.saver.ImageSaveTask;
 import org.floens.chan.core.saver.ImageSaver;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.ImageSearch;
+import org.floens.chan.core.storage.Storage;
 import org.floens.chan.ui.adapter.ImageViewerAdapter;
 import org.floens.chan.ui.toolbar.NavigationItem;
 import org.floens.chan.ui.toolbar.Toolbar;
@@ -91,6 +92,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Inject
     ImageLoader imageLoader;
+
+    @Inject
+    Storage storage;
 
     @Inject
     ImageSaver imageSaver;
@@ -229,7 +233,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                         File.separator +
                         presenter.getLoadable().boardCode);
             }
-            imageSaver.startDownloadTask(context, task);
+
+            storage.prepareForSave(() -> {
+                imageSaver.startDownloadTask(context, task);
+            });
         }
     }
 

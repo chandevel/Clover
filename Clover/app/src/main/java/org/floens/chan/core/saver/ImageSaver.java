@@ -109,14 +109,11 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         if (!hasPermission(context)) {
             // This does not request the permission when another request is pending.
             // This is ok and will drop the tasks.
-            requestPermission(context, new RuntimePermissionsHelper.Callback() {
-                @Override
-                public void onRuntimePermissionResult(boolean granted) {
-                    if (granted) {
-                        startBundledTaskInternal(subFolder, tasks);
-                    } else {
-                        showToast(null, false);
-                    }
+            requestPermission(context, granted -> {
+                if (granted) {
+                    startBundledTaskInternal(subFolder, tasks);
+                } else {
+                    showToast(null, false);
                 }
             });
             return false;

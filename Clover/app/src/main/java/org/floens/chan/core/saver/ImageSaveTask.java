@@ -127,9 +127,11 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
                 }
             }
         } catch (InterruptedException e) {
-            onInterrupted();
+            deleteDestination();
+            postFinished(false);
         } catch (Exception e) {
             Logger.e(TAG, "Uncaught exception", e);
+            postFinished(false);
         }
     }
 
@@ -145,10 +147,6 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     @Override
     public void onEnd() {
         postFinished(success);
-    }
-
-    private void onInterrupted() {
-        deleteDestination();
     }
 
     private void deleteDestination() {
