@@ -294,6 +294,8 @@ public class ThreadLayout extends CoordinatorLayout implements
             if (error.getErrorMessage() == R.string.thread_load_failed_not_found) {
                 errorRetryButton.setText(R.string.thread_show_archives);
                 archiveButton = true;
+
+                presenter.markAllPostsAsSeen();
             }
         }
     }
