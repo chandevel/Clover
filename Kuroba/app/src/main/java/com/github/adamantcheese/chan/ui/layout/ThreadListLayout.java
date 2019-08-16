@@ -27,13 +27,13 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -41,7 +41,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -119,6 +118,12 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         searchStatus = findViewById(R.id.search_status);
         recyclerView = findViewById(R.id.recycler_view);
 
+        if (ChanSettings.moveInputToBottom.get()) {
+            LayoutParams params = (LayoutParams) reply.getLayoutParams();
+            params.gravity = Gravity.BOTTOM;
+            reply.setLayoutParams(params);
+        }
+
         // View setup
         reply.setCallback(this);
         searchStatus.setTypeface(ThemeHelper.getTheme().mainFont);
@@ -143,7 +148,11 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         attachToolbarScroll(true);
 
-        reply.setPadding(0, toolbarHeight(), 0, 0);
+        if (ChanSettings.moveInputToBottom.get()) {
+            reply.setPadding(0, 0, 0, 0);
+        } else {
+            reply.setPadding(0, toolbarHeight(), 0, 0);
+        }
         searchStatus.setPadding(searchStatus.getPaddingLeft(), searchStatus.getPaddingTop() + toolbarHeight(),
                 searchStatus.getPaddingRight(), searchStatus.getPaddingBottom());
     }
@@ -352,11 +361,11 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
             if (open) {
                 reply.setVisibility(View.VISIBLE);
-                reply.setTranslationY(-height);
+                reply.setTranslationY(ChanSettings.moveInputToBottom.get() ? height : -height);
                 viewPropertyAnimator.translationY(0f);
             } else {
                 reply.setTranslationY(0f);
-                viewPropertyAnimator.translationY(-height);
+                viewPropertyAnimator.translationY(ChanSettings.moveInputToBottom.get() ? height : -height);
                 viewPropertyAnimator.setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -684,7 +693,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         recyclerView.setPadding(left, top, right, bottom);
     }
 
-    private int toolbarHeight() {
+    public int toolbarHeight() {
         Toolbar toolbar = threadListLayoutCallback.getToolbar();
         return toolbar.getToolbarHeight();
     }

@@ -23,6 +23,7 @@ import android.graphics.Bitmap;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -55,12 +56,16 @@ import com.github.adamantcheese.chan.ui.captcha.v1.CaptchaNojsLayoutV1;
 import com.github.adamantcheese.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
+import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
 
@@ -141,6 +146,7 @@ public class ReplyLayout extends LoadView implements
 
     public ReplyLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -259,7 +265,7 @@ public class ReplyLayout extends LoadView implements
     private void setWrap(boolean wrap) {
         setLayoutParams(new LayoutParams(
                 LayoutParams.MATCH_PARENT,
-                wrap ? LayoutParams.WRAP_CONTENT : LayoutParams.MATCH_PARENT
+                !wrap ? LayoutParams.WRAP_CONTENT : LayoutParams.MATCH_PARENT
         ));
     }
 
@@ -367,7 +373,7 @@ public class ReplyLayout extends LoadView implements
     public void setPage(ReplyPresenter.Page page, boolean animate) {
         switch (page) {
             case LOADING:
-                setWrap(true);
+                setWrap(false);
                 View progressBar = setView(progressLayout);
                 progressBar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, dp(100)));
 
@@ -376,10 +382,10 @@ public class ReplyLayout extends LoadView implements
                 break;
             case INPUT:
                 setView(replyInputLayout);
-                setWrap(!presenter.isExpanded());
+                setWrap(presenter.isExpanded());
                 break;
             case AUTHENTICATION:
-                setWrap(false);
+                setWrap(true);
 
                 setView(captchaContainer);
 
@@ -468,9 +474,30 @@ public class ReplyLayout extends LoadView implements
         commentCounter.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    @Subscribe
+    public void onEvent(RefreshUIMessage message) {
+        if (!ChanSettings.moveInputToBottom.get()) {
+            setPadding(0, ((ThreadListLayout) getParent()).toolbarHeight(), 0, 0);
+        } else if (ChanSettings.moveInputToBottom.get()) {
+            setPadding(0, 0, 0, 0);
+            LayoutParams params = (LayoutParams) getLayoutParams();
+            params.gravity = Gravity.BOTTOM;
+            setLayoutParams(params);
+        }
+    }
+
     @Override
     public void setExpanded(boolean expanded) {
-        setWrap(!expanded);
+        setWrap(expanded);
+
+        if (ChanSettings.moveInputToBottom.get() && expanded) {
+            setPadding(0, ((ThreadListLayout) getParent()).toolbarHeight(), 0, 0);
+        } else if (ChanSettings.moveInputToBottom.get() && !expanded) {
+            setPadding(0, 0, 0, 0);
+            LayoutParams params = (LayoutParams) getLayoutParams();
+            params.gravity = Gravity.BOTTOM;
+            setLayoutParams(params);
+        }
 
         comment.setMaxLines(expanded ? 500 : 6);
 
@@ -665,11 +692,7 @@ public class ReplyLayout extends LoadView implements
             validCaptchasCount.setVisibility(VISIBLE);
         }
 
-        if (validCaptchaCount > 99) {
-            validCaptchasCount.setText(R.string.more_than_99_valid_captchas_text);
-        } else {
-            validCaptchasCount.setText(String.valueOf(validCaptchaCount));
-        }
+        validCaptchasCount.setText(String.valueOf(validCaptchaCount));
     }
 
     public interface ReplyLayoutCallback {

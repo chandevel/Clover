@@ -134,7 +134,7 @@ public class CaptchaNoJsHtmlParser {
         CaptchaInfo.CaptchaTitle captchaTitle;
 
         try {
-            String title = matcher.group(2);
+            String title = matcher.group(2).replace("Select all images", "Tap all");
             Matcher titleMatcher = challengeTitleBoldPartPattern.matcher(title);
 
             if (titleMatcher.find()) {

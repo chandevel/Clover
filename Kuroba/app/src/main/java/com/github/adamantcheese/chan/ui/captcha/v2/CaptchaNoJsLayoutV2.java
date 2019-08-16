@@ -23,10 +23,12 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,6 +37,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -73,22 +76,26 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
 
     public CaptchaNoJsLayoutV2(@NonNull Context context) {
         this(context, null, 0);
-        init();
     }
 
     public CaptchaNoJsLayoutV2(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
-        init();
     }
 
     public CaptchaNoJsLayoutV2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        inject(this);
+
         this.context = context;
         this.presenter = new CaptchaNoJsPresenterV2(this, context);
         this.adapter = new CaptchaNoJsV2Adapter(context);
 
         View view = inflate(context, R.layout.layout_captcha_nojs_v2, this);
 
+        if (ChanSettings.moveInputToBottom.get()) {
+            LinearLayout topLevel = findViewById(R.id.captcha_layout_v2_top_level);
+            topLevel.setGravity(Gravity.BOTTOM);
+        }
         captchaChallengeTitle = view.findViewById(R.id.captcha_layout_v2_title);
         captchaImagesGrid = view.findViewById(R.id.captcha_layout_v2_images_grid);
         captchaVerifyButton = view.findViewById(R.id.captcha_layout_v2_verify_button);
@@ -98,12 +105,6 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         captchaVerifyButton.setOnClickListener(v -> sendVerificationResponse());
         useOldCaptchaButton.setOnClickListener(v -> callback.onFallbackToV1CaptchaView(isAutoReply));
         reloadCaptchaButton.setOnClickListener(v -> reset());
-
-        init();
-    }
-
-    private void init() {
-        inject(this);
     }
 
     @Override

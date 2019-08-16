@@ -187,6 +187,8 @@ public class ChanSettings {
     public static final IntegerSetting drawerAutoOpenCount;
     public static final BooleanSetting alwaysOpenDrawer;
 
+    public static final BooleanSetting moveInputToBottom;
+
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
@@ -292,6 +294,8 @@ public class ChanSettings {
 
         drawerAutoOpenCount = new IntegerSetting(p, "drawer_auto_open_count", 0);
         alwaysOpenDrawer = new BooleanSetting(p, "drawer_auto_open_always", false);
+
+        moveInputToBottom = new BooleanSetting(p, "move_input_bottom", false);
     }
 
     public static ThemeColor getThemeAndColor() {
