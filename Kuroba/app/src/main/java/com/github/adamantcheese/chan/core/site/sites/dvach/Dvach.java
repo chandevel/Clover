@@ -19,6 +19,9 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.Reply;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.DvachCommentParser;
+import com.github.adamantcheese.chan.core.site.parser.DvachPostParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -84,6 +87,11 @@ public class Dvach extends CommonSite {
                         "Captcha type",
                         Arrays.asList("Javascript", "Noscript"))
         );
+    }
+
+    @Override
+    public void setParser(CommentParser commentParser) {
+        this.postParser = new DvachPostParser(commentParser);
     }
 
     @Override
@@ -205,6 +213,6 @@ public class Dvach extends CommonSite {
 
         setApi(new DvachApi(this));
 
-        setParser(new VichanCommentParser());
+        setParser(new DvachCommentParser());
     }
 }

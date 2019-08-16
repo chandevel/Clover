@@ -7,6 +7,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
+
 import org.jsoup.parser.Parser;
 
 import java.io.IOException;
@@ -88,6 +89,9 @@ public class DvachApi extends CommonSite.CommonApi {
             switch (key) {
                 case "name":
                     builder.name(reader.nextString());
+                    break;
+                case "subject":
+                    builder.subject(reader.nextString());
                     break;
                 case "comment":
                     builder.comment(reader.nextString());
@@ -191,7 +195,8 @@ public class DvachApi extends CommonSite.CommonApi {
                     fileName = reader.nextString();
                     break;
                 case "size":
-                    fileSize = reader.nextLong();
+                    //2ch is in kB
+                    fileSize = reader.nextLong() * 1024;
                     break;
                 case "width":
                     fileWidth = reader.nextInt();

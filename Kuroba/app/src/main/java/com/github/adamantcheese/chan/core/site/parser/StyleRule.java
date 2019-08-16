@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
+import android.text.style.UnderlineSpan;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
@@ -61,6 +62,7 @@ public class StyleRule {
     private ForegroundColor foregroundColor = null;
     private BackgroundColor backgroundColor = null;
     private boolean strikeThrough;
+    private boolean underline;
     private boolean bold;
     private boolean italic;
     private boolean monospace;
@@ -120,6 +122,11 @@ public class StyleRule {
 
     public StyleRule strikeThrough() {
         strikeThrough = true;
+        return this;
+    }
+
+    public StyleRule underline() {
+        this.underline = true;
         return this;
     }
 
@@ -206,6 +213,10 @@ public class StyleRule {
 
         if (strikeThrough) {
             spansToApply.add(new StrikethroughSpan());
+        }
+
+        if (underline) {
+            spansToApply.add(new UnderlineSpan());
         }
 
         if (bold && italic) {
