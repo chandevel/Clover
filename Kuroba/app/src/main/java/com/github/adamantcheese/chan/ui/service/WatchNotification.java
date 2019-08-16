@@ -88,9 +88,6 @@ public class WatchNotification extends Service {
     @Inject
     ThreadSaveManager threadSaveManager;
 
-    @Inject
-    DatabaseManager databaseManager;
-
     @Override
     public IBinder onBind(final Intent intent) {
         return null;
@@ -118,7 +115,15 @@ public class WatchNotification extends Service {
             notificationManager.createNotificationChannel(alert);
         }
 
-        startForeground(NOTIFICATION_ID, createNotification());
+        Notification notification = createNotification();
+        if (notification == null) {
+            Logger.d(TAG, "onCreate() createNotification returned null");
+
+            stopSelf();
+            return;
+        }
+
+        startForeground(NOTIFICATION_ID, notification);
     }
 
     @Override
@@ -134,7 +139,7 @@ public class WatchNotification extends Service {
         } else {
             Notification notification = createNotification();
             if (notification == null) {
-                Logger.d(TAG, "createNotification returned null");
+                Logger.d(TAG, "onStartCommand() createNotification returned null");
 
                 stopSelf();
                 return START_NOT_STICKY;

@@ -305,63 +305,54 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public boolean pin() {
-        if (chanLoader.getThread() == null) {
-            return false;
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            if (chanLoader.getThread() == null) {
+                return false;
+            }
+
+            Post op = chanLoader.getThread().getOp();
+            watchManager.createPin(loadable, op, PinType.WATCH_NEW_POSTS);
+            return true;
         }
 
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin != null) {
-            if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
-                pin.pinType = PinType.removeWatchNewPostsFlag(pin.pinType);
+        if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
+            pin.pinType = PinType.removeWatchNewPostsFlag(pin.pinType);
 
-                if (PinType.hasNoFlags(pin.pinType)) {
-                    watchManager.deletePin(pin);
-                } else {
-                    watchManager.updatePin(pin);
-                }
+            if (PinType.hasNoFlags(pin.pinType)) {
+                watchManager.deletePin(pin);
             } else {
-                pin.pinType = PinType.addWatchNewPostsFlag(pin.pinType);
                 watchManager.updatePin(pin);
             }
         } else {
-            Post op = chanLoader.getThread().getOp();
-            watchManager.createPin(loadable, op, PinType.WATCH_NEW_POSTS);
+            pin.pinType = PinType.addWatchNewPostsFlag(pin.pinType);
+            watchManager.updatePin(pin);
         }
 
         return true;
     }
 
     public boolean save() {
-        if (chanLoader.getThread() == null) {
-            return false;
-        }
-
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin != null) {
-            if (PinType.hasDownloadFlag(pin.pinType)) {
-                pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
-
-                if (PinType.hasNoFlags(pin.pinType)) {
-                    watchManager.deletePin(pin);
-                } else {
-                    watchManager.updatePin(pin);
-                    watchManager.stopSavingThread(pin.loadable);
-                }
-
-                loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
-            } else {
-                saveInternal();
-            }
-        } else {
-            saveInternal();
+        if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
+            return saveInternal();
         }
 
+        pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
+        if (PinType.hasNoFlags(pin.pinType)) {
+            watchManager.deletePin(pin);
+        } else {
+            watchManager.updatePin(pin);
+            watchManager.stopSavingThread(pin.loadable);
+        }
+
+        loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
         return true;
     }
 
-    private void saveInternal() {
+    private boolean saveInternal() {
         if (chanLoader.getThread() == null) {
-            return;
+            return false;
         }
 
         Post op = chanLoader.getThread().getOp();
@@ -403,6 +394,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         if (!ChanSettings.watchEnabled.get() || !ChanSettings.watchBackground.get()) {
             threadPresenterCallback.showBackgroundWatcherIsDisabledToast();
         }
+
+        return true;
     }
 
     private void startSavingThreadInternal(
