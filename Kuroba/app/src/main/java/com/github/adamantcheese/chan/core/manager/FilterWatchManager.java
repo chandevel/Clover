@@ -133,7 +133,10 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                         BackgroundLoader backgroundLoader = new BackgroundLoader();
                         Loadable boardLoadable = Loadable.forCatalog(b);
                         boardLoadable = databaseLoadableManager.get(boardLoadable);
-                        ChanThreadLoader catalogLoader = chanLoaderFactory.obtain(boardLoadable, backgroundLoader);
+                        ChanThreadLoader catalogLoader = chanLoaderFactory.obtain(
+                                boardLoadable,
+                                watchManager,
+                                backgroundLoader);
                         filterLoaders.put(catalogLoader, backgroundLoader);
                     }
             }

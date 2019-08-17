@@ -167,7 +167,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             this.addToLocalBackHistory = addToLocalBackHistory;
 
             startSavingThreadIfItIsNotBeingSaved(this.loadable);
-            chanLoader = chanLoaderFactory.obtain(loadable, this);
+            chanLoader = chanLoaderFactory.obtain(loadable, watchManager, this);
             threadPresenterCallback.showLoading();
         }
     }

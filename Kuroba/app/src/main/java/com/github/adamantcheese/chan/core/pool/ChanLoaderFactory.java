@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * ChanLoaderFactory is a factory for ChanLoaders. ChanLoaders for threads are cached.
  * <p>Each reference to a loader is a {@link ChanThreadLoader.ChanLoaderCallback}, these
- * references can be obtained with {@link #obtain(Loadable, ChanThreadLoader.ChanLoaderCallback)}} and released
+ * references can be obtained with {@link #obtain(Loadable, WatchManager, ChanThreadLoader.ChanLoaderCallback)}} and released
  * with {@link #release(ChanThreadLoader, ChanThreadLoader.ChanLoaderCallback)}.
  */
 public class ChanLoaderFactory {
@@ -38,7 +38,7 @@ public class ChanLoaderFactory {
     private Map<Loadable, ChanThreadLoader> threadLoaders = new HashMap<>();
     private LruCache<Loadable, ChanThreadLoader> threadLoadersCache = new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
 
-    public ChanThreadLoader obtain(Loadable loadable, ChanThreadLoader.ChanLoaderCallback listener) {
+    public ChanThreadLoader obtain(Loadable loadable, WatchManager watchManager, ChanThreadLoader.ChanLoaderCallback listener) {
         ChanThreadLoader chanLoader;
         if (loadable.isThreadMode()) {
             if (!loadable.isFromDatabase()) {
@@ -55,11 +55,11 @@ public class ChanLoaderFactory {
             }
 
             if (chanLoader == null) {
-                chanLoader = new ChanThreadLoader(loadable);
+                chanLoader = new ChanThreadLoader(loadable, watchManager);
                 threadLoaders.put(loadable, chanLoader);
             }
         } else {
-            chanLoader = new ChanThreadLoader(loadable);
+            chanLoader = new ChanThreadLoader(loadable, watchManager);
         }
 
         chanLoader.addListener(listener);

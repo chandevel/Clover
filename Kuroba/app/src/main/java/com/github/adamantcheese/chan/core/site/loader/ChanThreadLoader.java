@@ -85,6 +85,8 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     @Inject
     SavedThreadLoaderManager savedThreadLoaderManager;
 
+    private WatchManager watchManager;
+
     private final List<ChanLoaderCallback> listeners = new ArrayList<>();
     private final Loadable loadable;
     private ChanThread thread;
@@ -100,9 +102,12 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
     /**
      * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link com.github.adamantcheese.chan.core.pool.ChanLoaderFactory}</b>
+     * Also, do not use feather().instance(WatchManager.class) here because it will create a cyclic
+     * dependency instantiation
      */
-    public ChanThreadLoader(Loadable loadable) {
+    public ChanThreadLoader(Loadable loadable, WatchManager watchManager) {
         this.loadable = loadable;
+        this.watchManager = watchManager;
 
         inject(this);
     }
@@ -399,7 +404,6 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         // If saved thread was not found or it has no posts (deserialization error) switch to
         // the error route
         if (chanThread.getPostsCount() > 0) {
-            WatchManager watchManager = Chan.injector().instance(WatchManager.class);
             final SavedThread savedThread = watchManager.findSavedThreadByLoadableId(
                     chanThread.getLoadableId());
 
@@ -411,7 +415,6 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
                     updateThreadAsDownloaded(
                             archived,
                             chanThread,
-                            watchManager,
                             savedThread);
                 }
             });
@@ -433,7 +436,6 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     private void updateThreadAsDownloaded(
             boolean archived,
             ChanThread chanThread,
-            WatchManager watchManager,
             SavedThread savedThread) {
         savedThread.isFullyDownloaded = true;
         savedThread.isStopped = true;
@@ -565,7 +567,6 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
                 ChanThread chanThread = loadSavedThreadIfItExists();
                 if (chanThread != null && chanThread.getPostsCount() > 0) {
                     thread = chanThread;
-                    Logger.d(TAG, "Successfully loaded local thread " + loadable.no + " from the disk ");
 
                     onPreparedResponseInternal(
                             chanThread,
@@ -604,7 +605,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     private ChanThread loadSavedThreadIfItExists() {
         Loadable loadable = getLoadable();
         if (loadable != null) {
-            Pin pin = Chan.injector().instance(WatchManager.class).findPinByLoadableId(loadable.id);
+            Pin pin = watchManager.findPinByLoadableId(loadable.id);
             if (pin == null) {
                 return null;
             }
