@@ -491,17 +491,26 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private void populateLocalOrLiveVersionMenu() {
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null) {
-            // No pin for this loadable we are probably not downloading this thread
+            // No pin for this loadable we are probably not downloading this thread.
+            // Disable the menus.
+            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
+            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
             return;
         }
 
         if (!PinType.hasDownloadFlag(pin.pinType)) {
-            // Pin has no downloading flag
+            // Pin has no downloading flag.
+            // Disable the menus.
+            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
+            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
             return;
         }
 
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
         if (savedThread == null) {
+            // No SaveThread. Disable the menus.
+            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
+            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
             return;
         }
 

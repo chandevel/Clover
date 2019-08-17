@@ -22,6 +22,7 @@ import android.widget.CompoundButton;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
@@ -84,6 +85,14 @@ public class WatchSettingsController extends SettingsController implements Compo
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         ChanSettings.watchEnabled.set(isChecked);
+
+        if (!isChecked) {
+            ChanSettings.watchBackground.setSync(false);
+            ((StartActivity) context).restartApp();
+
+            return;
+        }
+
         crossfadeView.toggle(isChecked, true);
     }
 

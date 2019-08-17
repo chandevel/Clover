@@ -223,6 +223,9 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             Disposable disposable = Single.fromCallable(() -> {
                 ChanLoaderRequest request = getData();
                 if (request == null) {
+                    // Throw an exception here, because we have to do something here but we can't just
+                    // return the result, because it is null and rxjava2 does not allow us to pass
+                    // nulls into the reactive stream.
                     throw new NullPointerException("getData() returned null");
                 }
 
@@ -236,6 +239,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
                             // an exception for a case when getData() returns null. And if getData() returned
                             // null we don't want to log that exception, therefore we use this hack to check it.
                             String message = error.getMessage();
+                            // Skip NPEs with the following message
                             if (message != null && !message.contains("getData() returned null")) {
                                 Logger.e(TAG, "Error while trying to get data: ", error);
                             }
@@ -565,7 +569,10 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
                 ChanThread chanThread = loadSavedThreadIfItExists();
                 if (chanThread != null && chanThread.getPostsCount() > 0) {
                     thread = chanThread;
-                    Logger.d(TAG, "Successfully loaded local thread " + loadable.no + " from the disk ");
+
+                    Logger.d(TAG, "Successfully loaded local thread " + loadable.no + " from the disk" +
+                            ", isClosed = " + chanThread.isClosed() +
+                            ", isArchived = " + chanThread.isArchived());
 
                     onPreparedResponseInternal(
                             chanThread,

@@ -65,6 +65,7 @@ import com.github.adamantcheese.chan.ui.layout.ThreadListLayout;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -496,6 +497,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     @Override
     public void onChanLoaderData(ChanThread result) {
         loadable.loadableDownloadingState = result.getLoadable().loadableDownloadingState;
+        Logger.d(TAG, "onChanLoaderData() loadableDownloadingState = "
+                + loadable.loadableDownloadingState.name());
 
         if (isWatching() && chanLoader != null) {
             chanLoader.setTimer();
@@ -563,6 +566,25 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         // Update loadable in the database
         databaseManager.runTaskAsync(
                 databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
+
+        if (!ChanSettings.watchEnabled.get()
+                && !ChanSettings.watchBackground.get()
+                && loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+            Logger.d(TAG, "Background watcher is disabled, so we need to update " +
+                    "ViewThreadController's downloading icon as well as the pin in the DrawerAdapter");
+
+            Pin pin = watchManager.findPinByLoadableId(loadable.id);
+            if (pin == null) {
+                Logger.d(TAG, "Could not find pin with loadableId = "
+                        + loadable.id + ", it was already deleted?");
+                return;
+            }
+
+            pin.isError = true;
+            pin.watching = false;
+
+            watchManager.updatePin(pin, true);
+        }
     }
 
     private void storeNewPostsIfThreadIsBeingDownloaded(Loadable loadable, List<Post> posts) {
@@ -603,6 +625,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
     @Override
     public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
+        Logger.d(TAG, "onChanLoaderError()");
         threadPresenterCallback.showError(error);
     }
 
