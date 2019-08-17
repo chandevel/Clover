@@ -631,7 +631,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
     private boolean createPinWatcher(Pin pin) {
         if (!pinWatchers.containsKey(pin)) {
-            pinWatchers.put(pin, new PinWatcher(pin));
+            pinWatchers.put(pin, new PinWatcher(pin, this));
             return true;
         } else {
             return false;
@@ -1004,11 +1004,11 @@ public class WatchManager implements WakeManager.Wakeable {
         public int lastReplyCount = -1;
         public int latestKnownPage = -1;
 
-        public PinWatcher(Pin pin) {
+        public PinWatcher(Pin pin, WatchManager watchManager) {
             this.pin = pin;
 
             Logger.d(TAG, "created for " + pin.loadable.toString());
-            chanLoader = chanLoaderFactory.obtain(pin.loadable, this);
+            chanLoader = chanLoaderFactory.obtain(pin.loadable, watchManager, this);
             pageRequestManager.addListener(this);
         }
 
