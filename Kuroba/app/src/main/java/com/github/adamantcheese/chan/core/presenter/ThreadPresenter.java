@@ -1212,6 +1212,21 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         loadable.loadableDownloadingState = loadableDownloadingState;
     }
 
+    public void markAllPostsAsSeen() {
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin != null) {
+            SavedThread savedThread = null;
+
+            if (PinType.hasDownloadFlag(pin.pinType)) {
+                savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
+            }
+
+            if (savedThread == null) {
+                watchManager.onBottomPostViewed(pin);
+            }
+        }
+    }
+
     public interface ThreadPresenterCallback {
         void showPosts(ChanThread thread, PostsFilter filter);
 
