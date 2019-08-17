@@ -8,7 +8,7 @@ abstract class AbstractFile(
         /**
          * /test/123/test2/filename.txt -> 4 segments
          * */
-        protected val segments: MutableList<Segment> = mutableListOf()
+        protected val segments: MutableList<Segment>
 ) {
     /**
      * We can't append anything if the last segment's isFileName is true.
@@ -35,6 +35,8 @@ abstract class AbstractFile(
         return createNew<T>() != null
     }
 
+    abstract fun <T> root(): Root<T>
+    abstract fun segments(): MutableList<Segment>
     abstract fun exists(): Boolean
     abstract fun isFile(): Boolean
     abstract fun isDirectory(): Boolean
@@ -46,7 +48,6 @@ abstract class AbstractFile(
     abstract fun delete(): Boolean
     abstract fun getInputStream(): InputStream?
     abstract fun getOutputStream(): OutputStream?
-    abstract fun <T> getFullRoot(): Root<T>
     abstract fun getName(): String
     abstract fun findFile(fileName: String): DocumentFile?
 
@@ -81,6 +82,13 @@ abstract class AbstractFile(
             }
 
             return null
+        }
+
+        fun clone(): Root<T> {
+            return when (this) {
+                is DirRoot<*> -> DirRoot(holder)
+                is FileRoot<*> -> FileRoot(holder, fileName)
+            }
         }
 
         /**

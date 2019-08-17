@@ -272,6 +272,14 @@ public class MediaSettingsController extends SettingsController {
                     .appendFileNameSegment("test123.txt")
                     .createNew();
 
+            if (!externalFile.isFile()) {
+                throw new RuntimeException("test123.txt is not a file");
+            }
+
+            if (externalFile.isDirectory()) {
+                throw new RuntimeException("test123.txt is a directory");
+            }
+
             if (externalFile == null || !externalFile.exists()) {
                 throw new RuntimeException("Couldn't create test123.txt");
             }
@@ -295,16 +303,36 @@ public class MediaSettingsController extends SettingsController {
             }
 
             AbstractFile parent1 = externalFile.getParent();
+            if (!parent1.getName().equals("789")) {
+                throw new RuntimeException("Parent1.name != 789, name = " + parent1.getName());
+            }
+
+            if (parent1.isFile()) {
+                throw new RuntimeException("789 is a file");
+            }
+
+            if (!parent1.isDirectory()) {
+                throw new RuntimeException("789 is not a directory");
+            }
+
             if (!parent1.delete() && parent1.exists()) {
                 throw new RuntimeException("Couldn't delete 789");
             }
 
             AbstractFile parent2 = parent1.getParent();
+            if (!parent2.getName().equals("456")) {
+                throw new RuntimeException("Parent1.name != 456, name = " + parent2.getName());
+            }
+
             if (!parent2.delete() && parent2.exists()) {
                 throw new RuntimeException("Couldn't delete 456");
             }
 
             AbstractFile parent3 = parent2.getParent();
+            if (!parent3.getName().equals("123")) {
+                throw new RuntimeException("Parent1.name != 123, name = " + parent3.getName());
+            }
+
             if (!parent3.delete() && parent3.exists()) {
                 throw new RuntimeException("Couldn't delete 123");
             }
@@ -321,6 +349,14 @@ public class MediaSettingsController extends SettingsController {
                 throw new RuntimeException("Couldn't create filename.json");
             }
 
+            if (!externalFile.isFile()) {
+                throw new RuntimeException("filename.json is not a file");
+            }
+
+            if (externalFile.isDirectory()) {
+                throw new RuntimeException("filename.json is not a directory");
+            }
+
             if (!externalFile.name().equals("filename.json")) {
                 throw new RuntimeException("externalFile1 name != filename.json");
             }
@@ -329,12 +365,20 @@ public class MediaSettingsController extends SettingsController {
                     .appendSubDirSegment("1234")
                     .appendSubDirSegment("4566");
 
+            if (!dir.getName().equals("4566")) {
+                throw new RuntimeException("dir.name != 4566, name = " + dir.getName());
+            }
+
             DocumentFile foundFile = dir.findFile("filename.json");
             if (foundFile == null || !foundFile.exists()) {
                 throw new RuntimeException("Couldn't find filename.json");
             }
 
             AbstractFile parent = externalFile.getParent().getParent();
+            if (!parent.getName().equals("1234")) {
+                throw new RuntimeException("dir.name != 1234, name = " + parent.getName());
+            }
+
             if (!parent.delete() && parent.exists()) {
                 throw new RuntimeException("Couldn't delete /1234/4566/filename.json");
             }
@@ -342,6 +386,10 @@ public class MediaSettingsController extends SettingsController {
 
         {
             ExternalFile externalFile = fileManager.fromUri(uri);
+            if (!externalFile.getName().equals("Test")) {
+                throw new RuntimeException("externalFile.name != Test, name = " + externalFile.getName());
+            }
+
             if (externalFile.getParent() != null) {
                 throw new RuntimeException("Root directory parent is not null!");
             }

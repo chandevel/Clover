@@ -9,8 +9,9 @@ import java.io.InputStream
 import java.io.OutputStream
 
 class RawFile(
-        private val root: Root<File>
-) : AbstractFile() {
+        private val root: Root<File>,
+        segments: MutableList<Segment> = mutableListOf()
+) : AbstractFile(segments) {
 
     override fun <T : AbstractFile>  appendSubDirSegment(name: String): T {
         if (root is Root.FileRoot) {
@@ -76,6 +77,8 @@ class RawFile(
         return RawFile(Root.DirRoot(newFile)) as T
     }
 
+    override fun <T> root(): Root<T> = root.clone() as Root<T>
+    override fun segments(): MutableList<Segment> = segments.toMutableList()
     override fun exists(): Boolean = toFile().exists()
     override fun isFile(): Boolean = toFile().isFile
     override fun isDirectory(): Boolean = toFile().isDirectory
@@ -142,25 +145,6 @@ class RawFile(
         }
 
         return file.outputStream()
-    }
-
-    override fun <T> getFullRoot(): Root<T> {
-        return if (segments.isEmpty()) {
-            root as Root<T>
-        } else {
-            var newFile = File(root.holder.absolutePath)
-
-            for (segment in segments) {
-                newFile = File(newFile, segment.name)
-            }
-
-            val lastSegment = segments.last()
-            if (lastSegment.isFileName) {
-                return Root.FileRoot(newFile, lastSegment.name) as Root<T>
-            }
-
-            return Root.DirRoot(newFile) as Root<T>
-        }
     }
 
     override fun getName(): String {

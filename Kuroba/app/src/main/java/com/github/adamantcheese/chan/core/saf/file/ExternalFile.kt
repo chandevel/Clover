@@ -15,8 +15,9 @@ import java.io.OutputStream
 
 class ExternalFile(
         private val appContext: Context,
-        private val root: Root<DocumentFile>
-) : AbstractFile() {
+        private val root: Root<DocumentFile>,
+        segments: MutableList<Segment> = mutableListOf()
+) : AbstractFile(segments) {
     private val mimeTypeMap = MimeTypeMap.getSingleton()
 
     override fun <T : AbstractFile> appendSubDirSegment(name: String): T {
@@ -125,6 +126,9 @@ class ExternalFile(
         return ExternalFile(appContext, root) as T
     }
 
+    override fun <T> root(): Root<T> = root.clone() as Root<T>
+    override fun segments(): MutableList<Segment> = segments.toMutableList()
+
     override fun exists(): Boolean {
         if (segments.isEmpty()) {
             return root.holder.exists()
@@ -223,29 +227,6 @@ class ExternalFile(
         return contentResolver.openOutputStream(documentFile.uri)
     }
 
-    override fun <T> getFullRoot(): Root<T> {
-//        return if (segments.isEmpty()) {
-//            root as Root<T>
-//        } else {
-//            val uriBuilder = root.holder.buildUpon()
-//
-//            for (segment in segments) {
-//                uriBuilder.appendEncodedPath(segment.name)
-//            }
-//
-//            val lastSegment = segments.last()
-//            if (lastSegment.isFileName) {
-//                return Root.FileRoot(
-//                        uriBuilder.build() as T,
-//                        lastSegment.name)
-//            }
-//
-//            return Root.DirRoot(uriBuilder.build() as T)
-//        }
-
-        TODO("Use listFiles() to build full root???")
-    }
-
     override fun getName(): String {
         if (segments.isNotEmpty() && segments.last().isFileName) {
             return segments.last().name
@@ -327,18 +308,38 @@ class ExternalFile(
             return root.holder
         }
 
-        var documentFile: DocumentFile? = root.holder
+        var documentFile: DocumentFile = root.holder
+        var index = 0
 
-        for (segment in segments) {
-            if (documentFile == null) {
+        for (i in 0 until segments.size) {
+            val segment = segments[i]
+
+            val file = documentFile.listFiles()
+                    .firstOrNull { file -> file.name == segment.name }
+
+            if (file == null) {
                 break
             }
 
-            documentFile = documentFile.listFiles()
-                    .firstOrNull { file -> file.name == segment.name }
+            documentFile = file
+            ++index
+        }
+
+        if (index != segments.size) {
+            return createDocumentFileFromUri(documentFile.uri, index)
         }
 
         return documentFile
+    }
+
+    private fun createDocumentFileFromUri(uri: Uri, index: Int): DocumentFile? {
+        val builder = uri.buildUpon()
+
+        for (i in index until segments.size) {
+            builder.appendEncodedPath(segments[i].name)
+        }
+
+        return DocumentFile.fromSingleUri(appContext, builder.build())
     }
 
     enum class FileDescriptorMode(val mode: String) {

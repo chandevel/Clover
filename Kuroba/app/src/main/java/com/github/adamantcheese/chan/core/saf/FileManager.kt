@@ -133,13 +133,12 @@ class FileManager(
      * */
     fun fromAbstractFile(file: AbstractFile): AbstractFile {
         return when (file) {
-            is RawFile -> RawFile(file.getFullRoot())
-            is ExternalFile -> ExternalFile(appContext, file.getFullRoot())
+            is RawFile -> RawFile(file.root(), file.segments())
+            is ExternalFile -> ExternalFile(appContext, file.root(), file.segments())
             else -> throw IllegalArgumentException("Not implemented for ${file.javaClass.name}")
         }
     }
 
-    // TODO: may not work!
     private fun toDocumentFile(uri: Uri): DocumentFile? {
         if (!DocumentFile.isDocumentUri(appContext, uri)) {
             Logger.e(TAG, "Not a DocumentFile, uri = $uri")
@@ -161,24 +160,6 @@ class FileManager(
         } catch (e: IllegalArgumentException) {
             Logger.e(TAG, "provided uri is neither a treeUri nor singleUri, uri = ${uri}")
             null
-        }
-    }
-
-    // TODO: may not work!
-    private fun queryTreeName(uri: Uri): String? {
-        val contentResolver = appContext.contentResolver
-
-        try {
-            return contentResolver.query(uri, FILENAME_PROJECTION, null, null, null)?.use { cursor ->
-                if (cursor.moveToNext()) {
-                    return cursor.getString(0)
-                }
-
-                return null
-            }
-        } catch (e: Throwable) {
-            Logger.e(TAG, "Error while trying to query for name, uri = $uri", e)
-            return null
         }
     }
 

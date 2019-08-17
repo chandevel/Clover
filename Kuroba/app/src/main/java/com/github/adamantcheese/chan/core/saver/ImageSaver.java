@@ -65,7 +65,8 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         String fileName = filterName(name + "." + postImage.extension);
 
         AbstractFile saveLocation = getSaveLocation(task);
-        AbstractFile saveFile = saveLocation.appendFileNameSegment(fileName);
+        AbstractFile saveFile = fileManager.fromAbstractFile(saveLocation)
+                .appendFileNameSegment(fileName);
 
         while (saveFile.exists()) {
             String resultFileName = name + "_" +
