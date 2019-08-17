@@ -28,7 +28,6 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
@@ -604,27 +603,29 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     @Nullable
     private ChanThread loadSavedThreadIfItExists() {
         Loadable loadable = getLoadable();
-        if (loadable != null) {
-            Pin pin = watchManager.findPinByLoadableId(loadable.id);
-            if (pin == null) {
-                return null;
-            }
-
-            if (!PinType.hasDownloadFlag(pin.pinType)) {
-                return null;
-            }
-
-            SavedThread savedThread = getSavedThreadByThreadLoadable(loadable);
-            if (savedThread != null) {
-                return savedThreadLoaderManager.loadSavedThread(loadable);
-            } else {
-                Logger.d(TAG, "Could not find savedThread for loadable " + loadable.toString());
-            }
-        } else {
+        if (loadable == null) {
             Logger.d(TAG, "Could not get current loadable, it's null");
+            return null;
         }
 
-        return null;
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            Logger.d(TAG, "Could not find pin for loadable " + loadable.toString());
+            return null;
+        }
+
+        if (!PinType.hasDownloadFlag(pin.pinType)) {
+            Logger.d(TAG, "Pin has no DownloadPosts flag");
+            return null;
+        }
+
+        SavedThread savedThread = getSavedThreadByThreadLoadable(loadable);
+        if (savedThread == null) {
+            Logger.d(TAG, "Could not find savedThread for loadable " + loadable.toString());
+            return null;
+        }
+
+        return savedThreadLoaderManager.loadSavedThread(loadable);
     }
 
     @Nullable

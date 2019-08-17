@@ -661,18 +661,21 @@ public class WatchManager implements WakeManager.Wakeable {
     // Update the interval type according to the current settings,
     // create and destroy PinWatchers where needed and update the notification
     private void updateState(boolean watchEnabled, boolean backgroundEnabled) {
-        Logger.d(TAG, "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground=" + isInForeground());
+        Logger.d(TAG, "updateState watchEnabled="
+                + watchEnabled + " backgroundEnabled="
+                + backgroundEnabled + " foreground=" + isInForeground());
 
         updateDeletedOrArchivedPins();
         switchIncrementalThreadDownloadingState(watchEnabled && backgroundEnabled);
         updateIntervals(watchEnabled, backgroundEnabled);
 
         // Update pin watchers
-        boolean allPinsHaveCompletedDownloading = updatePinWatchers();
+        boolean hasAtLeastOneActivePin = updatePinWatchers();
 
         // Update notification state
-        // Do not start the service when all pins are either stopped ot fully downloaded
-        if (watchEnabled && backgroundEnabled && !allPinsHaveCompletedDownloading) {
+        // Do not start the service when all pins are either stopped or fully downloaded
+        // or archived/404ed
+        if (watchEnabled && backgroundEnabled && hasAtLeastOneActivePin) {
             getAppContext().startService(WATCH_NOTIFICATION_INTENT);
         } else {
             getAppContext().stopService(WATCH_NOTIFICATION_INTENT);
@@ -680,7 +683,7 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     private boolean updatePinWatchers() {
-        boolean allPinsHaveCompletedDownloading = true;
+        boolean hasAtLeastOneActivePin = false;
         List<Pin> pinsToUpdateInDatabase = new ArrayList<>();
 
         for (Pin pin : pins) {
@@ -696,11 +699,16 @@ public class WatchManager implements WakeManager.Wakeable {
                 pinsToUpdateInDatabase.add(pin);
             }
 
-            boolean isStoppedOrCompleted = savedThread != null &&
-                    (savedThread.isStopped || savedThread.isFullyDownloaded);
+            if (PinType.hasDownloadFlag(pin.pinType)) {
+                // If pin is still downloading posts - it is active
+                if (savedThread != null && (!savedThread.isStopped && !savedThread.isFullyDownloaded)) {
+                    hasAtLeastOneActivePin = true;
+                }
+            }
 
-            if (!isStoppedOrCompleted) {
-                allPinsHaveCompletedDownloading = false;
+            // If pin is not archived/404ed and we are watching it - it is active
+            if (!pin.isError && !pin.archived && pin.watching) {
+                hasAtLeastOneActivePin = true;
             }
 
             if (ChanSettings.watchEnabled.get()) {
@@ -714,7 +722,7 @@ public class WatchManager implements WakeManager.Wakeable {
             updatePins(pinsToUpdateInDatabase, false);
         }
 
-        return allPinsHaveCompletedDownloading;
+        return hasAtLeastOneActivePin;
     }
 
     private void updateIntervals(boolean watchEnabled, boolean backgroundEnabled) {
