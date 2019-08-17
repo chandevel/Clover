@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.saf.file
 
+import androidx.documentfile.provider.DocumentFile
 import com.github.adamantcheese.chan.core.appendMany
 import com.github.adamantcheese.chan.core.extension
 import com.github.adamantcheese.chan.utils.Logger
@@ -164,6 +165,10 @@ class RawFile(
 
     override fun getName(): String {
         return toFile().name
+    }
+
+    override fun findFile(fileName: String): DocumentFile? {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     private fun toFile(): File {

@@ -15,7 +15,7 @@ import java.io.OutputStream
 
 class ExternalFile(
         private val appContext: Context,
-        private val root: Root<Uri>
+        private val root: Root<DocumentFile>
 ) : AbstractFile() {
     private val mimeTypeMap = MimeTypeMap.getSingleton()
 
@@ -63,13 +63,6 @@ class ExternalFile(
             throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
         }
 
-        val rootDir = DocumentFile.fromTreeUri(appContext, root.holder)
-        if (rootDir == null) {
-            // Couldn't create a DocumentFile from the root
-            Logger.e(TAG, "DocumentFile.fromTreeUri returned null, root.uri = ${root.holder}")
-            return null
-        }
-
         if (segments.isEmpty()) {
             // Root is probably already exists and there is no point in creating it again so just
             // return null here
@@ -80,7 +73,7 @@ class ExternalFile(
         var newFile: DocumentFile? = null
 
         for (segment in segments) {
-            val file = newFile ?: rootDir
+            val file = newFile ?: root.holder
 
             val prevFile = file.findFile(segment.name)
             if (prevFile != null) {
@@ -106,7 +99,7 @@ class ExternalFile(
 
                 // Ignore any left segments (which we shouldn't have) after encountering fileName
                 // segment
-                return ExternalFile(appContext, Root.FileRoot(newFile.uri, segment.name)) as T
+                return ExternalFile(appContext, Root.FileRoot(newFile, segment.name)) as T
             }
         }
 
@@ -115,10 +108,31 @@ class ExternalFile(
             return null
         }
 
-        return ExternalFile(appContext, Root.DirRoot(newFile.uri)) as T
+        if (segments.size < 1) {
+            Logger.e(TAG, "Must be at least one segment!")
+            return null
+        }
+
+        val lastSegment = segments.last()
+        val isLastSegmentFilename = lastSegment.isFileName
+
+        val root = if (isLastSegmentFilename) {
+            Root.FileRoot(newFile, lastSegment.name)
+        } else {
+            Root.DirRoot(newFile)
+        }
+
+        return ExternalFile(appContext, root) as T
     }
 
-    override fun exists(): Boolean = toDocumentFile()?.exists() ?: false
+    override fun exists(): Boolean {
+        if (segments.isEmpty()) {
+            return root.holder.exists()
+        }
+
+        return toDocumentFile()?.exists() ?: false
+    }
+
     override fun isFile(): Boolean = toDocumentFile()?.isFile ?: false
     override fun isDirectory(): Boolean = toDocumentFile()?.isDirectory ?: false
     override fun canRead(): Boolean = toDocumentFile()?.canRead() ?: false
@@ -131,17 +145,17 @@ class ExternalFile(
             return this as T
         }
 
-        val parentUri = when (root) {
-            is Root.DirRoot -> DocumentFile.fromTreeUri(appContext, root.holder)?.parentFile?.uri
-            is Root.FileRoot -> DocumentFile.fromSingleUri(appContext, root.holder)?.parentFile?.uri
+        val parent = when (root) {
+            is Root.DirRoot -> root.holder.parentFile
+            is Root.FileRoot -> root.holder.parentFile
         }
 
-        if (parentUri == null) {
+        if (parent == null) {
             Logger.e(TAG, "getParent() parentUri == null")
             return null
         }
 
-        return ExternalFile(appContext, Root.DirRoot(parentUri)) as T
+        return ExternalFile(appContext, Root.DirRoot(parent)) as T
     }
 
     override fun getFullPath(): String {
@@ -210,24 +224,26 @@ class ExternalFile(
     }
 
     override fun <T> getFullRoot(): Root<T> {
-        return if (segments.isEmpty()) {
-            root as Root<T>
-        } else {
-            val uriBuilder = root.holder.buildUpon()
+//        return if (segments.isEmpty()) {
+//            root as Root<T>
+//        } else {
+//            val uriBuilder = root.holder.buildUpon()
+//
+//            for (segment in segments) {
+//                uriBuilder.appendEncodedPath(segment.name)
+//            }
+//
+//            val lastSegment = segments.last()
+//            if (lastSegment.isFileName) {
+//                return Root.FileRoot(
+//                        uriBuilder.build() as T,
+//                        lastSegment.name)
+//            }
+//
+//            return Root.DirRoot(uriBuilder.build() as T)
+//        }
 
-            for (segment in segments) {
-                uriBuilder.appendEncodedPath(segment.name)
-            }
-
-            val lastSegment = segments.last()
-            if (lastSegment.isFileName) {
-                return Root.FileRoot(
-                        uriBuilder.build() as T,
-                        lastSegment.name)
-            }
-
-            return Root.DirRoot(uriBuilder.build() as T)
-        }
+        TODO("Use listFiles() to build full root???")
     }
 
     override fun getName(): String {
@@ -241,12 +257,48 @@ class ExternalFile(
         }
 
         return documentFile.name
-                ?:throw IllegalStateException("Could not extract file name from document file")
+                ?: throw IllegalStateException("Could not extract file name from document file")
     }
+
+    override fun findFile(fileName: String): DocumentFile? {
+        if (root is Root.FileRoot) {
+            throw IllegalStateException("Cannot use FileRoot as directory")
+        }
+
+        val filteredSegments = segments
+                .map { it.name }
+
+        var dirTree = root.holder
+
+        for (segment in filteredSegments) {
+            // FIXME: SLOW!!!
+            for (documentFile in dirTree.listFiles()) {
+                if (documentFile.name != null && documentFile.name == segment) {
+                    dirTree = documentFile
+                    break
+                }
+            }
+        }
+
+        // FIXME: SLOW!!!
+        for (documentFile in dirTree.listFiles()) {
+            if (documentFile.name != null && documentFile.name == fileName) {
+                return documentFile
+            }
+        }
+
+        if (dirTree.name == fileName) {
+            return dirTree
+        }
+
+        // Not found
+        return null
+    }
+
 
     fun getParcelFileDescriptor(fileDescriptorMode: FileDescriptorMode): ParcelFileDescriptor? {
         return appContext.contentResolver.openFileDescriptor(
-                root.holder,
+                root.holder.uri,
                 fileDescriptorMode.mode)
     }
 
@@ -271,29 +323,22 @@ class ExternalFile(
     }
 
     private fun toDocumentFile(): DocumentFile? {
-        val uri = if (segments.isEmpty()) {
-            root.holder
-        } else {
-            root.holder
-                    .buildUpon()
-                    .appendManyEncoded(segments.map { segment -> segment.name })
-                    .build()
+        if (segments.isEmpty()) {
+            return root.holder
         }
 
-        // If there are no segments check whether the root is a directory or a file
-        return if (segments.isEmpty()) {
-            when (root) {
-                is Root.DirRoot -> DocumentFile.fromTreeUri(appContext, uri)
-                is Root.FileRoot -> DocumentFile.fromSingleUri(appContext, uri)
+        var documentFile: DocumentFile? = root.holder
+
+        for (segment in segments) {
+            if (documentFile == null) {
+                break
             }
-        } else {
-            // Otherwise if there are segments check whether the last segment is isFileName or not
-            if (!segments.last().isFileName) {
-                DocumentFile.fromTreeUri(appContext, uri)
-            } else {
-                DocumentFile.fromSingleUri(appContext, uri)
-            }
+
+            documentFile = documentFile.listFiles()
+                    .firstOrNull { file -> file.name == segment.name }
         }
+
+        return documentFile
     }
 
     enum class FileDescriptorMode(val mode: String) {

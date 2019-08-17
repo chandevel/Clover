@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.saf.file
 
+import androidx.documentfile.provider.DocumentFile
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -47,6 +48,7 @@ abstract class AbstractFile(
     abstract fun getOutputStream(): OutputStream?
     abstract fun <T> getFullRoot(): Root<T>
     abstract fun getName(): String
+    abstract fun findFile(fileName: String): DocumentFile?
 
     fun segmentsCount(): Int = segments.size
 

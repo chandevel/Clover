@@ -20,6 +20,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.widget.Toast;
 
+import androidx.documentfile.provider.DocumentFile;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.saf.FileManager;
 import com.github.adamantcheese.chan.core.saf.callback.DirectoryChooserCallback;
@@ -247,7 +249,7 @@ public class MediaSettingsController extends SettingsController {
 
                 saveLocation.setDescription(uri.toString());
 
-//                testMethod(uri);
+                testMethod(uri);
             }
 
             @Override
@@ -262,47 +264,90 @@ public class MediaSettingsController extends SettingsController {
     }
 
     private void testMethod(@NotNull Uri uri) {
-        ExternalFile externalFile1 = fileManager.fromUri(uri)
-                .appendSubDirSegment("123")
-                .appendSubDirSegment("456")
-                .appendSubDirSegment("789")
-                .appendFileNameSegment("test123.txt")
-                .createNew();
+        {
+            ExternalFile externalFile = fileManager.fromUri(uri)
+                    .appendSubDirSegment("123")
+                    .appendSubDirSegment("456")
+                    .appendSubDirSegment("789")
+                    .appendFileNameSegment("test123.txt")
+                    .createNew();
 
-        boolean exists = fileManager.fromUri(uri)
-                .appendSubDirSegment("123")
-                .appendSubDirSegment("456")
-                .appendSubDirSegment("789")
-                .exists();
+            if (externalFile == null || !externalFile.exists()) {
+                throw new RuntimeException("Couldn't create test123.txt");
+            }
 
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
+            if (!externalFile.name().equals("test123.txt")) {
+                throw new RuntimeException("externalFile name != test123.txt");
+            }
 
-        AbstractFile file = fileManager.newFile()
-                .appendSubDirSegment("1234")
-                .appendSubDirSegment("4566")
-                .appendFileNameSegment("filename.json")
-                .createNew();
+            boolean externalFile2Exists = fileManager.fromUri(uri)
+                    .appendSubDirSegment("123")
+                    .appendSubDirSegment("456")
+                    .appendSubDirSegment("789")
+                    .exists();
 
-        System.out.println();
-        System.out.println();
-        System.out.println();
+            if (!externalFile2Exists) {
+                throw new RuntimeException("789 directory does not exist");
+            }
 
-//        AbstractFile newDir = fileManager.newDir(externalFile, "test2");
-//        AbstractFile createdDir = fileManager.createDir(newDir);
-//
-//        AbstractFile newDir2 = fileManager.newDir(createdDir, "test2");
-//        AbstractFile createdDir2 = fileManager.createDir(newDir2);
-//
-//        AbstractFile newFile2 = fileManager.newFile(createdDir2, "test123.wav");
-//        AbstractFile createdFile2 = fileManager.createFile(newFile2);
-//
-//        System.out.println(createdFile2.isDirectory());
-//        System.out.println(createdFile2.isFile());
-//        System.out.println(createdFile2.isRawFile());
+            if (!externalFile.delete() && externalFile.exists()) {
+                throw new RuntimeException("Couldn't delete test123.txt");
+            }
 
+            AbstractFile parent1 = externalFile.getParent();
+            if (!parent1.delete() && parent1.exists()) {
+                throw new RuntimeException("Couldn't delete 789");
+            }
+
+            AbstractFile parent2 = parent1.getParent();
+            if (!parent2.delete() && parent2.exists()) {
+                throw new RuntimeException("Couldn't delete 456");
+            }
+
+            AbstractFile parent3 = parent2.getParent();
+            if (!parent3.delete() && parent3.exists()) {
+                throw new RuntimeException("Couldn't delete 123");
+            }
+        }
+
+        {
+            AbstractFile externalFile = fileManager.newFile()
+                    .appendSubDirSegment("1234")
+                    .appendSubDirSegment("4566")
+                    .appendFileNameSegment("filename.json")
+                    .createNew();
+
+            if (externalFile == null || !externalFile.exists()) {
+                throw new RuntimeException("Couldn't create filename.json");
+            }
+
+            if (!externalFile.name().equals("filename.json")) {
+                throw new RuntimeException("externalFile1 name != filename.json");
+            }
+
+            AbstractFile dir = fileManager.newFile()
+                    .appendSubDirSegment("1234")
+                    .appendSubDirSegment("4566");
+
+            DocumentFile foundFile = dir.findFile("filename.json");
+            if (foundFile == null || !foundFile.exists()) {
+                throw new RuntimeException("Couldn't find filename.json");
+            }
+
+            AbstractFile parent = externalFile.getParent().getParent();
+            if (!parent.delete() && parent.exists()) {
+                throw new RuntimeException("Couldn't delete /1234/4566/filename.json");
+            }
+        }
+
+        {
+            ExternalFile externalFile = fileManager.fromUri(uri);
+            if (externalFile.getParent() != null) {
+                throw new RuntimeException("Root directory parent is not null!");
+            }
+        }
+
+        System.out.println("All tests passed!");
     }
 
     private void updateThreadFolderSetting() {

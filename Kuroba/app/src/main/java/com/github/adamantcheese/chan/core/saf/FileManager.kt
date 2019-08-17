@@ -17,6 +17,7 @@ import com.github.adamantcheese.chan.utils.IOUtils
 import com.github.adamantcheese.chan.utils.Logger
 import java.io.File
 import java.io.IOException
+import java.lang.IllegalStateException
 
 class FileManager(
         private val appContext: Context
@@ -84,23 +85,21 @@ class FileManager(
      * Use this method to convert external file uri (file that may be located at sd card) into an
      * AbstractFile.
      * */
-    fun fromUri(uri: Uri): ExternalFile? {
+    fun fromUri(uri: Uri): ExternalFile {
         val documentFile = toDocumentFile(uri)
         if (documentFile == null) {
-            Logger.e(TAG, "fromUri() toDocumentFile() returned null")
-            return null
+            throw IllegalStateException("fromUri() toDocumentFile() returned null")
         }
 
         return if (documentFile.isFile) {
-            val filename = queryTreeName(uri)
+            val filename = documentFile.name
             if (filename == null) {
-                Logger.e(TAG, "fromUri() queryTreeName() returned null")
-                return null
+                throw IllegalStateException("fromUri() queryTreeName() returned null")
             }
 
-            ExternalFile(appContext, AbstractFile.Root.FileRoot(uri, filename))
+            ExternalFile(appContext, AbstractFile.Root.FileRoot(documentFile, filename))
         } else {
-            ExternalFile(appContext, AbstractFile.Root.DirRoot(uri))
+            ExternalFile(appContext, AbstractFile.Root.DirRoot(documentFile))
         }
     }
 
@@ -113,9 +112,14 @@ class FileManager(
     fun newFile(): AbstractFile {
         val uri = ChanSettings.saveLocationUri.get()
         if (uri.isNotEmpty()) {
+            val rootDirectory = DocumentFile.fromTreeUri(appContext, Uri.parse(uri))
+            if (rootDirectory == null) {
+                throw IllegalStateException("Root directory cannot be null!")
+            }
+
             return ExternalFile(
                     appContext,
-                    AbstractFile.Root.DirRoot(Uri.parse(uri)))
+                    AbstractFile.Root.DirRoot(rootDirectory))
         }
 
         val path = ChanSettings.saveLocation.get()
