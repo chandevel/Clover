@@ -17,9 +17,10 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
-import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.github.adamantcheese.chan.R;
 

@@ -2,7 +2,6 @@ package com.github.adamantcheese.chan.core.manager;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.mapper.ThreadMapper;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -11,7 +10,6 @@ import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.IOException;

@@ -37,7 +37,7 @@ public class CaptchaInfo {
     CaptchaTitle captchaTitle;
 
     public CaptchaInfo() {
-        captchaType =  CaptchaType.UNKNOWN;
+        captchaType = CaptchaType.UNKNOWN;
         checkboxes = new ArrayList<>();
         cParameter = null;
         challengeImages = Collections.emptyList();

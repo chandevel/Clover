@@ -88,7 +88,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private Drawable downloadIconFilled;
     private AnimatedVectorDrawableCompat downloadAnimation;
 
-    private Animatable2Compat.AnimationCallback downloadAnimationCallback =  new Animatable2Compat.AnimationCallback() {
+    private Animatable2Compat.AnimationCallback downloadAnimationCallback = new Animatable2Compat.AnimationCallback() {
         @Override
         public void onAnimationEnd(Drawable drawable) {
             super.onAnimationEnd(drawable);
@@ -485,8 +485,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     /**
      * Shows two menu items: view local thread and view live thread
      * FIXME: Current implementation is kinda retarded because I couldn't do it normally (with just
-     *  one menu option instead of the two, it just doesn't work for some unknown reason).
-     *  Gotta figure out how to make it properly some time in the future.
+     * one menu option instead of the two, it just doesn't work for some unknown reason).
+     * Gotta figure out how to make it properly some time in the future.
      */
     private void populateLocalOrLiveVersionMenu() {
         Pin pin = watchManager.findPinByLoadableId(loadable.id);

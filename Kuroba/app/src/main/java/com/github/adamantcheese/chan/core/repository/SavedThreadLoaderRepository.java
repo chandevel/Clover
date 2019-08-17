@@ -26,7 +26,7 @@ public class SavedThreadLoaderRepository {
      * able to backup them and they would be deleted after every app uninstall. This implementation
      * is slower than the DB one, but at least users will have their threads even after app
      * uninstall/app data clearing.
-     * */
+     */
     @Inject
     public SavedThreadLoaderRepository(Gson gson) {
         this.gson = gson;

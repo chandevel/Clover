@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.core.site.parser;
+package com.github.adamantcheese.chan.core.site.sites.dvach;
 
 import android.graphics.Color;
 import android.text.SpannableString;
@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.Logger;
 

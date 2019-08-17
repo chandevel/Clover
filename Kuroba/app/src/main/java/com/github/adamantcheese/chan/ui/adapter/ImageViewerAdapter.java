@@ -126,6 +126,7 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
         MultiImageView view = find(postImage);
         view.toggleTransparency();
     }
+
     public void rotateImage(PostImage postImage, int degrees) {
         MultiImageView view = find(postImage);
         view.rotateImage(degrees);

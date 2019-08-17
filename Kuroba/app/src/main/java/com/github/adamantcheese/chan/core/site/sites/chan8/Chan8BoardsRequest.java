@@ -20,7 +20,6 @@ import android.util.JsonReader;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
-
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.net.JsonReaderRequest;
 import com.github.adamantcheese.chan.core.site.Site;

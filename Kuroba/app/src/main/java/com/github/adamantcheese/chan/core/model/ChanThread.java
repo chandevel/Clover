@@ -55,7 +55,7 @@ public class ChanThread {
 
     /**
      * This allocates additional memory. Only use it when you need to change the collection in some way.
-     * */
+     */
     public synchronized List<Post> getPosts() {
         return new ArrayList<>(posts);
     }
@@ -95,7 +95,7 @@ public class ChanThread {
     /**
      * For now it is like this because there are a lot of places that will have to changed to make
      * this safe
-     * */
+     */
     public Loadable getLoadable() {
         return loadable;
     }

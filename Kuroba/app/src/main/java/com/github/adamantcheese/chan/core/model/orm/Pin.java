@@ -59,7 +59,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
 
     /**
      * Pins can now be used to either watch new posts or save new posts or do both
-     * */
+     */
     @DatabaseField(columnName = "pin_type")
     public int pinType;
 
@@ -165,7 +165,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
                 ", isError = " + isError +
                 ", isArchived = " + archived +
                 ", watching = " + watching +
-                ", (active) = " + (!isError && !archived)+
+                ", (active) = " + (!isError && !archived) +
                 ", no = " + loadable.no +
                 "]";
     }

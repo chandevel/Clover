@@ -117,6 +117,7 @@ public class NavigationItem {
                             ToolbarMenuItem::showSubmenu,
                             threedotMenuCallback));
         }
+
         public ToolbarMenu build() {
             navigationItem.menu = menu;
             return menu;

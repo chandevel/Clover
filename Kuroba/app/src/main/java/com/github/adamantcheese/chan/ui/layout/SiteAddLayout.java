@@ -2,13 +2,13 @@ package com.github.adamantcheese.chan.ui.layout;
 
 import android.app.Dialog;
 import android.content.Context;
-import com.google.android.material.textfield.TextInputLayout;
 import android.util.AttributeSet;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class SiteAddLayout extends LinearLayout implements SitesSetupPresenter.AddCallback {
     private EditText url;

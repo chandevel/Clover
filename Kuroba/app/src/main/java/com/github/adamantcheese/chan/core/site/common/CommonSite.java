@@ -18,9 +18,10 @@ package com.github.adamantcheese.chan.core.site.common;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.webkit.WebView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.webkit.WebView;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.site.sites.arisuchan;
+package com.github.adamantcheese.chan.core.site.sites;
 
 import androidx.annotation.Nullable;
 
@@ -31,21 +31,21 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 
 import okhttp3.HttpUrl;
 
-public class Arisuchan extends CommonSite {
+public class Lainchan extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
-            return Arisuchan.class;
+            return Lainchan.class;
         }
 
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https://arisuchan.jp/");
+            return HttpUrl.parse("https://lainchan.org/");
         }
 
         @Override
         public String[] getNames() {
-            return new String[]{"arisuchan"};
+            return new String[]{"lainchan"};
         }
 
         @Override
@@ -65,23 +65,28 @@ public class Arisuchan extends CommonSite {
 
     @Override
     public void setup() {
-        setName("Arisuchan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://arisuchan.jp/favicon.ico")));
+        setName("Lainchan");
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://lainchan.org/favicon.ico")));
 
         setBoards(
-                Board.fromSiteNameCode(this, "art and design", "art"),
-                Board.fromSiteNameCode(this, "culture and media", "cult"),
-                Board.fromSiteNameCode(this, "cyberpunk and cybersecurity", "cyb"),
-                Board.fromSiteNameCode(this, "personal experiences", "feels"),
-                Board.fromSiteNameCode(this, "psychology and psychonautics", "psy"),
-                Board.fromSiteNameCode(this, "arisuchan meta", "q"),
-                Board.fromSiteNameCode(this, "miscellaneous", "r"),
-                Board.fromSiteNameCode(this, "киберпанк-доска", "ru"),
-                Board.fromSiteNameCode(this, "science and technology", "tech"),
-                Board.fromSiteNameCode(this, "paranoia", "x"),
-                Board.fromSiteNameCode(this, "zaibatsu", "z"),
-                Board.fromSiteNameCode(this, "diy and projects", "Δ"),
-                Board.fromSiteNameCode(this, "programming", "λ")
+                Board.fromSiteNameCode(this, "Programming", "λ"),
+                Board.fromSiteNameCode(this, "Do It Yourself", "Δ"),
+                Board.fromSiteNameCode(this, "Security", "sec"),
+                Board.fromSiteNameCode(this, "Technology", "Ω"),
+                Board.fromSiteNameCode(this, "Games and Interactive Media", "inter"),
+                Board.fromSiteNameCode(this, "Literature", "lit"),
+                Board.fromSiteNameCode(this, "Musical and Audible Media", "music"),
+                Board.fromSiteNameCode(this, "Visual Media", "vis"),
+                Board.fromSiteNameCode(this, "Humanity", "hum"),
+                Board.fromSiteNameCode(this, "Drugs 3.0", "drug"),
+                Board.fromSiteNameCode(this, "Consciousness and Dreams", "zzz"),
+                Board.fromSiteNameCode(this, "layer", "layer"),
+                Board.fromSiteNameCode(this, "Questions and Complaints", "q"),
+                Board.fromSiteNameCode(this, "Random", "r"),
+                Board.fromSiteNameCode(this, "Lain", "lain"),
+                Board.fromSiteNameCode(this, "Culture 15 freshly bumped threads", "culture"),
+                Board.fromSiteNameCode(this, "Psychopharmacology 15 freshly bumped threads", "psy"),
+                Board.fromSiteNameCode(this, "15 freshly bumped threads", "mega")
         );
 
         setResolvable(URL_HANDLER);
@@ -94,8 +99,8 @@ public class Arisuchan extends CommonSite {
         });
 
         setEndpoints(new VichanEndpoints(this,
-                "https://arisuchan.jp",
-                "https://arisuchan.jp"));
+                "https://lainchan.org",
+                "https://lainchan.org"));
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());

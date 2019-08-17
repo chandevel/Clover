@@ -41,7 +41,7 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
 
     /**
      * TODO: add support for the Captcha queueing {@link CaptchaHolder}
-     * */
+     */
 
     public GenericWebViewAuthenticationLayout(Context context) {
         this(context, null);

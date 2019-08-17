@@ -50,7 +50,7 @@ public class ImageReencodeOptionsController extends Controller implements
     private SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if(!ignoreSetup) { //this variable is to ignore any side effects of setting progress while loading last options
+            if (!ignoreSetup) { //this variable is to ignore any side effects of setting progress while loading last options
                 if (seekBar == quality) {
                     if (progress < 1) {
                         //for API <26; the quality can't be lower than 1
@@ -198,7 +198,7 @@ public class ImageReencodeOptionsController extends Controller implements
 
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
-        if(!ignoreSetup) { //this variable is to ignore any side effects of checking during last options load
+        if (!ignoreSetup) { //this variable is to ignore any side effects of checking during last options load
             int index = group.indexOfChild(group.findViewById(group.getCheckedRadioButtonId()));
 
             // 0 - AS IS

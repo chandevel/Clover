@@ -40,10 +40,10 @@ public class ExportedSite {
     public ExportedSite(
             int siteId,
             @NonNull
-            String configuration,
+                    String configuration,
             int order,
             @NonNull
-            String userSettings,
+                    String userSettings,
             List<ExportedPin> exportedPins
     ) {
         this.siteId = siteId;

@@ -61,12 +61,12 @@ public class ExportedPin {
             int quoteLastCount,
             int quoteNewCount,
             @NonNull
-            String thumbnailUrl,
+                    String thumbnailUrl,
             int watchLastCount,
             int watchNewCount,
             boolean watching,
             @NonNull
-            ExportedLoadable exportedLoadable,
+                    ExportedLoadable exportedLoadable,
             int pinType
     ) {
         this.archived = archived;

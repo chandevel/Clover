@@ -16,13 +16,15 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
-import androidx.annotation.AnyThread;
 import android.text.SpannableString;
 import android.text.Spanned;
+
+import androidx.annotation.AnyThread;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+
 import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;

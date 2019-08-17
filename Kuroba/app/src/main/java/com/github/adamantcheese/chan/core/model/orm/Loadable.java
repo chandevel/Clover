@@ -84,7 +84,7 @@ public class Loadable implements Cloneable {
     /**
      * Tells us whether this loadable (when in THREAD mode) contains information about
      * a live thread or the local saved copy of a thread (which may be already deleted from the server)
-     * */
+     */
     public transient LoadableDownloadingState loadableDownloadingState = LoadableDownloadingState.NotDownloading;
 
     /**
@@ -263,7 +263,7 @@ public class Loadable implements Cloneable {
     /**
      * Thread is either fully downloaded or it is still being downloaded BUT we are currently
      * viewing the local copy of the thread
-     * */
+     */
     public boolean isLocal() {
         return loadableDownloadingState == LoadableDownloadingState.DownloadingAndViewable
                 || loadableDownloadingState == LoadableDownloadingState.AlreadyDownloaded;
@@ -324,25 +324,25 @@ public class Loadable implements Cloneable {
 
     /**
      * Only for Loadable.Mode == THREAD
-     * */
+     */
     public enum LoadableDownloadingState {
         /**
          * We are not downloading a thread associated with this loadable
-         * */
+         */
         NotDownloading,
         /**
          * We are downloading this thread, but we are not viewing it at the current time.
          * (We are viewing the live thread)
-         * */
+         */
         DownloadingAndNotViewable,
         /**
          * We are downloading this thread and we are currently viewing it (We are viewing the local
          * thread)
-         * */
+         */
         DownloadingAndViewable,
         /**
          * Thread has been fully downloaded so it's always a local thread
-         * */
+         */
         AlreadyDownloaded,
     }
 }

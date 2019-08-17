@@ -68,7 +68,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
 
     /**
      * TODO: add support for the Captcha queueing {@link CaptchaHolder}
-     * */
+     */
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override

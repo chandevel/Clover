@@ -18,8 +18,6 @@ package com.github.adamantcheese.chan.core.site;
 
 
 import com.android.volley.RequestQueue;
-
-import org.codejargon.feather.Feather;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -27,6 +25,8 @@ import com.github.adamantcheese.chan.core.settings.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettingsProvider;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
+
+import org.codejargon.feather.Feather;
 
 import java.util.ArrayList;
 import java.util.Collections;

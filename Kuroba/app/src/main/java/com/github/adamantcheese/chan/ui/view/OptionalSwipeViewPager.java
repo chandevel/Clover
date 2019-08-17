@@ -17,9 +17,10 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
-import androidx.viewpager.widget.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+
+import androidx.viewpager.widget.ViewPager;
 
 public class OptionalSwipeViewPager extends ViewPager {
     private boolean swipingEnabled;

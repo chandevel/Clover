@@ -86,7 +86,8 @@ public class FilterWatchManager implements WakeManager.Wakeable {
             wakeManager.registerWakeable(this);
         }
 
-        Set<Integer> previousIgnore = serializer.fromJson(ChanSettings.filterWatchIgnored.get(), new TypeToken<Set<Integer>>() {}.getType());
+        Set<Integer> previousIgnore = serializer.fromJson(ChanSettings.filterWatchIgnored.get(), new TypeToken<Set<Integer>>() {
+        }.getType());
         if (previousIgnore != null) ignoredPosts.addAll(previousIgnore);
 
         EventBus.getDefault().register(this);
