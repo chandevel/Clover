@@ -726,17 +726,17 @@ public class WatchManager implements WakeManager.Wakeable {
 
     private void updateIntervals(boolean watchEnabled, boolean backgroundEnabled) {
         //determine expected interval type for current settings
-        IntervalType intervalType;
+        IntervalType newInterval;
         if (!watchEnabled) {
-            intervalType = IntervalType.NONE;
+            newInterval = IntervalType.NONE;
         } else {
             if (isInForeground()) {
-                intervalType = IntervalType.FOREGROUND;
+                newInterval = IntervalType.FOREGROUND;
             } else {
                 if (backgroundEnabled) {
-                    intervalType = IntervalType.BACKGROUND;
+                    newInterval = IntervalType.BACKGROUND;
                 } else {
-                    intervalType = IntervalType.NONE;
+                    newInterval = IntervalType.NONE;
                 }
             }
         }
@@ -753,33 +753,45 @@ public class WatchManager implements WakeManager.Wakeable {
                     // Stop receiving scheduled broadcasts
                     wakeManager.unregisterWakeable(this);
                     break;
+                case NONE:
+                    // Stop everything
+                    handler.removeMessages(MESSAGE_UPDATE);
+                    wakeManager.unregisterWakeable(this);
+                    break;
             }
         } else {
             // Changing interval type, like when watching is disabled or the app goes to the background
-            if (currentInterval != intervalType) {
-                // Handle the preview state
+            if (currentInterval != newInterval) {
                 switch (currentInterval) {
                     case FOREGROUND:
-                        // Stop receiving handler messages
+                        //Foreground -> background/none means stop receiving foreground updates
                         handler.removeMessages(MESSAGE_UPDATE);
                         break;
                     case BACKGROUND:
-                        // Stop receiving scheduled broadcasts
+                        //Background -> foreground/none means stop receiving background updates
                         wakeManager.unregisterWakeable(this);
+                        break;
+                    case NONE:
+                        //Nothing -> foreground/background means do nothing
                         break;
                 }
 
-                Logger.d(TAG, "Setting interval type from " + currentInterval.name() + " to " + intervalType.name());
-                currentInterval = intervalType;
+                Logger.d(TAG, "Setting interval type from " + currentInterval.name() + " to " + newInterval.name());
+                currentInterval = newInterval;
 
-                switch (currentInterval) {
+                switch (newInterval) {
                     case FOREGROUND:
-                        // Schedule a delayed handler that will call update(false)
+                        //Background/none -> foreground means start receiving foreground updates
                         handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), getInterval());
                         break;
                     case BACKGROUND:
-                        // Start receiving scheduled broadcasts
+                        //Foreground/none -> background means start receiving background updates
                         wakeManager.registerWakeable(this);
+                        break;
+                    case NONE:
+                        //Foreground/background -> none means stop receiving every update
+                        handler.removeMessages(MESSAGE_UPDATE);
+                        wakeManager.unregisterWakeable(this);
                         break;
                 }
             }
