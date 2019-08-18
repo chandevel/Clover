@@ -428,6 +428,11 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
+    public void smoothScrollNewPosts(int displayPosition) {
+        threadListLayout.smoothScrollNewPosts(displayPosition);
+    }
+
+    @Override
     public void highlightPost(Post post) {
         threadListLayout.highlightPost(post);
     }

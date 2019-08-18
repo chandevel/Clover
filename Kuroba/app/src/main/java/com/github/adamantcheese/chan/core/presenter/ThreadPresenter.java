@@ -627,11 +627,19 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     public void onNewPostsViewClicked() {
         if (chanLoader != null) {
             Post post = PostUtils.findPostById(loadable.lastViewed, chanLoader.getThread());
+            int position = -1;
             if (post != null) {
-                scrollToPost(post, true);
-            } else {
-                scrollTo(-1, true);
+                List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+                for (int i = 0; i < posts.size(); i++) {
+                    Post needle = posts.get(i);
+                    if (post.no == needle.no) {
+                        position = i;
+                        break;
+                    }
+                }
             }
+            //-1 is fine here because we add 1 down the chain to make it 0 if there's no last viewed
+            threadPresenterCallback.smoothScrollNewPosts(position);
         }
     }
 
@@ -1267,6 +1275,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         void showAlbum(List<PostImage> images, int index);
 
         void scrollTo(int displayPosition, boolean smooth);
+
+        void smoothScrollNewPosts(int displayPosition);
 
         void highlightPost(Post post);
 

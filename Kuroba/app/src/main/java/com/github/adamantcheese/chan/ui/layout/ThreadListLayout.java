@@ -63,6 +63,7 @@ import com.github.adamantcheese.chan.ui.view.FastScroller;
 import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -485,6 +486,16 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
     public boolean scrolledToBottom() {
         return getCompleteBottomAdapterPosition() == postAdapter.getItemCount() - 1;
+    }
+
+    public void smoothScrollNewPosts(int displayPosition) {
+        if (layoutManager instanceof LinearLayoutManager) {
+            ((LinearLayoutManager) layoutManager)
+                    .scrollToPositionWithOffset(displayPosition + 1, //position + 1 for last seen view, dp(4) for it's height
+                            recyclerView.getHeight() - recyclerView.getPaddingTop() - dp(4));
+        } else {
+            Logger.wtf(TAG, "Layout manager is grid inside thread??");
+        }
     }
 
     public void cleanup() {
