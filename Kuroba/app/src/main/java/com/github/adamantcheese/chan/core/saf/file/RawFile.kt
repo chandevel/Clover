@@ -67,10 +67,15 @@ class RawFile(
         var newFile = root.holder
 
         for (segment in segments) {
-            if (!segment.isFileName) {
-                newFile = File(newFile, segment.name)
-            } else {
-                return RawFile(Root.FileRoot(File(newFile, segment.name), segment.name)) as T
+            newFile = File(newFile, segment.name)
+
+            if (!newFile.createNewFile()) {
+                Logger.e(TAG, "Could not create a new file, path = " + newFile.absolutePath)
+                return null
+            }
+
+            if (segment.isFileName) {
+                return RawFile(Root.FileRoot(newFile, segment.name)) as T
             }
         }
 

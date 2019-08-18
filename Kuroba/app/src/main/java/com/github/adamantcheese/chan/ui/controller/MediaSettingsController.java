@@ -16,8 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Environment;
 import android.widget.Toast;
 
 import androidx.documentfile.provider.DocumentFile;
@@ -39,12 +41,14 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class MediaSettingsController extends SettingsController {
@@ -101,7 +105,15 @@ public class MediaSettingsController extends SettingsController {
     @Subscribe
     public void onEvent(ChanSettings.SettingChanged setting) {
         if (setting.setting == ChanSettings.saveLocationUri) {
+            String defaultDir = Environment.getExternalStorageDirectory() +
+                    File.separator +
+                    getApplicationLabel();
+
+            ChanSettings.saveLocation.setNoUpdate(defaultDir);
             saveLocation.setDescription(ChanSettings.saveLocationUri.get());
+        } else if (setting.setting == ChanSettings.saveLocation) {
+            ChanSettings.saveLocationUri.setNoUpdate("");
+            saveLocation.setDescription(ChanSettings.saveLocation.get());
         }
     }
 
@@ -232,21 +244,50 @@ public class MediaSettingsController extends SettingsController {
         LinkSettingView chooseSaveLocationSetting = new LinkSettingView(this,
                 R.string.save_location_screen,
                 0,
-                v -> handleDirChoose());
+                v -> showDialog());
 
         saveLocation = (LinkSettingView) media.add(chooseSaveLocationSetting);
-        saveLocation.setDescription(ChanSettings.saveLocationUri.get());
+        saveLocation.setDescription(getSaveLocation());
     }
 
-    private void handleDirChoose() {
+    private String getSaveLocation() {
+        if (!ChanSettings.saveLocationUri.get().isEmpty()) {
+            return ChanSettings.saveLocationUri.get();
+        }
+
+        return ChanSettings.saveLocation.get();
+    }
+
+    private void showDialog() {
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(R.string.use_saf_dialog_title)
+                .setMessage(R.string.use_saf_dialog_message)
+                .setPositiveButton(R.string.use_saf_dialog_positive_button_text, (dialog, which) -> {
+                    useSAFClicked();
+                })
+                .setNegativeButton(R.string.use_saf_dialog_negative_button_text, (dialog, which) -> {
+                    useOldApiClicked();
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    private void useOldApiClicked() {
+        navigationController.pushController(new SaveLocationController(context));
+    }
+
+    private void useSAFClicked() {
         boolean result = fileManager.openChooseDirectoryDialog(new DirectoryChooserCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
                 ChanSettings.saveLocationUri.set(uri.toString());
 
-                // We won't use it anymore
-                ChanSettings.saveLocation.set("");
+                String defaultDir = Environment.getExternalStorageDirectory() +
+                        File.separator +
+                        getApplicationLabel();
 
+                ChanSettings.saveLocation.setNoUpdate(defaultDir);
                 saveLocation.setDescription(uri.toString());
 
                 testMethod(uri);

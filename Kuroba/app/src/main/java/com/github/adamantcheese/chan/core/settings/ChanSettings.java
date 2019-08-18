@@ -212,11 +212,17 @@ public class ChanSettings {
         postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
         shortPinInfo = new BooleanSetting(p, "preference_short_pin_info", true);
 
-        saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + getApplicationLabel());
-        saveLocationUri = new StringSetting(p, "preference_image_save_location_uri", "");
+        saveLocation = new StringSetting(p, "preference_image_save_location",
+                Environment.getExternalStorageDirectory() + File.separator + getApplicationLabel());
+        saveLocation.addCallback((setting, value) -> {
+            EventBus.getDefault().post(new SettingChanged<>(saveLocation));
+        });
 
-        saveLocation.addCallback((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
+        saveLocationUri = new StringSetting(p, "preference_image_save_location_uri", "");
+        saveLocationUri.addCallback(((setting, value) -> {
+            EventBus.getDefault().post(new SettingChanged<>(saveLocationUri));
+        }));
+
         saveServerFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
         accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);

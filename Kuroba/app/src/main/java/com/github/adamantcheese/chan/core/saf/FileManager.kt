@@ -113,6 +113,9 @@ class FileManager(
     fun newFile(): AbstractFile {
         val uri = ChanSettings.saveLocationUri.get()
         if (uri.isNotEmpty()) {
+            // When we change saveLocation we also set saveLocationUri to an empty string, so we need
+            // to check whether the saveLocationUri is empty or not, because saveLocation is never
+            // empty
             val rootDirectory = DocumentFile.fromTreeUri(appContext, Uri.parse(uri))
             if (rootDirectory == null) {
                 throw IllegalStateException("Root directory cannot be null!")
