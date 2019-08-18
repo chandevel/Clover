@@ -17,11 +17,11 @@
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
 import com.android.volley.Response;
-
 import com.github.adamantcheese.chan.core.model.Archive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.net.HtmlReaderRequest;
 import com.github.adamantcheese.chan.core.site.Site;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;

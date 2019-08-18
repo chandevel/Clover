@@ -16,9 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
-import androidx.appcompat.widget.SwitchCompat;
 import android.view.View;
 import android.widget.CompoundButton;
+
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.Setting;

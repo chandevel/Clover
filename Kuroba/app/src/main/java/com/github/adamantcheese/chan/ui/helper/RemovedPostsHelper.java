@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.ui.helper;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.controller.Controller;
@@ -32,7 +33,8 @@ public class RemovedPostsHelper {
     private Context context;
     private ThreadPresenter presenter;
     private RemovedPostsCallbacks callbacks;
-    private @Nullable RemovedPostsController controller;
+    private @Nullable
+    RemovedPostsController controller;
 
     public RemovedPostsHelper(Context context, ThreadPresenter presenter, RemovedPostsCallbacks callbacks) {
         this.context = context;

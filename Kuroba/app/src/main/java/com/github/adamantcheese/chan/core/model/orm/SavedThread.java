@@ -25,13 +25,13 @@ public class SavedThread {
     /**
      * isFullyDownloaded will be true when a thread gets 404ed. This means that there will be no
      * new posts so we can stop trying to fetch them.
-     * */
+     */
     @DatabaseField(columnName = IS_FULLY_DOWNLOADED)
     public boolean isFullyDownloaded;
 
     /**
      * User may stop saving the thread by clicking the corresponding button in the thread toolbar
-     * */
+     */
     @DatabaseField(columnName = IS_STOPPED)
     public boolean isStopped;
 

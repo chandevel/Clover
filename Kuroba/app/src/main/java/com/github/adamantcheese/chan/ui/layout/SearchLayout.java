@@ -85,13 +85,16 @@ public class SearchLayout extends LinearLayout {
             }
             return false;
         });
+        searchView.setOnFocusChangeListener((view, focused) -> {
+            if (!focused) AndroidUtils.hideKeyboard(view);
+        });
         LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(36), 1);
         searchViewParams.gravity = Gravity.CENTER_VERTICAL;
         addView(searchView, searchViewParams);
 
         clearButton.setAlpha(0f);
         clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
-        clearButton.getDrawable().setTint(Color.BLACK);
+        clearButton.getDrawable().setTint(getAttrColor(getContext(), R.attr.text_color_primary));
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
         clearButton.setOnClickListener(v -> {
             searchView.setText("");

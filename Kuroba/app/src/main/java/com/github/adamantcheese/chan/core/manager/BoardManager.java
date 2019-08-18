@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.core.site.Site;
 import java.util.List;
 
 import javax.inject.Inject;
+
 /**
  * <p>Keeps track of {@link Board}s in the system.
  * <p>There are a few types of sites, those who provide a list of all boards known,

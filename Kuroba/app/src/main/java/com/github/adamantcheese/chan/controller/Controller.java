@@ -23,9 +23,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.transition.FadeInTransition;
 import com.github.adamantcheese.chan.controller.transition.FadeOutTransition;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.controller.DoubleNavigationController;
 import com.github.adamantcheese.chan.ui.controller.ImageViewerNavigationController;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;

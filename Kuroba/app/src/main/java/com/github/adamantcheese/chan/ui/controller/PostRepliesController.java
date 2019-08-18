@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;

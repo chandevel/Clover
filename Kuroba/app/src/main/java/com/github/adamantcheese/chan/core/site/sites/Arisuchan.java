@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.site.sites.wired7;
+package com.github.adamantcheese.chan.core.site.sites;
 
 import androidx.annotation.Nullable;
 
@@ -24,27 +24,28 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
+import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 
 import okhttp3.HttpUrl;
 
-public class Wired7 extends CommonSite {
+public class Arisuchan extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
-            return Wired7.class;
+            return Arisuchan.class;
         }
 
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https://wired-7.org/");
+            return HttpUrl.parse("https://arisuchan.jp/");
         }
 
         @Override
         public String[] getNames() {
-            return new String[]{"Wired-7, wired7, Wired7"};
+            return new String[]{"arisuchan"};
         }
 
         @Override
@@ -64,25 +65,23 @@ public class Wired7 extends CommonSite {
 
     @Override
     public void setup() {
-        setName("Wired-7");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://wired-7.org/favicon.ico")));
+        setName("Arisuchan");
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://arisuchan.jp/favicon.ico")));
 
         setBoards(
-                Board.fromSiteNameCode(this, "Lewds & +18", "18"),
-                Board.fromSiteNameCode(this, "Random", "b"),
-                Board.fromSiteNameCode(this, "Hentai", "h"),
-                Board.fromSiteNameCode(this, "Humanidad", "hum"),
-                Board.fromSiteNameCode(this, "Internacional/Random", "i"),
-                Board.fromSiteNameCode(this, "Política", "pol"),
-                Board.fromSiteNameCode(this, "Wired-7 Metaboard", "meta"),
-                Board.fromSiteNameCode(this, "Anime", "a"),
-                Board.fromSiteNameCode(this, "Cultura Japonesa", "jp"),
-                Board.fromSiteNameCode(this, "Musica & Audio", "mu"),
-                Board.fromSiteNameCode(this, "Tecnología", "tech"),
-                Board.fromSiteNameCode(this, "Videojuegos y Gaming", "v"),
-                Board.fromSiteNameCode(this, "Medios Visuales", "vis"),
-                Board.fromSiteNameCode(this, "Paranormal", "x"),
-                Board.fromSiteNameCode(this, "Lain", "lain")
+                Board.fromSiteNameCode(this, "art and design", "art"),
+                Board.fromSiteNameCode(this, "culture and media", "cult"),
+                Board.fromSiteNameCode(this, "cyberpunk and cybersecurity", "cyb"),
+                Board.fromSiteNameCode(this, "personal experiences", "feels"),
+                Board.fromSiteNameCode(this, "psychology and psychonautics", "psy"),
+                Board.fromSiteNameCode(this, "arisuchan meta", "q"),
+                Board.fromSiteNameCode(this, "miscellaneous", "r"),
+                Board.fromSiteNameCode(this, "киберпанк-доска", "ru"),
+                Board.fromSiteNameCode(this, "science and technology", "tech"),
+                Board.fromSiteNameCode(this, "paranoia", "x"),
+                Board.fromSiteNameCode(this, "zaibatsu", "z"),
+                Board.fromSiteNameCode(this, "diy and projects", "Δ"),
+                Board.fromSiteNameCode(this, "programming", "λ")
         );
 
         setResolvable(URL_HANDLER);
@@ -95,9 +94,9 @@ public class Wired7 extends CommonSite {
         });
 
         setEndpoints(new VichanEndpoints(this,
-                "https://wired-7.org",
-                "https://wired-7.org"));
-        setActions(new Wired7Actions(this));
+                "https://arisuchan.jp",
+                "https://arisuchan.jp"));
+        setActions(new VichanActions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());
     }

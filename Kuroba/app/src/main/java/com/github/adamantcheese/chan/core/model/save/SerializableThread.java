@@ -25,7 +25,7 @@ public class SerializableThread {
 
     /**
      * Merge old posts with new posts avoiding duplicates and then sort merged list
-     * */
+     */
     public SerializableThread merge(List<Post> posts) {
         Set<SerializablePost> postsSet = new HashSet<>(posts.size() + postList.size());
         postsSet.addAll(postList);

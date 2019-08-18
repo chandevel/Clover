@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;

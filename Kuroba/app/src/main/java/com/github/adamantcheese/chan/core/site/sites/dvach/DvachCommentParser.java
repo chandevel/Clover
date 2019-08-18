@@ -1,6 +1,7 @@
-package com.github.adamantcheese.chan.core.site.parser;
+package com.github.adamantcheese.chan.core.site.sites.dvach;
 
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
+import com.github.adamantcheese.chan.core.site.parser.StyleRule;
 
 public class DvachCommentParser extends VichanCommentParser {
     @Override

@@ -168,7 +168,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             this.addToLocalBackHistory = addToLocalBackHistory;
 
             startSavingThreadIfItIsNotBeingSaved(this.loadable);
-            chanLoader = chanLoaderFactory.obtain(loadable, this);
+            chanLoader = chanLoaderFactory.obtain(loadable, watchManager, this);
             threadPresenterCallback.showLoading();
         }
     }
@@ -306,63 +306,54 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     public boolean pin() {
-        if (chanLoader.getThread() == null) {
-            return false;
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin == null) {
+            if (chanLoader.getThread() == null) {
+                return false;
+            }
+
+            Post op = chanLoader.getThread().getOp();
+            watchManager.createPin(loadable, op, PinType.WATCH_NEW_POSTS);
+            return true;
         }
 
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin != null) {
-            if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
-                pin.pinType = PinType.removeWatchNewPostsFlag(pin.pinType);
+        if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
+            pin.pinType = PinType.removeWatchNewPostsFlag(pin.pinType);
 
-                if (PinType.hasNoFlags(pin.pinType)) {
-                    watchManager.deletePin(pin);
-                } else {
-                    watchManager.updatePin(pin);
-                }
+            if (PinType.hasNoFlags(pin.pinType)) {
+                watchManager.deletePin(pin);
             } else {
-                pin.pinType = PinType.addWatchNewPostsFlag(pin.pinType);
                 watchManager.updatePin(pin);
             }
         } else {
-            Post op = chanLoader.getThread().getOp();
-            watchManager.createPin(loadable, op, PinType.WATCH_NEW_POSTS);
+            pin.pinType = PinType.addWatchNewPostsFlag(pin.pinType);
+            watchManager.updatePin(pin);
         }
 
         return true;
     }
 
     public boolean save() {
-        if (chanLoader.getThread() == null) {
-            return false;
-        }
-
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin != null) {
-            if (PinType.hasDownloadFlag(pin.pinType)) {
-                pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
-
-                if (PinType.hasNoFlags(pin.pinType)) {
-                    watchManager.deletePin(pin);
-                } else {
-                    watchManager.updatePin(pin);
-                    watchManager.stopSavingThread(pin.loadable);
-                }
-
-                loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
-            } else {
-                saveInternal();
-            }
-        } else {
-            saveInternal();
+        if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
+            return saveInternal();
         }
 
+        pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
+        if (PinType.hasNoFlags(pin.pinType)) {
+            watchManager.deletePin(pin);
+        } else {
+            watchManager.updatePin(pin);
+            watchManager.stopSavingThread(pin.loadable);
+        }
+
+        loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
         return true;
     }
 
-    private void saveInternal() {
+    private boolean saveInternal() {
         if (chanLoader.getThread() == null) {
-            return;
+            return false;
         }
 
         Post op = chanLoader.getThread().getOp();
@@ -404,6 +395,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         if (!ChanSettings.watchEnabled.get() || !ChanSettings.watchBackground.get()) {
             threadPresenterCallback.showBackgroundWatcherIsDisabledToast();
         }
+
+        return true;
     }
 
     private void startSavingThreadInternal(
@@ -657,11 +650,19 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     public void onNewPostsViewClicked() {
         if (chanLoader != null) {
             Post post = PostUtils.findPostById(loadable.lastViewed, chanLoader.getThread());
+            int position = -1;
             if (post != null) {
-                scrollToPost(post, true);
-            } else {
-                scrollTo(-1, true);
+                List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+                for (int i = 0; i < posts.size(); i++) {
+                    Post needle = posts.get(i);
+                    if (post.no == needle.no) {
+                        position = i;
+                        break;
+                    }
+                }
             }
+            //-1 is fine here because we add 1 down the chain to make it 0 if there's no last viewed
+            threadPresenterCallback.smoothScrollNewPosts(position);
         }
     }
 
@@ -1242,6 +1243,21 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         loadable.loadableDownloadingState = loadableDownloadingState;
     }
 
+    public void markAllPostsAsSeen() {
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
+        if (pin != null) {
+            SavedThread savedThread = null;
+
+            if (PinType.hasDownloadFlag(pin.pinType)) {
+                savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
+            }
+
+            if (savedThread == null) {
+                watchManager.onBottomPostViewed(pin);
+            }
+        }
+    }
+
     public interface ThreadPresenterCallback {
         void showPosts(ChanThread thread, PostsFilter filter);
 
@@ -1282,6 +1298,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         void showAlbum(List<PostImage> images, int index);
 
         void scrollTo(int displayPosition, boolean smooth);
+
+        void smoothScrollNewPosts(int displayPosition);
 
         void highlightPost(Post post);
 

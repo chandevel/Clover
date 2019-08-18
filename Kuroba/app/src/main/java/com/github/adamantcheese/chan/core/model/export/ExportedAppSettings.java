@@ -49,7 +49,7 @@ public class ExportedAppSettings {
             List<ExportedPostHide> exportedPostHides,
             List<ExportedSavedThread> exportedSavedThreads,
             @NonNull
-            String settings
+                    String settings
     ) {
         this.exportedSites = exportedSites;
         this.exportedBoards = exportedBoards;

@@ -631,7 +631,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
     private boolean createPinWatcher(Pin pin) {
         if (!pinWatchers.containsKey(pin)) {
-            pinWatchers.put(pin, new PinWatcher(pin));
+            pinWatchers.put(pin, new PinWatcher(pin, this));
             return true;
         } else {
             return false;
@@ -661,18 +661,21 @@ public class WatchManager implements WakeManager.Wakeable {
     // Update the interval type according to the current settings,
     // create and destroy PinWatchers where needed and update the notification
     private void updateState(boolean watchEnabled, boolean backgroundEnabled) {
-        Logger.d(TAG, "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground=" + isInForeground());
+        Logger.d(TAG, "updateState watchEnabled="
+                + watchEnabled + " backgroundEnabled="
+                + backgroundEnabled + " foreground=" + isInForeground());
 
         updateDeletedOrArchivedPins();
         switchIncrementalThreadDownloadingState(watchEnabled && backgroundEnabled);
         updateIntervals(watchEnabled, backgroundEnabled);
 
         // Update pin watchers
-        boolean allPinsHaveCompletedDownloading = updatePinWatchers();
+        boolean hasAtLeastOneActivePin = updatePinWatchers();
 
         // Update notification state
-        // Do not start the service when all pins are either stopped ot fully downloaded
-        if (watchEnabled && backgroundEnabled && !allPinsHaveCompletedDownloading) {
+        // Do not start the service when all pins are either stopped or fully downloaded
+        // or archived/404ed
+        if (watchEnabled && backgroundEnabled && hasAtLeastOneActivePin) {
             getAppContext().startService(WATCH_NOTIFICATION_INTENT);
         } else {
             getAppContext().stopService(WATCH_NOTIFICATION_INTENT);
@@ -680,7 +683,7 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     private boolean updatePinWatchers() {
-        boolean allPinsHaveCompletedDownloading = true;
+        boolean hasAtLeastOneActivePin = false;
         List<Pin> pinsToUpdateInDatabase = new ArrayList<>();
 
         for (Pin pin : pins) {
@@ -696,11 +699,16 @@ public class WatchManager implements WakeManager.Wakeable {
                 pinsToUpdateInDatabase.add(pin);
             }
 
-            boolean isStoppedOrCompleted = savedThread != null &&
-                    (savedThread.isStopped || savedThread.isFullyDownloaded);
+            if (PinType.hasDownloadFlag(pin.pinType)) {
+                // If pin is still downloading posts - it is active
+                if (savedThread != null && (!savedThread.isStopped && !savedThread.isFullyDownloaded)) {
+                    hasAtLeastOneActivePin = true;
+                }
+            }
 
-            if (!isStoppedOrCompleted) {
-                allPinsHaveCompletedDownloading = false;
+            // If pin is not archived/404ed and we are watching it - it is active
+            if (!pin.isError && !pin.archived && pin.watching) {
+                hasAtLeastOneActivePin = true;
             }
 
             if (ChanSettings.watchEnabled.get()) {
@@ -714,7 +722,7 @@ public class WatchManager implements WakeManager.Wakeable {
             updatePins(pinsToUpdateInDatabase, false);
         }
 
-        return allPinsHaveCompletedDownloading;
+        return hasAtLeastOneActivePin;
     }
 
     private void updateIntervals(boolean watchEnabled, boolean backgroundEnabled) {
@@ -1004,11 +1012,11 @@ public class WatchManager implements WakeManager.Wakeable {
         public int lastReplyCount = -1;
         public int latestKnownPage = -1;
 
-        public PinWatcher(Pin pin) {
+        public PinWatcher(Pin pin, WatchManager watchManager) {
             this.pin = pin;
 
             Logger.d(TAG, "created for " + pin.loadable.toString());
-            chanLoader = chanLoaderFactory.obtain(pin.loadable, this);
+            chanLoader = chanLoaderFactory.obtain(pin.loadable, watchManager, this);
             pageRequestManager.addListener(this);
         }
 
@@ -1160,8 +1168,6 @@ public class WatchManager implements WakeManager.Wakeable {
             // Get list of saved replies from this thread
             List<Post> savedReplies = new ArrayList<>();
             for (Post item : thread.getPostsUnsafe()) {
-                // saved.title = pin.loadable.title;
-
                 if (item.isSavedReply) {
                     savedReplies.add(item);
                 }
@@ -1187,7 +1193,7 @@ public class WatchManager implements WakeManager.Wakeable {
                 pin.quoteLastCount = quotes.size();
             }
 
-            pin.watchNewCount = posts.size();
+            pin.watchNewCount = posts.size() - savedReplies.size();
             pin.quoteNewCount = quotes.size();
 
             if (!isFirstLoad) {
