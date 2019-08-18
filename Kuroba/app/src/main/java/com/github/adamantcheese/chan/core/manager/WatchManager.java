@@ -1159,8 +1159,6 @@ public class WatchManager implements WakeManager.Wakeable {
             // Get list of saved replies from this thread
             List<Post> savedReplies = new ArrayList<>();
             for (Post item : thread.getPostsUnsafe()) {
-                // saved.title = pin.loadable.title;
-
                 if (item.isSavedReply) {
                     savedReplies.add(item);
                 }
@@ -1186,7 +1184,7 @@ public class WatchManager implements WakeManager.Wakeable {
                 pin.quoteLastCount = quotes.size();
             }
 
-            pin.watchNewCount = posts.size();
+            pin.watchNewCount = posts.size() - savedReplies.size();
             pin.quoteNewCount = quotes.size();
 
             if (!isFirstLoad) {
