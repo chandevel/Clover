@@ -94,7 +94,7 @@ public class SearchLayout extends LinearLayout {
 
         clearButton.setAlpha(0f);
         clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
-        clearButton.getDrawable().setTint(Color.BLACK);
+        clearButton.getDrawable().setTint(getAttrColor(getContext(), R.attr.text_color_primary));
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
         clearButton.setOnClickListener(v -> {
             searchView.setText("");
