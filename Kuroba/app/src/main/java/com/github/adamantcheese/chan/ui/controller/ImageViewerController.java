@@ -48,6 +48,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.image.ImageContainer;
 import com.github.adamantcheese.chan.core.image.ImageListener;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
+import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageViewerPresenter;
@@ -56,6 +57,7 @@ import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.ImageSearch;
 import com.github.adamantcheese.chan.ui.adapter.ImageViewerAdapter;
+import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
@@ -282,11 +284,18 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 if (ChanSettings.saveThreadFolder.get()) {
                     //save to op no appended with the first 50 characters of the subject
                     //should be unique and perfectly understandable title wise
+                    //
+                    //if we're saving from the catalog, find the post for the image and use its attributes to keep everything consistent
+                    //as the loadable is for the catalog and doesn't have the right info
                     subFolderName = subFolderName +
                             File.separator +
-                            presenter.getLoadable().no +
+                            (presenter.getLoadable().no == 0 ?
+                                    imageViewerCallback.getPostForPostImage(postImage).no :
+                                    presenter.getLoadable().no) +
                             "_";
-                    String tempTitle = presenter.getLoadable().title
+                    String tempTitle = (presenter.getLoadable().no == 0 ?
+                            PostHelper.getTitle(imageViewerCallback.getPostForPostImage(postImage), null) :
+                            presenter.getLoadable().title)
                             .toLowerCase()
                             .replaceAll(" ", "_")
                             .replaceAll("[^a-z0-9_]", "");
@@ -657,6 +666,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         ThumbnailView getPreviewImageTransitionView(PostImage postImage);
 
         void scrollToImage(PostImage postImage);
+
+        Post getPostForPostImage(PostImage postImage);
     }
 
     public interface GoPostCallback {

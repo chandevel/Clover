@@ -465,8 +465,7 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     public Pin findPinById(int id) {
-        for (int i = 0; i < pins.size(); i++) {
-            Pin pin = pins.get(i);
+        for (Pin pin : pins) {
             if (pin.id == id) {
                 return pin;
             }

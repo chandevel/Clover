@@ -695,12 +695,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
     public void selectPostImage(PostImage postImage) {
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
-        for (int i = 0; i < posts.size(); i++) {
-            Post post = posts.get(i);
-
+        for (Post post : posts) {
             if (!post.images.isEmpty()) {
-                for (int j = 0; j < post.images.size(); j++) {
-                    if (post.images.get(j) == postImage) {
+                for (PostImage image : post.images) {
+                    if (image == postImage) {
                         scrollToPost(post, false);
                         highlightPost(post);
                         return;
@@ -708,6 +706,20 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 }
             }
         }
+    }
+
+    public Post getPostFromPostImage(PostImage postImage) {
+        List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+        for (Post post : posts) {
+            if (!post.images.isEmpty()) {
+                for (PostImage image : post.images) {
+                    if (image == postImage) {
+                        return post;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /*
@@ -748,12 +760,9 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         List<PostImage> images = new ArrayList<>();
         int index = -1;
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
-        for (int i = 0; i < posts.size(); i++) {
-            Post item = posts.get(i);
-
+        for (Post item : posts) {
             if (!item.images.isEmpty()) {
-                for (int j = 0; j < item.images.size(); j++) {
-                    PostImage image = item.images.get(j);
+                for (PostImage image : item.images) {
                     images.add(image);
                     if (image.equalUrl(postImage)) {
                         index = images.size() - 1;

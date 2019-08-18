@@ -38,6 +38,7 @@ import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
@@ -714,6 +715,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         }
         loadThread(threadFollowerpool.removeFirst().first, false);
         return true;
+    }
+
+    @Override
+    public Post getPostForPostImage(PostImage postImage) {
+        return threadLayout.getPresenter().getPostFromPostImage(postImage);
     }
 
     public enum DownloadThreadState {

@@ -52,8 +52,8 @@ public abstract class Setting<T> {
     }
 
     protected final void onValueChanged() {
-        for (int i = 0; i < callbacks.size(); i++) {
-            callbacks.get(i).onValueChange(this, get());
+        for (SettingCallback<T> callback : callbacks) {
+            callback.onValueChange(this, get());
         }
     }
 
