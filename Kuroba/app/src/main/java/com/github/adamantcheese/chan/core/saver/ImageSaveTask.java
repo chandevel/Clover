@@ -153,7 +153,9 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
             // If destination is a raw file then we need to check whether the parent directory exists.
             // Otherwise we don't
             if (createdDestinationFile instanceof RawFile) {
-                AbstractFile parent = fileManager.fromAbstractFile(createdDestinationFile).getParent();
+                AbstractFile parent = createdDestinationFile
+                        .clone()
+                        .getParent();
                 if (parent == null || (!parent.create() && !parent.isDirectory())) {
                     throw new IOException("Could not create parent directory");
                 }
@@ -163,7 +165,7 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
                 throw new IOException("Destination file is already a directory");
             }
 
-            if (!fileManager.copyFile(fileManager.fromRawFile(source), createdDestinationFile)) {
+            if (!fileManager.copyFileContents(fileManager.fromRawFile(source), createdDestinationFile)) {
                 throw new IOException("Could not copy source file into destination");
             }
 

@@ -126,8 +126,10 @@ class ExternalFile(
         return ExternalFile(appContext, root) as T
     }
 
-    override fun <T> root(): Root<T> = root.clone() as Root<T>
-    override fun segments(): MutableList<Segment> = segments.toMutableList()
+    override fun <T : AbstractFile> clone(): T = ExternalFile(
+            appContext,
+            root.clone(),
+            segments.toMutableList()) as T
 
     override fun exists(): Boolean {
         if (segments.isEmpty()) {

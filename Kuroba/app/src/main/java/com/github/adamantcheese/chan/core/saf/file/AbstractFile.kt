@@ -35,8 +35,14 @@ abstract class AbstractFile(
         return createNew<T>() != null
     }
 
-    abstract fun <T> root(): Root<T>
-    abstract fun segments(): MutableList<Segment>
+    /**
+     * When doing something with an AbstractFile (like appending a subdir or a filename) the
+     * AbstractFile will change because it's mutable. So if you don't want to change the original
+     * AbstractFile you need to make a copy via this method (like, if you want to search for
+     * a couple of files in the same directory you would want to clone the directory
+     * AbstractFile and then append the filename to those copies)
+     * */
+    abstract fun <T : AbstractFile> clone(): T
     abstract fun exists(): Boolean
     abstract fun isFile(): Boolean
     abstract fun isDirectory(): Boolean
@@ -50,8 +56,6 @@ abstract class AbstractFile(
     abstract fun getOutputStream(): OutputStream?
     abstract fun getName(): String
     abstract fun findFile(fileName: String): DocumentFile?
-
-    fun segmentsCount(): Int = segments.size
 
     /**
      * Removes the last appended segment if there are any

@@ -65,7 +65,8 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         String fileName = filterName(name + "." + postImage.extension);
 
         AbstractFile saveLocation = getSaveLocation(task);
-        AbstractFile saveFile = fileManager.fromAbstractFile(saveLocation)
+        AbstractFile saveFile = saveLocation
+                .clone()
                 .appendFileNameSegment(fileName);
 
         while (saveFile.exists()) {
@@ -74,7 +75,8 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                     + "." + postImage.extension;
 
             fileName = filterName(resultFileName);
-            saveFile = fileManager.fromAbstractFile(saveLocation)
+            saveFile = saveLocation
+                    .clone()
                     .appendFileNameSegment(fileName);
         }
 

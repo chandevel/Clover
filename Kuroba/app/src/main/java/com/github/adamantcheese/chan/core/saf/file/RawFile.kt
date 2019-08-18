@@ -77,8 +77,10 @@ class RawFile(
         return RawFile(Root.DirRoot(newFile)) as T
     }
 
-    override fun <T> root(): Root<T> = root.clone() as Root<T>
-    override fun segments(): MutableList<Segment> = segments.toMutableList()
+    override fun <T : AbstractFile> clone(): T = RawFile(
+            root.clone(),
+            segments.toMutableList()) as T
+
     override fun exists(): Boolean = toFile().exists()
     override fun isFile(): Boolean = toFile().isFile
     override fun isDirectory(): Boolean = toFile().isDirectory

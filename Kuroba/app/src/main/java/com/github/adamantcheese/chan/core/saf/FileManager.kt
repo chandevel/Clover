@@ -24,6 +24,9 @@ class FileManager(
 ) {
     private val fileChooser = FileChooser(appContext)
 
+    /**
+     * Used for calling Android File picker
+     * */
     fun setCallbacks(startActivityCallbacks: StartActivityCallbacks) {
         fileChooser.setCallbacks(startActivityCallbacks)
     }
@@ -62,7 +65,7 @@ class FileManager(
 
     /**
      * Create a raw file from a path.
-     * Use this method to convert a file by this path into an AbstractFile.
+     * Use this method to convert a java File by this path into an AbstractFile.
      * */
     fun fromPath(path: String): RawFile {
         return fromRawFile(File(path))
@@ -70,7 +73,7 @@ class FileManager(
 
     /**
      * Create RawFile from Java File.
-     * Use this method to convert this file into an AbstractFile.
+     * Use this method to convert a java File into an AbstractFile.
      * */
     fun fromRawFile(file: File): RawFile {
         if (file.isFile) {
@@ -104,10 +107,8 @@ class FileManager(
     }
 
     /**
-     * Use this method to create a new file that may be located at any user selected directory (it
-     * may be stored at sd card or even in google drive, anywhere) or if user has not selected an
-     * app directory via the SAF API it will be stored in the default external app directory
-     * (like /storage/Kuroba)
+     * Instantiates a new AbstractFile with the root being in the app's base directory (the Kuroba
+     * directory in case of using raw file api and the user's selected directory in case of using SAF).
      * */
     fun newFile(): AbstractFile {
         val uri = ChanSettings.saveLocationUri.get()
@@ -126,19 +127,6 @@ class FileManager(
         return RawFile(AbstractFile.Root.DirRoot(File(path)))
     }
 
-    /**
-     * AbstractFiles are mutable, so if you want to append some directory to another AbstractFile to
-     * check whether it exists or not or something like this, you need to create a new AbstractFile
-     * from the other AbstractFile (Just like with regular files, e.g. File(oldFile, "subDir").exists() )
-     * */
-    fun fromAbstractFile(file: AbstractFile): AbstractFile {
-        return when (file) {
-            is RawFile -> RawFile(file.root(), file.segments())
-            is ExternalFile -> ExternalFile(appContext, file.root(), file.segments())
-            else -> throw IllegalArgumentException("Not implemented for ${file.javaClass.name}")
-        }
-    }
-
     private fun toDocumentFile(uri: Uri): DocumentFile? {
         if (!DocumentFile.isDocumentUri(appContext, uri)) {
             Logger.e(TAG, "Not a DocumentFile, uri = $uri")
@@ -146,8 +134,11 @@ class FileManager(
         }
 
         val treeUri = try {
+            // Will throw an exception if uri is not a treeUri. Hacky as fuck but I don't know
+            // another way to check it.
             DocumentFile.fromTreeUri(appContext, uri)
-        } catch (e: IllegalArgumentException) {
+        } catch (ignored: IllegalArgumentException) {
+            Logger.d(TAG, "Uri is not a treeUri, uri = $uri")
             null
         }
 
@@ -158,12 +149,15 @@ class FileManager(
         return try {
             DocumentFile.fromSingleUri(appContext, uri)
         } catch (e: IllegalArgumentException) {
-            Logger.e(TAG, "provided uri is neither a treeUri nor singleUri, uri = ${uri}")
+            Logger.e(TAG, "Provided uri is neither a treeUri nor singleUri, uri = $uri")
             null
         }
     }
 
-    fun copyFile(source: AbstractFile, destination: AbstractFile): Boolean {
+    /**
+     * Copy one file's contents into another
+     * */
+    fun copyFileContents(source: AbstractFile, destination: AbstractFile): Boolean {
         try {
             return source.getInputStream()?.use { inputStream ->
                 return@use destination.getOutputStream()?.use { outputStream ->
@@ -179,7 +173,5 @@ class FileManager(
 
     companion object {
         private const val TAG = "FileManager"
-
-        private val FILENAME_PROJECTION = arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
     }
 }
