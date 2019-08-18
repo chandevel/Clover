@@ -92,10 +92,12 @@ public class WakeManager {
     }
 
     public void registerWakeable(Wakeable wakeable) {
+        Logger.d(TAG, "Registered " + wakeable.getClass().toString());
         wakeableSet.add(wakeable);
     }
 
     public void unregisterWakeable(Wakeable wakeable) {
+        Logger.d(TAG, "Unregistered " + wakeable.getClass().toString());
         wakeableSet.remove(wakeable);
     }
 

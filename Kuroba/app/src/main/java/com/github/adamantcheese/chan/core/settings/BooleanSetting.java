@@ -44,14 +44,6 @@ public class BooleanSetting extends Setting<Boolean> {
         }
     }
 
-    public void setSync(Boolean value) {
-        if (!value.equals(get())) {
-            settingProvider.putBooleanSync(key, value);
-            cached = value;
-            onValueChanged();
-        }
-    }
-
     public void toggle() {
         set(!get());
     }
