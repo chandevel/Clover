@@ -29,6 +29,7 @@ class RawFile(
 
     override fun <T : AbstractFile>  createNew(): T? {
         if (root is Root.FileRoot) {
+            // TODO: do we need this check?
             throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
         }
 

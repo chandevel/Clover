@@ -81,7 +81,7 @@ public class ImportExportRepository {
         this.gson = gson;
     }
 
-    public void exportTo(ExternalFile settingsFile, ImportExportCallbacks callbacks) {
+    public void exportTo(ExternalFile settingsFile, boolean isNewFile, ImportExportCallbacks callbacks) {
         databaseManager.runTask(() -> {
             try {
                 ExportedAppSettings appSettings = readSettingsFromDatabase();
@@ -99,8 +99,15 @@ public class ImportExportRepository {
                     );
                 }
 
-                try (ParcelFileDescriptor parcelFileDescriptor = settingsFile.getParcelFileDescriptor(
-                        ExternalFile.FileDescriptorMode.Write)) {
+                // If the user has opened an old settings file we need to use WriteTruncate mode
+                // so that there no leftovers of the old file after writing the settings.
+                // Otherwise use Write mode
+                ExternalFile.FileDescriptorMode fdm = ExternalFile.FileDescriptorMode.WriteTruncate;
+                if (isNewFile) {
+                    fdm = ExternalFile.FileDescriptorMode.Write;
+                }
+
+                try (ParcelFileDescriptor parcelFileDescriptor = settingsFile.getParcelFileDescriptor(fdm)) {
 
                     if (parcelFileDescriptor == null) {
                         IllegalStateException exception = new IllegalStateException(

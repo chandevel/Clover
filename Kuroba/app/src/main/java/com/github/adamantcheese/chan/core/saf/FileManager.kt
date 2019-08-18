@@ -18,6 +18,7 @@ import com.github.adamantcheese.chan.utils.Logger
 import java.io.File
 import java.io.IOException
 import java.lang.IllegalStateException
+import java.lang.RuntimeException
 
 class FileManager(
         private val appContext: Context
@@ -39,20 +40,16 @@ class FileManager(
     // Api to open file/directory chooser and handling the result
     //=======================================================
 
-    fun openChooseDirectoryDialog(callback: DirectoryChooserCallback): Boolean {
-        return fileChooser.openChooseDirectoryDialog(callback)
+    fun openChooseDirectoryDialog(callback: DirectoryChooserCallback) {
+        fileChooser.openChooseDirectoryDialog(callback)
     }
 
-    fun openChooseFileDialog(callback: FileChooserCallback): Boolean {
-        return fileChooser.openChooseFileDialog(callback)
+    fun openChooseFileDialog(callback: FileChooserCallback) {
+        fileChooser.openChooseFileDialog(callback)
     }
 
-    fun openCreateFileDialog(callback: FileCreateCallback): Boolean {
-        return openCreateFileDialog(null, callback)
-    }
-
-    fun openCreateFileDialog(filename: String?, callback: FileCreateCallback): Boolean {
-        return fileChooser.openCreateFileDialog(filename, callback)
+    fun openCreateFileDialog(filename: String, callback: FileCreateCallback) {
+        fileChooser.openCreateFileDialog(filename, callback)
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
@@ -107,10 +104,15 @@ class FileManager(
     }
 
     /**
-     * Instantiates a new AbstractFile with the root being in the app's base directory (the Kuroba
-     * directory in case of using raw file api and the user's selected directory in case of using SAF).
+     * Instantiates a new AbstractFile with the root being in the app's base directory (either the Kuroba
+     * directory in case of using raw file api or the user's selected directory in case of using SAF).
      * */
     fun newFile(): AbstractFile {
+        if (ChanSettings.saveLocationUri.get().isEmpty() && ChanSettings.saveLocation.get().isEmpty()) {
+            // wtf?
+            throw RuntimeException("Both save locations are empty!")
+        }
+
         val uri = ChanSettings.saveLocationUri.get()
         if (uri.isNotEmpty()) {
             // When we change saveLocation we also set saveLocationUri to an empty string, so we need
@@ -141,7 +143,6 @@ class FileManager(
             // another way to check it.
             DocumentFile.fromTreeUri(appContext, uri)
         } catch (ignored: IllegalArgumentException) {
-            Logger.d(TAG, "Uri is not a treeUri, uri = $uri")
             null
         }
 
@@ -161,16 +162,16 @@ class FileManager(
      * Copy one file's contents into another
      * */
     fun copyFileContents(source: AbstractFile, destination: AbstractFile): Boolean {
-        try {
-            return source.getInputStream()?.use { inputStream ->
-                return@use destination.getOutputStream()?.use { outputStream ->
+        return try {
+            source.getInputStream()?.use { inputStream ->
+                destination.getOutputStream()?.use { outputStream ->
                     IOUtils.copy(inputStream, outputStream)
-                    return@use true
-                } ?: false
+                    true
+                }
             } ?: false
         } catch (e: IOException) {
-            Logger.e(TAG, "IOException while coping one file to another", e)
-            return false
+            Logger.e(TAG, "IOException while copying one file into another", e)
+            false
         }
     }
 

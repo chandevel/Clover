@@ -44,8 +44,8 @@ public class ImportExportSettingsPresenter {
         this.callbacks = null;
     }
 
-    public void doExport(ExternalFile settingsFile) {
-        importExportRepository.exportTo(settingsFile, new ImportExportRepository.ImportExportCallbacks() {
+    public void doExport(ExternalFile settingsFile, boolean isNewFile) {
+        importExportRepository.exportTo(settingsFile, isNewFile, new ImportExportRepository.ImportExportCallbacks() {
             @Override
             public void onSuccess(ImportExportRepository.ImportExport importExport) {
                 //called on background thread

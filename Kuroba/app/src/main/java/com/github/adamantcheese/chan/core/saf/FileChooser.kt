@@ -8,6 +8,7 @@ import android.webkit.MimeTypeMap
 import com.github.adamantcheese.chan.core.getMimeFromFilename
 import com.github.adamantcheese.chan.core.saf.callback.*
 import com.github.adamantcheese.chan.utils.Logger
+import java.lang.Exception
 import java.lang.IllegalArgumentException
 
 internal class FileChooser(
@@ -27,8 +28,8 @@ internal class FileChooser(
         this.startActivityCallbacks = null
     }
 
-    internal fun openChooseDirectoryDialog(directoryChooserCallback: DirectoryChooserCallback): Boolean {
-        return startActivityCallbacks?.let { callbacks ->
+    internal fun openChooseDirectoryDialog(directoryChooserCallback: DirectoryChooserCallback) {
+        startActivityCallbacks?.let { callbacks ->
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
             intent.addFlags(
                     Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
@@ -40,12 +41,17 @@ internal class FileChooser(
             val nextRequestCode = ++requestCode
             callbacksMap[nextRequestCode] = directoryChooserCallback as ChooserCallback
 
-            return@let callbacks.myStartActivityForResult(intent, nextRequestCode)
-        } ?: false
+            try {
+                callbacks.myStartActivityForResult(intent, nextRequestCode)
+            } catch (e: Exception) {
+                callbacksMap.remove(nextRequestCode)
+                directoryChooserCallback.onCancel(e.message ?: "openChooseDirectoryDialog() Unknown error")
+            }
+        }
     }
 
-    internal fun openChooseFileDialog(fileChooserCallback: FileChooserCallback): Boolean {
-        return startActivityCallbacks?.let { callbacks ->
+    internal fun openChooseFileDialog(fileChooserCallback: FileChooserCallback) {
+        startActivityCallbacks?.let { callbacks ->
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.addFlags(
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or
@@ -58,15 +64,20 @@ internal class FileChooser(
             val nextRequestCode = ++requestCode
             callbacksMap[nextRequestCode] = fileChooserCallback as ChooserCallback
 
-            return@let callbacks.myStartActivityForResult(intent, nextRequestCode)
-        } ?: false
+            try {
+                callbacks.myStartActivityForResult(intent, nextRequestCode)
+            } catch (e: Exception) {
+                callbacksMap.remove(nextRequestCode)
+                fileChooserCallback.onCancel(e.message ?: "openChooseFileDialog() Unknown error")
+            }
+        }
     }
 
     internal fun openCreateFileDialog(
-            fileName: String? = null,
+            fileName: String,
             fileCreateCallback: FileCreateCallback
-    ): Boolean {
-        return startActivityCallbacks?.let { callbacks ->
+    ) {
+        startActivityCallbacks?.let { callbacks ->
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
             intent.addFlags(
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or
@@ -83,14 +94,19 @@ internal class FileChooser(
             val nextRequestCode = ++requestCode
             callbacksMap[nextRequestCode] = fileCreateCallback as ChooserCallback
 
-            return@let callbacks.myStartActivityForResult(intent, nextRequestCode)
-        } ?: false
+            try {
+                callbacks.myStartActivityForResult(intent, nextRequestCode)
+            } catch (e: Exception) {
+                callbacksMap.remove(nextRequestCode)
+                fileCreateCallback.onCancel(e.message ?: "openCreateFileDialog() Unknown error")
+            }
+        }
     }
 
     internal fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         val callback = callbacksMap[requestCode]
         if (callback == null) {
-            Logger.d(TAG, "Callback is already removed from the map")
+            Logger.d(TAG, "Callback is already removed from the map, resultCode = $requestCode")
             return false
         }
 

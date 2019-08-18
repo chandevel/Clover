@@ -278,7 +278,7 @@ public class MediaSettingsController extends SettingsController {
     }
 
     private void useSAFClicked() {
-        boolean result = fileManager.openChooseDirectoryDialog(new DirectoryChooserCallback() {
+        fileManager.openChooseDirectoryDialog(new DirectoryChooserCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
                 ChanSettings.saveLocationUri.set(uri.toString());
@@ -298,10 +298,6 @@ public class MediaSettingsController extends SettingsController {
                 Toast.makeText(context, reason, Toast.LENGTH_LONG).show();
             }
         });
-
-        if (!result) {
-            Toast.makeText(context, "Could not start activity for result", Toast.LENGTH_SHORT).show();
-        }
     }
 
     private void testMethod(@NotNull Uri uri) {

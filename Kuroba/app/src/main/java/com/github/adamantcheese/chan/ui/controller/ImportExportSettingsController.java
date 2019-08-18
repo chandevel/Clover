@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
 import android.widget.Toast;
@@ -115,18 +116,24 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     private void onExportClicked() {
-        fileManager.openCreateFileDialog(EXPORT_FILE_NAME, new FileCreateCallback() {
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(R.string.import_or_export_dialog_title)
+                .setPositiveButton(R.string.import_or_export_dialog_positive_button_text, (dialog, which) -> {
+                    overwriteExisting();
+                })
+                .setNegativeButton(R.string.import_or_export_dialog_negative_button_text, (dialog, which) -> {
+                    createNew();
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    private void overwriteExisting() {
+        fileManager.openChooseFileDialog(new FileChooserCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
-                ExternalFile externalFile = fileManager.fromUri(uri);
-                if (externalFile == null) {
-                    showMessage("fileManager.fromUri() returned null externalFile, " +
-                            "uri = " + uri.toString());
-                    return;
-                }
-
-                navigationController.presentController(loadingViewController);
-                presenter.doExport(externalFile);
+                onFileChosen(uri, false);
             }
 
             @Override
@@ -136,16 +143,32 @@ public class ImportExportSettingsController extends SettingsController implement
         });
     }
 
+    private void createNew() {
+        fileManager.openCreateFileDialog(EXPORT_FILE_NAME, new FileCreateCallback() {
+            @Override
+            public void onResult(@NotNull Uri uri) {
+                onFileChosen(uri, true);
+            }
+
+            @Override
+            public void onCancel(@NotNull String reason) {
+                showMessage(reason);
+            }
+        });
+    }
+
+    private void onFileChosen(Uri uri, boolean isNewFile) {
+        ExternalFile externalFile = fileManager.fromUri(uri);
+
+        navigationController.presentController(loadingViewController);
+        presenter.doExport(externalFile, isNewFile);
+    }
+
     private void onImportClicked() {
         fileManager.openChooseFileDialog(new FileChooserCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
                 ExternalFile externalFile = fileManager.fromUri(uri);
-                if (externalFile == null) {
-                    showMessage("fileManager.fromUri() returned null externalFile, " +
-                            "uri = " + uri.toString());
-                    return;
-                }
 
                 navigationController.presentController(loadingViewController);
                 presenter.doImport(externalFile);

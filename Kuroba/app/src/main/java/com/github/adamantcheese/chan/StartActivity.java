@@ -603,12 +603,7 @@ public class StartActivity
     }
 
     @Override
-    public boolean myStartActivityForResult(@NotNull Intent intent, int requestCode) {
-        if (intent.resolveActivity(getPackageManager()) == null) {
-            return false;
-        }
-
+    public void myStartActivityForResult(@NotNull Intent intent, int requestCode) {
         startActivityForResult(intent, requestCode);
-        return true;
     }
 }

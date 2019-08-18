@@ -1,6 +1,8 @@
 package com.github.adamantcheese.chan.core.saf.file
 
 import com.github.adamantcheese.chan.core.extension
+import com.github.adamantcheese.chan.core.saf.annotation.ImmutableMethod
+import com.github.adamantcheese.chan.core.saf.annotation.MutableMethod
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream

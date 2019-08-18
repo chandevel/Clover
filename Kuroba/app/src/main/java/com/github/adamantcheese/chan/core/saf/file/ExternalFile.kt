@@ -37,6 +37,7 @@ class ExternalFile(
 
     override fun <T : AbstractFile> createNew(): T? {
         if (root is Root.FileRoot) {
+            // TODO: do we need this check?
             throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
         }
 
@@ -107,14 +108,7 @@ class ExternalFile(
             root.clone(),
             segments.toMutableList()) as T
 
-    override fun exists(): Boolean {
-        if (segments.isEmpty()) {
-            return root.holder.exists()
-        }
-
-        return toDocumentFile()?.exists() ?: false
-    }
-
+    override fun exists(): Boolean = toDocumentFile()?.exists() ?: false
     override fun isFile(): Boolean = toDocumentFile()?.isFile ?: false
     override fun isDirectory(): Boolean = toDocumentFile()?.isDirectory ?: false
     override fun canRead(): Boolean = toDocumentFile()?.canRead() ?: false
@@ -238,7 +232,6 @@ class ExternalFile(
             }
         }
 
-
         // FIXME: SLOW!!!
         for (documentFile in dirTree.listFiles()) {
             if (documentFile.name != null && documentFile.name == fileName) {
@@ -275,26 +268,6 @@ class ExternalFile(
         return appContext.contentResolver.openFileDescriptor(
                 root.holder.uri,
                 fileDescriptorMode.mode)
-    }
-
-    /**
-     * An extension function that allows to do something with a FileDescriptor without having
-     * to worry about not closing it in the end.
-     *
-     * Example:
-     * withFileDescriptor(FileDescriptorMode.Read) { fd ->
-     *      // Do anything here with FileDescriptor here, it will be closed automatically upon
-     *      // exiting the lambda
-     * }
-     * */
-    fun withFileDescriptor(
-            fileDescriptorMode: FileDescriptorMode,
-            func: (FileDescriptor) -> Unit
-    ): Boolean {
-        return getParcelFileDescriptor(fileDescriptorMode)?.use { pfd ->
-            func(pfd.fileDescriptor)
-            return@use true
-        } ?: false
     }
 
     private fun toDocumentFile(): DocumentFile? {
@@ -339,9 +312,14 @@ class ExternalFile(
     enum class FileDescriptorMode(val mode: String) {
         Read("r"),
         Write("w"),
+        // When overwriting an existing file it is a really good ide to use truncate mode,
+        // because otherwise if a new file's length is less than the old one's then there will be
+        // old file's data left at the end of the file
+        WriteTruncate("wt"),
         // It is recommended to prefer either Read or Write modes in the documentation.
         // Use ReadWrite only when it is really necessary.
-        ReadWrite("rw")
+        ReadWrite("rw"),
+        ReadWriteTruncate("rwt")
     }
 
     companion object {
