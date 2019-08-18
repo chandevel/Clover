@@ -85,6 +85,9 @@ public class SearchLayout extends LinearLayout {
             }
             return false;
         });
+        searchView.setOnFocusChangeListener((view, focused) -> {
+            if (!focused) AndroidUtils.hideKeyboard(view);
+        });
         LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(36), 1);
         searchViewParams.gravity = Gravity.CENTER_VERTICAL;
         addView(searchView, searchViewParams);
