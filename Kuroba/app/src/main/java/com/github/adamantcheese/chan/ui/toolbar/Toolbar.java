@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
-import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -34,7 +33,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
@@ -49,7 +47,6 @@ public class Toolbar extends LinearLayout implements
         View.OnClickListener, ToolbarPresenter.Callback, ToolbarContainer.Callback {
     public static final int TOOLBAR_COLLAPSE_HIDE = 1000000;
     public static final int TOOLBAR_COLLAPSE_SHOW = -1000000;
-    private boolean searchFuncEnabled;
 
     private final RecyclerView.OnScrollListener recyclerViewOnScrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -173,31 +170,6 @@ public class Toolbar extends LinearLayout implements
             for (ToolbarCollapseCallback c : collapseCallbacks) {
                 c.onCollapseAnimation(collapse);
             }
-            animate().setListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    //pseudo callback here if set
-                    if (searchFuncEnabled && navigationItemContainer.getCurrentView() instanceof SearchLayout) {
-                        ((SearchLayout) navigationItemContainer.getCurrentView()).openKeyboard();
-                        searchFuncEnabled = false;
-                    }
-                }
-
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
-            });
         } else {
             animate().cancel();
             setTranslationY(-scrollOffset);
@@ -327,11 +299,6 @@ public class Toolbar extends LinearLayout implements
 
         if (!visible) {
             hideKeyboard(navigationItemContainer);
-        } else {
-            //set a pseudo callback because I'm not doing a bunch of actual callbacks to get back to this same class
-            if (navigationItemContainer.viewForItem(item) instanceof SearchLayout && !searchFuncEnabled) {
-                searchFuncEnabled = true;
-            }
         }
     }
 
