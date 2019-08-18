@@ -325,7 +325,7 @@ public class MediaSettingsController extends SettingsController {
                 throw new RuntimeException("Couldn't create test123.txt");
             }
 
-            if (!externalFile.name().equals("test123.txt")) {
+            if (!externalFile.getName().equals("test123.txt")) {
                 throw new RuntimeException("externalFile name != test123.txt");
             }
 
@@ -398,7 +398,7 @@ public class MediaSettingsController extends SettingsController {
                 throw new RuntimeException("filename.json is not a directory");
             }
 
-            if (!externalFile.name().equals("filename.json")) {
+            if (!externalFile.getName().equals("filename.json")) {
                 throw new RuntimeException("externalFile1 name != filename.json");
             }
 

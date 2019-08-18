@@ -43,21 +43,69 @@ abstract class AbstractFile(
      * AbstractFile and then append the filename to those copies)
      * */
     abstract fun <T : AbstractFile> clone(): T
+
+    /**
+     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
+     * */
     abstract fun exists(): Boolean
+
+    /**
+     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
+     * */
     abstract fun isFile(): Boolean
+
+    /**
+     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
+     * */
     abstract fun isDirectory(): Boolean
+
+    /**
+     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
+     * */
     abstract fun canRead(): Boolean
+
+    /**
+     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
+     * */
     abstract fun canWrite(): Boolean
-    abstract fun name(): String?
+
+    /**
+     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
+     * */
     abstract fun <T : AbstractFile> getParent(): T?
+
+    /**
+     * Does not mutate this file. Safe to use without clone()
+     * */
     abstract fun getFullPath(): String
+
+    /**
+     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
+     * */
     abstract fun delete(): Boolean
+
+    /**
+     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
+     * */
     abstract fun getInputStream(): InputStream?
+
+    /**
+     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
+     * */
     abstract fun getOutputStream(): OutputStream?
+
+    /**
+     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
+     * */
     abstract fun getName(): String
+
+    /**
+     * Does not mutate this file. Safe to use without clone()
+     * */
     abstract fun findFile(fileName: String): DocumentFile?
 
     /**
+     * Mutates this file. Should be used after clone().
      * Removes the last appended segment if there are any
      * e.g: /test/123/test2 -> /test/123 -> /test
      * */

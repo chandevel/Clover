@@ -91,7 +91,6 @@ class RawFile(
     override fun isDirectory(): Boolean = toFile().isDirectory
     override fun canRead(): Boolean = toFile().canRead()
     override fun canWrite(): Boolean = toFile().canWrite()
-    override fun name(): String? = root.name()
 
     override fun <T : AbstractFile>  getParent(): T? {
         if (segments.isNotEmpty()) {
@@ -103,7 +102,7 @@ class RawFile(
     }
 
     override fun getFullPath(): String {
-        return root.holder
+        return File(root.holder.absolutePath)
                 .appendMany(segments.map { segment -> segment.name })
                 .absolutePath
     }

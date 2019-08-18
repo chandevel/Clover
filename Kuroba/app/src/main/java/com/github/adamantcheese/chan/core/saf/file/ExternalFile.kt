@@ -143,7 +143,6 @@ class ExternalFile(
     override fun isDirectory(): Boolean = toDocumentFile()?.isDirectory ?: false
     override fun canRead(): Boolean = toDocumentFile()?.canRead() ?: false
     override fun canWrite(): Boolean = toDocumentFile()?.canWrite() ?: false
-    override fun name(): String? = root.name()
 
     override fun <T : AbstractFile> getParent(): T? {
         if (segments.isNotEmpty()) {
