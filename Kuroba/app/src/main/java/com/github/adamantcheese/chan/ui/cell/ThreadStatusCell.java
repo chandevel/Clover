@@ -34,6 +34,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
@@ -113,7 +114,14 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                 }
             }
 
-            if (!chanThread.isArchived() && !chanThread.isClosed() && !chanThread.getLoadable().isLocal()) {
+            if (!chanThread.isArchived()
+                    && !chanThread.isClosed()
+                    && chanThread.getLoadable().loadableDownloadingState != Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+                if (chanThread.getLoadable().loadableDownloadingState != Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+                    // To split Local Thread and (Loading Time | Loading) rows
+                    builder.append('\n');
+                }
+
                 long time = callback.getTimeUntilLoadMore() / 1000L;
                 if (!callback.isWatching()) {
                     builder.append(getContext().getString(R.string.thread_refresh_bar_inactive));

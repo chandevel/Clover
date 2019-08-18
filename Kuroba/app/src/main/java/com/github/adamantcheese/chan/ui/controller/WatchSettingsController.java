@@ -22,6 +22,7 @@ import android.widget.CompoundButton;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
@@ -71,19 +72,23 @@ public class WatchSettingsController extends SettingsController implements Compo
         buildPreferences();
 
         if (!ChanSettings.watchBackground.get()) {
-            setSettingViewVisibility(backgroundTimeout, false);
-            setSettingViewVisibility(removeWatched, false);
-            setSettingViewVisibility(lastPageNotifyMode, false);
-            setSettingViewVisibility(notifyMode, false);
-            setSettingViewVisibility(soundMode, false);
-            setSettingViewVisibility(peekMode, false);
-            setSettingViewVisibility(enableFilterWatch, false);
+            switchVisibility(false);
         }
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         ChanSettings.watchEnabled.set(isChecked);
+
+        if (!isChecked) {
+            ChanSettings.watchBackground.setSync(false);
+            groups.clear();
+
+            populatePreferences();
+            buildPreferences();
+            switchVisibility(false);
+        }
+
         crossfadeView.toggle(isChecked, true);
     }
 
@@ -93,14 +98,18 @@ public class WatchSettingsController extends SettingsController implements Compo
 
         if (item == enableBackground) {
             boolean enabled = ChanSettings.watchBackground.get();
-            setSettingViewVisibility(backgroundTimeout, enabled);
-            setSettingViewVisibility(removeWatched, enabled);
-            setSettingViewVisibility(lastPageNotifyMode, enabled);
-            setSettingViewVisibility(notifyMode, enabled);
-            setSettingViewVisibility(soundMode, enabled);
-            setSettingViewVisibility(peekMode, enabled);
-            setSettingViewVisibility(enableFilterWatch, enabled);
+            switchVisibility(enabled);
         }
+    }
+
+    private void switchVisibility(boolean enabled) {
+        setSettingViewVisibility(backgroundTimeout, enabled);
+        setSettingViewVisibility(removeWatched, enabled);
+        setSettingViewVisibility(lastPageNotifyMode, enabled);
+        setSettingViewVisibility(notifyMode, enabled);
+        setSettingViewVisibility(soundMode, enabled);
+        setSettingViewVisibility(peekMode, enabled);
+        setSettingViewVisibility(enableFilterWatch, enabled);
     }
 
     private void populatePreferences() {

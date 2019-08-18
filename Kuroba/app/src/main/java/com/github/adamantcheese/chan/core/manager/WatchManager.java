@@ -1112,6 +1112,8 @@ public class WatchManager implements WakeManager.Wakeable {
 
         @Override
         public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
+            Logger.d(TAG, "onChanLoaderError()");
+
             // Ignore normal network errors, we only pause pins when there is absolutely no way
             // we'll ever need watching again: a 404.
             if (error.isNotFound()) {
@@ -1124,6 +1126,8 @@ public class WatchManager implements WakeManager.Wakeable {
 
         @Override
         public void onChanLoaderData(ChanThread thread) {
+            Logger.d(TAG, "onChanLoaderData()");
+
             if (thread.getOp() != null) {
                 lastReplyCount = thread.getOp().getReplies();
             } else {
@@ -1132,7 +1136,9 @@ public class WatchManager implements WakeManager.Wakeable {
 
             // This route is only for downloading threads, to mark them as completely downloaded
             if (PinType.hasDownloadFlag(pin.pinType)
-                    && !pin.loadable.isLocal()
+                    // Only check for this flag here, since we won't get here when loadableDownloadingState
+                    // is AlreadyDownloaded
+                    && pin.loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndViewable
                     && (thread.isArchived() || thread.isClosed())) {
                 NetworkResponse networkResponse = new NetworkResponse(
                         NetworkResponse.STATUS_SERVICE_UNAVAILABLE,
@@ -1140,6 +1146,9 @@ public class WatchManager implements WakeManager.Wakeable {
                         Collections.emptyMap(),
                         true);
                 ServerError serverError = new ServerError(networkResponse);
+
+                pin.isError = true;
+                pin.watching = false;
 
                 onChanLoaderError(new ChanThreadLoader.ChanLoaderException(serverError));
                 return;
