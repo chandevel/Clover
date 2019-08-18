@@ -6,7 +6,6 @@ import android.os.ParcelFileDescriptor
 import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.github.adamantcheese.chan.core.appendManyEncoded
-import com.github.adamantcheese.chan.core.extension
 import com.github.adamantcheese.chan.core.getMimeFromFilename
 import com.github.adamantcheese.chan.utils.Logger
 import java.io.FileDescriptor
@@ -25,21 +24,7 @@ class ExternalFile(
             throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
         }
 
-        if (isFilenameAppended) {
-            throw IllegalStateException("Cannot append anything after file name has been appended")
-        }
-
-        if (name.isNullOrBlank()) {
-            throw IllegalArgumentException("Bad name: $name")
-        }
-
-        if (name.extension() != null) {
-            throw IllegalArgumentException("Directory name must not contain extension, " +
-                    "extension = ${name.extension()}")
-        }
-
-        segments += Segment(name)
-        return this as T
+        return super.appendSubDirSegmentInner(name)
     }
 
     override fun <T : AbstractFile> appendFileNameSegment(name: String): T {
@@ -47,16 +32,7 @@ class ExternalFile(
             throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
         }
 
-        if (isFilenameAppended) {
-            throw IllegalStateException("Cannot append anything after file name has been appended")
-        }
-
-        if (name.isNullOrBlank()) {
-            throw IllegalArgumentException("Bad name: $name")
-        }
-
-        segments += Segment(name, true)
-        return this as T
+        return super.appendFileNameSegmentInner(name)
     }
 
     override fun <T : AbstractFile> createNew(): T? {
@@ -242,7 +218,7 @@ class ExternalFile(
                 ?: throw IllegalStateException("Could not extract file name from document file")
     }
 
-    override fun findFile(fileName: String): DocumentFile? {
+    override fun <T : AbstractFile> findFile(fileName: String): T? {
         if (root is Root.FileRoot) {
             throw IllegalStateException("Cannot use FileRoot as directory")
         }
@@ -262,15 +238,32 @@ class ExternalFile(
             }
         }
 
+
         // FIXME: SLOW!!!
         for (documentFile in dirTree.listFiles()) {
             if (documentFile.name != null && documentFile.name == fileName) {
-                return documentFile
+                val root = if (documentFile.isFile) {
+                    Root.FileRoot(documentFile, documentFile.name!!)
+                } else {
+                    Root.DirRoot(documentFile)
+                }
+
+                return ExternalFile(
+                        appContext,
+                        root) as T
             }
         }
 
         if (dirTree.name == fileName) {
-            return dirTree
+            val root = if (dirTree.isFile) {
+                Root.FileRoot(dirTree, dirTree.name!!)
+            } else {
+                Root.DirRoot(dirTree)
+            }
+
+            return ExternalFile(
+                    appContext,
+                    root) as T
         }
 
         // Not found

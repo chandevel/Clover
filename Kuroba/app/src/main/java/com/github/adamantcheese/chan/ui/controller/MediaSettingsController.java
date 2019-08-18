@@ -410,7 +410,7 @@ public class MediaSettingsController extends SettingsController {
                 throw new RuntimeException("dir.name != 4566, name = " + dir.getName());
             }
 
-            DocumentFile foundFile = dir.findFile("filename.json");
+            AbstractFile foundFile = dir.findFile("filename.json");
             if (foundFile == null || !foundFile.exists()) {
                 throw new RuntimeException("Couldn't find filename.json");
             }

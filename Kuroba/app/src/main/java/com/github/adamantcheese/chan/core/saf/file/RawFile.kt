@@ -1,8 +1,6 @@
 package com.github.adamantcheese.chan.core.saf.file
 
-import androidx.documentfile.provider.DocumentFile
 import com.github.adamantcheese.chan.core.appendMany
-import com.github.adamantcheese.chan.core.extension
 import com.github.adamantcheese.chan.utils.Logger
 import java.io.File
 import java.io.InputStream
@@ -13,43 +11,20 @@ class RawFile(
         segments: MutableList<Segment> = mutableListOf()
 ) : AbstractFile(segments) {
 
-    override fun <T : AbstractFile>  appendSubDirSegment(name: String): T {
+    override fun <T : AbstractFile> appendSubDirSegment(name: String): T {
         if (root is Root.FileRoot) {
             throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
         }
 
-        if (isFilenameAppended) {
-            throw IllegalStateException("Cannot append anything after file name has been appended")
-        }
-
-        if (name.isBlank()) {
-            throw IllegalArgumentException("Bad name: $name")
-        }
-
-        if (name.extension() != null) {
-            throw IllegalArgumentException("Directory name must not contain extension, " +
-                    "extension = ${name.extension()}")
-        }
-
-        segments += Segment(name)
-        return this as T
+        return super.appendSubDirSegmentInner(name)
     }
 
-    override fun <T : AbstractFile>  appendFileNameSegment(name: String): T {
+    override fun <T : AbstractFile> appendFileNameSegment(name: String): T {
         if (root is Root.FileRoot) {
             throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
         }
 
-        if (isFilenameAppended) {
-            throw IllegalStateException("Cannot append anything after file name has been appended")
-        }
-
-        if (name.isBlank()) {
-            throw IllegalArgumentException("Bad name: $name")
-        }
-
-        segments += Segment(name, true)
-        return this as T
+        return super.appendFileNameSegmentInner(name)
     }
 
     override fun <T : AbstractFile>  createNew(): T? {
@@ -69,9 +44,16 @@ class RawFile(
         for (segment in segments) {
             newFile = File(newFile, segment.name)
 
-            if (!newFile.createNewFile()) {
-                Logger.e(TAG, "Could not create a new file, path = " + newFile.absolutePath)
-                return null
+            if (segment.isFileName) {
+                if (!newFile.exists() && !newFile.createNewFile()) {
+                    Logger.e(TAG, "Could not create a new file, path = " + newFile.absolutePath)
+                    return null
+                }
+            } else {
+                if (!newFile.exists() && !newFile.mkdir()) {
+                    Logger.e(TAG, "Could not create a new directory, path = " + newFile.absolutePath)
+                    return null
+                }
             }
 
             if (segment.isFileName) {
@@ -157,8 +139,29 @@ class RawFile(
         return toFile().name
     }
 
-    override fun findFile(fileName: String): DocumentFile? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun <T: AbstractFile> findFile(fileName: String): T? {
+        if (root is Root.FileRoot) {
+            throw IllegalStateException("Cannot use FileRoot as directory")
+        }
+
+        val copy = File(root.holder.absolutePath)
+
+        if (segments.isNotEmpty()) {
+            copy.appendMany(segments.map { segment -> segment.name })
+        }
+
+        val resultFile = File(copy.absolutePath, fileName)
+        if (!resultFile.exists()) {
+            return null
+        }
+
+        val newRoot = if (resultFile.isFile) {
+            Root.FileRoot(resultFile, resultFile.name)
+        } else {
+            Root.DirRoot(resultFile)
+        }
+
+        return RawFile(newRoot) as T
     }
 
     private fun toFile(): File {

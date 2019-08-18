@@ -1,36 +1,52 @@
 package com.github.adamantcheese.chan.core.saf.file
 
-import androidx.documentfile.provider.DocumentFile
+import com.github.adamantcheese.chan.core.extension
+import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 
+/**
+ * An abstraction class over both the Java File and the new Storage Access Framework DocumentFile.
+ *
+ * Some methods are marked with [MutableMethod] annotation. This means that such method are gonna
+ * mutate the inner data of the [AbstractFile] (such as root or segments). Sometimes this behavior is
+ * not desirable. For example, when you have an AbstractFile representing some directory that may
+ * not even exists on the disk and you want to check whether it exists and if it does check some
+ * additional files inside that directory. In such case you may want to preserve the [AbstractFile]
+ * that represents that directory in it's original state. To do this you have to call the [clone]
+ * method on the file that represents the directory. It will create a copy of the file that you can
+ * safely work without worry that the original file may change.
+ *
+ * Other methods are marked with [ImmutableMethod] annotation. This means that those files create a
+ * copy of the [AbstractFile] internally and are safe to use without calling [clone]
+ * */
 abstract class AbstractFile(
         /**
          * /test/123/test2/filename.txt -> 4 segments
          * */
         protected val segments: MutableList<Segment>
 ) {
-    /**
-     * We can't append anything if the last segment's isFileName is true.
-     * This is a terminal operation.
-     * */
-    protected var isFilenameAppended = segments.lastOrNull()?.isFileName ?: false
 
     /**
      * Appends a new subdirectory to the root directory
      * */
+    @MutableMethod
     abstract fun <T : AbstractFile> appendSubDirSegment(name: String): T
 
     /**
      * Appends a file name to the root directory
      * */
+    @MutableMethod
     abstract fun <T : AbstractFile> appendFileNameSegment(name: String): T
 
     /**
      * Creates a new file that consists of the root directory and segments (sub dirs or the file name)
+     * Behave similarly to Java's mkdirs() method but work not only with directories but files as well.
      * */
+    @ImmutableMethod
     abstract fun <T : AbstractFile> createNew(): T?
 
+    @ImmutableMethod
     fun <T : AbstractFile> create(): Boolean {
         return createNew<T>() != null
     }
@@ -44,71 +60,47 @@ abstract class AbstractFile(
      * */
     abstract fun <T : AbstractFile> clone(): T
 
-    /**
-     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
-     * */
+    @MutableMethod
     abstract fun exists(): Boolean
 
-    /**
-     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
-     * */
+    @MutableMethod
     abstract fun isFile(): Boolean
 
-    /**
-     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
-     * */
+    @MutableMethod
     abstract fun isDirectory(): Boolean
 
-    /**
-     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
-     * */
+    @MutableMethod
     abstract fun canRead(): Boolean
 
-    /**
-     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
-     * */
+    @MutableMethod
     abstract fun canWrite(): Boolean
 
-    /**
-     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
-     * */
+    @MutableMethod
     abstract fun <T : AbstractFile> getParent(): T?
 
-    /**
-     * Does not mutate this file. Safe to use without clone()
-     * */
+    @ImmutableMethod
     abstract fun getFullPath(): String
 
-    /**
-     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
-     * */
+    @MutableMethod
     abstract fun delete(): Boolean
 
-    /**
-     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
-     * */
+    @MutableMethod
     abstract fun getInputStream(): InputStream?
 
-    /**
-     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
-     * */
+    @MutableMethod
     abstract fun getOutputStream(): OutputStream?
 
-    /**
-     * Mutates this file. Should be used after clone() if you don't want this file to be changed.
-     * */
+    @MutableMethod
     abstract fun getName(): String
 
-    /**
-     * Does not mutate this file. Safe to use without clone()
-     * */
-    abstract fun findFile(fileName: String): DocumentFile?
+    @ImmutableMethod
+    abstract fun <T: AbstractFile> findFile(fileName: String): T?
 
     /**
-     * Mutates this file. Should be used after clone().
      * Removes the last appended segment if there are any
      * e.g: /test/123/test2 -> /test/123 -> /test
      * */
+    @MutableMethod
     fun removeLastSegment(): Boolean {
         if (segments.isEmpty()) {
             return false
@@ -117,6 +109,74 @@ abstract class AbstractFile(
         segments.removeAt(segments.lastIndex)
         return true
     }
+
+    protected fun <T : AbstractFile> appendSubDirSegmentInner(name: String): T {
+        if (isFilenameAppended()) {
+            throw IllegalStateException("Cannot append anything after file name has been appended")
+        }
+
+        if (name.isBlank()) {
+            throw IllegalArgumentException("Bad name: $name")
+        }
+
+        if (name.extension() != null) {
+            throw IllegalArgumentException("Directory name must not contain extension, " +
+                    "extension = ${name.extension()}")
+        }
+
+        val nameList = if (name.contains(File.separatorChar)) {
+            name.split(File.separatorChar)
+        } else {
+            listOf(name)
+        }
+
+        nameList
+                .onEach { splitName ->
+                    if (splitName.extension() != null) {
+                        throw IllegalArgumentException("appendSubDirSegment does not allow segments " +
+                                "with extensions! bad name = $splitName")
+                    }
+                }
+                .map { splitName -> Segment(splitName) }
+                .forEach { segment -> segments += segment }
+
+        return this as T
+    }
+
+    protected fun <T : AbstractFile> appendFileNameSegmentInner(name: String): T {
+        if (isFilenameAppended()) {
+            throw IllegalStateException("Cannot append anything after file name has been appended")
+        }
+
+        if (name.isBlank()) {
+            throw IllegalArgumentException("Bad name: $name")
+        }
+
+        val nameList = if (name.contains(File.separatorChar)) {
+            val split = name.split(File.separatorChar)
+            if (split.size < 2) {
+                throw IllegalStateException("Should have at least two entries, name = $name")
+            }
+
+            split
+        } else {
+            listOf(name)
+        }
+
+        for ((index, splitName) in nameList.withIndex()) {
+            if (splitName.extension() != null && index != nameList.lastIndex) {
+                throw IllegalArgumentException("Only the last split segment may have a file name, " +
+                        "bad segment index = ${index}/${nameList.lastIndex}, bad name = $splitName")
+            }
+
+            val isFileName = index == nameList.lastIndex
+            segments += Segment(splitName, isFileName)
+        }
+
+        return this as T
+    }
+
+    private fun isFilenameAppended(): Boolean = segments.lastOrNull()?.isFileName ?: false
 
     /**
      * We can have the root to be a directory or a file.
