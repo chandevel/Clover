@@ -247,8 +247,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/captcha_container"
                 android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:visibility="gone">
+                android:layout_height="36dp">
 
                 <ImageView
                     android:id="@+id/captcha"

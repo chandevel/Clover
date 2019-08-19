@@ -37,6 +37,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -119,7 +121,7 @@ public class ReplyLayout extends LoadView implements
     private ImageView preview;
     private TextView previewMessage;
     private ImageView attach;
-    private ImageView captcha;
+    private ConstraintLayout captcha;
     private TextView validCaptchasCount;
     private ImageView more;
     private ImageView submit;
@@ -174,7 +176,7 @@ public class ReplyLayout extends LoadView implements
         previewHolder = replyInputLayout.findViewById(R.id.preview_holder);
         previewMessage = replyInputLayout.findViewById(R.id.preview_message);
         attach = replyInputLayout.findViewById(R.id.attach);
-        captcha = replyInputLayout.findViewById(R.id.captcha);
+        captcha = replyInputLayout.findViewById(R.id.captcha_container);
         validCaptchasCount = replyInputLayout.findViewById(R.id.valid_captchas_count);
         more = replyInputLayout.findViewById(R.id.more);
         submit = replyInputLayout.findViewById(R.id.submit);
@@ -207,7 +209,8 @@ public class ReplyLayout extends LoadView implements
             return true;
         });
 
-        setRoundItemBackground(captcha);
+        ImageView captchaImage = replyInputLayout.findViewById(R.id.captcha);
+        setRoundItemBackground(captchaImage);
         captcha.setOnClickListener(this);
 
         ThemeHelper.getTheme().sendDrawable.apply(submit);
@@ -244,12 +247,10 @@ public class ReplyLayout extends LoadView implements
     }
 
     public void bindLoadable(Loadable loadable) {
-        //start with it at 108 in xml, make larger
-        //other way around doesn't work due to layout passes not updating when things aren't visible
-        //ie the reply box is closed
         if (loadable.site.actions().postRequiresAuthentication()) {
-            findViewById(R.id.captcha_container).setVisibility(VISIBLE);
             comment.setMinHeight(dp(144));
+        } else {
+            captcha.setVisibility(GONE);
         }
         presenter.bindLoadable(loadable);
         captchaHolder.setListener(this);
