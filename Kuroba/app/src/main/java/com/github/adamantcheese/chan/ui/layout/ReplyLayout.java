@@ -244,9 +244,12 @@ public class ReplyLayout extends LoadView implements
     }
 
     public void bindLoadable(Loadable loadable) {
-        if (!loadable.site.actions().postRequiresAuthentication()) {
-            findViewById(R.id.captcha_container).setVisibility(GONE);
-            comment.setMinHeight(dp(108));
+        //start with it at 108 in xml, make larger
+        //other way around doesn't work due to layout passes not updating when things aren't visible
+        //ie the reply box is closed
+        if (loadable.site.actions().postRequiresAuthentication()) {
+            findViewById(R.id.captcha_container).setVisibility(VISIBLE);
+            comment.setMinHeight(dp(144));
         }
         presenter.bindLoadable(loadable);
         captchaHolder.setListener(this);

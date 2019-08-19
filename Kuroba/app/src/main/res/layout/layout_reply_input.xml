@@ -15,10 +15,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:animateLayoutChanges="true"
     android:baselineAligned="false"
     android:minHeight="124dp"
@@ -105,7 +105,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:imeActionLabel="@string/reply_submit"
                     android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
                     android:maxLines="6"
-                    android:minHeight="144dp"
+                    android:minHeight="108dp"
                     android:textSize="16sp" />
 
                 <TextView
@@ -247,7 +247,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/captcha_container"
                 android:layout_width="36dp"
-                android:layout_height="36dp">
+                android:layout_height="36dp"
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/captcha"
@@ -260,12 +261,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:id="@+id/valid_captchas_count"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:textColor="#fff"
-                    android:gravity="center"
                     android:background="@drawable/circle_background"
+                    android:gravity="center"
+                    android:textColor="#fff"
+                    android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    android:textSize="12sp"
                     tools:text="99+" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
