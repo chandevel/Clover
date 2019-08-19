@@ -138,18 +138,18 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
             Post op = chanThread.getOp();
             Board board = op.board;
             if (board != null) {
-                boolean hasReplies = op.getReplies() >= 0;
-                boolean hasImages = op.getImagesCount() >= 0;
+                boolean hasReplies = op.getReplies() >= 0 || chanThread.getPostsCount() - 1 > 0;
+                boolean hasImages = op.getImagesCount() >= 0 || chanThread.getImagesCount() > 0;
                 if (hasReplies && hasImages) {
                     boolean hasBumpLimit = board.bumpLimit > 0;
                     boolean hasImageLimit = board.imageLimit > 0;
 
-                    SpannableString replies = new SpannableString(op.getReplies() + "R");
+                    SpannableString replies = new SpannableString((op.getReplies() >= 0 ? op.getReplies() : chanThread.getPostsCount() - 1) + "R");
                     if (hasBumpLimit && op.getReplies() >= board.bumpLimit) {
                         replies.setSpan(new StyleSpan(Typeface.ITALIC), 0, replies.length(), 0);
                     }
 
-                    SpannableString images = new SpannableString(op.getImagesCount() + "I");
+                    SpannableString images = new SpannableString((op.getImagesCount() >= 0 ? op.getImagesCount() : chanThread.getImagesCount()) + "I");
                     if (hasImageLimit && op.getImagesCount() >= board.imageLimit) {
                         images.setSpan(new StyleSpan(Typeface.ITALIC), 0, images.length(), 0);
                     }
