@@ -23,14 +23,10 @@ import android.util.JsonReader;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.github.adamantcheese.chan.BuildConfig;
-import com.vladsch.flexmark.ext.gfm.issues.GfmIssuesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
-import com.vladsch.flexmark.util.data.MutableDataHolder;
-import com.vladsch.flexmark.util.data.MutableDataSet;
 
-import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -89,11 +85,8 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                     reader.endArray();
                     break;
                 case "body":
-                    MutableDataHolder options = new MutableDataSet()
-                            .set(GfmIssuesExtension.GIT_HUB_ISSUES_URL_ROOT, BuildConfig.GITHUB_ENDPOINT + "/issues")
-                            .set(Parser.EXTENSIONS, Collections.singletonList(GfmIssuesExtension.create()));
-                    Node updateLog = Parser.builder(options).build().parse(reader.nextString());
-                    response.body = Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder(options).build().render(updateLog));
+                    Node updateLog = Parser.builder().build().parse(reader.nextString());
+                    response.body = Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog));
                     break;
                 default:
                     reader.skipValue();

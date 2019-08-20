@@ -150,7 +150,6 @@ dependencies {
     implementation 'me.xdrop:fuzzywuzzy:1.1.10'
     implementation 'org.codejargon.feather:feather:1.0'
     implementation 'com.vladsch.flexmark:flexmark:0.50.22'
-    implementation 'com.vladsch.flexmark:flexmark-ext-gfm-issues:0.50.22'
     implementation 'com.vdurmont:emoji-java:4.0.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.9'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
