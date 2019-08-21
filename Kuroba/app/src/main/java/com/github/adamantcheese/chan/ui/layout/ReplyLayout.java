@@ -197,7 +197,7 @@ public class ReplyLayout extends LoadView implements
 
         previewHolder.setOnClickListener(this);
 
-        moreDropdown = new DropdownArrowDrawable(dp(16), dp(16), true,
+        moreDropdown = new DropdownArrowDrawable(dp(16), dp(16), !ChanSettings.moveInputToBottom.get(),
                 getAttrColor(getContext(), R.attr.dropdown_dark_color),
                 getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color));
         more.setImageDrawable(moreDropdown);
@@ -516,7 +516,9 @@ public class ReplyLayout extends LoadView implements
                 expanded ? dp(150) : dp(100)
         ));
 
-        ValueAnimator animator = ValueAnimator.ofFloat(expanded ? 0f : 1f, expanded ? 1f : 0f);
+        float startRotation = ChanSettings.moveInputToBottom.get() ? 1f : 0f;
+        float endRotation = ChanSettings.moveInputToBottom.get() ? 0f : 1f;
+        ValueAnimator animator = ValueAnimator.ofFloat(expanded ? startRotation : endRotation, expanded ? endRotation : startRotation);
         animator.setInterpolator(new DecelerateInterpolator(2f));
         animator.setDuration(400);
         animator.addUpdateListener(animation ->
