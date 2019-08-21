@@ -267,10 +267,19 @@ public class ReplyLayout extends LoadView implements
     }
 
     private void setWrap(boolean wrap) {
-        setLayoutParams(new LayoutParams(
-                LayoutParams.MATCH_PARENT,
-                !wrap ? LayoutParams.WRAP_CONTENT : LayoutParams.MATCH_PARENT
-        ));
+        LayoutParams params = (LayoutParams) getLayoutParams();
+        params.width = LayoutParams.MATCH_PARENT;
+        params.height = !wrap ? LayoutParams.WRAP_CONTENT : LayoutParams.MATCH_PARENT;
+
+        if (ChanSettings.moveInputToBottom.get() && wrap) {
+            setPadding(0, ((ThreadListLayout) getParent()).toolbarHeight(), 0, 0);
+            params.gravity = Gravity.TOP;
+        } else if (ChanSettings.moveInputToBottom.get() && !wrap) {
+            setPadding(0, 0, 0, 0);
+            params.gravity = Gravity.BOTTOM;
+        }
+
+        setLayoutParams(params);
     }
 
     @Override
@@ -482,6 +491,9 @@ public class ReplyLayout extends LoadView implements
     public void onEvent(RefreshUIMessage message) {
         if (!ChanSettings.moveInputToBottom.get()) {
             setPadding(0, ((ThreadListLayout) getParent()).toolbarHeight(), 0, 0);
+            LayoutParams params = (LayoutParams) getLayoutParams();
+            params.gravity = Gravity.TOP;
+            setLayoutParams(params);
         } else if (ChanSettings.moveInputToBottom.get()) {
             setPadding(0, 0, 0, 0);
             LayoutParams params = (LayoutParams) getLayoutParams();
@@ -493,15 +505,6 @@ public class ReplyLayout extends LoadView implements
     @Override
     public void setExpanded(boolean expanded) {
         setWrap(expanded);
-
-        if (ChanSettings.moveInputToBottom.get() && expanded) {
-            setPadding(0, ((ThreadListLayout) getParent()).toolbarHeight(), 0, 0);
-        } else if (ChanSettings.moveInputToBottom.get() && !expanded) {
-            setPadding(0, 0, 0, 0);
-            LayoutParams params = (LayoutParams) getLayoutParams();
-            params.gravity = Gravity.BOTTOM;
-            setLayoutParams(params);
-        }
 
         comment.setMaxLines(expanded ? 500 : 6);
 
