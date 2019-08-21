@@ -191,6 +191,9 @@ public class ReplyLayout extends LoadView implements
 
         comment.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
+        comment.setOnFocusChangeListener((view, focused) -> {
+            if (!focused) AndroidUtils.hideKeyboard(comment);
+        });
 
         previewHolder.setOnClickListener(this);
 
