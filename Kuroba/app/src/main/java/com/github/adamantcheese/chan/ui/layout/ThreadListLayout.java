@@ -690,7 +690,12 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                     MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
-            top += reply.getMeasuredHeight();
+            if(ChanSettings.moveInputToBottom.get()) {
+                bottom += reply.getMeasuredHeight();
+                top += toolbarHeight();
+            } else {
+                top += reply.getMeasuredHeight();
+            }
         } else if (searchOpen) {
             searchStatus.measure(
                     MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
