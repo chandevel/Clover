@@ -24,7 +24,6 @@ import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
@@ -41,25 +40,16 @@ public class BoardHelper {
     }
 
     public static List<Board> quickSearch(List<Board> from, String query) {
-        from = new ArrayList<>(from);
         query = query.toLowerCase();
-
         List<Board> res = new ArrayList<>();
 
-        for (Iterator<Board> iterator = from.iterator(); iterator.hasNext(); ) {
-            Board board = iterator.next();
-            if (board.code.toLowerCase().equals(query)) {
-                iterator.remove();
-                res.add(board);
-            }
+        //split loops so name matches come after board code matches
+        for (Board board : from) {
+            if (board.code.toLowerCase().startsWith(query)) res.add(board);
         }
 
-        for (Iterator<Board> iterator = from.iterator(); iterator.hasNext(); ) {
-            Board board = iterator.next();
-            if (board.name.toLowerCase().contains(query)) {
-                iterator.remove();
-                res.add(board);
-            }
+        for (Board board : from) {
+            if (board.name.toLowerCase().contains(query)) res.add(board);
         }
 
         return res;
