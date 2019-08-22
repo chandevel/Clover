@@ -663,6 +663,9 @@ public class PostCell extends LinearLayout implements PostCellInterface {
                             } else if (linkable2.type == PostLinkable.Type.SPOILER && linkable2.getSpoilerState()) {
                                 //linkable 1 is the link
                                 callback.onPostLinkableClicked(post, linkable1);
+                            } else {
+                                //weird case where a double stack of linkables, but isn't spoilered (some 4chan stickied posts)
+                                callback.onPostLinkableClicked(post, linkable1);
                             }
                         }
 
