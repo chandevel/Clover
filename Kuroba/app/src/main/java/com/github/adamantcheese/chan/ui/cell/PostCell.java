@@ -167,7 +167,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         paddingPx = dp(textSizeSp - 6);
         detailsSizePx = sp(textSizeSp - 4);
         title.setTextSize(textSizeSp);
-        title.setPadding(paddingPx, paddingPx, dp(52), 0);
+        title.setPadding(paddingPx, paddingPx, dp(16), 0);
 
         iconSizePx = sp(textSizeSp - 3);
         icons.setHeight(sp(textSizeSp));
@@ -618,7 +618,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                         ChanSettings.padThumbs.get() && first ? dp(4) : 0,
                         0,
                         i + 1 == post.images.size()
-                                ? ChanSettings.padThumbs.get() ? dp(4) : dp(1)
+                                ? dp(1) + (ChanSettings.padThumbs.get() ? dp(4) : 0)
                                 : 0);
 
                 relativeLayoutContainer.addView(v, p);
