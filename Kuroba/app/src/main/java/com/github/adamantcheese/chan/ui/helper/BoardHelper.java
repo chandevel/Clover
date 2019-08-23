@@ -39,7 +39,8 @@ public class BoardHelper {
         return Parser.unescapeEntities(board.description, false);
     }
 
-    public static List<Board> quickSearch(List<Board> from, String query) {
+    public static List<Board> quickSearch(List<Board> original, String query) {
+        List<Board> from = new ArrayList<>(original);
         query = query.toLowerCase();
         List<Board> res = new ArrayList<>();
 
