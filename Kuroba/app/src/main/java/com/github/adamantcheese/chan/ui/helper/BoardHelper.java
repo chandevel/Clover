@@ -48,7 +48,7 @@ public class BoardHelper {
 
         for (Iterator<Board> iterator = from.iterator(); iterator.hasNext(); ) {
             Board board = iterator.next();
-            if (board.code.toLowerCase().equals(query)) {
+            if (board.code.toLowerCase().startsWith(query)) {
                 iterator.remove();
                 res.add(board);
             }
