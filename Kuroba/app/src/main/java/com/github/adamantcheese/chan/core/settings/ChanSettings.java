@@ -124,6 +124,7 @@ public class ChanSettings {
     @Deprecated
     public static final StringSetting saveLocation;
     public static final StringSetting saveLocationUri;
+    public static final StringSetting localThreadsLocationUri;
     public static final BooleanSetting saveServerFilename;
     public static final BooleanSetting shareUrl;
     public static final BooleanSetting enableReplyFab;
@@ -223,6 +224,11 @@ public class ChanSettings {
             EventBus.getDefault().post(new SettingChanged<>(saveLocationUri));
         }));
 
+        localThreadsLocationUri = new StringSetting(p, "local_threads_location_uri", "");
+        localThreadsLocationUri.addCallback((settings, value) -> {
+            EventBus.getDefault().post(new SettingChanged<>(localThreadsLocationUri));
+        });
+
         saveServerFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
         accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);
@@ -292,9 +298,7 @@ public class ChanSettings {
         enableEmoji = new BooleanSetting(p, "enable_emoji", false);
         highResCells = new BooleanSetting(p, "high_res_cells", false);
         padThumbs = new BooleanSetting(p, "pad_thumbnails", true);
-
         incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
-
         fullUserRotationEnable = new BooleanSetting(p, "full_user_rotation_enable", true);
     }
 

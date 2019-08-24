@@ -22,8 +22,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.widget.Toast;
 
-import androidx.documentfile.provider.DocumentFile;
-
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.saf.FileManager;
 import com.github.adamantcheese.chan.core.saf.callback.DirectoryChooserCallback;
@@ -56,6 +54,7 @@ public class MediaSettingsController extends SettingsController {
     private BooleanSettingView boardFolderSetting;
     private BooleanSettingView threadFolderSetting;
     private LinkSettingView saveLocation;
+    private LinkSettingView localThreadsLocation;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
 
@@ -123,6 +122,7 @@ public class MediaSettingsController extends SettingsController {
             SettingsGroup media = new SettingsGroup(R.string.settings_group_media);
 
             setupSaveLocationSetting(media);
+            setupLocalThreadLocationSetting(media);
 
             boardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
                     ChanSettings.saveBoardFolder,
@@ -184,60 +184,30 @@ public class MediaSettingsController extends SettingsController {
         }
     }
 
-    private void setupMediaLoadTypesSetting(SettingsGroup loading) {
-        List<ListSettingView.Item> imageAutoLoadTypes = new ArrayList<>();
-        List<ListSettingView.Item> videoAutoLoadTypes = new ArrayList<>();
-        for (ChanSettings.MediaAutoLoadMode mode : ChanSettings.MediaAutoLoadMode.values()) {
-            int name = 0;
-            switch (mode) {
-                case ALL:
-                    name = R.string.setting_image_auto_load_all;
-                    break;
-                case WIFI:
-                    name = R.string.setting_image_auto_load_wifi;
-                    break;
-                case NONE:
-                    name = R.string.setting_image_auto_load_none;
-                    break;
-            }
-
-            imageAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode));
-            videoAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode));
+    private void setupLocalThreadLocationSetting(SettingsGroup media) {
+        if (!ChanSettings.incrementalThreadDownloadingEnabled.get()) {
+            return;
         }
 
-        imageAutoLoadView = new ListSettingView<>(this,
-                ChanSettings.imageAutoLoadNetwork, R.string.setting_image_auto_load,
-                imageAutoLoadTypes);
-        loading.add(imageAutoLoadView);
+        LinkSettingView localThreadsLocationSetting = new LinkSettingView(this,
+                R.string.media_settings_local_threads_location_title,
+                0,
+                v -> onLocalThreadsLocationSettingClicked());
 
-        videoAutoLoadView = new ListSettingView<>(this,
-                ChanSettings.videoAutoLoadNetwork, R.string.setting_video_auto_load,
-                videoAutoLoadTypes);
-        loading.add(videoAutoLoadView);
+        String localThreadsLocationString;
 
-        updateVideoLoadModes();
+        if (ChanSettings.localThreadsLocationUri.get().isEmpty()) {
+            localThreadsLocationString = context.getString(R.string.media_settings_local_threads_setting_not_set);
+        } else {
+            localThreadsLocationString = ChanSettings.localThreadsLocationUri.get();
+        }
+
+        localThreadsLocation = (LinkSettingView) media.add(localThreadsLocationSetting);
+        localThreadsLocation.setDescription(localThreadsLocationString);
     }
 
-    private void updateVideoLoadModes() {
-        ChanSettings.MediaAutoLoadMode currentImageLoadMode = ChanSettings.imageAutoLoadNetwork.get();
-        ChanSettings.MediaAutoLoadMode[] modes = ChanSettings.MediaAutoLoadMode.values();
-        boolean enabled = false;
-        boolean resetVideoMode = false;
-        for (int i = 0; i < modes.length; i++) {
-            if (modes[i].getKey().equals(currentImageLoadMode.getKey())) {
-                enabled = true;
-                if (resetVideoMode) {
-                    ChanSettings.videoAutoLoadNetwork.set(modes[i]);
-                    videoAutoLoadView.updateSelection();
-                    onPreferenceChange(videoAutoLoadView);
-                }
-            }
-            videoAutoLoadView.items.get(i).enabled = enabled;
-            if (!enabled && ChanSettings.videoAutoLoadNetwork.get().getKey()
-                    .equals(modes[i].getKey())) {
-                resetVideoMode = true;
-            }
-        }
+    private void onLocalThreadsLocationSettingClicked() {
+
     }
 
     private void setupSaveLocationSetting(SettingsGroup media) {
@@ -263,21 +233,21 @@ public class MediaSettingsController extends SettingsController {
                 .setTitle(R.string.use_saf_dialog_title)
                 .setMessage(R.string.use_saf_dialog_message)
                 .setPositiveButton(R.string.use_saf_dialog_positive_button_text, (dialog, which) -> {
-                    useSAFClicked();
+                    onSaveLocationUseSAFClicked();
                 })
                 .setNegativeButton(R.string.use_saf_dialog_negative_button_text, (dialog, which) -> {
-                    useOldApiClicked();
+                    onSaveLocationUseOldApiClicked();
                 })
                 .create();
 
         alertDialog.show();
     }
 
-    private void useOldApiClicked() {
+    private void onSaveLocationUseOldApiClicked() {
         navigationController.pushController(new SaveLocationController(context));
     }
 
-    private void useSAFClicked() {
+    private void onSaveLocationUseSAFClicked() {
         fileManager.openChooseDirectoryDialog(new DirectoryChooserCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
@@ -433,6 +403,62 @@ public class MediaSettingsController extends SettingsController {
         }
 
         System.out.println("All tests passed!");
+    }
+
+    private void setupMediaLoadTypesSetting(SettingsGroup loading) {
+        List<ListSettingView.Item> imageAutoLoadTypes = new ArrayList<>();
+        List<ListSettingView.Item> videoAutoLoadTypes = new ArrayList<>();
+        for (ChanSettings.MediaAutoLoadMode mode : ChanSettings.MediaAutoLoadMode.values()) {
+            int name = 0;
+            switch (mode) {
+                case ALL:
+                    name = R.string.setting_image_auto_load_all;
+                    break;
+                case WIFI:
+                    name = R.string.setting_image_auto_load_wifi;
+                    break;
+                case NONE:
+                    name = R.string.setting_image_auto_load_none;
+                    break;
+            }
+
+            imageAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode));
+            videoAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode));
+        }
+
+        imageAutoLoadView = new ListSettingView<>(this,
+                ChanSettings.imageAutoLoadNetwork, R.string.setting_image_auto_load,
+                imageAutoLoadTypes);
+        loading.add(imageAutoLoadView);
+
+        videoAutoLoadView = new ListSettingView<>(this,
+                ChanSettings.videoAutoLoadNetwork, R.string.setting_video_auto_load,
+                videoAutoLoadTypes);
+        loading.add(videoAutoLoadView);
+
+        updateVideoLoadModes();
+    }
+
+    private void updateVideoLoadModes() {
+        ChanSettings.MediaAutoLoadMode currentImageLoadMode = ChanSettings.imageAutoLoadNetwork.get();
+        ChanSettings.MediaAutoLoadMode[] modes = ChanSettings.MediaAutoLoadMode.values();
+        boolean enabled = false;
+        boolean resetVideoMode = false;
+        for (int i = 0; i < modes.length; i++) {
+            if (modes[i].getKey().equals(currentImageLoadMode.getKey())) {
+                enabled = true;
+                if (resetVideoMode) {
+                    ChanSettings.videoAutoLoadNetwork.set(modes[i]);
+                    videoAutoLoadView.updateSelection();
+                    onPreferenceChange(videoAutoLoadView);
+                }
+            }
+            videoAutoLoadView.items.get(i).enabled = enabled;
+            if (!enabled && ChanSettings.videoAutoLoadNetwork.get().getKey()
+                    .equals(modes[i].getKey())) {
+                resetVideoMode = true;
+            }
+        }
     }
 
     private void updateThreadFolderSetting() {

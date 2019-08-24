@@ -694,4 +694,7 @@ Don't have a 4chan Pass?<br>
     <string name="import_or_export_dialog_title">Overwrite existing file or create a new one?</string>
     <string name="import_or_export_dialog_positive_button_text">Overwrite</string>
     <string name="import_or_export_dialog_negative_button_text">Create new</string>
+    <string name="media_settings_local_threads_location_title">Local threads location</string>
+    <string name="media_settings_local_threads_setting_not_set">Not set</string>
+    <string name="view_thread_controller_local_threads_location_is_not_set"><![CDATA[Local threads location is not set. You can do this in Media Settings -> Local threads location]]></string>
 </resources>

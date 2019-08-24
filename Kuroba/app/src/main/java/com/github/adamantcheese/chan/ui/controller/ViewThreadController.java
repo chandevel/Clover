@@ -156,6 +156,16 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void saveClicked(ToolbarMenuItem item) {
+        if (ChanSettings.localThreadsLocationUri.get().isEmpty()) {
+            // TODO: show the SAF directory chooser right here instead of just showing a toast? Or
+            //  open up the media settings controller?
+            Toast.makeText(
+                    context,
+                    R.string.view_thread_controller_local_threads_location_is_not_set,
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         RuntimePermissionsHelper runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
         if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             saveClickedInternal();
