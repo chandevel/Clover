@@ -12,25 +12,20 @@ class RawFile(
 ) : AbstractFile(segments) {
 
     override fun <T : AbstractFile> appendSubDirSegment(name: String): T {
-        if (root is Root.FileRoot) {
-            throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
-        }
-
+        check(root !is Root.FileRoot) { "root is already FileRoot, cannot append anything anymore" }
         return super.appendSubDirSegmentInner(name)
     }
 
     override fun <T : AbstractFile> appendFileNameSegment(name: String): T {
-        if (root is Root.FileRoot) {
-            throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
-        }
-
+        check(root !is Root.FileRoot) { "root is already FileRoot, cannot append anything anymore" }
         return super.appendFileNameSegmentInner(name)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : AbstractFile>  createNew(): T? {
-        if (root is Root.FileRoot) {
+        check(root !is Root.FileRoot) {
             // TODO: do we need this check?
-            throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
+            "root is already FileRoot, cannot append anything anymore"
         }
 
         if (segments.isEmpty()) {
@@ -65,6 +60,7 @@ class RawFile(
         return RawFile(Root.DirRoot(newFile)) as T
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : AbstractFile> clone(): T = RawFile(
             root.clone(),
             segments.toMutableList()) as T
@@ -75,6 +71,7 @@ class RawFile(
     override fun canRead(): Boolean = toFile().canRead()
     override fun canWrite(): Boolean = toFile().canWrite()
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : AbstractFile>  getParent(): T? {
         if (segments.isNotEmpty()) {
             removeLastSegment()
@@ -140,13 +137,11 @@ class RawFile(
         return toFile().name
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T: AbstractFile> findFile(fileName: String): T? {
-        if (root is Root.FileRoot) {
-            throw IllegalStateException("Cannot use FileRoot as directory")
-        }
+        check(root !is Root.FileRoot) { "Cannot use FileRoot as directory" }
 
         val copy = File(root.holder.absolutePath)
-
         if (segments.isNotEmpty()) {
             copy.appendMany(segments.map { segment -> segment.name })
         }
@@ -164,6 +159,8 @@ class RawFile(
 
         return RawFile(newRoot) as T
     }
+
+    override fun getLength(): Long = toFile().length()
 
     private fun toFile(): File {
         return if (segments.isEmpty()) {

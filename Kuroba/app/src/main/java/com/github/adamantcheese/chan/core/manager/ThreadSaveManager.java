@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.manager;
 
 import android.annotation.SuppressLint;
+import android.net.Uri;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -13,6 +14,8 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.save.SerializableThread;
 import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
+import com.github.adamantcheese.chan.core.saf.FileManager;
+import com.github.adamantcheese.chan.core.saf.file.ExternalFile;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
@@ -64,9 +67,10 @@ public class ThreadSaveManager {
     public static final String ORIGINAL_FILE_NAME = "original";
     public static final String NO_MEDIA_FILE_NAME = ".nomedia";
 
-    private DatabaseManager databaseManager;
-    private DatabaseSavedThreadManager databaseSavedThreadManager;
-    private SavedThreadLoaderRepository savedThreadLoaderRepository;
+    private final DatabaseManager databaseManager;
+    private final DatabaseSavedThreadManager databaseSavedThreadManager;
+    private final SavedThreadLoaderRepository savedThreadLoaderRepository;
+    private final FileManager fileManager;
 
     @GuardedBy("itself")
     private final Map<Loadable, SaveThreadParameters> activeDownloads = new HashMap<>();
@@ -99,10 +103,12 @@ public class ThreadSaveManager {
     @Inject
     public ThreadSaveManager(
             DatabaseManager databaseManager,
-            SavedThreadLoaderRepository savedThreadLoaderRepository) {
+            SavedThreadLoaderRepository savedThreadLoaderRepository,
+            FileManager fileManager) {
         this.databaseManager = databaseManager;
         this.savedThreadLoaderRepository = savedThreadLoaderRepository;
         this.databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadManager();
+        this.fileManager = fileManager;
 
         initRxWorkerQueue();
     }
@@ -309,6 +315,10 @@ public class ThreadSaveManager {
                 throw new RuntimeException("Cannot be executed on the main thread!");
             }
 
+            if (ChanSettings.localThreadsLocationUri.get().isEmpty()) {
+                throw new IllegalStateException("Local threads location is not set!");
+            }
+
             if (!isCurrentDownloadRunning(loadable)) {
                 // This download was cancelled or stopped while waiting in the queue.
                 Logger.d(TAG, "Download for loadable " + loadableToString(loadable) +
@@ -319,32 +329,20 @@ public class ThreadSaveManager {
             Logger.d(TAG, "Starting a new download for " + loadableToString(loadable) +
                     ", on thread " + Thread.currentThread().getName());
 
-            String threadSubDir = getThreadSubDir(loadable);
-            File threadSaveDir = new File(ChanSettings.saveLocation.get(), threadSubDir);
-
-            if (!threadSaveDir.exists() && !threadSaveDir.mkdirs()) {
+            ExternalFile threadSaveDir = getThreadSaveDir(loadable);
+            if (!threadSaveDir.exists() && !threadSaveDir.create()) {
                 throw new CouldNotCreateThreadDirectoryException(threadSaveDir);
             }
 
-            File threadSaveDirImages = new File(threadSaveDir, IMAGES_DIR_NAME);
-            if (!threadSaveDirImages.exists() && !threadSaveDirImages.mkdirs()) {
+            ExternalFile threadSaveDirImages = threadSaveDir
+                    .clone()
+                    .appendSubDirSegment(IMAGES_DIR_NAME);
+
+            if (!threadSaveDirImages.exists() && !threadSaveDirImages.create()) {
                 throw new CouldNotCreateImagesDirectoryException(threadSaveDirImages);
             }
 
-            if (ChanSettings.allowMediaScannerToScanLocalThreads.get()) {
-                // .nomedia file being in the images directory "should" prevent media scanner from
-                // scanning this directory
-                File noMediaFile = new File(threadSaveDirImages, NO_MEDIA_FILE_NAME);
-                if (!noMediaFile.exists() && !noMediaFile.createNewFile()) {
-                    throw new CouldNotCreateNoMediaFile(threadSaveDirImages);
-                }
-            } else {
-                File noMediaFile = new File(threadSaveDirImages, NO_MEDIA_FILE_NAME);
-                if (noMediaFile.exists() && !noMediaFile.delete()) {
-                    Logger.e(TAG, "Could not delete .nomedia file from directory "
-                            + threadSaveDirImages.getAbsolutePath());
-                }
-            }
+            dealWithMediaScanner(threadSaveDirImages);
 
             // Filter out already saved posts and sort new posts in ascending order
             List<Post> newPosts = filterAndSortPosts(threadSaveDirImages, loadable, postsToSave);
@@ -359,10 +357,8 @@ public class ThreadSaveManager {
             Logger.d(TAG, "" + newPosts.size() + " new posts for a thread " +
                     loadable.no + ", with images " + postsWithImages);
 
-            String boardSubDir = getBoardSubDir(loadable);
-
-            File boardSaveDir = new File(ChanSettings.saveLocation.get(), boardSubDir);
-            if (!boardSaveDir.exists() && !boardSaveDir.mkdirs()) {
+            ExternalFile boardSaveDir = getBoardSaveDir(loadable);
+            if (!boardSaveDir.exists() && !boardSaveDir.create()) {
                 throw new CouldNotCreateSpoilerImageDirectoryException(boardSaveDir);
             }
 
@@ -464,6 +460,41 @@ public class ThreadSaveManager {
         });
     }
 
+    private ExternalFile getBoardSaveDir(Loadable loadable) {
+        String boardSubDir = getBoardSubDir(loadable);
+        Uri uri = Uri.parse(ChanSettings.localThreadsLocationUri.get());
+
+        return fileManager.fromUri(uri)
+                .appendSubDirSegment(boardSubDir);
+    }
+
+    private ExternalFile getThreadSaveDir(Loadable loadable) {
+        String threadSubDir = getThreadSubDir(loadable);
+        Uri uri = Uri.parse(ChanSettings.localThreadsLocationUri.get());
+
+        return fileManager.fromUri(uri)
+                .appendSubDirSegment(threadSubDir);
+    }
+
+    private void dealWithMediaScanner(ExternalFile threadSaveDirImages) throws CouldNotCreateNoMediaFile {
+        ExternalFile noMediaFile = threadSaveDirImages
+                .clone()
+                .appendFileNameSegment(NO_MEDIA_FILE_NAME);
+
+        if (ChanSettings.allowMediaScannerToScanLocalThreads.get()) {
+            // .nomedia file being in the images directory "should" prevent media scanner from
+            // scanning this directory
+            if (!noMediaFile.exists() && !noMediaFile.create()) {
+                throw new CouldNotCreateNoMediaFile(threadSaveDirImages);
+            }
+        } else {
+            if (noMediaFile.exists() && !noMediaFile.delete()) {
+                Logger.e(TAG, "Could not delete .nomedia file from directory "
+                        + threadSaveDirImages.getFullPath());
+            }
+        }
+    }
+
     private int calculateMaxImageIoErrors(int postsWithImages) {
         int maxIoErrors = (int)(((float) postsWithImages / 100f) * 5f);
         if (maxIoErrors == 0) {
@@ -502,7 +533,7 @@ public class ThreadSaveManager {
      * If a post has at least one image that has not been downloaded yet it will be
      * redownloaded again
      * */
-    private List<Post> filterAndSortPosts(File threadSaveDirImages, Loadable loadable, List<Post> inputPosts) {
+    private List<Post> filterAndSortPosts(ExternalFile threadSaveDirImages, Loadable loadable, List<Post> inputPosts) {
         // Filter out already saved posts (by lastSavedPostNo)
         int lastSavedPostNo = databaseManager.runTask(databaseSavedThreadManager.getLastSavedPostNo(loadable.id));
 
@@ -543,13 +574,18 @@ public class ThreadSaveManager {
         return posts;
     }
 
-    private boolean checkWhetherAllPostImagesAreAlreadySaved(File threadSaveDirImages, Post post) {
+    private boolean checkWhetherAllPostImagesAreAlreadySaved(
+            ExternalFile threadSaveDirImages,
+            Post post) {
         for (PostImage postImage : post.images) {
             {
                 String originalImageFilename = postImage.originalName + "_"
                         + ORIGINAL_FILE_NAME + "." + postImage.extension;
 
-                File originalImage = new File(threadSaveDirImages, originalImageFilename);
+                ExternalFile originalImage = threadSaveDirImages
+                        .clone()
+                        .appendFileNameSegment(originalImageFilename);
+
                 if (!originalImage.exists()) {
                     return false;
                 }
@@ -557,15 +593,21 @@ public class ThreadSaveManager {
                 if (!originalImage.canRead()) {
                     if (!originalImage.delete()) {
                         Logger.e(TAG, "Could not delete originalImage with path "
-                                + originalImage.getAbsolutePath());
+                                + originalImage.getFullPath());
                     }
                     return false;
                 }
 
-                if (originalImage.length() == 0L) {
+                long length = originalImage.getLength();
+                if (length == -1L) {
+                    throw new IllegalStateException("originalImage.getLength() returned -1, " +
+                            "originalImagePath = " + originalImage.getFullPath());
+                }
+
+                if (length == 0L) {
                     if (!originalImage.delete()) {
                         Logger.e(TAG, "Could not delete originalImage with path "
-                                + originalImage.getAbsolutePath());
+                                + originalImage.getFullPath());
                     }
                     return false;
                 }
@@ -577,7 +619,10 @@ public class ThreadSaveManager {
                 String thumbnailImageFilename = postImage.originalName + "_"
                         + THUMBNAIL_FILE_NAME + "." + thumbnailExtension;
 
-                File thumbnailImage = new File(threadSaveDirImages, thumbnailImageFilename);
+                ExternalFile thumbnailImage = threadSaveDirImages
+                        .clone()
+                        .appendFileNameSegment(thumbnailImageFilename);
+
                 if (!thumbnailImage.exists()) {
                     return false;
                 }
@@ -585,15 +630,21 @@ public class ThreadSaveManager {
                 if (!thumbnailImage.canRead()) {
                     if (!thumbnailImage.delete()) {
                         Logger.e(TAG, "Could not delete thumbnailImage with path "
-                                + thumbnailImage.getAbsolutePath());
+                                + thumbnailImage.getFullPath());
                     }
                     return false;
                 }
 
-                if (thumbnailImage.length() == 0L) {
+                long length = thumbnailImage.getLength();
+                if (length == -1L) {
+                    throw new IllegalStateException("thumbnailImage.getLength() returned -1, " +
+                            "thumbnailImagePath = " + thumbnailImage.getFullPath());
+                }
+
+                if (length == 0L) {
                     if (!thumbnailImage.delete()) {
                         Logger.e(TAG, "Could not delete thumbnailImage with path "
-                                + thumbnailImage.getAbsolutePath());
+                                + thumbnailImage.getFullPath());
                     }
                     return false;
                 }
@@ -605,7 +656,7 @@ public class ThreadSaveManager {
 
     private boolean downloadSpoilerImage(
             Loadable loadable,
-            File threadSaveDirImages,
+            ExternalFile threadSaveDirImages,
             HttpUrl spoilerImageUrl) throws IOException {
         // If the board uses spoiler image - download it
         if (loadable.board.spoilers && spoilerImageUrl != null) {
@@ -618,8 +669,10 @@ public class ThreadSaveManager {
             }
 
             String spoilerImageName = SPOILER_FILE_NAME + "." + spoilerImageExtension;
-            File spoilerImageFullPath = new File(threadSaveDirImages, spoilerImageName);
 
+            ExternalFile spoilerImageFullPath = threadSaveDirImages
+                    .clone()
+                    .appendFileNameSegment(spoilerImageName);
             if (spoilerImageFullPath.exists()) {
                 // Do nothing if already downloaded
                 return false;
@@ -655,7 +708,7 @@ public class ThreadSaveManager {
 
     private Flowable<Boolean> downloadImages(
             Loadable loadable,
-            File threadSaveDirImages,
+            ExternalFile threadSaveDirImages,
             Post post,
             AtomicInteger currentImageDownloadIndex,
             int postsWithImagesCount,
@@ -795,22 +848,26 @@ public class ThreadSaveManager {
     }
 
     private void deleteImageCompletely(
-            File threadSaveDirImages,
+            ExternalFile threadSaveDirImages,
             String filename,
             String extension) {
         Logger.d(TAG, "Deleting a file with name " + filename);
         boolean error = false;
 
-        File originalFile = new File(threadSaveDirImages,
-                filename + "_" + ORIGINAL_FILE_NAME + "." + extension);
+        ExternalFile originalFile = threadSaveDirImages
+                .clone()
+                .appendFileNameSegment(filename + "_" + ORIGINAL_FILE_NAME + "." + extension);
+
         if (originalFile.exists()) {
             if (!originalFile.delete()) {
                 error = true;
             }
         }
 
-        File thumbnailFile = new File(threadSaveDirImages,
-                filename + "_" + THUMBNAIL_FILE_NAME + "." + extension);
+        ExternalFile thumbnailFile = threadSaveDirImages
+                .clone()
+                .appendFileNameSegment(filename + "_" + THUMBNAIL_FILE_NAME + "." + extension);
+
         if (thumbnailFile.exists()) {
             if (!thumbnailFile.delete()) {
                 error = true;
@@ -826,7 +883,7 @@ public class ThreadSaveManager {
      * Downloads an image with it's thumbnail and stores them to the disk
      * */
     private void downloadImageIntoFile(
-            File threadSaveDirImages,
+            ExternalFile threadSaveDirImages,
             String filename,
             String originalExtension,
             String thumbnailExtension,
@@ -871,7 +928,7 @@ public class ThreadSaveManager {
      * */
     private void downloadImage(
             Loadable loadable,
-            File threadSaveDirImages,
+            ExternalFile threadSaveDirImages,
             String filename,
             HttpUrl imageUrl) throws IOException, ImageWasAlreadyDeletedException {
         if (!shouldDownloadImages()) {
@@ -890,7 +947,10 @@ public class ThreadSaveManager {
             return;
         }
 
-        File imageFile = new File(threadSaveDirImages, filename);
+        ExternalFile imageFile = threadSaveDirImages
+                .clone()
+                .appendFileNameSegment(filename);
+
         if (!imageFile.exists()) {
             Request request = new Request.Builder().url(imageUrl).build();
 
@@ -960,11 +1020,11 @@ public class ThreadSaveManager {
      * Writes image's bytes to a file
      * */
     private void storeImageToFile(
-            File imageFile,
+            ExternalFile imageFile,
             Response response) throws IOException {
-        if (!imageFile.createNewFile()) {
+        if (!imageFile.create()) {
             throw new IOException("Could not create a file to save an image to (path: "
-                    + imageFile.getAbsolutePath() + ")");
+                    + imageFile.getFullPath() + ")");
         }
 
         try (ResponseBody body = response.body()) {
@@ -977,7 +1037,12 @@ public class ThreadSaveManager {
             }
 
             try (InputStream is = body.byteStream()) {
-                try (OutputStream os = new FileOutputStream(imageFile)) {
+                try (OutputStream os = imageFile.getOutputStream()) {
+                    if (os == null) {
+                        throw new IOException("Could not get OutputStream from imageFile, " +
+                                "imageFilePath = " + imageFile.getFullPath());
+                    }
+
                     IOUtils.copy(is, os);
                 }
             }
@@ -1142,29 +1207,29 @@ public class ThreadSaveManager {
     }
 
     class CouldNotCreateThreadDirectoryException extends Exception {
-        public CouldNotCreateThreadDirectoryException(File threadSaveDir) {
+        public CouldNotCreateThreadDirectoryException(ExternalFile threadSaveDir) {
             super("Could not create a directory to save the thread " +
-                    "to (full path: " + threadSaveDir.getAbsolutePath() + ")");
+                    "to (full path: " + threadSaveDir.getFullPath() + ")");
         }
     }
 
     class CouldNotCreateNoMediaFile extends Exception {
-        public CouldNotCreateNoMediaFile(File threadSaveDirImages) {
-            super("Could not create .nomedia file in directory " + threadSaveDirImages.getAbsolutePath());
+        public CouldNotCreateNoMediaFile(ExternalFile threadSaveDirImages) {
+            super("Could not create .nomedia file in directory " + threadSaveDirImages.getFullPath());
         }
     }
 
     class CouldNotCreateImagesDirectoryException extends Exception {
-        public CouldNotCreateImagesDirectoryException(File threadSaveDirImages) {
+        public CouldNotCreateImagesDirectoryException(ExternalFile threadSaveDirImages) {
             super("Could not create a directory to save the thread images" +
-                    "to (full path: " + threadSaveDirImages.getAbsolutePath() + ")");
+                    "to (full path: " + threadSaveDirImages.getFullPath() + ")");
         }
     }
 
     class CouldNotCreateSpoilerImageDirectoryException extends Exception {
-        public CouldNotCreateSpoilerImageDirectoryException(File boardSaveDir) {
+        public CouldNotCreateSpoilerImageDirectoryException(ExternalFile boardSaveDir) {
             super("Could not create a directory to save the spoiler image " +
-                    "to (full path: " + boardSaveDir.getAbsolutePath() + ")");
+                    "to (full path: " + boardSaveDir.getFullPath() + ")");
         }
     }
 

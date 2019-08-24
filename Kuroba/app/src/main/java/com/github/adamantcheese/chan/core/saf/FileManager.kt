@@ -132,6 +132,23 @@ class FileManager(
         return RawFile(AbstractFile.Root.DirRoot(File(path)))
     }
 
+    /**
+     * Copy one file's contents into another
+     * */
+    fun copyFileContents(source: AbstractFile, destination: AbstractFile): Boolean {
+        return try {
+            source.getInputStream()?.use { inputStream ->
+                destination.getOutputStream()?.use { outputStream ->
+                    IOUtils.copy(inputStream, outputStream)
+                    true
+                }
+            } ?: false
+        } catch (e: IOException) {
+            Logger.e(TAG, "IOException while copying one file into another", e)
+            false
+        }
+    }
+
     private fun toDocumentFile(uri: Uri): DocumentFile? {
         if (!DocumentFile.isDocumentUri(appContext, uri)) {
             Logger.e(TAG, "Not a DocumentFile, uri = $uri")
@@ -155,23 +172,6 @@ class FileManager(
         } catch (e: IllegalArgumentException) {
             Logger.e(TAG, "Provided uri is neither a treeUri nor singleUri, uri = $uri")
             null
-        }
-    }
-
-    /**
-     * Copy one file's contents into another
-     * */
-    fun copyFileContents(source: AbstractFile, destination: AbstractFile): Boolean {
-        return try {
-            source.getInputStream()?.use { inputStream ->
-                destination.getOutputStream()?.use { outputStream ->
-                    IOUtils.copy(inputStream, outputStream)
-                    true
-                }
-            } ?: false
-        } catch (e: IOException) {
-            Logger.e(TAG, "IOException while copying one file into another", e)
-            false
         }
     }
 

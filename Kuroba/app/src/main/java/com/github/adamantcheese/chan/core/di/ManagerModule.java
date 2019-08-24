@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
+import com.github.adamantcheese.chan.core.saf.FileManager;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
@@ -127,10 +128,12 @@ public class ManagerModule {
     @Singleton
     public ThreadSaveManager provideSaveThreadManager(
             DatabaseManager databaseManager,
-            SavedThreadLoaderRepository savedThreadLoaderRepository) {
+            SavedThreadLoaderRepository savedThreadLoaderRepository,
+            FileManager fileManager) {
         return new ThreadSaveManager(
                 databaseManager,
-                savedThreadLoaderRepository);
+                savedThreadLoaderRepository,
+                fileManager);
     }
 
     @Provides
@@ -138,10 +141,12 @@ public class ManagerModule {
     public SavedThreadLoaderManager provideSavedThreadLoaderManager(
             Gson gson,
             DatabaseManager databaseManager,
-            SavedThreadLoaderRepository savedThreadLoaderRepository) {
+            SavedThreadLoaderRepository savedThreadLoaderRepository,
+            FileManager fileManager) {
         return new SavedThreadLoaderManager(
                 gson,
                 databaseManager,
-                savedThreadLoaderRepository);
+                savedThreadLoaderRepository,
+                fileManager);
     }
 }

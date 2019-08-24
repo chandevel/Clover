@@ -20,25 +20,20 @@ class ExternalFile(
     private val mimeTypeMap = MimeTypeMap.getSingleton()
 
     override fun <T : AbstractFile> appendSubDirSegment(name: String): T {
-        if (root is Root.FileRoot) {
-            throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
-        }
-
+        check(root !is Root.FileRoot) { "root is already FileRoot, cannot append anything anymore" }
         return super.appendSubDirSegmentInner(name)
     }
 
     override fun <T : AbstractFile> appendFileNameSegment(name: String): T {
-        if (root is Root.FileRoot) {
-            throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
-        }
-
+        check(root !is Root.FileRoot) { "root is already FileRoot, cannot append anything anymore" }
         return super.appendFileNameSegmentInner(name)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : AbstractFile> createNew(): T? {
-        if (root is Root.FileRoot) {
+        check(root !is Root.FileRoot) {
             // TODO: do we need this check?
-            throw IllegalStateException("root is already FileRoot, cannot append anything anymore")
+            "root is already FileRoot, cannot append anything anymore"
         }
 
         if (segments.isEmpty()) {
@@ -103,6 +98,7 @@ class ExternalFile(
         return ExternalFile(appContext, root) as T
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : AbstractFile> clone(): T = ExternalFile(
             appContext,
             root.clone(),
@@ -114,6 +110,7 @@ class ExternalFile(
     override fun canRead(): Boolean = toDocumentFile()?.canRead() ?: false
     override fun canWrite(): Boolean = toDocumentFile()?.canWrite() ?: false
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : AbstractFile> getParent(): T? {
         if (segments.isNotEmpty()) {
             removeLastSegment()
@@ -212,10 +209,9 @@ class ExternalFile(
                 ?: throw IllegalStateException("Could not extract file name from document file")
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : AbstractFile> findFile(fileName: String): T? {
-        if (root is Root.FileRoot) {
-            throw IllegalStateException("Cannot use FileRoot as directory")
-        }
+        check(root !is Root.FileRoot) { "Cannot use FileRoot as directory" }
 
         val filteredSegments = segments
                 .map { it.name }
@@ -263,6 +259,7 @@ class ExternalFile(
         return null
     }
 
+    override fun getLength(): Long = toDocumentFile()?.length() ?: -1L
 
     fun getParcelFileDescriptor(fileDescriptorMode: FileDescriptorMode): ParcelFileDescriptor? {
         return appContext.contentResolver.openFileDescriptor(

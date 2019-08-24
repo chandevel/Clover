@@ -21,6 +21,77 @@ import java.io.OutputStream
  *
  * Other methods are marked with [ImmutableMethod] annotation. This means that those files create a
  * copy of the [AbstractFile] internally and are safe to use without calling [clone]
+ *
+ * Examples.
+ *
+ * Usually you want to create an [AbstractFile] pointing to some directory (like the Kuroba base dir)
+ * and then create either subdirectories or files inside that directory. You can start with one of the
+ * following methods:
+ *
+ * // Creates an [AbstractFile] from base SAF directory. Be aware that the Uri must not be created
+ * // manually! This won't work with SAF since one file may have it's Uri changed when Android decides to
+ * // do so. Usually you want to call file or directory chooser via SAF API (there are methods for
+ * // that in the [FileManager] class) which will return an Uri that you can then pass into fromUri()
+ * // method. But usually you don't even need to do this since we usually do this once to get the
+ * // Kuroba base directory and then just do our work inside of that directory.
+ * AbstractFile baseDir = fileManager.fromUri(Uri.parse(ChanSettings.saveLocationUri.get()));
+ *
+ * // Creates an [AbstractFile] from base raw directory
+ * AbstractFile baseDir = fileManager.fromRawFile(new File(ChanSettings.saveLocation.get()));
+ *
+ * // Same as above
+ * AbstractFile baseDir = fileManager.fromPath(ChanSettings.saveLocation.get());
+ *
+ *
+ * Then you can start appending subdirectories or a filename:
+ *
+ * // This will create a "test.txt" file located at <Kuroba_Base_Dir>/dir1/dir2/dir3, i.e.
+ * // <Kuroba_Base_Dir>/dir1/dir2/dir3/test.txt
+ * AbstractFile newFile = baseDir
+ *      .appendSubDirSegment("dir1")
+ *      .appendSubDirSegment("dir2")
+ *      .appendSubDirSegment("dir3")
+ *      .appendFileNameSegment("test.txt")
+ *      .createNew();
+ *
+ *  Then you can call methods that are similar to the standard Java File API, e.g. [exists],
+ *  [getName], [getLength], [isFile], [isDirectory], [canRead], [canWrite] etc.
+ *
+ *  If you want to work with multiple files in a directory (or sub directories) you may want
+ *  to [clone] the file that represents that directory, e.g:
+ *
+ *  AbstractFile clonedFile = baseDir.clone();
+ *
+ *  AbstractFile f1 = clonedFile
+ *      .appendFileNameSegment("f1.txt")
+ *      .createNew();
+ *  AbstractFile f2 = clonedFile
+ *      .appendFileNameSegment("f2.txt")
+ *      .createNew();
+ *  AbstractFile f3 = clonedFile
+ *      .appendFileNameSegment("f3.txt")
+ *      .createNew();
+ *
+ *  You have to do this because some methods may mutate the internal state of the [AbstractFile], so
+ *  after calling, let's say:
+ *
+ *  AbstractFile f1 = baseDir
+ *      .appendFileNameSegment("f1.txt")
+ *      .createNew();
+ *
+ *  Without cloning it first baseDir will be start pointing to <Kuroba_Base_Dir>/f1.txt instead of
+ *  just <Kuroba_Base_Dir>. The same thing applies to any method marked with [MutableMethod] annotation.
+ *  methods marked with [ImmutableMethod] do this stuff internally so they are safe to use without
+ *  cloning.
+ *
+ *  Sometimes you don't know which external directory to choose to store a new file (the SAF or the
+ *  old raw Java File external directory). In this case you can use:
+ *
+ *  AbstractFile baseDir = fileManager.newFile();
+ *
+ *  Method which will create an [AbstractFile] with root pointing to either Kuroba SAF base directory
+ *  (if user has set it) or if he didn't then to the default external directory (Backed by raw Java File).
+ *
  * */
 abstract class AbstractFile(
         /**
@@ -28,7 +99,6 @@ abstract class AbstractFile(
          * */
         protected val segments: MutableList<Segment>
 ) {
-
     /**
      * Appends a new subdirectory to the root directory
      * */
@@ -53,12 +123,15 @@ abstract class AbstractFile(
         return createNew<T>() != null
     }
 
+    // TODO: make exists(), isFile(), isDirectory(), canRead(), canWrite(), delete(), getInputStream(),
+    //  getOutputStream(), getName() and getLength() immutable, update documentation and comments/annotations
+
     /**
-     * When doing something with an AbstractFile (like appending a subdir or a filename) the
-     * AbstractFile will change because it's mutable. So if you don't want to change the original
-     * AbstractFile you need to make a copy via this method (like, if you want to search for
+     * When doing something with an [AbstractFile] (like appending a subdir or a filename) the
+     * [AbstractFile] will change because it's mutable. So if you don't want to change the original
+     * [AbstractFile] you need to make a copy via this method (like, if you want to search for
      * a couple of files in the same directory you would want to clone the directory
-     * AbstractFile and then append the filename to those copies)
+     * [AbstractFile] and then append the filename to those copies)
      * */
     abstract fun <T : AbstractFile> clone(): T
 
@@ -98,6 +171,9 @@ abstract class AbstractFile(
     @ImmutableMethod
     abstract fun <T: AbstractFile> findFile(fileName: String): T?
 
+    @MutableMethod
+    abstract fun getLength(): Long
+
     /**
      * Removes the last appended segment if there are any
      * e.g: /test/123/test2 -> /test/123 -> /test
@@ -112,19 +188,12 @@ abstract class AbstractFile(
         return true
     }
 
+    @Suppress("UNCHECKED_CAST")
     protected fun <T : AbstractFile> appendSubDirSegmentInner(name: String): T {
-        if (isFilenameAppended()) {
-            throw IllegalStateException("Cannot append anything after file name has been appended")
-        }
-
-        if (name.isBlank()) {
-            throw IllegalArgumentException("Bad name: $name")
-        }
-
-        if (name.extension() != null) {
-            throw IllegalArgumentException("Directory name must not contain extension, " +
-                    "extension = ${name.extension()}")
-        }
+        check(!isFilenameAppended()) { "Cannot append anything after file name has been appended" }
+        require(!name.isBlank()) { "Bad name: $name" }
+        require(name.extension() == null) { "Directory name must not contain extension, " +
+                "extension = ${name.extension()}" }
 
         val nameList = if (name.contains(File.separatorChar)) {
             name.split(File.separatorChar)
@@ -134,9 +203,8 @@ abstract class AbstractFile(
 
         nameList
                 .onEach { splitName ->
-                    if (splitName.extension() != null) {
-                        throw IllegalArgumentException("appendSubDirSegment does not allow segments " +
-                                "with extensions! bad name = $splitName")
+                    require(splitName.extension() == null) {
+                        "appendSubDirSegment does not allow segments with extensions! bad name = $splitName"
                     }
                 }
                 .map { splitName -> Segment(splitName) }
@@ -145,20 +213,14 @@ abstract class AbstractFile(
         return this as T
     }
 
+    @Suppress("UNCHECKED_CAST")
     protected fun <T : AbstractFile> appendFileNameSegmentInner(name: String): T {
-        if (isFilenameAppended()) {
-            throw IllegalStateException("Cannot append anything after file name has been appended")
-        }
-
-        if (name.isBlank()) {
-            throw IllegalArgumentException("Bad name: $name")
-        }
+        check(!isFilenameAppended()) { "Cannot append anything after file name has been appended" }
+        require(!name.isBlank()) { "Bad name: $name" }
 
         val nameList = if (name.contains(File.separatorChar)) {
             val split = name.split(File.separatorChar)
-            if (split.size < 2) {
-                throw IllegalStateException("Should have at least two entries, name = $name")
-            }
+            check(split.size >= 2) { "Should have at least two entries, name = $name" }
 
             split
         } else {
@@ -166,9 +228,9 @@ abstract class AbstractFile(
         }
 
         for ((index, splitName) in nameList.withIndex()) {
-            if (splitName.extension() != null && index != nameList.lastIndex) {
-                throw IllegalArgumentException("Only the last split segment may have a file name, " +
-                        "bad segment index = ${index}/${nameList.lastIndex}, bad name = $splitName")
+            require(!(splitName.extension() != null && index != nameList.lastIndex)) {
+                "Only the last split segment may have a file name, " +
+                        "bad segment index = ${index}/${nameList.lastIndex}, bad name = $splitName"
             }
 
             val isFileName = index == nameList.lastIndex
