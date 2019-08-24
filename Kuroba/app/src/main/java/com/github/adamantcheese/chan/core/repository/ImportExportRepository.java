@@ -66,9 +66,9 @@ public class ImportExportRepository {
     // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
     public static final int CURRENT_EXPORT_SETTINGS_VERSION = 3;
 
-    private DatabaseManager databaseManager;
-    private DatabaseHelper databaseHelper;
-    private Gson gson;
+    private final DatabaseManager databaseManager;
+    private final DatabaseHelper databaseHelper;
+    private final Gson gson;
 
     @Inject
     public ImportExportRepository(

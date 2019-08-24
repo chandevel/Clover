@@ -115,6 +115,12 @@ public class ImportExportSettingsController extends SettingsController implement
         }
     }
 
+    /**
+     * SAF is kinda retarded so it cannot be used to overwrite a file that already exist on the disk
+     * (or at some network location). When trying to do so, a new file with appended "(1)" at the
+     * end will appear. That's why there are two methods (one for overwriting an existing file and
+     * the other one for creating a new file) instead of one that does everything.
+     * */
     private void onExportClicked() {
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.import_or_export_dialog_title)
@@ -129,6 +135,9 @@ public class ImportExportSettingsController extends SettingsController implement
         alertDialog.show();
     }
 
+    /**
+     * Opens an existing file (any file) for overwriting with the settings.
+     * */
     private void overwriteExisting() {
         fileManager.openChooseFileDialog(new FileChooserCallback() {
             @Override
@@ -143,6 +152,11 @@ public class ImportExportSettingsController extends SettingsController implement
         });
     }
 
+    /**
+     * Creates a new file with the default name (that can be changed in the file chooser) with the
+     * settings. Cannot be used for overwriting an old settings file (when trying to do so a new file
+     * with appended "(1)" at the end will appear, e.g. "test (1).txt")
+     * */
     private void createNew() {
         fileManager.openCreateFileDialog(EXPORT_FILE_NAME, new FileCreateCallback() {
             @Override
@@ -158,6 +172,8 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     private void onFileChosen(Uri uri, boolean isNewFile) {
+        // We use SAF here by default because settings importing/exporting does not depend on the
+        // Kuroba default directory location. There is just no need to use old java files.
         ExternalFile externalFile = fileManager.fromUri(uri);
 
         navigationController.presentController(loadingViewController);

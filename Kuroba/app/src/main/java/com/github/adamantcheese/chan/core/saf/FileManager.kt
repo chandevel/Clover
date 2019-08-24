@@ -110,7 +110,7 @@ class FileManager(
     fun newFile(): AbstractFile {
         if (ChanSettings.saveLocationUri.get().isEmpty() && ChanSettings.saveLocation.get().isEmpty()) {
             // wtf?
-            throw RuntimeException("Both save locations are empty!")
+            throw RuntimeException("Both save locations are empty! Something went terribly wrong.")
         }
 
         val uri = ChanSettings.saveLocationUri.get()
