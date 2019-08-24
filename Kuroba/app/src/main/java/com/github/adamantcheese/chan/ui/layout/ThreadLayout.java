@@ -29,7 +29,6 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -65,7 +64,6 @@ import com.github.adamantcheese.chan.ui.view.HidingFloatingActionButton;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -681,15 +679,12 @@ public class ThreadLayout extends CoordinatorLayout implements
                             replyButton.setAlpha(show ? 1f : 0f);
                             replyButton.setScaleX(show ? 1f : 0f);
                             replyButton.setScaleY(show ? 1f : 0f);
+                            replyButton.setClickable(show);
                         }
 
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            if(show) {
-                                replyButton.show();
-                            } else {
-                                replyButton.hide();
-                            }
+                            replyButton.setClickable(show);
                         }
                     })
                     .start();
@@ -712,6 +707,7 @@ public class ThreadLayout extends CoordinatorLayout implements
             switch (visible) {
                 case EMPTY:
                     loadView.setView(inflateEmptyView());
+                    showReplyButton(false);
                     break;
                 case LOADING:
                     View view = loadView.setView(progressLayout);
@@ -721,6 +717,8 @@ public class ThreadLayout extends CoordinatorLayout implements
                         refreshedFromSwipe = false;
                         view.setVisibility(View.GONE);
                     }
+
+                    showReplyButton(false);
                     break;
                 case THREAD:
                     callback.hideSwipeRefreshLayout();
@@ -730,6 +728,7 @@ public class ThreadLayout extends CoordinatorLayout implements
                 case ERROR:
                     callback.hideSwipeRefreshLayout();
                     loadView.setView(errorLayout);
+                    showReplyButton(false);
                     break;
             }
         }
