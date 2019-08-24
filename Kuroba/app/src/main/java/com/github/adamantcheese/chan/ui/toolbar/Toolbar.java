@@ -313,6 +313,10 @@ public class Toolbar extends LinearLayout implements
         navigationItemContainer.update(item);
     }
 
+    public void resetMenu() {
+        navigationItemContainer.resetMenu();
+    }
+
     private boolean isAtTheTopOfThread(RecyclerView recyclerView) {
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
         if (layoutManager == null) {

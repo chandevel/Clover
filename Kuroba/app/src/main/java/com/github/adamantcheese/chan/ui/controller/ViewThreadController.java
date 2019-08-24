@@ -155,8 +155,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .withSubItem(R.string.action_scroll_to_bottom, this::downClicked);
 
         // Only show these items if thread downloading is enabled
-        // TODO: or if the thread is being downloaded
-        if (ChanSettings.incrementalThreadDownloadingEnabled.get()) {
+        // and the thread is being downloaded/finished downloading
+        if (ChanSettings.incrementalThreadDownloadingEnabled.get() &&
+                getThreadDownloadState() != DownloadThreadState.Default) {
             // FIXME: figure out how to do this normally by rebuilding the menu instead of using "enabled" flag
             menuOverflowBuilder.withSubItem(
                     VIEW_LOCAL_COPY_SUBMENU_ID,
@@ -463,6 +464,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             return;
         }
 
+        //if we're toggling local/live we need to rebuild the menu
         populateLocalOrLiveVersionMenu();
     }
 
@@ -495,37 +497,44 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private void populateLocalOrLiveVersionMenu() {
         if (!ChanSettings.incrementalThreadDownloadingEnabled.get())
             return; //Don't toggle anything if the setting isn't on, because these IDs dont exist
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
-            // No pin for this loadable we are probably not downloading this thread.
-            // Pin has no downloading flag.
-            // Disable menu items.
-            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
-            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
-            return;
-        }
+        //rebuild the menu before adjusting anything
+        buildMenu();
+        try {
+            Pin pin = watchManager.findPinByLoadableId(loadable.id);
+            if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
+                // No pin for this loadable we are probably not downloading this thread.
+                // Pin has no downloading flag.
+                // Disable menu items.
+                navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
+                navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
+                return;
+            }
 
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
-        if (savedThread == null ||
-                savedThread.isFullyDownloaded ||
-                loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded ||
-                loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.NotDownloading) {
-            // No saved thread.
-            // Saved thread fully downloaded.
-            // Not downloading thread currently.
-            // Disable menu items.
-            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
-            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
-            return;
-        }
+            SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
+            if (savedThread == null ||
+                    savedThread.isFullyDownloaded ||
+                    loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded ||
+                    loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.NotDownloading) {
+                // No saved thread.
+                // Saved thread fully downloaded.
+                // Not downloading thread currently.
+                // Disable menu items.
+                navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
+                navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
+                return;
+            }
 
-        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
-            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = true;
-            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
-        } else if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
-            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
-            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = true;
+            if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
+                navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = true;
+                navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
+            } else if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+                navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
+                navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = true;
+            }
+        } catch (NullPointerException ignored) {
+            // Ignore NPE because the menu ID doesn't exist
         }
+        getToolbar().resetMenu();
     }
 
     public void loadThread(Loadable loadable) {
@@ -614,25 +623,17 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private DownloadThreadState getThreadDownloadState() {
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null) {
-            return DownloadThreadState.Default;
-        }
-
-        if (!PinType.hasDownloadFlag(pin.pinType)) {
+        if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
             return DownloadThreadState.Default;
         }
 
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-        if (savedThread == null) {
+        if (savedThread == null || savedThread.isStopped) {
             return DownloadThreadState.Default;
         }
 
         if (savedThread.isFullyDownloaded) {
             return DownloadThreadState.FullyDownloaded;
-        }
-
-        if (savedThread.isStopped) {
-            return DownloadThreadState.Default;
         }
 
         return DownloadThreadState.DownloadInProgress;

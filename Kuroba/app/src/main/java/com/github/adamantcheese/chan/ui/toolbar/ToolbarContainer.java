@@ -110,6 +110,10 @@ public class ToolbarContainer extends FrameLayout {
         this.arrowMenu = arrowMenu;
     }
 
+    public void resetMenu() {
+        if (currentView != null) currentView.attach();
+    }
+
     public void set(NavigationItem item, Theme theme, ToolbarPresenter.AnimationStyle animation) {
         if (transitionView != null) {
             throw new IllegalStateException("Currently in transition mode");
