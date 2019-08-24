@@ -411,6 +411,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         hideSystemUI();
     }
 
+    @Override
+    public boolean isImmersive() {
+        return ChanSettings.useImmersiveModeForGallery.get() && isInImmersiveMode;
+    }
+
     private void showImageSearchOptions() {
         // TODO: move to presenter
         List<FloatingMenuItem> items = new ArrayList<>();
@@ -643,6 +648,16 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         ViewGroup.LayoutParams params = navigationController.getToolbar().getLayoutParams();
         params.height = 0;
         navigationController.getToolbar().setLayoutParams(params);
+    }
+
+    @Override
+    public void showSystemUI(boolean show) {
+        if (show) {
+            showSystemUI();
+            mainHandler.postDelayed(uiHideCall, 2500);
+        } else {
+            hideSystemUI();
+        }
     }
 
     private void showSystemUI() {
