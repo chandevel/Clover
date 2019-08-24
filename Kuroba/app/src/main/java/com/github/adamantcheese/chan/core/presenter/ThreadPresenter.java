@@ -220,48 +220,29 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     }
 
     private void startSavingThreadIfItIsNotBeingSaved(Loadable loadable) {
-        if (ChanSettings.watchEnabled.get() && ChanSettings.watchBackground.get()) {
+        if ((ChanSettings.watchEnabled.get() && ChanSettings.watchBackground.get()) ||
+                loadable == null ||
+                loadable.mode != Loadable.Mode.THREAD) {
             // Do not start thread saving if background watcher is enabled
-            return;
-        }
-
-        if (loadable == null) {
-            return;
-        }
-
-        if (loadable.mode != Loadable.Mode.THREAD) {
-            // We are in the catalog probably
+            // Or if we're in the catalog
             return;
         }
 
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null) {
+        if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
             // No pin for this loadable we are probably not downloading this thread
-            return;
-        }
-
-        if (!PinType.hasDownloadFlag(pin.pinType)) {
             // Pin has no downloading flag
             return;
         }
 
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
-        if (savedThread == null) {
-            // We are not downloading this thread
-            return;
-        }
-
-        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded ||
+                savedThread == null ||
+                savedThread.isFullyDownloaded ||
+                !savedThread.isStopped) {
             // We are viewing already saved copy of the thread
-            return;
-        }
-
-        if (savedThread.isFullyDownloaded) {
+            // We are not downloading this thread
             // Thread is already fully downloaded
-            return;
-        }
-
-        if (!savedThread.isStopped) {
             // Thread saving is already in progress
             return;
         }
