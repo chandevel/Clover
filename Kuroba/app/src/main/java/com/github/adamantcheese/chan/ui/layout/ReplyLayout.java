@@ -269,17 +269,19 @@ public class ReplyLayout extends LoadView implements
         return presenter.onBack();
     }
 
-    private void setWrap(boolean wrap) {
+    private void setWrappingMode(boolean matchParent) {
         LayoutParams params = (LayoutParams) getLayoutParams();
         params.width = LayoutParams.MATCH_PARENT;
-        params.height = !wrap ? LayoutParams.WRAP_CONTENT : LayoutParams.MATCH_PARENT;
+        params.height = matchParent ? LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
 
-        if (ChanSettings.moveInputToBottom.get() && wrap) {
-            setPadding(0, ((ThreadListLayout) getParent()).toolbarHeight(), 0, 0);
-            params.gravity = Gravity.TOP;
-        } else if (ChanSettings.moveInputToBottom.get() && !wrap) {
-            setPadding(0, 0, 0, 0);
-            params.gravity = Gravity.BOTTOM;
+        if (ChanSettings.moveInputToBottom.get()) {
+            if (matchParent) {
+                setPadding(0, ((ThreadListLayout) getParent()).toolbarHeight(), 0, 0);
+                params.gravity = Gravity.TOP;
+            } else {
+                setPadding(0, 0, 0, 0);
+                params.gravity = Gravity.BOTTOM;
+            }
         }
 
         setLayoutParams(params);
@@ -389,7 +391,7 @@ public class ReplyLayout extends LoadView implements
     public void setPage(ReplyPresenter.Page page, boolean animate) {
         switch (page) {
             case LOADING:
-                setWrap(false);
+                setWrappingMode(false);
                 View progressBar = setView(progressLayout);
                 progressBar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, dp(100)));
 
@@ -398,10 +400,10 @@ public class ReplyLayout extends LoadView implements
                 break;
             case INPUT:
                 setView(replyInputLayout);
-                setWrap(presenter.isExpanded());
+                setWrappingMode(presenter.isExpanded());
                 break;
             case AUTHENTICATION:
-                setWrap(true);
+                setWrappingMode(true);
 
                 setView(captchaContainer);
 
@@ -507,7 +509,7 @@ public class ReplyLayout extends LoadView implements
 
     @Override
     public void setExpanded(boolean expanded) {
-        setWrap(expanded);
+        setWrappingMode(expanded);
 
         comment.setMaxLines(expanded ? 500 : 6);
 
