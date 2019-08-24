@@ -154,20 +154,23 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
                 .withSubItem(R.string.action_scroll_to_bottom, this::downClicked);
 
+        // Only show these items if thread downloading is enabled
+        // TODO: or if the thread is being downloaded
+        if (ChanSettings.incrementalThreadDownloadingEnabled.get()) {
+            // FIXME: figure out how to do this normally by rebuilding the menu instead of using "enabled" flag
+            menuOverflowBuilder.withSubItem(
+                    VIEW_LOCAL_COPY_SUBMENU_ID,
+                    R.string.view_local_version,
+                    false,
+                    this::handleClickViewLocalVersion);
 
-        // FIXME: figure out how to do this normally by rebuilding the menu instead of using "enabled" flag
-        menuOverflowBuilder.withSubItem(
-                VIEW_LOCAL_COPY_SUBMENU_ID,
-                R.string.view_local_version,
-                false,
-                this::handleClickViewLocalVersion);
-
-        // FIXME: figure out how to do this normally by rebuilding the menu instead of using "enabled" flag
-        menuOverflowBuilder.withSubItem(
-                VIEW_LIVE_COPY_SUBMENU_ID,
-                R.string.view_view_version,
-                false,
-                this::handleClickViewLiveVersion);
+            // FIXME: figure out how to do this normally by rebuilding the menu instead of using "enabled" flag
+            menuOverflowBuilder.withSubItem(
+                    VIEW_LIVE_COPY_SUBMENU_ID,
+                    R.string.view_view_version,
+                    false,
+                    this::handleClickViewLiveVersion);
+        }
 
         menuOverflowBuilder.build()
                 .build();
@@ -490,34 +493,27 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
      * Gotta figure out how to make it properly some time in the future.
      */
     private void populateLocalOrLiveVersionMenu() {
+        if (!ChanSettings.incrementalThreadDownloadingEnabled.get())
+            return; //Don't toggle anything if the setting isn't on, because these IDs dont exist
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null) {
+        if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
             // No pin for this loadable we are probably not downloading this thread.
-            // Disable the menus.
-            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
-            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
-            return;
-        }
-
-        if (!PinType.hasDownloadFlag(pin.pinType)) {
             // Pin has no downloading flag.
-            // Disable the menus.
+            // Disable menu items.
             navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
             navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
             return;
         }
 
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
-        if (savedThread == null) {
-            // No SaveThread. Disable the menus.
-            navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
-            navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
-            return;
-        }
-
-        if (savedThread.isFullyDownloaded ||
+        if (savedThread == null ||
+                savedThread.isFullyDownloaded ||
                 loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded ||
                 loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.NotDownloading) {
+            // No saved thread.
+            // Saved thread fully downloaded.
+            // Not downloading thread currently.
+            // Disable menu items.
             navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
             navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
             return;
