@@ -632,9 +632,16 @@ public class ThreadLayout extends CoordinatorLayout implements
 
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
                 newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
-                    newPostsNotification = null;
                     presenter.onNewPostsViewClicked();
+                    newPostsNotification.dismiss();
+                    newPostsNotification = null;
                 }).show();
+                postDelayed(() -> {
+                    if (newPostsNotification != null) {
+                        newPostsNotification.dismiss();
+                        newPostsNotification = null;
+                    }
+                }, 3500);
                 fixSnackbarText(getContext(), newPostsNotification);
             }
         } else {
@@ -699,7 +706,10 @@ public class ThreadLayout extends CoordinatorLayout implements
                     postPopupHelper.popAll();
                     showSearch(false);
                     showReplyButton(false);
-                    newPostsNotification = null;
+                    if (newPostsNotification != null) {
+                        newPostsNotification.dismiss();
+                        newPostsNotification = null;
+                    }
                 }
             }
 
