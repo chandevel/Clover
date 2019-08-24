@@ -94,7 +94,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
     }
 
     @Subscribe
-    public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
+    public void onEvent(ChanSettings.SettingChanged<?> settingChanged) {
         if (settingChanged.setting == ChanSettings.watchFilterWatch) {
             if (ChanSettings.watchFilterWatch.get()) {
                 wakeManager.registerWakeable(this);

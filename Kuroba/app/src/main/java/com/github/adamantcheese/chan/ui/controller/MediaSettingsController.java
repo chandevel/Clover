@@ -85,7 +85,7 @@ public class MediaSettingsController extends SettingsController {
     }
 
     @Subscribe
-    public void onEvent(ChanSettings.SettingChanged setting) {
+    public void onEvent(ChanSettings.SettingChanged<?> setting) {
         if (setting.setting == ChanSettings.saveLocation) {
             updateSaveLocationSetting();
         }

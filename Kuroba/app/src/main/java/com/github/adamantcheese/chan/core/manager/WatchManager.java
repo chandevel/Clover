@@ -539,7 +539,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
     // Called when either the background watch or watch enable settings are changed
     @Subscribe
-    public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
+    public void onEvent(ChanSettings.SettingChanged<?> settingChanged) {
         if (settingChanged.setting == ChanSettings.watchBackground) {
             onBackgroundWatchingChanged(ChanSettings.watchBackground.get());
         } else if (settingChanged.setting == ChanSettings.watchEnabled) {
