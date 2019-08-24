@@ -261,6 +261,15 @@ class ExternalFile(
 
     override fun getLength(): Long = clone<ExternalFile>().toDocumentFile()?.length() ?: -1L
 
+    override fun withFileDescriptor(
+            fileDescriptorMode: FileDescriptorMode,
+            func: (FileDescriptor) -> Unit) {
+        getParcelFileDescriptor(fileDescriptorMode)?.use { pfd ->
+            func(pfd.fileDescriptor)
+        } ?: throw IllegalStateException("Could not get ParcelFileDescriptor " +
+                "from root with uri = ${root.holder.uri}")
+    }
+
     fun getParcelFileDescriptor(fileDescriptorMode: FileDescriptorMode): ParcelFileDescriptor? {
         return appContext.contentResolver.openFileDescriptor(
                 root.holder.uri,
@@ -304,19 +313,6 @@ class ExternalFile(
         }
 
         return DocumentFile.fromSingleUri(appContext, builder.build())
-    }
-
-    enum class FileDescriptorMode(val mode: String) {
-        Read("r"),
-        Write("w"),
-        // When overwriting an existing file it is a really good ide to use truncate mode,
-        // because otherwise if a new file's length is less than the old one's then there will be
-        // old file's data left at the end of the file
-        WriteTruncate("wt"),
-        // It is recommended to prefer either Read or Write modes in the documentation.
-        // Use ReadWrite only when it is really necessary.
-        ReadWrite("rw"),
-        ReadWriteTruncate("rwt")
     }
 
     companion object {

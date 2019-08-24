@@ -41,10 +41,17 @@ import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import kotlin.Unit;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
@@ -384,6 +391,46 @@ public class MediaSettingsController extends SettingsController {
             if (foundFile == null || !foundFile.exists()) {
                 throw new RuntimeException("Couldn't find filename.json");
             }
+
+            String testString = "Hello world";
+
+            foundFile.withFileDescriptor(AbstractFile.FileDescriptorMode.WriteTruncate, (fd) -> {
+                try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(fd))) {
+                    osw.write(testString);
+                    osw.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return Unit.INSTANCE;
+            });
+
+            if (foundFile.getLength() != testString.length()) {
+                throw new RuntimeException("file length != testString.length(), file length = "
+                        + foundFile.getLength());
+            }
+
+            foundFile.withFileDescriptor(AbstractFile.FileDescriptorMode.Read, (fd) -> {
+                try (InputStreamReader isr = new InputStreamReader(new FileInputStream(fd))) {
+                    char[] stringBytes = new char[testString.length()];
+                    int read = isr.read(stringBytes);
+
+                    if (read != testString.length()) {
+                        throw new RuntimeException("read bytes != testString.length(), read = " + read);
+                    }
+
+                    String resultString = new String(stringBytes);
+                    if (!resultString.equals(testString)){
+                        throw new RuntimeException("resultString != testString, resultString = "
+                                + resultString);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return Unit.INSTANCE;
+            });
 
             AbstractFile parent = externalFile.getParent().getParent();
             if (!parent.getName().equals("1234")) {

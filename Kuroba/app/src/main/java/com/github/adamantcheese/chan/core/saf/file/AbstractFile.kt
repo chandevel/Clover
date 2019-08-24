@@ -4,6 +4,7 @@ import com.github.adamantcheese.chan.core.extension
 import com.github.adamantcheese.chan.core.saf.annotation.ImmutableMethod
 import com.github.adamantcheese.chan.core.saf.annotation.MutableMethod
 import java.io.File
+import java.io.FileDescriptor
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -171,6 +172,11 @@ abstract class AbstractFile(
     @ImmutableMethod
     abstract fun getLength(): Long
 
+    @ImmutableMethod
+    abstract fun withFileDescriptor(
+            fileDescriptorMode: FileDescriptorMode,
+            func: (FileDescriptor) -> Unit)
+
     /**
      * Removes the last appended segment if there are any
      * e.g: /test/123/test2 -> /test/123 -> /test
@@ -292,4 +298,16 @@ abstract class AbstractFile(
             val name: String,
             val isFileName: Boolean = false
     )
+
+    enum class FileDescriptorMode(val mode: String) {
+        Read("r"),
+        Write("w"),
+        // When overwriting an existing file it is a really good ide to use truncate mode,
+        // because otherwise if a new file's length is less than the old one's then there will be
+        // old file's data left at the end of the file. Truncate flags will make sure that the file
+        // is truncated at the end to fit the new length.
+        WriteTruncate("wt")
+
+        // ReadWrite and ReadWriteTruncate are not supported!
+    }
 }

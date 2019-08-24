@@ -132,6 +132,7 @@ public class ImportExportRepository {
 
                     try (FileWriter writer = new FileWriter(fileDescriptor)) {
                         writer.write(json);
+                        writer.flush();
                     }
 
                     Logger.d(TAG, "Exporting done!");

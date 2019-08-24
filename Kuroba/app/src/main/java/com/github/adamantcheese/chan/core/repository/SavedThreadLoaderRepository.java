@@ -119,6 +119,7 @@ public class SavedThreadLoaderRepository {
                 // TODO: may not work!
                 fileWriter.write(lengthChars);
                 fileWriter.write(threadJsonBytes);
+                fileWriter.flush();
             }
         }
     }

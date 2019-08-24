@@ -2,9 +2,7 @@ package com.github.adamantcheese.chan.core.saf.file
 
 import com.github.adamantcheese.chan.core.appendMany
 import com.github.adamantcheese.chan.utils.Logger
-import java.io.File
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 
 class RawFile(
         private val root: Root<File>,
@@ -161,6 +159,27 @@ class RawFile(
     }
 
     override fun getLength(): Long = clone<RawFile>().toFile().length()
+
+    override fun withFileDescriptor(fileDescriptorMode: FileDescriptorMode, func: (FileDescriptor) -> Unit) {
+        val fileCopy = clone<RawFile>().toFile()
+
+        when (fileDescriptorMode) {
+            FileDescriptorMode.Read -> FileInputStream(fileCopy).use { fis -> func(fis.fd) }
+            FileDescriptorMode.Write,
+            FileDescriptorMode.WriteTruncate -> {
+                val fileOutputStream = when (fileDescriptorMode) {
+                    FileDescriptorMode.Write -> FileOutputStream(fileCopy, false)
+                    FileDescriptorMode.WriteTruncate -> FileOutputStream(fileCopy, true)
+                    else -> throw NotImplementedError("Not implemented for " +
+                            "fileDescriptorMode = ${fileDescriptorMode.name}")
+                }
+
+                fileOutputStream.use { fos -> func(fos.fd) }
+            }
+            else -> throw NotImplementedError("Not implemented for " +
+                    "fileDescriptorMode = ${fileDescriptorMode.name}")
+        }
+    }
 
     private fun toFile(): File {
         return if (segments.isEmpty()) {
