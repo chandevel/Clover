@@ -65,11 +65,11 @@ class RawFile(
             root.clone(),
             segments.toMutableList()) as T
 
-    override fun exists(): Boolean = toFile().exists()
-    override fun isFile(): Boolean = toFile().isFile
-    override fun isDirectory(): Boolean = toFile().isDirectory
-    override fun canRead(): Boolean = toFile().canRead()
-    override fun canWrite(): Boolean = toFile().canWrite()
+    override fun exists(): Boolean = clone<RawFile>().toFile().exists()
+    override fun isFile(): Boolean = clone<RawFile>().toFile().isFile
+    override fun isDirectory(): Boolean = clone<RawFile>().toFile().isDirectory
+    override fun canRead(): Boolean = clone<RawFile>().toFile().canRead()
+    override fun canWrite(): Boolean = clone<RawFile>().toFile().canWrite()
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : AbstractFile>  getParent(): T? {
@@ -88,11 +88,11 @@ class RawFile(
     }
 
     override fun delete(): Boolean {
-        return toFile().delete()
+        return clone<RawFile>().toFile().delete()
     }
 
     override fun getInputStream(): InputStream? {
-        val file = toFile()
+        val file = clone<RawFile>().toFile()
 
         if (!file.exists()) {
             Logger.e(TAG, "getInputStream() file does not exist, path = ${file.absolutePath}")
@@ -113,7 +113,7 @@ class RawFile(
     }
 
     override fun getOutputStream(): OutputStream? {
-        val file = toFile()
+        val file = clone<RawFile>().toFile()
 
         if (!file.exists()) {
             Logger.e(TAG, "getOutputStream() file does not exist, path = ${file.absolutePath}")
@@ -134,7 +134,7 @@ class RawFile(
     }
 
     override fun getName(): String {
-        return toFile().name
+        return clone<RawFile>().toFile().name
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -160,7 +160,7 @@ class RawFile(
         return RawFile(newRoot) as T
     }
 
-    override fun getLength(): Long = toFile().length()
+    override fun getLength(): Long = clone<RawFile>().toFile().length()
 
     private fun toFile(): File {
         return if (segments.isEmpty()) {

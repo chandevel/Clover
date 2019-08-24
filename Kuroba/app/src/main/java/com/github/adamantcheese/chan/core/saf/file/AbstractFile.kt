@@ -123,9 +123,6 @@ abstract class AbstractFile(
         return createNew<T>() != null
     }
 
-    // TODO: make exists(), isFile(), isDirectory(), canRead(), canWrite(), delete(), getInputStream(),
-    //  getOutputStream(), getName() and getLength() immutable, update documentation and comments/annotations
-
     /**
      * When doing something with an [AbstractFile] (like appending a subdir or a filename) the
      * [AbstractFile] will change because it's mutable. So if you don't want to change the original
@@ -135,19 +132,19 @@ abstract class AbstractFile(
      * */
     abstract fun <T : AbstractFile> clone(): T
 
-    @MutableMethod
+    @ImmutableMethod
     abstract fun exists(): Boolean
 
-    @MutableMethod
+    @ImmutableMethod
     abstract fun isFile(): Boolean
 
-    @MutableMethod
+    @ImmutableMethod
     abstract fun isDirectory(): Boolean
 
-    @MutableMethod
+    @ImmutableMethod
     abstract fun canRead(): Boolean
 
-    @MutableMethod
+    @ImmutableMethod
     abstract fun canWrite(): Boolean
 
     @MutableMethod
@@ -156,22 +153,22 @@ abstract class AbstractFile(
     @ImmutableMethod
     abstract fun getFullPath(): String
 
-    @MutableMethod
+    @ImmutableMethod
     abstract fun delete(): Boolean
 
-    @MutableMethod
+    @ImmutableMethod
     abstract fun getInputStream(): InputStream?
 
-    @MutableMethod
+    @ImmutableMethod
     abstract fun getOutputStream(): OutputStream?
 
-    @MutableMethod
+    @ImmutableMethod
     abstract fun getName(): String
 
     @ImmutableMethod
     abstract fun <T: AbstractFile> findFile(fileName: String): T?
 
-    @MutableMethod
+    @ImmutableMethod
     abstract fun getLength(): Long
 
     /**

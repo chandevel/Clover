@@ -104,11 +104,11 @@ class ExternalFile(
             root.clone(),
             segments.toMutableList()) as T
 
-    override fun exists(): Boolean = toDocumentFile()?.exists() ?: false
-    override fun isFile(): Boolean = toDocumentFile()?.isFile ?: false
-    override fun isDirectory(): Boolean = toDocumentFile()?.isDirectory ?: false
-    override fun canRead(): Boolean = toDocumentFile()?.canRead() ?: false
-    override fun canWrite(): Boolean = toDocumentFile()?.canWrite() ?: false
+    override fun exists(): Boolean = clone<ExternalFile>().toDocumentFile()?.exists() ?: false
+    override fun isFile(): Boolean = clone<ExternalFile>().toDocumentFile()?.isFile ?: false
+    override fun isDirectory(): Boolean = clone<ExternalFile>().toDocumentFile()?.isDirectory ?: false
+    override fun canRead(): Boolean = clone<ExternalFile>().toDocumentFile()?.canRead() ?: false
+    override fun canWrite(): Boolean = clone<ExternalFile>().toDocumentFile()?.canWrite() ?: false
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : AbstractFile> getParent(): T? {
@@ -138,12 +138,12 @@ class ExternalFile(
     }
 
     override fun delete(): Boolean {
-        return toDocumentFile()?.delete() ?: false
+        return clone<ExternalFile>().toDocumentFile()?.delete() ?: false
     }
 
     override fun getInputStream(): InputStream? {
         val contentResolver = appContext.contentResolver
-        val documentFile = toDocumentFile()
+        val documentFile = clone<ExternalFile>().toDocumentFile()
 
         if (documentFile == null) {
             Logger.e(TAG, "getInputStream() toDocumentFile() returned null")
@@ -170,7 +170,7 @@ class ExternalFile(
 
     override fun getOutputStream(): OutputStream? {
         val contentResolver = appContext.contentResolver
-        val documentFile = toDocumentFile()
+        val documentFile = clone<ExternalFile>().toDocumentFile()
 
         if (documentFile == null) {
             Logger.e(TAG, "getOutputStream() toDocumentFile() returned null")
@@ -200,7 +200,7 @@ class ExternalFile(
             return segments.last().name
         }
 
-        val documentFile = toDocumentFile()
+        val documentFile = clone<ExternalFile>().toDocumentFile()
         if (documentFile == null) {
             throw IllegalStateException("getName() toDocumentFile() returned null")
         }
@@ -259,7 +259,7 @@ class ExternalFile(
         return null
     }
 
-    override fun getLength(): Long = toDocumentFile()?.length() ?: -1L
+    override fun getLength(): Long = clone<ExternalFile>().toDocumentFile()?.length() ?: -1L
 
     fun getParcelFileDescriptor(fileDescriptorMode: FileDescriptorMode): ParcelFileDescriptor? {
         return appContext.contentResolver.openFileDescriptor(

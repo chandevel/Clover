@@ -34,6 +34,7 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -50,6 +51,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class MediaSettingsController extends SettingsController {
+    private static final String TAG = "MediaSettingsController";
+
     // Special setting views
     private BooleanSettingView boardFolderSetting;
     private BooleanSettingView threadFolderSetting;
@@ -186,6 +189,7 @@ public class MediaSettingsController extends SettingsController {
 
     private void setupLocalThreadLocationSetting(SettingsGroup media) {
         if (!ChanSettings.incrementalThreadDownloadingEnabled.get()) {
+            Logger.d(TAG, "setupLocalThreadLocationSetting() incrementalThreadDownloadingEnabled is disabled");
             return;
         }
 
@@ -207,7 +211,7 @@ public class MediaSettingsController extends SettingsController {
     }
 
     private void onLocalThreadsLocationSettingClicked() {
-
+        // TODO
     }
 
     private void setupSaveLocationSetting(SettingsGroup media) {
