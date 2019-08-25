@@ -8,7 +8,7 @@ import java.io.*
 /**
  * An abstraction class over both the Java File and the new Storage Access Framework DocumentFile.
  *
- * Some methods are marked with [MutableMethod] annotation. This means that such method are gonna
+ * Some methods are marked with [MutableMethod] annotation. This means that such methods are gonna
  * mutate the inner data of the [AbstractFile] (such as root or segments). Sometimes this behavior is
  * not desirable. For example, when you have an AbstractFile representing some directory that may
  * not even exists on the disk and you want to check whether it exists and if it does check some
@@ -17,7 +17,7 @@ import java.io.*
  * method on the file that represents the directory. It will create a copy of the file that you can
  * safely work without worry that the original file may change.
  *
- * Other methods are marked with [ImmutableMethod] annotation. This means that those files create a
+ * Other methods are marked with [ImmutableMethod] annotation. This means that those methods create a
  * copy of the [AbstractFile] internally and are safe to use without calling [clone]
  *
  * Examples.
@@ -265,7 +265,7 @@ abstract class AbstractFile(
      * If it's a file we can't do that so usually when attempting to append something to the FileRoot
      * an exception will be thrown
      *
-     * @param holder either Uri or File. Represents either just a path or a path with file name
+     * @param holder either DocumentFile or File.
      * */
     sealed class Root<T>(val holder: T) {
 
