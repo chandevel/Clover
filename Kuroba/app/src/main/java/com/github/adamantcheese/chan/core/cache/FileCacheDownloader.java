@@ -134,6 +134,11 @@ public class FileCacheDownloader implements Runnable {
             Source source = body.source();
             sourceCloseable = source;
 
+            if (!output.exists() && !output.create()) {
+                throw new IOException("Couldn't create output file, output = "
+                        + output.getFullPath());
+            }
+
             outputFileOutputStream = output.getOutputStream();
             if (outputFileOutputStream == null) {
                 throw new IOException("Couldn't get output file's OutputStream");
@@ -145,9 +150,7 @@ public class FileCacheDownloader implements Runnable {
             checkCancel();
 
             log("got input stream");
-
             pipeBody(source, sink);
-
             log("done");
 
             long fileLen = output.getLength();

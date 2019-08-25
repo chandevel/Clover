@@ -41,6 +41,7 @@ public class CacheHandler {
     private static final String TAG = "CacheHandler";
     //1GB for prefetching, so that entire threads can be loaded at once more easily, otherwise 100MB is plenty
     private static final long FILE_CACHE_DISK_SIZE = (ChanSettings.autoLoadThreadImages.get() ? 1000 : 100) * 1024 * 1024;
+    private static final String CACHE_EXTENSION = "cache";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private final RawFile cacheDirFile;
@@ -68,8 +69,14 @@ public class CacheHandler {
     public RawFile get(String key) {
         createDirectories();
 
+        String fileName = String.format(
+                "%s.%s",
+                // We need extension here because AbstractFile expects all file names to have
+                // extensions
+                String.valueOf(key.hashCode()), CACHE_EXTENSION);
+
         return cacheDirFile.clone()
-                .appendSubDirSegment(String.valueOf(key.hashCode()));
+                .appendFileNameSegment(fileName);
     }
 
     public File randomCacheFile() throws IOException {

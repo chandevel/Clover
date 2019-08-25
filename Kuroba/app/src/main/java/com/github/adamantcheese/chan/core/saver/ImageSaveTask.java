@@ -132,13 +132,14 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     private void onDestination() {
         success = true;
-        String[] paths = {destination.getFullPath()};
+//        String[] paths = {destination.getFullPath()};
 
-        // TODO: may not work
-        MediaScannerConnection.scanFile(getAppContext(), paths, null, (path, uri) -> {
-            // Runs on a binder thread
-            AndroidUtils.runOnUiThread(() -> afterScan(uri));
-        });
+        // FIXME: does not work. Who in their right mind even wants their downloaded images
+        //  to be scanned by the google botnet
+//        MediaScannerConnection.scanFile(getAppContext(), paths, null, (path, uri) -> {
+//            // Runs on a binder thread
+//            AndroidUtils.runOnUiThread(() -> afterScan(uri));
+//        });
     }
 
     private boolean copyToDestination(File source) {
