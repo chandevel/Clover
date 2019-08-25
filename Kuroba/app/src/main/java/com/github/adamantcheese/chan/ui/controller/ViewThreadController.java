@@ -44,6 +44,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
+import com.github.adamantcheese.chan.core.saf.FileManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
@@ -56,6 +57,7 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.AnimationUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -69,6 +71,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback {
+    private static final String TAG = "ViewThreadController";
+
     private static final int PIN_ID = 1;
     private static final int SAVE_THREAD_ID = 2;
 
@@ -77,6 +81,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     @Inject
     WatchManager watchManager;
+    @Inject
+    FileManager fileManager;
 
     private boolean pinItemPinned = false;
     private DownloadThreadState prevState = DownloadThreadState.Default;
@@ -130,11 +136,16 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     protected void buildMenu() {
+        prevState = DownloadThreadState.Default;
+
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu()
                 .withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
                 .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked);
 
         if (ChanSettings.incrementalThreadDownloadingEnabled.get()) {
+            // This method recreates the menu (and if there was the download animation running it
+            // will be reset to the default icon). We need to reset the prev state as well so that
+            // we can start animation again
             menuBuilder.withItem(SAVE_THREAD_ID, downloadIconOutline, this::saveClicked);
         }
 
@@ -196,6 +207,12 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             return;
         }
 
+        if (!fileManager.baseLocalThreadsDirectoryExists()) {
+            Logger.e(TAG, "Base local threads directory does not exist");
+            Toast.makeText(context, R.string.base_local_threads_dir_not_exists, Toast.LENGTH_LONG).show();
+            return;
+        }
+
         RuntimePermissionsHelper runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
         if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             saveClickedInternal();
@@ -216,10 +233,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private void saveClickedInternal() {
         if (threadLayout.getPresenter().save()) {
-            setSaveIconState(true);
             updateDrawerHighlighting(loadable);
-
             populateLocalOrLiveVersionMenu();
+
+            // Update icon at the very end, otherwise it won't start animating at all
+            setSaveIconState(true);
         }
     }
 
@@ -662,6 +680,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 menuItem.setImage(downloadIconOutline, animated);
                 break;
             case DownloadInProgress:
+                // FIXME: shit is broken
                 menuItem.setImage(downloadAnimation, animated);
                 downloadAnimation.start();
 

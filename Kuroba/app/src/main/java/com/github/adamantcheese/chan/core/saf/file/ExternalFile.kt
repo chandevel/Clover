@@ -320,7 +320,7 @@ class ExternalFile(
         val builder = uri.buildUpon()
 
         for (i in index until segments.size) {
-            builder.appendEncodedPath(segments[i].name)
+            builder.appendPath(segments[i].name)
         }
 
         return DocumentFile.fromSingleUri(appContext, builder.build())

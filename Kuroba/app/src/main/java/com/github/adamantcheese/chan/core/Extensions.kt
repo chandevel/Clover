@@ -22,7 +22,7 @@ fun String.extension(): String? {
 
 fun Uri.Builder.appendManyEncoded(segments: List<String>): Uri.Builder {
     for (segment in segments) {
-        this.appendEncodedPath(segment)
+        this.appendPath(segment)
     }
 
     return this

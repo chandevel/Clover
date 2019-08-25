@@ -327,15 +327,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     public boolean save() {
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
-            return saveInternal();
-        }
+            boolean startedSaving = saveInternal();
+            if (!startedSaving) {
+                watchManager.stopSavingThread(loadable);
+            }
 
-        if (!fileManager.baseLocalThreadsDirectoryExists()) {
-            Toast.makeText(
-                    context,
-                    R.string.base_local_threads_dir_not_exists,
-                    Toast.LENGTH_LONG).show();
-            return false;
+            return startedSaving;
         }
 
         pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
@@ -346,17 +343,13 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             watchManager.stopSavingThread(pin.loadable);
         }
 
-        if (!saveInternal()) {
-            watchManager.stopSavingThread(loadable);
-            return false;
-        }
-
         loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
         return true;
     }
 
     private boolean saveInternal() {
         if (chanLoader.getThread() == null) {
+            Logger.e(TAG, "chanLoader.getThread() == null");
             return false;
         }
 
