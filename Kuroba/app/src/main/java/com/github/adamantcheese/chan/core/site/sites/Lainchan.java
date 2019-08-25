@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.site.sites.sushichan;
+package com.github.adamantcheese.chan.core.site.sites;
 
 import androidx.annotation.Nullable;
 
@@ -31,25 +31,25 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 
 import okhttp3.HttpUrl;
 
-public class Sushichan extends CommonSite {
+public class Lainchan extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
-            return Sushichan.class;
+            return Lainchan.class;
         }
 
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https://sushigirl.us/");
+            return HttpUrl.parse("https://lainchan.org/");
         }
 
         @Override
         public String[] getNames() {
-            return new String[]{"sushichan"};
+            return new String[]{"lainchan"};
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, @Nullable Post post) {
+        public String desktopUrl(Loadable loadable, @Nullable final Post post) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
@@ -65,21 +65,28 @@ public class Sushichan extends CommonSite {
 
     @Override
     public void setup() {
-        setName("Sushichan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://sushigirl.us/favicon.ico")));
+        setName("Lainchan");
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://lainchan.org/favicon.ico")));
 
         setBoards(
-                Board.fromSiteNameCode(this, "artsy", "wildcard"),
-                Board.fromSiteNameCode(this, "sushi social", "lounge"),
-                Board.fromSiteNameCode(this, "site meta-discussion", "yakuza"),
-                Board.fromSiteNameCode(this, "vidya gaems", "arcade"),
-                Board.fromSiteNameCode(this, "cute things", "kawaii"),
-                Board.fromSiteNameCode(this, "tasty morsels & delights", "kitchen"),
-                Board.fromSiteNameCode(this, "enjoyable sounds", "tunes"),
-                Board.fromSiteNameCode(this, "arts & literature", "culture"),
-                Board.fromSiteNameCode(this, "technology", "silicon"),
-                Board.fromSiteNameCode(this, "internet death cult", "hell"),
-                Board.fromSiteNameCode(this, "dat ecchi & hentai goodness", "lewd")
+                Board.fromSiteNameCode(this, "Programming", "λ"),
+                Board.fromSiteNameCode(this, "Do It Yourself", "Δ"),
+                Board.fromSiteNameCode(this, "Security", "sec"),
+                Board.fromSiteNameCode(this, "Technology", "Ω"),
+                Board.fromSiteNameCode(this, "Games and Interactive Media", "inter"),
+                Board.fromSiteNameCode(this, "Literature", "lit"),
+                Board.fromSiteNameCode(this, "Musical and Audible Media", "music"),
+                Board.fromSiteNameCode(this, "Visual Media", "vis"),
+                Board.fromSiteNameCode(this, "Humanity", "hum"),
+                Board.fromSiteNameCode(this, "Drugs 3.0", "drug"),
+                Board.fromSiteNameCode(this, "Consciousness and Dreams", "zzz"),
+                Board.fromSiteNameCode(this, "layer", "layer"),
+                Board.fromSiteNameCode(this, "Questions and Complaints", "q"),
+                Board.fromSiteNameCode(this, "Random", "r"),
+                Board.fromSiteNameCode(this, "Lain", "lain"),
+                Board.fromSiteNameCode(this, "Culture 15 freshly bumped threads", "culture"),
+                Board.fromSiteNameCode(this, "Psychopharmacology 15 freshly bumped threads", "psy"),
+                Board.fromSiteNameCode(this, "15 freshly bumped threads", "mega")
         );
 
         setResolvable(URL_HANDLER);
@@ -92,8 +99,8 @@ public class Sushichan extends CommonSite {
         });
 
         setEndpoints(new VichanEndpoints(this,
-                "https://sushigirl.us/",
-                "https://sushigirl.us/"));
+                "https://lainchan.org",
+                "https://lainchan.org"));
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());

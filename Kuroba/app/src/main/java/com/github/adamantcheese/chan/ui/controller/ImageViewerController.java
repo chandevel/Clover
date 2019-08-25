@@ -49,6 +49,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.image.ImageContainer;
 import com.github.adamantcheese.chan.core.image.ImageListener;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
+import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageViewerPresenter;
@@ -57,6 +58,7 @@ import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.ImageSearch;
 import com.github.adamantcheese.chan.ui.adapter.ImageViewerAdapter;
+import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
@@ -142,17 +144,17 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
         menuBuilder.withItem(VOLUME_ID, R.drawable.ic_volume_off_white_24dp, this::volumeClicked);
 
-        if (!loadable.isSavedCopy) {
+        if (!loadable.isLocal()) {
             menuBuilder.withItem(SAVE_ID, R.drawable.ic_file_download_white_24dp, this::saveClicked);
         }
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow(this);
         overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
-        if (!loadable.isSavedCopy) {
+        if (!loadable.isLocal()) {
             overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
         }
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
-        if (!loadable.isSavedCopy) {
+        if (!loadable.isLocal()) {
             overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
         }
         overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
@@ -285,11 +287,18 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 if (ChanSettings.saveThreadFolder.get()) {
                     //save to op no appended with the first 50 characters of the subject
                     //should be unique and perfectly understandable title wise
+                    //
+                    //if we're saving from the catalog, find the post for the image and use its attributes to keep everything consistent
+                    //as the loadable is for the catalog and doesn't have the right info
                     subFolderName = subFolderName +
                             File.separator +
-                            presenter.getLoadable().no +
+                            (presenter.getLoadable().no == 0 ?
+                                    imageViewerCallback.getPostForPostImage(postImage).no :
+                                    presenter.getLoadable().no) +
                             "_";
-                    String tempTitle = presenter.getLoadable().title
+                    String tempTitle = (presenter.getLoadable().no == 0 ?
+                            PostHelper.getTitle(imageViewerCallback.getPostForPostImage(postImage), null) :
+                            presenter.getLoadable().title)
                             .toLowerCase()
                             .replaceAll(" ", "_")
                             .replaceAll("[^a-z0-9_]", "");
@@ -406,6 +415,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     @Override
     public void onMenuHidden() {
         hideSystemUI();
+    }
+
+    @Override
+    public boolean isImmersive() {
+        return ChanSettings.useImmersiveModeForGallery.get() && isInImmersiveMode;
     }
 
     private void showImageSearchOptions() {
@@ -642,6 +656,16 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         navigationController.getToolbar().setLayoutParams(params);
     }
 
+    @Override
+    public void showSystemUI(boolean show) {
+        if (show) {
+            showSystemUI();
+            mainHandler.postDelayed(uiHideCall, 2500);
+        } else {
+            hideSystemUI();
+        }
+    }
+
     private void showSystemUI() {
         if (!ChanSettings.useImmersiveModeForGallery.get() || !isInImmersiveMode) {
             return;
@@ -663,6 +687,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         ThumbnailView getPreviewImageTransitionView(PostImage postImage);
 
         void scrollToImage(PostImage postImage);
+
+        Post getPostForPostImage(PostImage postImage);
     }
 
     public interface GoPostCallback {

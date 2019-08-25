@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -23,6 +24,7 @@ import android.text.TextUtils;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
+import android.text.style.UnderlineSpan;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
@@ -40,7 +42,8 @@ import java.util.List;
 public class StyleRule {
     public enum ForegroundColor {
         INLINE_QUOTE,
-        QUOTE
+        QUOTE,
+        RED
     }
 
     public enum BackgroundColor {
@@ -61,6 +64,7 @@ public class StyleRule {
     private ForegroundColor foregroundColor = null;
     private BackgroundColor backgroundColor = null;
     private boolean strikeThrough;
+    private boolean underline;
     private boolean bold;
     private boolean italic;
     private boolean monospace;
@@ -120,6 +124,11 @@ public class StyleRule {
 
     public StyleRule strikeThrough() {
         strikeThrough = true;
+        return this;
+    }
+
+    public StyleRule underline() {
+        this.underline = true;
         return this;
     }
 
@@ -208,6 +217,10 @@ public class StyleRule {
             spansToApply.add(new StrikethroughSpan());
         }
 
+        if (underline) {
+            spansToApply.add(new UnderlineSpan());
+        }
+
         if (bold && italic) {
             spansToApply.add(new StyleSpan(Typeface.BOLD_ITALIC));
         } else if (bold) {
@@ -252,6 +265,8 @@ public class StyleRule {
                 return theme.inlineQuoteColor;
             case QUOTE:
                 return theme.quoteColor;
+            case RED:
+                return Color.RED;
             default:
                 return 0;
         }

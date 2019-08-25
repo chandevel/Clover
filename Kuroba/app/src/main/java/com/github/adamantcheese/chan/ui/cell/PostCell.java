@@ -167,7 +167,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         paddingPx = dp(textSizeSp - 6);
         detailsSizePx = sp(textSizeSp - 4);
         title.setTextSize(textSizeSp);
-        title.setPadding(paddingPx, paddingPx, dp(52), 0);
+        title.setPadding(paddingPx, paddingPx, dp(16), 0);
 
         iconSizePx = sp(textSizeSp - 3);
         icons.setHeight(sp(textSizeSp));
@@ -553,8 +553,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
             int wrapHeight = title.getMeasuredHeight() + icons.getMeasuredHeight();
             int extraWrapHeight = wrapHeight + comment.getMeasuredHeight();
-            //wrap if the title+icons height is between 0.85 and 1.15x the thumbnail size, or if everything is over 1.6x the thumbnail size
-            if ((wrapHeight >= 0.85 * thumbnailSize && wrapHeight <= 1.15 * thumbnailSize) || extraWrapHeight >= 1.6 * thumbnailSize) {
+            //wrap if the title+icons height is larger than 0.8x the thumbnail size, or if everything is over 1.6x the thumbnail size
+            if ((wrapHeight >= 0.8f * thumbnailSize) || extraWrapHeight >= 1.6f * thumbnailSize) {
                 RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
                 commentParams.removeRule(RelativeLayout.RIGHT_OF);
                 if (title.getMeasuredHeight() + (icons.getVisibility() == VISIBLE ? icons.getMeasuredHeight() : 0) < thumbnailSize) {
@@ -618,7 +618,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                         ChanSettings.padThumbs.get() && first ? dp(4) : 0,
                         0,
                         i + 1 == post.images.size()
-                                ? ChanSettings.padThumbs.get() ? dp(4) : dp(1)
+                                ? dp(1) + (ChanSettings.padThumbs.get() ? dp(4) : 0)
                                 : 0);
 
                 relativeLayoutContainer.addView(v, p);
@@ -712,6 +712,9 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                                 callback.onPostLinkableClicked(post, linkable2);
                             } else if (linkable2.type == PostLinkable.Type.SPOILER && linkable2.getSpoilerState()) {
                                 //linkable 1 is the link
+                                callback.onPostLinkableClicked(post, linkable1);
+                            } else {
+                                //weird case where a double stack of linkables, but isn't spoilered (some 4chan stickied posts)
                                 callback.onPostLinkableClicked(post, linkable1);
                             }
                         }

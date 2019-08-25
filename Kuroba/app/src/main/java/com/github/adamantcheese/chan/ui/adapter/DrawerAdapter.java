@@ -22,10 +22,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.drawable.Animatable2;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +32,8 @@ import android.widget.TextView;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -50,10 +49,6 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.AnimationUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -84,8 +79,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private Drawable downloadIconFilled;
 
     private final Callback callback;
-    private List<Pin> pins = new ArrayList<>();
     private Pin highlighted;
+    private Bitmap archivedIcon;
 
     public DrawerAdapter(Callback callback, Context context) {
         inject(this);
@@ -98,6 +93,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         downloadIconFilled = context.getDrawable(R.drawable.ic_download_anim1).mutate();
         downloadIconFilled.setTint(Color.GRAY);
+
+        archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
     }
 
     public void setPinHighlighted(Pin highlighted) {
@@ -121,9 +118,9 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 int to = target.getAdapterPosition();
 
                 if (getItemViewType(to) == TYPE_PIN) {
-                    Pin item = pins.remove(from - PIN_OFFSET);
-                    pins.add(to - PIN_OFFSET, item);
-                    watchManager.reorder(pins);
+                    Pin item = watchManager.getAllPins().remove(from - PIN_OFFSET);
+                    watchManager.getAllPins().add(to - PIN_OFFSET, item);
+                    watchManager.reorder();
                     notifyItemMoved(from, to);
                     return true;
                 } else {
@@ -133,7 +130,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                callback.onPinRemoved(pins.get(viewHolder.getAdapterPosition() - PIN_OFFSET));
+                callback.onPinRemoved(watchManager.getAllPins().get(viewHolder.getAdapterPosition() - PIN_OFFSET));
             }
         };
     }
@@ -166,7 +163,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 break;
             case TYPE_PIN:
-                final Pin pin = pins.get(position - PIN_OFFSET);
+                final Pin pin = watchManager.getAllPins().get(position - PIN_OFFSET);
                 PinViewHolder pinHolder = (PinViewHolder) holder;
                 updatePinViewHolder(pinHolder, pin);
 
@@ -194,14 +191,14 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemCount() {
-        return pins.size() + PIN_OFFSET;
+        return watchManager.getAllPins().size() + PIN_OFFSET;
     }
 
     @Override
     public long getItemId(int position) {
         position -= PIN_OFFSET;
-        if (position >= 0 && position < pins.size()) {
-            return pins.get(position).id + 10;
+        if (position >= 0 && position < watchManager.getAllPins().size()) {
+            return watchManager.getAllPins().get(position).id + 10;
         } else {
             return position;
         }
@@ -220,42 +217,27 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public void onPinsChanged(List<Pin> pins) {
-        this.pins.clear();
-        this.pins.addAll(pins);
-        Collections.sort(pins);
-        notifyDataSetChanged();
-    }
-
     public void onPinAdded(Pin pin) {
-        pins.add(pin);
-        Collections.sort(pins);
-        notifyItemInserted(pins.indexOf(pin) + PIN_OFFSET);
+        notifyItemInserted(watchManager.getAllPins().indexOf(pin) + PIN_OFFSET);
     }
 
-    public void onPinRemoved(RecyclerView recyclerView, Pin pin) {
-        int index = pins.indexOf(pin) + PIN_OFFSET;
-        PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(index);
-        if (holder != null) {
-            pins.remove(pin);
-            Collections.sort(pins);
-            notifyItemRemoved(index);
-        }
+    public void onPinRemoved(int index) {
+        notifyItemRemoved(index + PIN_OFFSET);
     }
 
     public void onPinChanged(RecyclerView recyclerView, Pin pin) {
-        PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(pins.indexOf(pin) + PIN_OFFSET);
+        PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(watchManager.getAllPins().indexOf(pin) + PIN_OFFSET);
         if (holder != null) {
             updatePinViewHolder(holder, pin);
-            notifyItemChanged(pins.indexOf(pin) + PIN_OFFSET);
+            notifyItemChanged(watchManager.getAllPins().indexOf(pin) + PIN_OFFSET);
         }
     }
 
     public void updateHighlighted(RecyclerView recyclerView) {
-        for (int i = 0; i < pins.size(); i++) {
+        for (int i = 0; i < watchManager.getAllPins().size(); i++) {
             PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(i + PIN_OFFSET);
             if (holder != null) {
-                updatePinViewHolder(holder, pins.get(i));
+                updatePinViewHolder(holder, watchManager.getAllPins().get(i));
                 notifyItemChanged(i + PIN_OFFSET);
             }
         }
@@ -266,16 +248,13 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
-            Bitmap archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
             text = PostHelper.prependIcon(text, archivedIcon, sp(16));
         }
 
         TextView bookmarkLabel = holder.textView;
         bookmarkLabel.setText(text);
-        holder.image.setUrl(pin.thumbnailUrl);
-        holder.image.setGreyscale(!pin.watching);
-
         loadBookmarkImage(holder, pin);
+        holder.image.setGreyscale(!pin.watching);
 
         if (ChanSettings.watchEnabled.get()) {
             if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
@@ -284,7 +263,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
                 String totalCount = PinHelper.getShortUnreadCount(pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1);
                 watchCount.setVisibility(View.VISIBLE);
-                watchCount.setText(ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount);
+
+                String watchCountText = ChanSettings.shortPinInfo.get()
+                        ? newCount
+                        : totalCount + " / " + newCount;
+                watchCount.setText(watchCountText);
 
                 if (!pin.watching) {
                     watchCount.setTextColor(0xff898989); // TODO material colors
@@ -339,13 +322,22 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             holder.itemView.setBackgroundColor(0x22000000);
             holder.highlighted = true;
         } else if (!highlighted && holder.highlighted) {
-            holder.itemView.setBackground(AndroidUtils.getAttrDrawable(holder.itemView.getContext(), android.R.attr.selectableItemBackground));
+            Drawable attrDrawable = AndroidUtils.getAttrDrawable(
+                    holder.itemView.getContext(),
+                    android.R.attr.selectableItemBackground);
+
+            holder.itemView.setBackground(attrDrawable);
             holder.highlighted = false;
         }
     }
 
     private void loadBookmarkImage(PinViewHolder holder, Pin pin) {
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        SavedThread savedThread = null;
+
+        if (PinType.hasDownloadFlag(pin.pinType)) {
+            savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        }
+
         if (savedThread == null || !savedThread.isFullyDownloaded) {
             holder.image.setUrl(pin.thumbnailUrl);
             return;
@@ -361,7 +353,12 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private void setPinDownloadIcon(PinViewHolder holder, Pin pin) {
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        SavedThread savedThread = null;
+
+        if (PinType.hasDownloadFlag(pin.pinType)) {
+            savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+        }
+
         if (savedThread == null) {
             holder.threadDownloadIcon.setVisibility(View.GONE);
             return;
@@ -370,43 +367,43 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         holder.threadDownloadIcon.setVisibility(View.VISIBLE);
 
         if (savedThread.isFullyDownloaded) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable) {
-                    AnimatedVectorDrawable drawable = (AnimatedVectorDrawable) holder.threadDownloadIcon.getDrawable();
-                    drawable.stop();
-                    drawable.clearAnimationCallbacks();
-                }
+            if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
+                AnimatedVectorDrawableCompat drawable =
+                        (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
+                drawable.stop();
+                drawable.clearAnimationCallbacks();
             }
+
             holder.threadDownloadIcon.setImageDrawable(downloadIconFilled);
             return;
         }
 
         if (savedThread.isStopped) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable) {
-                    AnimatedVectorDrawable drawable = (AnimatedVectorDrawable) holder.threadDownloadIcon.getDrawable();
-                    drawable.stop();
-                    drawable.clearAnimationCallbacks();
-                }
+            if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
+                AnimatedVectorDrawableCompat drawable =
+                        (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
+                drawable.stop();
+                drawable.clearAnimationCallbacks();
             }
+
             holder.threadDownloadIcon.setImageDrawable(downloadIconOutline);
             return;
         }
 
-        if (!(holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawable)) {
-            AnimatedVectorDrawable downloadAnimation =
+        if (!(holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat)) {
+            AnimatedVectorDrawableCompat downloadAnimation =
                     AnimationUtils.createAnimatedDownloadIcon(context, ThemeHelper.getTheme().textPrimary);
             holder.threadDownloadIcon.setImageDrawable(downloadAnimation);
 
             downloadAnimation.start();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                downloadAnimation.registerAnimationCallback(new Animatable2.AnimationCallback() {
-                    @Override
-                    public void onAnimationEnd(Drawable drawable) {
-                        downloadAnimation.start();
-                    }
-                });
-            }
+            downloadAnimation.registerAnimationCallback(new Animatable2Compat.AnimationCallback() {
+                @Override
+                public void onAnimationEnd(Drawable drawable) {
+                    super.onAnimationEnd(drawable);
+
+                    downloadAnimation.start();
+                }
+            });
         }
     }
 
@@ -429,17 +426,24 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             setRoundItemBackground(watchCountText);
 
+            image.setOnClickListener(v -> {
+                int pos = getAdapterPosition() - PIN_OFFSET;
+                if (pos >= 0 && pos < watchManager.getAllPins().size()) {
+                    callback.onWatchCountClicked(watchManager.getAllPins().get(pos));
+                }
+            });
+
             itemView.setOnClickListener(v -> {
                 int pos = getAdapterPosition() - PIN_OFFSET;
-                if (pos >= 0 && pos < pins.size()) {
-                    callback.onPinClicked(pins.get(pos));
+                if (pos >= 0 && pos < watchManager.getAllPins().size()) {
+                    callback.onPinClicked(watchManager.getAllPins().get(pos));
                 }
             });
 
             watchCountText.setOnClickListener(v -> {
                 int pos = getAdapterPosition() - PIN_OFFSET;
-                if (pos >= 0 && pos < pins.size()) {
-                    callback.onWatchCountClicked(pins.get(pos));
+                if (pos >= 0 && pos < watchManager.getAllPins().size()) {
+                    callback.onWatchCountClicked(watchManager.getAllPins().get(pos));
                 }
             });
         }

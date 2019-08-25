@@ -75,6 +75,10 @@ public class BehaviourSettingsController extends SettingsController {
                     ChanSettings.fullUserRotationEnable,
                     R.string.setting_full_screen_rotation, 0)));
 
+            general.add(new BooleanSettingView(this,
+                    ChanSettings.alwaysOpenDrawer,
+                    R.string.settings_always_open_drawer, 0));
+
             setupClearThreadHidesSetting(general);
 
             groups.add(general);

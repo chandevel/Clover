@@ -18,9 +18,10 @@ package com.github.adamantcheese.chan.core.site.common;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.webkit.WebView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.webkit.WebView;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
@@ -74,7 +75,7 @@ public abstract class CommonSite extends SiteBase {
     private CommonApi api;
     private CommonRequestModifier requestModifier;
 
-    private PostParser postParser;
+    public PostParser postParser;
 
     private List<Board> staticBoards = new ArrayList<>();
 
@@ -255,7 +256,7 @@ public abstract class CommonSite extends SiteBase {
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, @Nullable Post post) {
+        public String desktopUrl(Loadable loadable, @Nullable final Post post) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {

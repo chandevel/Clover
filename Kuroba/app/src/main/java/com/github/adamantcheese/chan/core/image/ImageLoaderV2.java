@@ -12,6 +12,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.saf.FileManager;
 import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -41,7 +42,11 @@ public class ImageLoaderV2 {
             int width,
             int height,
             ImageListener imageListener) {
-        if (loadable.isSavedCopy) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be executed on the main thread!");
+        }
+
+        if (loadable.isLocal()) {
             String formattedName;
 
             if (postImage.spoiler) {
@@ -97,6 +102,10 @@ public class ImageLoaderV2 {
             ImageListener imageListener,
             int width,
             int height) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be executed on the main thread!");
+        }
+
         ImageContainer container = new ImageContainer(
                 null,
                 null,
@@ -159,8 +168,9 @@ public class ImageLoaderV2 {
                     mainThreadHandler.post(() -> {
                         container.setBitmap(bitmap);
                         container.setRequestUrl(imageDir);
-                        imageListener.onResponse(container, true);
-                    });
+                        if (container.getListener() != null) {
+                    container.getListener().onResponse(container, true);
+                    }});
                 }
             } catch (Exception e) {
                 String message = "Could not get an image from the disk, error message = "
@@ -181,12 +191,20 @@ public class ImageLoaderV2 {
     }
 
     public void cancelRequest(ImageContainer container) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be executed on the main thread!");
+        }
+
         imageLoader.cancelRequest(container);
     }
 
     public ImageContainer get(
             String requestUrl,
             ImageListener listener) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be executed on the main thread!");
+        }
+
         return imageLoader.get(requestUrl, listener);
     }
 
@@ -195,6 +213,10 @@ public class ImageLoaderV2 {
             ImageListener listener,
             int width,
             int height) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be executed on the main thread!");
+        }
+
         return imageLoader.get(requestUrl, listener, width, height);
     }
 }

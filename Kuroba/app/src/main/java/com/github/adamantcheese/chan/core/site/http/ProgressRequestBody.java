@@ -79,7 +79,7 @@ public class ProgressRequestBody extends RequestBody {
 
             bytesWritten += byteCount;
             int percent = (int) (maxPercent * bytesWritten / contentLength());
-            
+
             if (percent - lastPercent >= percentStep) {
                 lastPercent = percent;
                 listener.onRequestProgress(percent);

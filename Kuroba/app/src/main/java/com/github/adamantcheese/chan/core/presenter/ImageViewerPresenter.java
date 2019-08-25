@@ -300,7 +300,11 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 if (postImage.type == PostImage.Type.MOVIE) {
                     callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
                 } else {
-                    onExit();
+                    if (callback.isImmersive()) {
+                        callback.showSystemUI(true);
+                    } else {
+                        onExit();
+                    }
                 }
             } else {
                 MultiImageView.Mode currentMode = callback.getImageMode(postImage);
@@ -311,7 +315,11 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 } else if (postImage.type == PostImage.Type.MOVIE && currentMode != MultiImageView.Mode.MOVIE) {
                     callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
                 } else {
-                    onExit();
+                    if (callback.isImmersive()) {
+                        callback.showSystemUI(true);
+                    } else {
+                        onExit();
+                    }
                 }
             }
         }
@@ -370,7 +378,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     private boolean imageAutoLoad(Loadable loadable, PostImage postImage) {
-        if (loadable.isSavedCopy) {
+        if (loadable.isLocal()) {
             // All images are stored locally when isSavedCopy is true
             return true;
         }
@@ -380,7 +388,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     private boolean videoAutoLoad(Loadable loadable, PostImage postImage) {
-        if (loadable.isSavedCopy) {
+        if (loadable.isLocal()) {
             // All videos are stored locally when isSavedCopy is true
             return true;
         }
@@ -434,5 +442,9 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         void showVolumeMenuItem(boolean show, boolean muted);
 
         void resetDownloadButtonState();
+
+        boolean isImmersive();
+
+        void showSystemUI(boolean show);
     }
 }

@@ -366,9 +366,9 @@ public class SpannableStringMapper {
                         currentTheme,
                         serializablePostLinkableSpan.getKey(),
                         new CommentParser.ThreadLink(
-                            postLinkThreadLinkValue.getBoard(),
-                            postLinkThreadLinkValue.getThreadId(),
-                            postLinkThreadLinkValue.getPostId()
+                                postLinkThreadLinkValue.getBoard(),
+                                postLinkThreadLinkValue.getThreadId(),
+                                postLinkThreadLinkValue.getPostId()
                         ),
                         PostLinkable.Type.THREAD);
                 break;
@@ -398,7 +398,7 @@ public class SpannableStringMapper {
             default:
                 throw new IllegalArgumentException(
                         "Not implemented for type " +
-                        serializablePostLinkableSpan.getPostLinkableType().name());
+                                serializablePostLinkableSpan.getPostLinkableType().name());
         }
 
         spannableString.setSpan(

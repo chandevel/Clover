@@ -85,13 +85,22 @@ public class SearchLayout extends LinearLayout {
             }
             return false;
         });
+        searchView.setOnFocusChangeListener((view, focused) -> {
+            if (!focused) {
+                view.postDelayed(() -> AndroidUtils.hideKeyboard(view), 100);
+            } else {
+                view.postDelayed(() -> AndroidUtils.requestKeyboardFocus(view), 100);
+            }
+        });
         LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(36), 1);
         searchViewParams.gravity = Gravity.CENTER_VERTICAL;
         addView(searchView, searchViewParams);
+        searchView.setFocusable(true);
+        searchView.requestFocus();
 
         clearButton.setAlpha(0f);
         clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
-        clearButton.getDrawable().setTint(Color.BLACK);
+        clearButton.getDrawable().setTint(getAttrColor(getContext(), R.attr.text_color_primary));
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
         clearButton.setOnClickListener(v -> {
             searchView.setText("");
@@ -112,10 +121,6 @@ public class SearchLayout extends LinearLayout {
         searchView.setTextColor(Color.WHITE);
         searchView.setHintTextColor(0x88ffffff);
         clearButton.getDrawable().setTintList(null);
-    }
-
-    public void openKeyboard() {
-        searchView.post(() -> AndroidUtils.requestViewAndKeyboardFocus(searchView));
     }
 
     public interface SearchLayoutCallback {

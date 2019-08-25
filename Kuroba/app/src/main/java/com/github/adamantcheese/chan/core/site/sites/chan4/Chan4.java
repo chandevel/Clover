@@ -85,7 +85,7 @@ public class Chan4 extends SiteBase {
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, Post post) {
+        public String desktopUrl(Loadable loadable, final Post post) {
             if (loadable.isCatalogMode()) {
                 if (post != null && post.no != 0) {
                     return "https://boards.4chan.org/" + loadable.board.code + "/thread/" + post.no;

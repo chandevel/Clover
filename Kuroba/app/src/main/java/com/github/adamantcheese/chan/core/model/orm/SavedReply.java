@@ -16,10 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
+import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-
-import com.github.adamantcheese.chan.core.site.Site;
 
 @DatabaseTable(tableName = "savedreply")
 public class SavedReply {

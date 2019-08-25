@@ -30,10 +30,6 @@ public class PushControllerTransition extends ControllerTransition {
     @Override
     public void perform() {
         AndroidUtils.waitForMeasure(to.view, view -> {
-            /*Animator fromAlpha = ObjectAnimator.ofFloat(from.view, View.ALPHA, 1f, 0.7f);
-            fromAlpha.setDuration(217);
-            fromAlpha.setInterpolator(new AccelerateDecelerateInterpolator()); // new PathInterpolator(0.4f, 0f, 0.2f, 1f)*/
-
             Animator toAlpha = ObjectAnimator.ofFloat(to.view, View.ALPHA, 0f, 1f);
             toAlpha.setDuration(200);
             toAlpha.setInterpolator(new DecelerateInterpolator(2f));

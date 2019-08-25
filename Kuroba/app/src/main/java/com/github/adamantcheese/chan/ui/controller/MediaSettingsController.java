@@ -115,7 +115,7 @@ public class MediaSettingsController extends SettingsController {
     }
 
     @Subscribe
-    public void onEvent(ChanSettings.SettingChanged setting) {
+    public void onEvent(ChanSettings.SettingChanged<?> setting) {
         if (setting.setting == ChanSettings.saveLocationUri) {
             // Image save location (SAF) was chosen
             String defaultDir = ChanSettings.getDefaultSaveLocationDir();

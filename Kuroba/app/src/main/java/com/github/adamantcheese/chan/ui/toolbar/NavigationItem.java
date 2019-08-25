@@ -117,6 +117,7 @@ public class NavigationItem {
                             ToolbarMenuItem::showSubmenu,
                             threedotMenuCallback));
         }
+
         public ToolbarMenu build() {
             navigationItem.menu = menu;
             return menu;
@@ -133,19 +134,23 @@ public class NavigationItem {
         }
 
         public MenuOverflowBuilder withSubItem(int text, ToolbarMenuSubItem.ClickCallback clicked) {
-            return withSubItem(-1, getString(text), clicked);
+            return withSubItem(-1, getString(text), true, clicked);
         }
 
         public MenuOverflowBuilder withSubItem(String text, ToolbarMenuSubItem.ClickCallback clicked) {
-            return withSubItem(-1, text, clicked);
+            return withSubItem(-1, text, true, clicked);
         }
 
         public MenuOverflowBuilder withSubItem(int id, int text, ToolbarMenuSubItem.ClickCallback clicked) {
-            return withSubItem(id, getString(text), clicked);
+            return withSubItem(id, getString(text), true, clicked);
         }
 
-        public MenuOverflowBuilder withSubItem(int id, String text, ToolbarMenuSubItem.ClickCallback clicked) {
-            menuItem.addSubItem(new ToolbarMenuSubItem(id, text, clicked));
+        public MenuOverflowBuilder withSubItem(int id, int text, boolean enabled, ToolbarMenuSubItem.ClickCallback clicked) {
+            return withSubItem(id, getString(text), enabled, clicked);
+        }
+
+        public MenuOverflowBuilder withSubItem(int id, String text, boolean enabled, ToolbarMenuSubItem.ClickCallback clicked) {
+            menuItem.addSubItem(new ToolbarMenuSubItem(id, text, enabled, clicked));
 
             return this;
         }

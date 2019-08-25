@@ -16,13 +16,15 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.dvach;
 
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.http.Reply;
+
 import org.jsoup.Jsoup;
 
 import java.util.regex.Matcher;

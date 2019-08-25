@@ -26,15 +26,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class SiteService {
-    private static boolean addSiteForLegacy = false;
-
-    /**
-     * Called from the DatabaseHelper when upgrading to the tables with a site id.
-     */
-    public static void addSiteForLegacy() {
-        addSiteForLegacy = true;
-    }
-
     private SiteRepository siteRepository;
     private SiteResolver resolver;
 
@@ -90,12 +81,6 @@ public class SiteService {
             throw new IllegalStateException("Already initialized");
         }
         initialized = true;
-
-        if (addSiteForLegacy) {
-            addSiteForLegacy = false;
-            siteRepository.addLegacySite();
-        }
-
         siteRepository.initialize();
     }
 

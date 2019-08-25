@@ -14,11 +14,11 @@ import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.Reply;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -50,7 +50,7 @@ public class Dvach extends CommonSite {
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, @Nullable Post post) {
+        public String desktopUrl(Loadable loadable, @Nullable final Post post) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
@@ -84,6 +84,11 @@ public class Dvach extends CommonSite {
                         "Captcha type",
                         Arrays.asList("Javascript", "Noscript"))
         );
+    }
+
+    @Override
+    public void setParser(CommentParser commentParser) {
+        this.postParser = new DvachPostParser(commentParser);
     }
 
     @Override
@@ -205,6 +210,6 @@ public class Dvach extends CommonSite {
 
         setApi(new DvachApi(this));
 
-        setParser(new VichanCommentParser());
+        setParser(new DvachCommentParser());
     }
 }

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.site.sites.arisuchan;
+package com.github.adamantcheese.chan.core.site.sites;
 
 import androidx.annotation.Nullable;
 
@@ -31,25 +31,25 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 
 import okhttp3.HttpUrl;
 
-public class Arisuchan extends CommonSite {
+public class Sushichan extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
-            return Arisuchan.class;
+            return Sushichan.class;
         }
 
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https://arisuchan.jp/");
+            return HttpUrl.parse("https://sushigirl.us/");
         }
 
         @Override
         public String[] getNames() {
-            return new String[]{"arisuchan"};
+            return new String[]{"sushichan"};
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, @Nullable Post post) {
+        public String desktopUrl(Loadable loadable, @Nullable final Post post) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
@@ -65,23 +65,21 @@ public class Arisuchan extends CommonSite {
 
     @Override
     public void setup() {
-        setName("Arisuchan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://arisuchan.jp/favicon.ico")));
+        setName("Sushichan");
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://sushigirl.us/favicon.ico")));
 
         setBoards(
-                Board.fromSiteNameCode(this, "art and design", "art"),
-                Board.fromSiteNameCode(this, "culture and media", "cult"),
-                Board.fromSiteNameCode(this, "cyberpunk and cybersecurity", "cyb"),
-                Board.fromSiteNameCode(this, "personal experiences", "feels"),
-                Board.fromSiteNameCode(this, "psychology and psychonautics", "psy"),
-                Board.fromSiteNameCode(this, "arisuchan meta", "q"),
-                Board.fromSiteNameCode(this, "miscellaneous", "r"),
-                Board.fromSiteNameCode(this, "киберпанк-доска", "ru"),
-                Board.fromSiteNameCode(this, "science and technology", "tech"),
-                Board.fromSiteNameCode(this, "paranoia", "x"),
-                Board.fromSiteNameCode(this, "zaibatsu", "z"),
-                Board.fromSiteNameCode(this, "diy and projects", "Δ"),
-                Board.fromSiteNameCode(this, "programming", "λ")
+                Board.fromSiteNameCode(this, "artsy", "wildcard"),
+                Board.fromSiteNameCode(this, "sushi social", "lounge"),
+                Board.fromSiteNameCode(this, "site meta-discussion", "yakuza"),
+                Board.fromSiteNameCode(this, "vidya gaems", "arcade"),
+                Board.fromSiteNameCode(this, "cute things", "kawaii"),
+                Board.fromSiteNameCode(this, "tasty morsels & delights", "kitchen"),
+                Board.fromSiteNameCode(this, "enjoyable sounds", "tunes"),
+                Board.fromSiteNameCode(this, "arts & literature", "culture"),
+                Board.fromSiteNameCode(this, "technology", "silicon"),
+                Board.fromSiteNameCode(this, "internet death cult", "hell"),
+                Board.fromSiteNameCode(this, "dat ecchi & hentai goodness", "lewd")
         );
 
         setResolvable(URL_HANDLER);
@@ -94,8 +92,8 @@ public class Arisuchan extends CommonSite {
         });
 
         setEndpoints(new VichanEndpoints(this,
-                "https://arisuchan.jp",
-                "https://arisuchan.jp"));
+                "https://sushigirl.us/",
+                "https://sushigirl.us/"));
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());

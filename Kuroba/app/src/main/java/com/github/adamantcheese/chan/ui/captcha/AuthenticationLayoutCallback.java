@@ -21,5 +21,6 @@ public interface AuthenticationLayoutCallback {
                                   String challenge,
                                   String response,
                                   boolean autoReply);
+
     void onFallbackToV1CaptchaView(boolean autoReply);
 }

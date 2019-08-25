@@ -26,7 +26,7 @@ public class SerializableThread {
 
     /**
      * Merge old posts with new posts avoiding duplicates and then sort merged list
-     * */
+     */
     public SerializableThread merge(List<Post> posts) {
         if (BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Cannot be executed on the main thread!");

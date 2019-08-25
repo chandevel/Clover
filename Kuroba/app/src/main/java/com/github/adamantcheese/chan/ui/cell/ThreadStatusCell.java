@@ -34,6 +34,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
@@ -103,13 +104,24 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
             SpannableStringBuilder builder = new SpannableStringBuilder();
 
-            if (chanThread.archived) {
-                builder.append(getContext().getString(R.string.thread_archived));
-            } else if (chanThread.closed) {
-                builder.append(getContext().getString(R.string.thread_closed));
+            if (chanThread.getLoadable().isLocal()) {
+                builder.append(getContext().getString(R.string.local_thread_text));
+            } else {
+                if (chanThread.isArchived()) {
+                    builder.append(getContext().getString(R.string.thread_archived));
+                } else if (chanThread.isClosed()) {
+                    builder.append(getContext().getString(R.string.thread_closed));
+                }
             }
 
-            if (!chanThread.archived && !chanThread.closed) {
+            if (!chanThread.isArchived()
+                    && !chanThread.isClosed()
+                    && chanThread.getLoadable().loadableDownloadingState != Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+                if (chanThread.getLoadable().loadableDownloadingState != Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+                    // To split Local Thread and (Loading Time | Loading) rows
+                    builder.append('\n');
+                }
+
                 long time = callback.getTimeUntilLoadMore() / 1000L;
                 if (!callback.isWatching()) {
                     builder.append(getContext().getString(R.string.thread_refresh_bar_inactive));
@@ -121,43 +133,43 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                 update = true;
             }
 
-            Post op = chanThread.op;
+            builder.append('\n'); //to split up the cell into the top and bottom rows
+
+            Post op = chanThread.getOp();
             Board board = op.board;
             if (board != null) {
-                boolean hasReplies = op.getReplies() >= 0;
-                boolean hasImages = op.getImagesCount() >= 0;
+                boolean hasReplies = op.getReplies() >= 0 || chanThread.getPostsCount() - 1 > 0;
+                boolean hasImages = op.getImagesCount() >= 0 || chanThread.getImagesCount() > 0;
                 if (hasReplies && hasImages) {
                     boolean hasBumpLimit = board.bumpLimit > 0;
                     boolean hasImageLimit = board.imageLimit > 0;
 
-                    SpannableString replies = new SpannableString(op.getReplies() + "R");
+                    SpannableString replies = new SpannableString((op.getReplies() >= 0 ? op.getReplies() : chanThread.getPostsCount() - 1) + "R");
                     if (hasBumpLimit && op.getReplies() >= board.bumpLimit) {
                         replies.setSpan(new StyleSpan(Typeface.ITALIC), 0, replies.length(), 0);
                     }
 
-                    SpannableString images = new SpannableString(op.getImagesCount() + "I");
+                    SpannableString images = new SpannableString((op.getImagesCount() >= 0 ? op.getImagesCount() : chanThread.getImagesCount()) + "I");
                     if (hasImageLimit && op.getImagesCount() >= board.imageLimit) {
                         images.setSpan(new StyleSpan(Typeface.ITALIC), 0, images.length(), 0);
                     }
 
-                    builder.append('\n').append(replies).append(" / ").append(images);
+                    builder.append(replies).append(" / ").append(images);
 
                     if (op.getUniqueIps() >= 0) {
                         String ips = op.getUniqueIps() + "P";
                         builder.append(" / ").append(ips);
                     }
 
-                    builder.append(" / ").append(getContext().getString(R.string.thread_page_no)).append(' ');
-
-                    Chan4PagesRequest.Page p = callback.getPage(op);
-                    if (p != null) {
-                        SpannableString page = new SpannableString(String.valueOf(p.page));
-                        if (p.page >= board.pages) {
-                            page.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
+                    if (!chanThread.getLoadable().isLocal()) {
+                        Chan4PagesRequest.Page p = callback.getPage(op);
+                        if (p != null) {
+                            SpannableString page = new SpannableString(String.valueOf(p.page));
+                            if (p.page >= board.pages) {
+                                page.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
+                            }
+                            builder.append(" / ").append(getContext().getString(R.string.thread_page_no)).append(' ').append(page);
                         }
-                        builder.append(page);
-                    } else {
-                        builder.append('?');
                     }
                 }
             }

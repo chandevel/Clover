@@ -103,19 +103,19 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
 
         // Start watching for slow disk reads and writes after the heavy initializing is done
         if (BuildConfig.DEBUG) {
-            StrictMode.setThreadPolicy(
-                    new StrictMode.ThreadPolicy.Builder()
-                            .detectCustomSlowCalls()
-                            .detectNetwork()
-                            .detectDiskReads()
-                            .detectDiskWrites()
-                            .penaltyLog()
-                            .build());
-            StrictMode.setVmPolicy(
-                    new StrictMode.VmPolicy.Builder()
-                            .detectAll()
-                            .penaltyLog()
-                            .build());
+//            StrictMode.setThreadPolicy(
+//                    new StrictMode.ThreadPolicy.Builder()
+//                            .detectCustomSlowCalls()
+//                            .detectNetwork()
+//                            .detectDiskReads()
+//                            .detectDiskWrites()
+//                            .penaltyLog()
+//                            .build());
+//            StrictMode.setVmPolicy(
+//                    new StrictMode.VmPolicy.Builder()
+//                            .detectAll()
+//                            .penaltyLog()
+//                            .build());
         }
 
         RxJavaPlugins.setErrorHandler(e -> {

@@ -58,7 +58,7 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
 
     /**
      * TODO: add support for the Captcha queueing {@link CaptchaHolder}
-     * */
+     */
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override

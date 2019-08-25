@@ -17,14 +17,15 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 public class HidingFloatingActionButton extends FloatingActionButton implements Toolbar.ToolbarCollapseCallback {
     private boolean attachedToWindow;

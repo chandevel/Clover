@@ -32,14 +32,14 @@ public class ImageOptionsHelper implements
         this.callbacks = callbacks;
     }
 
-    public void showController(Loadable loadable) {
+    public void showController(Loadable loadable, boolean supportsReencode) {
         if (imageOptionsController == null) {
             try { //load up the last image options every time this controller is created
                 lastImageOptions = new Gson().fromJson(ChanSettings.lastImageOptions.get(), ImageReencodingPresenter.ImageOptions.class);
             } catch (Exception ignored) {
                 lastImageOptions = null;
             }
-            imageOptionsController = new ImageOptionsController(context, this, this, loadable, lastImageOptions);
+            imageOptionsController = new ImageOptionsController(context, this, this, loadable, lastImageOptions, supportsReencode);
             callbacks.presentReencodeOptionsController(imageOptionsController);
         }
     }

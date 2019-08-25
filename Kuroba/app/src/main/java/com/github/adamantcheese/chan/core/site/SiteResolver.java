@@ -115,6 +115,7 @@ public class SiteResolver {
                     Loadable resolved = databaseManager.getDatabaseLoadableManager().get(resolvedLoadable);
 
                     if (resolved != null) {
+                        resolved.markedNo = resolvedLoadable.markedNo;
                         return new LoadableResult(resolved);
                     }
                 }

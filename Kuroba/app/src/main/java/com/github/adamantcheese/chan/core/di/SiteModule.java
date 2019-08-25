@@ -16,11 +16,13 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import org.codejargon.feather.Provides;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.core.site.SiteService;
+import com.github.adamantcheese.chan.utils.Logger;
+
+import org.codejargon.feather.Provides;
 
 import javax.inject.Singleton;
 
@@ -32,6 +34,7 @@ public class SiteModule {
             SiteRepository siteRepository,
             DatabaseManager databaseManager
     ) {
+        Logger.d(AppModule.DI_TAG, "Site resolver");
         return new SiteResolver(siteRepository, databaseManager);
     }
 
@@ -41,6 +44,7 @@ public class SiteModule {
             SiteRepository siteRepository,
             SiteResolver siteResolver
     ) {
+        Logger.d(AppModule.DI_TAG, "Site service");
         return new SiteService(siteRepository, siteResolver);
     }
 }

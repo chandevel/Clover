@@ -89,7 +89,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
         }
 
         if (requiresUiRefresh.contains(item)) {
-            EventBus.getDefault().post(new RefreshUIMessage("unknown"));
+            EventBus.getDefault().post(new RefreshUIMessage("SettingsController refresh"));
         } else if (requiresRestart.contains(item)) {
             needRestart = true;
         }

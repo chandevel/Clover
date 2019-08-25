@@ -110,6 +110,10 @@ public class ToolbarContainer extends FrameLayout {
         this.arrowMenu = arrowMenu;
     }
 
+    public void resetMenu() {
+        if (currentView != null) currentView.attach();
+    }
+
     public void set(NavigationItem item, Theme theme, ToolbarPresenter.AnimationStyle animation) {
         if (transitionView != null) {
             throw new IllegalStateException("Currently in transition mode");
@@ -165,13 +169,6 @@ public class ToolbarContainer extends FrameLayout {
     public View viewForItem(NavigationItem item) {
         ItemView itemView = itemViewForItem(item);
         return itemView == null ? null : itemView.view;
-    }
-
-    public View getCurrentView() {
-        if (currentView != null) {
-            return currentView.view;
-        }
-        return null;
     }
 
     private ItemView itemViewForItem(NavigationItem item) {
@@ -523,7 +520,6 @@ public class ToolbarContainer extends FrameLayout {
 
             searchLayout.setCatalogSearchColors();
             searchLayout.setPadding(dp(16), searchLayout.getPaddingTop(), searchLayout.getPaddingRight(), searchLayout.getPaddingBottom());
-            searchLayout.openKeyboard();
 
             return searchLayout;
         }

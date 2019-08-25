@@ -247,8 +247,8 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void showImageReencodingWindow() {
-        presenter.showImageReencodingWindow();
+    public void showImageReencodingWindow(boolean supportsReencode) {
+        presenter.showImageReencodingWindow(supportsReencode);
     }
 
     @Override
@@ -258,21 +258,21 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
-        if (thread.loadable.isSavedCopy) {
+        if (thread.getLoadable().isLocal()) {
             if (replyButton.getVisibility() == View.VISIBLE) {
                 replyButton.hide();
             }
-            getPresenter().updateLoadable(true);
         } else {
             if (replyButton.getVisibility() != View.VISIBLE) {
                 replyButton.show();
             }
-            getPresenter().updateLoadable(false);
         }
+
+        getPresenter().updateLoadable(thread.getLoadable().loadableDownloadingState);
 
         threadListLayout.showPosts(thread, filter, visible != Visible.THREAD);
         switchVisible(Visible.THREAD);
-        callback.onShowPosts(thread.loadable);
+        callback.onShowPosts();
     }
 
     @Override
@@ -294,6 +294,8 @@ public class ThreadLayout extends CoordinatorLayout implements
             if (error.getErrorMessage() == R.string.thread_load_failed_not_found) {
                 errorRetryButton.setText(R.string.thread_show_archives);
                 archiveButton = true;
+
+                presenter.markAllPostsAsSeen();
             }
         }
     }
@@ -423,6 +425,11 @@ public class ThreadLayout extends CoordinatorLayout implements
         } else if (visible == Visible.THREAD) {
             threadListLayout.scrollTo(displayPosition, smooth);
         }
+    }
+
+    @Override
+    public void smoothScrollNewPosts(int displayPosition) {
+        threadListLayout.smoothScrollNewPosts(displayPosition);
     }
 
     @Override
@@ -609,7 +616,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void shownBackgroundWatcherIsDisabledToast() {
+    public void showBackgroundWatcherIsDisabledToast() {
         Toast.makeText(
                 getContext(),
                 R.string.thread_layout_background_watcher_is_disabled_message,
@@ -625,9 +632,16 @@ public class ThreadLayout extends CoordinatorLayout implements
 
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
                 newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
-                    newPostsNotification = null;
                     presenter.onNewPostsViewClicked();
+                    newPostsNotification.dismiss();
+                    newPostsNotification = null;
                 }).show();
+                postDelayed(() -> {
+                    if (newPostsNotification != null) {
+                        newPostsNotification.dismiss();
+                        newPostsNotification = null;
+                    }
+                }, 3500);
                 fixSnackbarText(getContext(), newPostsNotification);
             }
         } else {
@@ -639,8 +653,8 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void showImageReencodingWindow(Loadable loadable) {
-        imageReencodingHelper.showController(loadable);
+    public void showImageReencodingWindow(Loadable loadable, boolean supportsReencode) {
+        imageReencodingHelper.showController(loadable, supportsReencode);
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {
@@ -672,6 +686,12 @@ public class ThreadLayout extends CoordinatorLayout implements
                             replyButton.setAlpha(show ? 1f : 0f);
                             replyButton.setScaleX(show ? 1f : 0f);
                             replyButton.setScaleY(show ? 1f : 0f);
+                            replyButton.setClickable(show);
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            replyButton.setClickable(show);
                         }
                     })
                     .start();
@@ -686,7 +706,10 @@ public class ThreadLayout extends CoordinatorLayout implements
                     postPopupHelper.popAll();
                     showSearch(false);
                     showReplyButton(false);
-                    newPostsNotification = null;
+                    if (newPostsNotification != null) {
+                        newPostsNotification.dismiss();
+                        newPostsNotification = null;
+                    }
                 }
             }
 
@@ -694,6 +717,7 @@ public class ThreadLayout extends CoordinatorLayout implements
             switch (visible) {
                 case EMPTY:
                     loadView.setView(inflateEmptyView());
+                    showReplyButton(false);
                     break;
                 case LOADING:
                     View view = loadView.setView(progressLayout);
@@ -703,6 +727,8 @@ public class ThreadLayout extends CoordinatorLayout implements
                         refreshedFromSwipe = false;
                         view.setVisibility(View.GONE);
                     }
+
+                    showReplyButton(false);
                     break;
                 case THREAD:
                     callback.hideSwipeRefreshLayout();
@@ -712,6 +738,7 @@ public class ThreadLayout extends CoordinatorLayout implements
                 case ERROR:
                     callback.hideSwipeRefreshLayout();
                     loadView.setView(errorLayout);
+                    showReplyButton(false);
                     break;
             }
         }
@@ -792,7 +819,7 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         void showAlbum(List<PostImage> images, int index);
 
-        void onShowPosts(Loadable loadable);
+        void onShowPosts();
 
         void presentController(Controller controller);
 

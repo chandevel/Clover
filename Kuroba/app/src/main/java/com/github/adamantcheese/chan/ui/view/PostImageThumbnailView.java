@@ -63,7 +63,7 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
             int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
 
             if (postImage != null) {
-                if (!loadable.isSavedCopy) {
+                if (!loadable.isLocal()) {
                     String url = getUrl(postImage, useHiRes);
                     setUrl(url);
                 } else {

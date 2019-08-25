@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.cell.AlbumViewCell;
@@ -74,7 +75,7 @@ public class AlbumViewController extends Controller implements
         this.loadable = loadable;
         this.postImages = postImages;
 
-        if (!loadable.isSavedCopy) {
+        if (!loadable.isLocal()) {
             // Navigation
             navigation.buildMenu().withOverflow()
                     .withSubItem(R.string.action_download_album, this::downloadAlbumClicked)
@@ -142,6 +143,11 @@ public class AlbumViewController extends Controller implements
         } else {
             return null;
         }
+    }
+
+    @Override
+    public Post getPostForPostImage(PostImage postImage) {
+        throw new UnsupportedOperationException();
     }
 
     private void openImage(AlbumItemCellHolder albumItemCellHolder, PostImage postImage) {

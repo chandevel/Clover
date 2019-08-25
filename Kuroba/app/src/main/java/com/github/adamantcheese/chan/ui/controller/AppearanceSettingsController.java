@@ -85,6 +85,10 @@ public class AppearanceSettingsController extends SettingsController {
                     "Enable accessible post info",
                     "Enabling places info in the first post option menu")));
 
+            requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
+                    ChanSettings.moveInputToBottom,
+                    "Bottom input", "Makes the captcha and reply input float to the bottom of the screen")));
+
             groups.add(layout);
         }
 

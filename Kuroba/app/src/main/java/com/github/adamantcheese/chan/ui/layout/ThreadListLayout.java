@@ -27,13 +27,13 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -41,7 +41,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -64,6 +63,7 @@ import com.github.adamantcheese.chan.ui.view.FastScroller;
 import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -119,6 +119,12 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         searchStatus = findViewById(R.id.search_status);
         recyclerView = findViewById(R.id.recycler_view);
 
+        if (ChanSettings.moveInputToBottom.get()) {
+            LayoutParams params = (LayoutParams) reply.getLayoutParams();
+            params.gravity = Gravity.BOTTOM;
+            reply.setLayoutParams(params);
+        }
+
         // View setup
         reply.setCallback(this);
         searchStatus.setTypeface(ThemeHelper.getTheme().mainFont);
@@ -143,7 +149,11 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         attachToolbarScroll(true);
 
-        reply.setPadding(0, toolbarHeight(), 0, 0);
+        if (ChanSettings.moveInputToBottom.get()) {
+            reply.setPadding(0, 0, 0, 0);
+        } else {
+            reply.setPadding(0, toolbarHeight(), 0, 0);
+        }
         searchStatus.setPadding(searchStatus.getPaddingLeft(), searchStatus.getPaddingTop() + toolbarHeight(),
                 searchStatus.getPaddingRight(), searchStatus.getPaddingBottom());
     }
@@ -153,8 +163,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         if (showingThread != null) {
             int[] indexTop = getIndexAndTop();
 
-            showingThread.loadable.setListViewIndex(indexTop[0]);
-            showingThread.loadable.setListViewTop(indexTop[1]);
+            showingThread.getLoadable().setListViewIndex(indexTop[0]);
+            showingThread.getLoadable().setListViewTop(indexTop[1]);
 
             int last = getCompleteBottomAdapterPosition();
             if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
@@ -246,14 +256,14 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     public void showPosts(ChanThread thread, PostsFilter filter, boolean initial) {
         showingThread = thread;
         if (initial) {
-            reply.bindLoadable(showingThread.loadable);
+            reply.bindLoadable(showingThread.getLoadable());
 
             recyclerView.setLayoutManager(null);
             recyclerView.setLayoutManager(layoutManager);
             recyclerView.getRecycledViewPool().clear();
 
-            int index = thread.loadable.listViewIndex;
-            int top = thread.loadable.listViewTop;
+            int index = thread.getLoadable().listViewIndex;
+            int top = thread.getLoadable().listViewTop;
 
             switch (postViewMode) {
                 case LIST:
@@ -283,17 +293,17 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
          * BUT if for some reason it starts to cause ANRs then we will have to apply the callback solution.
          */
         List<Post> filteredPosts = filter.apply(
-                thread.posts,
-                thread.loadable.site.id(),
-                thread.loadable.board.code
+                thread.getPosts(),
+                thread.getLoadable().site.id(),
+                thread.getLoadable().board.code
         );
 
         //Filter out any bookmarked threads from the catalog
-        if (ChanSettings.removeWatchedFromCatalog.get() && thread.loadable.isCatalogMode()) {
+        if (ChanSettings.removeWatchedFromCatalog.get() && thread.getLoadable().isCatalogMode()) {
             List<Post> toRemove = new ArrayList<>();
             for (Pin pin : Chan.injector().instance(WatchManager.class).getAllPins()) {
                 for (Post post : filteredPosts) {
-                    if (pin.loadable.equals(Loadable.forThread(thread.loadable.site, thread.loadable.board, post.no, ""))) {
+                    if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().site, thread.getLoadable().board, post.no, ""))) {
                         toRemove.add(post);
                     }
                 }
@@ -352,11 +362,11 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
             if (open) {
                 reply.setVisibility(View.VISIBLE);
-                reply.setTranslationY(-height);
+                reply.setTranslationY(ChanSettings.moveInputToBottom.get() ? height : -height);
                 viewPropertyAnimator.translationY(0f);
             } else {
                 reply.setTranslationY(0f);
-                viewPropertyAnimator.translationY(-height);
+                viewPropertyAnimator.translationY(ChanSettings.moveInputToBottom.get() ? height : -height);
                 viewPropertyAnimator.setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -478,6 +488,16 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         return getCompleteBottomAdapterPosition() == postAdapter.getItemCount() - 1;
     }
 
+    public void smoothScrollNewPosts(int displayPosition) {
+        if (layoutManager instanceof LinearLayoutManager) {
+            ((LinearLayoutManager) layoutManager)
+                    .scrollToPositionWithOffset(displayPosition + 1, //position + 1 for last seen view, dp(4) for it's height
+                            recyclerView.getHeight() - recyclerView.getPaddingTop() - dp(4));
+        } else {
+            Logger.wtf(TAG, "Layout manager is grid inside thread??");
+        }
+    }
+
     public void cleanup() {
         postAdapter.cleanup();
         reply.cleanup();
@@ -591,16 +611,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     }
 
     @Override
-    public void showImageReencodingWindow() {
-        threadListLayoutCallback.showImageReencodingWindow();
-    }
-
-    @Override
-    public void showAttachedImageNotSupportedForReencodingError() {
-        Toast.makeText(
-                getContext(),
-                R.string.thread_list_layout_attached_file_not_supported_for_reencoding,
-                Toast.LENGTH_SHORT).show();
+    public void showImageReencodingWindow(boolean supportsReencode) {
+        threadListLayoutCallback.showImageReencodingWindow(supportsReencode);
     }
 
     public int[] getIndexAndTop() {
@@ -678,7 +690,12 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                     MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
-            top += reply.getMeasuredHeight();
+            if (ChanSettings.moveInputToBottom.get()) {
+                bottom += reply.getMeasuredHeight();
+                top += toolbarHeight();
+            } else {
+                top += reply.getMeasuredHeight();
+            }
         } else if (searchOpen) {
             searchStatus.measure(
                     MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
@@ -692,7 +709,12 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         recyclerView.setPadding(left, top, right, bottom);
     }
 
-    private int toolbarHeight() {
+    @Override
+    public void updatePadding() {
+        setRecyclerViewPadding();
+    }
+
+    public int toolbarHeight() {
         Toolbar toolbar = threadListLayoutCallback.getToolbar();
         return toolbar.getToolbarHeight();
     }
@@ -743,7 +765,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     };
 
     private void party() {
-        if (showingThread.loadable.site instanceof Chan4) {
+        if (showingThread.getLoadable().site instanceof Chan4) {
             Calendar calendar = Calendar.getInstance();
             if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
                 recyclerView.addItemDecoration(PARTY);
@@ -755,8 +777,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         recyclerView.removeItemDecoration(PARTY);
     }
 
-    public void onImageOptionsApplied(Reply _reply) {
-        reply.onImageOptionsApplied(_reply);
+    public void onImageOptionsApplied(Reply modifiedReply) {
+        reply.onImageOptionsApplied(modifiedReply);
     }
 
     public interface ThreadListLayoutPresenterCallback {
@@ -774,7 +796,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         boolean shouldToolbarCollapse();
 
-        void showImageReencodingWindow();
+        void showImageReencodingWindow(boolean supportsReencode);
 
         boolean threadBackPressed();
     }

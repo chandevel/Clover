@@ -92,7 +92,7 @@ public class ToolbarMenuItem {
 
     public void detach() {
         if (this.view == null) {
-            throw new IllegalStateException("Not attached");
+            return;
         }
 
         removeFromParentView(this.view);

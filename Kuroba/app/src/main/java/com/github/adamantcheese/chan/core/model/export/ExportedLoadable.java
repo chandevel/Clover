@@ -57,7 +57,7 @@ public class ExportedLoadable {
             int no,
             int siteId,
             @NonNull
-            String title
+                    String title
     ) {
         this.boardCode = boardCode;
         this.loadableId = loadableId;

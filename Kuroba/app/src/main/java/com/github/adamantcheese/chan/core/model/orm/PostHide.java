@@ -16,10 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
+import com.github.adamantcheese.chan.core.model.Post;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-
-import com.github.adamantcheese.chan.core.model.Post;
 
 @DatabaseTable(tableName = "posthide")
 public class PostHide {

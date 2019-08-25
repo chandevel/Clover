@@ -18,10 +18,6 @@ package com.github.adamantcheese.chan.core.settings.json;
 
 import com.github.adamantcheese.chan.core.settings.SettingProvider;
 
-import java.util.HashMap;
-import java.util.Map;
-
-
 public class JsonSettingsProvider implements SettingProvider {
     public final JsonSettings jsonSettings;
     private Callback callback;

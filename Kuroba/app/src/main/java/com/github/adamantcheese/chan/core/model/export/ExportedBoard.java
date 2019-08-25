@@ -81,9 +81,9 @@ public class ExportedBoard {
             boolean saved,
             int order,
             @NonNull
-            String name,
+                    String name,
             @NonNull
-            String code,
+                    String code,
             boolean workSafe,
             int perPage,
             int pages,
@@ -103,7 +103,7 @@ public class ExportedBoard {
             boolean countryFlags,
             boolean mathTags,
             @NonNull
-            String description,
+                    String description,
             boolean archive
     ) {
         this.siteId = siteId;

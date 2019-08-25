@@ -27,6 +27,8 @@ import android.view.animation.RotateAnimation;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
@@ -288,7 +290,9 @@ public class BrowseController extends ThreadController implements
             }
 
             Loadable loadable = presenter.getLoadable();
-            String link = loadable.site.resolvable().desktopUrl(loadable, presenter.getChanThread().op);
+            String link = loadable.site.resolvable().desktopUrl(
+                    loadable,
+                    presenter.getChanThread().getOp());
 
             if (share) {
                 AndroidUtils.shareLink(link);
@@ -488,5 +492,10 @@ public class BrowseController extends ThreadController implements
             getToolbar().searchInput(searchQuery);
             searchQuery = null;
         }
+    }
+
+    @Override
+    public Post getPostForPostImage(PostImage postImage) {
+        return threadLayout.getPresenter().getPostFromPostImage(postImage);
     }
 }

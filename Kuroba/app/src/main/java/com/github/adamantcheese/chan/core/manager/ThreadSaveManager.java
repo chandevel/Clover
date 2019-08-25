@@ -114,9 +114,9 @@ public class ThreadSaveManager {
     /**
      * Initializes main rx queue that is going to accept new downloading requests and process them
      * sequentially.
-     *
+     * <p>
      * This class is a singleton so we don't really care about disposing of the rx stream
-     * */
+     */
     @SuppressLint("CheckResult")
     private void initRxWorkerQueue() {
         // Just buffer everything in the internal queue when the consumers are slow (and they are
@@ -164,7 +164,8 @@ public class ThreadSaveManager {
                     // Suppress all of the exceptions so that the stream does not complete
                     .onErrorReturnItem(false);
         }).subscribe(
-                (res) -> {},
+                (res) -> {
+                },
                 (error) -> Logger.e(TAG, "Uncaught exception!!! workerQueue is in error state now!!! " +
                         "This should not happen!!!", error),
                 () -> Logger.e(TAG, "workerQueue stream has completed!!! This should not happen!!!"));
@@ -172,7 +173,7 @@ public class ThreadSaveManager {
 
     /**
      * Enqueues a thread's posts with all the images/webm/etc to be saved to the disk.
-     * */
+     */
     public boolean enqueueThreadToSave(
             Loadable loadable,
             List<Post> postsToSave) {
@@ -216,7 +217,7 @@ public class ThreadSaveManager {
 
     /**
      * Cancels all downloads
-     * */
+     */
     public void cancelAllDownloading() {
         synchronized (activeDownloads) {
             for (Map.Entry<Loadable, SaveThreadParameters> entry : activeDownloads.entrySet()) {
@@ -233,7 +234,7 @@ public class ThreadSaveManager {
      * Cancels a download associated with this loadable. Cancelling means that the user has completely
      * removed the pin associated with it. This means that we need to delete thread's files from the disk
      * as well.
-     * */
+     */
     public void cancelDownloading(Loadable loadable) {
         synchronized (activeDownloads) {
             SaveThreadParameters parameters = activeDownloads.get(loadable);
@@ -254,7 +255,7 @@ public class ThreadSaveManager {
      * "save thread" button. This does not mean that they do not want to save this thread anymore
      * they may press it again later. So we don't need to delete thread's files from the disk in this
      * case.
-     * */
+     */
     public void stopDownloading(Loadable loadable) {
         synchronized (activeDownloads) {
             SaveThreadParameters parameters = activeDownloads.get(loadable);
@@ -311,9 +312,9 @@ public class ThreadSaveManager {
      * being downloaded. Checks for images that couldn't be downloaded on the previous attempt
      * (because of IO errors/bad network/server being down etc)
      *
-     * @param loadable is a unique identifier of a thread we are saving.
+     * @param loadable    is a unique identifier of a thread we are saving.
      * @param postsToSave posts of a thread to be saved.
-     * */
+     */
     @SuppressLint("CheckResult")
     private Single<Boolean> saveThreadInternal(@NonNull Loadable loadable, List<Post> postsToSave) {
         return Single.fromCallable(() -> {
@@ -393,61 +394,61 @@ public class ThreadSaveManager {
                         boardSaveDir,
                         spoilerImageUrl)
                 )
-                .flatMap((res) -> {
-                    // For each post create a new inner rx stream (so they can be processed in parallel)
-                    return Flowable.fromIterable(newPosts)
-                            // Here we create a separate reactive stream for each image request.
-                            // But we use an executor service with limited threads amount, so there
-                            // will be only this much at a time.
-                            //                   |
-                            //                 / | \
-                            //                /  |  \
-                            //               /   |   \
-                            //               V   V   V // Separate streams.
-                            //               |   |   |
-                            //               o   o   o // Download images in parallel.
-                            //               |   |   |
-                            //               V   V   V // Combine them back to a single stream.
-                            //               \   |   /
-                            //                \  |  /
-                            //                 \ | /
-                            //                   |
-                            .flatMap((post) -> {
-                                return downloadImages(
-                                        loadable,
-                                        threadSaveDirImages,
-                                        post,
-                                        currentImageDownloadIndex,
-                                        postsWithImages,
-                                        imageDownloadsWithIoError,
-                                        maxImageIoErrors);
-                            })
-                            .toList()
-                            .doOnSuccess((list) -> Logger.d(TAG, "PostImage download result list = " + list));
-                })
-                .flatMap((res) -> {
-                    return Single.defer(() -> {
-                        if (!isCurrentDownloadRunning(loadable)) {
-                            if (isCurrentDownloadStopped(loadable)) {
-                                Logger.d(TAG, "Thread downloading has been stopped "
-                                        + loadableToString(loadable));
-                            } else {
-                                Logger.d(TAG, "Thread downloading has been canceled "
-                                        + loadableToString(loadable));
-                            }
+                        .flatMap((res) -> {
+                            // For each post create a new inner rx stream (so they can be processed in parallel)
+                            return Flowable.fromIterable(newPosts)
+                                    // Here we create a separate reactive stream for each image request.
+                                    // But we use an executor service with limited threads amount, so there
+                                    // will be only this much at a time.
+                                    //                   |
+                                    //                 / | \
+                                    //                /  |  \
+                                    //               /   |   \
+                                    //               V   V   V // Separate streams.
+                                    //               |   |   |
+                                    //               o   o   o // Download images in parallel.
+                                    //               |   |   |
+                                    //               V   V   V // Combine them back to a single stream.
+                                    //               \   |   /
+                                    //                \  |  /
+                                    //                 \ | /
+                                    //                   |
+                                    .flatMap((post) -> {
+                                        return downloadImages(
+                                                loadable,
+                                                threadSaveDirImages,
+                                                post,
+                                                currentImageDownloadIndex,
+                                                postsWithImages,
+                                                imageDownloadsWithIoError,
+                                                maxImageIoErrors);
+                                    })
+                                    .toList()
+                                    .doOnSuccess((list) -> Logger.d(TAG, "PostImage download result list = " + list));
+                        })
+                        .flatMap((res) -> {
+                            return Single.defer(() -> {
+                                if (!isCurrentDownloadRunning(loadable)) {
+                                    if (isCurrentDownloadStopped(loadable)) {
+                                        Logger.d(TAG, "Thread downloading has been stopped "
+                                                + loadableToString(loadable));
+                                    } else {
+                                        Logger.d(TAG, "Thread downloading has been canceled "
+                                                + loadableToString(loadable));
+                                    }
 
-                            return Single.just(false);
-                        }
+                                    return Single.just(false);
+                                }
 
-                        updateLastSavedPostNo(loadable, newPosts);
+                                updateLastSavedPostNo(loadable, newPosts);
 
-                        Logger.d(TAG, "Successfully updated a thread " + loadableToString(loadable));
-                        return Single.just(true);
-                    });
-                })
-                // Have to use blockingGet here. This is a place where all of the exception will come
+                                Logger.d(TAG, "Successfully updated a thread " + loadableToString(loadable));
+                                return Single.just(true);
+                            });
+                        })
+                        // Have to use blockingGet here. This is a place where all of the exception will come
                 // out from
-                .blockingGet();
+                        .blockingGet();
             } finally {
                 if (shouldDeleteDownloadedFiles(loadable)) {
                     if (isCurrentDownloadStopped(loadable)) {
@@ -519,7 +520,7 @@ public class ThreadSaveManager {
     }
 
     private int calculateMaxImageIoErrors(int postsWithImages) {
-        int maxIoErrors = (int)(((float) postsWithImages / 100f) * 5f);
+        int maxIoErrors = (int) (((float) postsWithImages / 100f) * 5f);
         if (maxIoErrors == 0) {
             maxIoErrors = 1;
         }
@@ -529,7 +530,7 @@ public class ThreadSaveManager {
 
     /**
      * To avoid saving the same posts every time we need to update LastSavedPostNo in the DB
-     * */
+     */
     private void updateLastSavedPostNo(Loadable loadable, List<Post> newPosts) {
         // Update the latests saved post id in the database
         int lastPostNo = newPosts.get(newPosts.size() - 1).no;
@@ -538,7 +539,7 @@ public class ThreadSaveManager {
 
     /**
      * Calculates how many posts with images we have in total
-     * */
+     */
     private int calculateAmountOfPostsWithImages(List<Post> newPosts) {
         int count = 0;
 
@@ -555,7 +556,7 @@ public class ThreadSaveManager {
      * Returns only the posts that we haven't saved yet. Sorts them in ascending order.
      * If a post has at least one image that has not been downloaded yet it will be
      * redownloaded again
-     * */
+     */
     private List<Post> filterAndSortPosts(AbstractFile threadSaveDirImages, Loadable loadable, List<Post> inputPosts) {
         // Filter out already saved posts (by lastSavedPostNo)
         int lastSavedPostNo = databaseManager.runTask(databaseSavedThreadManager.getLastSavedPostNo(loadable.id));
@@ -770,6 +771,11 @@ public class ThreadSaveManager {
                             return Single.just(false);
                         }
 
+                        if (postImage.imageUrl == null) {
+                            Logger.d(TAG, "postImage.imageUrl == null");
+                            return Single.just(false);
+                        }
+
                         try {
                             downloadImageIntoFile(
                                     threadSaveDirImages,
@@ -804,27 +810,27 @@ public class ThreadSaveManager {
 
                         return Single.just(true);
                     })
-                    // We don't really want to use a lot of threads here so we use an executor with
-                    // specified amount of threads
-                    .subscribeOn(Schedulers.from(executorService))
-                    // Retry couple of times upon exceptions
-                    .retry(MAX_RETRY_ATTEMPTS)
-                    .doOnError((error) -> {
-                        Logger.e(TAG, "Error while trying to download image " + postImage.originalName, error);
+                            // We don't really want to use a lot of threads here so we use an executor with
+                            // specified amount of threads
+                            .subscribeOn(Schedulers.from(executorService))
+                            // Retry couple of times upon exceptions
+                            .retry(MAX_RETRY_ATTEMPTS)
+                            .doOnError((error) -> {
+                                Logger.e(TAG, "Error while trying to download image " + postImage.originalName, error);
 
-                        if (error instanceof IOException) {
-                            imageDownloadsWithIoError.incrementAndGet();
-                        }
-                    })
-                    .doOnEvent((result, event) -> {
-                        logThreadDownloadingProgress(
-                                loadable,
-                                currentImageDownloadIndex,
-                                postsWithImagesCount);
-                    })
-                    // Do nothing if an error occurs (like timeout exception) because we don't want
-                    // to lose what we have already downloaded
-                    .onErrorReturnItem(false);
+                                if (error instanceof IOException) {
+                                    imageDownloadsWithIoError.incrementAndGet();
+                                }
+                            })
+                            .doOnEvent((result, event) -> {
+                                logThreadDownloadingProgress(
+                                        loadable,
+                                        currentImageDownloadIndex,
+                                        postsWithImagesCount);
+                            })
+                            // Do nothing if an error occurs (like timeout exception) because we don't want
+                            // to lose what we have already downloaded
+                            .onErrorReturnItem(false);
                 });
     }
 
@@ -861,7 +867,7 @@ public class ThreadSaveManager {
         // postsWithImagesCount may be 0 so we need to avoid division by zero
         int count = postsWithImagesCount == 0 ? 1 : postsWithImagesCount;
         int index = currentImageDownloadIndex.incrementAndGet();
-        int percent = (int)(((float)index / (float) count) * 100f);
+        int percent = (int) (((float) index / (float) count) * 100f);
 
         Logger.d(TAG, "Downloading is in progress for an image with loadable "
                 + loadableToString(loadable) +
@@ -904,7 +910,7 @@ public class ThreadSaveManager {
 
     /**
      * Downloads an image with it's thumbnail and stores them to the disk
-     * */
+     */
     private void downloadImageIntoFile(
             AbstractFile threadSaveDirImages,
             String filename,
@@ -940,7 +946,7 @@ public class ThreadSaveManager {
 
     /**
      * Checks whether the user allows downloading images and other files when there is no Wi-Fi connection
-     * */
+     */
     private boolean shouldDownloadImages() {
         return ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get()) &&
                 ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
@@ -948,7 +954,7 @@ public class ThreadSaveManager {
 
     /**
      * Downloads an image and stores it to the disk
-     * */
+     */
     private void downloadImage(
             Loadable loadable,
             AbstractFile threadSaveDirImages,
@@ -999,7 +1005,7 @@ public class ThreadSaveManager {
 
     /**
      * @return true when user removes the pin associated with this loadable
-     * */
+     */
     private boolean shouldDeleteDownloadedFiles(Loadable loadable) {
         synchronized (activeDownloads) {
             SaveThreadParameters parameters = activeDownloads.get(loadable);
@@ -1041,7 +1047,7 @@ public class ThreadSaveManager {
 
     /**
      * Writes image's bytes to a file
-     * */
+     */
     private void storeImageToFile(
             AbstractFile imageFile,
             Response response) throws IOException {
@@ -1076,7 +1082,7 @@ public class ThreadSaveManager {
      * Determines whether we should log this exception or not.
      * For instance NoNewPostsToSaveException will be thrown every time when there are no new
      * posts to download left after filtering.
-     * */
+     */
     private boolean isFatalException(Throwable error) {
         if (error instanceof NoNewPostsToSaveException) {
             return false;
@@ -1087,7 +1093,7 @@ public class ThreadSaveManager {
 
     /**
      * When user cancels a download we need to delete the thread from the disk as well
-     * */
+     */
     private void deleteThreadFilesFromDisk(Loadable loadable) {
         String subDirs = getThreadSubDir(loadable);
 
@@ -1101,7 +1107,7 @@ public class ThreadSaveManager {
 
     /**
      * Extracts and converts to a string only the info that we are interested in from this loadable
-     * */
+     */
     private String loadableToString(Loadable loadable) {
         return "[" + loadable.site.name() + ", " + loadable.boardCode + ", " + loadable.no + "]";
     }
@@ -1149,7 +1155,7 @@ public class ThreadSaveManager {
      * AdditionalThreadParameters stay until app restart. We use them to not download 404ed images
      * on each attempt (because it may block the downloading process for up to
      * OKHTTP_TIMEOUT_SECONDS seconds)
-     * */
+     */
     public static class AdditionalThreadParameters {
         private Loadable loadable;
         private Set<String> deletedImages;

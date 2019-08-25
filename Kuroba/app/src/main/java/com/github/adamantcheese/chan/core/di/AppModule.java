@@ -27,6 +27,7 @@ import com.github.adamantcheese.chan.core.saf.FileManager;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.codejargon.feather.Provides;
 
@@ -36,6 +37,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class AppModule {
     private Context applicationContext;
+    public static final String DI_TAG = "Dependency Injection";
 
     public AppModule(Context applicationContext) {
         this.applicationContext = applicationContext;
@@ -44,6 +46,7 @@ public class AppModule {
     @Provides
     @Singleton
     public Context provideApplicationContext() {
+        Logger.d(DI_TAG, "App Context");
         return applicationContext;
     }
 
@@ -60,25 +63,35 @@ public class AppModule {
                 requestQueue,
                 themeHelper,
                 new BitmapLruImageCache(lruImageCacheSize));
-
+        Logger.d(DI_TAG, "Image loader v2");
         return new ImageLoaderV2(imageLoader, fileManager);
     }
 
     @Provides
     @Singleton
     public NotificationManager provideNotificationManager() {
+        Logger.d(DI_TAG, "Notification manager");
         return (NotificationManager) applicationContext.getSystemService(NOTIFICATION_SERVICE);
     }
 
     @Provides
     @Singleton
     public ThemeHelper provideThemeHelper() {
+        Logger.d(DI_TAG, "Theme helper");
         return new ThemeHelper();
     }
 
     @Provides
     @Singleton
+    public ImageSaver provideImageSaver(FileManager fileManager) {
+        Logger.d(DI_TAG, "Image saver");
+        return new ImageSaver(fileManager);
+    }
+
+    @Provides
+    @Singleton
     public CaptchaHolder provideCaptchaHolder() {
+        Logger.d(DI_TAG, "Captcha holder");
         return new CaptchaHolder();
     }
 
@@ -86,11 +99,5 @@ public class AppModule {
     @Singleton
     public FileManager provideFileManager() {
         return new FileManager(applicationContext);
-    }
-
-    @Provides
-    @Singleton
-    public ImageSaver provideImageSaver(FileManager fileManager) {
-        return new ImageSaver(fileManager);
     }
 }

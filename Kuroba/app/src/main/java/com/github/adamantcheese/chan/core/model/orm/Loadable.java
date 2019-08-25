@@ -84,8 +84,8 @@ public class Loadable implements Cloneable {
     /**
      * Tells us whether this loadable (when in THREAD mode) contains information about
      * a live thread or the local saved copy of a thread (which may be already deleted from the server)
-     * */
-    public transient boolean isSavedCopy = false;
+     */
+    public transient LoadableDownloadingState loadableDownloadingState = LoadableDownloadingState.NotDownloading;
 
     /**
      * Constructs an empty loadable. The mode is INVALID.
@@ -260,6 +260,15 @@ public class Loadable implements Cloneable {
         return id > 0;
     }
 
+    /**
+     * Thread is either fully downloaded or it is still being downloaded BUT we are currently
+     * viewing the local copy of the thread
+     */
+    public boolean isLocal() {
+        return loadableDownloadingState == LoadableDownloadingState.DownloadingAndViewable
+                || loadableDownloadingState == LoadableDownloadingState.AlreadyDownloaded;
+    }
+
     public static Loadable readFromParcel(Parcel parcel) {
         Loadable loadable = new Loadable();
         /*loadable.id = */
@@ -311,5 +320,29 @@ public class Loadable implements Cloneable {
         public static final int INVALID = -1;
         public static final int THREAD = 0;
         public static final int CATALOG = 1;
+    }
+
+    /**
+     * Only for Loadable.Mode == THREAD
+     */
+    public enum LoadableDownloadingState {
+        /**
+         * We are not downloading a thread associated with this loadable
+         */
+        NotDownloading,
+        /**
+         * We are downloading this thread, but we are not viewing it at the current time.
+         * (We are viewing the live thread)
+         */
+        DownloadingAndNotViewable,
+        /**
+         * We are downloading this thread and we are currently viewing it (We are viewing the local
+         * thread)
+         */
+        DownloadingAndViewable,
+        /**
+         * Thread has been fully downloaded so it's always a local thread
+         */
+        AlreadyDownloaded,
     }
 }

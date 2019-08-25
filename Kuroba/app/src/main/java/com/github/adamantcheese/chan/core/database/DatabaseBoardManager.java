@@ -3,15 +3,14 @@ package com.github.adamantcheese.chan.core.database;
 import android.annotation.SuppressLint;
 import android.util.Pair;
 
+import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.model.orm.SiteModel;
+import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedUpdate;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.UpdateBuilder;
-
-import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.model.orm.SiteModel;
-import com.github.adamantcheese.chan.core.site.Site;
 
 import java.util.ArrayList;
 import java.util.Collections;

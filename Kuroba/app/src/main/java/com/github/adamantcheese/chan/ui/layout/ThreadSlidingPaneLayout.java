@@ -18,9 +18,10 @@ package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
 import android.os.Parcelable;
-import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
+
+import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.controller.ThreadSlideController;

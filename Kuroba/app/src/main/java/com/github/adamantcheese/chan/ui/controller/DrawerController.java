@@ -21,6 +21,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -33,12 +34,12 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -85,8 +86,6 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
         drawerAdapter = new DrawerAdapter(this, context);
         recyclerView.setAdapter(drawerAdapter);
-
-        drawerAdapter.onPinsChanged(watchManager.getAllPins());
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(drawerAdapter.getItemTouchHelperCallback());
         itemTouchHelper.attachToRecyclerView(recyclerView);
@@ -137,15 +136,32 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
         ThreadController threadController = getTopThreadController();
         if (threadController != null) {
-            SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+            Loadable.LoadableDownloadingState state = Loadable.LoadableDownloadingState.NotDownloading;
 
-            // Try to load saved copy of a thread if pinned thread has an error flag but only if
-            // we are downloading this thread. Otherwise it will break archived threads that are not
-            // being downloaded
-            if (pin.isError && savedThread != null) {
-                pin.loadable.isSavedCopy = true;
+            if (PinType.hasDownloadFlag(pin.pinType)) {
+                // Try to load saved copy of a thread if pinned thread has an error flag but only if
+                // we are downloading this thread. Otherwise it will break archived threads that are not
+                // being downloaded
+                SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+                if (savedThread != null) {
+                    // Do not check for isArchived here since we don't want to show archived threads
+                    // as local threads
+                    if (pin.isError) {
+                        state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
+                    } else {
+                        if (savedThread.isFullyDownloaded) {
+                            state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
+                        } else {
+                            // TODO: we can check here that the user has no internet connection
+                            //  and load the local thread right away so the user doesn't have
+                            //  to do it manually
+                            state = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+                        }
+                    }
+                }
             }
 
+            pin.loadable.loadableDownloadingState = state;
             threadController.openPin(pin);
         }
     }
@@ -246,15 +262,22 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         drawerAdapter.onPinAdded(message.pin);
-        if (BackgroundUtils.isInForeground()) {
+        if (ChanSettings.drawerAutoOpenCount.get() < 5 || ChanSettings.alwaysOpenDrawer.get()) {
             drawerLayout.openDrawer(drawer);
+            //max out at 5
+            int curCount = ChanSettings.drawerAutoOpenCount.get();
+            ChanSettings.drawerAutoOpenCount.set(curCount + 1 > 5 ? 5 : curCount + 1);
+            if (ChanSettings.drawerAutoOpenCount.get() < 5 && !ChanSettings.alwaysOpenDrawer.get()) {
+                int countLeft = 5 - ChanSettings.drawerAutoOpenCount.get();
+                Toast.makeText(context, "Drawer will auto-show " + countLeft + " more time" + (countLeft == 1 ? "" : "s") + " as a reminder.", Toast.LENGTH_SHORT).show();
+            }
         }
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
-        drawerAdapter.onPinRemoved(recyclerView, message.pin);
+        drawerAdapter.onPinRemoved(message.index);
         updateBadge();
     }
 
@@ -266,7 +289,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
     @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
-        drawerAdapter.onPinsChanged(message.pins);
+        drawerAdapter.notifyDataSetChanged();
         updateBadge();
     }
 

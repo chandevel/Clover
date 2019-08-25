@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.net;
 
 import com.android.volley.toolbox.HurlStack;
-
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
 import java.io.IOException;

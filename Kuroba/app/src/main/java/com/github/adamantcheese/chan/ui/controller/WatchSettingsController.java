@@ -71,13 +71,7 @@ public class WatchSettingsController extends SettingsController implements Compo
         buildPreferences();
 
         if (!ChanSettings.watchBackground.get()) {
-            setSettingViewVisibility(backgroundTimeout, false);
-            setSettingViewVisibility(removeWatched, false);
-            setSettingViewVisibility(lastPageNotifyMode, false);
-            setSettingViewVisibility(notifyMode, false);
-            setSettingViewVisibility(soundMode, false);
-            setSettingViewVisibility(peekMode, false);
-            setSettingViewVisibility(enableFilterWatch, false);
+            switchVisibility(false);
         }
     }
 
@@ -93,14 +87,18 @@ public class WatchSettingsController extends SettingsController implements Compo
 
         if (item == enableBackground) {
             boolean enabled = ChanSettings.watchBackground.get();
-            setSettingViewVisibility(backgroundTimeout, enabled);
-            setSettingViewVisibility(removeWatched, enabled);
-            setSettingViewVisibility(lastPageNotifyMode, enabled);
-            setSettingViewVisibility(notifyMode, enabled);
-            setSettingViewVisibility(soundMode, enabled);
-            setSettingViewVisibility(peekMode, enabled);
-            setSettingViewVisibility(enableFilterWatch, enabled);
+            switchVisibility(enabled);
         }
+    }
+
+    private void switchVisibility(boolean enabled) {
+        setSettingViewVisibility(backgroundTimeout, enabled);
+        setSettingViewVisibility(removeWatched, enabled);
+        setSettingViewVisibility(lastPageNotifyMode, enabled);
+        setSettingViewVisibility(notifyMode, enabled);
+        setSettingViewVisibility(soundMode, enabled);
+        setSettingViewVisibility(peekMode, enabled);
+        setSettingViewVisibility(enableFilterWatch, enabled);
     }
 
     private void populatePreferences() {

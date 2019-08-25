@@ -12,7 +12,6 @@ import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteRegistry;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -108,19 +107,6 @@ public class SiteRepository {
         }
 
         sitesObservable.notifyObservers();
-    }
-
-    // Called before #initialize to add the old 4chan site when the database was upgraded from
-    // an older version. It only adds the model to the database with id 0.
-    public void addLegacySite() {
-        Site site = new Chan4();
-
-        SiteConfig config = new SiteConfig();
-        config.classId = SiteRegistry.SITE_CLASSES.indexOfValue(site.getClass());
-        config.external = false;
-
-        SiteModel model = createFromClass(config, new JsonSettings());
-        setId(model, 0);
     }
 
     public Site createFromClass(Class<? extends Site> siteClass) {

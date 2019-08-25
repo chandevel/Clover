@@ -134,19 +134,9 @@ public class DefaultPostParser implements PostParser {
         if (!TextUtils.isEmpty(builder.posterId)) {
             idSpan = new SpannableString("  ID: " + builder.posterId + "  ");
 
-            // Stolen from the 4chan extension
-            int hash = builder.posterId.hashCode();
+            int idBgColor = builder.isLightColor ? theme.idBackgroundLight : theme.idBackgroundDark;
 
-            int r = (hash >> 24) & 0xff;
-            int g = (hash >> 16) & 0xff;
-            int b = (hash >> 8) & 0xff;
-
-            //noinspection NumericOverflow
-            int idColor = (0xff << 24) + (r << 16) + (g << 8) + b;
-            boolean lightColor = (r * 0.299f) + (g * 0.587f) + (b * 0.114f) > 125f;
-            int idBgColor = lightColor ? theme.idBackgroundLight : theme.idBackgroundDark;
-
-            idSpan.setSpan(new ForegroundColorSpanHashed(idColor), 0, idSpan.length(), 0);
+            idSpan.setSpan(new ForegroundColorSpanHashed(builder.idColor), 0, idSpan.length(), 0);
             idSpan.setSpan(new BackgroundColorSpan(idBgColor), 0, idSpan.length(), 0);
             idSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, idSpan.length(), 0);
         }
@@ -209,12 +199,19 @@ public class DefaultPostParser implements PostParser {
     private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
-            SpannableString spannable = new SpannableString(text);
-            CommentParserHelper.detectLinks(theme, post, text, spannable);
+            //we need to replace youtube links with their titles before linkifying anything else
+            //because the string itself changes as a result of the titles shrinking/expanding the string length
+            //this would mess up the rest of the spans if we did it afterwards, so we do it as the first step
+            SpannableString spannable = CommentParserHelper.replaceYoutubeLinks(theme, post, text);
+            CommentParserHelper.detectLinks(theme, post, spannable.toString(), spannable);
 
             return spannable;
         } else if (node instanceof Element) {
             String nodeName = node.nodeName();
+            String styleAttr = node.attr("style");
+            if (!styleAttr.isEmpty()) {
+                nodeName = nodeName + '-' + styleAttr.split(":")[1].trim();
+            }
 
             // Recursively call parseNode with the nodes of the paragraph.
             List<Node> innerNodes = node.childNodes();
