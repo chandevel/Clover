@@ -205,6 +205,10 @@ public class DefaultPostParser implements PostParser {
             return spannable;
         } else if (node instanceof Element) {
             String nodeName = node.nodeName();
+            String styleAttr = node.attr("style");
+            if (!styleAttr.isEmpty()) {
+                nodeName = nodeName + '-' + styleAttr.split(":")[1].trim();
+            }
 
             // Recursively call parseNode with the nodes of the paragraph.
             List<Node> innerNodes = node.childNodes();

@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -41,7 +42,8 @@ import java.util.List;
 public class StyleRule {
     public enum ForegroundColor {
         INLINE_QUOTE,
-        QUOTE
+        QUOTE,
+        RED
     }
 
     public enum BackgroundColor {
@@ -263,6 +265,8 @@ public class StyleRule {
                 return theme.inlineQuoteColor;
             case QUOTE:
                 return theme.quoteColor;
+            case RED:
+                return Color.RED;
             default:
                 return 0;
         }

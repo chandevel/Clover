@@ -82,6 +82,7 @@ public class CommentParser {
         rule(tagRule("s").link(PostLinkable.Type.SPOILER));
 
         rule(tagRule("strong").bold());
+        rule(tagRule("strong-red;").bold().foregroundColor(StyleRule.ForegroundColor.RED));
         rule(tagRule("b").bold());
 
         rule(tagRule("i").italic());
