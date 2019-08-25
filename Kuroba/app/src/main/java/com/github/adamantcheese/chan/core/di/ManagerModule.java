@@ -139,13 +139,9 @@ public class ManagerModule {
     @Provides
     @Singleton
     public SavedThreadLoaderManager provideSavedThreadLoaderManager(
-            Gson gson,
-            DatabaseManager databaseManager,
             SavedThreadLoaderRepository savedThreadLoaderRepository,
             FileManager fileManager) {
         return new SavedThreadLoaderManager(
-                gson,
-                databaseManager,
                 savedThreadLoaderRepository,
                 fileManager);
     }

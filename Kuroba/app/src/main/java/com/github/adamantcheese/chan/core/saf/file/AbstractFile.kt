@@ -3,10 +3,7 @@ package com.github.adamantcheese.chan.core.saf.file
 import com.github.adamantcheese.chan.core.extension
 import com.github.adamantcheese.chan.core.saf.annotation.ImmutableMethod
 import com.github.adamantcheese.chan.core.saf.annotation.MutableMethod
-import java.io.File
-import java.io.FileDescriptor
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 
 /**
  * An abstraction class over both the Java File and the new Storage Access Framework DocumentFile.
@@ -88,10 +85,16 @@ import java.io.OutputStream
  *  Sometimes you don't know which external directory to choose to store a new file (the SAF or the
  *  old raw Java File external directory). In this case you can use:
  *
- *  AbstractFile baseDir = fileManager.newFile();
+ *  AbstractFile baseDir = fileManager.newSaveLocationFile();
  *
  *  Method which will create an [AbstractFile] with root pointing to either Kuroba SAF base directory
- *  (if user has set it) or if he didn't then to the default external directory (Backed by raw Java File).
+ *  (if user has set it) or if he didn't then to the default external directory (Backed by raw
+ *  Java File) or
+ *
+ *  AbstractFile baseDir = fileManager.newLocalThreadFile();
+ *
+ *  Method which will create an [AbstractFile] with root pointing to either user's selected local
+ *  threads directory or to the default external local threads directory
  *
  * */
 abstract class AbstractFile(
@@ -101,27 +104,29 @@ abstract class AbstractFile(
         protected val segments: MutableList<Segment>
 ) {
     /**
-     * Appends a new subdirectory to the root directory
+     * Appends a new subdirectory (or couple of subdirectories, e.g. "dir1/dir2/dir3")
+     * to the root directory
      * */
     @MutableMethod
-    abstract fun <T : AbstractFile> appendSubDirSegment(name: String): T
+    abstract fun appendSubDirSegment(name: String): AbstractFile
 
     /**
-     * Appends a file name to the root directory
+     * Appends a file name to the root directory (or couple subdirectories with filename at the end,
+     * e.g. "dir1/dir2/dir3/test.txt"
      * */
     @MutableMethod
-    abstract fun <T : AbstractFile> appendFileNameSegment(name: String): T
+    abstract fun appendFileNameSegment(name: String): AbstractFile
 
     /**
      * Creates a new file that consists of the root directory and segments (sub dirs or the file name)
      * Behave similarly to Java's mkdirs() method but work not only with directories but files as well.
      * */
     @ImmutableMethod
-    abstract fun <T : AbstractFile> createNew(): T?
+    abstract fun createNew(): AbstractFile?
 
     @ImmutableMethod
-    fun <T : AbstractFile> create(): Boolean {
-        return createNew<T>() != null
+    fun create(): Boolean {
+        return createNew() != null
     }
 
     /**
@@ -131,7 +136,7 @@ abstract class AbstractFile(
      * a couple of files in the same directory you would want to clone the directory
      * [AbstractFile] and then append the filename to those copies)
      * */
-    abstract fun <T : AbstractFile> clone(): T
+    abstract fun clone(): AbstractFile
 
     @ImmutableMethod
     abstract fun exists(): Boolean
@@ -149,7 +154,7 @@ abstract class AbstractFile(
     abstract fun canWrite(): Boolean
 
     @MutableMethod
-    abstract fun <T : AbstractFile> getParent(): T?
+    abstract fun getParent(): AbstractFile?
 
     @ImmutableMethod
     abstract fun getFullPath(): String
@@ -167,15 +172,21 @@ abstract class AbstractFile(
     abstract fun getName(): String
 
     @ImmutableMethod
-    abstract fun <T: AbstractFile> findFile(fileName: String): T?
+    abstract fun findFile(fileName: String): AbstractFile?
 
     @ImmutableMethod
     abstract fun getLength(): Long
 
     @ImmutableMethod
-    abstract fun withFileDescriptor(
+    abstract fun <T> withFileDescriptor(
             fileDescriptorMode: FileDescriptorMode,
-            func: (FileDescriptor) -> Unit)
+            func: (FileDescriptor) -> T): Result<T>
+
+    @ImmutableMethod
+    abstract fun listFiles(): List<AbstractFile>
+
+    @ImmutableMethod
+    abstract fun lastModified(): Long
 
     /**
      * Removes the last appended segment if there are any
@@ -191,12 +202,13 @@ abstract class AbstractFile(
         return true
     }
 
-    @Suppress("UNCHECKED_CAST")
-    protected fun <T : AbstractFile> appendSubDirSegmentInner(name: String): T {
+
+    protected fun appendSubDirSegmentInner(name: String): AbstractFile {
         check(!isFilenameAppended()) { "Cannot append anything after file name has been appended" }
         require(!name.isBlank()) { "Bad name: $name" }
-        require(name.extension() == null) { "Directory name must not contain extension, " +
-                "extension = ${name.extension()}" }
+        require(name.extension() == null) {
+            "Directory name must not contain extension, extension = ${name.extension()}"
+        }
 
         val nameList = if (name.contains(File.separatorChar)) {
             name.split(File.separatorChar)
@@ -207,17 +219,17 @@ abstract class AbstractFile(
         nameList
                 .onEach { splitName ->
                     require(splitName.extension() == null) {
-                        "appendSubDirSegment does not allow segments with extensions! bad name = $splitName"
+                        "appendSubDirSegment does not allow segments with extensions! " +
+                                "bad name = $splitName"
                     }
                 }
                 .map { splitName -> Segment(splitName) }
                 .forEach { segment -> segments += segment }
 
-        return this as T
+        return this
     }
 
-    @Suppress("UNCHECKED_CAST")
-    protected fun <T : AbstractFile> appendFileNameSegmentInner(name: String): T {
+    protected fun appendFileNameSegmentInner(name: String): AbstractFile {
         check(!isFilenameAppended()) { "Cannot append anything after file name has been appended" }
         require(!name.isBlank()) { "Bad name: $name" }
 
@@ -230,6 +242,8 @@ abstract class AbstractFile(
             listOf(name)
         }
 
+        require(nameList.last().extension() != null) { "Last segment must be a filename" }
+
         for ((index, splitName) in nameList.withIndex()) {
             require(!(splitName.extension() != null && index != nameList.lastIndex)) {
                 "Only the last split segment may have a file name, " +
@@ -240,7 +254,7 @@ abstract class AbstractFile(
             segments += Segment(splitName, isFileName)
         }
 
-        return this as T
+        return this
     }
 
     private fun isFilenameAppended(): Boolean = segments.lastOrNull()?.isFileName ?: false
@@ -298,16 +312,4 @@ abstract class AbstractFile(
             val name: String,
             val isFileName: Boolean = false
     )
-
-    enum class FileDescriptorMode(val mode: String) {
-        Read("r"),
-        Write("w"),
-        // When overwriting an existing file it is a really good ide to use truncate mode,
-        // because otherwise if a new file's length is less than the old one's then there will be
-        // old file's data left at the end of the file. Truncate flags will make sure that the file
-        // is truncated at the end to fit the new length.
-        WriteTruncate("wt")
-
-        // ReadWrite and ReadWriteTruncate are not supported!
-    }
 }

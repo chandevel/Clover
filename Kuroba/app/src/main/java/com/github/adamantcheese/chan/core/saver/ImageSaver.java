@@ -22,6 +22,8 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -30,6 +32,7 @@ import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -59,12 +62,18 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         EventBus.getDefault().register(this);
     }
 
-    public void startDownloadTask(Context context, final ImageSaveTask task) {
+    public boolean startDownloadTask(Context context, final ImageSaveTask task) {
+        AbstractFile saveLocation = getSaveLocation(task);
+        if (saveLocation == null) {
+            return false;
+        }
+
         PostImage postImage = task.getPostImage();
-        String name = ChanSettings.saveServerFilename.get() ? postImage.originalName : postImage.filename;
+        String name = ChanSettings.saveServerFilename.get()
+                ? postImage.originalName
+                : postImage.filename;
         String fileName = filterName(name + "." + postImage.extension);
 
-        AbstractFile saveLocation = getSaveLocation(task);
         AbstractFile saveFile = saveLocation
                 .clone()
                 .appendFileNameSegment(fileName);
@@ -97,24 +106,29 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                 }
             });
         }
+
+        return true;
     }
 
     public boolean startBundledTask(Context context, final String subFolder, final List<ImageSaveTask> tasks) {
         if (hasPermission(context)) {
-            startBundledTaskInternal(subFolder, tasks);
-            return true;
-        } else {
-            // This does not request the permission when another request is pending.
-            // This is ok and will drop the tasks.
-            requestPermission(context, granted -> {
-                if (granted) {
-                    startBundledTaskInternal(subFolder, tasks);
-                } else {
-                    showToast(null, false, false);
-                }
-            });
-            return false;
+            return startBundledTaskInternal(subFolder, tasks);
         }
+
+        // This does not request the permission when another request is pending.
+        // This is ok and will drop the tasks.
+        requestPermission(context, granted -> {
+            if (granted) {
+                if (startBundledTaskInternal(subFolder, tasks)) {
+                    return;
+                }
+            }
+
+            showToast(null, false, false);
+        });
+
+        // TODO: uhh not sure about this one
+        return true;
     }
 
     public String getSubFolder(String name) {
@@ -123,10 +137,20 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         return filtered;
     }
 
+    @Nullable
     public AbstractFile getSaveLocation(ImageSaveTask task) {
-        String subFolder = task.getSubFolder();
-        AbstractFile destination = fileManager.newFile();
+        if (!fileManager.baseSaveLocalDirectoryExists()) {
+            Logger.e(TAG, "Base save local directory does not exist");
+            return null;
+        }
 
+        AbstractFile destination = fileManager.newSaveLocationFile();
+        if (destination == null) {
+            Logger.e(TAG, "getSaveLocation() fileManager.newSaveLocationFile() returned null");
+            return null;
+        }
+
+        String subFolder = task.getSubFolder();
         if (subFolder != null) {
             destination.appendSubDirSegment(subFolder);
         }
@@ -159,20 +183,30 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         executor.execute(task);
     }
 
-    private void startBundledTaskInternal(String subFolder, List<ImageSaveTask> tasks) {
+    private boolean startBundledTaskInternal(String subFolder, List<ImageSaveTask> tasks) {
+        boolean allSuccess = true;
+
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
             String fileName = filterName(postImage.originalName + "." + postImage.extension);
 
-            AbstractFile saveLocation = getSaveLocation(task)
+            AbstractFile saveLocation = getSaveLocation(task);
+            if (saveLocation == null) {
+                Logger.e(TAG, "getSaveLocation() returned null");
+                allSuccess = false;
+                continue;
+            }
+
+            AbstractFile destinationFile = saveLocation
                     .appendSubDirSegment(subFolder)
                     .appendFileNameSegment(fileName);
 
-            task.setDestination(saveLocation);
+            task.setDestination(destinationFile);
             startTask(task);
         }
 
         updateNotification();
+        return allSuccess;
     }
 
     private void cancelAll() {
@@ -215,9 +249,18 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         String text;
         if (success) {
             if (wasAlbumSave) {
+                String location;
+                AbstractFile locationFile = getSaveLocation(task);
+
+                if (locationFile == null) {
+                    location = "Unknown location";
+                } else {
+                    location = locationFile.getFullPath();
+                }
+
                 text = getAppContext().getString(
                         R.string.album_download_success,
-                        getSaveLocation(task).getFullPath());
+                        location);
             } else {
                 text = getAppContext().getString(
                         R.string.image_save_as,

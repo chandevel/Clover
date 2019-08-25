@@ -22,10 +22,13 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.saf.FileManager;
+import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
+import com.github.adamantcheese.chan.core.saf.file.RawFile;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -33,15 +36,21 @@ import java.util.concurrent.Executors;
 
 public class FileCache implements FileCacheDownloader.Callback {
     private static final String TAG = "FileCache";
+    private static final String FILE_CACHE_DIR = "filecache";
 
     private final ExecutorService downloadPool = Executors.newCachedThreadPool();
-
     private final CacheHandler cacheHandler;
+    private final FileManager fileManager;
 
     private List<FileCacheDownloader> downloaders = new ArrayList<>();
 
-    public FileCache(File directory) {
-        cacheHandler = new CacheHandler(directory);
+    public FileCache(File cacheDir, FileManager fileManager) {
+        this.fileManager = fileManager;
+
+        RawFile cacheDirFile = fileManager.fromRawFile(
+                new File(cacheDir, FILE_CACHE_DIR));
+
+        cacheHandler = new CacheHandler(cacheDirFile);
     }
 
     public void clearCache() {
@@ -59,11 +68,25 @@ public class FileCache implements FileCacheDownloader.Callback {
             FileCacheListener listener) {
         if (loadable.isSavedCopy) {
             String filename = ThreadSaveManager.formatOriginalImageName(
-                    postImage.originalName, postImage.extension);
+                    postImage.originalName,
+                    postImage.extension);
+
+            if (!fileManager.baseLocalThreadsDirectoryExists()) {
+                Logger.e(TAG, "Base local threads directory does not exist");
+                return null;
+            }
+
+            AbstractFile baseDirFile = fileManager.newLocalThreadFile();
+            if (baseDirFile == null) {
+                Logger.e(TAG, "fileManager.newLocalThreadFile() returned null");
+                return null;
+            }
 
             String imageDir = ThreadSaveManager.getImagesSubDir(loadable);
-            File fullImagePath = new File(ChanSettings.saveLocation.get(), imageDir);
-            File imageOnDiskFile = new File(fullImagePath, filename);
+
+            AbstractFile imageOnDiskFile = baseDirFile
+                    .appendSubDirSegment(imageDir)
+                    .appendFileNameSegment(filename);
 
             if (imageOnDiskFile.exists()
                     && imageOnDiskFile.isFile()
@@ -71,7 +94,7 @@ public class FileCache implements FileCacheDownloader.Callback {
                 handleFileImmediatelyAvailable(listener, imageOnDiskFile);
             } else {
                 Logger.e(TAG, "Cannot load saved image from the disk, path: "
-                        + imageOnDiskFile.getAbsolutePath());
+                        + imageOnDiskFile.getFullPath());
 
                 if (listener != null) {
                     listener.onFail(true);
@@ -106,7 +129,7 @@ public class FileCache implements FileCacheDownloader.Callback {
             return runningDownloaderForKey;
         }
 
-        File file = get(url);
+        RawFile file = get(url);
         if (file.exists()) {
             handleFileImmediatelyAvailable(listener, file);
             return null;
@@ -138,7 +161,7 @@ public class FileCache implements FileCacheDownloader.Callback {
         return cacheHandler.exists(key);
     }
 
-    public File get(String key) {
+    public RawFile get(String key) {
         return cacheHandler.get(key);
     }
 
@@ -146,19 +169,40 @@ public class FileCache implements FileCacheDownloader.Callback {
         return cacheHandler.getSize().get();
     }
 
-    private void handleFileImmediatelyAvailable(FileCacheListener listener, File file) {
+    private void handleFileImmediatelyAvailable(FileCacheListener listener, AbstractFile file) {
         // TODO: setLastModified doesn't seem to work on Android...
-        if (!file.setLastModified(System.currentTimeMillis())) {
-            Logger.e(TAG, "Could not set last modified time on file");
-        }
+//        if (!file.setLastModified(System.currentTimeMillis())) {
+//            Logger.e(TAG, "Could not set last modified time on file");
+//        }
+
         if (listener != null) {
-            listener.onSuccess(file);
+            if (file instanceof RawFile) {
+                listener.onSuccess((RawFile) file);
+            } else {
+                try {
+                    RawFile resultFile = fileManager.fromRawFile(cacheHandler.randomCacheFile());
+                    if (!fileManager.copyFileContents(file, resultFile)) {
+                        throw new IOException("Could not copy external SAF file into internal " +
+                                "cache file, externalFile = " + file.getFullPath() +
+                                ", resultFile = " + resultFile.getFullPath());
+                    }
+
+                    listener.onSuccess(resultFile);
+                } catch (IOException e) {
+                    Logger.e(TAG, "Error while trying to create a new random cache file", e);
+                    listener.onFail(false);
+                }
+            }
+
             listener.onEnd();
         }
     }
 
     private FileCacheDownloader handleStartDownload(
-            FileCacheListener listener, File file, String url) {
+            FileCacheListener listener,
+            RawFile file,
+            String url
+    ) {
         FileCacheDownloader downloader = new FileCacheDownloader(this, url, file);
         if (listener != null) {
             downloader.addListener(listener);

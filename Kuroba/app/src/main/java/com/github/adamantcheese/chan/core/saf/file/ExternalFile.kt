@@ -19,18 +19,17 @@ class ExternalFile(
 ) : AbstractFile(segments) {
     private val mimeTypeMap = MimeTypeMap.getSingleton()
 
-    override fun <T : AbstractFile> appendSubDirSegment(name: String): T {
+    override fun appendSubDirSegment(name: String): ExternalFile {
         check(root !is Root.FileRoot) { "root is already FileRoot, cannot append anything anymore" }
-        return super.appendSubDirSegmentInner(name)
+        return super.appendSubDirSegmentInner(name) as ExternalFile
     }
 
-    override fun <T : AbstractFile> appendFileNameSegment(name: String): T {
+    override fun appendFileNameSegment(name: String): ExternalFile {
         check(root !is Root.FileRoot) { "root is already FileRoot, cannot append anything anymore" }
-        return super.appendFileNameSegmentInner(name)
+        return super.appendFileNameSegmentInner(name) as ExternalFile
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : AbstractFile> createNew(): T? {
+    override fun createNew(): ExternalFile? {
         check(root !is Root.FileRoot) {
             // TODO: do we need this check?
             "root is already FileRoot, cannot append anything anymore"
@@ -39,7 +38,6 @@ class ExternalFile(
         if (segments.isEmpty()) {
             // Root is probably already exists and there is no point in creating it again so just
             // return null here
-            Logger.e(TAG, "No segments")
             return null
         }
 
@@ -72,7 +70,7 @@ class ExternalFile(
 
                 // Ignore any left segments (which we shouldn't have) after encountering fileName
                 // segment
-                return ExternalFile(appContext, Root.FileRoot(newFile, segment.name)) as T
+                return ExternalFile(appContext, Root.FileRoot(newFile, segment.name))
             }
         }
 
@@ -95,26 +93,24 @@ class ExternalFile(
             Root.DirRoot(newFile)
         }
 
-        return ExternalFile(appContext, root) as T
+        return ExternalFile(appContext, root)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : AbstractFile> clone(): T = ExternalFile(
+    override fun clone(): ExternalFile = ExternalFile(
             appContext,
             root.clone(),
-            segments.toMutableList()) as T
+            segments.toMutableList())
 
-    override fun exists(): Boolean = clone<ExternalFile>().toDocumentFile()?.exists() ?: false
-    override fun isFile(): Boolean = clone<ExternalFile>().toDocumentFile()?.isFile ?: false
-    override fun isDirectory(): Boolean = clone<ExternalFile>().toDocumentFile()?.isDirectory ?: false
-    override fun canRead(): Boolean = clone<ExternalFile>().toDocumentFile()?.canRead() ?: false
-    override fun canWrite(): Boolean = clone<ExternalFile>().toDocumentFile()?.canWrite() ?: false
+    override fun exists(): Boolean = clone().toDocumentFile()?.exists() ?: false
+    override fun isFile(): Boolean = clone().toDocumentFile()?.isFile ?: false
+    override fun isDirectory(): Boolean = clone().toDocumentFile()?.isDirectory ?: false
+    override fun canRead(): Boolean = clone().toDocumentFile()?.canRead() ?: false
+    override fun canWrite(): Boolean = clone().toDocumentFile()?.canWrite() ?: false
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : AbstractFile> getParent(): T? {
+    override fun getParent(): ExternalFile? {
         if (segments.isNotEmpty()) {
             removeLastSegment()
-            return this as T
+            return this
         }
 
         val parent = when (root) {
@@ -127,7 +123,7 @@ class ExternalFile(
             return null
         }
 
-        return ExternalFile(appContext, Root.DirRoot(parent)) as T
+        return ExternalFile(appContext, Root.DirRoot(parent))
     }
 
     override fun getFullPath(): String {
@@ -138,12 +134,12 @@ class ExternalFile(
     }
 
     override fun delete(): Boolean {
-        return clone<ExternalFile>().toDocumentFile()?.delete() ?: false
+        return clone().toDocumentFile()?.delete() ?: false
     }
 
     override fun getInputStream(): InputStream? {
         val contentResolver = appContext.contentResolver
-        val documentFile = clone<ExternalFile>().toDocumentFile()
+        val documentFile = clone().toDocumentFile()
 
         if (documentFile == null) {
             Logger.e(TAG, "getInputStream() toDocumentFile() returned null")
@@ -170,7 +166,7 @@ class ExternalFile(
 
     override fun getOutputStream(): OutputStream? {
         val contentResolver = appContext.contentResolver
-        val documentFile = clone<ExternalFile>().toDocumentFile()
+        val documentFile = clone().toDocumentFile()
 
         if (documentFile == null) {
             Logger.e(TAG, "getOutputStream() toDocumentFile() returned null")
@@ -200,7 +196,7 @@ class ExternalFile(
             return segments.last().name
         }
 
-        val documentFile = clone<ExternalFile>().toDocumentFile()
+        val documentFile = clone().toDocumentFile()
         if (documentFile == null) {
             throw IllegalStateException("getName() toDocumentFile() returned null")
         }
@@ -209,8 +205,7 @@ class ExternalFile(
                 ?: throw IllegalStateException("Could not extract file name from document file")
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : AbstractFile> findFile(fileName: String): T? {
+    override fun findFile(fileName: String): ExternalFile? {
         check(root !is Root.FileRoot) { "Cannot use FileRoot as directory" }
 
         val filteredSegments = segments
@@ -239,7 +234,7 @@ class ExternalFile(
 
                 return ExternalFile(
                         appContext,
-                        root) as T
+                        root)
             }
         }
 
@@ -252,25 +247,41 @@ class ExternalFile(
 
             return ExternalFile(
                     appContext,
-                    root) as T
+                    root)
         }
 
         // Not found
         return null
     }
 
-    override fun getLength(): Long = clone<ExternalFile>().toDocumentFile()?.length() ?: -1L
+    override fun getLength(): Long = clone().toDocumentFile()?.length() ?: -1L
 
-    override fun withFileDescriptor(
+    override fun <T> withFileDescriptor(
             fileDescriptorMode: FileDescriptorMode,
-            func: (FileDescriptor) -> Unit) {
-        getParcelFileDescriptor(fileDescriptorMode)?.use { pfd ->
-            func(pfd.fileDescriptor)
-        } ?: throw IllegalStateException("Could not get ParcelFileDescriptor " +
-                "from root with uri = ${root.holder.uri}")
+            func: (FileDescriptor) -> T): Result<T> {
+        return runCatching {
+            getParcelFileDescriptor(fileDescriptorMode)?.use { pfd ->
+                func(pfd.fileDescriptor)
+            } ?: throw IllegalStateException("Could not get ParcelFileDescriptor " +
+                    "from root with uri = ${root.holder.uri}")
+        }
     }
 
-    fun getParcelFileDescriptor(fileDescriptorMode: FileDescriptorMode): ParcelFileDescriptor? {
+    override fun listFiles(): List<ExternalFile> {
+        check(root !is Root.FileRoot) { "Cannot use listFiles with FileRoot" }
+
+        return clone()
+                .toDocumentFile()
+                ?.listFiles()
+                ?.map { documentFile -> ExternalFile(appContext, Root.DirRoot(documentFile)) }
+                ?: emptyList()
+    }
+
+    override fun lastModified(): Long {
+        return clone().toDocumentFile()?.lastModified() ?: 0L
+    }
+
+    private fun getParcelFileDescriptor(fileDescriptorMode: FileDescriptorMode): ParcelFileDescriptor? {
         return appContext.contentResolver.openFileDescriptor(
                 root.holder.uri,
                 fileDescriptorMode.mode)

@@ -60,9 +60,36 @@ class FileManager(
     // Api to convert native file/documentFile classes into our own abstractions
     //=======================================================
 
+    fun baseSaveLocalDirectoryExists(): Boolean {
+        val baseDirFile = newSaveLocationFile()
+        if (baseDirFile == null) {
+            return false
+        }
+
+        if (!baseDirFile.exists()) {
+            return false
+        }
+
+        return true
+    }
+
+    fun baseLocalThreadsDirectoryExists(): Boolean {
+        val baseDirFile = newLocalThreadFile()
+        if (baseDirFile == null) {
+            return false
+        }
+
+        if (!baseDirFile.exists()) {
+            return false
+        }
+
+        return true
+    }
+
     /**
      * Create a raw file from a path.
      * Use this method to convert a java File by this path into an AbstractFile.
+     * Does not create file on the disk automatically!
      * */
     fun fromPath(path: String): RawFile {
         return fromRawFile(File(path))
@@ -71,6 +98,7 @@ class FileManager(
     /**
      * Create RawFile from Java File.
      * Use this method to convert a java File into an AbstractFile.
+     * Does not create file on the disk automatically!
      * */
     fun fromRawFile(file: File): RawFile {
         if (file.isFile) {
@@ -83,12 +111,13 @@ class FileManager(
     /**
      * Create an external file from Uri.
      * Use this method to convert external file uri (file that may be located at sd card) into an
-     * AbstractFile.
+     * AbstractFile. If a file does not exist null is returned.
+     * Does not create file on the disk automatically!
      * */
-    fun fromUri(uri: Uri): ExternalFile {
+    fun fromUri(uri: Uri): ExternalFile? {
         val documentFile = toDocumentFile(uri)
         if (documentFile == null) {
-            throw IllegalStateException("fromUri() toDocumentFile() returned null")
+            return null
         }
 
         return if (documentFile.isFile) {
@@ -104,11 +133,43 @@ class FileManager(
     }
 
     /**
+     * Instantiates a new AbstractFile with the root being in the local threads directory.
+     * Does not create file on the disk automatically!
+     * */
+    fun newLocalThreadFile(): AbstractFile? {
+        if (ChanSettings.localThreadLocation.get().isEmpty()
+                && ChanSettings.localThreadsLocationUri.get().isEmpty()) {
+            // wtf?
+            throw RuntimeException("Both local thread save locations are empty! " +
+                    "Something went terribly wrong.")
+        }
+
+        val uri = ChanSettings.localThreadsLocationUri.get()
+        if (uri.isNotEmpty()) {
+            // When we change localThreadsLocation we also set localThreadsLocationUri to an
+            // empty string, so we need to check whether the localThreadsLocationUri is empty or not,
+            // because saveLocation is never empty
+            val rootDirectory = DocumentFile.fromTreeUri(appContext, Uri.parse(uri))
+            if (rootDirectory == null) {
+                return null
+            }
+
+            return ExternalFile(
+                    appContext,
+                    AbstractFile.Root.DirRoot(rootDirectory))
+        }
+
+        val path = ChanSettings.localThreadLocation.get()
+        return RawFile(AbstractFile.Root.DirRoot(File(path)))
+    }
+
+    /**
      * Instantiates a new AbstractFile with the root being in the app's base directory (either the Kuroba
      * directory in case of using raw file api or the user's selected directory in case of using SAF).
+     * Does not create file on the disk automatically!
      * */
-    fun newFile(): AbstractFile {
-        if (ChanSettings.saveLocationUri.get().isEmpty() && ChanSettings.saveLocation.get().isEmpty()) {
+    fun newSaveLocationFile(): AbstractFile? {
+        if (ChanSettings.saveLocation.get().isEmpty() && ChanSettings.saveLocationUri.get().isEmpty()) {
             // wtf?
             throw RuntimeException("Both save locations are empty! Something went terribly wrong.")
         }
@@ -120,7 +181,7 @@ class FileManager(
             // empty
             val rootDirectory = DocumentFile.fromTreeUri(appContext, Uri.parse(uri))
             if (rootDirectory == null) {
-                throw IllegalStateException("Root directory cannot be null!")
+                return null
             }
 
             return ExternalFile(

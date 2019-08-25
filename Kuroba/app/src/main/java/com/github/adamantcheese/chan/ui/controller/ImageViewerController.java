@@ -37,6 +37,7 @@ import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -96,6 +97,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Inject
     ImageLoaderV2 imageLoaderV2;
+    @Inject
+    ImageSaver imageSaver;
 
     private int statusBarColorPrevious;
     private AnimatorSet startAnimation;
@@ -295,7 +298,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 }
                 task.setSubFolder(subFolderName);
             }
-            Chan.injector().instance(ImageSaver.class).startDownloadTask(context, task);
+
+            if (!imageSaver.startDownloadTask(context, task)) {
+                Toast.makeText(context, "Couldn't start download task", Toast.LENGTH_LONG).show();
+            }
         }
     }
 

@@ -19,14 +19,16 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Environment;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.saf.FileManager;
 import com.github.adamantcheese.chan.core.saf.callback.DirectoryChooserCallback;
 import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
 import com.github.adamantcheese.chan.core.saf.file.ExternalFile;
+import com.github.adamantcheese.chan.core.saf.file.FileDescriptorMode;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
@@ -40,7 +42,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -54,7 +55,6 @@ import javax.inject.Inject;
 import kotlin.Unit;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class MediaSettingsController extends SettingsController {
@@ -70,6 +70,9 @@ public class MediaSettingsController extends SettingsController {
 
     @Inject
     FileManager fileManager;
+
+    @Inject
+    DatabaseManager databaseManager;
 
     public MediaSettingsController(Context context) {
         super(context);
@@ -114,15 +117,25 @@ public class MediaSettingsController extends SettingsController {
     @Subscribe
     public void onEvent(ChanSettings.SettingChanged setting) {
         if (setting.setting == ChanSettings.saveLocationUri) {
-            String defaultDir = Environment.getExternalStorageDirectory() +
-                    File.separator +
-                    getApplicationLabel();
+            // Image save location (SAF) was chosen
+            String defaultDir = ChanSettings.getDefaultSaveLocationDir();
 
             ChanSettings.saveLocation.setNoUpdate(defaultDir);
             saveLocation.setDescription(ChanSettings.saveLocationUri.get());
+        } else if (setting.setting == ChanSettings.localThreadsLocationUri) {
+            // Local threads location (SAF) was chosen
+            String defaultDir = ChanSettings.getDefaultLocalThreadsLocation();
+
+            ChanSettings.localThreadLocation.setNoUpdate(defaultDir);
+            localThreadsLocation.setDescription(ChanSettings.localThreadsLocationUri.get());
         } else if (setting.setting == ChanSettings.saveLocation) {
+            // Image save location (Java File API) was chosen
             ChanSettings.saveLocationUri.setNoUpdate("");
             saveLocation.setDescription(ChanSettings.saveLocation.get());
+        } else if (setting.setting == ChanSettings.localThreadLocation) {
+            // Local threads location (Java File API) was chosen
+            ChanSettings.localThreadsLocationUri.setNoUpdate("");
+            localThreadsLocation.setDescription(ChanSettings.localThreadLocation.get());
         }
     }
 
@@ -203,29 +216,26 @@ public class MediaSettingsController extends SettingsController {
         LinkSettingView localThreadsLocationSetting = new LinkSettingView(this,
                 R.string.media_settings_local_threads_location_title,
                 0,
-                v -> onLocalThreadsLocationSettingClicked());
+                v -> showUseSAFOrOldAPIForLocalThreadsLocationDialog());
 
-        String localThreadsLocationString;
-
-        if (ChanSettings.localThreadsLocationUri.get().isEmpty()) {
-            localThreadsLocationString = context.getString(R.string.media_settings_local_threads_setting_not_set);
-        } else {
-            localThreadsLocationString = ChanSettings.localThreadsLocationUri.get();
-        }
 
         localThreadsLocation = (LinkSettingView) media.add(localThreadsLocationSetting);
-        localThreadsLocation.setDescription(localThreadsLocationString);
+        localThreadsLocation.setDescription(getLocalThreadsLocation());
     }
 
-    private void onLocalThreadsLocationSettingClicked() {
-        // TODO
+    private String getLocalThreadsLocation() {
+        if (!ChanSettings.localThreadsLocationUri.get().isEmpty()) {
+            return ChanSettings.localThreadsLocationUri.get();
+        }
+
+        return ChanSettings.localThreadLocation.get();
     }
 
     private void setupSaveLocationSetting(SettingsGroup media) {
         LinkSettingView chooseSaveLocationSetting = new LinkSettingView(this,
                 R.string.save_location_screen,
                 0,
-                v -> showDialog());
+                v -> showUseSAFOrOldAPIForSaveLocationDialog());
 
         saveLocation = (LinkSettingView) media.add(chooseSaveLocationSetting);
         saveLocation.setDescription(getSaveLocation());
@@ -239,10 +249,89 @@ public class MediaSettingsController extends SettingsController {
         return ChanSettings.saveLocation.get();
     }
 
-    private void showDialog() {
+    private void showUseSAFOrOldAPIForLocalThreadsLocationDialog() {
+        if (hasActiveDownloadingThreads()) {
+            // I don't even want to imagine what's going to happen if we allow this
+            Toast.makeText(
+                    context,
+                    R.string.media_settings_cannot_switch_local_threads_base_dir_message,
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.use_saf_dialog_title)
-                .setMessage(R.string.use_saf_dialog_message)
+                .setTitle(R.string.use_saf_for_local_threads_location_dialog_title)
+                .setMessage(R.string.use_saf_for_local_threads_location_dialog_message)
+                .setPositiveButton(R.string.use_saf_dialog_positive_button_text, (dialog, which) -> {
+                    onLocalThreadsLocationUseSAFClicked();
+                })
+                .setNegativeButton(R.string.use_saf_dialog_negative_button_text, (dialog, which) -> {
+                    onLocalThreadsLocationUseOldApiClicked();
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    private boolean hasActiveDownloadingThreads() {
+        List<SavedThread> savedThreads = databaseManager.runTask(
+                databaseManager.getDatabaseSavedThreadManager().getSavedThreads());
+
+        for (SavedThread savedThread : savedThreads) {
+            if (savedThread.isRunning()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Select a directory where local threads will be stored via the old Java File API
+     */
+    private void onLocalThreadsLocationUseOldApiClicked() {
+        SaveLocationController saveLocationController = new SaveLocationController(
+                context,
+                SaveLocationController.SaveLocationControllerMode.LocalThreadsSaveLocation,
+                dirPath -> {
+                    Logger.d(TAG, "SaveLocationController with LocalThreadsSaveLocation mode returned dir "
+                            + dirPath);
+
+                    // Supa hack to get the callback called
+                    ChanSettings.localThreadLocation.setSync("");
+                    ChanSettings.localThreadLocation.setSync(dirPath);
+                });
+
+        navigationController.pushController(saveLocationController);
+    }
+
+    /**
+     * Select a directory where local threads will be stored via the SAF
+     */
+    private void onLocalThreadsLocationUseSAFClicked() {
+        fileManager.openChooseDirectoryDialog(new DirectoryChooserCallback() {
+            @Override
+            public void onResult(@NotNull Uri uri) {
+                ChanSettings.localThreadsLocationUri.set(uri.toString());
+
+                String defaultDir = ChanSettings.getDefaultLocalThreadsLocation();
+                ChanSettings.localThreadLocation.setNoUpdate(defaultDir);
+                localThreadsLocation.setDescription(uri.toString());
+
+                testMethod(uri);
+            }
+
+            @Override
+            public void onCancel(@NotNull String reason) {
+                Toast.makeText(context, reason, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void showUseSAFOrOldAPIForSaveLocationDialog() {
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(R.string.use_saf_for_save_location_dialog_title)
+                .setMessage(R.string.use_saf_for_save_location_dialog_message)
                 .setPositiveButton(R.string.use_saf_dialog_positive_button_text, (dialog, which) -> {
                     onSaveLocationUseSAFClicked();
                 })
@@ -254,20 +343,35 @@ public class MediaSettingsController extends SettingsController {
         alertDialog.show();
     }
 
+    /**
+     * Select a directory where saved images will be stored via the old Java File API
+     */
     private void onSaveLocationUseOldApiClicked() {
-        navigationController.pushController(new SaveLocationController(context));
+        SaveLocationController saveLocationController = new SaveLocationController(
+                context,
+                SaveLocationController.SaveLocationControllerMode.ImageSaveLocation,
+                dirPath -> {
+                    Logger.d(TAG, "SaveLocationController with ImageSaveLocation mode returned dir "
+                            + dirPath);
+
+                    // Supa hack to get the callback called
+                    ChanSettings.saveLocation.setSync("");
+                    ChanSettings.saveLocation.setSync(dirPath);
+                });
+
+        navigationController.pushController(saveLocationController);
     }
 
+    /**
+     * Select a directory where saved images will be stored via the SAF
+     */
     private void onSaveLocationUseSAFClicked() {
         fileManager.openChooseDirectoryDialog(new DirectoryChooserCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
                 ChanSettings.saveLocationUri.set(uri.toString());
 
-                String defaultDir = Environment.getExternalStorageDirectory() +
-                        File.separator +
-                        getApplicationLabel();
-
+                String defaultDir = ChanSettings.getDefaultSaveLocationDir();
                 ChanSettings.saveLocation.setNoUpdate(defaultDir);
                 saveLocation.setDescription(uri.toString());
 
@@ -357,7 +461,7 @@ public class MediaSettingsController extends SettingsController {
         }
 
         {
-            AbstractFile externalFile = fileManager.newFile()
+            AbstractFile externalFile = fileManager.newSaveLocationFile()
                     .appendSubDirSegment("1234")
                     .appendSubDirSegment("4566")
                     .appendFileNameSegment("filename.json")
@@ -379,7 +483,7 @@ public class MediaSettingsController extends SettingsController {
                 throw new RuntimeException("externalFile1 name != filename.json");
             }
 
-            AbstractFile dir = fileManager.newFile()
+            AbstractFile dir = fileManager.newSaveLocationFile()
                     .appendSubDirSegment("1234")
                     .appendSubDirSegment("4566");
 
@@ -392,9 +496,10 @@ public class MediaSettingsController extends SettingsController {
                 throw new RuntimeException("Couldn't find filename.json");
             }
 
+            // Write string to the file
             String testString = "Hello world";
 
-            foundFile.withFileDescriptor(AbstractFile.FileDescriptorMode.WriteTruncate, (fd) -> {
+            foundFile.withFileDescriptor(FileDescriptorMode.WriteTruncate, (fd) -> {
                 try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(fd))) {
                     osw.write(testString);
                     osw.flush();
@@ -410,7 +515,7 @@ public class MediaSettingsController extends SettingsController {
                         + foundFile.getLength());
             }
 
-            foundFile.withFileDescriptor(AbstractFile.FileDescriptorMode.Read, (fd) -> {
+            foundFile.withFileDescriptor(FileDescriptorMode.Read, (fd) -> {
                 try (InputStreamReader isr = new InputStreamReader(new FileInputStream(fd))) {
                     char[] stringBytes = new char[testString.length()];
                     int read = isr.read(stringBytes);
@@ -420,8 +525,49 @@ public class MediaSettingsController extends SettingsController {
                     }
 
                     String resultString = new String(stringBytes);
-                    if (!resultString.equals(testString)){
+                    if (!resultString.equals(testString)) {
                         throw new RuntimeException("resultString != testString, resultString = "
+                                + resultString);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return Unit.INSTANCE;
+            });
+
+            // Write another string that is shorter than the previous string
+            String testString2 = "Hello";
+
+            foundFile.withFileDescriptor(FileDescriptorMode.WriteTruncate, (fd) -> {
+                try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(fd))) {
+                    osw.write(testString2);
+                    osw.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return Unit.INSTANCE;
+            });
+
+            if (foundFile.getLength() != testString2.length()) {
+                throw new RuntimeException("file length != testString.length(), file length = "
+                        + foundFile.getLength());
+            }
+
+            foundFile.withFileDescriptor(FileDescriptorMode.Read, (fd) -> {
+                try (InputStreamReader isr = new InputStreamReader(new FileInputStream(fd))) {
+                    char[] stringBytes = new char[testString2.length()];
+                    int read = isr.read(stringBytes);
+
+                    if (read != testString2.length()) {
+                        throw new RuntimeException("read bytes != testString2.length(), read = " + read);
+                    }
+
+                    String resultString = new String(stringBytes);
+                    if (!resultString.equals(testString2)) {
+                        throw new RuntimeException("resultString != testString2, resultString = "
                                 + resultString);
                     }
 

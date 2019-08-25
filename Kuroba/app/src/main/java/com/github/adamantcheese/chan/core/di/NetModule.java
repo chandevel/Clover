@@ -21,6 +21,7 @@ import com.android.volley.toolbox.Volley;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
+import com.github.adamantcheese.chan.core.saf.FileManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
 
@@ -51,8 +52,8 @@ public class NetModule {
 
     @Provides
     @Singleton
-    public FileCache provideFileCache() {
-        return new FileCache(new File(getCacheDir(), "filecache"));
+    public FileCache provideFileCache(FileManager fileManager) {
+        return new FileCache(getCacheDir(), fileManager);
     }
 
     private File getCacheDir() {

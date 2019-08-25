@@ -9,18 +9,17 @@ class RawFile(
         segments: MutableList<Segment> = mutableListOf()
 ) : AbstractFile(segments) {
 
-    override fun <T : AbstractFile> appendSubDirSegment(name: String): T {
+    override fun appendSubDirSegment(name: String): RawFile {
         check(root !is Root.FileRoot) { "root is already FileRoot, cannot append anything anymore" }
-        return super.appendSubDirSegmentInner(name)
+        return super.appendSubDirSegmentInner(name) as RawFile
     }
 
-    override fun <T : AbstractFile> appendFileNameSegment(name: String): T {
+    override fun appendFileNameSegment(name: String): RawFile {
         check(root !is Root.FileRoot) { "root is already FileRoot, cannot append anything anymore" }
-        return super.appendFileNameSegmentInner(name)
+        return super.appendFileNameSegmentInner(name) as RawFile
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : AbstractFile>  createNew(): T? {
+    override fun createNew(): RawFile? {
         check(root !is Root.FileRoot) {
             // TODO: do we need this check?
             "root is already FileRoot, cannot append anything anymore"
@@ -29,7 +28,6 @@ class RawFile(
         if (segments.isEmpty()) {
             // Root is probably already existing and there is no point in creating it again so just
             // return null here
-            Logger.e(TAG, "No segments")
             return null
         }
 
@@ -51,32 +49,30 @@ class RawFile(
             }
 
             if (segment.isFileName) {
-                return RawFile(Root.FileRoot(newFile, segment.name)) as T
+                return RawFile(Root.FileRoot(newFile, segment.name))
             }
         }
 
-        return RawFile(Root.DirRoot(newFile)) as T
+        return RawFile(Root.DirRoot(newFile))
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : AbstractFile> clone(): T = RawFile(
+    override fun clone(): RawFile = RawFile(
             root.clone(),
-            segments.toMutableList()) as T
+            segments.toMutableList())
 
-    override fun exists(): Boolean = clone<RawFile>().toFile().exists()
-    override fun isFile(): Boolean = clone<RawFile>().toFile().isFile
-    override fun isDirectory(): Boolean = clone<RawFile>().toFile().isDirectory
-    override fun canRead(): Boolean = clone<RawFile>().toFile().canRead()
-    override fun canWrite(): Boolean = clone<RawFile>().toFile().canWrite()
+    override fun exists(): Boolean = clone().toFile().exists()
+    override fun isFile(): Boolean = clone().toFile().isFile
+    override fun isDirectory(): Boolean = clone().toFile().isDirectory
+    override fun canRead(): Boolean = clone().toFile().canRead()
+    override fun canWrite(): Boolean = clone().toFile().canWrite()
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : AbstractFile>  getParent(): T? {
+    override fun  getParent(): RawFile? {
         if (segments.isNotEmpty()) {
             removeLastSegment()
-            return this as T
+            return this
         }
 
-        return RawFile(Root.DirRoot(root.holder.parentFile)) as T
+        return RawFile(Root.DirRoot(root.holder.parentFile))
     }
 
     override fun getFullPath(): String {
@@ -86,11 +82,11 @@ class RawFile(
     }
 
     override fun delete(): Boolean {
-        return clone<RawFile>().toFile().delete()
+        return clone().toFile().delete()
     }
 
     override fun getInputStream(): InputStream? {
-        val file = clone<RawFile>().toFile()
+        val file = clone().toFile()
 
         if (!file.exists()) {
             Logger.e(TAG, "getInputStream() file does not exist, path = ${file.absolutePath}")
@@ -111,7 +107,7 @@ class RawFile(
     }
 
     override fun getOutputStream(): OutputStream? {
-        val file = clone<RawFile>().toFile()
+        val file = clone().toFile()
 
         if (!file.exists()) {
             Logger.e(TAG, "getOutputStream() file does not exist, path = ${file.absolutePath}")
@@ -132,11 +128,10 @@ class RawFile(
     }
 
     override fun getName(): String {
-        return clone<RawFile>().toFile().name
+        return clone().toFile().name
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T: AbstractFile> findFile(fileName: String): T? {
+    override fun findFile(fileName: String): RawFile? {
         check(root !is Root.FileRoot) { "Cannot use FileRoot as directory" }
 
         val copy = File(root.holder.absolutePath)
@@ -155,30 +150,47 @@ class RawFile(
             Root.DirRoot(resultFile)
         }
 
-        return RawFile(newRoot) as T
+        return RawFile(newRoot)
     }
 
-    override fun getLength(): Long = clone<RawFile>().toFile().length()
+    override fun getLength(): Long = clone().toFile().length()
 
-    override fun withFileDescriptor(fileDescriptorMode: FileDescriptorMode, func: (FileDescriptor) -> Unit) {
-        val fileCopy = clone<RawFile>().toFile()
+    override fun <T> withFileDescriptor(
+            fileDescriptorMode: FileDescriptorMode,
+            func: (FileDescriptor) -> T): Result<T> {
+        return runCatching {
+            val fileCopy = clone().toFile()
 
-        when (fileDescriptorMode) {
-            FileDescriptorMode.Read -> FileInputStream(fileCopy).use { fis -> func(fis.fd) }
-            FileDescriptorMode.Write,
-            FileDescriptorMode.WriteTruncate -> {
-                val fileOutputStream = when (fileDescriptorMode) {
-                    FileDescriptorMode.Write -> FileOutputStream(fileCopy, false)
-                    FileDescriptorMode.WriteTruncate -> FileOutputStream(fileCopy, true)
-                    else -> throw NotImplementedError("Not implemented for " +
-                            "fileDescriptorMode = ${fileDescriptorMode.name}")
+            when (fileDescriptorMode) {
+                FileDescriptorMode.Read -> FileInputStream(fileCopy).use { fis -> func(fis.fd) }
+                FileDescriptorMode.Write,
+                FileDescriptorMode.WriteTruncate -> {
+                    val fileOutputStream = when (fileDescriptorMode) {
+                        FileDescriptorMode.Write -> FileOutputStream(fileCopy, false)
+                        FileDescriptorMode.WriteTruncate -> FileOutputStream(fileCopy, true)
+                        else -> throw NotImplementedError("Not implemented for " +
+                                "fileDescriptorMode = ${fileDescriptorMode.name}")
+                    }
+
+                    fileOutputStream.use { fos -> func(fos.fd) }
                 }
-
-                fileOutputStream.use { fos -> func(fos.fd) }
+                else -> throw NotImplementedError("Not implemented for " +
+                        "fileDescriptorMode = ${fileDescriptorMode.name}")
             }
-            else -> throw NotImplementedError("Not implemented for " +
-                    "fileDescriptorMode = ${fileDescriptorMode.name}")
         }
+    }
+
+    override fun lastModified(): Long {
+        return clone().toFile().lastModified()
+    }
+
+    override fun listFiles(): List<RawFile> {
+        check(root !is Root.FileRoot) { "Cannot use listFiles with FileRoot" }
+
+        return clone()
+                .toFile()
+                .listFiles()
+                .map { file -> RawFile(Root.DirRoot(file)) }
     }
 
     private fun toFile(): File {

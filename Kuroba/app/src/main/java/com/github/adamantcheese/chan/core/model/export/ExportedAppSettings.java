@@ -19,13 +19,13 @@ package com.github.adamantcheese.chan.core.model.export;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.core.repository.ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION;
 
 public class ExportedAppSettings {
     @SerializedName("exported_sites")
@@ -75,7 +75,9 @@ public class ExportedAppSettings {
      * (probably only settings)
      */
     public boolean isEmpty() {
-        return exportedSites.isEmpty() && exportedBoards.isEmpty() && (settings == null || settings.isEmpty());
+        return exportedSites.isEmpty()
+                && exportedBoards.isEmpty()
+                && (settings == null || settings.isEmpty());
     }
 
     public List<ExportedSite> getExportedSites() {
@@ -99,7 +101,7 @@ public class ExportedAppSettings {
     }
 
     public int getVersion() {
-        return CURRENT_EXPORT_SETTINGS_VERSION;
+        return ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION;
     }
 
     @Nullable
@@ -128,6 +130,7 @@ public class ExportedAppSettings {
     }
 
     public void setSettings(String settings) {
-        throw new UnsupportedOperationException("Settings are only allowed to be set with the constructor, and must be from ChanSettings.serializeToString().");
+        throw new UnsupportedOperationException("Settings are only allowed to be set with the " +
+                "constructor, and must be from ChanSettings.serializeToString().");
     }
 }

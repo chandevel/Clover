@@ -51,7 +51,8 @@ public class AppModule {
     @Singleton
     public ImageLoaderV2 provideImageLoaderV2(RequestQueue requestQueue,
                                               Context applicationContext,
-                                              ThemeHelper themeHelper) {
+                                              ThemeHelper themeHelper,
+                                              FileManager fileManager) {
         final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         final int lruImageCacheSize = runtimeMemory / 8;
         ImageLoader imageLoader = new ImageLoader(
@@ -60,7 +61,7 @@ public class AppModule {
                 themeHelper,
                 new BitmapLruImageCache(lruImageCacheSize));
 
-        return new ImageLoaderV2(imageLoader);
+        return new ImageLoaderV2(imageLoader, fileManager);
     }
 
     @Provides

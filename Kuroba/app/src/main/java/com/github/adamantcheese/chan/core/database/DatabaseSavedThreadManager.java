@@ -1,10 +1,15 @@
 package com.github.adamantcheese.chan.core.database;
 
+import android.net.Uri;
+
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
+import com.github.adamantcheese.chan.core.saf.FileManager;
+import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.IOUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.stmt.DeleteBuilder;
 
 import java.io.File;
@@ -16,8 +21,12 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class DatabaseSavedThreadManager {
+    private static final String TAG = "DatabaseSavedThreadManager";
+
     @Inject
     DatabaseHelper helper;
+    @Inject
+    FileManager fileManager;
 
     public DatabaseSavedThreadManager() {
         inject(this);
@@ -155,16 +164,43 @@ public class DatabaseSavedThreadManager {
             db.where().eq(SavedThread.LOADABLE_ID, loadable.id);
             db.delete();
 
+            deleteThreadFromDisk(loadable, ChanSettings.isLocalThreadsDirUsesSAF());
+            return null;
+        };
+    }
+
+    public void deleteThreadFromDisk(Loadable loadable, boolean usesSAF) {
+        if (usesSAF) {
             String threadSubDir = ThreadSaveManager.getThreadSubDir(loadable);
-            File threadSaveDir = new File(ChanSettings.saveLocation.get(), threadSubDir);
+            Uri uri = Uri.parse(ChanSettings.localThreadsLocationUri.get());
+
+            AbstractFile localThreadsDir = fileManager.fromUri(uri);
+            if (localThreadsDir == null || !localThreadsDir.exists() || !localThreadsDir.isDirectory()) {
+                // Probably already deleted
+                return;
+            }
+
+            AbstractFile threadDir = localThreadsDir.appendSubDirSegment(threadSubDir);
+            if (!threadDir.exists() || !threadDir.isDirectory()) {
+                // Probably already deleted
+                return;
+            }
+
+            if (!threadDir.delete()) {
+                Logger.d(TAG, "deleteThreadFromDisk() Could not delete SAF directory "
+                        + threadDir.getFullPath());
+            }
+        } else {
+            String threadSubDir = ThreadSaveManager.getThreadSubDir(loadable);
+            File threadSaveDir = new File(ChanSettings.localThreadLocation.get(), threadSubDir);
 
             if (!threadSaveDir.exists() || !threadSaveDir.isDirectory()) {
-                return null;
+                // Probably already deleted
+                return;
             }
 
             IOUtils.deleteDirWithContents(threadSaveDir);
-            return null;
-        };
+        }
     }
 
     public Callable<Void> deleteSavedThreads(List<Loadable> loadableList) {

@@ -25,11 +25,12 @@ import androidx.annotation.WorkerThread;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.di.NetModule;
+import com.github.adamantcheese.chan.core.saf.file.RawFile;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,7 +52,7 @@ public class FileCacheDownloader implements Runnable {
     private static final long NOTIFY_SIZE = BUFFER_SIZE * 8;
 
     private final String url;
-    private final File output;
+    private final RawFile output;
     private final Handler handler;
 
     // Main thread only.
@@ -66,7 +67,7 @@ public class FileCacheDownloader implements Runnable {
     private Call call;
     private ResponseBody body;
 
-    public FileCacheDownloader(Callback callback, String url, File output) {
+    public FileCacheDownloader(Callback callback, String url, RawFile output) {
         this.callback = callback;
         this.url = url;
         this.output = output;
@@ -123,6 +124,7 @@ public class FileCacheDownloader implements Runnable {
     private void execute() {
         Closeable sourceCloseable = null;
         Closeable sinkCloseable = null;
+        OutputStream outputFileOutputStream = null;
 
         try {
             checkCancel();
@@ -132,7 +134,12 @@ public class FileCacheDownloader implements Runnable {
             Source source = body.source();
             sourceCloseable = source;
 
-            BufferedSink sink = Okio.buffer(Okio.sink(output));
+            outputFileOutputStream = output.getOutputStream();
+            if (outputFileOutputStream == null) {
+                throw new IOException("Couldn't get output file's OutputStream");
+            }
+
+            BufferedSink sink = Okio.buffer(Okio.sink(outputFileOutputStream));
             sinkCloseable = sink;
 
             checkCancel();
@@ -143,7 +150,7 @@ public class FileCacheDownloader implements Runnable {
 
             log("done");
 
-            long fileLen = output.length();
+            long fileLen = output.getLength();
 
             handler.post(() -> {
                 if (callback != null) {
@@ -190,6 +197,7 @@ public class FileCacheDownloader implements Runnable {
         } finally {
             Util.closeQuietly(sourceCloseable);
             Util.closeQuietly(sinkCloseable);
+            Util.closeQuietly(outputFileOutputStream);
 
             if (call != null) {
                 call.cancel();

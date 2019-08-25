@@ -229,14 +229,14 @@ public class WatchManager implements WakeManager.Wakeable {
         return true;
     }
 
-    public void startSavingThread(
+    public boolean startSavingThread(
             Loadable loadable,
             List<Post> postsToSave) {
         if (!startSavingThread(loadable)) {
-            return;
+            return false;
         }
 
-        threadSaveManager.enqueueThreadToSave(loadable, postsToSave);
+        return threadSaveManager.enqueueThreadToSave(loadable, postsToSave);
     }
 
     public boolean startSavingThread(Loadable loadable) {

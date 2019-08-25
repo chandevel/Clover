@@ -20,7 +20,10 @@ import android.net.ConnectivityManager;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
@@ -121,9 +124,9 @@ public class ChanSettings {
     public static final BooleanSetting postPinThread;
     public static final BooleanSetting shortPinInfo;
 
-    @Deprecated
     public static final StringSetting saveLocation;
     public static final StringSetting saveLocationUri;
+    public static final StringSetting localThreadLocation;
     public static final StringSetting localThreadsLocationUri;
     public static final BooleanSetting saveServerFilename;
     public static final BooleanSetting shareUrl;
@@ -184,7 +187,6 @@ public class ChanSettings {
     public static final BooleanSetting padThumbs;
 
     public static final BooleanSetting incrementalThreadDownloadingEnabled;
-
     public static final BooleanSetting fullUserRotationEnable;
 
     static {
@@ -213,8 +215,7 @@ public class ChanSettings {
         postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
         shortPinInfo = new BooleanSetting(p, "preference_short_pin_info", true);
 
-        saveLocation = new StringSetting(p, "preference_image_save_location",
-                Environment.getExternalStorageDirectory() + File.separator + getApplicationLabel());
+        saveLocation = new StringSetting(p, "preference_image_save_location", getDefaultSaveLocationDir());
         saveLocation.addCallback((setting, value) -> {
             EventBus.getDefault().post(new SettingChanged<>(saveLocation));
         });
@@ -222,6 +223,11 @@ public class ChanSettings {
         saveLocationUri = new StringSetting(p, "preference_image_save_location_uri", "");
         saveLocationUri.addCallback(((setting, value) -> {
             EventBus.getDefault().post(new SettingChanged<>(saveLocationUri));
+        }));
+
+        localThreadLocation = new StringSetting(p, "local_threads_location", getDefaultLocalThreadsLocation());
+        localThreadLocation.addCallback(((setting, value) -> {
+            EventBus.getDefault().post(new SettingChanged<>(localThreadLocation));
         }));
 
         localThreadsLocationUri = new StringSetting(p, "local_threads_location_uri", "");
@@ -300,6 +306,22 @@ public class ChanSettings {
         padThumbs = new BooleanSetting(p, "pad_thumbnails", true);
         incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
         fullUserRotationEnable = new BooleanSetting(p, "full_user_rotation_enable", true);
+    }
+
+    @NonNull
+    public static String getDefaultLocalThreadsLocation() {
+        return Environment.getExternalStorageDirectory()
+                + File.separator
+                + getApplicationLabel()
+                + File.separator
+                + ThreadSaveManager.SAVED_THREADS_DIR_NAME;
+    }
+
+    @NonNull
+    public static String getDefaultSaveLocationDir() {
+        return Environment.getExternalStorageDirectory()
+                + File.separator
+                + getApplicationLabel();
     }
 
     public static ThemeColor getThemeAndColor() {
@@ -392,6 +414,16 @@ public class ChanSettings {
             outputStream.write(settings.getBytes());
             outputStream.flush();
         }
+    }
+
+    public static boolean isLocalThreadsDirUsesSAF() {
+        if (ChanSettings.localThreadsLocationUri.get().isEmpty()
+                && ChanSettings.localThreadLocation.get().isEmpty()) {
+            throw new IllegalStateException("Both localThreadsLocationUri and " +
+                    "localThreadLocation are empty!");
+        }
+
+        return !ChanSettings.localThreadsLocationUri.get().isEmpty();
     }
 
     public static class ThemeColor {

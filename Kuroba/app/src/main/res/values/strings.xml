@@ -687,14 +687,18 @@ Don't have a 4chan Pass?<br>
     <string name="cannot_shared_thread_already_deleted">Can\'t share this thread, it\'s already been deleted</string>
     <string name="more_than_99_valid_captchas_text">99+</string>
     <string name="setting_full_screen_rotation">Allow full sensor rotation</string>
-    <string name="use_saf_dialog_title">Use the new Storage Access Framework API to choose the base directory?</string>
-    <string name="use_saf_dialog_message">If you choose to use the SAF you will be able to choose the sd-card (or even something like Google Drive) as a place to store images/files/downloaded thread etc</string>
+    <string name="use_saf_for_save_location_dialog_title">Use the new Storage Access Framework API to choose images download directory?</string>
+    <string name="use_saf_for_local_threads_location_dialog_title">Use the new Storage Access Framework API to choose local threads download directory?</string>
+    <string name="use_saf_for_save_location_dialog_message">If you choose to use the SAF you will be able to choose the sd-card (or even something like Google Drive) as a place to store downloaded images</string>
+    <string name="use_saf_for_local_threads_location_dialog_message">If you choose to use the SAF you will be able to choose the sd-card (or even something like Google Drive) as a place to store local threads images</string>
     <string name="use_saf_dialog_positive_button_text">Use SAF API</string>
     <string name="use_saf_dialog_negative_button_text">Use old API</string>
     <string name="import_or_export_dialog_title">Overwrite existing file or create a new one?</string>
     <string name="import_or_export_dialog_positive_button_text">Overwrite</string>
     <string name="import_or_export_dialog_negative_button_text">Create new</string>
     <string name="media_settings_local_threads_location_title">Local threads location</string>
-    <string name="media_settings_local_threads_setting_not_set">Not set</string>
     <string name="view_thread_controller_local_threads_location_is_not_set"><![CDATA[Local threads location is not set. You can do this in Media Settings -> Local threads location]]></string>
+    <string name="media_settings_cannot_switch_local_threads_base_dir_message">Cannot switch local threads base directory when there is at least one thread being downloaded. Stop all downloadings (or delete threads) and then try again.</string>
+    <string name="base_local_threads_dir_not_exists">Base local threads directory does not exist (or it was deleted)</string>
+    <string name="album_download_could_not_save_one_or_more_images">Could not save one or more images</string>
 </resources>

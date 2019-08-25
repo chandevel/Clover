@@ -29,6 +29,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -48,6 +49,8 @@ import com.github.adamantcheese.chan.core.image.ImageListener;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
+import com.github.adamantcheese.chan.core.saf.file.RawFile;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -64,6 +67,7 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.inject.Inject;
 
@@ -292,8 +296,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             }
 
             @Override
-            public void onSuccess(File file) {
-                setBigImageFile(file);
+            public void onSuccess(RawFile file) {
+                setBigImageFile(new File(file.getFullPath()));
             }
 
             @Override
@@ -335,9 +339,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             }
 
             @Override
-            public void onSuccess(File file) {
+            public void onSuccess(RawFile file) {
                 if (!hasContent || mode == Mode.GIF) {
-                    setGifFile(file);
+                    setGifFile(new File(file.getFullPath()));
                 }
             }
 
@@ -408,9 +412,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             }
 
             @Override
-            public void onSuccess(File file) {
+            public void onSuccess(RawFile file) {
                 if (!hasContent || mode == Mode.MOVIE) {
-                    setVideoFile(file);
+                    setVideoFile(new File(file.getFullPath()));
                 }
             }
 
@@ -436,7 +440,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(FileProvider.getUriForFile(getAppContext(), getAppContext().getPackageName() + ".fileprovider", file), "video/*");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
             AndroidUtils.openIntent(intent);
 
             onModeLoaded(Mode.MOVIE, null);

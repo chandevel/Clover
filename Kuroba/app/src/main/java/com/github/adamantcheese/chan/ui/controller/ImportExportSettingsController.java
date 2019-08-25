@@ -36,6 +36,7 @@ import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -46,6 +47,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 
 public class ImportExportSettingsController extends SettingsController implements
         ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
+    private static final String TAG = "ImportExportSettingsController";
     public static final String EXPORT_FILE_NAME = getApplicationLabel() + "_exported_settings.json";
 
     @Inject
@@ -175,6 +177,13 @@ public class ImportExportSettingsController extends SettingsController implement
         // We use SAF here by default because settings importing/exporting does not depend on the
         // Kuroba default directory location. There is just no need to use old java files.
         ExternalFile externalFile = fileManager.fromUri(uri);
+        if (externalFile == null) {
+            String message = "onFileChosen() fileManager.fromUri() returned null, uri = " + uri;
+
+            Logger.d(TAG, message);
+            showMessage(message);
+            return;
+        }
 
         navigationController.presentController(loadingViewController);
         presenter.doExport(externalFile, isNewFile);
@@ -185,6 +194,13 @@ public class ImportExportSettingsController extends SettingsController implement
             @Override
             public void onResult(@NotNull Uri uri) {
                 ExternalFile externalFile = fileManager.fromUri(uri);
+                if (externalFile == null) {
+                    String message = "onImportClicked() fileManager.fromUri() returned null, uri = " + uri;
+
+                    Logger.d(TAG, message);
+                    showMessage(message);
+                    return;
+                }
 
                 navigationController.presentController(loadingViewController);
                 presenter.doImport(externalFile);

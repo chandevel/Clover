@@ -109,8 +109,8 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     }
 
     @Override
-    public void onSuccess(File file) {
-        if (copyToDestination(file)) {
+    public void onSuccess(RawFile file) {
+        if (copyToDestination(new File(file.getFullPath()))) {
             onDestination();
         } else {
             deleteDestination();

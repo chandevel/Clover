@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -46,6 +47,7 @@ import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
+import com.github.adamantcheese.chan.core.saf.FileManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -106,13 +108,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     private static final int POST_OPTION_EXTRA = 15;
     private static final int POST_OPTION_REMOVE = 16;
 
-    private ThreadPresenterCallback threadPresenterCallback;
-    private WatchManager watchManager;
-    private DatabaseManager databaseManager;
-    private ChanLoaderFactory chanLoaderFactory;
-    private PageRequestManager pageRequestManager;
-    private ThreadSaveManager threadSaveManager;
+    private final WatchManager watchManager;
+    private final DatabaseManager databaseManager;
+    private final ChanLoaderFactory chanLoaderFactory;
+    private final PageRequestManager pageRequestManager;
+    private final ThreadSaveManager threadSaveManager;
+    private final FileManager fileManager;
 
+    private ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
     private ChanThreadLoader chanLoader;
     private boolean searchOpen;
@@ -128,12 +131,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                            DatabaseManager databaseManager,
                            ChanLoaderFactory chanLoaderFactory,
                            PageRequestManager pageRequestManager,
-                           ThreadSaveManager threadSaveManager) {
+                           ThreadSaveManager threadSaveManager,
+                           FileManager fileManager) {
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
         this.chanLoaderFactory = chanLoaderFactory;
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
+        this.fileManager = fileManager;
     }
 
     public void create(ThreadPresenterCallback threadPresenterCallback) {
@@ -270,6 +275,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             return;
         }
 
+        if (!fileManager.baseLocalThreadsDirectoryExists()) {
+            // Base directory for local threads does not exist or was deleted
+            return;
+        }
+
         watchManager.startSavingThread(loadable);
 
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
@@ -345,6 +355,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             return false;
         }
 
+        if (!fileManager.baseLocalThreadsDirectoryExists()) {
+            Toast.makeText(context, R.string.base_local_threads_dir_not_exists, Toast.LENGTH_LONG).show();
+            return false;
+        }
+
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
             if (PinType.hasDownloadFlag(pin.pinType)) {
@@ -356,19 +371,20 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                     watchManager.updatePin(pin);
                     watchManager.stopSavingThread(pin.loadable);
                 }
-            } else {
-                saveInternal();
             }
-        } else {
-            saveInternal();
+        }
+
+        if (!saveInternal()) {
+            watchManager.stopSavingThread(loadable);
+            return false;
         }
 
         return true;
     }
 
-    private void saveInternal() {
+    private boolean saveInternal() {
         if (chanLoader.getThread() == null) {
-            return;
+            return false;
         }
 
         Post op = chanLoader.getThread().op;
@@ -384,9 +400,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             }
 
             oldPin.pinType = PinType.addDownloadNewPostsFlag(oldPin.pinType);
-
             watchManager.updatePin(oldPin);
-            startSavingThreadInternal(loadable, postsToSave, oldPin);
+
+            if (!startSavingThreadInternal(loadable, postsToSave, oldPin)) {
+                return false;
+            }
+
             EventBus.getDefault().post(new WatchManager.PinMessages.PinChangedMessage(oldPin));
         } else {
             // Save button is clicked and bookmark button is not yet pressed
@@ -403,16 +422,21 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 throw new IllegalStateException("Could not find freshly created pin by loadable " + loadable);
             }
 
-            startSavingThreadInternal(loadable, postsToSave, newPin);
+            if (!startSavingThreadInternal(loadable, postsToSave, newPin)) {
+                return false;
+            }
+
             EventBus.getDefault().post(new WatchManager.PinMessages.PinAddedMessage(newPin));
         }
 
         if (!ChanSettings.watchEnabled.get() || !ChanSettings.watchBackground.get()) {
             threadPresenterCallback.shownBackgroundWatcherIsDisabledToast();
         }
+
+        return true;
     }
 
-    private void startSavingThreadInternal(
+    private boolean startSavingThreadInternal(
             Loadable loadable,
             List<Post> postsToSave,
             Pin newPin) {
@@ -420,7 +444,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             throw new IllegalStateException("newPin does not have DownloadFlag: " + newPin.pinType);
         }
 
-        watchManager.startSavingThread(loadable, postsToSave);
+        return watchManager.startSavingThread(loadable, postsToSave);
     }
 
     public boolean isPinned() {
@@ -605,7 +629,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             return;
         }
 
-        threadSaveManager.enqueueThreadToSave(loadable, posts);
+        if (!threadSaveManager.enqueueThreadToSave(loadable, posts)) {
+            // Probably base directory was removed by the user, can't do anything other than
+            // just stop this download
+            watchManager.stopSavingThread(loadable);
+        }
     }
 
     @Override
