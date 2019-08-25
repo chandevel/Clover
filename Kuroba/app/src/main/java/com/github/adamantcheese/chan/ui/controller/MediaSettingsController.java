@@ -317,8 +317,6 @@ public class MediaSettingsController extends SettingsController {
                 String defaultDir = ChanSettings.getDefaultLocalThreadsLocation();
                 ChanSettings.localThreadLocation.setNoUpdate(defaultDir);
                 localThreadsLocation.setDescription(uri.toString());
-
-                testMethod(uri);
             }
 
             @Override
