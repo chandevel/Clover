@@ -690,7 +690,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                     MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
-            if(ChanSettings.moveInputToBottom.get()) {
+            if (ChanSettings.moveInputToBottom.get()) {
                 bottom += reply.getMeasuredHeight();
                 top += toolbarHeight();
             } else {
@@ -707,6 +707,11 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         }
 
         recyclerView.setPadding(left, top, right, bottom);
+    }
+
+    @Override
+    public void updatePadding() {
+        setRecyclerViewPadding();
     }
 
     public int toolbarHeight() {
@@ -772,8 +777,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         recyclerView.removeItemDecoration(PARTY);
     }
 
-    public void onImageOptionsApplied(Reply _reply) {
-        reply.onImageOptionsApplied(_reply);
+    public void onImageOptionsApplied(Reply modifiedReply) {
+        reply.onImageOptionsApplied(modifiedReply);
     }
 
     public interface ThreadListLayoutPresenterCallback {

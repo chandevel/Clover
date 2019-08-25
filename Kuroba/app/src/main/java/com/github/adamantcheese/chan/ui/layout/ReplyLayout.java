@@ -595,6 +595,7 @@ public class ReplyLayout extends LoadView implements
             spoiler.setVisibility(View.GONE);
             previewHolder.setVisibility(View.GONE);
             previewMessage.setVisibility(View.GONE);
+            callback.updatePadding();
         }
     }
 
@@ -615,6 +616,7 @@ public class ReplyLayout extends LoadView implements
         if (bitmap != null) {
             preview.setImageBitmap(bitmap);
             previewHolder.setVisibility(View.VISIBLE);
+            callback.updatePadding();
 
             showReencodeImageHint();
         } else {
@@ -721,5 +723,7 @@ public class ReplyLayout extends LoadView implements
         ChanThread getThread();
 
         void showImageReencodingWindow(boolean supportsReencode);
+
+        void updatePadding();
     }
 }
