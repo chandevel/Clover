@@ -26,5 +26,5 @@ public interface ImageListener extends Response.ErrorListener {
      *                    image loading in order to, for example, run an animation to fade in network loaded
      *                    images.
      */
-    public void onResponse(ImageContainer response, boolean isImmediate);
+    void onResponse(ImageContainer response, boolean isImmediate);
 }

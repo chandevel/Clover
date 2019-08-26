@@ -34,7 +34,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 
 public class AlbumViewCell extends FrameLayout {
     private PostImage postImage;
-    private Loadable loadable;
     private PostImageThumbnailView thumbnailView;
     private TextView text;
 
@@ -59,7 +58,6 @@ public class AlbumViewCell extends FrameLayout {
 
     public void setPostImage(Loadable loadable, PostImage postImage) {
         this.postImage = postImage;
-        this.loadable = loadable;
 
         int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
         thumbnailView.setPostImage(loadable, postImage, true,

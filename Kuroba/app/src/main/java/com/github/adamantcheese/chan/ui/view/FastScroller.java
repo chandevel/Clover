@@ -573,17 +573,17 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
     @VisibleForTesting
     boolean isPointInsideVerticalThumb(float x, float y) {
         // width divided by 2 for rtl? keeping it the same as upstream, but seems illogical.
-        return (isLayoutRTL() ? x <= mRecyclerViewLeftPadding + mTargetWidth / 2
+        return (isLayoutRTL() ? x <= mRecyclerViewLeftPadding + mTargetWidth / 2.0f
                 : x >= mRecyclerViewLeftPadding + mRecyclerViewWidth - mTargetWidth)
-                && y >= mVerticalThumbCenterY - mVerticalThumbHeight / 2 - mTargetWidth
-                && y <= mVerticalThumbCenterY + mVerticalThumbHeight / 2 + mTargetWidth;
+                && y >= mVerticalThumbCenterY - mVerticalThumbHeight / 2.0f - mTargetWidth
+                && y <= mVerticalThumbCenterY + mVerticalThumbHeight / 2.0f + mTargetWidth;
     }
 
     @VisibleForTesting
     boolean isPointInsideHorizontalThumb(float x, float y) {
         return (y >= mRecyclerViewTopPadding + mRecyclerViewHeight - mTargetWidth)
-                && x >= mHorizontalThumbCenterX - mHorizontalThumbWidth / 2 - mTargetWidth
-                && x <= mHorizontalThumbCenterX + mHorizontalThumbWidth / 2 + mTargetWidth;
+                && x >= mHorizontalThumbCenterX - mHorizontalThumbWidth / 2.0f - mTargetWidth
+                && x <= mHorizontalThumbCenterX + mHorizontalThumbWidth / 2.0f + mTargetWidth;
     }
 
     @VisibleForTesting

@@ -44,7 +44,6 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
     private static final int TITLE_MAX_LENGTH = 100;
 
     private boolean bound;
-    private Loadable loadable;
     private Post post;
     private ChanSettings.PostViewMode postViewMode;
     private boolean showDivider;
@@ -154,7 +153,6 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
             this.post = null;
         }
 
-        this.loadable = loadable;
         this.post = post;
         this.callback = callback;
         this.postViewMode = postViewMode;
