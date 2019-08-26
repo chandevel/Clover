@@ -123,6 +123,10 @@ public class AppearanceSettingsController extends SettingsController {
                     ChanSettings.enableEmoji,
                     context.getString(R.string.setting_enable_emoji), context.getString(R.string.setting_enable_emoji_description))));
 
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.parseYoutubeTitles,
+                    R.string.setting_youtube_title, R.string.setting_youtube_title_description)));
+
             groups.add(post);
         }
 

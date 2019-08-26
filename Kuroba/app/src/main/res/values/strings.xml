@@ -704,4 +704,6 @@ Don't have a 4chan Pass?<br>
 
     <string name="setting_full_screen_rotation">Allow full sensor rotation</string>
     <string name="settings_always_open_drawer">Always open the drawer when a thread is bookmarked</string>
+    <string name="setting_youtube_title">Enable Youtube titles</string>
+    <string name="setting_youtube_title_description">Replaces Youtube links with their titles; disable if you have loading issues</string>
 </resources>
