@@ -409,7 +409,6 @@ public class ThreadLayout extends CoordinatorLayout implements
             AndroidUtils.hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
-        getToolbar().closeSearch();
         callback.showImages(images, index, loadable, thumbnail);
     }
 
