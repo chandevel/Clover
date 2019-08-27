@@ -98,7 +98,7 @@ public class CommentParserHelper {
                     null, future, future);
             Chan.injector().instance(RequestQueue.class).add(request);
 
-            String title = "Unable to retrieve title";
+            String title = linkMatcher.group(0);
             try {
                 JSONObject response = future.get(); // this will block so we get the title immediately
                 title = response.getJSONArray("items").getJSONObject(0).getJSONObject("snippet").getString("title");
