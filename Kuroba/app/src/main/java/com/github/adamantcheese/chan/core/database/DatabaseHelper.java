@@ -51,7 +51,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 38;
+    private static final int DATABASE_VERSION = 39;
 
 
     public Dao<Pin, Integer> pinDao;
@@ -254,6 +254,16 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 Logger.d(TAG, "Removing Chan55");
                 deleteSiteByRegistryID(7);
                 Logger.d(TAG, "Removed Chan55 successfully");
+            } catch (Exception e) {
+                Logger.e(TAG, "Error upgrading to version 38");
+            }
+        }
+
+        if (oldVersion < 39) {
+            try {
+                Logger.d(TAG, "Removing 8Chan");
+                deleteSiteByRegistryID(1);
+                Logger.d(TAG, "Removed 8Chan successfully");
             } catch (Exception e) {
                 Logger.e(TAG, "Error upgrading to version 38");
             }
