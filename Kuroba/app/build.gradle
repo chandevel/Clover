@@ -21,8 +21,8 @@ android {
         //or if there are big application level changes like tearing out/adding major features
         //bump the PATCH (ZZ) version otherwise, for anything small
         int major = 4
-        int minor = 6
-        int patch = 2
+        int minor = 7
+        int patch = 0
 
         /**
          * ------------------------------------------------------------
@@ -138,14 +138,12 @@ dependencies {
 
     implementation 'com.google.android.exoplayer:exoplayer:2.10.4'
 
-    // 4.x.x has issues it seems, so we're sticking with 3.14.2
-    //noinspection GradleDependency
-    implementation 'com.squareup.okhttp3:okhttp:3.14.2'
+    implementation 'com.squareup.okhttp3:okhttp:4.1.0'
 
     implementation 'com.j256.ormlite:ormlite-core:5.1'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
-    implementation 'org.jsoup:jsoup:1.12.1'
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.17'
+    implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.12'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
     implementation 'org.greenrobot:eventbus:3.1.1'
     implementation 'org.nibor.autolink:autolink:0.10.0'
