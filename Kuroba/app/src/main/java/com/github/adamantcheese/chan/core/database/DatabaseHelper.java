@@ -340,7 +340,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         boardDelete.where().eq("site", toDelete.id);
         boardDelete.delete();
 
-        //loadables (pins, history, loadbles)
+        //loadables (saved threads, pins, history, loadables)
         List<Loadable> siteLoadables = loadableDao.queryForEq("site", toDelete.id);
         if (!siteLoadables.isEmpty()) {
             Set<Integer> loadableIdSet = new HashSet<>();

@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.repository;
 
 import android.annotation.SuppressLint;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +32,7 @@ import com.github.adamantcheese.chan.core.model.export.ExportedPin;
 import com.github.adamantcheese.chan.core.model.export.ExportedPostHide;
 import com.github.adamantcheese.chan.core.model.export.ExportedSavedThread;
 import com.github.adamantcheese.chan.core.model.export.ExportedSite;
+import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -62,7 +64,7 @@ public class ImportExportRepository {
 
     // Don't forget to change this when changing any of the Export models.
     // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
-    public static final int CURRENT_EXPORT_SETTINGS_VERSION = 3;
+    public static final int CURRENT_EXPORT_SETTINGS_VERSION = 4;
 
     private DatabaseManager databaseManager;
     private DatabaseHelper databaseHelper;
@@ -350,6 +352,25 @@ public class ImportExportRepository {
                 site.setUserSettings("{}");
             }
         }
+
+        if (version < 4) {
+            //55chan and 8chan were removed for this version
+            ExportedSite chan8 = null;
+            ExportedSite chan55 = null;
+            for (ExportedSite site : appSettings.getExportedSites()) {
+                SiteConfig config = gson.fromJson(site.getConfiguration(), SiteConfig.class);
+                if (config.classId == 1 && chan8 == null) chan8 = site;
+                if (config.classId == 7 && chan55 == null) chan55 = site;
+            }
+
+            if (chan55 != null) {
+                deleteExportedSite(chan55, appSettings);
+            }
+
+            if (chan8 != null) {
+                deleteExportedSite(chan8, appSettings);
+            }
+        }
         return appSettings;
     }
 
@@ -543,5 +564,66 @@ public class ImportExportRepository {
         public DowngradeNotSupportedException(String message) {
             super(message);
         }
+    }
+
+    private void deleteExportedSite(ExportedSite site, ExportedAppSettings appSettings) {
+        //filters
+        List<ExportedFilter> filtersToDelete = new ArrayList<>();
+        for (ExportedFilter filter : appSettings.getExportedFilters()) {
+            if (filter.isAllBoards() || TextUtils.isEmpty(filter.getBoards())) {
+                continue;
+            }
+
+            for (String uniqueId : filter.getBoards().split(",")) {
+                String[] split = uniqueId.split(":");
+                if (split.length == 2 && Integer.parseInt(split[0]) == site.getSiteId()) {
+                    filtersToDelete.add(filter);
+                    break;
+                }
+            }
+        }
+        appSettings.getExportedFilters().removeAll(filtersToDelete);
+
+        //boards
+        List<ExportedBoard> boardsToDelete = new ArrayList<>();
+        for (ExportedBoard board : appSettings.getExportedBoards()) {
+            if (board.getSiteId() == site.getSiteId()) {
+                boardsToDelete.add(board);
+            }
+        }
+        appSettings.getExportedBoards().removeAll(boardsToDelete);
+
+        //loadables for saved threads
+        List<ExportedLoadable> loadables = new ArrayList<>();
+        for (ExportedPin pin : site.getExportedPins()) {
+            if (pin.getExportedLoadable().getSiteId() == site.getSiteId()) {
+                loadables.add(pin.getExportedLoadable());
+            }
+        }
+
+        if (!loadables.isEmpty()) {
+            List<ExportedSavedThread> savedThreadToDelete = new ArrayList<>();
+            for (ExportedLoadable loadable : loadables) {
+                //saved threads
+                for (ExportedSavedThread savedThread : appSettings.getExportedSavedThreads()) {
+                    if (loadable.getLoadableId() == savedThread.getLoadableId()) {
+                        savedThreadToDelete.add(savedThread);
+                    }
+                }
+            }
+            appSettings.getExportedSavedThreads().removeAll(savedThreadToDelete);
+        }
+
+        //post hides
+        List<ExportedPostHide> hidesToDelete = new ArrayList<>();
+        for (ExportedPostHide hide : appSettings.getExportedPostHides()) {
+            if (hide.getSite() == site.getSiteId()) {
+                hidesToDelete.add(hide);
+            }
+        }
+        appSettings.getExportedPostHides().removeAll(hidesToDelete);
+
+        //site (also removes pins and loadables)
+        appSettings.getExportedSites().remove(site);
     }
 }
