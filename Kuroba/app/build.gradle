@@ -142,7 +142,10 @@ dependencies {
 
     implementation 'com.j256.ormlite:ormlite-core:5.1'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
+    //one of these messes up loading VERY hard if you update and I don't know which; probably JSoup
+    //noinspection GradleDependency
     implementation 'org.jsoup:jsoup:1.11.3'
+    //noinspection GradleDependency
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.12'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
     implementation 'org.greenrobot:eventbus:3.1.1'
