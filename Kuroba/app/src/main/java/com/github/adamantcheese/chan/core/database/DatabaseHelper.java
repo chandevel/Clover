@@ -347,6 +347,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             for (Loadable loadable : siteLoadables) {
                 loadableIdSet.add(loadable.id);
             }
+            //saved threads
+            DeleteBuilder<SavedThread, Integer> savedThreadDelete = savedThreadDao.deleteBuilder();
+            savedThreadDelete.where().in("loadable_id", loadableIdSet);
+            savedThreadDelete.delete();
+
             //pins
             DeleteBuilder<Pin, Integer> pinDelete = pinDao.deleteBuilder();
             pinDelete.where().in("loadable_id", loadableIdSet);
