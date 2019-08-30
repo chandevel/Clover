@@ -59,8 +59,7 @@ public class DatabaseHistoryManager {
         return () -> {
             QueryBuilder<History, Integer> historyQuery = helper.historyDao.queryBuilder();
             List<History> date = historyQuery.orderBy("date", false).query();
-            for (int i = 0; i < date.size(); i++) {
-                History history = date.get(i);
+            for (History history : date) {
                 history.loadable = databaseLoadableManager.refreshForeign(history.loadable);
             }
             return date;

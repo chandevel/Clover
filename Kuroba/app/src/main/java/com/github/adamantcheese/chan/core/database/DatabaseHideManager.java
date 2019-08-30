@@ -163,10 +163,7 @@ public class DatabaseHideManager {
 
     private void applyFiltersToReplies(List<Post> posts, Map<Integer, Post> postsFastLookupMap) {
         for (Post post : posts) {
-            if (post.isOP) {
-                // skip the OP
-                continue;
-            }
+            if (post.isOP) continue; //skip the OP
 
             if (post.hasFilterParameters()) {
                 if (post.filterRemove && post.filterStub) {
@@ -334,10 +331,7 @@ public class DatabaseHideManager {
     public Callable<Void> addPostsHide(List<PostHide> hideList) {
         return () -> {
             for (PostHide postHide : hideList) {
-                if (contains(postHide)) {
-                    continue;
-                }
-
+                if (contains(postHide)) continue;
                 helper.postHideDao.createIfNotExists(postHide);
             }
 

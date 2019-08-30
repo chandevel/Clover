@@ -246,9 +246,7 @@ public class ImportExportRepository {
 
             for (ExportedPin exportedPin : exportedSite.getExportedPins()) {
                 ExportedLoadable exportedLoadable = exportedPin.getExportedLoadable();
-                if (exportedLoadable == null) {
-                    continue;
-                }
+                if (exportedLoadable == null) continue;
 
                 Loadable loadable = Loadable.importLoadable(
                         inserted.id,

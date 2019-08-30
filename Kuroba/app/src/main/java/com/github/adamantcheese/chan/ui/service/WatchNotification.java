@@ -171,11 +171,7 @@ public class WatchNotification extends Service {
 
         for (Pin pin : watchManager.getWatchingPins()) {
             WatchManager.PinWatcher watcher = watchManager.getPinWatcher(pin);
-            if (watcher == null) {
-                continue;
-            }
-
-            if (pin.isError || pin.archived) {
+            if (watcher == null || pin.isError || pin.archived) {
                 continue;
             }
 

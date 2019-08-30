@@ -380,9 +380,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         titleParts.add(date);
 
         if (!post.images.isEmpty()) {
-            for (int i = 0; i < post.images.size(); i++) {
-                PostImage image = post.images.get(i);
-
+            for (PostImage image : post.images) {
                 boolean postFileName = ChanSettings.postFilename.get();
                 if (postFileName) {
                     //that special character forces it to be left-to-right, as textDirection didn't want to be obeyed
@@ -862,8 +860,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             httpIconTextColor = theme.detailsColor;
             httpIconTextSize = size;
             httpIcons = new ArrayList<>(icons.size());
-            for (int i = 0; i < icons.size(); i++) {
-                PostHttpIcon icon = icons.get(i);
+            for (PostHttpIcon icon : icons) {
                 int codeIndex = icon.name.indexOf('/'); //this is for country codes
                 PostIconsHttpIcon j = new PostIconsHttpIcon(this, icon.name.substring(0, codeIndex != -1 ? codeIndex : icon.name.length()), icon.url);
                 httpIcons.add(j);
@@ -873,8 +870,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
 
         public void cancelRequests() {
             if (httpIcons != null) {
-                for (int i = 0; i < httpIcons.size(); i++) {
-                    PostIconsHttpIcon httpIcon = httpIcons.get(i);
+                for (PostIconsHttpIcon httpIcon : httpIcons) {
                     httpIcon.cancel();
                 }
             }
@@ -924,8 +920,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 }
 
                 if (get(HTTP_ICONS)) {
-                    for (int i = 0; i < httpIcons.size(); i++) {
-                        PostIconsHttpIcon httpIcon = httpIcons.get(i);
+                    for (PostIconsHttpIcon httpIcon : httpIcons) {
                         if (httpIcon.bitmap != null) {
                             offset += drawBitmap(canvas, httpIcon.bitmap, offset);
 

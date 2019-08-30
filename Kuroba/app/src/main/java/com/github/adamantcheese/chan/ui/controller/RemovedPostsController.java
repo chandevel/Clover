@@ -256,11 +256,8 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
         public List<Integer> getSelectedPostNoList() {
             List<Integer> selectedPosts = new ArrayList<>();
 
-            for (int i = 0; i < removedPostsCopy.size(); ++i) {
-                RemovedPost removedPost = removedPostsCopy.get(i);
-                if (removedPost == null) {
-                    continue;
-                }
+            for (RemovedPost removedPost : removedPostsCopy) {
+                if (removedPost == null) continue;
 
                 if (removedPost.isChecked()) {
                     selectedPosts.add(removedPost.getPostNo());

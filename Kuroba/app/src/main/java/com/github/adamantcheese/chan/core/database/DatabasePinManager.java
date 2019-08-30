@@ -79,8 +79,7 @@ public class DatabasePinManager {
 
     public Callable<List<Pin>> updatePins(final List<Pin> pins) {
         return () -> {
-            for (int i = 0; i < pins.size(); i++) {
-                Pin pin = pins.get(i);
+            for (Pin pin : pins) {
                 helper.pinDao.update(pin);
             }
 

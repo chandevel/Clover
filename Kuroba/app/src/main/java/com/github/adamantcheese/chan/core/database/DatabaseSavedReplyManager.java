@@ -70,8 +70,7 @@ public class DatabaseSavedReplyManager {
         synchronized (savedRepliesByNo) {
             if (savedRepliesByNo.containsKey(postNo)) {
                 List<SavedReply> items = savedRepliesByNo.get(postNo);
-                for (int i = 0; i < items.size(); i++) {
-                    SavedReply item = items.get(i);
+                for (SavedReply item : items) {
                     if (item.board.equals(board.code) && item.siteId == board.site.id()) {
                         return true;
                     }
@@ -92,9 +91,7 @@ public class DatabaseSavedReplyManager {
 
             synchronized (savedRepliesByNo) {
                 savedRepliesByNo.clear();
-                for (int i = 0; i < all.size(); i++) {
-                    SavedReply savedReply = all.get(i);
-
+                for (SavedReply savedReply : all) {
                     savedReply.site = Chan.injector().instance(SiteRepository.class).forId(savedReply.siteId);
 
                     List<SavedReply> list = savedRepliesByNo.get(savedReply.no);
