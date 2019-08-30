@@ -15,6 +15,68 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
+    <plurals name="posts">
+        <item quantity="one">%d post</item>
+        <item quantity="other">%d posts</item>
+    </plurals>
+    <plurals name="reply">
+        <item quantity="one">%d reply</item>
+        <item quantity="other">%d replies</item>
+    </plurals>
+    <plurals name="image">
+        <item quantity="one">%d image</item>
+        <item quantity="other">%d images</item>
+    </plurals>
+    <plurals name="board">
+        <item quantity="one">%d board</item>
+        <item quantity="other">%d boards</item>
+    </plurals>
+    <plurals name="type">
+        <item quantity="one">%d type</item>
+        <item quantity="other">%d types</item>
+    </plurals>
+    <plurals name="bookmark">
+        <item quantity="one">%d bookmark</item>
+        <item quantity="other">%d bookmarks</item>
+    </plurals>
+    <plurals name="filter">
+        <item quantity="one">%d filter</item>
+        <item quantity="other">%d filters</item>
+    </plurals>
+    <plurals name="site">
+        <item quantity="one">%d site</item>
+        <item quantity="other">%d sites</item>
+    </plurals>
+    <plurals name="thread_new_posts">
+        <item quantity="one">%d new post</item>
+        <item quantity="other">%d new posts</item>
+    </plurals>
+    <plurals name="post_hidden">
+        <item quantity="one">%1$d post hidden</item>
+        <item quantity="other">%1$d posts hidden</item>
+    </plurals>
+    <plurals name="post_removed">
+        <item quantity="one">%1$d post removed</item>
+        <item quantity="other">%1$d posts removed</item>
+    </plurals>
+    <plurals name="watch_title">
+        <item quantity="one">Watching one thread</item>
+        <item quantity="other">Watching %d threads</item>
+    </plurals>
+    <plurals name="download_title">
+        <item quantity="one">Downloading one thread</item>
+        <item quantity="other">Downloading %d threads</item>
+    </plurals>
+
+    <plurals name="watch_new_quotes">
+        <item quantity="one">%d new post quoting you</item>
+        <item quantity="other">%d new posts quoting you</item>
+    </plurals>
+    <plurals name="watch_new_quoting">
+        <item quantity="one">%1$d new post, %2$d quoting you</item>
+        <item quantity="other">%1$d new posts, %2$d quoting you</item>
+    </plurals>
+
     <string name="empty"></string>
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
@@ -25,83 +87,49 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="undo">Undo</string>
     <string name="save">Mark as my post</string>
     <string name="unsave">Unmark as my post</string>
+
     <string name="continue_text">Continue</string>
     <string name="create">Create</string>
+
     <string name="do_not">Do not</string>
 
     <string name="permission_app_settings">App settings</string>
     <string name="permission_grant">Grant</string>
 
     <string name="update_later">Later</string>
-    <string name="update_none">%1$s is up-to-date</string>
-    <string name="update_check_failed">Failed to check for updates.</string>
-    <string name="update_install">Install</string>
-    <string name="update_install_downloading">Downloading update</string>
-    <string name="update_install_download_failed">Download failed</string>
-    <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
-    <string name="update_retry_title">Retry update</string>
-    <string name="update_retry">%1$s was not updated yet. Tap \"retry\" to retry the install.</string>
-    <string name="update_retry_button">retry</string>
 
+    <string name="update_none">%1$s is up-to-date</string>
+
+    <string name="update_check_failed">Failed to check for updates.</string>
+
+    <string name="update_install">Install</string>
+
+    <string name="update_install_downloading">Downloading update</string>
+
+    <string name="update_install_download_failed">Download failed</string>
+
+    <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
+
+    <string name="update_retry_title">Retry update</string>
+
+    <string name="update_retry">%1$s was not updated yet. Tap \"retry\" to retry the install.</string>
+
+    <string name="update_retry_button">retry</string>
     <string name="update_storage_permission_required_title">Storage permission required</string>
     <string name="update_storage_permission_required">
 "Permission to access storage is required for installing the update.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
-
     <string name="storage_permission_required_to_export_settings">
 "Permission to access storage is required to export settings.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
-
     <string name="storage_permission_required_to_import_settings">
 "Permission to access storage is required to import settings.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
     <string name="minutes">%d minutes</string>
-
-    <plurals name="posts">
-        <item quantity="one">%d post</item>
-        <item quantity="other">%d posts</item>
-    </plurals>
-
-    <plurals name="reply">
-        <item quantity="one">%d reply</item>
-        <item quantity="other">%d replies</item>
-    </plurals>
-
-    <plurals name="image">
-        <item quantity="one">%d image</item>
-        <item quantity="other">%d images</item>
-    </plurals>
-
-    <plurals name="board">
-        <item quantity="one">%d board</item>
-        <item quantity="other">%d boards</item>
-    </plurals>
-
-    <plurals name="type">
-        <item quantity="one">%d type</item>
-        <item quantity="other">%d types</item>
-    </plurals>
-
-    <plurals name="bookmark">
-        <item quantity="one">%d bookmark</item>
-        <item quantity="other">%d bookmarks</item>
-    </plurals>
-
-    <plurals name="filter">
-        <item quantity="one">%d filter</item>
-        <item quantity="other">%d filters</item>
-    </plurals>
-
-    <plurals name="site">
-        <item quantity="one">%d site</item>
-        <item quantity="other">%d sites</item>
-    </plurals>
-
     <string name="card_stats">%1$dR %2$dI</string>
-
     <string name="action_reload">Reload</string>
     <string name="action_pin">Bookmark</string>
     <string name="action_open_browser">Open in a browser</string>
@@ -112,32 +140,33 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="action_search">Search</string>
     <string name="action_search_image">Image search</string>
     <string name="action_switch_catalog">Catalog mode</string>
+
     <string name="action_switch_board">Board mode</string>
+
     <string name="action_scroll_to_top">Top</string>
     <string name="action_scroll_to_bottom">Bottom</string>
     <string name="action_sort">Sort</string>
     <string name="action_rename_pin">Rename bookmark</string>
     <string name="action_rename">Rename</string>
     <string name="action_reply">Reply</string>
-
     <string name="open_link_not_matched">%1$s cannot open this link; it will open in your browser instead.</string>
 
     <string name="order_bump">Bump order</string>
     <string name="order_reply">Reply count</string>
     <string name="order_image">Image count</string>
+
     <string name="order_newest">Newest</string>
     <string name="order_oldest">Oldest</string>
     <string name="order_modified">Latest reply</string>
+
     <string name="order_activity">Thread activity</string>
 
     <string name="search_hint">Search</string>
     <string name="search_results">Found %1$s for \"%2$s\"</string>
     <string name="search_empty">Search subjects, comments, names and filenames</string>
-
     <string name="open_link_confirmation">Open this link?</string>
     <string name="open_thread_confirmation">Open this thread?</string>
     <string name="open_link_failed">No applications were found to open this link</string>
-
     <string name="action_confirm_exit_title">Tap back again to exit</string>
 
     <string name="thumbnail_load_failed_network">Error</string>
@@ -147,7 +176,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="image_failed_big_image">Failed to show image, deep-zoom loading failed</string>
     <string name="image_not_found">Image not found</string>
     <string name="image_spoiler_filename">Spoiler image</string>
-
     <string name="thread_boards_search_hint">Search</string>
     <string name="thread_load_failed_ssl">HTTPS error</string>
     <string name="thread_load_failed_network">Network error</string>
@@ -161,46 +189,42 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_archived">Archived</string>
     <string name="thread_closed">Closed</string>
     <string name="thread_page_no">Page</string>
-    <plurals name="thread_new_posts">
-        <item quantity="one">%d new post</item>
-        <item quantity="other">%d new posts</item>
-    </plurals>
+
     <string name="thread_new_posts_goto">View</string>
     <string name="thread_empty_select">Please select a thread</string>
     <string name="thread_up_down_hint">Scroll to top/bottom</string>
     <string name="thread_pin_hint">Bookmark this thread</string>
+
     <string name="thread_view_archive">Archive</string>
     <string name="thread_show_archives">Archives</string>
-
     <string name="thread_empty_setup_feature" translatable="false">&#128564;</string>
     <string name="thread_empty_setup_title">Nothing to show</string>
     <string name="thread_empty_setup_body">Add a site to begin browsing</string>
     <string name="thread_empty_setup_hint">Add a site here</string>
-
     <string name="setup_sites_title">Setup sites</string>
+
     <string name="setup_sites_empty">No sites added</string>
     <string name="setup_sites_add_hint">Add a site here</string>
     <string name="setup_sites_add_title">Add site</string>
     <string name="setup_sites_description">Add a site by its URL or name</string>
+
     <string name="setup_sites_site_description">%s added</string>
     <string name="setup_sites_add_boards_hint">Tap to add boards</string>
-
     <string name="setup_site_title">Configure %s</string>
     <string name="setup_site_group_general">General</string>
+
     <string name="setup_site_boards">Setup boards</string>
     <string name="setup_site_boards_description">%s added</string>
-
     <string name="setup_site_group_login">Authentication</string>
     <string name="setup_site_login">Login</string>
     <string name="setup_site_login_description_enabled">Logged in</string>
-    <string name="setup_site_login_description_disabled">Off</string>
 
+    <string name="setup_site_login_description_disabled">Off</string>
     <string name="setup_board_title">Configure boards of %s</string>
     <string name="setup_board_empty">No boards added</string>
     <string name="setup_board_removed">Removed \"%s\"</string>
     <string name="setup_board_added">%s added</string>
     <string name="setup_board_select_all">Select all</string>
-
     <string name="filter_summary_all_boards">All boards</string>
     <string name="filter_enabled">Enabled</string>
     <string name="filter_filter">Filter</string>
@@ -216,6 +240,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="filter_remove">Remove post</string>
     <string name="filter_watch">Watch post</string>
     <string name="filter_invalid_pattern">Invalid pattern</string>
+
     <string name="filter_preview">Test your filter</string>
     <string name="filter_no_matches">Does not match</string>
     <string name="filter_matches">Matches</string>
@@ -240,28 +265,28 @@ If the pattern matches then the post can be hidden, removed, highlighted, or aut
 Note that for country code filtering, troll country codes should be prepended with "t_". In addition, a country code filter automatically implies the case insensitive flag for regex.
 ]]>
     </string>
-
     <string name="filter_tripcode">Tripcode</string>
+
     <string name="filter_name">Name</string>
     <string name="filter_comment">Comment</string>
+
     <string name="filter_id">ID</string>
     <string name="filter_subject">Subject</string>
     <string name="filter_filename">Filename</string>
     <string name="filter_country_code">Country code</string>
-
     <string name="board_select_all">Select all</string>
-    <string name="board_select_none">Select none</string>
 
+    <string name="board_select_none">Select none</string>
     <string name="history_clear">Clear history</string>
     <string name="history_clear_confirm">Clear history?</string>
+
     <string name="history_clear_confirm_button">Clear</string>
     <string name="history_toggle_hint">Enable or disable history</string>
-    <string name="history_empty_info">No history</string>
 
+    <string name="history_empty_info">No history</string>
     <string name="saved_reply_clear">Clear posting history</string>
     <string name="saved_reply_clear_confirm">Clear posting history?</string>
     <string name="saved_reply_clear_confirm_button">Clear</string>
-
     <string name="archive_title">%s archive</string>
     <string name="archive_error">Error loading archive</string>
 
@@ -271,7 +296,6 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="drawer_pins_cleared">%1$s cleared</string>
     <string name="drawer_pins_non_cleared">No bookmarks cleared.</string>
     <string name="drawer_pins_non_cleared_try_all">No bookmarks cleared. Hold to remove all.</string>
-
     <string name="post_highlight_id">Highlight ID</string>
     <string name="post_highlight_tripcode">Highlight tripcode</string>
     <string name="post_filter_tripcode">Filter tripcode</string>
@@ -286,19 +310,11 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="post_report">Report</string>
     <string name="post_hide">Hide</string>
     <string name="post_remove">Remove</string>
-    <plurals name="post_hidden">
-        <item quantity="one">%1$d post hidden</item>
-        <item quantity="other">%1$d posts hidden</item>
-    </plurals>
-    <plurals name="post_removed">
-        <item quantity="one">%1$d post removed</item>
-        <item quantity="other">%1$d posts removed</item>
-    </plurals>
+
     <string name="thread_hidden">Thread hidden</string>
     <string name="thread_removed">Thread removed</string>
     <string name="post_delete">Delete</string>
     <string name="post_more">More…</string>
-
     <string name="reply_name">Name</string>
     <string name="reply_options">Options</string>
     <string name="reply_subject">Subject</string>
@@ -316,39 +332,23 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="reply_error_message_timer_reply">Error posting: You must wait %d seconds before posting a reply.</string>
     <string name="reply_error_message_timer_thread">Error posting: You must wait %d seconds before posting a thread.</string>
     <string name="reply_success">Post successful</string>
+
     <string name="reply_captcha_text">Type the text</string>
     <string name="reply_comment_button_quote" translatable="false">&gt;</string>
     <string name="reply_comment_button_spoiler">[s]</string>
     <string name="reply_comment_button_code">[c]</string>
-
     <string name="delete_confirm">Delete your post?</string>
+
     <string name="delete_wait">Deleting post&#8230;</string>
     <string name="delete_success">Post deleted</string>
+
     <string name="delete_image_only">Only delete the image</string>
+
     <string name="delete_error">Error deleting post</string>
 
     <string name="watch_pause_pins">Stop watching</string>
+
     <string name="watch_idle">No new posts</string>
-
-    <plurals name="watch_title">
-        <item quantity="one">Watching one thread</item>
-        <item quantity="other">Watching %d threads</item>
-    </plurals>
-
-    <plurals name="download_title">
-        <item quantity="one">Downloading one thread</item>
-        <item quantity="other">Downloading %d threads</item>
-    </plurals>
-
-    <plurals name="watch_new_quotes">
-        <item quantity="one">%d new post quoting you</item>
-        <item quantity="other">%d new posts quoting you</item>
-    </plurals>
-
-    <plurals name="watch_new_quoting">
-        <item quantity="one">%1$d new post, %2$d quoting you</item>
-        <item quantity="other">%1$d new posts, %2$d quoting you</item>
-    </plurals>
 
     <string name="history_screen">History</string>
 
@@ -403,48 +403,30 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_thread_page_limit_notify">Last page notifications</string>
     <string name="setting_thread_page_limit_notify_description">Notify when threads hit the last page</string>
     <string name="setting_watch_notify_mode">Notify about</string>
-    <string-array name="setting_watch_notify_modes">
-        <item>All posts</item>
-        <item>Only posts quoting you</item>
-    </string-array>
     <string name="setting_watch_sound">Notification sound</string>
-    <string-array name="setting_watch_sounds">
-        <item>All posts</item>
-        <item>Only posts quoting you</item>
-    </string-array>
     <string name="setting_watch_peek">Heads-up notification on quotes</string>
     <string name="setting_watch_peek_description">Show a heads-up notification when quoted</string>
     <string name="setting_watch_led">Notification light</string>
-    <string-array name="setting_watch_leds">
-        <item>None</item>
-        <item>White</item>
-        <item>Red</item>
-        <item>Yellow</item>
-        <item>Green</item>
-        <item>Cyan</item>
-        <item>Blue</item>
-        <item>Purple</item>
-    </string-array>
-
-    <!-- Main About group -->
     <string name="settings_group_about">About</string>
     <string name="settings_update_check">Check for updates</string>
     <string name="settings_about_license">Released under the GNU GPLv3 license</string>
+
+    <!-- Main About group -->
     <string name="settings_about_license_description">Tap to see license</string>
     <string name="settings_about_licenses">Open Source Licenses</string>
     <string name="settings_about_licenses_description">Legal information about licenses</string>
     <string name="settings_developer">Developer settings</string>
-
-
-    <!-- Appearance -->
     <string name="settings_screen_appearance">Appearance</string>
     <string name="settings_group_appearance">Appearance</string>
     <string name="setting_theme">Theme</string>
 
-    <!-- Appearance layout group -->
+
+    <!-- Appearance -->
     <string name="settings_group_layout">Layout</string>
     <string name="setting_layout_mode">Layout mode</string>
     <string name="setting_layout_mode_auto">Auto</string>
+
+    <!-- Appearance layout group -->
     <string name="setting_layout_mode_phone">Phone layout</string>
     <string name="setting_layout_mode_slide">Slide mode</string>
     <string name="setting_layout_mode_split">Split mode</string>
@@ -455,45 +437,45 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_enable_reply_fab">Enable the reply button</string>
     <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>
     <string name="setting_enable_reply_count">Enable the reply counter</string>
-
-    <!-- Appearance post group -->
     <string name="settings_group_post">Post</string>
     <string name="setting_font_size">Font size</string>
     <string name="setting_font_size_default">(default)</string>
+
+    <!-- Appearance post group -->
     <string name="setting_font_alt">Use alternative font</string>
     <string name="setting_font_alt_description">Use the theme\'s alt font for posts</string>
     <string name="setting_post_full_date">Show the full date on posts</string>
     <string name="setting_post_file_info">Show file info on posts</string>
     <string name="setting_post_filename">Show filename on posts</string>
-
-    <!-- Appearance gallery group -->
     <string name="settings_group_images">Images</string>
     <string name="setting_images_pad_thumbs">Pad thumbnails</string>
     <string name="setting_images_pad_thumbs_description">Add extra space around thumbnails to move them away from the edges of the cell</string>
+
+    <!-- Appearance gallery group -->
     <string name="setting_images_high_res">High resolution cells</string>
     <string name="setting_images_high_res_description">Make the album view and card catalog images higher resolution by pre-rescaling full size images</string>
     <string name="setting_images_immersive_mode_title">Use immersive mode for image gallery</string>
     <string name="setting_images_immersive_mode_description">This will make image gallery view be fullscreen with statusbar/navbar hidden</string>
-
-    <!-- Behavior -->
     <string name="settings_screen_behavior">Behavior</string>
-
-    <!-- Behavior general group -->
     <string name="settings_group_general">General</string>
     <string name="setting_auto_refresh_thread">Auto refresh threads</string>
+
+    <!-- Behavior -->
     <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
+
+    <!-- Behavior general group -->
     <string name="setting_clear_thread_hides">Clear all thread hides</string>
     <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
-
-    <!-- Behavior reply group -->
     <string name="settings_group_reply">Reply</string>
     <string name="setting_post_pin">Bookmark thread on post</string>
     <string name="setting_post_default_name">Default post name</string>
 
-    <!-- Behavior post group -->
+    <!-- Behavior reply group -->
     <string name="setting_text_only">Text only mode</string>
     <string name="setting_text_only_description">Hide images when in board and thread view</string>
     <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
+
+    <!-- Behavior post group -->
     <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear tapped</string>
     <string name="setting_anonymize">Make everyone Anonymous</string>
     <string name="setting_anonymize_ids">Hide IDs</string>
@@ -503,24 +485,24 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_tap_no_rely">Tap the post number to reply</string>
     <string name="setting_open_link_confirmation">Ask before opening links</string>
     <string name="setting_open_link_browser">Always open links in external browser</string>
-
-
-    <!-- Behavior proxy group -->
     <string name="settings_group_proxy">HTTP Proxy</string>
     <string name="setting_proxy_enabled">Enable proxy</string>
     <string name="setting_proxy_address">Proxy server address</string>
+
+
+    <!-- Behavior proxy group -->
     <string name="setting_proxy_port">Proxy server port</string>
+    <string name="settings_screen_media">Media</string>
+    <string name="settings_group_media">Media</string>
+    <string name="setting_save_board_folder">Save images in board folders</string>
 
 
     <!-- Media -->
-    <string name="settings_screen_media">Media</string>
+    <string name="setting_save_board_folder_description">Create a folder for each board when saving</string>
 
     <!-- Media general group -->
-    <string name="settings_group_media">Media</string>
-
-    <string name="setting_save_board_folder">Save images in board folders</string>
-    <string name="setting_save_board_folder_description">Create a folder for each board when saving</string>
     <string name="setting_save_thread_folder">Save images in thread folders</string>
+
     <string name="setting_save_thread_folder_description">Create a folder for each thread when saving</string>
     <string name="setting_save_server_filename">Save server filename</string>
     <string name="setting_save_server_filename_description">
@@ -537,55 +519,55 @@ If disabled, save the image with the filename the uploader assigned."
     <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
     <string name="settings_allow_media_scanner_scan_local_threads_title">Allow the Android media scanner to scan images from locally saved threads</string>
     <string name="settings_allow_media_scanner_scan_local_threads_description">If enabled, images that were downloaded along with threads will appear in other applications, like galleries, messengers etc; You may have to restart your phone or wait for the changes to kick in</string>
-
-    <!-- Media loading group -->
     <string name="settings_group_media_loading">Media loading</string>
     <string name="setting_image_auto_load">Automatically load images</string>
-
     <string name="setting_image_auto_load_all">Always</string>
+
+    <!-- Media loading group -->
     <string name="setting_image_auto_load_wifi">Wi-Fi only</string>
     <string name="setting_image_auto_load_none">Never</string>
 
     <string name="setting_video_auto_load">Automatically load videos</string>
-
     <string name="setting_video_auto_loop">Enable automatic video-looping</string>
     <string name="setting_video_auto_loop_description">Automatically loop video content</string>
 
     <string name="setting_auto_load_thread_images">Enable media prefetching</string>
+
     <string name="setting_auto_load_thread_images_description">Loads all images or videos in a thread immediately, subject to the settings above; Increases the filecache size to 1GB</string>
-
-
-    <!-- Save location settings -->
     <string name="save_location_screen">Save location</string>
+
     <string name="save_location_storage_permission_required_title">Storage permission required</string>
     <string name="save_location_storage_permission_required">
 "Permission to access storage is required for browsing files.
 
 Re-enable this permission in the app settings if you permanently disabled it."
     </string>
+
+
+    <!-- Save location settings -->
     <string name="setting_folder_pick_ok">Choose</string>
     <string name="setting_folder_navigate_up">Up</string>
     <string name="save_new_folder">Add a new folder</string>
     <string name="new_folder_hint">Folder name</string>
-
-
-    <!-- Theme settings -->
     <string name="setting_theme_explanation">
 "Swipe to change the theme.
 Tap the toolbar menu to change its color."
     </string>
     <string name="setting_theme_accent">Tap here to change the FAB color</string>
-
-    <!-- Developer settings -->
     <string name="settings_open_logs">View logs</string>
+
+
+    <!-- Theme settings -->
     <string name="settings_logs_screen">Logs</string>
     <string name="settings_logs_copy">Copy</string>
+
+    <!-- Developer settings -->
     <string name="settings_logs_copied_to_clipboard">Copied to clipboard</string>
-
-
     <string name="settings_screen_pass">4chan pass</string>
     <string name="setting_pass_token">Token</string>
     <string name="setting_pass_pin">PIN</string>
+
+
     <string name="setting_pass_authenticated">Device authorized!</string>
     <string name="setting_pass_login">Submit</string>
     <string name="setting_pass_logout">Logout</string>
@@ -600,10 +582,10 @@ Don't have a 4chan Pass?<br>
 <a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>
 ]]>
     "</string>
-
     <string name="settings_screen_theme">Themes</string>
     <string name="apply_options">Apply</string>
     <string name="image_quality">Image quality: %1$d</string>
+
     <string name="scale_reduce">Reduce: %1$dx%2$d to %3$dx%4$d (%5$d%%)</string>
     <string name="could_not_decode_image_bitmap">Could not decode image bitmap</string>
     <string name="could_not_apply_image_options">Could not apply new image options. Error message is %1$s</string>
@@ -619,10 +601,10 @@ Don't have a 4chan Pass?<br>
     <string name="reencode_image_image_quality_100_default_text">Image quality: 100</string>
     <string name="reencode_image_reduce_default_text">Reduce: 0%</string>
     <string name="click_image_for_extra_options">Click image for extra options</string>
-
     <string name="settings_import_export">Import/Export</string>
     <string name="settings_import_export_description">Import/Export settings/pins etc.</string>
     <string name="import_or_export_settings">Import/Export settings</string>
+
     <string name="export_settings">Export settings</string>
     <string name="export_settings_to_a_file">Export settings to a file</string>
     <string name="import_settings">Import settings</string>
@@ -634,10 +616,10 @@ Don't have a 4chan Pass?<br>
     <string name="could_not_create_dir_for_export_error_text">Could not create directory for export file %1$s; you probably won\'t be able to export settings</string>
     <string name="default_directory_may_not_exist_message">The default directory may not exist yet. Do you want to check whether the directory exists and create it automatically?</string>
     <string name="default_directory_may_not_exist_title">Default directory may not exist</string>
-
     <string name="apply_to_replies">Apply to replies</string>
     <string name="only_on_op">Only on OP</string>
     <string name="apply_to_saved">Apply to own posts</string>
+
     <string name="thread_layout_hide_whole_chain">Hide whole chain</string>
     <string name="thread_layout_remove_whole_chain">Remove whole chain</string>
     <string name="thread_layout_hide_post">Hide post</string>
@@ -649,26 +631,26 @@ Don't have a 4chan Pass?<br>
     <string name="restored_n_posts">Restored %1$d posts</string>
     <string name="no_removed_posts_for_current_thread">No removed posts found for the current thread</string>
     <string name="select_all">Select all</string>
-
-    <!-- Captcha settings -->
     <string name="settings_captcha_group">Captcha</string>
     <string name="settings_use_new_captcha_window">Use new captcha window for no-js captcha</string>
     <string name="settings_use_real_google_cookies_description">When enabled, a GET request to google.com will be executed to get a cookie, which will be used for captcha authentication. The hardcoded ones sometimes will make you re-enter the captcha dozens of times. Those cookies will be updated automatically (every three months). You may update them manually if you want.</string>
 
+    <!-- Captcha settings -->
     <string name="captcha_layout_v2_verify_button_text">Verify</string>
     <string name="captcha_layout_v2_reload">Reload</string>
     <string name="captcha_layout_v2_use_old_captcha">Use old\ncaptcha</string>
+
     <string name="captcha_layout_v2_you_have_to_select_at_least_one_image">You have to select at least one image (if you see a captcha that does not have any matching images then it is probably a bug; fill an issue and use the old captcha)</string>
     <string name="captcha_layout_v2_verification_already_in_progress">Verification is already in progress</string>
     <string name="captcha_layout_v2_captcha_request_is_already_in_progress">Captcha request is already in progress</string>
     <string name="captcha_layout_v2_you_are_requesting_captcha_too_fast">You are requesting captcha too fast</string>
     <string name="captcha_layout_v2_refresh_cookies">Refresh cookies</string>
-
     <string name="file_url_copied_to_clipboard">File url copied to clipboard</string>
-
     <string name="delete_site_dialog_title">Delete site?</string>
     <string name="delete_site_dialog_message">Are you sure you want to delete "%1$s"? This action will delete the site and everything that is associated with it. The app will be restarted. Do you wish to proceed?</string>
+
     <string name="could_not_remove_site_error_message">"Could not remove site %1$s, error message: %2$s</string>
+
     <string name="reply_comment_empty">Comment body is empty.</string>
     <string name="image_reencode_format_error">Something is wrong with this file.</string>
     <string name="setting_bookmark_short_info">Short bookmark info</string>
@@ -677,16 +659,16 @@ Don't have a 4chan Pass?<br>
     <string name="image_url_get_attempt">Getting image from clipboard URL</string>
     <string name="image_url_get_failed">Failed to get image from clipboard</string>
     <string name="image_url_get_success">Got image from clipboard</string>
-
     <string name="setting_shift_post">Shift post format</string>
     <string name="setting_shift_post_description">Shift the comment of long posts to start below the thumbnail</string>
     <string name="setting_remove_watched">Remove watched threads from the catalog</string>
+
     <string name="setting_enable_emoji">Enable emoji</string>
     <string name="setting_enable_emoji_description">Enable emoji posting and parsing</string>
-
     <string name="experimental_settings_group">Experimental settings</string>
     <string name="view_thread_controller_thread_downloading_requires_write_permission">Thread downloading requires the WRITE_EXTERNAL_STORAGE permission</string>
     <string name="warning">Warning</string>
+
     <string name="drawer_controller_at_least_one_pin_has_download_flag">At least one pin has the \"Download\" flag, which makes this delete operation irreversible because this operation will delete all of the saved thread\'s files from the disk. Do you really want to delete all pins?</string>
     <string name="drawer_controller_do_not_delete">Do not delete</string>
     <string name="drawer_controller_delete_all_pins">Delete all pins</string>
@@ -701,9 +683,25 @@ Don't have a 4chan Pass?<br>
     <string name="view_local_version">View local version</string>
     <string name="view_view_version">View live version</string>
     <string name="local_thread_text">Local thread</string>
-
     <string name="setting_full_screen_rotation">Allow full sensor rotation</string>
     <string name="settings_always_open_drawer">Always open the drawer when a thread is bookmarked</string>
-    <string name="setting_youtube_title">Enable Youtube titles</string>
-    <string name="setting_youtube_title_description">Replaces Youtube links with their titles; disable if you have loading issues</string>
+    <string-array name="setting_watch_notify_modes">
+        <item>All posts</item>
+        <item>Only posts quoting you</item>
+    </string-array>
+
+    <string-array name="setting_watch_sounds">
+        <item>All posts</item>
+        <item>Only posts quoting you</item>
+    </string-array>
+    <string-array name="setting_watch_leds">
+        <item>None</item>
+        <item>White</item>
+        <item>Red</item>
+        <item>Yellow</item>
+        <item>Green</item>
+        <item>Cyan</item>
+        <item>Blue</item>
+        <item>Purple</item>
+    </string-array>
 </resources>

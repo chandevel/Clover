@@ -55,10 +55,6 @@ public class CommentParserHelper {
             .linkTypes(EnumSet.of(LinkType.URL))
             .build();
 
-    private static Pattern youtubeLinkPattern = Pattern.compile("\\b(?:https?://)?(?:www\\.)?youtu\\.?be(?:\\.com)?.*?(?:watch|embed)?(?:.*?v=|v/|/)([\\w\\-]+)&?(?:\\?t=\\d+)?(?:#[\\w|=]*)?\\b");
-    private static final String API_KEY = "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE";
-    private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
-
     /**
      * Detect links in the given spannable, and create PostLinkables with Type.LINK for the
      * links found onto the spannable.
@@ -80,53 +76,5 @@ public class CommentParserHelper {
             spannable.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
             post.addLinkable(pl);
         }
-    }
-
-    public static SpannableString replaceYoutubeLinks(Theme theme, Post.Builder post, String text) {
-        Map<String, String> titleURLMap = new HashMap<>(); //this map is inverted i.e. the title maps to the URL rather than the other way around
-        StringBuffer newString = new StringBuffer();
-        //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
-        Matcher linkMatcher = youtubeLinkPattern.matcher(text);
-        while (linkMatcher.find()) {
-            String videoID = linkMatcher.group(1);
-            RequestFuture<JSONObject> future = RequestFuture.newFuture();
-            //this must be a GET request, so the jsonRequest object is null per documentation
-            JsonObjectRequest request = new JsonObjectRequest(
-                    "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" +
-                            videoID +
-                            "&fields=items%28id%2Csnippet%28title%29%29&key=" + API_KEY,
-                    null, future, future);
-            Chan.injector().instance(RequestQueue.class).add(request);
-
-            String title = linkMatcher.group(0);
-            try {
-                JSONObject response = future.get(); // this will block so we get the title immediately
-                title = response.getJSONArray("items").getJSONObject(0).getJSONObject("snippet").getString("title");
-            } catch (Exception ignored) {
-            }
-            //prepend two spaces for the youtube icon later
-            titleURLMap.put("  " + title, linkMatcher.group(0));
-            linkMatcher.appendReplacement(newString, "  " + title);
-        }
-        linkMatcher.appendTail(newString);
-
-        //we have a new string here with all the links replaced by their text equivalents, we need to add the linkables now using the map
-        //we reference newString internally because SpannableString instances don't have an indexOf method, but the two are otherwise the same
-        SpannableString finalizedString = new SpannableString(newString);
-        for (String key : titleURLMap.keySet()) {
-            //set the linkable to be the entire length, including the icon
-            PostLinkable pl = new PostLinkable(theme, key, titleURLMap.get(key), PostLinkable.Type.LINK);
-            finalizedString.setSpan(pl, newString.indexOf(key), newString.indexOf(key) + key.length(), (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
-            post.addLinkable(pl);
-
-            //set the youtube icon span for the linkable
-            ImageSpan ytIcon = new ImageSpan(getAppContext(), youtubeIcon);
-            int height = Integer.parseInt(ChanSettings.fontSize.get());
-            int width = (int) (sp(height) / (youtubeIcon.getHeight() / (float) youtubeIcon.getWidth()));
-            ytIcon.getDrawable().setBounds(0, 0, width, sp(height));
-            finalizedString.setSpan(ytIcon, newString.indexOf(key), newString.indexOf(key) + 1, (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
-        }
-
-        return finalizedString;
     }
 }

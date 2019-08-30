@@ -189,8 +189,6 @@ public class ChanSettings {
 
     public static final BooleanSetting moveInputToBottom;
 
-    public static final BooleanSetting parseYoutubeTitles;
-
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
@@ -298,8 +296,6 @@ public class ChanSettings {
         alwaysOpenDrawer = new BooleanSetting(p, "drawer_auto_open_always", false);
 
         moveInputToBottom = new BooleanSetting(p, "move_input_bottom", false);
-
-        parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", true);
     }
 
     public static ThemeColor getThemeAndColor() {
