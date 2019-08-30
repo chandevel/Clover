@@ -91,8 +91,8 @@ public class ToolbarMenuItem {
     }
 
     public void detach() {
-        if (this.view == null) {
-            return;
+        if (view == null) {
+            throw new IllegalStateException("Not attached");
         }
 
         removeFromParentView(this.view);
@@ -105,6 +105,10 @@ public class ToolbarMenuItem {
 
     public void addSubItem(ToolbarMenuSubItem subItem) {
         subItems.add(subItem);
+    }
+
+    public void removeSubItem(ToolbarMenuSubItem subItem) {
+        subItems.remove(subItem);
     }
 
     public void setVisible(boolean visible) {

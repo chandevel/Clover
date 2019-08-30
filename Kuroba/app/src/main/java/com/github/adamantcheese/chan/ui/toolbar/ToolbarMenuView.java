@@ -61,7 +61,6 @@ public class ToolbarMenuView extends LinearLayout {
 
     private void setupMenuViews() {
         removeAllViews();
-        detach();
 
         for (ToolbarMenuItem item : menu.items) {
             ImageView imageView = new ImageView(getContext());

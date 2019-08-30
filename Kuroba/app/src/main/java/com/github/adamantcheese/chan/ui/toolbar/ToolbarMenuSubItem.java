@@ -51,6 +51,13 @@ public class ToolbarMenuSubItem {
         this.clicked = clicked;
     }
 
+    public ToolbarMenuSubItem(int id, int text, boolean enabled, ClickCallback clicked) {
+        this.id = id;
+        this.text = getString(text);
+        this.enabled = enabled;
+        this.clicked = clicked;
+    }
+
     public void performClick() {
         if (clicked != null) {
             clicked.clicked(this);
