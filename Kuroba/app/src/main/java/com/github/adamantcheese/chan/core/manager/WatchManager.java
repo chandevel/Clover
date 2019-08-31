@@ -279,11 +279,9 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     public void createOrUpdateSavedThread(SavedThread savedThread) {
-        for (int i = 0; i < savedThreads.size(); i++) {
-            SavedThread st = savedThreads.get(i);
-
+        for (SavedThread st : savedThreads) {
             if (st.equals(savedThread)) {
-                savedThreads.get(i).update(savedThread);
+                st.update(savedThread);
                 return;
             }
         }
@@ -358,9 +356,9 @@ public class WatchManager implements WakeManager.Wakeable {
     private void deleteSavedThread(int loadableId) {
         SavedThread savedThread = null;
 
-        for (int i = 0; i < savedThreads.size(); i++) {
-            if (savedThreads.get(i).loadableId == loadableId) {
-                savedThread = savedThreads.get(i);
+        for (SavedThread thread : savedThreads) {
+            if (thread.loadableId == loadableId) {
+                savedThread = thread;
                 break;
             }
         }
@@ -866,9 +864,7 @@ public class WatchManager implements WakeManager.Wakeable {
         List<Pin> pinsWithDownloadFlag = new ArrayList<>();
 
         for (Pin pin : pins) {
-            if (pin.isError || pin.archived) {
-                continue;
-            }
+            if (pin.isError || pin.archived) continue;
 
             if ((PinType.hasDownloadFlag(pin.pinType))) {
                 pinsWithDownloadFlag.add(pin);

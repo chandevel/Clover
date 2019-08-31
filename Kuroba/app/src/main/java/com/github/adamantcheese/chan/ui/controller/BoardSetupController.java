@@ -265,14 +265,13 @@ public class BoardSetupController extends Controller implements View.OnClickList
     private class SavedBoardCell extends RecyclerView.ViewHolder {
         private TextView text;
         private TextView description;
-        private ImageView reorder;
 
         public SavedBoardCell(View itemView) {
             super(itemView);
 
             text = itemView.findViewById(R.id.text);
             description = itemView.findViewById(R.id.description);
-            reorder = itemView.findViewById(R.id.reorder);
+            ImageView reorder = itemView.findViewById(R.id.reorder);
 
             Drawable drawable = context.getDrawable(R.drawable.ic_reorder_black_24dp);
             assert drawable != null;

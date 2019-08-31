@@ -206,7 +206,7 @@ public class ThreadSaveManager {
             activeDownloads.put(loadable, parameters);
 
             if (!additionalThreadParameter.containsKey(loadable)) {
-                additionalThreadParameter.put(loadable, new AdditionalThreadParameters(loadable));
+                additionalThreadParameter.put(loadable, new AdditionalThreadParameters());
             }
         }
 
@@ -1084,11 +1084,7 @@ public class ThreadSaveManager {
      * posts to download left after filtering.
      */
     private boolean isFatalException(Throwable error) {
-        if (error instanceof NoNewPostsToSaveException) {
-            return false;
-        }
-
-        return true;
+        return !(error instanceof NoNewPostsToSaveException);
     }
 
     /**
@@ -1157,11 +1153,9 @@ public class ThreadSaveManager {
      * OKHTTP_TIMEOUT_SECONDS seconds)
      */
     public static class AdditionalThreadParameters {
-        private Loadable loadable;
         private Set<String> deletedImages;
 
-        public AdditionalThreadParameters(Loadable loadable) {
-            this.loadable = loadable;
+        public AdditionalThreadParameters() {
             this.deletedImages = new HashSet<>();
         }
 

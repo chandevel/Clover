@@ -17,9 +17,11 @@
 package com.github.adamantcheese.chan.core.repository
 
 import android.annotation.SuppressLint
+import android.text.TextUtils
 import com.github.adamantcheese.chan.core.database.DatabaseHelper
 import com.github.adamantcheese.chan.core.database.DatabaseManager
 import com.github.adamantcheese.chan.core.model.export.*
+import com.github.adamantcheese.chan.core.model.json.site.SiteConfig
 import com.github.adamantcheese.chan.core.model.orm.*
 import com.github.adamantcheese.chan.core.saf.file.ExternalFile
 import com.github.adamantcheese.chan.core.saf.file.FileDescriptorMode
@@ -301,6 +303,33 @@ constructor(
                 site.userSettings = "{}"
             }
         }
+
+        if (version < 4) {
+            //55chan and 8chan were removed for this version
+            var chan8: ExportedSite? = null
+            var chan55: ExportedSite? = null
+
+            for (site in appSettings.exportedSites) {
+                val config = gson.fromJson(site.configuration, SiteConfig::class.java)
+
+                if (config.classId == 1 && chan8 == null) {
+                    chan8 = site
+                }
+
+                if (config.classId == 7 && chan55 == null) {
+                    chan55 = site
+                }
+            }
+
+            if (chan55 != null) {
+                deleteExportedSite(chan55, appSettings)
+            }
+
+            if (chan8 != null) {
+                deleteExportedSite(chan8, appSettings)
+            }
+        }
+
         return appSettings
     }
 
@@ -487,6 +516,77 @@ constructor(
         return map
     }
 
+    private fun deleteExportedSite(site: ExportedSite, appSettings: ExportedAppSettings) {
+        //filters
+        val filtersToDelete = ArrayList<ExportedFilter>()
+        for (filter in appSettings.exportedFilters) {
+            if (filter.isAllBoards || TextUtils.isEmpty(filter.boards)) {
+                continue
+            }
+
+            val boards = checkNotNull(filter.boards)
+            val splitBoards = boards.split(",".toRegex()).dropLastWhile { it.isEmpty() }
+
+            for (uniqueId in splitBoards) {
+                val split = uniqueId
+                        .split(":".toRegex())
+                        .dropLastWhile { it.isEmpty() }
+
+                if (split.size == 2 && Integer.parseInt(split[0]) == site.siteId) {
+                    filtersToDelete.add(filter)
+                    break
+                }
+            }
+        }
+        appSettings.exportedFilters.removeAll(filtersToDelete)
+
+        //boards
+        val boardsToDelete = ArrayList<ExportedBoard>()
+        for (board in appSettings.exportedBoards) {
+            if (board.siteId == site.siteId) {
+                boardsToDelete.add(board)
+            }
+        }
+        appSettings.exportedBoards.removeAll(boardsToDelete)
+
+        //loadables for saved threads
+        val loadables = ArrayList<ExportedLoadable>()
+        for (pin in site.exportedPins) {
+            val loadable = pin.exportedLoadable
+                    ?: continue
+
+            if (loadable.siteId == site.siteId) {
+                loadables.add(loadable)
+            }
+        }
+
+        if (loadables.isNotEmpty()) {
+            val savedThreadToDelete = ArrayList<ExportedSavedThread>()
+            for (loadable in loadables) {
+                //saved threads
+                for (savedThread in appSettings.exportedSavedThreads) {
+                    if (loadable.loadableId == savedThread.getLoadableId().toLong()) {
+                        savedThreadToDelete.add(savedThread)
+                    }
+                }
+            }
+            appSettings.exportedSavedThreads.removeAll(savedThreadToDelete)
+        }
+
+        //post hides
+        val hidesToDelete = ArrayList<ExportedPostHide>()
+        for (hide in appSettings.exportedPostHides) {
+            if (hide.site == site.siteId) {
+                hidesToDelete.add(hide)
+            }
+        }
+
+        appSettings.exportedPostHides.removeAll(hidesToDelete)
+
+        //site (also removes pins and loadables)
+        appSettings.exportedSites.remove(site)
+    }
+
     enum class ImportExport {
         Import,
         Export
@@ -505,6 +605,6 @@ constructor(
 
         // Don't forget to change this when changing any of the Export models.
         // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
-        const val CURRENT_EXPORT_SETTINGS_VERSION = 3
+        const val CURRENT_EXPORT_SETTINGS_VERSION = 4
     }
 }

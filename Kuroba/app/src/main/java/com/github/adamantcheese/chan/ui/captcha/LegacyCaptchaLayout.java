@@ -52,7 +52,6 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
     private AuthenticationLayoutCallback callback;
 
     private String challenge;
-    private boolean isAutoReply = true;
 
     public LegacyCaptchaLayout(Context context) {
         super(context);
@@ -143,7 +142,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
 
     private void submitCaptcha() {
         AndroidUtils.hideKeyboard(this);
-        callback.onAuthenticationComplete(this, challenge, input.getText().toString(), isAutoReply);
+        callback.onAuthenticationComplete(this, challenge, input.getText().toString(), true);
     }
 
     private void onCaptchaLoaded(final String imageUrl, final String challenge) {

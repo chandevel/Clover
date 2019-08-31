@@ -57,8 +57,7 @@ public class DvachPostParser extends DefaultPostParser {
                     int g = Integer.parseInt(matcher.group(2));
                     int b = Integer.parseInt(matcher.group(3));
 
-                    int hexColor = Color.rgb(r, g, b);
-                    builder.idColor = hexColor;
+                    builder.idColor = Color.rgb(r, g, b);
                 }
             }
         } catch (Exception e) {

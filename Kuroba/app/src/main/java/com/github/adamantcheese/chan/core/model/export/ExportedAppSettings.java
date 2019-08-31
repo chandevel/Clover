@@ -30,6 +30,8 @@ import java.util.List;
 public class ExportedAppSettings {
     @SerializedName("exported_sites")
     private List<ExportedSite> exportedSites;
+    //there aren't any exported pins here because the pins are stored inside each exported site
+    //there also aren't any exported loadables because they are inside the exported pins
     @SerializedName("exported_boards")
     private List<ExportedBoard> exportedBoards;
     @SerializedName("exported_filters")

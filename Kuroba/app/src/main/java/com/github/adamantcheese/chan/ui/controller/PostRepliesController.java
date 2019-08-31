@@ -49,7 +49,6 @@ public class PostRepliesController extends BaseFloatingController {
     private LoadView loadView;
     private ListView listView;
     private PostPopupHelper.RepliesData displayingData;
-    private Loadable loadable;
 
     public PostRepliesController(Context context, PostPopupHelper postPopupHelper, ThreadPresenter presenter) {
         super(context);
@@ -110,7 +109,6 @@ public class PostRepliesController extends BaseFloatingController {
 
     private void displayData(Loadable loadable, final PostPopupHelper.RepliesData data) {
         displayingData = data;
-        this.loadable = loadable;
 
         View dataView;
         if (ChanSettings.repliesButtonsBottom.get()) {

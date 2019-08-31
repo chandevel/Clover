@@ -173,8 +173,7 @@ public class SelectLayout<T> extends LinearLayout implements SearchLayout.Search
             displayList.clear();
             if (!TextUtils.isEmpty(searchQuery)) {
                 String query = searchQuery.toLowerCase(Locale.ENGLISH);
-                for (int i = 0; i < sourceList.size(); i++) {
-                    SelectItem item = sourceList.get(i);
+                for (SelectItem item : sourceList) {
                     if (item.searchTerm.toLowerCase(Locale.ENGLISH).contains(query)) {
                         displayList.add(item);
                     }

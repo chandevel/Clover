@@ -37,7 +37,6 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
     private AuthenticationLayoutCallback callback;
     private SiteAuthentication authentication;
     private boolean resettingFromFoundText = false;
-    private boolean isAutoReply = true;
 
     /**
      * TODO: add support for the Captcha queueing {@link CaptchaHolder}
@@ -95,7 +94,7 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
                 }, 1000);
             }
         } else if (success) {
-            callback.onAuthenticationComplete(this, "", "", isAutoReply);
+            callback.onAuthenticationComplete(this, "", "", true);
         }
     }
 

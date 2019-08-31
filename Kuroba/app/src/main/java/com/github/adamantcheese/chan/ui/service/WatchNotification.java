@@ -38,7 +38,6 @@ import androidx.core.app.NotificationCompat;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -172,11 +171,7 @@ public class WatchNotification extends Service {
 
         for (Pin pin : watchManager.getWatchingPins()) {
             WatchManager.PinWatcher watcher = watchManager.getPinWatcher(pin);
-            if (watcher == null) {
-                continue;
-            }
-
-            if (pin.isError || pin.archived) {
+            if (watcher == null || pin.isError || pin.archived) {
                 continue;
             }
 

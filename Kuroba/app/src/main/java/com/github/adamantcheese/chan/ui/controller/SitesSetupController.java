@@ -275,7 +275,6 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         private SiteIcon siteIcon;
         private ImageView removeSite;
         private ImageView settings;
-        private ImageView reorder;
 
         private Site site;
 
@@ -289,7 +288,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
             description = itemView.findViewById(R.id.description);
             removeSite = itemView.findViewById(R.id.remove_site);
             settings = itemView.findViewById(R.id.settings);
-            reorder = itemView.findViewById(R.id.reorder);
+            ImageView reorder = itemView.findViewById(R.id.reorder);
 
             // Setup views
             itemView.setOnClickListener(this);

@@ -85,9 +85,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
         filters = new ArrayList<>();
         List<Filter> enabledFilters = filterEngine.getEnabledFilters();
-        for (int i = 0; i < enabledFilters.size(); i++) {
-            Filter filter = enabledFilters.get(i);
-
+        for (Filter filter : enabledFilters) {
             if (filterEngine.matchesBoard(filter, loadable.board)) {
                 // copy the filter because it will get used on other threads
                 filters.add(filter.clone());
@@ -150,12 +148,12 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         // thread or externally.
         Set<Integer> internalIds = new HashSet<>();
         // All ids of cached posts.
-        for (int i = 0; i < cached.size(); i++) {
-            internalIds.add(cached.get(i).no);
+        for (Post post : cached) {
+            internalIds.add(post.no);
         }
         // And ids for posts to parse, from the builder.
-        for (int i = 0; i < toParse.size(); i++) {
-            internalIds.add(toParse.get(i).id);
+        for (Post.Builder builder : toParse) {
+            internalIds.add(builder.id);
         }
         // Do not modify internalIds after this point.
         internalIds = Collections.unmodifiableSet(internalIds);
@@ -172,8 +170,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
         if (!tasks.isEmpty()) {
             List<Future<Post>> futures = EXECUTOR.invokeAll(tasks);
-            for (int i = 0; i < futures.size(); i++) {
-                Future<Post> future = futures.get(i);
+            for (Future<Post> future : futures) {
                 Post parsedPost = future.get();
                 if (parsedPost != null) {
                     total.add(parsedPost);
@@ -194,28 +191,24 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
             cachedPosts.addAll(cached);
 
             Map<Integer, Post> cachedPostsByNo = new HashMap<>();
-            for (int i = 0; i < cachedPosts.size(); i++) {
-                Post post = cachedPosts.get(i);
+            for (Post post : cachedPosts) {
                 cachedPostsByNo.put(post.no, post);
             }
 
             Map<Integer, Post> serverPostsByNo = new HashMap<>();
-            for (int i = 0; i < allPost.size(); i++) {
-                Post post = allPost.get(i);
+            for (Post post : allPost) {
                 serverPostsByNo.put(post.no, post);
             }
 
             // If there's a cached post but it's not in the list received from the server, mark it as deleted
             if (loadable.isThreadMode()) {
-                for (int i = 0; i < cachedPosts.size(); i++) {
-                    Post cachedPost = cachedPosts.get(i);
+                for (Post cachedPost : cachedPosts) {
                     cachedPost.deleted.set(!serverPostsByNo.containsKey(cachedPost.no));
                 }
             }
 
             // If there's a post in the list from the server, that's not in the cached list, add it.
-            for (int i = 0; i < allPost.size(); i++) {
-                Post serverPost = allPost.get(i);
+            for (Post serverPost : allPost) {
                 if (!cachedPostsByNo.containsKey(serverPost.no)) {
                     newPosts.add(serverPost);
                 }
@@ -230,17 +223,14 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
         if (loadable.isThreadMode()) {
             Map<Integer, Post> postsByNo = new HashMap<>();
-            for (int i = 0; i < allPosts.size(); i++) {
-                Post post = allPosts.get(i);
+            for (Post post : allPosts) {
                 postsByNo.put(post.no, post);
             }
 
             // Maps post no's to a list of no's that that post received replies from
             Map<Integer, List<Integer>> replies = new HashMap<>();
 
-            for (int i = 0; i < allPosts.size(); i++) {
-                Post sourcePost = allPosts.get(i);
-
+            for (Post sourcePost : allPosts) {
                 for (int replyTo : sourcePost.repliesTo) {
                     List<Integer> value = replies.get(replyTo);
                     if (value == null) {

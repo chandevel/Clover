@@ -51,7 +51,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 38;
+    private static final int DATABASE_VERSION = 39;
 
 
     public Dao<Pin, Integer> pinDao;
@@ -258,6 +258,16 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 Logger.e(TAG, "Error upgrading to version 38");
             }
         }
+
+        if (oldVersion < 39) {
+            try {
+                Logger.d(TAG, "Removing 8Chan");
+                deleteSiteByRegistryID(1);
+                Logger.d(TAG, "Removed 8Chan successfully");
+            } catch (Exception e) {
+                Logger.e(TAG, "Error upgrading to version 38");
+            }
+        }
     }
 
     @Override
@@ -330,13 +340,18 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         boardDelete.where().eq("site", toDelete.id);
         boardDelete.delete();
 
-        //loadables (pins, history, loadbles)
+        //loadables (saved threads, pins, history, loadables)
         List<Loadable> siteLoadables = loadableDao.queryForEq("site", toDelete.id);
         if (!siteLoadables.isEmpty()) {
             Set<Integer> loadableIdSet = new HashSet<>();
             for (Loadable loadable : siteLoadables) {
                 loadableIdSet.add(loadable.id);
             }
+            //saved threads
+            DeleteBuilder<SavedThread, Integer> savedThreadDelete = savedThreadDao.deleteBuilder();
+            savedThreadDelete.where().in("loadable_id", loadableIdSet);
+            savedThreadDelete.delete();
+
             //pins
             DeleteBuilder<Pin, Integer> pinDelete = pinDao.deleteBuilder();
             pinDelete.where().in("loadable_id", loadableIdSet);

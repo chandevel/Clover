@@ -63,10 +63,12 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
@@ -165,18 +167,15 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
                 .withSubItem(R.string.action_scroll_to_bottom, this::downClicked);
 
-        // Only show these items if thread downloading is enabled
-        // and the thread is being downloaded/finished downloading
+        // These items are dynamic; create them here by default if settings permit
         if (ChanSettings.incrementalThreadDownloadingEnabled.get() &&
                 getThreadDownloadState() != DownloadThreadState.Default) {
-            // FIXME: figure out how to do this normally by rebuilding the menu instead of using "enabled" flag
             menuOverflowBuilder.withSubItem(
                     VIEW_LOCAL_COPY_SUBMENU_ID,
                     R.string.view_local_version,
                     false,
                     this::handleClickViewLocalVersion);
 
-            // FIXME: figure out how to do this normally by rebuilding the menu instead of using "enabled" flag
             menuOverflowBuilder.withSubItem(
                     VIEW_LIVE_COPY_SUBMENU_ID,
                     R.string.view_view_version,
@@ -506,17 +505,21 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         showHints();
     }
 
-    /**
-     * Shows two menu items: view local thread and view live thread
-     * FIXME: Current implementation is kinda retarded because I couldn't do it normally (with just
-     * one menu option instead of the two, it just doesn't work for some unknown reason).
-     * Gotta figure out how to make it properly some time in the future.
-     */
     private void populateLocalOrLiveVersionMenu() {
-        if (!ChanSettings.incrementalThreadDownloadingEnabled.get())
-            return; //Don't toggle anything if the setting isn't on, because these IDs dont exist
-        //rebuild the menu before adjusting anything
-        buildMenu();
+        //setup the extra items if they're needed, or remove as necessary
+        if (ChanSettings.incrementalThreadDownloadingEnabled.get() &&
+                getThreadDownloadState() != DownloadThreadState.Default) {
+            ToolbarMenuItem overflowMenu = navigation.findItem(OVERFLOW_ID);
+            if(navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID) == null && navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID) == null) {
+                overflowMenu.addSubItem(new ToolbarMenuSubItem(VIEW_LOCAL_COPY_SUBMENU_ID, R.string.view_local_version, true, this::handleClickViewLocalVersion));
+                overflowMenu.addSubItem(new ToolbarMenuSubItem(VIEW_LIVE_COPY_SUBMENU_ID, R.string.view_view_version, true, this::handleClickViewLiveVersion));
+            }
+        } else {
+            ToolbarMenuItem overflowMenu = navigation.findItem(OVERFLOW_ID);
+            overflowMenu.removeSubItem(navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID));
+            overflowMenu.removeSubItem(navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID));
+        }
+
         try {
             Pin pin = watchManager.findPinByLoadableId(loadable.id);
             if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
@@ -550,9 +553,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = true;
             }
         } catch (NullPointerException ignored) {
-            // Ignore NPE because the menu ID doesn't exist
+            // Ignore NPE because the menu ID doesn't exist for the subitem
         }
-        getToolbar().resetMenu();
     }
 
     public void loadThread(Loadable loadable) {
@@ -563,7 +565,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         int counter = ChanSettings.threadOpenCounter.increase();
         if (counter == 2) {
             view.postDelayed(() -> {
-                View view = navigation.findItem(ToolbarMenu.OVERFLOW_ID).getView();
+                View view = navigation.findItem(OVERFLOW_ID).getView();
                 if (view != null) {
                     HintPopup.show(context, view, context.getString(R.string.thread_up_down_hint), -dp(1), 0);
                 }

@@ -199,12 +199,8 @@ public class DefaultPostParser implements PostParser {
     private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
-            //we need to replace youtube links with their titles before linkifying anything else
-            //because the string itself changes as a result of the titles shrinking/expanding the string length
-            //this would mess up the rest of the spans if we did it afterwards, so we do it as the first step
-            SpannableString spannable = CommentParserHelper.replaceYoutubeLinks(theme, post, text);
-            CommentParserHelper.detectLinks(theme, post, spannable.toString(), spannable);
-
+            SpannableString spannable = new SpannableString(text);
+            CommentParserHelper.detectLinks(theme, post, text, spannable);
             return spannable;
         } else if (node instanceof Element) {
             String nodeName = node.nodeName();

@@ -179,6 +179,7 @@ public class FiltersController extends Controller implements
     }
 
     private void setFilters(List<Filter> filters, boolean enabled) {
+        //noinspection SynchronizeOnNonFinalField
         synchronized (context) {
             for (Filter filter : filters) {
                 filter.enabled = enabled;
@@ -376,14 +377,13 @@ public class FiltersController extends Controller implements
     private class FilterCell extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView text;
         private TextView subtext;
-        private ImageView reorder;
 
         public FilterCell(View itemView) {
             super(itemView);
 
             text = itemView.findViewById(R.id.text);
             subtext = itemView.findViewById(R.id.subtext);
-            reorder = itemView.findViewById(R.id.reorder);
+            ImageView reorder = itemView.findViewById(R.id.reorder);
 
             Drawable drawable = DrawableCompat.wrap(context.getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
             DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));

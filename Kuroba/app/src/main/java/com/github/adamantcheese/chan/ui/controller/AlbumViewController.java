@@ -174,7 +174,7 @@ public class AlbumViewController extends Controller implements
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.cell_album_view, parent, false);
 
-            return new AlbumItemCellHolder(view, loadable);
+            return new AlbumItemCellHolder(view);
         }
 
         @Override
@@ -197,15 +197,12 @@ public class AlbumViewController extends Controller implements
     private class AlbumItemCellHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private AlbumViewCell cell;
         private PostImageThumbnailView thumbnailView;
-        private Loadable loadable;
 
-        public AlbumItemCellHolder(View itemView, Loadable loadable) {
+        public AlbumItemCellHolder(View itemView) {
             super(itemView);
             cell = (AlbumViewCell) itemView;
             thumbnailView = itemView.findViewById(R.id.thumbnail_view);
             thumbnailView.setOnClickListener(this);
-
-            this.loadable = loadable;
         }
 
         @Override

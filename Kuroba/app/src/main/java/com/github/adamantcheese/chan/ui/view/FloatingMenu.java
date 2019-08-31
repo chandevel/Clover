@@ -35,6 +35,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -48,7 +49,7 @@ public class FloatingMenu {
     private int anchorOffsetY;
     private int popupHeight = -1;
     private boolean manageItems = true;
-    private List<FloatingMenuItem> items;
+    private List<FloatingMenuItem> items = new ArrayList<>();
     private FloatingMenuItem selectedItem;
     private int selectedPosition;
     private ListAdapter adapter;
@@ -64,7 +65,9 @@ public class FloatingMenu {
         anchorOffsetX = -dp(5);
         anchorOffsetY = dp(5);
         anchorGravity = Gravity.RIGHT;
-        this.items = items;
+        for(FloatingMenuItem item : items) {
+            if(item.isEnabled()) this.items.add(item);
+        }
     }
 
     public FloatingMenu(Context context) {
@@ -87,7 +90,10 @@ public class FloatingMenu {
 
     public void setItems(List<FloatingMenuItem> items) {
         if (!manageItems) throw new IllegalArgumentException();
-        this.items = items;
+        this.items.clear();
+        for(FloatingMenuItem item : items) {
+            if(item.isEnabled()) this.items.add(item);
+        }
     }
 
     public void setSelectedItem(FloatingMenuItem item) {
@@ -266,7 +272,6 @@ public class FloatingMenu {
 
             TextView textView = (TextView) convertView;
             textView.setText(item.getText());
-            textView.setEnabled(item.isEnabled());
             textView.setTextColor(getAttrColor(getContext(), item.isEnabled() ? R.attr.text_color_primary : R.attr.text_color_hint));
             textView.setTypeface(ThemeHelper.getTheme().mainFont);
 

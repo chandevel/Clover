@@ -68,8 +68,7 @@ public class DatabaseLoadableManager {
 
             if (!toFlush.isEmpty()) {
                 Logger.d(TAG, "Flushing " + toFlush.size() + " loadable(s)");
-                for (int i = 0; i < toFlush.size(); i++) {
-                    Loadable loadable = toFlush.get(i);
+                for (Loadable loadable : toFlush) {
                     helper.loadableDao.update(loadable);
                 }
             }
