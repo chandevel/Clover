@@ -78,7 +78,7 @@ public class FileCache implements FileCacheDownloader.Callback {
 
             AbstractFile baseDirFile = fileManager.newLocalThreadFile();
             if (baseDirFile == null) {
-                Logger.e(TAG, "fileManager.newLocalThreadFile() returned null");
+                Logger.e(TAG, "downloadFile() fileManager.newLocalThreadFile() returned null");
                 return null;
             }
 

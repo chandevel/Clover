@@ -42,6 +42,16 @@ public class DatabaseSavedThreadManager {
         };
     }
 
+    public Callable<Boolean> hasSavedThreads() {
+        return () -> {
+            SavedThread savedThread = helper.savedThreadDao
+                    .queryBuilder()
+                    .queryForFirst();
+
+            return savedThread != null;
+        };
+    }
+
     public Callable<SavedThread> startSavingThread(final SavedThread savedThread) {
         return () -> {
             SavedThread prevSavedThread = getSavedThreadByLoadableId(savedThread.loadableId).call();

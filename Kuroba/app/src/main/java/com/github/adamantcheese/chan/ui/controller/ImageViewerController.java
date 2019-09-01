@@ -78,6 +78,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -308,9 +309,15 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 task.setSubFolder(subFolderName);
             }
 
-            if (!imageSaver.startDownloadTask(context, task)) {
-                Toast.makeText(context, "Couldn't start download task", Toast.LENGTH_LONG).show();
-            }
+            imageSaver.startDownloadTask(context, task, message -> {
+                String errorMessage = String.format(
+                        Locale.US,
+                        "%s, error message = %s",
+                        "Couldn't start download task",
+                        message);
+
+                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
+            });
         }
     }
 

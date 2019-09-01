@@ -23,7 +23,7 @@ constructor(
         val threadSubDir = ThreadSaveManager.getThreadSubDir(loadable)
         val baseDir = fileManager.newLocalThreadFile()
         if (baseDir == null) {
-            Logger.e(TAG, "fileManager.newLocalThreadFile() returned null")
+            Logger.e(TAG, "loadSavedThread() fileManager.newLocalThreadFile() returned null")
             return null
         }
 

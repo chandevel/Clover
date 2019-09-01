@@ -704,7 +704,7 @@ Don't have a 4chan Pass?<br>
     <string name="import_or_export_dialog_negative_button_text">Create new</string>
     <string name="media_settings_local_threads_location_title">Local threads location</string>
     <string name="view_thread_controller_local_threads_location_is_not_set"><![CDATA[Local threads location is not set. You can do this in Media Settings -> Local threads location]]></string>
-    <string name="media_settings_cannot_switch_local_threads_base_dir_message">Cannot switch local threads base directory when there is at least one thread being downloaded. Stop all downloadings (or delete threads) and then try again.</string>
     <string name="base_local_threads_dir_not_exists">Base local threads directory does not exist (or it was deleted). You need to manually set it again in Media settings.</string>
     <string name="album_download_could_not_save_one_or_more_images">Could not save one or more images</string>
+    <string name="could_not_create_base_local_threads_dir">Could not create base local threads directory</string>
 </resources>

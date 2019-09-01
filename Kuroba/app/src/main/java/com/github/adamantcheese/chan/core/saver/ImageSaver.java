@@ -62,10 +62,32 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         EventBus.getDefault().register(this);
     }
 
-    public boolean startDownloadTask(Context context, final ImageSaveTask task) {
+    public void startDownloadTask(
+            Context context,
+            final ImageSaveTask task,
+            DownloadTaskCallbacks callbacks) {
+        if (hasPermission(context)) {
+            startDownloadTaskInternal(task, callbacks);
+            return;
+        }
+
+        requestPermission(context, granted -> {
+            if (!granted) {
+                callbacks.onError("Cannot start saving images without WRITE permission");
+                return;
+            }
+
+            startDownloadTaskInternal(task, callbacks);
+        });
+    }
+
+    private void startDownloadTaskInternal(
+            ImageSaveTask task,
+            DownloadTaskCallbacks callbacks) {
         AbstractFile saveLocation = getSaveLocation(task);
         if (saveLocation == null) {
-            return false;
+            callbacks.onError("Couldn't figure out save location");
+            return;
         }
 
         PostImage postImage = task.getPostImage();
@@ -91,23 +113,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
         task.setDestination(saveFile);
 
-        if (hasPermission(context)) {
-            startTask(task);
-            updateNotification();
-        } else {
-            // This does not request the permission when another request is pending.
-            // This is ok and will drop the task.
-            requestPermission(context, granted -> {
-                if (granted) {
-                    startTask(task);
-                    updateNotification();
-                } else {
-                    showToast(null, false, false);
-                }
-            });
-        }
-
-        return true;
+        // At this point we already have disk permissions
+        startTask(task);
+        updateNotification();
     }
 
     public boolean startBundledTask(Context context, final String subFolder, final List<ImageSaveTask> tasks) {
@@ -139,23 +147,28 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     @Nullable
     public AbstractFile getSaveLocation(ImageSaveTask task) {
+        AbstractFile baseSaveDir = fileManager.newSaveLocationFile();
+        if (baseSaveDir == null) {
+            Logger.e(TAG, "getSaveLocation() fileManager.newSaveLocationFile() returned null");
+            return null;
+        }
+
+        if (!baseSaveDir.exists() && !baseSaveDir.create()) {
+            Logger.e(TAG, "Couldn't create base image save directory");
+            return null;
+        }
+
         if (!fileManager.baseSaveLocalDirectoryExists()) {
             Logger.e(TAG, "Base save local directory does not exist");
             return null;
         }
 
-        AbstractFile destination = fileManager.newSaveLocationFile();
-        if (destination == null) {
-            Logger.e(TAG, "getSaveLocation() fileManager.newSaveLocationFile() returned null");
-            return null;
-        }
-
         String subFolder = task.getSubFolder();
         if (subFolder != null) {
-            destination.appendSubDirSegment(subFolder);
+            baseSaveDir.appendSubDirSegment(subFolder);
         }
 
-        return destination;
+        return baseSaveDir;
     }
 
     @Override
@@ -192,7 +205,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
             AbstractFile saveLocation = getSaveLocation(task);
             if (saveLocation == null) {
-                Logger.e(TAG, "getSaveLocation() returned null");
+                Logger.e(TAG, "startBundledTaskInternal() getSaveLocation() returned null");
                 allSuccess = false;
                 continue;
             }
@@ -287,5 +300,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     private void requestPermission(Context context, RuntimePermissionsHelper.Callback callback) {
         ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
+    }
+
+    public interface DownloadTaskCallbacks {
+        void onError(String message);
     }
 }

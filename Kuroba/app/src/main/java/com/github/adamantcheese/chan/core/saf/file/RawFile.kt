@@ -21,14 +21,25 @@ class RawFile(
 
     override fun createNew(): RawFile? {
         check(root !is Root.FileRoot) {
-            // TODO: do we need this check?
             "root is already FileRoot, cannot append anything anymore"
         }
 
         if (segments.isEmpty()) {
-            // Root is probably already existing and there is no point in creating it again so just
-            // return null here
-            return null
+            if (!root.holder.exists()) {
+                if (root.holder.isFile) {
+                    if (!root.holder.createNewFile()) {
+                        Logger.e(TAG, "Couldn't create file, path = ${root.holder.absolutePath}")
+                        return null
+                    }
+                } else {
+                    if (!root.holder.mkdirs()) {
+                        Logger.e(TAG, "Couldn't create directory, path = ${root.holder.absolutePath}")
+                        return null
+                    }
+                }
+            }
+
+            return this
         }
 
         var newFile = root.holder
@@ -65,15 +76,6 @@ class RawFile(
     override fun isDirectory(): Boolean = clone().toFile().isDirectory
     override fun canRead(): Boolean = clone().toFile().canRead()
     override fun canWrite(): Boolean = clone().toFile().canWrite()
-
-    override fun  getParent(): RawFile? {
-        if (segments.isNotEmpty()) {
-            removeLastSegment()
-            return this
-        }
-
-        return RawFile(Root.DirRoot(root.holder.parentFile))
-    }
 
     override fun getFullPath(): String {
         return File(root.holder.absolutePath)

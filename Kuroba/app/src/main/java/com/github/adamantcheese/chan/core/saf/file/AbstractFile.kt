@@ -153,9 +153,6 @@ abstract class AbstractFile(
     @ImmutableMethod
     abstract fun canWrite(): Boolean
 
-    @MutableMethod
-    abstract fun getParent(): AbstractFile?
-
     @ImmutableMethod
     abstract fun getFullPath(): String
 
@@ -188,41 +185,21 @@ abstract class AbstractFile(
     @ImmutableMethod
     abstract fun lastModified(): Long
 
-    /**
-     * Removes the last appended segment if there are any
-     * e.g: /test/123/test2 -> /test/123 -> /test
-     * */
-    @MutableMethod
-    fun removeLastSegment(): Boolean {
-        if (segments.isEmpty()) {
-            return false
-        }
-
-        segments.removeAt(segments.lastIndex)
-        return true
-    }
-
-
     protected fun appendSubDirSegmentInner(name: String): AbstractFile {
         check(!isFilenameAppended()) { "Cannot append anything after file name has been appended" }
         require(!name.isBlank()) { "Bad name: $name" }
-        require(name.extension() == null) {
-            "Directory name must not contain extension, extension = ${name.extension()}"
-        }
 
-        val nameList = if (name.contains(File.separatorChar)) {
-            name.split(File.separatorChar)
+        val nameList = if (name.contains(File.separatorChar) || name.contains(ENCODED_SEPARATOR)) {
+            name
+                    // First of all split by the "/" symbol
+                    .split(File.separatorChar)
+                    // Then try to split every part again by this time by the "%2F" symbol
+                    .flatMap { names -> names.split(ENCODED_SEPARATOR) }
         } else {
             listOf(name)
         }
 
         nameList
-                .onEach { splitName ->
-                    require(splitName.extension() == null) {
-                        "appendSubDirSegment does not allow segments with extensions! " +
-                                "bad name = $splitName"
-                    }
-                }
                 .map { splitName -> Segment(splitName) }
                 .forEach { segment -> segments += segment }
 
@@ -233,8 +210,12 @@ abstract class AbstractFile(
         check(!isFilenameAppended()) { "Cannot append anything after file name has been appended" }
         require(!name.isBlank()) { "Bad name: $name" }
 
-        val nameList = if (name.contains(File.separatorChar)) {
-            val split = name.split(File.separatorChar)
+        val nameList = if (name.contains(File.separatorChar) || name.contains(ENCODED_SEPARATOR)) {
+            val split = name
+                    // First of all split by the "/" symbol
+                    .split(File.separatorChar)
+                    // Then try to split every part again by this time by the "%2F" symbol
+                    .flatMap { names -> names.split(ENCODED_SEPARATOR) }
             check(split.size >= 2) { "Should have at least two entries, name = $name" }
 
             split
@@ -258,6 +239,10 @@ abstract class AbstractFile(
     }
 
     private fun isFilenameAppended(): Boolean = segments.lastOrNull()?.isFileName ?: false
+
+    override fun toString(): String {
+        return getFullPath()
+    }
 
     /**
      * We can have the root to be a directory or a file.
@@ -288,8 +273,6 @@ abstract class AbstractFile(
          * /test/123/test2
          * or
          * /test/123/test2/5/6/7/8/112233
-         *
-         * Cannot have an extension!
          * */
         class DirRoot<T>(holder: T) : Root<T>(holder)
 
@@ -312,4 +295,8 @@ abstract class AbstractFile(
             val name: String,
             val isFileName: Boolean = false
     )
+
+    companion object {
+        const val ENCODED_SEPARATOR = "%2F"
+    }
 }

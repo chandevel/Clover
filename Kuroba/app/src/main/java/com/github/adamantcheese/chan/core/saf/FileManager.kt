@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.github.adamantcheese.chan.core.saf.callback.DirectoryChooserCallback
 import com.github.adamantcheese.chan.core.saf.callback.FileChooserCallback
@@ -19,6 +20,7 @@ import java.io.File
 import java.io.IOException
 import java.lang.IllegalStateException
 import java.lang.RuntimeException
+import java.util.*
 
 class FileManager(
         private val appContext: Context
@@ -206,6 +208,124 @@ class FileManager(
             } ?: false
         } catch (e: IOException) {
             Logger.e(TAG, "IOException while copying one file into another", e)
+            false
+        }
+    }
+
+    // TODO: maybe it is a better idea to not copy old local threads when changing base directory
+    //  at all?
+    /**
+     * VERY SLOW!!! DO NOT EVEN THINK RUNNING THIS ON THE MAIN THREAD!!!
+     * */
+    fun copyDirectoryWithContent(sourceDir: AbstractFile, destDir: AbstractFile): Boolean {
+        if (!sourceDir.exists()) {
+            Logger.e(TAG, "Source directory does not exists, path = ${sourceDir.getFullPath()}")
+            return false
+        }
+
+        if (sourceDir.listFiles().isEmpty()) {
+            Logger.d(TAG, "Source directory is empty, nothing to copy")
+            return true
+        }
+
+        if (!destDir.exists()) {
+            Logger.e(TAG, "Destination directory does not exists, path = ${sourceDir.getFullPath()}")
+            return false
+        }
+
+        if (!sourceDir.isDirectory()) {
+            Logger.e(TAG, "Source directory is not a directory, path = ${sourceDir.getFullPath()}")
+            return false
+        }
+
+        if (!destDir.isDirectory()) {
+            Logger.e(TAG, "Destination directory is not a directory, path = ${destDir.getFullPath()}")
+            return false
+        }
+
+        val queue = LinkedList<AbstractFile>()
+        val files = mutableListOf<AbstractFile>()
+        queue.offer(sourceDir)
+
+        // Collect all of the inner files in the source directory
+        while (queue.isNotEmpty()) {
+            val file = queue.poll()
+            if (file.isDirectory()) {
+                file.listFiles().forEach { queue.offer(it) }
+            } else {
+                files.add(file)
+            }
+        }
+
+        val prefix = sourceDir.getFullPath()
+
+        for (file in files) {
+            // Holy shit this hack is so fucking disgusting and may break literally any minute.
+            // If this shit breaks then blame google for providing such a retarded fucking API.
+
+            // Basically we have a directory, let's say /123 and we want to copy all
+            // of it's files into /456. So we collect every file in /123 then we iterate every
+            // collected file, remove base directory prefix (/123 in this case) and recreate this
+            // file with the same directory structure in another base directory (/456 in this case).
+            // Let's was we have the following files:
+            //
+            // /123/1.txt
+            // /123/111/2.txt
+            // /123/222/3.txt
+            //
+            // After calling this method we will have these files copied into /456:
+            //
+            // /456/1.txt
+            // /456/111/2.txt
+            // /456/222/3.txt
+            //
+            val fileInNewDirectory = newLocalThreadFile()
+                    ?.appendFileNameSegment(file.getFullPath().removePrefix(prefix))
+                    ?.createNew()
+
+            if (fileInNewDirectory == null) {
+                Logger.e(TAG, "Couldn't create inner file with name ${file.getName()}")
+                return false
+            }
+
+            if (!copyFileContents(file, fileInNewDirectory)) {
+                Logger.e(TAG, "Couldn't copy one file into another")
+                return false
+            }
+        }
+
+        return true
+    }
+
+    fun forgetSAFTree(directory: AbstractFile): Boolean {
+        if (directory !is ExternalFile) {
+            // Only ExternalFile is being used with SAF
+            return true
+        }
+
+        val uri = Uri.parse(directory.getFullPath())
+
+        if (!directory.exists()) {
+            Logger.e(TAG, "Couldn't revoke permissions from directory because it does not exist, path = $uri")
+            return false
+        }
+
+        if (!directory.isDirectory()) {
+            Logger.e(TAG, "Couldn't revoke permissions from directory it is not a directory, path = $uri")
+            return false
+        }
+
+        return try {
+            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+
+            appContext.contentResolver.releasePersistableUriPermission(uri, flags)
+            appContext.revokeUriPermission(uri, flags)
+
+            Logger.d(TAG, "Revoke old path permissions success on $uri")
+            true
+        } catch (err: Exception) {
+            Logger.e(TAG, "Error revoking old path permissions on $uri", err)
             false
         }
     }

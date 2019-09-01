@@ -31,11 +31,12 @@ internal class FileChooser(
     internal fun openChooseDirectoryDialog(directoryChooserCallback: DirectoryChooserCallback) {
         startActivityCallbacks?.let { callbacks ->
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+            intent.putExtra("android.content.extra.SHOW_ADVANCED", true)
+
             intent.addFlags(
                     Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
                             Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
-                            Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             )
 
             val nextRequestCode = ++requestCode
@@ -45,7 +46,8 @@ internal class FileChooser(
                 callbacks.myStartActivityForResult(intent, nextRequestCode)
             } catch (e: Exception) {
                 callbacksMap.remove(nextRequestCode)
-                directoryChooserCallback.onCancel(e.message ?: "openChooseDirectoryDialog() Unknown error")
+                directoryChooserCallback.onCancel(e.message
+                        ?: "openChooseDirectoryDialog() Unknown error")
             }
         }
     }
@@ -80,7 +82,8 @@ internal class FileChooser(
         startActivityCallbacks?.let { callbacks ->
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
             intent.addFlags(
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION or
                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             )
 

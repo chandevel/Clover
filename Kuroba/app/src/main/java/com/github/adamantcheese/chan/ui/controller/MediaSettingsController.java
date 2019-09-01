@@ -21,9 +21,10 @@ import android.content.Context;
 import android.net.Uri;
 import android.widget.Toast;
 
+import androidx.documentfile.provider.DocumentFile;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
-import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.saf.FileManager;
 import com.github.adamantcheese.chan.core.saf.callback.DirectoryChooserCallback;
 import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
@@ -41,7 +42,9 @@ import com.github.adamantcheese.chan.utils.Logger;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -49,6 +52,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -56,6 +61,7 @@ import kotlin.Unit;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
 public class MediaSettingsController extends SettingsController {
     private static final String TAG = "MediaSettingsController";
@@ -67,6 +73,8 @@ public class MediaSettingsController extends SettingsController {
     private LinkSettingView localThreadsLocation;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
+
+    private Executor fileCopyingExecutor = Executors.newSingleThreadExecutor();
 
     @Inject
     FileManager fileManager;
@@ -250,15 +258,6 @@ public class MediaSettingsController extends SettingsController {
     }
 
     private void showUseSAFOrOldAPIForLocalThreadsLocationDialog() {
-        if (hasActiveDownloadingThreads()) {
-            // I don't even want to imagine what's going to happen if we allow this
-            Toast.makeText(
-                    context,
-                    R.string.media_settings_cannot_switch_local_threads_base_dir_message,
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.use_saf_for_local_threads_location_dialog_title)
                 .setMessage(R.string.use_saf_for_local_threads_location_dialog_message)
@@ -273,19 +272,6 @@ public class MediaSettingsController extends SettingsController {
         alertDialog.show();
     }
 
-    private boolean hasActiveDownloadingThreads() {
-        List<SavedThread> savedThreads = databaseManager.runTask(
-                databaseManager.getDatabaseSavedThreadManager().getSavedThreads());
-
-        for (SavedThread savedThread : savedThreads) {
-            if (savedThread.isRunning()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * Select a directory where local threads will be stored via the old Java File API
      */
@@ -294,12 +280,19 @@ public class MediaSettingsController extends SettingsController {
                 context,
                 SaveLocationController.SaveLocationControllerMode.LocalThreadsSaveLocation,
                 dirPath -> {
+                    AbstractFile oldLocalThreadsDirectory = fileManager.newLocalThreadFile();
+
                     Logger.d(TAG, "SaveLocationController with LocalThreadsSaveLocation mode returned dir "
                             + dirPath);
 
                     // Supa hack to get the callback called
                     ChanSettings.localThreadLocation.setSync("");
                     ChanSettings.localThreadLocation.setSync(dirPath);
+
+                    AbstractFile newLocalThreadsDirectory = fileManager.newLocalThreadFile();
+                    askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
+                            oldLocalThreadsDirectory,
+                            newLocalThreadsDirectory);
                 });
 
         navigationController.pushController(saveLocationController);
@@ -312,17 +305,92 @@ public class MediaSettingsController extends SettingsController {
         fileManager.openChooseDirectoryDialog(new DirectoryChooserCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
-                ChanSettings.localThreadsLocationUri.set(uri.toString());
+                AbstractFile oldLocalThreadsDirectory = fileManager.newLocalThreadFile();
 
+                ChanSettings.localThreadsLocationUri.set(uri.toString());
                 String defaultDir = ChanSettings.getDefaultLocalThreadsLocation();
+
                 ChanSettings.localThreadLocation.setNoUpdate(defaultDir);
                 localThreadsLocation.setDescription(uri.toString());
+
+                AbstractFile newLocalThreadsDirectory = fileManager.newLocalThreadFile();
+                askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
+                        oldLocalThreadsDirectory,
+                        newLocalThreadsDirectory);
             }
 
             @Override
             public void onCancel(@NotNull String reason) {
                 Toast.makeText(context, reason, Toast.LENGTH_LONG).show();
             }
+        });
+    }
+
+    private void askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
+            AbstractFile oldLocalThreadsDirectory,
+            AbstractFile newLocalThreadsDirectory) {
+
+        // TODO: strings
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle("Move old local threads to the new directory?")
+                .setMessage("This operation may take quite some time. Once started this operation shouldn't be canceled, otherwise something may break")
+                .setPositiveButton("Move", (dialog, which) -> {
+                    moveOldFilesToTheNewDirectory(oldLocalThreadsDirectory, newLocalThreadsDirectory);
+                })
+                .setNegativeButton("Do not move", (dialog, which) -> {})
+                .create();
+
+        alertDialog.show();
+    }
+
+    private void moveOldFilesToTheNewDirectory(
+            @Nullable AbstractFile oldLocalThreadsDirectory,
+            @Nullable AbstractFile newLocalThreadsDirectory) {
+        if (oldLocalThreadsDirectory == null || newLocalThreadsDirectory == null) {
+            Logger.e(TAG, "One of the directories is null, cannot copy " +
+                    "(oldLocalThreadsDirectory is null == " + (oldLocalThreadsDirectory == null) + ")" +
+                    ", newLocalThreadsDirectory is null == " + (newLocalThreadsDirectory == null) + ")");
+            return;
+        }
+
+        Logger.d(TAG, "oldLocalThreadsDirectory = " + oldLocalThreadsDirectory.getFullPath()
+                + ", newLocalThreadsDirectory = " + newLocalThreadsDirectory.getFullPath());
+
+        navigationController.pushController(new LoadingViewController(context, true));
+
+        fileCopyingExecutor.execute(() -> {
+            boolean result = fileManager.copyDirectoryWithContent(
+                    oldLocalThreadsDirectory,
+                    newLocalThreadsDirectory);
+
+            runOnUiThread(() -> {
+                navigationController.popController();
+
+                if (!result) {
+                    // TODO: strings
+                    Toast.makeText(
+                            context,
+                            "Could not copy one directory's file into another one",
+                            Toast.LENGTH_LONG
+                    ).show();
+                } else {
+                    if (!fileManager.forgetSAFTree(oldLocalThreadsDirectory)) {
+                        // TODO: strings
+                        Toast.makeText(
+                                context,
+                                "Files were copied but couldn't remove SAF permissions from the old directory",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    } else {
+                        // TODO: strings
+                        Toast.makeText(
+                                context,
+                                "Successfully copied files",
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
+                }
+            });
         });
     }
 
@@ -373,7 +441,6 @@ public class MediaSettingsController extends SettingsController {
                 ChanSettings.saveLocation.setNoUpdate(defaultDir);
                 saveLocation.setDescription(uri.toString());
 
-                testMethod(uri);
             }
 
             @Override
@@ -420,41 +487,6 @@ public class MediaSettingsController extends SettingsController {
 
             if (!externalFile.delete() && externalFile.exists()) {
                 throw new RuntimeException("Couldn't delete test123.txt");
-            }
-
-            AbstractFile parent1 = externalFile.getParent();
-            if (!parent1.getName().equals("789")) {
-                throw new RuntimeException("Parent1.name != 789, name = " + parent1.getName());
-            }
-
-            if (parent1.isFile()) {
-                throw new RuntimeException("789 is a file");
-            }
-
-            if (!parent1.isDirectory()) {
-                throw new RuntimeException("789 is not a directory");
-            }
-
-            if (!parent1.delete() && parent1.exists()) {
-                throw new RuntimeException("Couldn't delete 789");
-            }
-
-            AbstractFile parent2 = parent1.getParent();
-            if (!parent2.getName().equals("456")) {
-                throw new RuntimeException("Parent1.name != 456, name = " + parent2.getName());
-            }
-
-            if (!parent2.delete() && parent2.exists()) {
-                throw new RuntimeException("Couldn't delete 456");
-            }
-
-            AbstractFile parent3 = parent2.getParent();
-            if (!parent3.getName().equals("123")) {
-                throw new RuntimeException("Parent1.name != 123, name = " + parent3.getName());
-            }
-
-            if (!parent3.delete() && parent3.exists()) {
-                throw new RuntimeException("Couldn't delete 123");
             }
         }
 
@@ -575,25 +607,12 @@ public class MediaSettingsController extends SettingsController {
 
                 return Unit.INSTANCE;
             });
-
-            AbstractFile parent = externalFile.getParent().getParent();
-            if (!parent.getName().equals("1234")) {
-                throw new RuntimeException("dir.name != 1234, name = " + parent.getName());
-            }
-
-            if (!parent.delete() && parent.exists()) {
-                throw new RuntimeException("Couldn't delete /1234/4566/filename.json");
-            }
         }
 
         {
             ExternalFile externalFile = fileManager.fromUri(uri);
             if (!externalFile.getName().equals("Test")) {
                 throw new RuntimeException("externalFile.name != Test, name = " + externalFile.getName());
-            }
-
-            if (externalFile.getParent() != null) {
-                throw new RuntimeException("Root directory parent is not null!");
             }
         }
 

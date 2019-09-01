@@ -151,16 +151,17 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
                 throw new IOException("Could not create destination file, path = " + destination.getFullPath());
             }
 
+            // TODO: check whether this change broke something
             // If destination is a raw file then we need to check whether the parent directory exists.
             // Otherwise we don't
-            if (createdDestinationFile instanceof RawFile) {
-                AbstractFile parent = createdDestinationFile
-                        .clone() // TODO: do we need to clone this file?
-                        .getParent();
-                if (parent == null || (!parent.create() && !parent.isDirectory())) {
-                    throw new IOException("Could not create parent directory");
-                }
-            }
+//            if (createdDestinationFile instanceof RawFile) {
+//                AbstractFile parent = createdDestinationFile
+//                        .clone() // TODO: do we need to clone this file?
+//                        .getParent();
+//                if (parent == null || (!parent.create() && !parent.isDirectory())) {
+//                    throw new IOException("Could not create parent directory");
+//                }
+//            }
 
             if (createdDestinationFile.isDirectory()) {
                 throw new IOException("Destination file is already a directory");

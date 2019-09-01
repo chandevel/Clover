@@ -45,6 +45,7 @@ import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.saf.FileManager;
+import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
@@ -206,12 +207,6 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             return;
         }
 
-        if (!fileManager.baseLocalThreadsDirectoryExists()) {
-            Logger.e(TAG, "Base local threads directory does not exist");
-            Toast.makeText(context, R.string.base_local_threads_dir_not_exists, Toast.LENGTH_LONG).show();
-            return;
-        }
-
         RuntimePermissionsHelper runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
         if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             saveClickedInternal();
@@ -231,6 +226,34 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void saveClickedInternal() {
+        AbstractFile baseLocalThreadsDir = fileManager.newLocalThreadFile();
+        if (baseLocalThreadsDir == null) {
+            Logger.e(TAG, "saveClickedInternal() fileManager.newLocalThreadFile() returned null");
+            Toast.makeText(
+                    context,
+                    R.string.base_local_threads_dir_not_exists,
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (!baseLocalThreadsDir.exists() && !baseLocalThreadsDir.create()) {
+            Logger.e(TAG, "saveClickedInternal() Couldn't create baseLocalThreadsDir");
+            Toast.makeText(
+                    context,
+                    R.string.could_not_create_base_local_threads_dir,
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (!fileManager.baseLocalThreadsDirectoryExists()) {
+            Logger.e(TAG, "Base local threads directory does not exist");
+            Toast.makeText(
+                    context,
+                    R.string.base_local_threads_dir_not_exists,
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if (threadLayout.getPresenter().save()) {
             updateDrawerHighlighting(loadable);
             populateLocalOrLiveVersionMenu();
@@ -648,11 +671,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         }
 
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-        if (savedThread == null || savedThread.isStopped) {
+        if (savedThread == null) {
             return DownloadThreadState.Default;
         }
 
-        if (savedThread.isFullyDownloaded) {
+        if (savedThread.isFullyDownloaded || savedThread.isStopped) {
             return DownloadThreadState.FullyDownloaded;
         }
 

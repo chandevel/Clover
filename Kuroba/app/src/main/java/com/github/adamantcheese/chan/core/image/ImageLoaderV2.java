@@ -120,7 +120,7 @@ public class ImageLoaderV2 {
 
                 AbstractFile baseDirFile = fileManager.newLocalThreadFile();
                 if (baseDirFile == null) {
-                    throw new IOException("fileManager.newLocalThreadFile() returned null");
+                    throw new IOException("getFromDisk() fileManager.newLocalThreadFile() returned null");
                 }
 
                 String imageDir;
@@ -168,9 +168,11 @@ public class ImageLoaderV2 {
                     mainThreadHandler.post(() -> {
                         container.setBitmap(bitmap);
                         container.setRequestUrl(imageDir);
+
                         if (container.getListener() != null) {
-                    container.getListener().onResponse(container, true);
-                    }});
+                            container.getListener().onResponse(container, true);
+                        }
+                    });
                 }
             } catch (Exception e) {
                 String message = "Could not get an image from the disk, error message = "

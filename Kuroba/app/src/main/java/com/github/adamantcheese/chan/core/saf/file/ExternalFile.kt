@@ -3,6 +3,9 @@ package com.github.adamantcheese.chan.core.saf.file
 import android.content.Context
 import android.net.Uri
 import android.os.ParcelFileDescriptor
+import android.provider.DocumentsContract
+import android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME
+import android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID
 import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.github.adamantcheese.chan.core.appendManyEncoded
@@ -11,6 +14,7 @@ import com.github.adamantcheese.chan.utils.Logger
 import java.io.FileDescriptor
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.*
 
 class ExternalFile(
         private val appContext: Context,
@@ -31,7 +35,6 @@ class ExternalFile(
 
     override fun createNew(): ExternalFile? {
         check(root !is Root.FileRoot) {
-            // TODO: do we need this check?
             "root is already FileRoot, cannot append anything anymore"
         }
 
@@ -56,14 +59,14 @@ class ExternalFile(
             if (!segment.isFileName) {
                 newFile = file.createDirectory(segment.name)
                 if (newFile == null) {
-                    Logger.e(TAG, "file.createDirectory returned null, file.uri = ${file.uri}, " +
+                    Logger.e(TAG, "createNew() file.createDirectory() returned null, file.uri = ${file.uri}, " +
                             "segment.name = ${segment.name}")
                     return null
                 }
             } else {
                 newFile = file.createFile(mimeTypeMap.getMimeFromFilename(segment.name), segment.name)
                 if (newFile == null) {
-                    Logger.e(TAG, "file.createFile returned null, file.uri = ${file.uri}, " +
+                    Logger.e(TAG, "createNew() file.createFile returned null, file.uri = ${file.uri}, " +
                             "segment.name = ${segment.name}")
                     return null
                 }
@@ -107,27 +110,8 @@ class ExternalFile(
     override fun canRead(): Boolean = clone().toDocumentFile()?.canRead() ?: false
     override fun canWrite(): Boolean = clone().toDocumentFile()?.canWrite() ?: false
 
-    override fun getParent(): ExternalFile? {
-        if (segments.isNotEmpty()) {
-            removeLastSegment()
-            return this
-        }
-
-        val parent = when (root) {
-            is Root.DirRoot -> root.holder.parentFile
-            is Root.FileRoot -> root.holder.parentFile
-        }
-
-        if (parent == null) {
-            Logger.e(TAG, "getParent() parentUri == null")
-            return null
-        }
-
-        return ExternalFile(appContext, Root.DirRoot(parent))
-    }
-
     override fun getFullPath(): String {
-        return Uri.parse(root.holder.toString()).buildUpon()
+        return Uri.parse(root.holder.uri.toString()).buildUpon()
                 .appendManyEncoded(segments.map { segment -> segment.name })
                 .build()
                 .toString()
@@ -298,9 +282,7 @@ class ExternalFile(
         for (i in 0 until segments.size) {
             val segment = segments[i]
 
-            val file = documentFile.listFiles()
-                    .firstOrNull { file -> file.name == segment.name }
-
+            val file = fastFindFile(documentFile, segment)
             if (file == null) {
                 break
             }
@@ -314,6 +296,47 @@ class ExternalFile(
         }
 
         return documentFile
+    }
+
+    private fun fastFindFile(root: DocumentFile, segment: Segment): DocumentFile? {
+        val name = 0
+        val documentId = 1
+        val selection = "$COLUMN_DISPLAY_NAME = ?"
+        val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(
+                root.uri,
+                DocumentsContract.getDocumentId(root.uri))
+        val projection = arrayOf(COLUMN_DISPLAY_NAME, COLUMN_DOCUMENT_ID)
+        val contentResolver = appContext.contentResolver
+        val lowerCaseFilename = segment.name.toLowerCase(Locale.US)
+
+        return contentResolver.query(
+                childrenUri,
+                projection,
+                selection,
+                arrayOf(lowerCaseFilename),
+                null
+        )?.use { cursor ->
+            while (cursor.moveToNext()) {
+                if (cursor.isNull(name)) {
+                    continue
+                }
+
+                val foundFileName = cursor.getString(name)
+                        ?: continue
+
+                if (!foundFileName.toLowerCase(Locale.US).startsWith(lowerCaseFilename)) {
+                    continue
+                }
+
+                val uri = DocumentsContract.buildDocumentUriUsingTree(
+                        root.uri,
+                        cursor.getString(documentId))
+
+                return@use DocumentFile.fromSingleUri(appContext, uri)
+            }
+
+            return@use null
+        }
     }
 
     private fun createDocumentFileFromUri(uri: Uri, index: Int): DocumentFile? {

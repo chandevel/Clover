@@ -137,10 +137,8 @@ public class CacheHandler {
 
     @MainThread
     public void createDirectories() {
-        if (!cacheDirFile.exists()) {
-            if (!cacheDirFile.create()) {
-                Logger.e(TAG, "Unable to create file cache dir " + cacheDirFile.getFullPath());
-            }
+        if (!cacheDirFile.exists() && !cacheDirFile.create()) {
+            throw new RuntimeException("Unable to create file cache dir " + cacheDirFile.getFullPath());
         }
     }
 
