@@ -295,10 +295,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
         draft.captchaResponse = null;
         if (ChanSettings.enableEmoji.get()) {
-            draft.comment = EmojiParser.parseFromUnicode(draft.comment, e -> {
-                return ":" + e.getEmoji().getAliases().get(0) +
-                        (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "") + ": ";
-            });
+            draft.comment = EmojiParser.parseFromUnicode(draft.comment, e -> ":" + e.getEmoji().getAliases().get(0) +
+                    (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "") + ": ");
         }
 
         return true;

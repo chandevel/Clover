@@ -36,7 +36,6 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -459,7 +458,4 @@ public class AndroidUtils {
         view.startAnimation(scaleAnimation);
     }
 
-    public static boolean isNougat() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
-    }
 }

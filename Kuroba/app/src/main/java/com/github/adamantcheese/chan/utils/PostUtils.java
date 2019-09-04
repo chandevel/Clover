@@ -119,7 +119,7 @@ public class PostUtils {
                     continue;
                 }
 
-                PostHide postHide = PostHide.hidePost(post, false, toInheritBaseInfoFrom.hide, toInheritBaseInfoFrom.hideRepliesToThisPost);
+                PostHide postHide = PostHide.hidePost(post, false, toInheritBaseInfoFrom.hide, true);
                 hiddenPostsFastLookupMap.put(post.no, postHide);
                 newHiddenPosts.add(postHide);
 

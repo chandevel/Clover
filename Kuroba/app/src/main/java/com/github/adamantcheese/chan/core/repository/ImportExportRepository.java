@@ -183,12 +183,11 @@ public class ImportExportRepository {
         }
     }
 
-    private void writeSettingsToDatabase(@NonNull ExportedAppSettings appSettingsParam)
+    private void writeSettingsToDatabase(@NonNull ExportedAppSettings appSettings)
             throws SQLException, IOException, DowngradeNotSupportedException {
-        ExportedAppSettings appSettings = appSettingsParam;
 
         if (appSettings.getVersion() < CURRENT_EXPORT_SETTINGS_VERSION) {
-            appSettings = onUpgrade(appSettings.getVersion(), appSettings);
+            onUpgrade(appSettings.getVersion(), appSettings);
         } else if (appSettings.getVersion() > CURRENT_EXPORT_SETTINGS_VERSION) {
             // we don't support settings downgrade so just notify the user about it
             throw new DowngradeNotSupportedException("You are attempting to import settings with " +
@@ -322,7 +321,7 @@ public class ImportExportRepository {
             ));
         }
 
-        ChanSettings.deserializeFromString(appSettingsParam.getSettings());
+        ChanSettings.deserializeFromString(appSettings.getSettings());
     }
 
     @Nullable

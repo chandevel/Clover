@@ -408,39 +408,35 @@ public class ThreadSaveManager {
                                     //                \  |  /
                                     //                 \ | /
                                     //                   |
-                                    .flatMap((post) -> {
-                                        return downloadImages(
-                                                loadable,
-                                                threadSaveDirImages,
-                                                post,
-                                                currentImageDownloadIndex,
-                                                postsWithImages,
-                                                imageDownloadsWithIoError,
-                                                maxImageIoErrors);
-                                    })
+                                    .flatMap((post) -> downloadImages(
+                                            loadable,
+                                            threadSaveDirImages,
+                                            post,
+                                            currentImageDownloadIndex,
+                                            postsWithImages,
+                                            imageDownloadsWithIoError,
+                                            maxImageIoErrors))
                                     .toList()
                                     .doOnSuccess((list) -> Logger.d(TAG, "PostImage download result list = " + list));
                         })
-                        .flatMap((res) -> {
-                            return Single.defer(() -> {
-                                if (!isCurrentDownloadRunning(loadable)) {
-                                    if (isCurrentDownloadStopped(loadable)) {
-                                        Logger.d(TAG, "Thread downloading has been stopped "
-                                                + loadableToString(loadable));
-                                    } else {
-                                        Logger.d(TAG, "Thread downloading has been canceled "
-                                                + loadableToString(loadable));
-                                    }
-
-                                    return Single.just(false);
+                        .flatMap((res) -> Single.defer(() -> {
+                            if (!isCurrentDownloadRunning(loadable)) {
+                                if (isCurrentDownloadStopped(loadable)) {
+                                    Logger.d(TAG, "Thread downloading has been stopped "
+                                            + loadableToString(loadable));
+                                } else {
+                                    Logger.d(TAG, "Thread downloading has been canceled "
+                                            + loadableToString(loadable));
                                 }
 
-                                updateLastSavedPostNo(loadable, newPosts);
+                                return Single.just(false);
+                            }
 
-                                Logger.d(TAG, "Successfully updated a thread " + loadableToString(loadable));
-                                return Single.just(true);
-                            });
-                        })
+                            updateLastSavedPostNo(loadable, newPosts);
+
+                            Logger.d(TAG, "Successfully updated a thread " + loadableToString(loadable));
+                            return Single.just(true);
+                        }))
                         // Have to use blockingGet here. This is a place where all of the exception will come
                         // out from
                         .blockingGet();
@@ -746,12 +742,10 @@ public class ThreadSaveManager {
                                     imageDownloadsWithIoError.incrementAndGet();
                                 }
                             })
-                            .doOnEvent((result, event) -> {
-                                logThreadDownloadingProgress(
-                                        loadable,
-                                        currentImageDownloadIndex,
-                                        postsWithImagesCount);
-                            })
+                            .doOnEvent((result, event) -> logThreadDownloadingProgress(
+                                    loadable,
+                                    currentImageDownloadIndex,
+                                    postsWithImagesCount))
                             // Do nothing if an error occurs (like timeout exception) because we don't want
                             // to lose what we have already downloaded
                             .onErrorReturnItem(false);

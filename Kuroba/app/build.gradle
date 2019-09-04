@@ -56,7 +56,7 @@ android {
         versionCode major * 10000 + minor * 100 + patch
         versionName "v" + major + "." + minor + "." + patch + "-dev"
 
-        android.applicationVariants.all { variant ->
+        applicationVariants.all { variant ->
             variant.outputs.all {
                 outputFileName = manifestPlaceholders.get("appName").toString() + ".apk"
             }
@@ -64,6 +64,7 @@ android {
     }
 
     compileOptions {
+        encoding = 'UTF-8'
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -76,17 +77,7 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/ASL2.0'
-        exclude 'META-INF/LICENSE-LGPL-3.txt'
-        exclude 'META-INF/LICENSE-LGPL-2.1.txt'
-        exclude 'META-INF/LICENSE-W3C-TEST'
+        exclude 'META-INF/*'
     }
 
     buildTypes {

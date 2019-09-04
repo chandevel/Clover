@@ -183,12 +183,8 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
                 new AlertDialog.Builder(context)
                         .setTitle(R.string.warning)
                         .setMessage(R.string.drawer_controller_at_least_one_pin_has_download_flag)
-                        .setNegativeButton(R.string.drawer_controller_do_not_delete, (dialog, which) -> {
-                            dialog.dismiss();
-                        })
-                        .setPositiveButton(R.string.drawer_controller_delete_all_pins, ((dialog, which) -> {
-                            onHeaderClickedInternal(true, true);
-                        }))
+                        .setNegativeButton(R.string.drawer_controller_do_not_delete, (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton(R.string.drawer_controller_delete_all_pins, ((dialog, which) -> onHeaderClickedInternal(true, true)))
                         .create()
                         .show();
                 return;
