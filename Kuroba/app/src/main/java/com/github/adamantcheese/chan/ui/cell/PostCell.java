@@ -75,9 +75,11 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import okhttp3.HttpUrl;
@@ -690,11 +692,13 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 int line = layout.getLineForVertical(y);
                 int off = layout.getOffsetForHorizontal(line, x);
 
-                ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
+                ClickableSpan[] links = buffer.getSpans(off, off, ClickableSpan.class);
+                List<ClickableSpan> link = new ArrayList<>();
+                Collections.addAll(link, links);
 
-                if (link.length > 0) {
-                    ClickableSpan clickableSpan1 = link[0];
-                    ClickableSpan clickableSpan2 = link.length > 1 ? link[1] : null;
+                if (link.size() > 0) {
+                    ClickableSpan clickableSpan1 = link.get(0);
+                    ClickableSpan clickableSpan2 = link.size() > 1 ? link.get(1) : null;
                     PostLinkable linkable1 = clickableSpan1 instanceof PostLinkable ? (PostLinkable) clickableSpan1 : null;
                     PostLinkable linkable2 = clickableSpan2 instanceof PostLinkable ? (PostLinkable) clickableSpan2 : null;
                     if (action == MotionEvent.ACTION_UP) {
@@ -705,12 +709,22 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                             callback.onPostLinkableClicked(post, linkable1);
                         } else if (linkable2 != null && linkable1 != null) {
                             //spoilered link, figure out which span is the spoiler
-                            if (linkable1.type == PostLinkable.Type.SPOILER && linkable1.getSpoilerState()) {
-                                //linkable2 is the link
-                                callback.onPostLinkableClicked(post, linkable2);
-                            } else if (linkable2.type == PostLinkable.Type.SPOILER && linkable2.getSpoilerState()) {
-                                //linkable 1 is the link
-                                callback.onPostLinkableClicked(post, linkable1);
+                            if (linkable1.type == PostLinkable.Type.SPOILER) {
+                                if (linkable1.getSpoilerState()) {
+                                    //linkable2 is the link and we're unspoilered
+                                    callback.onPostLinkableClicked(post, linkable2);
+                                } else {
+                                    //linkable2 is the link and we're spoilered; don't do the click event on the link yet
+                                    link.remove(linkable2);
+                                }
+                            } else if (linkable2.type == PostLinkable.Type.SPOILER) {
+                                if (linkable2.getSpoilerState()) {
+                                    //linkable 1 is the link and we're unspoilered
+                                    callback.onPostLinkableClicked(post, linkable1);
+                                } else {
+                                    //linkable1 is the link and we're spoilered; don't do the click event on the link yet
+                                    link.remove(linkable1);
+                                }
                             } else {
                                 //weird case where a double stack of linkables, but isn't spoilered (some 4chan stickied posts)
                                 callback.onPostLinkableClicked(post, linkable1);
