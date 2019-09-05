@@ -16,38 +16,20 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.ImageSpan;
 
 import androidx.annotation.AnyThread;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.RequestFuture;
-import com.github.adamantcheese.chan.Chan;
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-import org.json.JSONObject;
 import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;
 
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParserHelper {

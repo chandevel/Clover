@@ -115,11 +115,9 @@ public class DatabasePinManager {
     }
 
     public Callable<Pin> getPinByLoadableId(int loadableId) {
-        return () -> {
-            return helper.pinDao.queryBuilder()
-                    .where()
-                    .eq("loadable_id", loadableId)
-                    .queryForFirst();
-        };
+        return () -> helper.pinDao.queryBuilder()
+                .where()
+                .eq("loadable_id", loadableId)
+                .queryForFirst();
     }
 }

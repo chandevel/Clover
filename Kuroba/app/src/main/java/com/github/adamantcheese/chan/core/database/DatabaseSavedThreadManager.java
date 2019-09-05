@@ -136,12 +136,10 @@ public class DatabaseSavedThreadManager {
     }
 
     public Callable<SavedThread> getSavedThreadByLoadableId(int loadableId) {
-        return () -> {
-            return helper.savedThreadDao.queryBuilder()
-                    .where()
-                    .eq(SavedThread.LOADABLE_ID, loadableId)
-                    .queryForFirst();
-        };
+        return () -> helper.savedThreadDao.queryBuilder()
+                .where()
+                .eq(SavedThread.LOADABLE_ID, loadableId)
+                .queryForFirst();
     }
 
     public Callable<Void> deleteSavedThread(Loadable loadable) {

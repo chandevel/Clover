@@ -71,13 +71,13 @@ public class Sushichan extends CommonSite {
         setBoards(
                 Board.fromSiteNameCode(this, "artsy", "wildcard"),
                 Board.fromSiteNameCode(this, "sushi social", "lounge"),
-                Board.fromSiteNameCode(this, "site meta-discussion", "yakuza"),
                 Board.fromSiteNameCode(this, "vidya gaems", "arcade"),
                 Board.fromSiteNameCode(this, "cute things", "kawaii"),
                 Board.fromSiteNameCode(this, "tasty morsels & delights", "kitchen"),
                 Board.fromSiteNameCode(this, "enjoyable sounds", "tunes"),
                 Board.fromSiteNameCode(this, "arts & literature", "culture"),
                 Board.fromSiteNameCode(this, "technology", "silicon"),
+                Board.fromSiteNameCode(this, "site meta-discussion", "yakuza"),
                 Board.fromSiteNameCode(this, "internet death cult", "hell"),
                 Board.fromSiteNameCode(this, "dat ecchi & hentai goodness", "lewd")
         );

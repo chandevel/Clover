@@ -163,9 +163,7 @@ public class SiteRepository {
         Site site;
         try {
             site = clazz.newInstance();
-        } catch (InstantiationException e) {
-            throw new IllegalArgumentException();
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new IllegalArgumentException();
         }
         return site;
