@@ -16,10 +16,10 @@ android:
 install:
   - pip install requests 
 script: 
-  - cd Kuroba
-  - chmod +x gradlew
-  - ./gradlew build --console plain -x lint
-  - python upload_apk.py 1234567890 401010 http://127.0.0.1:8080
+  - cd Kuroba123 || travis_terminate 1;
+  - chmod +x gradlew || travis_terminate 2;
+  - ./gradlew build --console plain -x lint || travis_terminate 3;
+  - python upload_apk.py 1234567890 401010 http://127.0.0.1:8080 || travis_terminate 4;
 
 notifications:
   email: false
