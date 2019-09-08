@@ -3,8 +3,8 @@ import sys
 import requests
 import subprocess
 
-def getLatestCommitHash():
-    response = requests.get('http://127.0.0.1:8080/latest_commit_hash')
+def getLatestCommitHash(baseUrl):
+    response = requests.get(baseUrl + '/latest_commit_hash')
     if response.status_code != 200:
         print("Error while trying to get latest commit hash from the server" +
               ", response status = " + str(response.status_code) +
@@ -14,7 +14,7 @@ def getLatestCommitHash():
     return response.content.decode("utf-8")
 
 
-def uploadApk(headers, latestCommits):
+def uploadApk(baseUrl, headers, latestCommits):
     apkPath = "Kuroba\\app\\build\\outputs\\apk\\debug\\Kuroba.apk"
     inFile = open(apkPath, "rb")
     try:
@@ -25,7 +25,7 @@ def uploadApk(headers, latestCommits):
         print(latestCommits)
 
         response = requests.post(
-            'http://127.0.0.1:8080/upload',
+            baseUrl + '/upload',
             files=dict(apk=inFile, latest_commits=latestCommits),
             headers=headers)
 
@@ -58,15 +58,16 @@ def getLatestCommitsFrom(latestCommitHash):
 
 if __name__ == '__main__':
     args = len(sys.argv)
-    if args != 3:
-        print("Bad arguments count, should be 3 got " + str(args))
+    if args != 4:
+        print("Bad arguments count, should be 4 got " + str(args))
         exit(-1)
 
     headers = dict(SECRET_KEY=sys.argv[1], APK_VERSION=sys.argv[2])
+    baseUrl = sys.argv[3]
     latestCommitHash = ""
 
     try:
-        latestCommitHash = getLatestCommitHash()
+        latestCommitHash = getLatestCommitHash(baseUrl)
     except Exception as e:
         print("Couldn't get latest commit hash from the server: " + str(e))
         exit(-1)
@@ -78,5 +79,5 @@ if __name__ == '__main__':
               "latestCommitHash = " + latestCommitHash)
         exit(0)
 
-    uploadApk(headers, latestCommits)
+    uploadApk(baseUrl, headers, latestCommits)
     exit(0)

@@ -19,7 +19,7 @@ script:
   - cd Kuroba
   - chmod +x gradlew
   - ./gradlew build --console plain -x lint
-  - python upload_apk.py 1234567890 401010
+  - python upload_apk.py 1234567890 401010 http://127.0.0.1:8080
 
 notifications:
   email: false
