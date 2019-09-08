@@ -187,7 +187,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 }
 
-task getCheckedOutGitCommitHash {
+task getLastCommits {
     doFirst {
         def command = "git log ${from}^..HEAD --pretty=format:\"%H - %an, %ar : %s\" --first-parent"
         println command

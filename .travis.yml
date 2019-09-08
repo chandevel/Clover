@@ -14,12 +14,13 @@ android:
     - build-tools-28.0.3
     - android-28
 install:
+  - pip install --upgrade pip
   - pip install requests
 script: 
   - cd Kuroba
   - chmod +x gradlew
   - ./gradlew build --console plain -x lint
-  - python main.py 1234567890 401010 Kuroba\\app\\build\\outputs\\apk\\debug\\Kuroba.apk
+  - python upload_apk.py 1234567890 401010
 
 notifications:
   email: false
