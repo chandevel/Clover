@@ -1,3 +1,5 @@
+import java.util.concurrent.TimeUnit
+
 apply plugin: 'com.android.application'
 
 android {
@@ -183,4 +185,15 @@ dependencies {
     implementation 'com.vdurmont:emoji-java:4.0.0'
     implementation "io.reactivex.rxjava2:rxjava:2.2.9"
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+}
+
+task getCheckedOutGitCommitHash {
+    doFirst {
+        def command = "git log ${from}^..HEAD --pretty=format:\"%H - %an, %ar : %s\" --first-parent"
+        println command
+
+        def task = command.execute()
+        task.waitFor(15, TimeUnit.SECONDS)
+        println task.text
+    }
 }
