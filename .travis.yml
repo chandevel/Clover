@@ -21,6 +21,5 @@ matrix:
         - pip install requests
       script: 
         - cd Kuroba
-        - chmod +x ./gradlew build connectedCheck
-        - ./gradlew build --console plain -x lint
+        - chmod +x ./gradlew build --console plain -x lint
         - python main.py 1234567890 401010 Kuroba\\app\\build\\outputs\\apk\\debug\\Kuroba.apk
