@@ -88,10 +88,28 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     private Context context;
     private ImageView playView;
-    private GestureDetector doubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector exoDoubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             callback.onDoubleTap();
+            return true;
+        }
+    });
+    private GestureDetector gifDoubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            GifDrawable drawable = (GifDrawable) findGifImageView().getDrawable();
+            if (drawable.isPlaying()) {
+                drawable.pause();
+            } else {
+                drawable.start();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            callback.onTap();
             return true;
         }
     });
@@ -380,14 +398,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
-        view.setOnClickListener((view1) -> {
-            if (drawable.isPlaying()) {
-                drawable.pause();
-            } else {
-                drawable.start();
-            }
-        });
-        view.setOnTouchListener((view1, motionEvent) -> doubleTapDetector.onTouchEvent(motionEvent));
+        view.setOnClickListener(null);
+        view.setOnTouchListener((view1, motionEvent) -> gifDoubleTapDetector.onTouchEvent(motionEvent));
         onModeLoaded(Mode.GIF, view);
     }
 
@@ -450,7 +462,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             exoPlayer.prepare(videoSource);
             exoPlayer.addAudioListener(this);
-            exoVideoView.setOnTouchListener((view, motionEvent) -> doubleTapDetector.onTouchEvent(motionEvent));
+            exoVideoView.setOnTouchListener((view, motionEvent) -> exoDoubleTapDetector.onTouchEvent(motionEvent));
 
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
