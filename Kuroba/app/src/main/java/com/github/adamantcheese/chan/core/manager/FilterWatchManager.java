@@ -65,6 +65,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
     //keep track of how many boards we've checked and their posts so we can cut out things from the ignored posts
     private int numBoardsChecked = 0;
     private Set<Post> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
+    private boolean processing = false;
 
     private final Gson serializer = new Gson();
 
@@ -155,14 +156,45 @@ public class FilterWatchManager implements WakeManager.Wakeable {
 
     @Override
     public void onWake() {
+        processing = true;
         populateFilterLoaders();
         for (ChanThreadLoader loader : filterLoaders.keySet()) {
             loader.requestData();
         }
     }
 
-    private class BackgroundLoader implements ChanThreadLoader.ChanLoaderCallback {
+    public void onCatalogLoad(ChanThread catalog) {
+        if(catalog.getLoadable().isThreadMode()) return; //not a catalog
+        if(processing) return; //filter watch manager is currently processing, ignore
 
+        Set<Integer> toAdd = new HashSet<>();
+        //Match filters and ignores
+        List<Filter> filters = filterEngine.getEnabledWatchFilters();
+        for (Filter f : filters) {
+            for (Post p : catalog.getPostsUnsafe()) {
+                if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
+                    Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site, p.board, p.no, PostHelper.getTitle(p, catalog.getLoadable()));
+                    pinLoadable = databaseLoadableManager.get(pinLoadable);
+                    watchManager.createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
+                    toAdd.add(p.no);
+                }
+            }
+        }
+        //add all posts to ignore
+        ignoredPosts.addAll(toAdd);
+        lastCheckedPosts.addAll(catalog.getPostsUnsafe());
+        synchronized (this) {
+            Set<Integer> lastCheckedPostNumbers = new HashSet<>();
+            for (Post post : lastCheckedPosts) {
+                lastCheckedPostNumbers.add(post.no);
+            }
+            ignoredPosts.retainAll(lastCheckedPostNumbers);
+            ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
+            lastCheckedPosts.clear();
+        }
+    }
+
+    private class BackgroundLoader implements ChanThreadLoader.ChanLoaderCallback {
         @Override
         public void onChanLoaderData(ChanThread result) {
             Set<Integer> toAdd = new HashSet<>();
@@ -192,6 +224,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                     ignoredPosts.retainAll(lastCheckedPostNumbers);
                     ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
                     lastCheckedPosts.clear();
+                    processing = false;
                 }
             }
         }

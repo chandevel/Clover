@@ -30,6 +30,7 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -558,6 +559,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             pin.watching = false;
 
             watchManager.updatePin(pin, true);
+        }
+
+        if(ChanSettings.watchFilterWatch.get() && result.getLoadable().isCatalogMode()) {
+            Chan.injector().instance(FilterWatchManager.class).onCatalogLoad(result);
         }
     }
 

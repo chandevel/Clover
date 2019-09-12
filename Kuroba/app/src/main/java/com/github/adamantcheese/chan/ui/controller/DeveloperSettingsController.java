@@ -30,6 +30,12 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
+import com.github.adamantcheese.chan.utils.Logger;
+
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashSet;
 
 import javax.inject.Inject;
 
@@ -38,6 +44,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class DeveloperSettingsController extends Controller {
+    private static final String TAG = "DEV";
     @Inject
     DatabaseManager databaseManager;
 
@@ -91,6 +98,22 @@ public class DeveloperSettingsController extends Controller {
         });
         resetDbButton.setText("Delete database");
         wrapper.addView(resetDbButton);
+
+        Button clearFilterWatchIgnores = new Button(context);
+        clearFilterWatchIgnores.setOnClickListener(v -> {
+            try {
+                FilterWatchManager filterWatchManager = Chan.injector().instance(FilterWatchManager.class);
+                Field ignoredField = filterWatchManager.getClass().getDeclaredField("ignoredPosts");
+                ignoredField.setAccessible(true);
+                ignoredField.set(filterWatchManager, Collections.synchronizedSet(new HashSet<Integer>()));
+                ignoredField.setAccessible(false);
+                Logger.d(TAG, "Cleared ignores");
+            } catch (Exception e) {
+                Logger.d(TAG, "Failed to clear ignores");
+            }
+        });
+        clearFilterWatchIgnores.setText("Clear ignored filter watches");
+        wrapper.addView(clearFilterWatchIgnores);
 
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);
