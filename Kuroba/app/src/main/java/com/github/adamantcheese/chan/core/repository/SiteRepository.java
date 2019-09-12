@@ -115,7 +115,8 @@ public class SiteRepository {
         SiteConfig config = new SiteConfig();
         JsonSettings settings = new JsonSettings();
 
-        config.classId = SiteRegistry.SITE_CLASSES.indexOfValue(site.getClass());
+        //the index doesn't necessarily match the key value to get the class ID anymore since sites were removed
+        config.classId = SiteRegistry.SITE_CLASSES.keyAt(SiteRegistry.SITE_CLASSES.indexOfValue(site.getClass()));
         config.external = false;
 
         SiteModel model = createFromClass(config, settings);
