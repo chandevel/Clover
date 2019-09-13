@@ -131,11 +131,6 @@ public class AppearanceSettingsController extends SettingsController {
             SettingsGroup images = new SettingsGroup(R.string.settings_group_images);
 
             requiresUiRefresh.add(images.add(new BooleanSettingView(this,
-                    ChanSettings.padThumbs,
-                    context.getString(R.string.setting_images_pad_thumbs),
-                    context.getString(R.string.setting_images_pad_thumbs_description))));
-
-            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
                     ChanSettings.highResCells,
                     context.getString(R.string.setting_images_high_res),
                     context.getString(R.string.setting_images_high_res_description))));
