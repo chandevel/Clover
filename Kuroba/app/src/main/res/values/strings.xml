@@ -184,7 +184,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_load_failed_not_found">404 not found</string>
     <string name="thread_refresh_bar_inactive">Tap to refresh</string>
     <string name="thread_refresh_now">Loading…</string>
-    <string name="thread_refresh_countdown">Loading in %1$ds…</string>
+    <string name="thread_refresh_countdown">Loading in %1$ds</string>
     <string name="thread_load_failed_retry">Retry</string>
     <string name="thread_archived">Archived</string>
     <string name="thread_closed">Closed</string>
