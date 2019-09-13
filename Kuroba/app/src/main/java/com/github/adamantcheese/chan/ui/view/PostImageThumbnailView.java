@@ -138,15 +138,15 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
 
     @Override
     public boolean onLongClick(View v) {
-        if (postImage == null || postImage.imageUrl == null) {
+        if (postImage == null || postImage.imageUrl == null || !ChanSettings.enableLongPressURLCopy.get()) {
             return false;
         }
 
         ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
         assert clipboard != null;
-        ClipData clip = ClipData.newPlainText("File url", postImage.imageUrl.toString());
+        ClipData clip = ClipData.newPlainText("Image URL", postImage.imageUrl.toString());
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(getContext(), R.string.file_url_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.image_url_copied_to_clipboard, Toast.LENGTH_SHORT).show();
 
         return true;
     }

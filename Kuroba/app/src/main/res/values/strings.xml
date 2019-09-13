@@ -649,7 +649,7 @@ Don't have a 4chan Pass?<br>
     <string name="captcha_layout_v2_captcha_request_is_already_in_progress">Captcha request is already in progress</string>
     <string name="captcha_layout_v2_you_are_requesting_captcha_too_fast">You are requesting captcha too fast</string>
     <string name="captcha_layout_v2_refresh_cookies">Refresh cookies</string>
-    <string name="file_url_copied_to_clipboard">File url copied to clipboard</string>
+    <string name="image_url_copied_to_clipboard">Image URL copied to clipboard</string>
     <string name="delete_site_dialog_title">Delete site?</string>
     <string name="delete_site_dialog_message">Are you sure you want to delete "%1$s"? This action will delete the site and everything that is associated with it. The app will be restarted. Do you wish to proceed?</string>
 
@@ -689,6 +689,8 @@ Don't have a 4chan Pass?<br>
     <string name="local_thread_text">Local thread</string>
     <string name="setting_full_screen_rotation">Allow full sensor rotation</string>
     <string name="settings_always_open_drawer">Always open the drawer when a thread is bookmarked</string>
+    <string name="settings_image_long_url">Enable long-press image URL copy</string>
+    <string name="settings_image_long_url_description">Makes long-pressing on post images copy the image URL to the clipboard</string>
     <string-array name="setting_watch_notify_modes">
         <item>All posts</item>
         <item>Only posts quoting you</item>

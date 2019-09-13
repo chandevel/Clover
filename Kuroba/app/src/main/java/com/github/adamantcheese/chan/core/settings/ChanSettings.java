@@ -187,6 +187,7 @@ public class ChanSettings {
     public static final BooleanSetting alwaysOpenDrawer;
 
     public static final BooleanSetting moveInputToBottom;
+    public static final BooleanSetting enableLongPressURLCopy;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -294,6 +295,7 @@ public class ChanSettings {
         alwaysOpenDrawer = new BooleanSetting(p, "drawer_auto_open_always", false);
 
         moveInputToBottom = new BooleanSetting(p, "move_input_bottom", false);
+        enableLongPressURLCopy = new BooleanSetting(p , "long_press_image_url_copy", true);
     }
 
     public static ThemeColor getThemeAndColor() {
