@@ -1,4 +1,3 @@
-import os
 import sys
 import requests
 import subprocess
@@ -6,7 +5,7 @@ import subprocess
 def getLatestCommitHash(baseUrl):
     response = requests.get(baseUrl + '/latest_commit_hash')
     if response.status_code != 200:
-        print("Error while trying to get latest commit hash from the server" +
+        print("getLatestCommitHash() Error while trying to get latest commit hash from the server" +
               ", response status = " + str(response.status_code) +
               ", message = " + str(response.content))
         exit(-1)
@@ -19,7 +18,7 @@ def uploadApk(baseUrl, headers, latestCommits):
     inFile = open(apkPath, "rb")
     try:
         if not inFile.readable():
-            print("Provided file is not readable, path = " + str(apkPath))
+            print("uploadApk() Provided file is not readable, path = " + str(apkPath))
             exit(-1)
 
         print(latestCommits)
@@ -30,14 +29,14 @@ def uploadApk(baseUrl, headers, latestCommits):
             headers=headers)
 
         if response.status_code != 200:
-            print("Error while trying to upload file" +
+            print("uploadApk() Error while trying to upload file" +
                   ", response status = " + str(response.status_code) +
                   ", message = " + str(response.content))
             exit(-1)
 
-        print("Successfully uploaded")
+        print("uploadApk() Successfully uploaded")
     except Exception as e:
-        print("Unhandled exception: " + str(e))
+        print("uploadApk() Unhandled exception: " + str(e))
         exit(-1)
     finally:
         inFile.close()
@@ -45,14 +44,15 @@ def uploadApk(baseUrl, headers, latestCommits):
 
 def getLatestCommitsFrom(latestCommitHash):
     if len(latestCommitHash) <= 0:
-        print("Latest commit hash is empty, should be okay")
+        print("getLatestCommitsFrom() Latest commit hash is empty, should be okay")
 
     arguments = ['gradlew', '-Pfrom=' + latestCommitHash + ' getLastCommits']
+    print("getLatestCommitsFrom() arguments: " + str(arguments))
 
-    result = subprocess.run(arguments, stdout=subprocess.PIPE)
+    result = subprocess.run(args=arguments, stdout=subprocess.PIPE)
     resultText = str(result.stdout)
 
-    print("getLastCommits result: " + resultText)
+    print("getLatestCommitsFrom() getLastCommits result: " + resultText)
     return resultText
 
 
@@ -69,13 +69,19 @@ if __name__ == '__main__':
     try:
         latestCommitHash = getLatestCommitHash(baseUrl)
     except Exception as e:
-        print("Couldn't get latest commit hash from the server: " + str(e))
+        print("Couldn't get latest commit hash from the server, error: " + str(e))
         exit(-1)
 
-    latestCommits = getLatestCommitsFrom(latestCommitHash)
+    latestCommits = ""
+
+    try:
+        latestCommits = getLatestCommitsFrom(latestCommitHash)
+    except Exception as e:
+        print("main() Couldn't get latest commits list from the gradle task, error: " + str(e))
+        exit(-1)
 
     if len(latestCommits) <= 0:
-        print("latestCommits is empty, nothing was commited to the project since last build so do nothing, "
+        print("main() latestCommits is empty, nothing was commited to the project since last build so do nothing, "
               "latestCommitHash = " + latestCommitHash)
         exit(0)
 
