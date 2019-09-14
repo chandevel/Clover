@@ -14,6 +14,7 @@ android:
     - build-tools-28.0.3
     - android-28
 before_install:
+  - sudo apt-get update
   - sudo apt-get -y install python3-pip
   - python3 -V
   - pip3 -V
@@ -23,7 +24,7 @@ script:
   - cd Kuroba || travis_terminate 1;
   - chmod +x gradlew || travis_terminate 2;
   - ./gradlew build --console plain -x lint || travis_terminate 3;
-  - python upload_apk.py 1234567890 401010 http://94.140.116.243:8080 || travis_terminate 4;
+  - python upload_apk.py 1234567890 401010 http://94.140.116.243:8080 my-multi-feature || travis_terminate 4;
 
 notifications:
   email: false

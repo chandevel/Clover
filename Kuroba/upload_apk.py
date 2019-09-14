@@ -42,11 +42,14 @@ def uploadApk(baseUrl, headers, latestCommits):
         inFile.close()
 
 
-def getLatestCommitsFrom(latestCommitHash):
-    if len(latestCommitHash) <= 0:
-        print("getLatestCommitsFrom() Latest commit hash is empty, should be okay")
+def getLatestCommitsFrom(branchName, latestCommitHash):
+    arguments = ['gradlew',
+                 '-Pfrom=' + latestCommitHash + ' -Pbranch_name=' + branchName + ' getLastCommitsFromCommitByHash']
 
-    arguments = ['gradlew', '-Pfrom=' + latestCommitHash + ' getLastCommits']
+    if len(latestCommitHash) <= 0:
+        arguments = ['gradlew',
+                     '-Pbranch_name=' + branchName + ' getLastTenCommits']
+
     print("getLatestCommitsFrom() arguments: " + str(arguments))
 
     result = subprocess.run(args=arguments, stdout=subprocess.PIPE)
@@ -58,12 +61,17 @@ def getLatestCommitsFrom(latestCommitHash):
 
 if __name__ == '__main__':
     args = len(sys.argv)
-    if args != 4:
-        print("Bad arguments count, should be 4 got " + str(args))
+    if args != 5:
+        print("Bad arguments count, should be 5 got " + str(args) + ", expected arguments: "
+                                                                    "\n1. Secret key, "
+                                                                    "\n2. Apk version, "
+                                                                    "\n3. Base url, "
+                                                                    "\n4. Branch name")
         exit(-1)
 
     headers = dict(SECRET_KEY=sys.argv[1], APK_VERSION=sys.argv[2])
     baseUrl = sys.argv[3]
+    branchName = sys.argv[4]
     latestCommitHash = ""
 
     try:
