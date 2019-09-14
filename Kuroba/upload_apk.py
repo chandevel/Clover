@@ -1,6 +1,8 @@
+import os
 import sys
 import requests
 import subprocess
+
 
 def run(*popenargs, input=None, check=False, **kwargs):
     if input is not None:
@@ -20,6 +22,7 @@ def run(*popenargs, input=None, check=False, **kwargs):
         raise subprocess.CalledProcessError(
             retcode, process.args, output=stdout, stderr=stderr)
     return retcode, stdout, stderr
+
 
 def getLatestCommitHash(baseUrl):
     response = requests.get(baseUrl + '/latest_commit_hash')
@@ -60,14 +63,18 @@ def uploadApk(baseUrl, headers, latestCommits):
     finally:
         inFile.close()
 
-def getLatestCommitsFrom(branchName, latestCommitHash):
-    print("branchName = \"" + str(branchName) + "\", latestCommitHash = \"" + str(latestCommitHash) + "\"")
 
-    arguments = ['gradlew',
+def getLatestCommitsFrom(branchName, latestCommitHash):
+    gradlewFullPath = os.path.dirname(os.path.abspath(__file__)) + "\\gradlew"
+
+    print("branchName = \"" + str(branchName) + "\", latestCommitHash = \"" + str(
+        latestCommitHash) + "\", gradlewFullPath = \"" + gradlewFullPath + "\"")
+
+    arguments = [gradlewFullPath,
                  '-Pfrom=' + latestCommitHash + ' -Pbranch_name=' + branchName + ' getLastCommitsFromCommitByHash']
 
     if len(latestCommitHash) <= 0:
-        arguments = ['gradlew',
+        arguments = [gradlewFullPath,
                      '-Pbranch_name=' + branchName + ' getLastTenCommits']
 
     print("getLatestCommitsFrom() arguments: " + str(arguments))
