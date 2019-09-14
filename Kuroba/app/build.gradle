@@ -200,7 +200,8 @@ task getLastTenCommits {
     doFirst {
         def command = "git log ${branch_name} -n 10 --pretty=format:\"%H - %an, %ar : %s\" --first-parent"
         def task = command.execute()
-        task.waitFor(15, TimeUnit.SECONDS)
+        println "111"
         println task.text
+        println "222"
     }
 }
