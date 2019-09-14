@@ -43,6 +43,7 @@ def uploadApk(baseUrl, headers, latestCommits):
 
 
 def getLatestCommitsFrom(branchName, latestCommitHash):
+    print(subprocess.__file__)
     print("branchName = \"" + str(branchName) + "\", latestCommitHash = \"" + str(latestCommitHash) + "\"")
 
     arguments = ['gradlew',
