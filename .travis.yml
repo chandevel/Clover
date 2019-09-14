@@ -14,7 +14,7 @@ android:
     - build-tools-28.0.3
     - android-28
 install:
-  - pip install requests 
+  - pip3 install requests 
 script: 
   - cd Kuroba || travis_terminate 1;
   - chmod +x gradlew || travis_terminate 2;
