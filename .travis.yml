@@ -5,8 +5,7 @@ language:
   - python
 jdk:
   - oraclejdk8
-python: 
-  - "3.6"
+python: "3.6"
 android:
   components:
     - platform-tools
@@ -14,12 +13,11 @@ android:
     - extra-android-m2repository
     - build-tools-28.0.3
     - android-28
-before_install:
+install:
   - sudo apt-get update
   - sudo apt-get -y install python3-pip
   - python3 -V
   - pip3 -V
-install:
   - pip3 install requests 
 script: 
   - cd Kuroba || travis_terminate 1;
