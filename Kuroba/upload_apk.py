@@ -1,4 +1,3 @@
-import os
 import sys
 import requests
 import subprocess
@@ -65,7 +64,7 @@ def uploadApk(baseUrl, headers, latestCommits):
 
 
 def getLatestCommitsFrom(branchName, latestCommitHash):
-    gradlewFullPath = str(os.path.join(Path(__file__).parent.absolute(), "gradlew"))
+    gradlewFullPath = str(Path(__file__).parent.absolute() + "/gradlew")
 
     print("branchName = \"" + str(branchName) + "\", latestCommitHash = \"" + str(
         latestCommitHash) + "\", gradlewFullPath = \"" + gradlewFullPath + "\"")
@@ -89,7 +88,7 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
 if __name__ == '__main__':
     args = len(sys.argv)
     if args != 5:
-        print("Bad arguments count, should be 5 got " + str(args) + ", expected arguments: "
+        print("Bad arguments count, should be 4 got " + str(args) + ", expected arguments: "
                                                                     "\n1. Secret key, "
                                                                     "\n2. Apk version, "
                                                                     "\n3. Base url, "
