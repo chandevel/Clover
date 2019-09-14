@@ -60,13 +60,16 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
 
     print("getLatestCommitsFrom() arguments: " + str(arguments))
 
-    p = subprocess.Popen(args=arguments, stdout=subprocess.PIPE)
-    (stdout, stderr) = p.communicate()
+    # p = subprocess.Popen(args=arguments, stdout=subprocess.PIPE)
+    # (stdout, stderr) = p.communicate()
+    #
+    # p_status = p.wait()
+    # print("Command output : " + str(stdout))
+    # print("Command error : " + str(stderr))
+    # print("Command exit status/return code : ", p_status)
 
-    p_status = p.wait()
-    print("Command output : " + str(stdout))
-    print("Command error : " + str(stderr))
-    print("Command exit status/return code : ", p_status)
+    stdout = subprocess.check_output(arguments)
+    print("result = " + str(stdout))
 
     return str(stdout)
 
