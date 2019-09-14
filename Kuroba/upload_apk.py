@@ -35,7 +35,7 @@ def getLatestCommitHash(baseUrl):
 
 
 def uploadApk(baseUrl, headers, latestCommits):
-    apkPath = "Kuroba\\app\\build\\outputs\\apk\\debug\\Kuroba.apk"
+    apkPath = "Kuroba/app/build/outputs/apk/debug/Kuroba.apk"
     inFile = open(apkPath, "rb")
     try:
         if not inFile.readable():
@@ -81,7 +81,13 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
     retcode, stdout, _ = run(args=arguments, stdout=subprocess.PIPE)
     resultText = str(stdout)
 
+    print("\n\n")
     print("getLatestCommitsFrom() getLastCommits result: " + resultText + ", retcode = " + str(retcode))
+
+    if retcode != 0:
+        print("Command returned non zero return code: retcode = " + str(retcode))
+        exit(-1)
+
     return resultText
 
 
