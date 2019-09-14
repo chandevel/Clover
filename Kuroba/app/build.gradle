@@ -202,7 +202,7 @@ task getLastTenCommits {
         def command = "git log -n 10"
         def task = command.execute()
         def text = task.text
-
+ 
         println "111"
         println "size = ${text.size()}"
         println text
