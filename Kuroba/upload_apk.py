@@ -43,6 +43,8 @@ def uploadApk(baseUrl, headers, latestCommits):
 
 
 def getLatestCommitsFrom(branchName, latestCommitHash):
+    print("branchName = \"" + str(branchName) + "\", latestCommitHash = \"" + str(latestCommitHash) + "\"")
+
     arguments = ['gradlew',
                  '-Pfrom=' + latestCommitHash + ' -Pbranch_name=' + branchName + ' getLastCommitsFromCommitByHash']
 
@@ -83,7 +85,7 @@ if __name__ == '__main__':
     latestCommits = ""
 
     try:
-        latestCommits = getLatestCommitsFrom(latestCommitHash)
+        latestCommits = getLatestCommitsFrom(branchName, latestCommitHash)
     except Exception as e:
         print("main() Couldn't get latest commits list from the gradle task, error: " + str(e))
         exit(-1)
