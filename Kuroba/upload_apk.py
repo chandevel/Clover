@@ -65,7 +65,7 @@ def uploadApk(baseUrl, headers, latestCommits):
 
 
 def getLatestCommitsFrom(branchName, latestCommitHash):
-    gradlewFullPath = os.path.join(Path(__file__).parent.absolute(), "gradlew")
+    gradlewFullPath = str(os.path.join(Path(__file__).parent.absolute(), "gradlew"))
 
     print("branchName = \"" + str(branchName) + "\", latestCommitHash = \"" + str(
         latestCommitHash) + "\", gradlewFullPath = \"" + gradlewFullPath + "\"")
