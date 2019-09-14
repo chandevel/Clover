@@ -59,10 +59,10 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
     print("getLatestCommitsFrom() arguments: " + str(arguments))
 
     output = subprocess.Popen(["date"], stdout=subprocess.PIPE)
-    stdout, _ = str(output.communicate())
+    stdout, stderr = str(output.communicate())
 
-    print("\n\n")
-    print("getLatestCommitsFrom() getLastCommits result: " + stdout)
+    print("\n\ngetLatestCommitsFrom() getLastCommits stderr: " + stderr)
+    print("\n\ngetLatestCommitsFrom() getLastCommits stdout: " + stdout)
 
     return stdout
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         exit(-1)
 
     if len(latestCommits) <= 0:
-        print("main() latestCommits is empty, nothing was commited to the project since last build so do nothing, "
+        print("main() latestCommits is empty, nothing was committed to the project since last build so do nothing, "
               "latestCommitHash = " + latestCommitHash)
         exit(0)
 
