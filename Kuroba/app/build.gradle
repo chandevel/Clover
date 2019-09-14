@@ -197,15 +197,22 @@ task getLastCommitsFromCommitByHash {
 
 
 task getLastTenCommits {
-    doFirst {
+//    doFirst {
 //        def command = "git log -n 10 --pretty=format:\"%H - %an, %ar : %s\" --first-parent"
-        def command = "git log -n 10"
-        def task = command.execute()
-        def text = task.err.text
- 
-        println "111"
-        println "size = ${text.size()}"
-        println "error = ${text}" 
-        println "222"
-    }
+//        def command = "git log -n 10"
+//        def task = command.execute()
+//        def text = task.err.text
+//
+//        println "111"
+//        println "size = ${text.size()}"
+//        println "error = ${text}"
+//        println "222"
+//    }
+
+    def branch = ""
+    def proc = "git log -n 10".execute()
+    proc.in.eachLine { line -> println line }
+    proc.err.eachLine { line -> println line }
+    proc.waitFor()
+    branch
 }
