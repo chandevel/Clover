@@ -58,13 +58,17 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
 
     print("getLatestCommitsFrom() arguments: " + str(arguments))
 
-    output = subprocess.Popen(["date"], stdout=subprocess.PIPE)
-    stdout, stderr = str(output.communicate())
+    proc = subprocess.Popen(args=arguments, stdout=subprocess.PIPE)
+    while True:
+        line = proc.stdout.readline()
+        if not line:
+            break
+        # the real code does filtering here
+        print("test:" + str(line.rstrip()))
 
-    print("\n\ngetLatestCommitsFrom() getLastCommits stderr: " + stderr)
-    print("\n\ngetLatestCommitsFrom() getLastCommits stdout: " + stdout)
-
-    return stdout
+    # print("\n\ngetLatestCommitsFrom() getLastCommits stdout: " + stdout)
+    # return stdout
+    return ""
 
 
 if __name__ == '__main__':
