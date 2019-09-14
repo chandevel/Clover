@@ -1,5 +1,3 @@
-import java.util.concurrent.TimeUnit
-
 apply plugin: 'com.android.application'
 
 android {
@@ -190,8 +188,6 @@ dependencies {
 task getLastCommitsFromCommitByHash {
     doFirst {
         def command = "git log ${branch_name} ${from}^..HEAD --pretty=format:\"%H - %an, %ar : %s\" --first-parent"
-        println command
-
         def task = command.execute()
         task.waitFor(15, TimeUnit.SECONDS)
         println task.text
@@ -202,8 +198,6 @@ task getLastCommitsFromCommitByHash {
 task getLastTenCommits {
     doFirst {
         def command = "git log ${branch_name} -n 10 --pretty=format:\"%H - %an, %ar : %s\" --first-parent"
-        println command
-
         def task = command.execute()
         task.waitFor(15, TimeUnit.SECONDS)
         println task.text
