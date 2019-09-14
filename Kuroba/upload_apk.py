@@ -2,7 +2,7 @@ import os
 import sys
 import requests
 import subprocess
-
+from pathlib import Path
 
 def run(*popenargs, input=None, check=False, **kwargs):
     if input is not None:
@@ -65,7 +65,7 @@ def uploadApk(baseUrl, headers, latestCommits):
 
 
 def getLatestCommitsFrom(branchName, latestCommitHash):
-    gradlewFullPath = os.path.dirname(os.path.abspath(__file__)) + "\\gradlew"
+    gradlewFullPath = os.path.join(Path(__file__).parent.absolute(), "gradlew")
 
     print("branchName = \"" + str(branchName) + "\", latestCommitHash = \"" + str(
         latestCommitHash) + "\", gradlewFullPath = \"" + gradlewFullPath + "\"")
