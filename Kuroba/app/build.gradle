@@ -205,7 +205,7 @@ task getLastTenCommits {
  
         println "111"
         println "size = ${text.size()}"
-        println "error = ${text}"
+        println "error = ${text}" 
         println "222"
     }
 }
