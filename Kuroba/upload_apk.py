@@ -50,11 +50,13 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
         latestCommitHash) + "\", gradlewFullPath = \"" + gradlewFullPath + "\"")
 
     arguments = [gradlewFullPath,
-                 '-Pfrom=' + latestCommitHash + ' -Pbranch_name=' + branchName + ' getLastCommitsFromCommitByHash']
+                 '-Pfrom=' + latestCommitHash + ' -Pbranch_name=' + branchName,
+                 'getLastCommitsFromCommitByHash']
 
     if len(latestCommitHash) <= 0:
         arguments = [gradlewFullPath,
-                     '-Pbranch_name=' + branchName + ' getLastTenCommits']
+                     '-Pbranch_name=' + branchName,
+                     'getLastTenCommits']
 
     print("getLatestCommitsFrom() arguments: " + str(arguments))
 
