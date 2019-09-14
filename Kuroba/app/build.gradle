@@ -198,7 +198,8 @@ task getLastCommitsFromCommitByHash {
 
 task getLastTenCommits {
     doFirst {
-        def command = "git log -n 10 --pretty=format:\"%H - %an, %ar : %s\" --first-parent"
+//        def command = "git log -n 10 --pretty=format:\"%H - %an, %ar : %s\" --first-parent"
+        def command = "git log -n 10"
         def task = command.execute()
         def text = task.text
 
