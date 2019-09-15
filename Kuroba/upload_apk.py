@@ -6,7 +6,7 @@ from pathlib import Path
 
 def getApkVersionCode():
     gradlewFullPath = str(Path(__file__).parent.absolute()) + "/gradlew"
-    arguments = [gradlewFullPath, 'getVersionCode']
+    arguments = [gradlewFullPath, 'getVersionCode', '-q']
 
     print("getApkVersionCode() arguments: " + str(arguments))
     stdout = subprocess.check_output(arguments)
@@ -63,12 +63,14 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
 
     arguments = [gradlewFullPath,
                  '-Pfrom=' + latestCommitHash + ' -Pbranch_name=' + branchName,
-                 'getLastCommitsFromCommitByHash']
+                 'getLastCommitsFromCommitByHash',
+                 '-q']
 
     if len(latestCommitHash) <= 0:
         arguments = [gradlewFullPath,
                      '-Pbranch_name=' + branchName,
-                     'getLatestCommit']
+                     'getLatestCommit',
+                     '-q']
 
     print("getLatestCommitsFrom() arguments: " + str(arguments))
     stdout = subprocess.check_output(arguments)
