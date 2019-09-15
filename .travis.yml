@@ -27,4 +27,4 @@ script:
   - python3 upload_apk.py 1234567890 401010 http://94.140.116.243:8080 my-multi-feature || travis_terminate 4;
 
 notifications:
-  email: false
+  email: false 
