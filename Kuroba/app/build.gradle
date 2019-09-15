@@ -190,7 +190,7 @@ dependencies {
 def getLatestCommit(String branchName) {
     def stdout = new ByteArrayOutputStream()
     exec {
-        def printArgs = "%H - %ad, %ar : %s"
+        def printArgs = "%H; %ad; %s"
         commandLine 'git', 'log', branchName, '-n 1', "--pretty=format:${printArgs}", '--first-parent'
         standardOutput = stdout
     }
@@ -201,8 +201,8 @@ def getLatestCommit(String branchName) {
 def getLastCommitsFromCommitByHash(String branchName, String from) {
     def stdout = new ByteArrayOutputStream()
     exec {
-        def printArgs = "%H - %ad, %ar : %s"
-        commandLine 'git', 'log', branchName, '-n 1', "${from}^..HEAD", "--pretty=format:${printArgs}", '--first-parent'
+        def printArgs = "%H; %ad; %s"
+        commandLine 'git', 'log', branchName, "${from}^..HEAD", "--pretty=format:${printArgs}", '--first-parent'
         standardOutput = stdout
     }
 
@@ -217,7 +217,7 @@ task getLatestCommitTask {
 
 task getLastCommitsFromCommitByHashTask {
     doLast {
-        println(getLastCommitsFromCommitByHash(branch_name))
+        println(getLastCommitsFromCommitByHash(branch_name, from))
     }
 }
 
