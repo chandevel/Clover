@@ -174,7 +174,7 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.11.3'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.12'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
-    implementation 'org.greenrobot:eventbus:3.1.1' 
+    implementation 'org.greenrobot:eventbus:3.1.1'
     implementation 'org.nibor.autolink:autolink:0.10.0'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'me.xdrop:fuzzywuzzy:1.1.10'
@@ -190,7 +190,7 @@ dependencies {
 task getLastCommitsFromCommitByHash {
     doLast {
         def command = "git log ${branch_name} ${from}^..HEAD --pretty=format:\"%H - %an, %ar : %s\" --first-parent"
-        def task = command.execute()
+        def task = command.execute() 
         task.waitFor(15, TimeUnit.SECONDS)
         println task.text
     }
