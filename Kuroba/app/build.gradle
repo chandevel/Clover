@@ -187,11 +187,11 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 }
 
-def getGitCommand = { ->
+def getGitCommand(String branchName) {
     def stdout = new ByteArrayOutputStream()
     exec {
         def printArgs = "%H - %an, %ar : %s"
-        commandLine 'git', 'log', "${branch_name}", '-n 1', "--pretty=format:${printArgs}", '--first-parent'
+        commandLine 'git', 'log', branchName, '-n 1', "--pretty=format:${printArgs}", '--first-parent'
         standardOutput = stdout
     }
 
@@ -199,6 +199,7 @@ def getGitCommand = { ->
 }
 
 task getLatestCommit {
+    doLast {
 //    doLast {
 //        // FIXME:
 //        // I want to use --pretty=format:"%H - %an, %ar : %s" here but I CAN'T. For some
@@ -219,7 +220,8 @@ task getLatestCommit {
 //        proc.err.eachLine { line -> println line }
 //    }
 
-    println(getGitCommand())
+        println(getGitCommand(branch_name))
+    }
 }
 
 task getLastCommitsFromCommitByHash {
