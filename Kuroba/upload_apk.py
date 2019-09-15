@@ -78,8 +78,9 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
 
 
 if __name__ == '__main__':
-    args = len(sys.argv)
-    if args != 4:
+    # First argument is the script full path which we don't need
+    args = len(sys.argv) - 1
+    if args != 3:
         print("Bad arguments count, should be 3 got " + str(args) + ", expected arguments: "
                                                                     "\n1. Secret key, "
                                                                     "\n2. Base url, "
