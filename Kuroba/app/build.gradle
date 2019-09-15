@@ -1,4 +1,5 @@
 import java.util.concurrent.TimeUnit
+
 apply plugin: 'com.android.application'
 
 android {
@@ -135,9 +136,9 @@ android {
             dimension "default"
             //these are manifest placeholders for the application name and icon location
             manifestPlaceholders = [
-                    appName: "Kuroba",
-                    iconLoc: "@mipmap/ic_launcher",
-                    fileProviderAuthority:"${applicationIdSuffix}.fileprovider"
+                    appName              : "Kuroba",
+                    iconLoc              : "@mipmap/ic_launcher",
+                    fileProviderAuthority: "${applicationIdSuffix}.fileprovider"
             ]
         }
         dev {
@@ -147,9 +148,9 @@ android {
 
             //these are manifest placeholders for the application name and icon location
             manifestPlaceholders = [
-                    appName: "Kuroba${versionNameSuffix}",
-                    iconLoc: "@mipmap/ic_launcher",
-                    fileProviderAuthority:"${applicationIdSuffix}.fileprovider"
+                    appName              : "Kuroba${versionNameSuffix}",
+                    iconLoc              : "@mipmap/ic_launcher",
+                    fileProviderAuthority: "${applicationIdSuffix}.fileprovider"
             ]
         }
     }
@@ -187,7 +188,7 @@ dependencies {
 }
 
 // TODO
-task getLastCommitsFromCommitByHash { 
+task getLastCommitsFromCommitByHash {
     doLast {
         def command = "git log ${branch_name} ${from}^..HEAD --pretty=format:\"%H - %an, %ar : %s\" --first-parent"
         def task = command.execute()
