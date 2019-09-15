@@ -9,7 +9,7 @@ def getApkVersionCode():
     arguments = [gradlewFullPath, 'getVersionCode', '-q']
 
     print("getApkVersionCode() arguments: " + str(arguments))
-    stdout = subprocess.check_output(arguments)
+    stdout = subprocess.check_output(arguments).decode("utf-8")
     print("result = " + str(stdout))
 
     return str(stdout).strip()
