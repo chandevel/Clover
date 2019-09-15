@@ -200,7 +200,10 @@ task getLastCommitsFromCommitByHash {
 
 task getLatestCommit {
     doLast {
-        def proc = "git log -n 1 --pretty=format:\"%H - %an, %ad : %s\" --first-parent".execute()
+        def command = "git log -n 1 --pretty=format:\"%H - %an, %ad : %s\" --first-parent"
+        println "command = ${command}"
+
+        def proc = command.execute()
         proc.waitFor(15, TimeUnit.SECONDS)
         proc.in.eachLine { line -> println line }
         proc.err.eachLine { line -> println line }
