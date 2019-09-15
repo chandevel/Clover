@@ -1,18 +1,18 @@
 sudo: false
 
 language: 
-  #- android
+  - android
   - python
-#jdk:
-  #- oraclejdk8
+jdk:
+  - oraclejdk8
 python: "3.6"
-#android:
-#  components:
-#    - platform-tools
-#    - tools
-#    - extra-android-m2repository
-#    - build-tools-28.0.3
-#    - android-28
+android:
+ components:
+   - platform-tools
+   - tools
+   - extra-android-m2repository
+   - build-tools-28.0.3
+   - android-28
 install:
   - sudo apt-get update
   - sudo apt-get install python3
@@ -23,7 +23,7 @@ install:
 script: 
   - cd Kuroba || travis_terminate 1;
   - chmod +x gradlew || travis_terminate 2;
- # - ./gradlew build --console plain -x lint || travis_terminate 3;
+ - ./gradlew build --console plain -x lint || travis_terminate 3;
   - python3 upload_apk.py 1234567890 401010 http://94.140.116.243:8080 my-multi-feature || travis_terminate 4;
 
 notifications:
