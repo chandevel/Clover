@@ -36,6 +36,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -114,6 +115,35 @@ public class DeveloperSettingsController extends Controller {
         });
         clearFilterWatchIgnores.setText("Clear ignored filter watches");
         wrapper.addView(clearFilterWatchIgnores);
+
+        Button dumpAllThreadStacks = new Button(context);
+        dumpAllThreadStacks.setOnClickListener(v -> {
+            Set<Thread> activeThreads = Thread.getAllStackTraces().keySet();
+            Logger.d("STACKDUMP-COUNT", String.valueOf(activeThreads.size()));
+            for (Thread t : activeThreads) {
+                //ignore these threads as they aren't relevant (main will always be this button press)
+                if (t.getName().equalsIgnoreCase("main")
+                        || t.getName().contains("Daemon")
+                        || t.getName().equalsIgnoreCase("Signal Catcher")
+                        || t.getName().contains("hwuiTask")
+                        || t.getName().contains("Binder:")
+                        || t.getName().equalsIgnoreCase("RenderThread")
+                        || t.getName().contains("maginfier pixel")
+                        || t.getName().contains("Jit thread")
+                        || t.getName().equalsIgnoreCase("Profile Saver")
+                        || t.getName().contains("Okio")
+                        || t.getName().contains("AsyncTask"))
+                    continue;
+                StackTraceElement[] elements = t.getStackTrace();
+                Logger.d("STACKDUMP-HEADER", "Thread: " + t.getName());
+                for (StackTraceElement e : elements) {
+                    Logger.d("STACKDUMP", e.toString());
+                }
+                Logger.d("STACKDUMP-FOOTER", "----------------");
+            }
+        });
+        dumpAllThreadStacks.setText("Dump active thread stack traces to log");
+        wrapper.addView(dumpAllThreadStacks);
 
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);
