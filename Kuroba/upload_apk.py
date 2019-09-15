@@ -56,18 +56,9 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
     if len(latestCommitHash) <= 0:
         arguments = [gradlewFullPath,
                      '-Pbranch_name=' + branchName,
-                     'getLastTenCommits']
+                     'getLatestCommit']
 
     print("getLatestCommitsFrom() arguments: " + str(arguments))
-
-    # p = subprocess.Popen(args=arguments, stdout=subprocess.PIPE)
-    # (stdout, stderr) = p.communicate()
-    #
-    # p_status = p.wait()
-    # print("Command output : " + str(stdout))
-    # print("Command error : " + str(stderr))
-    # print("Command exit status/return code : ", p_status)
-
     stdout = subprocess.check_output(arguments)
     print("result = " + str(stdout))
 
