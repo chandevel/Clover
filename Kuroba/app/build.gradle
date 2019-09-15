@@ -171,7 +171,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.14.1'
     implementation 'com.j256.ormlite:ormlite-core:5.1'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
-    implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'org.jsoup:jsoup:1.11.3' 
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.12'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
     implementation 'org.greenrobot:eventbus:3.1.1'
@@ -185,7 +185,7 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:2.2.9"
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 }
- 
+
 // TODO
 task getLastCommitsFromCommitByHash { 
     doLast {
