@@ -115,9 +115,11 @@ public class ExperimentalSettingsController extends SettingsController {
                 ChanSettings.incrementalThreadDownloadingEnabled,
                 context.getString(R.string.incremental_thread_downloading_title),
                 context.getString(R.string.incremental_thread_downloading_description));
+        requiresRestart.add(group.add(incrementalThreadDownloadingSetting));
 
-        requiresRestart.add(incrementalThreadDownloadingSetting);
-        group.add(incrementalThreadDownloadingSetting);
+        requiresUiRefresh.add(group.add(new BooleanSettingView(this,
+                ChanSettings.parseYoutubeTitles,
+                R.string.setting_youtube_title, R.string.setting_youtube_title_description)));
 
         groups.add(group);
     }

@@ -189,6 +189,8 @@ public class ChanSettings {
     public static final BooleanSetting moveInputToBottom;
     public static final BooleanSetting enableLongPressURLCopy;
 
+    public static final BooleanSetting parseYoutubeTitles;
+
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
@@ -296,6 +298,8 @@ public class ChanSettings {
 
         moveInputToBottom = new BooleanSetting(p, "move_input_bottom", false);
         enableLongPressURLCopy = new BooleanSetting(p , "long_press_image_url_copy", true);
+
+        parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", false);
     }
 
     public static ThemeColor getThemeAndColor() {

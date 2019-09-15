@@ -691,6 +691,8 @@ Don't have a 4chan Pass?<br>
     <string name="settings_always_open_drawer">Always open the drawer when a thread is bookmarked</string>
     <string name="settings_image_long_url">Enable long-press image URL copy</string>
     <string name="settings_image_long_url_description">Makes long-pressing on post images copy the image URL to the clipboard</string>
+    <string name="setting_youtube_title">Enable Youtube titles</string>
+    <string name="setting_youtube_title_description">Replaces Youtube links with their titles; disable if you have loading issues</string>
     <string-array name="setting_watch_notify_modes">
         <item>All posts</item>
         <item>Only posts quoting you</item>
