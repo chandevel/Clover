@@ -199,7 +199,7 @@ task getLatestCommit {
         // PLEASE make a PR.
         // Here is the full command that doesn't work:
         // git log ${branch_name} -n 1 --pretty=format:"%H - %an, %ar : %s" --first-parent
-        def command = "git log ${branch_name} -n 1 --first-parent"
+        def command = "git log ${branch_name} -n 1 --pretty=format:\"%H - %an, %ar : %s\" --first-parent"
         println "command = ${command}"
 
         def proc = command.execute()
