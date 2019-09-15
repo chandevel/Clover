@@ -12,7 +12,7 @@ def getApkVersionCode():
     stdout = subprocess.check_output(arguments)
     print("result = " + str(stdout))
 
-    return str(stdout)
+    return str(stdout).strip()
 
 
 def getLatestCommitHash(baseUrl):
@@ -27,7 +27,7 @@ def getLatestCommitHash(baseUrl):
 
 
 def uploadApk(baseUrl, headers, latestCommits):
-    apkPath = "app/build/outputs/apk/dev/debug/null.apk" # FIXME: change null to Kuroba when it works
+    apkPath = "app/build/outputs/apk/dev/debug/null.apk"  # FIXME: change null to Kuroba when it works
     inFile = open(apkPath, "rb")
     try:
         if not inFile.readable():
