@@ -191,7 +191,7 @@ def getGitCommand = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
         def printArgs = "%H - %an, %ar : %s"
-        commandLine 'git', 'log', branch_name, '-n 1', "--pretty=format:${printArgs}",'--first-parent'
+        commandLine 'git', 'log', "${branch_name}", '-n 1', "--pretty=format:${printArgs}", '--first-parent'
         standardOutput = stdout
     }
 
