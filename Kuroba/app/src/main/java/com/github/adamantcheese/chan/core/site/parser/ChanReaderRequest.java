@@ -27,12 +27,14 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.JsonReaderRequest;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderRequestParams;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -40,6 +42,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 
@@ -53,12 +56,19 @@ import static com.github.adamantcheese.chan.Chan.inject;
  * changed on the main thread.
  */
 public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
+    private static final String TAG = "ChanReaderRequest";
     private static final int THREAD_COUNT;
     private static final ExecutorService EXECUTOR;
+    private static final String threadFactoryName = "post_parser_thread_%d";
+    private static final AtomicInteger threadIndex = new AtomicInteger(0);
 
     static {
         THREAD_COUNT = Runtime.getRuntime().availableProcessors();
-        EXECUTOR = Executors.newFixedThreadPool(THREAD_COUNT);
+        Logger.d(TAG, "Thread count: " + THREAD_COUNT);
+        EXECUTOR = Executors.newFixedThreadPool(THREAD_COUNT, r -> {
+            String threadName = String.format(Locale.US, threadFactoryName, threadIndex.getAndIncrement());
+            return new Thread(r, threadName);
+        });
     }
 
     @Inject

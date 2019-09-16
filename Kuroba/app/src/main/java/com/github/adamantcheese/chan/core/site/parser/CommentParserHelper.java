@@ -24,6 +24,7 @@ import android.text.style.ImageSpan;
 
 import androidx.annotation.AnyThread;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.RequestFuture;
@@ -43,6 +44,7 @@ import org.nibor.autolink.LinkType;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,7 +102,7 @@ public class CommentParserHelper {
 
             String title = linkMatcher.group(0);
             try {
-                JSONObject response = future.get(); // this will block so we get the title immediately
+                JSONObject response = future.get(2500, TimeUnit.MILLISECONDS); // this will block so we get the title immediately
                 title = response.getJSONArray("items").getJSONObject(0).getJSONObject("snippet").getString("title");
             } catch (Exception ignored) {
             }
