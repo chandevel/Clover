@@ -106,8 +106,10 @@ public class FilterWatchManager implements WakeManager.Wakeable {
     }
 
     private void populateFilterLoaders() {
-        Logger.d(TAG, "Populating filter loaders");
-        clearFilterLoaders();
+        for (ChanThreadLoader loader : filterLoaders.keySet()) {
+            chanLoaderFactory.release(loader, filterLoaders.get(loader));
+        }
+        filterLoaders.clear();
         //get our filters that are tagged as "pin"
         List<Filter> activeFilters = filterEngine.getEnabledWatchFilters();
         //get a set of boards to background load
@@ -144,28 +146,21 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         }
     }
 
-    private void clearFilterLoaders() {
-        if (filterLoaders.isEmpty()) {
-            return;
-        }
-        for (ChanThreadLoader loader : filterLoaders.keySet()) {
-            chanLoaderFactory.release(loader, filterLoaders.get(loader));
-        }
-        filterLoaders.clear();
-    }
-
     @Override
     public void onWake() {
-        processing = true;
-        populateFilterLoaders();
-        for (ChanThreadLoader loader : filterLoaders.keySet()) {
-            loader.requestData();
+        if (!processing) {
+            Logger.d(TAG, "Processing filter loaders");
+            processing = true;
+            populateFilterLoaders();
+            for (ChanThreadLoader loader : filterLoaders.keySet()) {
+                loader.requestData();
+            }
         }
     }
 
     public void onCatalogLoad(ChanThread catalog) {
-        if(catalog.getLoadable().isThreadMode()) return; //not a catalog
-        if(processing) return; //filter watch manager is currently processing, ignore
+        if (catalog.getLoadable().isThreadMode()) return; //not a catalog
+        if (processing) return; //filter watch manager is currently processing, ignore
 
         Set<Integer> toAdd = new HashSet<>();
         //Match filters and ignores
@@ -225,6 +220,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                     ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
                     lastCheckedPosts.clear();
                     processing = false;
+                    Logger.d(TAG, "Finished processing filter loaders");
                 }
             }
         }
