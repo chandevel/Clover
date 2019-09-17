@@ -215,7 +215,7 @@ public class DefaultPostParser implements PostParser {
         } else if (node instanceof Element) {
             String nodeName = node.nodeName();
             String styleAttr = node.attr("style");
-            if (!styleAttr.isEmpty()) {
+            if (!styleAttr.isEmpty() && !nodeName.equals("span")) {
                 nodeName = nodeName + '-' + styleAttr.split(":")[1].trim();
             }
 
