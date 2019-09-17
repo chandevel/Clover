@@ -145,6 +145,13 @@ public class DeveloperSettingsController extends Controller {
         dumpAllThreadStacks.setText("Dump active thread stack traces to log");
         wrapper.addView(dumpAllThreadStacks);
 
+        Button forceFilterWatch = new Button(context);
+        forceFilterWatch.setOnClickListener(v -> {
+            Chan.injector().instance(FilterWatchManager.class).onWake();
+        });
+        forceFilterWatch.setText("Force wake filter manager, ignore settings");
+        wrapper.addView(forceFilterWatch);
+
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);
         view = scrollView;
