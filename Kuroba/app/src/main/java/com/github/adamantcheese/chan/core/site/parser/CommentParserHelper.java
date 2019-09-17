@@ -24,7 +24,6 @@ import android.text.style.ImageSpan;
 
 import androidx.annotation.AnyThread;
 
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.RequestFuture;
@@ -57,7 +56,7 @@ public class CommentParserHelper {
             .linkTypes(EnumSet.of(LinkType.URL))
             .build();
 
-    private static Pattern youtubeLinkPattern = Pattern.compile("\\b(?:https?://)?(?:www\\.)?youtu\\.?be(?:\\.com)?.*?(?:watch|embed)?(?:.*?v=|v/|/)([\\w\\-]+)&?(?:\\?t=\\d+)?(?:#[\\w|=]*)?\\b");
+    private static Pattern youtubeLinkPattern = Pattern.compile("\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
     private static final String API_KEY = "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE";
     private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
 
@@ -102,7 +101,8 @@ public class CommentParserHelper {
 
             String title = linkMatcher.group(0);
             try {
-                JSONObject response = future.get(2500, TimeUnit.MILLISECONDS); // this will block so we get the title immediately
+                // this will block so we get the title immediately
+                JSONObject response = future.get(1, TimeUnit.SECONDS);
                 title = response.getJSONArray("items").getJSONObject(0).getJSONObject("snippet").getString("title");
             } catch (Exception ignored) {
             }
