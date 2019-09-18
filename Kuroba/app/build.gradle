@@ -191,7 +191,7 @@ def getLatestCommit(String branchName) {
         def printArgs = "%H; %ad; %s"
         def dateFormat = "%Y-%m-%d %H:%M:%S"
 
-        commandLine 'git', 'log', branchName, '-n 1', "--pretty=format:${printArgs}", '--first-parent', "--date=format:${dateFormat}"
+        commandLine 'git', 'log', branchName, '-n 1', "--pretty=format:${printArgs}", "--date=format:${dateFormat}"
         standardOutput = stdout
     }
 
@@ -204,7 +204,7 @@ def getLastCommitsFromCommitByHash(String branchName, String from) {
         def printArgs = "%H; %ad; %s"
         def dateFormat = "%Y-%m-%d %H:%M:%S"
 
-        commandLine 'git', 'log', branchName, "${from}..HEAD", "--pretty=format:${printArgs}", '--first-parent', "--date=format:${dateFormat}"
+        commandLine 'git', 'log', branchName, "${from}..HEAD", "--pretty=format:${printArgs}", "--date=format:${dateFormat}"
         standardOutput = stdout
     }
 

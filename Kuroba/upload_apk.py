@@ -119,7 +119,7 @@ if __name__ == '__main__':
     branchName = sys.argv[3]
     latestCommitHash = ""
 
-    if not checkBranchExists:
+    if not checkBranchExists(branchName):
         print("main() requested branch does not exist, this is probably because it's a PR branch, so we don't want to "
               "do anything")
         exit(0)
