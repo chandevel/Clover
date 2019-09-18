@@ -210,7 +210,7 @@ def getLastCommitsFromCommitByHash(String branchName, String from) {
 
     return stdout.toString().trim()
 }
-
+ 
 task getLatestCommitTask {
     doLast {
         println(getLatestCommit(branch_name))
