@@ -210,7 +210,7 @@ def getLastCommitsFromCommitByHash(String branchName, String from) {
 
     return stdout.toString().trim()
 }
- 
+  
 def checkBranchExists(String branchName) {
     def stdout = new ByteArrayOutputStream()
     exec {
