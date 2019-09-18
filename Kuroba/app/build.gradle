@@ -209,7 +209,24 @@ def getLastCommitsFromCommitByHash(String branchName, String from) {
     }
 
     return stdout.toString().trim()
-}  
+}
+
+def checkBranchExists(String branchName) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+
+        commandLine 'git', 'rev-parse', '--verify', branchName
+        standardOutput = stdout
+    }
+
+    return stdout.toString().trim()
+}
+
+task checkBranchExistsTask {
+    doLast {
+        println(checkBranchExists(branch_name))
+    }
+}
 
 task getLatestCommitTask {
     doLast {

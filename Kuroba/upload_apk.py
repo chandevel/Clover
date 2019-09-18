@@ -83,6 +83,25 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
 
     return stdout.decode("utf-8").strip()
 
+def checkBranchExists(branchName):
+    gradlewFullPath = str(Path(__file__).parent.absolute()) + "/gradlew"
+
+    print("branchName = \"" + str(branchName) + "\", gradlewFullPath = \"" + gradlewFullPath + "\"")
+
+    arguments = [gradlewFullPath,
+                 '-Pbranch_name=' + branchName,
+                 'checkBranchExistsTask',
+                 '-q']
+
+    print("getLatestCommitsFrom() arguments: " + str(arguments))
+    stdout = subprocess.check_output(arguments)
+    result = str(stdout.decode("utf-8").strip())
+    print("result = " + result)
+
+    if "fatal" in result:
+        return False
+
+    return True
 
 if __name__ == '__main__':
     # First argument is the script full path which we don't need
@@ -99,6 +118,11 @@ if __name__ == '__main__':
     baseUrl = sys.argv[2]
     branchName = sys.argv[3]
     latestCommitHash = ""
+
+    if not checkBranchExists:
+        print("main() requested branch does not exist, this is probably because it's a PR branch, so we don't want to "
+              "do anything")
+        exit(0)
 
     if len(apkVersion) <= 0:
         print("main() Bad apk version code " + apkVersion)
