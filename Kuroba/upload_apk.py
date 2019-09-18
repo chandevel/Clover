@@ -66,7 +66,8 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
         latestCommitHash) + "\", gradlewFullPath = \"" + gradlewFullPath + "\"")
 
     arguments = [gradlewFullPath,
-                 '-Pfrom=' + latestCommitHash + ' -Pbranch_name=' + branchName,
+                 '-Pbranch_name=' + branchName,
+                 '-Pfrom=' + latestCommitHash,
                  'getLastCommitsFromCommitByHashTask',
                  '-q']
 
