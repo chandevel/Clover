@@ -207,7 +207,7 @@ def getLastCommitsFromCommitByHash(String branchName, String from) {
         commandLine 'git', 'log', branchName, "${from}^..HEAD", "--pretty=format:${printArgs}", '--first-parent', "--date=format:${dateFormat}"
         standardOutput = stdout
     }
-
+ 
     return stdout.toString().trim()
 }
 
