@@ -6,7 +6,7 @@ from pathlib import Path
 
 def getApkVersionCode():
     gradlewFullPath = str(Path(__file__).parent.absolute()) + "/gradlew"
-    arguments = [gradlewFullPath, 'getVersionCode', '-q']
+    arguments = [gradlewFullPath, 'getVersionCodeTask', '-q']
 
     print("getApkVersionCode() arguments: " + str(arguments))
     stdout = subprocess.check_output(arguments).decode("utf-8")
@@ -16,7 +16,10 @@ def getApkVersionCode():
 
 
 def getLatestCommitHash(baseUrl):
-    response = requests.get(baseUrl + '/latest_commit_hash')
+    response = requests.get(
+        baseUrl + '/latest_commit_hash',
+        timeout=30)
+
     if response.status_code != 200:
         print("getLatestCommitHash() Error while trying to get latest commit hash from the server" +
               ", response status = " + str(response.status_code) +
@@ -39,7 +42,8 @@ def uploadApk(baseUrl, headers, latestCommits):
         response = requests.post(
             baseUrl + '/upload',
             files=dict(apk=inFile, latest_commits=latestCommits),
-            headers=headers)
+            headers=headers,
+            timeout=30)
 
         if response.status_code != 200:
             print("uploadApk() Error while trying to upload file" +
@@ -63,13 +67,13 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
 
     arguments = [gradlewFullPath,
                  '-Pfrom=' + latestCommitHash + ' -Pbranch_name=' + branchName,
-                 'getLastCommitsFromCommitByHash',
+                 'getLastCommitsFromCommitByHashTask',
                  '-q']
 
     if len(latestCommitHash) <= 0:
         arguments = [gradlewFullPath,
                      '-Pbranch_name=' + branchName,
-                     'getLatestCommit',
+                     'getLatestCommitTask',
                      '-q']
 
     print("getLatestCommitsFrom() arguments: " + str(arguments))

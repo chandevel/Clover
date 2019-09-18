@@ -208,7 +208,7 @@ def getLastCommitsFromCommitByHash(String branchName, String from) {
         standardOutput = stdout
     }
 
-    return stdout.toString().trim() 
+    return stdout.toString().trim()
 }
 
 task getLatestCommitTask {
@@ -223,7 +223,7 @@ task getLastCommitsFromCommitByHashTask {
     }
 }
 
-task getVersionCode {
+task getVersionCodeTask {
     doLast {
         println(project.android.defaultConfig.versionCode)
     }
