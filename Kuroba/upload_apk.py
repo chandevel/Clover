@@ -93,15 +93,20 @@ def checkBranchExists(branchName):
                  'checkBranchExistsTask',
                  '-q']
 
-    print("getLatestCommitsFrom() arguments: " + str(arguments))
-    stdout = subprocess.check_output(arguments)
-    result = str(stdout.decode("utf-8").strip())
-    print("result = " + result)
+    print("checkBranchExists() arguments: " + str(arguments))
 
-    if "fatal" in result:
+    try:
+        stdout = subprocess.check_output(arguments)
+        result = str(stdout.decode("utf-8").strip())
+        print("result = " + result)
+
+        if "fatal" in result:
+            return False
+
+        return True
+    except Exception as e:
+        print("checkBranchExists() threw an exception, error: " + str(e))
         return False
-
-    return True
 
 if __name__ == '__main__':
     # First argument is the script full path which we don't need
