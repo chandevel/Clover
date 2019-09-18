@@ -9,7 +9,7 @@ def getApkVersionCode():
     arguments = [gradlewFullPath, 'getVersionCodeTask', '-q']
 
     print("getApkVersionCode() arguments: " + str(arguments))
-    stdout = subprocess.check_output(arguments).decode("utf-8")
+    stdout = subprocess.check_output(arguments)
     print("result = " + str(stdout))
 
     return stdout.decode("utf-8").strip()
@@ -26,7 +26,7 @@ def getLatestCommitHash(baseUrl):
               ", message = " + str(response.content))
         exit(-1)
 
-    return response.content.decode("utf-8")
+    return response.content.decode("utf-8").strip()
 
 
 def uploadApk(baseUrl, headers, latestCommits):
@@ -81,7 +81,7 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
     stdout = subprocess.check_output(arguments)
     print("result = " + str(stdout))
 
-    return stdout.decode("utf-8")
+    return stdout.decode("utf-8").strip()
 
 
 if __name__ == '__main__':
