@@ -12,7 +12,7 @@ def getApkVersionCode():
     stdout = subprocess.check_output(arguments).decode("utf-8")
     print("result = " + str(stdout))
 
-    return str(stdout).strip()
+    return stdout.decode("utf-8").strip()
 
 
 def getLatestCommitHash(baseUrl):
@@ -48,7 +48,7 @@ def uploadApk(baseUrl, headers, latestCommits):
         if response.status_code != 200:
             print("uploadApk() Error while trying to upload file" +
                   ", response status = " + str(response.status_code) +
-                  ", message = " + str(response.content))
+                  ", message = " + response.content.decode("utf-8"))
             exit(-1)
 
         print("uploadApk() Successfully uploaded")
@@ -81,7 +81,7 @@ def getLatestCommitsFrom(branchName, latestCommitHash):
     stdout = subprocess.check_output(arguments)
     print("result = " + str(stdout))
 
-    return str(stdout)
+    return stdout.decode("utf-8")
 
 
 if __name__ == '__main__':
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     try:
         latestCommitHash = getLatestCommitHash(baseUrl)
     except Exception as e:
-        print("Couldn't get latest commit hash from the server, error: " + str(e))
+        print("main() Couldn't get latest commit hash from the server, error: " + str(e))
         exit(-1)
 
     latestCommits = ""
