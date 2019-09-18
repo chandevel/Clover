@@ -113,20 +113,20 @@ if __name__ == '__main__':
                                                                     "\n3. Branch name")
         exit(-1)
 
-    secretKey = sys.argv[1]
-    apkVersion = getApkVersionCode()
-    baseUrl = sys.argv[2]
     branchName = sys.argv[3]
-    latestCommitHash = ""
-
     if not checkBranchExists(branchName):
         print("main() requested branch does not exist, this is probably because it's a PR branch, so we don't want to "
               "do anything")
         exit(0)
 
+    apkVersion = getApkVersionCode()
     if len(apkVersion) <= 0:
         print("main() Bad apk version code " + apkVersion)
         exit(-1)
+
+    secretKey = sys.argv[1]
+    baseUrl = sys.argv[2]
+    latestCommitHash = ""
 
     try:
         latestCommitHash = getLatestCommitHash(baseUrl)
