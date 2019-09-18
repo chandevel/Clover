@@ -196,7 +196,7 @@ def getLatestCommit(String branchName) {
     }
 
     return stdout.toString().trim()
-} 
+}
 
 def getLastCommitsFromCommitByHash(String branchName, String from) {
     def stdout = new ByteArrayOutputStream()
@@ -208,7 +208,7 @@ def getLastCommitsFromCommitByHash(String branchName, String from) {
         standardOutput = stdout
     }
 
-    return stdout.toString().trim()
+    return stdout.toString().trim() 
 }
 
 task getLatestCommitTask {
