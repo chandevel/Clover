@@ -197,7 +197,7 @@ def getLatestCommit(String branchName) {
 
     return stdout.toString().trim()
 }
- 
+
 def getLastCommitsFromCommitByHash(String branchName, String from) {
     def stdout = new ByteArrayOutputStream()
     exec {
