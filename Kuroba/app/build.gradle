@@ -226,7 +226,7 @@ task checkBranchExistsTask {
     doLast {
         println(checkBranchExists(branch_name))
     }
-}
+} 
 
 task getLatestCommitTask {
     doLast {
