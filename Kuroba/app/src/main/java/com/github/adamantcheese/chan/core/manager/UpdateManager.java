@@ -28,6 +28,7 @@ import android.os.StrictMode;
 import android.text.Html;
 import android.text.Spanned;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -110,6 +111,14 @@ public class UpdateManager {
     }
 
     private void runUpdateApi(final boolean manual) {
+        if (BuildConfig.DEV_BUILD) {
+            Toast.makeText(
+                    context,
+                    "Updater is currently disabled for dev builds. Should be fixed pretty soon!",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
         if (!manual) {
             long lastUpdateTime = ChanSettings.updateCheckTime.get();
             long interval = 1000 * 60 * 60 * 24 * 5; //5 days
