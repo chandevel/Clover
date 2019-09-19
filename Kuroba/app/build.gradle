@@ -46,7 +46,7 @@ android {
          *
          *              DON'T CHANGE THESE AUTOCALCULATIONS
          *              USED FOR VERSION CODE GENERATION
-         *              USED FOR VERSION NAME GENERATION 
+         *              USED FOR VERSION NAME GENERATION
          *              USED FOR AUTO UPDATER NAMING CONSISTENCY
          *
          * ------------------------------------------------------------
@@ -248,7 +248,7 @@ task checkBranchExistsTask {
     doLast {
         println(checkBranchExists(branch_name))
     }
-} 
+}
 
 task getLatestCommitTask {
     doLast {
