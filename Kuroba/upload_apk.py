@@ -119,9 +119,9 @@ if __name__ == '__main__':
         exit(-1)
 
     secretKey = os.environ.get('SECRETKEY')
-    print("secretKey = " + str(secretKey))
-
-    # TODO: exit with error when secretKey variable does not exist
+    if (secretKey is None):
+        print("Secret key is not provided via travis secure environment variable")
+        exit(-1)
 
     branchName = sys.argv[2]
     if not checkBranchExists(branchName):
