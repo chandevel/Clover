@@ -53,12 +53,6 @@ android {
          */
         versionCode major * 10000 + minor * 100 + patch
         versionName "v" + major + "." + minor + "." + patch
-
-        android.applicationVariants.all { variant ->
-            variant.outputs.all {
-                outputFileName = manifestPlaceholders.get("appName").toString() + ".apk"
-            }
-        }
     }
 
     compileOptions {
@@ -87,7 +81,51 @@ android {
         exclude 'META-INF/LICENSE-W3C-TEST'
     }
 
+    flavorDimensions "default"
+
+    productFlavors {
+        stable {
+            dimension "default"
+            applicationIdSuffix ""
+            versionNameSuffix ""
+
+            //these are manifest placeholders for the application name and icon location
+            manifestPlaceholders = [
+                    appName              : "Kuroba",
+                    iconLoc              : "@mipmap/ic_launcher",
+                    fileProviderAuthority: "${applicationIdSuffix}.fileprovider"
+            ]
+        }
+        dev {
+            dimension "default"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+
+            //these are manifest placeholders for the application name and icon location
+            manifestPlaceholders = [
+                    appName              : "Kuroba${versionNameSuffix}",
+                    iconLoc              : "@mipmap/ic_launcher",
+                    fileProviderAuthority: "${applicationIdSuffix}.fileprovider"
+            ]
+        }
+    }
+
     buildTypes {
+        // manifestPlaceholders do not work here for some reason so here is a little hack.
+        // We need to iterate each build variant and for each build variant we need to find it's
+        // flavor then we need to extract the versionNameSuffix from the flavor and update the output
+        // apk name with it.
+        android.applicationVariants.all { variant ->
+            variant.outputs.all {
+                Object flavor = getCurrentFlavor(variant.flavorName)
+                if (flavor == null) {
+                    throw new GradleException("Coudln't find flavor by variant.flavorName = ${variant.flavorName}")
+                }
+
+                outputFileName = "Kuroba${flavor.versionNameSuffix}.apk"
+            }
+        }
+
         release {
             /*
             If you want to sign releases without using "Generate Signed APK", make a file in app/keys.properties with the following content:
@@ -126,32 +164,6 @@ android {
             debuggable = true
         }
     }
-
-    flavorDimensions "default"
-
-    productFlavors {
-        stable {
-            dimension "default"
-            //these are manifest placeholders for the application name and icon location
-            manifestPlaceholders = [
-                    appName              : "Kuroba",
-                    iconLoc              : "@mipmap/ic_launcher",
-                    fileProviderAuthority: "${applicationIdSuffix}.fileprovider"
-            ]
-        }
-        dev {
-            dimension "default"
-            applicationIdSuffix ".dev"
-            versionNameSuffix "-dev"
-
-            //these are manifest placeholders for the application name and icon location
-            manifestPlaceholders = [
-                    appName              : "Kuroba${versionNameSuffix}",
-                    iconLoc              : "@mipmap/ic_launcher",
-                    fileProviderAuthority: "${applicationIdSuffix}.fileprovider"
-            ]
-        }
-    }
 }
 
 dependencies {
@@ -183,6 +195,18 @@ dependencies {
     implementation 'com.vdurmont:emoji-java:4.0.0'
     implementation "io.reactivex.rxjava2:rxjava:2.2.9"
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+}
+
+def getCurrentFlavor(String name) {
+    Object resultFlavor = null
+
+    android.productFlavors.all { flavor ->
+        if (flavor.name == name) {
+            resultFlavor = flavor
+        }
+    }
+
+    return resultFlavor
 }
 
 def getLatestCommit(String branchName) {
