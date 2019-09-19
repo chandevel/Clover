@@ -89,6 +89,8 @@ android {
             applicationIdSuffix ""
             versionNameSuffix ""
 
+            buildConfigField "boolean", "DEV_BUILD", "false"
+
             //these are manifest placeholders for the application name and icon location
             manifestPlaceholders = [
                     appName              : "Kuroba",
@@ -100,6 +102,8 @@ android {
             dimension "default"
             applicationIdSuffix ".dev"
             versionNameSuffix "-dev"
+
+            buildConfigField "boolean", "DEV_BUILD", "true"
 
             //these are manifest placeholders for the application name and icon location
             manifestPlaceholders = [
