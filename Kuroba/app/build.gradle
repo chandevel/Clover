@@ -76,7 +76,7 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/notice.txt'
         exclude 'META-INF/ASL2.0'
-        exclude 'META-INF/LICENSE-LGPL-3.txt'
+        exclude 'META-INF/LICENSE-LGPL-3.txt' 
         exclude 'META-INF/LICENSE-LGPL-2.1.txt'
         exclude 'META-INF/LICENSE-W3C-TEST'
     }
