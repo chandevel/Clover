@@ -1,3 +1,4 @@
+import os
 import sys
 import requests
 import subprocess
@@ -111,14 +112,18 @@ def checkBranchExists(branchName):
 if __name__ == '__main__':
     # First argument is the script full path which we don't need
     args = len(sys.argv) - 1
-    if args != 3:
-        print("Bad arguments count, should be 3 got " + str(args) + ", expected arguments: "
-                                                                    "\n1. Secret key, "
-                                                                    "\n2. Base url, "
-                                                                    "\n3. Branch name")
+    if args != 2:
+        print("Bad arguments count, should be 2 got " + str(args) + ", expected arguments: "
+                                                                    "\n1. Base url, "
+                                                                    "\n2. Branch name")
         exit(-1)
 
-    branchName = sys.argv[3]
+    secretKey = os.environ.get('SECRETKEY')
+    print("secretKey = " + str(secretKey))
+
+    # TODO: exit with error when secretKey variable does not exist
+
+    branchName = sys.argv[2]
     if not checkBranchExists(branchName):
         print("main() requested branch does not exist, this is probably because it's a PR branch, so we don't want to "
               "do anything")
@@ -129,8 +134,7 @@ if __name__ == '__main__':
         print("main() Bad apk version code " + apkVersion)
         exit(-1)
 
-    secretKey = sys.argv[1]
-    baseUrl = sys.argv[2]
+    baseUrl = sys.argv[1]
     latestCommitHash = ""
 
     try:

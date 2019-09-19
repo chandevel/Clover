@@ -24,7 +24,10 @@ script:
   - cd Kuroba || travis_terminate 1;
   - chmod +x gradlew || travis_terminate 2;
   - ./gradlew assembleDevDebug --console plain -x lint || travis_terminate 3;
-  - python3 upload_apk.py 1234567890 http://94.140.116.243:8080 multi-feature || travis_terminate 4;
+  - python3 upload_apk.py http://94.140.116.243:8080 multi-feature || travis_terminate 4;
+env:
+  global:
+    - secure: "fnEtEqDioVaJ13bixTzHPpccuW5mZeBB5Fr7mF3KKffhfT+y0KSQd8UqO863MjtyiPCATvEs/P6GO/4Sm239fqime7regZbNuyIZ8EHZEOLM7Xkoe0zTxFXRFptN3T7VAIF/3FM9YYQ9m7DRWpu1MdJJGUMgl6V79roGGycHjHq6A8q9kCsp47lSxbMnTI/IVCjtB4Eo3RDSgXpPpk8b1jkXO35mMMEPGU9/d6+zXn8YCYcnMYrqqiPdb7G1gRwZ/snaYDRvr1KP3A8n17BXA8dSvBo7OyF1NU/f5KjK0kiQEmEqmT6bvIWQOBjG+b3VmkDA5EHnF0k0QZQnn5n/sYEWe0wUGlw2dOob8WQRaEESw6s43fAxG8qVu0+inM9tz8iHWvsPKUvzYy0sdi6NNMrvAO56fCqKZ/TqEiS5iv5k47TAeN+J3lrjqd0Qrc0zyAEa3mWmuCeZFclfeoxMWSorYSSlR9OegKXebqLPE3JCsVv+2W+zTGOahRVvflwCgYbgTeBwb19oc0X2WBaPdoJY4Wr8KpWYEqCUcoabhfKIFF5q9O7YToSancx6UMRZthd155XLkGJUUugQkBzARHzRpLOV99UJ8nmNIZnOMb7DmFUG+11X/RoUxQ2hcHHUH8K4GHC0azl2nCr7t8xX5pzFrwlQ9aQS26hp29FTMiI="
 
 notifications:
   email: false
