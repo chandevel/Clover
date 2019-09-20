@@ -91,7 +91,9 @@ android {
 
             buildConfigField "boolean", "DEV_BUILD", "false"
 
-            //these are manifest placeholders for the application name and icon location
+            // These are manifest placeholders for the application name, icon location and file
+            // provider authority (the file provider authority should differ for different flavors
+            // otherwise the app will not work)
             manifestPlaceholders = [
                     appName              : "Kuroba",
                     iconLoc              : "@mipmap/ic_launcher",
@@ -100,12 +102,15 @@ android {
         }
         dev {
             dimension "default"
+            // Different app ids for different flavors so that the users are able to install both
+            // of them without deleting anything
             applicationIdSuffix ".dev"
             versionNameSuffix "-dev"
 
+            // To easily figure out whether the app uses development flavors or not
             buildConfigField "boolean", "DEV_BUILD", "true"
 
-            //these are manifest placeholders for the application name and icon location
+            // The same as in stable flavor
             manifestPlaceholders = [
                     appName              : "Kuroba${versionNameSuffix}",
                     iconLoc              : "@mipmap/ic_launcher",
@@ -200,6 +205,10 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:2.2.9"
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 }
+
+//========================================================
+// All of the below is being used by the upload_apk script
+//========================================================
 
 def getCurrentFlavor(String name) {
     Object resultFlavor = null
