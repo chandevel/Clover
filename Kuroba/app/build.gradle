@@ -1,6 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
+    // !!! IMPORTANT !!!
+    // When changing any of the following: compileSdkVersion, targetSdkVersion
+    // don't forget to also update travis.yml config
+    // !!! IMPORTANT !!!
+
     compileSdkVersion 28
 
     defaultConfig {
