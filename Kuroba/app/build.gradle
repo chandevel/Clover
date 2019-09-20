@@ -249,7 +249,6 @@ def getLastCommitsFromCommitByHash(String branchName, String from) {
 def checkBranchExists(String branchName) {
     def stdout = new ByteArrayOutputStream()
     exec {
-
         commandLine 'git', 'rev-parse', '--verify', branchName
         standardOutput = stdout
     }
