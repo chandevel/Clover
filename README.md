@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/K1rakishou/Kuroba.svg?branch=multi-feature)](https://travis-ci.org/K1rakishou/Kuroba)
+
 # Kuroba - imageboard browser for Android
 ## All releases are dev. Do not assume they are stable.
 
