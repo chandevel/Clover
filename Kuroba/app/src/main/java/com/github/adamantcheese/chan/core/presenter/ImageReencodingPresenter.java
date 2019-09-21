@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.utils.ImageDecoder;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -168,7 +169,7 @@ public class ImageReencodingPresenter {
                 && !imageOptions.getRemoveMetadata()
                 && !imageOptions.getChangeImageChecksum()
                 && imageOptions.getReencodeSettings() == null) {
-            reply.fileName = getNewImageName();
+            reply.fileName = getNewImageName(reply.file);
             callback.onImageOptionsApplied(reply);
             return;
         }
@@ -179,7 +180,7 @@ public class ImageReencodingPresenter {
                 callback.disableOrEnableButtons(false);
 
                 if (imageOptions.getRemoveFilename()) {
-                    reply.fileName = getNewImageName();
+                    reply.fileName = getNewImageName(reply.file);
                 }
 
                 reply.file = BitmapUtils.reencodeBitmapFile(
@@ -211,8 +212,12 @@ public class ImageReencodingPresenter {
         }
     }
 
-    private String getNewImageName() {
-        return String.valueOf(System.currentTimeMillis());
+    private String getNewImageName(File currentFile) {
+        if(currentFile == null) {
+            throw new IllegalArgumentException("Must have file selected in order to set proper extension");
+        }
+        String currentFilePath = currentFile.getAbsolutePath();
+        return System.currentTimeMillis() + currentFilePath.substring(currentFilePath.lastIndexOf('.'));
     }
 
     public static class ImageOptions {
