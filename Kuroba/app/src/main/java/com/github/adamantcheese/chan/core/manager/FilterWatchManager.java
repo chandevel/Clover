@@ -65,6 +65,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
     //keep track of how many boards we've checked and their posts so we can cut out things from the ignored posts
     private int numBoardsChecked = 0;
     private Set<Post> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
+    private List<Filter> filters;
     private boolean processing = false;
 
     private final Gson serializer = new Gson();
@@ -111,10 +112,10 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         }
         filterLoaders.clear();
         //get our filters that are tagged as "pin"
-        List<Filter> activeFilters = filterEngine.getEnabledWatchFilters();
+        filters = filterEngine.getEnabledWatchFilters();
         //get a set of boards to background load
         Set<String> boardCodes = new HashSet<>();
-        for (Filter f : activeFilters) {
+        for (Filter f : filters) {
             //if the allBoards flag is set for any one filter, add all saved boards to the set
             if (f.allBoards) {
                 for (BoardRepository.SiteBoards s : boardRepository.getSaved().get()) {
@@ -194,7 +195,6 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         public void onChanLoaderData(ChanThread result) {
             Set<Integer> toAdd = new HashSet<>();
             //Match filters and ignores
-            List<Filter> filters = filterEngine.getEnabledWatchFilters();
             for (Filter f : filters) {
                 for (Post p : result.getPostsUnsafe()) {
                     if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
