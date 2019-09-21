@@ -169,7 +169,7 @@ public class ImageReencodingPresenter {
                 && !imageOptions.getRemoveMetadata()
                 && !imageOptions.getChangeImageChecksum()
                 && imageOptions.getReencodeSettings() == null) {
-            reply.fileName = getNewImageName(reply.file);
+            reply.fileName = getNewImageName(reply.file, ReencodeType.AS_IS);
             callback.onImageOptionsApplied(reply);
             return;
         }
@@ -180,7 +180,7 @@ public class ImageReencodingPresenter {
                 callback.disableOrEnableButtons(false);
 
                 if (imageOptions.getRemoveFilename()) {
-                    reply.fileName = getNewImageName(reply.file);
+                    reply.fileName = getNewImageName(reply.file, imageOptions.reencodeSettings.reencodeType);
                 }
 
                 reply.file = BitmapUtils.reencodeBitmapFile(
@@ -212,12 +212,21 @@ public class ImageReencodingPresenter {
         }
     }
 
-    private String getNewImageName(File currentFile) {
-        if(currentFile == null) {
+    private String getNewImageName(File currentFile, ReencodeType newType) {
+        if (currentFile == null) {
             throw new IllegalArgumentException("Must have file selected in order to set proper extension");
         }
         String currentFilePath = currentFile.getAbsolutePath();
-        return System.currentTimeMillis() + currentFilePath.substring(currentFilePath.lastIndexOf('.'));
+        String currentExt = currentFilePath.substring(currentFilePath.lastIndexOf('.'));
+        switch (newType) {
+            case AS_IS:
+                return System.currentTimeMillis() + currentExt;
+            case AS_PNG:
+                return System.currentTimeMillis() + ".png";
+            case AS_JPEG:
+                return System.currentTimeMillis() + ".jpg";
+        }
+        throw new Error("How did you trigger this??");
     }
 
     public static class ImageOptions {
