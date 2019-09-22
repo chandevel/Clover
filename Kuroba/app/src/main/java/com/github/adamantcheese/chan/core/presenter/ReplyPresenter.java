@@ -422,6 +422,14 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         highlightQuotes();
     }
 
+    public boolean fileNameLongClicked() {
+        String currentFile = draft.fileName;
+        String currentExt = currentFile.substring(currentFile.lastIndexOf('.'));
+        draft.fileName = System.currentTimeMillis() + currentExt;
+        callback.loadDraftIntoViews(draft);
+        return true;
+    }
+
     public void commentQuoteClicked() {
         commentInsert(">");
     }

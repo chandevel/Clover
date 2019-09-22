@@ -185,6 +185,7 @@ public class ReplyLayout extends LoadView implements
         currentProgress = progressLayout.findViewById(R.id.current_progress);
 
         // Setup reply layout views
+        fileName.setOnLongClickListener(v -> presenter.fileNameLongClicked());
         commentQuoteButton.setOnClickListener(this);
         commentSpoilerButton.setOnClickListener(this);
         commentCodeButton.setOnClickListener(this);
