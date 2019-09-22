@@ -56,7 +56,7 @@ public class CommentParserHelper {
             .linkTypes(EnumSet.of(LinkType.URL))
             .build();
 
-    private static Pattern youtubeLinkPattern = Pattern.compile("\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
+    private static Pattern youtubeLinkPattern = Pattern.compile("\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
     private static final String API_KEY = "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE";
     private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
 
