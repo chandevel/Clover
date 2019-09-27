@@ -380,6 +380,11 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     public void showPostsPopup(Post forPost, List<Post> posts) {
+        if (this.getFocusedChild() != null) {
+            View currentFocus = this.getFocusedChild();
+            AndroidUtils.hideKeyboard(currentFocus);
+            currentFocus.clearFocus();
+        }
         postPopupHelper.showPosts(forPost, posts);
     }
 
