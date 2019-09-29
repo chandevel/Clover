@@ -48,6 +48,7 @@ import com.github.adamantcheese.chan.core.image.ImageContainer;
 import com.github.adamantcheese.chan.core.image.ImageListener;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import javax.inject.Inject;
 
@@ -99,7 +100,7 @@ public class ThumbnailView extends View implements ImageListener {
     }
 
     private void init() {
-        textPaint.setColor(0xff000000);
+        textPaint.setColor(ThemeHelper.getTheme().textPrimary);
         textPaint.setTextSize(sp(14));
 
         inject(this);
