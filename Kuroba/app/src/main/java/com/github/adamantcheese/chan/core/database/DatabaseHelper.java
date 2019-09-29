@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
@@ -51,7 +52,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 39;
+    private static final int DATABASE_VERSION = 40;
 
 
     public Dao<Pin, Integer> pinDao;
@@ -267,6 +268,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             } catch (Exception e) {
                 Logger.e(TAG, "Error upgrading to version 38");
             }
+        }
+
+        if (oldVersion < 40) {
+            //disable Youtube link parsing if it was enabled in a previous version to prevent issues
+            ChanSettings.parseYoutubeTitles.set(false);
         }
     }
 
