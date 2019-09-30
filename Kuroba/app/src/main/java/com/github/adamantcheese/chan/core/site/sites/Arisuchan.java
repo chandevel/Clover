@@ -69,19 +69,15 @@ public class Arisuchan extends CommonSite {
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://arisuchan.jp/favicon.ico")));
 
         setBoards(
-                Board.fromSiteNameCode(this, "art and design", "art"),
+                Board.fromSiteNameCode(this, "technology", "tech"),
+                Board.fromSiteNameCode(this, "art and creative", "art"),
                 Board.fromSiteNameCode(this, "culture and media", "cult"),
-                Board.fromSiteNameCode(this, "cyberpunk and cybersecurity", "cyb"),
-                Board.fromSiteNameCode(this, "personal experiences", "feels"),
                 Board.fromSiteNameCode(this, "psychology and psychonautics", "psy"),
-                Board.fromSiteNameCode(this, "arisuchan meta", "q"),
+                Board.fromSiteNameCode(this, "programming", "λ"),
+                Board.fromSiteNameCode(this, "shape your world", "Δ"),
+                Board.fromSiteNameCode(this, "Киберпанк", "ru"),
                 Board.fromSiteNameCode(this, "miscellaneous", "r"),
-                Board.fromSiteNameCode(this, "киберпанк-доска", "ru"),
-                Board.fromSiteNameCode(this, "science and technology", "tech"),
-                Board.fromSiteNameCode(this, "paranoia", "x"),
-                Board.fromSiteNameCode(this, "zaibatsu", "z"),
-                Board.fromSiteNameCode(this, "diy and projects", "Δ"),
-                Board.fromSiteNameCode(this, "programming", "λ")
+                Board.fromSiteNameCode(this, "arisuchan meta", "q")
         );
 
         setResolvable(URL_HANDLER);

@@ -37,6 +37,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -266,13 +267,52 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 deleteSiteByRegistryID(1);
                 Logger.d(TAG, "Removed 8Chan successfully");
             } catch (Exception e) {
-                Logger.e(TAG, "Error upgrading to version 38");
+                Logger.e(TAG, "Error upgrading to version 39");
             }
         }
 
         if (oldVersion < 40) {
-            //disable Youtube link parsing if it was enabled in a previous version to prevent issues
-            ChanSettings.parseYoutubeTitles.set(false);
+            try {
+                //disable Youtube link parsing if it was enabled in a previous version to prevent issues
+                ChanSettings.parseYoutubeTitles.set(false);
+
+                //remove arisuchan boards that don't exist anymore
+                Where where = boardsDao.queryBuilder().where();
+                where.and(where.eq("site", 3), where.or(
+                        where.eq("value", "cyb"),
+                        where.eq("value", "feels"),
+                        where.eq("value", "x"),
+                        where.eq("value", "z")));
+                List<Board> toRemove = where.query();
+                for (Board b : toRemove) {
+                    deleteBoard(b);
+                }
+
+                //some descriptions changed for arisuchan
+                Board art = boardsDao.queryForEq("key", "art and design").get(0);
+                Board sci = boardsDao.queryForEq("key", "science and technology").get(0);
+                Board diy = boardsDao.queryForEq("key", "diy and projects").get(0);
+                Board ru = boardsDao.queryForEq("key", "киберпанк-доска").get(0);
+                if (art != null) {
+                    art.name = "art and creative";
+                    boardsDao.update(art);
+                }
+                if (sci != null) {
+                    sci.name = "technology";
+                    boardsDao.update(sci);
+                }
+                if (diy != null) {
+                    diy.name = "shape your world";
+                    boardsDao.update(diy);
+                }
+                if (ru != null) {
+                    ru.name = "Киберпанк";
+                    boardsDao.update(ru);
+                }
+
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 40");
+            }
         }
     }
 
@@ -393,5 +433,91 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         DeleteBuilder<SiteModel, Integer> siteDelete = siteDao.deleteBuilder();
         siteDelete.where().eq("id", toDelete.id);
         siteDelete.delete();
+    }
+
+    /**
+     * Deletes a board on a given site when the site no longer supports the given board
+     */
+    public void deleteBoard(Board board) throws SQLException {
+        //filters
+        for (Filter filter : filterDao.queryForAll()) {
+            if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
+                continue;
+            }
+
+            List<String> keep = new ArrayList<>();
+            for (String uniqueId : filter.boards.split(",")) {
+                String[] split = uniqueId.split(":");
+                if (!(split.length == 2 && Integer.parseInt(split[0]) == board.site.id()
+                        && split[1].equals(board.code))) {
+                    keep.add(uniqueId);
+                    break;
+                }
+            }
+            filter.boards = TextUtils.join(",", keep);
+            //disable, but don't delete filters in case they're still wanted
+            if (TextUtils.isEmpty(filter.boards)) {
+                filter.enabled = false;
+            }
+
+            filterDao.update(filter);
+        }
+
+        //loadables (saved threads, pins, history, loadables)
+        List<Loadable> siteLoadables = loadableDao.queryForEq("site", board.site.id());
+        if (!siteLoadables.isEmpty()) {
+            Set<Integer> loadableIdSet = new HashSet<>();
+            for (Loadable loadable : siteLoadables) {
+                //only get the loadables with the same board code
+                if (loadable.board.code.equals(board.code)) {
+                    loadableIdSet.add(loadable.id);
+                }
+            }
+            //saved threads
+            DeleteBuilder<SavedThread, Integer> savedThreadDelete = savedThreadDao.deleteBuilder();
+            savedThreadDelete.where().in("loadable_id", loadableIdSet);
+            savedThreadDelete.delete();
+
+            //pins
+            DeleteBuilder<Pin, Integer> pinDelete = pinDao.deleteBuilder();
+            pinDelete.where().in("loadable_id", loadableIdSet);
+            pinDelete.delete();
+
+            //history
+            DeleteBuilder<History, Integer> historyDelete = historyDao.deleteBuilder();
+            historyDelete.where().in("loadable_id", loadableIdSet);
+            historyDelete.delete();
+
+            //loadables
+            DeleteBuilder<Loadable, Integer> loadableDelete = loadableDao.deleteBuilder();
+            loadableDelete.where().in("id", loadableIdSet);
+
+            int deletedCountLoadables = loadableDelete.delete();
+            if (loadableIdSet.size() != deletedCountLoadables) {
+                throw new IllegalStateException("Deleted count didn't equal loadableIdSet.size(). (deletedCount = "
+                        + deletedCountLoadables + "), " + "(loadableIdSet = " + loadableIdSet.size() + ")");
+            }
+        }
+
+        //saved replies
+        DeleteBuilder<SavedReply, Integer> savedReplyDelete = savedDao.deleteBuilder();
+        savedReplyDelete.where()
+                .eq("site", board.site.id())
+                .eq("board", board.code);
+        savedReplyDelete.delete();
+
+        //thread hides
+        DeleteBuilder<PostHide, Integer> threadHideDelete = postHideDao.deleteBuilder();
+        threadHideDelete.where()
+                .eq("site", board.site.id())
+                .eq("board", board.code);
+        threadHideDelete.delete();
+
+        //board itself
+        DeleteBuilder boardDelete = boardsDao.deleteBuilder();
+        boardDelete.where()
+                .eq("site", board.site.id())
+                .eq("code", board.code);
+        boardDelete.delete();
     }
 }
