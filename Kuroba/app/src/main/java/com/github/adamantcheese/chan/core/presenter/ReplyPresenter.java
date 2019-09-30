@@ -560,7 +560,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                     // cleanup resources tied to the new captcha layout/presenter
                     callback.destroyCurrentAuthentication();
                     callback.initializeAuthentication(loadable.site, authentication, this, useV2NoJsCaptcha, autoReply);
-                    callback.setPage(Page.AUTHENTICATION);
+                    if(!autoReply) {
+                        callback.setPage(Page.AUTHENTICATION);
+                    }
                     break;
             }
         }
