@@ -31,7 +31,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -44,7 +46,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 public class WakeManager {
     private static final String TAG = "WakeManager";
 
-    private WakeLock wakeLock;
+    private Map<Object, WakeLock> wakeLocks = new HashMap<>();
 
     private final AlarmManager alarmManager;
     private final PowerManager powerManager;
@@ -114,27 +116,29 @@ public class WakeManager {
     /**
      * Want a wake lock? Request true. If a lock already exists it will be freed before acquiring a new one.
      * Don't need it any more? Request false.
+     *
+     * Do be warned that wakelocks in this method aren't reference counted, so you can manage true a bunch but managed false once and the wakelock is gone.
+     * The locker object is to prevent duplicate wakelocks from being generated for the same object.
      */
-    public void manageLock(boolean lock) {
+    public void manageLock(boolean lock, Object locker) {
+        WakeLock wakeLock = wakeLocks.get(locker);
         if (lock) {
             if (wakeLock != null) {
                 Logger.e(TAG, "Wakelock not null while trying to acquire one");
-                if (wakeLock.isHeld()) {
-                    wakeLock.release();
-                }
-                wakeLock = null;
+                wakeLock.release();
+                wakeLocks.remove(locker);
             }
-            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getApplicationLabel() + ":WakeManagerUpdateLock");
+
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getApplicationLabel() + ":WakeManagerUpdateLock:" + Object.class.getSimpleName());
             wakeLock.setReferenceCounted(false);
             wakeLock.acquire(60 * 1000); //60 seconds max
+            wakeLocks.put(locker, wakeLock);
         } else {
             if (wakeLock == null) {
                 Logger.e(TAG, "Wakelock null while trying to release it");
             } else {
-                if (wakeLock.isHeld()) {
-                    wakeLock.release();
-                }
-                wakeLock = null;
+                wakeLock.release();
+                wakeLocks.remove(locker);
             }
         }
     }

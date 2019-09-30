@@ -106,6 +106,19 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         }
     }
 
+    @Override
+    public void onWake() {
+        if (!processing) {
+            wakeManager.manageLock(true, FilterWatchManager.this);
+            Logger.d(TAG, "Processing filter loaders");
+            processing = true;
+            populateFilterLoaders();
+            for (ChanThreadLoader loader : filterLoaders.keySet()) {
+                loader.requestData();
+            }
+        }
+    }
+
     private void populateFilterLoaders() {
         for (ChanThreadLoader loader : filterLoaders.keySet()) {
             chanLoaderFactory.release(loader, filterLoaders.get(loader));
@@ -143,18 +156,6 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                                 backgroundLoader);
                         filterLoaders.put(catalogLoader, backgroundLoader);
                     }
-            }
-        }
-    }
-
-    @Override
-    public void onWake() {
-        if (!processing) {
-            Logger.d(TAG, "Processing filter loaders");
-            processing = true;
-            populateFilterLoaders();
-            for (ChanThreadLoader loader : filterLoaders.keySet()) {
-                loader.requestData();
             }
         }
     }
@@ -221,6 +222,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                     lastCheckedPosts.clear();
                     processing = false;
                     Logger.d(TAG, "Finished processing filter loaders");
+                    wakeManager.manageLock(false, FilterWatchManager.this);
                 }
             }
         }

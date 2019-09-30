@@ -31,9 +31,11 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
+import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -147,9 +149,21 @@ public class DeveloperSettingsController extends Controller {
 
         Button forceFilterWatch = new Button(context);
         forceFilterWatch.setOnClickListener(v -> {
-            Chan.injector().instance(FilterWatchManager.class).onWake();
+            try {
+                WakeManager wakeManager = Chan.injector().instance(WakeManager.class);
+                Field wakeables = wakeManager.getClass().getDeclaredField("wakeableSet");
+                wakeables.setAccessible(true);
+                for(WakeManager.Wakeable wakeable : (ArrayList<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
+                    wakeable.onWake();
+                }
+                wakeables.setAccessible(false);
+                Logger.d(TAG, "Woke all wakeables");
+
+            } catch (Exception e) {
+                Logger.d(TAG, "Failed to run wakeables");
+            }
         });
-        forceFilterWatch.setText("Force wake filter manager, ignore settings");
+        forceFilterWatch.setText("Force wakemanager wake");
         wrapper.addView(forceFilterWatch);
 
         ScrollView scrollView = new ScrollView(context);

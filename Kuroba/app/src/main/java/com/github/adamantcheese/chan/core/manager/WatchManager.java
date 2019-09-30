@@ -917,7 +917,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
         if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
             Logger.i(TAG, "Acquiring wakelock for pin watcher updates");
-            wakeManager.manageLock(true);
+            wakeManager.manageLock(true, WatchManager.this);
         }
     }
 
@@ -965,7 +965,7 @@ public class WatchManager implements WakeManager.Wakeable {
             if (waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
                 Logger.i(TAG, "All watchers updated, removing wakelock");
                 waitingForPinWatchersForBackgroundUpdate = null;
-                wakeManager.manageLock(false);
+                wakeManager.manageLock(false, WatchManager.this);
             }
         }
     }
