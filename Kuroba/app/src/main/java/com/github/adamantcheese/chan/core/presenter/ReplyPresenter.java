@@ -127,7 +127,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             showPreview(draft.fileName, draft.file);
         }
 
-        switchPage(Page.INPUT, false);
+        switchPage(Page.INPUT);
     }
 
     public void unbindLoadable() {
@@ -150,7 +150,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         if (page == Page.LOADING) {
             return true;
         } else if (page == Page.AUTHENTICATION) {
-            switchPage(Page.INPUT, true);
+            switchPage(Page.INPUT);
             return true;
         } else if (moreOpen) {
             onMoreClicked();
@@ -211,7 +211,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 return;
             }
 
-            switchPage(Page.AUTHENTICATION, true, true, false);
+            switchPage(Page.AUTHENTICATION, true, false);
         }
     }
 
@@ -243,7 +243,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
                     long timeLeft = waitTime - ((System.currentTimeMillis() - lastPostTime) / 1000L);
                     String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_reply, timeLeft);
-                    switchPage(Page.INPUT, true);
+                    switchPage(Page.INPUT);
                     callback.openMessage(true, false, errorMessage, true);
                 }
             } else if (loadable.isCatalogMode()) {
@@ -263,7 +263,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
                     long timeLeft = waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
                     String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_thread, timeLeft);
-                    switchPage(Page.INPUT, true);
+                    switchPage(Page.INPUT);
 
                     callback.openMessage(true, false, errorMessage, true);
                 }
@@ -277,7 +277,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     private void submitOrAuthenticate() {
         if (loadable.site.actions().postRequiresAuthentication()) {
-            switchPage(Page.AUTHENTICATION, true);
+            switchPage(Page.AUTHENTICATION);
         } else {
             makeSubmitCall();
         }
@@ -331,7 +331,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager()
                     .saveReply(savedReply));
 
-            switchPage(Page.INPUT, false);
+            switchPage(Page.INPUT);
             closeAll();
             highlightQuotes();
             String name = draft.name;
@@ -346,7 +346,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                         Loadable.forThread(loadable.site, loadable.board, replyResponse.postNo, PostHelper.getTitle(null, loadable))));
             }
         } else if (replyResponse.requireAuthentication) {
-            switchPage(Page.AUTHENTICATION, true);
+            switchPage(Page.AUTHENTICATION);
         } else {
             String errorMessage = getString(R.string.reply_error);
             if (replyResponse.errorMessage != null) {
@@ -355,7 +355,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             }
 
             Logger.e(TAG, "onPostComplete error", errorMessage);
-            switchPage(Page.INPUT, true);
+            switchPage(Page.INPUT);
             callback.openMessage(true, false, errorMessage, true);
         }
     }
@@ -371,7 +371,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public void onPostError(HttpCall httpCall, Exception exception) {
         Logger.e(TAG, "onPostError", exception);
 
-        switchPage(Page.INPUT, true);
+        switchPage(Page.INPUT);
 
         String errorMessage = getString(R.string.reply_error);
         if (exception != null) {
@@ -403,7 +403,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         if (autoReply) {
             makeSubmitCall();
         } else {
-            switchPage(Page.INPUT, true);
+            switchPage(Page.INPUT);
         }
     }
 
@@ -537,14 +537,14 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     private void makeSubmitCall() {
         loadable.getSite().actions().post(draft, this);
-        switchPage(Page.LOADING, true);
+        switchPage(Page.LOADING);
     }
 
-    public void switchPage(Page page, boolean animate) {
-        switchPage(page, animate, true, true);
+    public void switchPage(Page page) {
+        switchPage(page, true, true);
     }
 
-    public void switchPage(Page page, boolean animate, boolean useV2NoJsCaptcha, boolean autoReply) {
+    public void switchPage(Page page, boolean useV2NoJsCaptcha, boolean autoReply) {
         if (!useV2NoJsCaptcha || this.page != page) {
             this.page = page;
             switch (page) {

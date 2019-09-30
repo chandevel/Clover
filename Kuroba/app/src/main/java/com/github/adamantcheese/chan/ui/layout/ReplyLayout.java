@@ -575,7 +575,7 @@ public class ReplyLayout extends LoadView implements
     @Override
     public void onFallbackToV1CaptchaView(boolean autoReply) {
         // fallback to v1 captcha window
-        presenter.switchPage(ReplyPresenter.Page.AUTHENTICATION, true, false, autoReply);
+        presenter.switchPage(ReplyPresenter.Page.AUTHENTICATION, false, autoReply);
     }
 
     @Override
