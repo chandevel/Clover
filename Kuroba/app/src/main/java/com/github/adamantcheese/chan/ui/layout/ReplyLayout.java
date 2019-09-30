@@ -389,12 +389,11 @@ public class ReplyLayout extends LoadView implements
     }
 
     @Override
-    public void setPage(ReplyPresenter.Page page, boolean animate) {
+    public void setPage(ReplyPresenter.Page page) {
         switch (page) {
             case LOADING:
                 setWrappingMode(false);
-                View progressBar = setView(progressLayout);
-                progressBar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, dp(100)));
+                setView(progressLayout);
 
                 //reset progress to 0 upon uploading start
                 currentProgress.setVisibility(View.INVISIBLE);
@@ -405,16 +404,13 @@ public class ReplyLayout extends LoadView implements
                 break;
             case AUTHENTICATION:
                 setWrappingMode(true);
-
                 setView(captchaContainer);
-
                 captchaContainer.requestFocus(View.FOCUS_DOWN);
-
                 break;
         }
 
         if (page != ReplyPresenter.Page.AUTHENTICATION && authenticationLayout != null) {
-            AndroidUtils.removeFromParentView((View) authenticationLayout);
+            captchaContainer.removeView((View) authenticationLayout);
             authenticationLayout = null;
         }
     }

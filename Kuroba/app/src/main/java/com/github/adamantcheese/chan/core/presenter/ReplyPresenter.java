@@ -549,10 +549,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             this.page = page;
             switch (page) {
                 case LOADING:
-                    callback.setPage(Page.LOADING, true);
+                    callback.setPage(Page.LOADING);
                     break;
                 case INPUT:
-                    callback.setPage(Page.INPUT, animate);
+                    callback.setPage(Page.INPUT);
                     break;
                 case AUTHENTICATION:
                     SiteAuthentication authentication = loadable.site.actions().postAuthenticate();
@@ -560,8 +560,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                     // cleanup resources tied to the new captcha layout/presenter
                     callback.destroyCurrentAuthentication();
                     callback.initializeAuthentication(loadable.site, authentication, this, useV2NoJsCaptcha, autoReply);
-                    callback.setPage(Page.AUTHENTICATION, true);
-
+                    callback.setPage(Page.AUTHENTICATION);
                     break;
             }
         }
@@ -637,7 +636,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         void loadDraftIntoViews(Reply draft);
 
-        void setPage(Page page, boolean animate);
+        void setPage(Page page);
 
         void initializeAuthentication(Site site,
                                       SiteAuthentication authentication,
