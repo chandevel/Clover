@@ -289,27 +289,38 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 }
 
                 //some descriptions changed for arisuchan
-                Board art = boardsDao.queryForEq("key", "art and design").get(0);
-                Board sci = boardsDao.queryForEq("key", "science and technology").get(0);
-                Board diy = boardsDao.queryForEq("key", "diy and projects").get(0);
-                Board ru = boardsDao.queryForEq("key", "киберпанк-доска").get(0);
-                if (art != null) {
-                    art.name = "art and creative";
-                    boardsDao.update(art);
+                try {
+                    Board art = boardsDao.queryForEq("key", "art and design").get(0);
+                    if (art != null) {
+                        art.name = "art and creative";
+                        boardsDao.update(art);
+                    }
+                } catch (Exception ignored) {
                 }
-                if (sci != null) {
-                    sci.name = "technology";
-                    boardsDao.update(sci);
+                try {
+                    Board sci = boardsDao.queryForEq("key", "science and technology").get(0);
+                    if (sci != null) {
+                        sci.name = "technology";
+                        boardsDao.update(sci);
+                    }
+                } catch (Exception ignored) {
                 }
-                if (diy != null) {
-                    diy.name = "shape your world";
-                    boardsDao.update(diy);
+                try {
+                    Board diy = boardsDao.queryForEq("key", "diy and projects").get(0);
+                    if (diy != null) {
+                        diy.name = "shape your world";
+                        boardsDao.update(diy);
+                    }
+                } catch (Exception ignored) {
                 }
-                if (ru != null) {
-                    ru.name = "Киберпанк";
-                    boardsDao.update(ru);
+                try {
+                    Board ru = boardsDao.queryForEq("key", "киберпанк-доска").get(0);
+                    if (ru != null) {
+                        ru.name = "Киберпанк";
+                        boardsDao.update(ru);
+                    }
+                } catch (Exception ignored) {
                 }
-
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 40");
             }
