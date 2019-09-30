@@ -451,7 +451,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 if (!(split.length == 2 && Integer.parseInt(split[0]) == board.site.id()
                         && split[1].equals(board.code))) {
                     keep.add(uniqueId);
-                    break;
                 }
             }
             filter.boards = TextUtils.join(",", keep);

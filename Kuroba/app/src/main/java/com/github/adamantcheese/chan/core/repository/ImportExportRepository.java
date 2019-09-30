@@ -64,7 +64,7 @@ public class ImportExportRepository {
 
     // Don't forget to change this when changing any of the Export models.
     // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
-    public static final int CURRENT_EXPORT_SETTINGS_VERSION = 4;
+    public static final int CURRENT_EXPORT_SETTINGS_VERSION = 5;
 
     private DatabaseManager databaseManager;
     private DatabaseHelper databaseHelper;
@@ -368,6 +368,40 @@ public class ImportExportRepository {
                 deleteExportedSite(chan8, appSettings);
             }
         }
+
+        if (version < 5) {
+            List<ExportedBoard> toRemove = new ArrayList<>();
+            for (ExportedSite site : appSettings.getExportedSites()) {
+                if (site.getSiteId() == 3) {
+                    for (ExportedBoard board : appSettings.getExportedBoards()) {
+                        if (board.getSiteId() == site.getSiteId()) {
+                            if (board.getCode().equals("cyb")
+                                    || board.getCode().equals("feels")
+                                    || board.getCode().equals("x")
+                                    || board.getCode().equals("z")) {
+                                toRemove.add(board);
+                                continue;
+                            }
+                            if(board.getCode().equals("art")) {
+                                board.setName("art and creative");
+                            }
+                            if(board.getCode().equals("tech")) {
+                                board.setName("technology");
+                            }
+                            if(board.getCode().equals("Δ")) {
+                                board.setName("shape your world");
+                            }
+                            if(board.getCode().equals("ru")) {
+                                board.setName("Киберпанк");
+                            }
+                        }
+                    }
+                }
+            }
+            for(ExportedBoard board : toRemove) {
+                deleteExportedBoard(board, appSettings);
+            }
+        }
         return appSettings;
     }
 
@@ -622,5 +656,70 @@ public class ImportExportRepository {
 
         //site (also removes pins and loadables)
         appSettings.getExportedSites().remove(site);
+    }
+
+    private void deleteExportedBoard(ExportedBoard board, ExportedAppSettings appSettings) {
+        ExportedSite exportedSite = null;
+        for(ExportedSite site : appSettings.getExportedSites()) {
+            if(site.getSiteId() == board.getSiteId()) {
+                exportedSite = site;
+                break;
+            }
+        }
+        if(exportedSite == null) return;
+
+        //filters
+        for (ExportedFilter filter : appSettings.getExportedFilters()) {
+            if (filter.isAllBoards() || TextUtils.isEmpty(filter.getBoards())) {
+                continue;
+            }
+
+            List<String> keep = new ArrayList<>();
+            for (String uniqueId : filter.getBoards().split(",")) {
+                String[] split = uniqueId.split(":");
+                if (!(split.length == 2 && Integer.parseInt(split[0]) == board.getSiteId()
+                        && split[1].equals(board.getCode()))) {
+                    keep.add(uniqueId);
+                }
+            }
+            filter.setBoards(TextUtils.join(",", keep));
+            //disable, but don't delete filters in case they're still wanted
+            if (TextUtils.isEmpty(filter.getBoards())) {
+                filter.setEnabled(true);
+            }
+        }
+
+        //loadables for saved threads
+        List<ExportedLoadable> loadables = new ArrayList<>();
+        for (ExportedPin pin : exportedSite.getExportedPins()) {
+            if (pin.getExportedLoadable().getBoardCode().equals(board.getCode())) {
+                loadables.add(pin.getExportedLoadable());
+            }
+        }
+
+        if (!loadables.isEmpty()) {
+            List<ExportedSavedThread> savedThreadToDelete = new ArrayList<>();
+            for (ExportedLoadable loadable : loadables) {
+                //saved threads
+                for (ExportedSavedThread savedThread : appSettings.getExportedSavedThreads()) {
+                    if (loadable.getLoadableId() == savedThread.getLoadableId()) {
+                        savedThreadToDelete.add(savedThread);
+                    }
+                }
+            }
+            appSettings.getExportedSavedThreads().removeAll(savedThreadToDelete);
+        }
+
+        //post hides
+        List<ExportedPostHide> hidesToDelete = new ArrayList<>();
+        for (ExportedPostHide hide : appSettings.getExportedPostHides()) {
+            if (hide.getBoard().equals(board.getCode())) {
+                hidesToDelete.add(hide);
+            }
+        }
+        appSettings.getExportedPostHides().removeAll(hidesToDelete);
+
+        //board itself
+        appSettings.getExportedBoards().remove(board);
     }
 }

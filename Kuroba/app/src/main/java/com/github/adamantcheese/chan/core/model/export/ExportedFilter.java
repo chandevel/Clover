@@ -77,6 +77,10 @@ public class ExportedFilter {
         return enabled;
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public int getType() {
         return type;
     }
@@ -93,6 +97,10 @@ public class ExportedFilter {
     @Nullable
     public String getBoards() {
         return boards;
+    }
+
+    public void setBoards(String boards) {
+        this.boards = boards;
     }
 
     public int getAction() {
