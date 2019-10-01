@@ -31,7 +31,6 @@ import com.github.adamantcheese.chan.utils.ImageDecoder;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 
-import java.io.File;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -180,7 +179,7 @@ public class ImageReencodingPresenter {
                 callback.disableOrEnableButtons(false);
 
                 if (imageOptions.getRemoveFilename()) {
-                    reply.fileName = getNewImageName(reply.fileName, imageOptions.reencodeSettings.reencodeType);
+                    reply.fileName = getNewImageName(reply.fileName, imageOptions.reencodeSettings != null ? imageOptions.reencodeSettings.reencodeType : ReencodeType.AS_IS);
                 }
 
                 reply.file = BitmapUtils.reencodeBitmapFile(
