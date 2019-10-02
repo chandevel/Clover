@@ -212,7 +212,11 @@ public class ImageReencodingPresenter {
     }
 
     private String getNewImageName(String currentFileName, ReencodeType newType) {
-        String currentExt = currentFileName.substring(currentFileName.lastIndexOf('.'));
+        String currentExt = "";
+        try {
+            currentExt = currentFileName.substring(currentFileName.lastIndexOf('.'));
+        } catch (Exception ignored) {
+        }
         switch (newType) {
             case AS_IS:
                 return System.currentTimeMillis() + currentExt;
@@ -220,8 +224,9 @@ public class ImageReencodingPresenter {
                 return System.currentTimeMillis() + ".png";
             case AS_JPEG:
                 return System.currentTimeMillis() + ".jpg";
+            default:
+                return System.currentTimeMillis() + currentExt;
         }
-        throw new Error("How did you trigger this??");
     }
 
     public static class ImageOptions {

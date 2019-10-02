@@ -424,7 +424,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     public boolean fileNameLongClicked() {
         String currentFile = draft.fileName;
-        String currentExt = currentFile.substring(currentFile.lastIndexOf('.'));
+        String currentExt = "";
+        try {
+            currentExt = currentFile.substring(currentFile.lastIndexOf('.'));
+        } catch (Exception ignored) {
+        }
         draft.fileName = System.currentTimeMillis() + currentExt;
         callback.loadDraftIntoViews(draft);
         return true;
