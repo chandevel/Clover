@@ -21,6 +21,7 @@ import android.graphics.BitmapFactory;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
+import android.util.LruCache;
 
 import androidx.annotation.AnyThread;
 
@@ -59,6 +60,7 @@ public class CommentParserHelper {
     private static Pattern youtubeLinkPattern = Pattern.compile("\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
     private static final String API_KEY = "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE";
     private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
+    private static LruCache<String, String> youtubeTitleCache = new LruCache<>(250); // a cache for titles to prevent extra network activity if not necessary
 
     /**
      * Detect links in the given spannable, and create PostLinkables with Type.LINK for the
@@ -99,15 +101,23 @@ public class CommentParserHelper {
                     null, future, future);
             Chan.injector().instance(RequestQueue.class).add(request);
 
-            String title = linkMatcher.group(0);
-            try {
-                // this will block so we get the title immediately
-                JSONObject response = future.get(1, TimeUnit.SECONDS);
-                title = response.getJSONArray("items").getJSONObject(0).getJSONObject("snippet").getString("title");
-            } catch (Exception ignored) {
+            String URL = linkMatcher.group(0);
+            String title = youtubeTitleCache.get(URL);
+            if (title == null) {
+                try {
+                    // this will block so we get the title immediately
+                    JSONObject response = future.get(2500, TimeUnit.MILLISECONDS);
+                    title = response
+                            .getJSONArray("items")
+                            .getJSONObject(0)
+                            .getJSONObject("snippet")
+                            .getString("title"); //the response is well formatted so this will always work
+                    youtubeTitleCache.put(URL, title);
+                } catch (Exception ignored) {
+                }
             }
             //prepend two spaces for the youtube icon later
-            titleURLMap.put("  " + title, linkMatcher.group(0));
+            titleURLMap.put("  " + title, URL);
             linkMatcher.appendReplacement(newString, "  " + title);
         }
         linkMatcher.appendTail(newString);
