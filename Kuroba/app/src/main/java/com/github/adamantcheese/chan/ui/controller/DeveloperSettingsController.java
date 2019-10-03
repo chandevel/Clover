@@ -110,9 +110,9 @@ public class DeveloperSettingsController extends Controller {
                 ignoredField.setAccessible(true);
                 ignoredField.set(filterWatchManager, Collections.synchronizedSet(new HashSet<Integer>()));
                 ignoredField.setAccessible(false);
-                Logger.d(TAG, "Cleared ignores");
+                Logger.i(TAG, "Cleared ignores");
             } catch (Exception e) {
-                Logger.d(TAG, "Failed to clear ignores");
+                Logger.i(TAG, "Failed to clear ignores");
             }
         });
         clearFilterWatchIgnores.setText("Clear ignored filter watches");
@@ -121,7 +121,7 @@ public class DeveloperSettingsController extends Controller {
         Button dumpAllThreadStacks = new Button(context);
         dumpAllThreadStacks.setOnClickListener(v -> {
             Set<Thread> activeThreads = Thread.getAllStackTraces().keySet();
-            Logger.d("STACKDUMP-COUNT", String.valueOf(activeThreads.size()));
+            Logger.i("STACKDUMP-COUNT", String.valueOf(activeThreads.size()));
             for (Thread t : activeThreads) {
                 //ignore these threads as they aren't relevant (main will always be this button press)
                 if (t.getName().equalsIgnoreCase("main")
@@ -137,11 +137,11 @@ public class DeveloperSettingsController extends Controller {
                         || t.getName().contains("AsyncTask"))
                     continue;
                 StackTraceElement[] elements = t.getStackTrace();
-                Logger.d("STACKDUMP-HEADER", "Thread: " + t.getName());
+                Logger.i("STACKDUMP-HEADER", "Thread: " + t.getName());
                 for (StackTraceElement e : elements) {
-                    Logger.d("STACKDUMP", e.toString());
+                    Logger.i("STACKDUMP", e.toString());
                 }
-                Logger.d("STACKDUMP-FOOTER", "----------------");
+                Logger.i("STACKDUMP-FOOTER", "----------------");
             }
         });
         dumpAllThreadStacks.setText("Dump active thread stack traces to log");
@@ -157,10 +157,10 @@ public class DeveloperSettingsController extends Controller {
                     wakeable.onWake();
                 }
                 wakeables.setAccessible(false);
-                Logger.d(TAG, "Woke all wakeables");
+                Logger.i(TAG, "Woke all wakeables");
 
             } catch (Exception e) {
-                Logger.d(TAG, "Failed to run wakeables");
+                Logger.i(TAG, "Failed to run wakeables");
             }
         });
         forceFilterWatch.setText("Force wakemanager wake");

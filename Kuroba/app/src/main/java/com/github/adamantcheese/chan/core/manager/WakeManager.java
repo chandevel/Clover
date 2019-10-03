@@ -105,12 +105,12 @@ public class WakeManager {
 
     private void startAlarm() {
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, ChanSettings.watchBackgroundInterval.get(), pendingIntent);
-        Logger.d(TAG, "Started background alarm with an interval of " + (ChanSettings.watchBackgroundInterval.get() / 1000 / 60) + " minutes");
+        Logger.i(TAG, "Started background alarm with an interval of " + (ChanSettings.watchBackgroundInterval.get() / 1000 / 60) + " minutes");
     }
 
     private void stopAlarm() {
         alarmManager.cancel(pendingIntent);
-        Logger.d(TAG, "Stopped background alarm");
+        Logger.i(TAG, "Stopped background alarm");
     }
 
     /**

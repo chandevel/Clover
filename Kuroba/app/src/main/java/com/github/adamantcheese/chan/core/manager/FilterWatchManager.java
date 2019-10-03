@@ -36,8 +36,10 @@ import com.google.gson.reflect.TypeToken;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -110,7 +112,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
     public void onWake() {
         if (!processing) {
             wakeManager.manageLock(true, FilterWatchManager.this);
-            Logger.d(TAG, "Processing filter loaders");
+            Logger.i(TAG, "Processing filter loaders, started at " + DateFormat.getTimeInstance().format(new Date()));
             processing = true;
             populateFilterLoaders();
             for (ChanThreadLoader loader : filterLoaders.keySet()) {
@@ -221,7 +223,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                     ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
                     lastCheckedPosts.clear();
                     processing = false;
-                    Logger.d(TAG, "Finished processing filter loaders");
+                    Logger.i(TAG, "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance().format(new Date()));
                     wakeManager.manageLock(false, FilterWatchManager.this);
                 }
             }

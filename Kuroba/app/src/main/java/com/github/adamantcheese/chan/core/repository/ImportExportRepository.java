@@ -121,7 +121,7 @@ public class ImportExportRepository {
                     writer.write(json);
                 }
 
-                Logger.d(TAG, "Exporting done!");
+                Logger.i(TAG, "Exporting done!");
                 callbacks.onSuccess(ImportExport.Export);
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to export settings", error);
@@ -164,7 +164,7 @@ public class ImportExportRepository {
 
                 writeSettingsToDatabase(appSettings);
 
-                Logger.d(TAG, "Importing done!");
+                Logger.i(TAG, "Importing done!");
                 callbacks.onSuccess(ImportExport.Import);
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to import settings", error);
