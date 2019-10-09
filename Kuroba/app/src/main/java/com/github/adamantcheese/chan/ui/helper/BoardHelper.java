@@ -108,12 +108,12 @@ public class BoardHelper {
 
     public static String boardUniqueId(Board board) {
         String code = board.code.replace(":", "").replace(",", "");
-        return board.site.id() + ":" + code;
+        return board.siteId + ":" + code;
     }
 
     public static boolean matchesUniqueId(Board board, String uniqueId) {
         if (!uniqueId.contains(":")) {
-            return board.site.id() == 0 && board.code.equals(uniqueId);
+            return board.siteId == 0 && board.code.equals(uniqueId);
         } else {
             String[] splitted = uniqueId.split(":");
             if (splitted.length != 2) {
@@ -121,7 +121,7 @@ public class BoardHelper {
             }
 
             try {
-                return Integer.parseInt(splitted[0]) == board.site.id() && splitted[1].equals(board.code);
+                return Integer.parseInt(splitted[0]) == board.siteId && splitted[1].equals(board.code);
             } catch (NumberFormatException ignored) {
                 return false;
             }

@@ -71,7 +71,7 @@ public class DatabaseSavedReplyManager {
             if (savedRepliesByNo.containsKey(postNo)) {
                 List<SavedReply> items = savedRepliesByNo.get(postNo);
                 for (SavedReply item : items) {
-                    if (item.board.equals(board.code) && item.siteId == board.site.id()) {
+                    if (item.board.equals(board.code) && item.siteId == board.siteId) {
                         return true;
                     }
                 }
@@ -154,7 +154,7 @@ public class DatabaseSavedReplyManager {
         return () -> {
             QueryBuilder<SavedReply, Integer> builder = helper.savedDao.queryBuilder();
             List<SavedReply> query = builder.where()
-                    .eq("site", board.site.id())
+                    .eq("site", board.siteId)
                     .and().eq("board", board.code)
                     .and().eq("no", no).query();
             return query.isEmpty() ? null : query.get(0);

@@ -459,7 +459,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             List<String> keep = new ArrayList<>();
             for (String uniqueId : filter.boards.split(",")) {
                 String[] split = uniqueId.split(":");
-                if (!(split.length == 2 && Integer.parseInt(split[0]) == board.site.id()
+                if (!(split.length == 2 && Integer.parseInt(split[0]) == board.siteId
                         && split[1].equals(board.code))) {
                     keep.add(uniqueId);
                 }
@@ -474,7 +474,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
 
         //loadables (saved threads, pins, history, loadables)
-        List<Loadable> siteLoadables = loadableDao.queryForEq("site", board.site.id());
+        List<Loadable> siteLoadables = loadableDao.queryForEq("site", board.siteId);
         if (!siteLoadables.isEmpty()) {
             Set<Integer> loadableIdSet = new HashSet<>();
             for (Loadable loadable : siteLoadables) {
@@ -512,21 +512,21 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         //saved replies
         DeleteBuilder<SavedReply, Integer> savedReplyDelete = savedDao.deleteBuilder();
         savedReplyDelete.where()
-                .eq("site", board.site.id())
+                .eq("site", board.siteId)
                 .eq("board", board.code);
         savedReplyDelete.delete();
 
         //thread hides
         DeleteBuilder<PostHide, Integer> threadHideDelete = postHideDao.deleteBuilder();
         threadHideDelete.where()
-                .eq("site", board.site.id())
+                .eq("site", board.siteId)
                 .eq("board", board.code);
         threadHideDelete.delete();
 
         //board itself
         DeleteBuilder boardDelete = boardsDao.deleteBuilder();
         boardDelete.where()
-                .eq("site", board.site.id())
+                .eq("site", board.siteId)
                 .eq("code", board.code);
         boardDelete.delete();
     }

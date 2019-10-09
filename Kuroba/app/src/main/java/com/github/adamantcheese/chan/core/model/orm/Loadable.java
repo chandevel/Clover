@@ -124,7 +124,7 @@ public class Loadable implements Cloneable {
 
     public static Loadable forCatalog(Board board) {
         Loadable loadable = new Loadable();
-        loadable.siteId = board.site.id();
+        loadable.siteId = board.siteId;
         loadable.site = board.site;
         loadable.board = board;
         loadable.boardCode = board.code;
@@ -197,7 +197,7 @@ public class Loadable implements Cloneable {
 
         Loadable other = (Loadable) object;
 
-        if (site.id() != other.site.id()) {
+        if (site.id() != other.siteId) {
             return false;
         }
 
