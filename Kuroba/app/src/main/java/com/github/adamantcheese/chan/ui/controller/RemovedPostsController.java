@@ -17,9 +17,9 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.image.ImageContainer;
-import com.github.adamantcheese.chan.core.image.ImageListener;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -212,7 +212,7 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
 
                 imageLoaderV2.get(image.getThumbnailUrl().toString(), new ImageListener() {
                     @Override
-                    public void onResponse(ImageContainer response, boolean isImmediate) {
+                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                         postImage.setImageBitmap(response.getBitmap());
                     }
 

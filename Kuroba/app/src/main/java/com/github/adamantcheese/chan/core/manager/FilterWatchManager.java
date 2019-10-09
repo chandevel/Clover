@@ -115,6 +115,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
             Logger.i(TAG, "Processing filter loaders, started at " + DateFormat.getTimeInstance().format(new Date()));
             processing = true;
             populateFilterLoaders();
+            Logger.d(TAG, "Number of filter loaders: " + numBoardsChecked);
             for (ChanThreadLoader loader : filterLoaders.keySet()) {
                 loader.requestData();
             }
@@ -196,6 +197,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
     private class BackgroundLoader implements ChanThreadLoader.ChanLoaderCallback {
         @Override
         public void onChanLoaderData(ChanThread result) {
+            Logger.d(TAG, "onChanLoaderData() for /" + result.getLoadable().board.code + "/");
             Set<Integer> toAdd = new HashSet<>();
             //Match filters and ignores
             for (Filter f : filters) {
@@ -213,6 +215,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
             lastCheckedPosts.addAll(result.getPostsUnsafe());
             synchronized (this) {
                 numBoardsChecked--;
+                Logger.d(TAG, "Filter loader processed, left " + numBoardsChecked);
                 if (numBoardsChecked <= 0) {
                     numBoardsChecked = 0;
                     Set<Integer> lastCheckedPostNumbers = new HashSet<>();

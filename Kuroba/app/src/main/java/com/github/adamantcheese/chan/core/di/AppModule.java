@@ -51,15 +51,11 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public ImageLoaderV2 provideImageLoaderV2(RequestQueue requestQueue,
-                                              Context applicationContext,
-                                              ThemeHelper themeHelper) {
+    public ImageLoaderV2 provideImageLoaderV2(RequestQueue requestQueue) {
         final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         final int lruImageCacheSize = runtimeMemory / 8;
         ImageLoader imageLoader = new ImageLoader(
-                applicationContext,
                 requestQueue,
-                themeHelper,
                 new BitmapLruImageCache(lruImageCacheSize));
         Logger.d(DI_TAG, "Image loader v2");
         return new ImageLoaderV2(imageLoader);

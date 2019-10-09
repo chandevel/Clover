@@ -35,6 +35,9 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.github.adamantcheese.chan.R;
@@ -43,8 +46,6 @@ import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.di.NetModule;
-import com.github.adamantcheese.chan.core.image.ImageContainer;
-import com.github.adamantcheese.chan.core.image.ImageListener;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;

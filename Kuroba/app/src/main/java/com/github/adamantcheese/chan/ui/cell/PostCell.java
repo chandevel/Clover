@@ -53,9 +53,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.image.ImageContainer;
-import com.github.adamantcheese.chan.core.image.ImageListener;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;

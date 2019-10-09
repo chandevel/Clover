@@ -7,6 +7,8 @@ import android.os.Looper;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -16,6 +18,8 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -101,7 +105,18 @@ public class ImageLoaderV2 {
             throw new RuntimeException("Must be executed on the main thread!");
         }
 
-        ImageContainer container = new ImageContainer(null, null, null, imageListener);
+        ImageContainer container = null;
+        try {
+            @SuppressWarnings("JavaReflectionMemberAccess")
+            Constructor c = ImageContainer.class.getConstructor(ImageLoader.class, Bitmap.class, String.class, String.class, ImageListener.class);
+            c.setAccessible(true);
+            container = (ImageContainer) c.newInstance(imageLoader, null, null, null, imageListener);
+            c.setAccessible(false);
+        } catch (Exception failedSomething) {
+            return container;
+        }
+
+        ImageContainer finalContainer = container;
 
         diskLoaderExecutor.execute(() -> {
             String imageDir;
@@ -124,8 +139,8 @@ public class ImageLoaderV2 {
                 Logger.e(TAG, errorMessage);
 
                 mainThreadHandler.post(() -> {
-                    if (container.getListener() != null) {
-                        container.getListener().onErrorResponse(new VolleyError(errorMessage));
+                    if (imageListener != null) {
+                        imageListener.onErrorResponse(new VolleyError(errorMessage));
                     }
                 });
                 return;
@@ -141,19 +156,31 @@ public class ImageLoaderV2 {
                 Logger.e(TAG, "Could not decode bitmap");
 
                 mainThreadHandler.post(() -> {
-                    if (container.getListener() != null) {
-                        container.getListener().onErrorResponse(new VolleyError("Could not decode bitmap"));
+                    if (imageListener != null) {
+                        imageListener.onErrorResponse(new VolleyError("Could not decode bitmap"));
                     }
                 });
                 return;
             }
 
             mainThreadHandler.post(() -> {
-                container.setBitmap(bitmap);
-                container.setRequestUrl(imageDir);
+                try {
+                    Field bitmapField = finalContainer.getClass().getDeclaredField("mBitmap");
+                    Field urlField = finalContainer.getClass().getDeclaredField("mRequestUrl");
+                    bitmapField.setAccessible(true);
+                    urlField.setAccessible(true);
+                    bitmapField.set(finalContainer, bitmap);
+                    urlField.set(finalContainer, imageOnDisk);
+                    bitmapField.setAccessible(false);
+                    urlField.setAccessible(false);
 
-                if (container.getListener() != null) {
-                    container.getListener().onResponse(container, true);
+                    if (imageListener != null) {
+                        imageListener.onResponse(finalContainer, true);
+                    }
+                } catch (Exception e) {
+                    if (imageListener != null) {
+                        imageListener.onErrorResponse(new VolleyError("Couldn't set fields"));
+                    }
                 }
             });
         });
@@ -166,7 +193,7 @@ public class ImageLoaderV2 {
             throw new RuntimeException("Must be executed on the main thread!");
         }
 
-        imageLoader.cancelRequest(container);
+        container.cancelRequest();
     }
 
     public ImageContainer get(

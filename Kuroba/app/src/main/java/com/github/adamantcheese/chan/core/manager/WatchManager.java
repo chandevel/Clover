@@ -1137,7 +1137,7 @@ public class WatchManager implements WakeManager.Wakeable {
                     && pin.loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndViewable
                     && (thread.isArchived() || thread.isClosed())) {
                 NetworkResponse networkResponse = new NetworkResponse(
-                        NetworkResponse.STATUS_SERVICE_UNAVAILABLE,
+                        503,
                         EMPTY_BYTE_ARRAY,
                         Collections.emptyMap(),
                         true);

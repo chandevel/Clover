@@ -142,6 +142,7 @@ dependencies {
 
     implementation 'com.google.android.exoplayer:exoplayer:2.10.4'
 
+    implementation 'com.android.volley:volley:1.1.1'
     implementation 'com.squareup.okhttp3:okhttp:4.1.0'
 
     implementation 'com.j256.ormlite:ormlite-core:5.1'
