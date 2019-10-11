@@ -30,10 +30,10 @@ import com.github.adamantcheese.chan.utils.Logger;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -51,7 +51,7 @@ public class WakeManager {
     private final AlarmManager alarmManager;
     private final PowerManager powerManager;
 
-    private List<Wakeable> wakeableSet = new ArrayList<>();
+    private Set<Wakeable> wakeableSet = new HashSet<>();
     public static final Intent intent = new Intent(getAppContext(), WakeUpdateReceiver.class);
     private PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
     private long lastBackgroundUpdateTime;
@@ -116,7 +116,7 @@ public class WakeManager {
     /**
      * Want a wake lock? Request true. If a lock already exists it will be freed before acquiring a new one.
      * Don't need it any more? Request false.
-     *
+     * <p>
      * Do be warned that wakelocks in this method aren't reference counted, so you can manage true a bunch but managed false once and the wakelock is gone.
      * The locker object is to prevent duplicate wakelocks from being generated for the same object.
      */

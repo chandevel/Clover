@@ -109,7 +109,6 @@ public class DeveloperSettingsController extends Controller {
                 Field ignoredField = filterWatchManager.getClass().getDeclaredField("ignoredPosts");
                 ignoredField.setAccessible(true);
                 ignoredField.set(filterWatchManager, Collections.synchronizedSet(new HashSet<Integer>()));
-                ignoredField.setAccessible(false);
                 Logger.i(TAG, "Cleared ignores");
             } catch (Exception e) {
                 Logger.i(TAG, "Failed to clear ignores");
@@ -156,7 +155,6 @@ public class DeveloperSettingsController extends Controller {
                 for(WakeManager.Wakeable wakeable : (ArrayList<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
                     wakeable.onWake();
                 }
-                wakeables.setAccessible(false);
                 Logger.i(TAG, "Woke all wakeables");
 
             } catch (Exception e) {

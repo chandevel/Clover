@@ -111,7 +111,6 @@ public class ImageLoaderV2 {
             Constructor c = ImageContainer.class.getConstructor(ImageLoader.class, Bitmap.class, String.class, String.class, ImageListener.class);
             c.setAccessible(true);
             container = (ImageContainer) c.newInstance(imageLoader, null, null, null, imageListener);
-            c.setAccessible(false);
         } catch (Exception failedSomething) {
             return container;
         }
@@ -171,8 +170,6 @@ public class ImageLoaderV2 {
                     urlField.setAccessible(true);
                     bitmapField.set(finalContainer, bitmap);
                     urlField.set(finalContainer, imageOnDisk);
-                    bitmapField.setAccessible(false);
-                    urlField.setAccessible(false);
 
                     if (imageListener != null) {
                         imageListener.onResponse(finalContainer, true);
