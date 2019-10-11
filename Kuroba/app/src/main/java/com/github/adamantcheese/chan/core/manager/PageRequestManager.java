@@ -93,7 +93,7 @@ public class PageRequestManager implements SiteActions.PagesListener {
         Long lastUpdate = boardTimeMap.get(b.code); //had some null issues for some reason? arisuchan in particular?
         long lastUpdateTime = lastUpdate != null ? lastUpdate : 0L;
         if (lastUpdateTime + THREE_MINUTES <= System.currentTimeMillis()) {
-            Logger.d(TAG, "Requesting existing board pages, timeout");
+            Logger.d(TAG, "Requesting existing board pages for /" + b.code + "/, timeout");
             requestBoard(b);
         }
     }
@@ -103,8 +103,6 @@ public class PageRequestManager implements SiteActions.PagesListener {
             if (!requestedBoards.contains(b.code)) {
                 requestedBoards.add(b.code);
                 b.site.actions().pages(b, this);
-            } else {
-                Logger.d(TAG, "Board /" + b.code + "/ has already been requested");
             }
         }
     }

@@ -330,7 +330,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             }
         }
 
-        Logger.d(TAG, "Requested " + loadable.boardCode + ", " + loadable.no);
+        Logger.d(TAG, "Requested /" + loadable.boardCode + "/, " + loadable.no);
 
         List<Post> cached = thread == null ? new ArrayList<>() : thread.getPosts();
         ChanReader chanReader = loadable.getSite().chanReader();
