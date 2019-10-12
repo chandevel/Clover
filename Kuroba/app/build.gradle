@@ -1,6 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
+    // !!! IMPORTANT !!!
+    // When changing any of the following: compileSdkVersion, targetSdkVersion
+    // don't forget to also update travis.yml config
+    // !!! IMPORTANT !!!
+
     compileSdkVersion 28
 
     defaultConfig {
@@ -34,8 +39,6 @@ android {
          */
         //if you change this, also change the AndroidManifest package
         applicationId "com.github.adamantcheese.chan"
-        //these are manifest placeholders for the application name and icon location
-        manifestPlaceholders = [appName: "Kuroba", iconLoc: "@mipmap/ic_launcher"]
         //these are your update and github repo endpoints, change it to your repository
         //the repo endpoint is also used to calculate the issues endpoint
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
@@ -80,7 +83,60 @@ android {
         exclude 'META-INF/*'
     }
 
+    flavorDimensions "default"
+
+    productFlavors {
+        stable {
+            dimension "default"
+            applicationIdSuffix ""
+            versionNameSuffix ""
+
+            buildConfigField "boolean", "DEV_BUILD", "false"
+
+            // These are manifest placeholders for the application name, icon location and file
+            // provider authority (the file provider authority should differ for different flavors
+            // otherwise the app will not work)
+            manifestPlaceholders = [
+                    appName              : "Kuroba",
+                    iconLoc              : "@mipmap/ic_launcher",
+                    fileProviderAuthority: "${applicationIdSuffix}.fileprovider"
+            ]
+        }
+        dev {
+            dimension "default"
+            // Different app ids for different flavors so that the users are able to install both
+            // of them without deleting anything
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+
+            // To easily figure out whether the app uses development flavors or not
+            buildConfigField "boolean", "DEV_BUILD", "true"
+
+            // The same as in stable flavor
+            manifestPlaceholders = [
+                    appName              : "Kuroba${versionNameSuffix}",
+                    iconLoc              : "@mipmap/ic_launcher",
+                    fileProviderAuthority: "${applicationIdSuffix}.fileprovider"
+            ]
+        }
+    }
+
     buildTypes {
+        // manifestPlaceholders do not work here for some reason so here is a little hack.
+        // We need to iterate each build variant and for each build variant we need to find it's
+        // flavor then we need to extract the versionNameSuffix from the flavor and update the output
+        // apk name with it.
+        android.applicationVariants.all { variant ->
+            variant.outputs.all {
+                Object flavor = getCurrentFlavor(variant.flavorName)
+                if (flavor == null) {
+                    throw new GradleException("Coudln't find flavor by variant.flavorName = ${variant.flavorName}")
+                }
+
+                outputFileName = "Kuroba${flavor.versionNameSuffix}.apk"
+            }
+        }
+
         release {
             /*
             If you want to sign releases without using "Generate Signed APK", make a file in app/keys.properties with the following content:
@@ -159,4 +215,78 @@ dependencies {
     implementation 'com.vdurmont:emoji-java:5.1.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+}
+
+//========================================================
+// All of the below is being used by the upload_apk script
+//========================================================
+
+def getCurrentFlavor(String name) {
+    Object resultFlavor = null
+
+    android.productFlavors.all { flavor ->
+        if (flavor.name == name) {
+            resultFlavor = flavor
+        }
+    }
+
+    return resultFlavor
+}
+
+def getLatestCommit(String branchName) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        def printArgs = "%H; %ad; %s"
+
+        commandLine 'git', 'log', branchName, '-n 1', "--pretty=format:${printArgs}", "--date=iso8601-strict"
+        standardOutput = stdout
+    }
+
+    return stdout.toString().trim()
+}
+
+def getLastCommitsFromCommitByHash(String branchName, String from) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        def printArgs = "%H; %ad; %s"
+
+        commandLine 'git', 'log', branchName, "${from}..HEAD", "--pretty=format:${printArgs}", "--date=iso8601-strict"
+        standardOutput = stdout
+    }
+
+    return stdout.toString().trim()
+}
+
+def checkBranchExists(String branchName) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--verify', branchName
+        standardOutput = stdout
+    }
+
+    return stdout.toString().trim()
+}
+
+task checkBranchExistsTask {
+    doLast {
+        println(checkBranchExists(branch_name))
+    }
+}
+
+task getLatestCommitTask {
+    doLast {
+        println(getLatestCommit(branch_name))
+    }
+}
+
+task getLastCommitsFromCommitByHashTask {
+    doLast {
+        println(getLastCommitsFromCommitByHash(branch_name, from))
+    }
+}
+
+task getVersionCodeTask {
+    doLast {
+        println(project.android.defaultConfig.versionCode)
+    }
 }
