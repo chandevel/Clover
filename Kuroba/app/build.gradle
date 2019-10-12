@@ -130,7 +130,7 @@ android {
             variant.outputs.all {
                 Object flavor = getCurrentFlavor(variant.flavorName)
                 if (flavor == null) {
-                    throw new GradleException("Coudln't find flavor by variant.flavorName = ${variant.flavorName}")
+                    throw new GradleException("Couldn't find flavor by variant.flavorName = ${variant.flavorName}")
                 }
 
                 outputFileName = "Kuroba${flavor.versionNameSuffix}.apk"
