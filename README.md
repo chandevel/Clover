@@ -5,9 +5,9 @@
 
 [RELEASE APKs](https://github.com/Adamantcheese/Kuroba/releases)
 
-DEV releases are provided by K1rakishou on his server:
+DEV releases are provided by K1rakishou on his server (they are built and uploaded after every new commit):
 
-[ALL DEV APKs](http://94.140.116.243:8080/)
+[All DEV APKs](http://94.140.116.243:8080/)
 
 [Latest DEV APK](http://94.140.116.243:8080/latest_apk)
 
