@@ -23,9 +23,6 @@ script:
   - chmod +x gradlew || travis_terminate 2;
   - ./gradlew assembleDevDebug --console plain -x lint || travis_terminate 3;
   - python3 upload_apk.py http://94.140.116.243:8080 multi-feature || travis_terminate 4;
-env:
-  global:
-    - secure: "Uk483KcYheW96/ZjI3XXw+zuQBVhITkuwsVLELBFZzXeAWRpvYA7802/jp60T5VBrvmkgkcELdm5TgHdoE4k05A1hH2eaxzt7txsVe2bdGRNgrUP/gmyI7lXup2E0ZOuBtnkjMAcCp9KZz7y8DC13mBp28+4Q/JEDOThDg9lE4y8rlOmZ3dHKUN2+97nxmIXXWyKROsll8BGeTEgNQ14l6okri8t3wv4a3lqnuvVSopubJ+sVt1s1GH8wiRzGfFVTeDmUE1MmdrROg9beEyqFCzQN/ewJ5NdmeQLKNDfdMI8YsBls6NXr8hxQx4lpmFl13ukQH9AtHtz5BhX9nbpFjiiaGaci3dtpWrOu7EHNbr0KSkMnqh5lrkZ5wRIX9rK4kr5ie9dTq331myp8HQ3yZG3/oT/KWVQAA1TzEHtm3YCmdO+wkz1F5Sz8KG131GUg0Og+xQAqGFKloLkRfweLCIuha95ulSMzTlJQyKP5jMt9UAQiRh4pZOPU2whDlcwGds59+vtbO8MdV2h1YU0fFMSO6W31Z91bXXWaVQZR0+LUuJb6uOq1YCeq703osmgp5G4ToVKQXNKYIgv0kDe/Sdk6sOYVZUE+YNZzVF6l+U2D8iuuMFWxHJNykItHbFKlcgmHV6ZPzflHPS28jIUweML331rL1eVX4hAE212ggw="
 
 notifications:
   email: false
