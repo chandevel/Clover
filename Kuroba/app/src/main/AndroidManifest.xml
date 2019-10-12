@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:icon="${iconLoc}"
         android:label="${appName}"
         android:theme="@style/Chan.Theme">
+		
 
         <uses-library
             android:name="org.apache.http.legacy"
