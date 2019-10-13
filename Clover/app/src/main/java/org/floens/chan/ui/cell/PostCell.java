@@ -306,7 +306,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     public ThumbnailView getThumbnailView(PostImage postImage) {
         for (int i = 0; i < post.images.size(); i++) {
             if (post.images.get(i).equalUrl(postImage)) {
-                return thumbnailViews.get(i);
+                return ChanSettings.textOnly.get() ? null : thumbnailViews.get(i);
             }
         }
 
