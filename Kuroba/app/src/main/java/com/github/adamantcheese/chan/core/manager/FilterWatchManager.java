@@ -164,6 +164,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
     }
 
     public void onCatalogLoad(ChanThread catalog) {
+        Logger.d(TAG, "onCatalogLoad() for /" + catalog.getLoadable().board.code + "/");
         if (catalog.getLoadable().isThreadMode()) return; //not a catalog
         if (processing) return; //filter watch manager is currently processing, ignore
 
@@ -180,18 +181,8 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                 }
             }
         }
-        //add all posts to ignore
         ignoredPosts.addAll(toAdd);
-        lastCheckedPosts.addAll(catalog.getPostsUnsafe());
-        synchronized (this) {
-            Set<Integer> lastCheckedPostNumbers = new HashSet<>();
-            for (Post post : lastCheckedPosts) {
-                lastCheckedPostNumbers.add(post.no);
-            }
-            ignoredPosts.retainAll(lastCheckedPostNumbers);
-            ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
-            lastCheckedPosts.clear();
-        }
+        ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
     }
 
     private class BackgroundLoader implements ChanThreadLoader.ChanLoaderCallback {
