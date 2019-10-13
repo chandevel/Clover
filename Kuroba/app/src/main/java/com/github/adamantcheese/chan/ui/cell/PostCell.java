@@ -307,7 +307,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
     public ThumbnailView getThumbnailView(PostImage postImage) {
         for (int i = 0; i < post.images.size(); i++) {
             if (post.images.get(i).equalUrl(postImage)) {
-                return thumbnailViews.get(i);
+                return ChanSettings.textOnly.get() ? null : thumbnailViews.get(i);
             }
         }
 
@@ -535,7 +535,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
 
         divider.setVisibility(showDivider ? VISIBLE : GONE);
 
-        if (ChanSettings.shiftPostFormat.get() && post.images.size() == 1) {
+        if (ChanSettings.shiftPostFormat.get() && post.images.size() == 1 && !ChanSettings.textOnly.get()) {
             //display width, we don't care about height here
             Point displaySize = new Point();
             WindowManager windowManager = (WindowManager) getContext().getSystemService(Activity.WINDOW_SERVICE);
