@@ -373,7 +373,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
         // Normal thread, not archived/deleted/closed
         if (response == null || response.posts.isEmpty()) {
-            onErrorResponse(new VolleyError("Post size is 0"));
+            onErrorResponse(new VolleyError("Post size is 0")); 
             return false;
         }
 
