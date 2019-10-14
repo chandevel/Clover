@@ -181,6 +181,9 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                 }
             }
         }
+        //clear the ignored posts set if it gets too large; don't have the same sync stuff as background and it's a hassle to keep track of recently loaded catalogs
+        if (ignoredPosts.size() + toAdd.size() > 650)
+            ignoredPosts.clear(); //like 11 4chan catalogs? should be plenty
         ignoredPosts.addAll(toAdd);
         ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
     }
