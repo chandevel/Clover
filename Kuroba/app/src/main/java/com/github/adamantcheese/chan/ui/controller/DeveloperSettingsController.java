@@ -152,7 +152,7 @@ public class DeveloperSettingsController extends Controller {
                 WakeManager wakeManager = Chan.injector().instance(WakeManager.class);
                 Field wakeables = wakeManager.getClass().getDeclaredField("wakeableSet");
                 wakeables.setAccessible(true);
-                for(WakeManager.Wakeable wakeable : (ArrayList<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
+                for(WakeManager.Wakeable wakeable : (Set<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
                     wakeable.onWake();
                 }
                 Logger.i(TAG, "Woke all wakeables");
