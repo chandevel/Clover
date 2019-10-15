@@ -513,6 +513,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         DeleteBuilder<SavedReply, Integer> savedReplyDelete = savedDao.deleteBuilder();
         savedReplyDelete.where()
                 .eq("site", board.siteId)
+                .and()
                 .eq("board", board.code);
         savedReplyDelete.delete();
 
@@ -520,6 +521,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         DeleteBuilder<PostHide, Integer> threadHideDelete = postHideDao.deleteBuilder();
         threadHideDelete.where()
                 .eq("site", board.siteId)
+                .and()
                 .eq("board", board.code);
         threadHideDelete.delete();
 
@@ -527,6 +529,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         DeleteBuilder boardDelete = boardsDao.deleteBuilder();
         boardDelete.where()
                 .eq("site", board.siteId)
+                .and()
                 .eq("code", board.code);
         boardDelete.delete();
     }
