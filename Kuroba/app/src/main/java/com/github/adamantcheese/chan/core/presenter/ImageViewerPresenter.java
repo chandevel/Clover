@@ -59,11 +59,11 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     private boolean muted;
 
-    public ImageViewerPresenter(Callback callback) {
+    public ImageViewerPresenter(Callback callback, boolean headsetConnected) {
         this.callback = callback;
         inject(this);
 
-        muted = ChanSettings.videoDefaultMuted.get();
+        muted = ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get() || !headsetConnected);
     }
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {

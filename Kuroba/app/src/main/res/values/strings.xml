@@ -506,6 +506,8 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_save_server_filename_description">Save the image with the filename the site assigned. If disabled, save the image with the filename the uploader assigned.</string>
     <string name="setting_video_default_muted">Start videos muted</string>
     <string name="setting_video_default_muted_description">If a video has audio, mute it by default</string>
+    <string name="setting_headset_default_muted">Mute headset videos</string>
+    <string name="setting_headset_default_muted_description">Mute the video even if a wired headset is connected</string>
     <string name="setting_video_open_external">Play videos with external player</string>
     <string name="setting_video_open_external_description">Play videos in an external media player app</string>
     <string name="setting_share_url">Share URL to image</string>

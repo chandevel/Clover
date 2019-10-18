@@ -142,6 +142,7 @@ public class ChanSettings {
     public static final BooleanSetting saveBoardFolder;
     public static final BooleanSetting saveThreadFolder;
     public static final BooleanSetting videoDefaultMuted;
+    public static final BooleanSetting headsetDefaultMuted;
     public static final BooleanSetting videoAutoLoop;
     public static final BooleanSetting autoLoadThreadImages;
     public static final BooleanSetting allowMediaScannerToScanLocalThreads;
@@ -240,6 +241,7 @@ public class ChanSettings {
         saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
         saveThreadFolder = new BooleanSetting(p, "preference_save_subthread", false);
         videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
+        headsetDefaultMuted = new BooleanSetting(p, "preference_headset_default_muted", true);
         videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
         autoLoadThreadImages = new BooleanSetting(p, "preference_auto_load_thread", false);
         allowMediaScannerToScanLocalThreads = new BooleanSetting(p, "allow_media_scanner_to_scan_local_threads", false);
