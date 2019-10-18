@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -209,6 +210,8 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
             postNo.setText(String.format("No. %d", removedPost.postNo));
             postComment.setText(removedPost.comment);
             checkbox.setChecked(removedPost.isChecked());
+            checkbox.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+            checkbox.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
 
             if (removedPost.images.size() > 0) {
                 // load only the first image

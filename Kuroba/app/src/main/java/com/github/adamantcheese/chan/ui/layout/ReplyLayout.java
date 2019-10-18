@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.layout;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -183,6 +184,9 @@ public class ReplyLayout extends LoadView implements
 
         progressLayout = inflater.inflate(R.layout.layout_reply_progress, this, false);
         currentProgress = progressLayout.findViewById(R.id.current_progress);
+
+        spoiler.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        spoiler.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
 
         // Setup reply layout views
         fileName.setOnLongClickListener(v -> presenter.fileNameLongClicked());

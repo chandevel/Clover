@@ -24,6 +24,7 @@ import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -486,12 +487,14 @@ public class ThreadLayout extends CoordinatorLayout implements
     public void confirmPostDelete(final Post post) {
         @SuppressLint("InflateParams") final View view = LayoutInflater.from(getContext())
                 .inflate(R.layout.dialog_post_delete, null);
+        CheckBox checkBox = view.findViewById(R.id.image_only);
+        checkBox.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        checkBox.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
         new AlertDialog.Builder(getContext())
                 .setTitle(R.string.delete_confirm)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete, (dialog, which) -> {
-                    CheckBox checkBox = view.findViewById(R.id.image_only);
                     presenter.deletePostConfirmed(post, checkBox.isChecked());
                 })
                 .show();
