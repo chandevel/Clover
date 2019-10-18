@@ -99,7 +99,7 @@ android {
             manifestPlaceholders = [
                     appName              : "Kuroba${versionNameSuffix}",
                     iconLoc              : "@mipmap/ic_launcher",
-                    fileProviderAuthority: "${applicationId}${applicationIdSuffix}.fileprovider"
+                    fileProviderAuthority: "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider"
             ]
         }
         dev {
@@ -116,7 +116,7 @@ android {
             manifestPlaceholders = [
                     appName              : "Kuroba${versionNameSuffix}",
                     iconLoc              : "@mipmap/ic_launcher",
-                    fileProviderAuthority: "${applicationId}${applicationIdSuffix}.fileprovider"
+                    fileProviderAuthority: "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider"
             ]
         }
     }
