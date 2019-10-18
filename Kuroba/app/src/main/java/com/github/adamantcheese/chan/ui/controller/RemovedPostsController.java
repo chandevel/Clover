@@ -15,6 +15,7 @@ import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.graphics.ColorUtils;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -24,6 +25,7 @@ import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -72,6 +74,9 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
         viewHolder.setOnClickListener(this);
         restorePostsButton.setOnClickListener(this);
         selectAllButton.setOnClickListener(this);
+
+        selectAllButton.setBackgroundColor(ColorUtils.setAlphaComponent(ThemeHelper.getTheme().textPrimary, 32));
+        restorePostsButton.setBackgroundColor(ColorUtils.setAlphaComponent(ThemeHelper.getTheme().textPrimary, 32));
     }
 
     @Override
