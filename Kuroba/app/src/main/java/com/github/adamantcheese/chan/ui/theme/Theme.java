@@ -104,6 +104,7 @@ public class Theme {
 
     public void applyFabColor(FloatingActionButton fab) {
         fab.setBackgroundTintList(ColorStateList.valueOf(accentColor.color));
+        fab.getDrawable().setTint(Color.WHITE);
     }
 
     @SuppressWarnings("ResourceType")

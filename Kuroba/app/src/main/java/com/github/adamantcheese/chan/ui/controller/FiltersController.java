@@ -174,7 +174,6 @@ public class FiltersController extends Controller implements
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
             ThemeHelper.getTheme().applyFabColor(enable);
-            enableButton.getDrawable().setTint(Color.WHITE);
         }
     }
 
