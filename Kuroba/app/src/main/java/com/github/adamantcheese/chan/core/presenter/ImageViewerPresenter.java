@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.media.AudioManager;
+
 import androidx.viewpager.widget.ViewPager;
 
 import com.github.adamantcheese.chan.core.cache.FileCache;
@@ -25,6 +27,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,6 +36,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import static android.content.Context.AUDIO_SERVICE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 
@@ -59,11 +63,12 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     private boolean muted;
 
-    public ImageViewerPresenter(Callback callback, boolean headsetConnected) {
+    public ImageViewerPresenter(Callback callback) {
         this.callback = callback;
         inject(this);
 
-        muted = ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get() || !headsetConnected);
+        AudioManager audioManager = (AudioManager) AndroidUtils.getAppContext().getSystemService(AUDIO_SERVICE);
+        muted = ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get() || !audioManager.isWiredHeadsetOn());
     }
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {

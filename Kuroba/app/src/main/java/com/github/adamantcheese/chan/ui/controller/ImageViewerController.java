@@ -127,9 +127,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         this.toolbar = toolbar;
         this.loadable = loadable;
 
-        AudioManager audioManager = (AudioManager) context.getSystemService(AUDIO_SERVICE);
-
-        presenter = new ImageViewerPresenter(this, audioManager.isWiredHeadsetOn());
+        presenter = new ImageViewerPresenter(this);
     }
 
     @Override
