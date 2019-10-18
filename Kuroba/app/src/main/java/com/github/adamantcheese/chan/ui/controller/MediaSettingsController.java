@@ -39,6 +39,8 @@ public class MediaSettingsController extends SettingsController {
     // Special setting views
     private BooleanSettingView boardFolderSetting;
     private BooleanSettingView threadFolderSetting;
+    private BooleanSettingView videoDefaultMutedSetting;
+    private BooleanSettingView headsetDefaultMutedSetting;
     private LinkSettingView saveLocation;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
@@ -64,6 +66,8 @@ public class MediaSettingsController extends SettingsController {
         onPreferenceChange(imageAutoLoadView);
 
         threadFolderSetting.setEnabled(ChanSettings.saveBoardFolder.get());
+
+        headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
     }
 
     @Override
@@ -81,6 +85,8 @@ public class MediaSettingsController extends SettingsController {
             updateVideoLoadModes();
         } else if (item == boardFolderSetting) {
             updateThreadFolderSetting();
+        } else if (item == videoDefaultMutedSetting) {
+            updateHeadsetDefaultMutedSetting();
         }
     }
 
@@ -113,9 +119,15 @@ public class MediaSettingsController extends SettingsController {
                     R.string.setting_save_server_filename,
                     R.string.setting_save_server_filename_description));
 
-            media.add(new BooleanSettingView(this, ChanSettings.videoDefaultMuted,
+            videoDefaultMutedSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+                    ChanSettings.videoDefaultMuted,
                     R.string.setting_video_default_muted,
                     R.string.setting_video_default_muted_description));
+
+            headsetDefaultMutedSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+                    ChanSettings.headsetDefaultMuted,
+                    R.string.setting_headset_default_muted,
+                    R.string.setting_headset_default_muted_description));
 
             media.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal,
                     R.string.setting_video_open_external,
@@ -235,5 +247,9 @@ public class MediaSettingsController extends SettingsController {
             threadFolderSetting.setEnabled(false);
             ChanSettings.saveThreadFolder.set(false);
         }
+    }
+
+    private void updateHeadsetDefaultMutedSetting() {
+        headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
     }
 }
