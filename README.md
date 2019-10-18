@@ -16,3 +16,4 @@ Kuroba is a fast Android app for browsing imageboards, such as 4chan and 8chan. 
 
 ## License
 [Kuroba is GPLv3](https://github.com/Adamantcheese/Kuroba/blob/multi-feature/COPYING.txt), [licenses of the used libraries.](https://github.com/Adamantcheese/Kuroba/blob/multi-feature/Kuroba/app/src/main/assets/html/licenses.html)
+ 
