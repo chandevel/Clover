@@ -27,7 +27,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.media.AudioManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -84,7 +83,6 @@ import javax.inject.Inject;
 
 import okhttp3.HttpUrl;
 
-import static android.content.Context.AUDIO_SERVICE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
