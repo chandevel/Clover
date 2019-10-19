@@ -87,7 +87,7 @@ public class PostLinkable extends ClickableSpan {
         }
     }
 
-    public boolean getSpoilerState() {
+    public boolean isSpoilerVisible() {
         return spoilerVisible;
     }
 }

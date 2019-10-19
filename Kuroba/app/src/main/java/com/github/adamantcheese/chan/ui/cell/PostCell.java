@@ -53,7 +53,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
@@ -709,7 +708,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                         } else if (linkable2 != null && linkable1 != null) {
                             //spoilered link, figure out which span is the spoiler
                             if (linkable1.type == PostLinkable.Type.SPOILER) {
-                                if (linkable1.getSpoilerState()) {
+                                if (linkable1.isSpoilerVisible()) {
                                     //linkable2 is the link and we're unspoilered
                                     callback.onPostLinkableClicked(post, linkable2);
                                 } else {
@@ -717,7 +716,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                                     link.remove(linkable2);
                                 }
                             } else if (linkable2.type == PostLinkable.Type.SPOILER) {
-                                if (linkable2.getSpoilerState()) {
+                                if (linkable2.isSpoilerVisible()) {
                                     //linkable 1 is the link and we're unspoilered
                                     callback.onPostLinkableClicked(post, linkable1);
                                 } else {
