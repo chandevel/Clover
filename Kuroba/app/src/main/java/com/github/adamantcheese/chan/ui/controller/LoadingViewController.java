@@ -42,6 +42,18 @@ public class LoadingViewController extends BaseFloatingController {
         textView.setText(String.valueOf(percent));
     }
 
+    public void updateWithText(String text) {
+        if (indeterminate) {
+            throw new IllegalStateException("Cannot be used with indeterminate flag");
+        }
+
+        if (textView.getVisibility() != View.VISIBLE) {
+            textView.setVisibility(View.VISIBLE);
+        }
+
+        textView.setText(text);
+    }
+
     @Override
     protected int getLayoutId() {
         return R.layout.controller_loading_view;

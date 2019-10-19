@@ -10,11 +10,14 @@ import com.android.volley.toolbox.ImageLoader;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.saf.FileManager;
-import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.DirectorySegment;
+import com.github.k1rakishou.fsaf.file.FileSegment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -114,13 +117,17 @@ public class ImageLoaderV2 {
 
         diskLoaderExecutor.execute(() -> {
             try {
-                if (!fileManager.baseLocalThreadsDirectoryExists()) {
+                if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
                     throw new IOException("Base local threads directory does not exist");
                 }
 
-                AbstractFile baseDirFile = fileManager.newLocalThreadFile();
+                AbstractFile baseDirFile = fileManager.newBaseDirectoryFile(
+                        LocalThreadsBaseDirectory.class
+                );
+
                 if (baseDirFile == null) {
-                    throw new IOException("getFromDisk() fileManager.newLocalThreadFile() returned null");
+                    throw new IOException("getFromDisk() " +
+                            "fileManager.newLocalThreadFile() returned null");
                 }
 
                 String imageDir;
@@ -131,24 +138,25 @@ public class ImageLoaderV2 {
                 }
 
                 AbstractFile imageOnDiskFile = baseDirFile
-                        .appendSubDirSegment(imageDir)
-                        .appendFileNameSegment(filename);
+                        .clone(new DirectorySegment(imageDir), new FileSegment(filename));
 
-                if (!imageOnDiskFile.exists()
-                        || !imageOnDiskFile.isFile()
-                        || !imageOnDiskFile.canRead()) {
+                boolean exists = fileManager.exists(imageOnDiskFile);
+                boolean isFile = fileManager.isFile(imageOnDiskFile);
+                boolean canRead = fileManager.canRead(imageOnDiskFile);
+
+                if (!exists || !isFile || !canRead) {
                     String errorMessage = "Could not load image from the disk: " +
                             "(path = " + imageOnDiskFile.getFullPath() +
-                            ", exists = " + imageOnDiskFile.exists() +
-                            ", isFile = " + imageOnDiskFile.isFile() +
-                            ", canRead = " + imageOnDiskFile.canRead() + ")";
+                            ", exists = " + exists +
+                            ", isFile = " + isFile +
+                            ", canRead = " + canRead + ")";
 
                     Logger.e(TAG, errorMessage);
                     postError(container, errorMessage);
                     return;
                 }
 
-                try (InputStream inputStream = imageOnDiskFile.getInputStream()) {
+                try (InputStream inputStream = fileManager.getInputStream(imageOnDiskFile)) {
                     // Image exists on the disk - try to load it and put in the cache
                     BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
                     bitmapOptions.outWidth = width;

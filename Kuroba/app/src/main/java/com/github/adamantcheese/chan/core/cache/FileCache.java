@@ -22,10 +22,13 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.saf.FileManager;
-import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
-import com.github.adamantcheese.chan.core.saf.file.RawFile;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.DirectorySegment;
+import com.github.k1rakishou.fsaf.file.FileSegment;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +53,7 @@ public class FileCache implements FileCacheDownloader.Callback {
         RawFile cacheDirFile = fileManager.fromRawFile(
                 new File(cacheDir, FILE_CACHE_DIR));
 
-        cacheHandler = new CacheHandler(cacheDirFile);
+        cacheHandler = new CacheHandler(fileManager, cacheDirFile);
     }
 
     public void clearCache() {
@@ -71,12 +74,15 @@ public class FileCache implements FileCacheDownloader.Callback {
                     postImage.originalName,
                     postImage.extension);
 
-            if (!fileManager.baseLocalThreadsDirectoryExists()) {
+            if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
                 Logger.e(TAG, "Base local threads directory does not exist");
                 return null;
             }
 
-            AbstractFile baseDirFile = fileManager.newLocalThreadFile();
+            AbstractFile baseDirFile = fileManager.newBaseDirectoryFile(
+                    LocalThreadsBaseDirectory.class
+            );
+
             if (baseDirFile == null) {
                 Logger.e(TAG, "downloadFile() fileManager.newLocalThreadFile() returned null");
                 return null;
@@ -84,13 +90,14 @@ public class FileCache implements FileCacheDownloader.Callback {
 
             String imageDir = ThreadSaveManager.getImagesSubDir(loadable);
 
-            AbstractFile imageOnDiskFile = baseDirFile
-                    .appendSubDirSegment(imageDir)
-                    .appendFileNameSegment(filename);
+            AbstractFile imageOnDiskFile = baseDirFile.clone(
+                    new DirectorySegment(imageDir),
+                    new FileSegment(filename)
+            );
 
-            if (imageOnDiskFile.exists()
-                    && imageOnDiskFile.isFile()
-                    && imageOnDiskFile.canRead()) {
+            if (fileManager.exists(imageOnDiskFile)
+                    && fileManager.isFile(imageOnDiskFile)
+                    && fileManager.canRead(imageOnDiskFile)) {
                 handleFileImmediatelyAvailable(listener, imageOnDiskFile);
             } else {
                 Logger.e(TAG, "Cannot load saved image from the disk, path: "
@@ -130,11 +137,11 @@ public class FileCache implements FileCacheDownloader.Callback {
         }
 
         RawFile file = get(url);
-        if (file.exists()) {
+        if (fileManager.exists(file)) {
             handleFileImmediatelyAvailable(listener, file);
             return null;
         } else {
-            return handleStartDownload(listener, file, url);
+            return handleStartDownload(fileManager, listener, file, url);
         }
     }
 
@@ -199,11 +206,12 @@ public class FileCache implements FileCacheDownloader.Callback {
     }
 
     private FileCacheDownloader handleStartDownload(
+            FileManager fileManager,
             FileCacheListener listener,
             RawFile file,
             String url
     ) {
-        FileCacheDownloader downloader = new FileCacheDownloader(this, url, file);
+        FileCacheDownloader downloader = new FileCacheDownloader(fileManager, this, url, file);
         if (listener != null) {
             downloader.addListener(listener);
         }

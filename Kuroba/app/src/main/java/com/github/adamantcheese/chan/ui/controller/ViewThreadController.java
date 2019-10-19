@@ -44,27 +44,26 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
-import com.github.adamantcheese.chan.core.saf.FileManager;
-import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.AnimationUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
 
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -226,7 +225,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void saveClickedInternal() {
-        AbstractFile baseLocalThreadsDir = fileManager.newLocalThreadFile();
+        AbstractFile baseLocalThreadsDir = fileManager.newBaseDirectoryFile(
+                LocalThreadsBaseDirectory.class
+        );
+
         if (baseLocalThreadsDir == null) {
             Logger.e(TAG, "saveClickedInternal() fileManager.newLocalThreadFile() returned null");
             Toast.makeText(
@@ -236,7 +238,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             return;
         }
 
-        if (!baseLocalThreadsDir.exists() && !baseLocalThreadsDir.create()) {
+        if (!fileManager.exists(baseLocalThreadsDir)
+                && fileManager.create(baseLocalThreadsDir) == null) {
             Logger.e(TAG, "saveClickedInternal() Couldn't create baseLocalThreadsDir");
             Toast.makeText(
                     context,
@@ -245,7 +248,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             return;
         }
 
-        if (!fileManager.baseLocalThreadsDirectoryExists()) {
+        if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
             Logger.e(TAG, "Base local threads directory does not exist");
             Toast.makeText(
                     context,

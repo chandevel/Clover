@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
-import com.github.adamantcheese.chan.core.saf.file.ExternalFile;
+import com.github.k1rakishou.fsaf.file.ExternalFile;
 
 import javax.inject.Inject;
 

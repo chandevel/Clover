@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.cache;
 
-import com.github.adamantcheese.chan.core.saf.file.RawFile;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 public abstract class FileCacheListener {
     public void onProgress(long downloaded, long total) {

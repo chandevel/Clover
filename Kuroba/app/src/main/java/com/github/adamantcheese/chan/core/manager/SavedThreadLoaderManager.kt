@@ -4,16 +4,19 @@ import com.github.adamantcheese.chan.core.mapper.ThreadMapper
 import com.github.adamantcheese.chan.core.model.ChanThread
 import com.github.adamantcheese.chan.core.model.orm.Loadable
 import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository
-import com.github.adamantcheese.chan.core.saf.FileManager
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
+import com.github.k1rakishou.fsaf.FileManager
+import com.github.k1rakishou.fsaf.file.DirectorySegment
+import com.github.k1rakishou.fsaf.file.FileSegment
 import java.io.IOException
 import javax.inject.Inject
 
-class SavedThreadLoaderManager @Inject
-constructor(
+class SavedThreadLoaderManager @Inject constructor(
         private val savedThreadLoaderRepository: SavedThreadLoaderRepository,
-        private val fileManager: FileManager) {
+        private val fileManager: FileManager
+) {
 
     fun loadSavedThread(loadable: Loadable): ChanThread? {
         if (BackgroundUtils.isMainThread()) {
@@ -21,43 +24,53 @@ constructor(
         }
 
         val threadSubDir = ThreadSaveManager.getThreadSubDir(loadable)
-        val baseDir = fileManager.newLocalThreadFile()
+        val baseDir = fileManager.newBaseDirectoryFile(LocalThreadsBaseDirectory::class.java)
         if (baseDir == null) {
             Logger.e(TAG, "loadSavedThread() fileManager.newLocalThreadFile() returned null")
             return null
         }
 
-        val threadSaveDir = baseDir.appendSubDirSegment(threadSubDir)
-        if (!threadSaveDir.exists() || !threadSaveDir.isDirectory()) {
+        val threadSaveDir = baseDir
+                .clone(DirectorySegment(threadSubDir))
+
+        val threadSaveDirExists = fileManager.exists(threadSaveDir)
+        val threadSaveDirIsDirectory = fileManager.isDirectory(threadSaveDir)
+
+        if (!threadSaveDirExists || !threadSaveDirIsDirectory) {
             Logger.e(TAG, "threadSaveDir does not exist or is not a directory: "
                     + "(path = " + threadSaveDir.getFullPath()
-                    + ", exists = " + threadSaveDir.exists()
-                    + ", isDir = " + threadSaveDir.isDirectory() + ")")
+                    + ", exists = " + threadSaveDirExists
+                    + ", isDir = " + threadSaveDirIsDirectory + ")")
             return null
         }
 
         val threadFile = threadSaveDir
-                .clone()
-                .appendFileNameSegment(SavedThreadLoaderRepository.THREAD_FILE_NAME)
+                .clone(FileSegment(SavedThreadLoaderRepository.THREAD_FILE_NAME))
 
-        if (!threadFile.exists() || !threadFile.isFile() || !threadFile.canRead()) {
+        val threadFileExists = fileManager.exists(threadFile)
+        val threadFileIsFile = fileManager.isFile(threadFile)
+        val threadFileCanRead = fileManager.canRead(threadFile)
+
+        if (!threadFileExists || !threadFileIsFile || !threadFileCanRead) {
             Logger.e(TAG, "threadFile does not exist or not a file or cannot be read: " +
                     "(path = " + threadFile.getFullPath()
-                    + ", exists = " + threadFile.exists()
-                    + ", isFile = " + threadFile.isFile()
-                    + ", canRead = " + threadFile.canRead() + ")")
+                    + ", exists = " + threadFileExists
+                    + ", isFile = " + threadFileIsFile
+                    + ", canRead = " + threadFileCanRead + ")")
             return null
         }
 
         val threadSaveDirImages = threadSaveDir
-                .clone()
-                .appendSubDirSegment("images")
+                .clone(DirectorySegment("images"))
 
-        if (!threadSaveDirImages.exists() || !threadSaveDirImages.isDirectory()) {
+        val imagesDirExists = fileManager.exists(threadSaveDirImages)
+        val imagesDirIsDir = fileManager.isDirectory(threadSaveDirImages)
+
+        if (!imagesDirExists || !imagesDirIsDir) {
             Logger.e(TAG, "threadSaveDirImages does not exist or is not a directory: "
                     + "(path = " + threadSaveDirImages.getFullPath()
-                    + ", exists = " + threadSaveDirImages.exists()
-                    + ", isDir = " + threadSaveDirImages.isDirectory() + ")")
+                    + ", exists = " + imagesDirExists
+                    + ", isDir = " + imagesDirIsDir + ")")
             return null
         }
 

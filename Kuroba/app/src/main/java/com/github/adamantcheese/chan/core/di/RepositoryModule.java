@@ -24,6 +24,7 @@ import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
 import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
 import com.google.gson.Gson;
 
 import org.codejargon.feather.Provides;
@@ -37,10 +38,11 @@ public class RepositoryModule {
     public ImportExportRepository provideImportExportRepository(
             DatabaseManager databaseManager,
             DatabaseHelper databaseHelper,
-            Gson gson
+            Gson gson,
+            FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Import export repository");
-        return new ImportExportRepository(databaseManager, databaseHelper, gson);
+        return new ImportExportRepository(databaseManager, databaseHelper, gson, fileManager);
     }
 
     @Provides
@@ -71,8 +73,11 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    public SavedThreadLoaderRepository provideSavedThreadLoaderRepository(Gson gson) {
+    public SavedThreadLoaderRepository provideSavedThreadLoaderRepository(
+            Gson gson,
+            FileManager fileManager
+    ) {
         Logger.d(AppModule.DI_TAG, "Saved thread loader repository");
-        return new SavedThreadLoaderRepository(gson);
+        return new SavedThreadLoaderRepository(gson, fileManager);
     }
 }

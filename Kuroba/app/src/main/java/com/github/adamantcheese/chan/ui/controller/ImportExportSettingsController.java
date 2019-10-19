@@ -28,15 +28,16 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
-import com.github.adamantcheese.chan.core.saf.FileManager;
-import com.github.adamantcheese.chan.core.saf.callback.FileChooserCallback;
-import com.github.adamantcheese.chan.core.saf.callback.FileCreateCallback;
-import com.github.adamantcheese.chan.core.saf.file.ExternalFile;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileChooser;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.callback.FileChooserCallback;
+import com.github.k1rakishou.fsaf.callback.FileCreateCallback;
+import com.github.k1rakishou.fsaf.file.ExternalFile;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,6 +53,8 @@ public class ImportExportSettingsController extends SettingsController implement
 
     @Inject
     FileManager fileManager;
+    @Inject
+    FileChooser fileChooser;
 
     private ImportExportSettingsPresenter presenter;
 
@@ -141,7 +144,7 @@ public class ImportExportSettingsController extends SettingsController implement
      * Opens an existing file (any file) for overwriting with the settings.
      * */
     private void overwriteExisting() {
-        fileManager.openChooseFileDialog(new FileChooserCallback() {
+        fileChooser.openChooseFileDialog(new FileChooserCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
                 onFileChosen(uri, false);
@@ -160,7 +163,7 @@ public class ImportExportSettingsController extends SettingsController implement
      * with appended "(1)" at the end will appear, e.g. "test (1).txt")
      * */
     private void createNew() {
-        fileManager.openCreateFileDialog(EXPORT_FILE_NAME, new FileCreateCallback() {
+        fileChooser.openCreateFileDialog(EXPORT_FILE_NAME, new FileCreateCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
                 onFileChosen(uri, true);
@@ -190,7 +193,7 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     private void onImportClicked() {
-        fileManager.openChooseFileDialog(new FileChooserCallback() {
+        fileChooser.openChooseFileDialog(new FileChooserCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
                 ExternalFile externalFile = fileManager.fromUri(uri);

@@ -1,15 +1,15 @@
 package com.github.adamantcheese.chan.core.database;
 
-import android.net.Uri;
-
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
-import com.github.adamantcheese.chan.core.saf.FileManager;
-import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.DirectorySegment;
 import com.j256.ormlite.stmt.DeleteBuilder;
 
 import java.io.File;
@@ -182,21 +182,27 @@ public class DatabaseSavedThreadManager {
     public void deleteThreadFromDisk(Loadable loadable, boolean usesSAF) {
         if (usesSAF) {
             String threadSubDir = ThreadSaveManager.getThreadSubDir(loadable);
-            Uri uri = Uri.parse(ChanSettings.localThreadsLocationUri.get());
 
-            AbstractFile localThreadsDir = fileManager.fromUri(uri);
-            if (localThreadsDir == null || !localThreadsDir.exists() || !localThreadsDir.isDirectory()) {
+            AbstractFile localThreadsDir = fileManager.newBaseDirectoryFile(
+                    LocalThreadsBaseDirectory.class
+            );
+
+            if (localThreadsDir == null
+                    || !fileManager.exists(localThreadsDir)
+                    || !fileManager.isDirectory(localThreadsDir)) {
                 // Probably already deleted
                 return;
             }
 
-            AbstractFile threadDir = localThreadsDir.appendSubDirSegment(threadSubDir);
-            if (!threadDir.exists() || !threadDir.isDirectory()) {
+            AbstractFile threadDir = localThreadsDir
+                    .clone(new DirectorySegment(threadSubDir));
+
+            if (!fileManager.exists(threadDir) || !fileManager.isDirectory(threadDir)) {
                 // Probably already deleted
                 return;
             }
 
-            if (!threadDir.delete()) {
+            if (!fileManager.delete(threadDir)) {
                 Logger.d(TAG, "deleteThreadFromDisk() Could not delete SAF directory "
                         + threadDir.getFullPath());
             }

@@ -25,8 +25,9 @@ import androidx.annotation.WorkerThread;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.di.NetModule;
-import com.github.adamantcheese.chan.core.saf.file.RawFile;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -56,6 +57,7 @@ public class FileCacheDownloader implements Runnable {
     private final Handler handler;
 
     // Main thread only.
+    private final FileManager fileManager;
     private final Callback callback;
     private final List<FileCacheListener> listeners = new ArrayList<>();
 
@@ -67,7 +69,8 @@ public class FileCacheDownloader implements Runnable {
     private Call call;
     private ResponseBody body;
 
-    public FileCacheDownloader(Callback callback, String url, RawFile output) {
+    public FileCacheDownloader(FileManager fileManager, Callback callback, String url, RawFile output) {
+        this.fileManager = fileManager;
         this.callback = callback;
         this.url = url;
         this.output = output;
@@ -134,12 +137,12 @@ public class FileCacheDownloader implements Runnable {
             Source source = body.source();
             sourceCloseable = source;
 
-            if (!output.exists() && !output.create()) {
+            if (!fileManager.exists(output) && fileManager.create(output) == null) {
                 throw new IOException("Couldn't create output file, output = "
                         + output.getFullPath());
             }
 
-            outputFileOutputStream = output.getOutputStream();
+            outputFileOutputStream = fileManager.getOutputStream(output);
             if (outputFileOutputStream == null) {
                 throw new IOException("Couldn't get output file's OutputStream");
             }
@@ -153,7 +156,7 @@ public class FileCacheDownloader implements Runnable {
             pipeBody(source, sink);
             log("done");
 
-            long fileLen = output.getLength();
+            long fileLen = fileManager.getLength(output);
 
             handler.post(() -> {
                 if (callback != null) {
@@ -198,9 +201,17 @@ public class FileCacheDownloader implements Runnable {
                 }
             });
         } finally {
-            Util.closeQuietly(sourceCloseable);
-            Util.closeQuietly(sinkCloseable);
-            Util.closeQuietly(outputFileOutputStream);
+            if (sourceCloseable != null) {
+                Util.closeQuietly(sourceCloseable);
+            }
+
+            if (sinkCloseable != null) {
+                Util.closeQuietly(sinkCloseable);
+            }
+
+            if (outputFileOutputStream != null) {
+                Util.closeQuietly(outputFileOutputStream);
+            }
 
             if (call != null) {
                 call.cancel();
@@ -280,8 +291,8 @@ public class FileCacheDownloader implements Runnable {
 
     @WorkerThread
     private void purgeOutput() {
-        if (output.exists()) {
-            final boolean deleteResult = output.delete();
+        if (fileManager.exists(output)) {
+            final boolean deleteResult = fileManager.delete(output);
 
             if (!deleteResult) {
                 log("could not delete the file in purgeOutput");

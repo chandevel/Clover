@@ -3,10 +3,12 @@ package com.github.adamantcheese.chan.core.repository
 import com.github.adamantcheese.chan.core.mapper.ThreadMapper
 import com.github.adamantcheese.chan.core.model.Post
 import com.github.adamantcheese.chan.core.model.save.SerializableThread
-import com.github.adamantcheese.chan.core.saf.file.AbstractFile
-import com.github.adamantcheese.chan.core.saf.file.ExternalFile
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
+import com.github.k1rakishou.fsaf.FileManager
+import com.github.k1rakishou.fsaf.file.AbstractFile
+import com.github.k1rakishou.fsaf.file.ExternalFile
+import com.github.k1rakishou.fsaf.file.FileSegment
 import com.google.gson.Gson
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -22,25 +24,28 @@ class SavedThreadLoaderRepository
  * uninstall/app data clearing.
  */
 @Inject
-constructor(private val gson: Gson) {
+constructor(
+        private val gson: Gson,
+        private val fileManager: FileManager
+) {
 
     @Throws(IOException::class)
     fun loadOldThreadFromJsonFile(
-            threadSaveDir: AbstractFile): SerializableThread? {
+            threadSaveDir: AbstractFile
+    ): SerializableThread? {
         if (BackgroundUtils.isMainThread()) {
             throw RuntimeException("Cannot be executed on the main thread!")
         }
 
         val threadFile = threadSaveDir
-                .clone()
-                .appendFileNameSegment(THREAD_FILE_NAME)
+                .clone(FileSegment(THREAD_FILE_NAME))
 
-        if (!threadFile.exists()) {
+        if (!fileManager.exists(threadFile)) {
             Logger.d(TAG, "threadFile does not exist, threadFilePath = " + threadFile.getFullPath())
             return null
         }
 
-        return threadFile.getInputStream()?.use { inputStream ->
+        return fileManager.getInputStream(threadFile)?.use { inputStream ->
             return@use DataInputStream(inputStream).use { dis ->
                 val json = String(dis.readBytes(), StandardCharsets.UTF_8)
 
@@ -53,24 +58,27 @@ constructor(private val gson: Gson) {
 
     @Throws(IOException::class,
             CouldNotCreateThreadFile::class,
-            CouldNotGetParcelFileDescriptor::class)
+            CouldNotGetParcelFileDescriptor::class
+    )
     fun savePostsToJsonFile(
             oldSerializableThread: SerializableThread?,
             posts: List<Post>,
-            threadSaveDir: AbstractFile) {
+            threadSaveDir: AbstractFile
+    ) {
         if (BackgroundUtils.isMainThread()) {
             throw RuntimeException("Cannot be executed on the main thread!")
         }
 
         val threadFile = threadSaveDir
-                .clone()
-                .appendFileNameSegment(THREAD_FILE_NAME)
+                .clone(FileSegment(THREAD_FILE_NAME))
 
-        if (!threadFile.exists() && !threadFile.create()) {
+        val createdThreadFile = fileManager.create(threadFile)
+
+        if (!fileManager.exists(threadFile) || createdThreadFile == null) {
             throw CouldNotCreateThreadFile(threadFile)
         }
 
-        threadFile.getOutputStream()?.use { outputStream ->
+        fileManager.getOutputStream(createdThreadFile)?.use { outputStream ->
             // Update the thread file
             return@use DataOutputStream(outputStream).use { dos ->
                 val serializableThread = if (oldSerializableThread != null) {
@@ -87,10 +95,10 @@ constructor(private val gson: Gson) {
                 dos.write(bytes)
                 dos.flush()
 
-                return@use Unit
+                return@use
             }
         } ?: throw IOException("threadFile.getOutputStream() returned null, threadFile = "
-                + threadFile.getFullPath())
+                + createdThreadFile.getFullPath())
     }
 
     inner class CouldNotGetParcelFileDescriptor(threadFile: ExternalFile)

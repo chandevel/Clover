@@ -45,8 +45,6 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
-import com.github.adamantcheese.chan.core.saf.FileManager;
-import com.github.adamantcheese.chan.core.saf.callback.StartActivityCallbacks;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
@@ -63,6 +61,8 @@ import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileChooser;
+import com.github.k1rakishou.fsaf.callback.FSAFActivityCallbacks;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -80,7 +80,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 public class StartActivity
         extends AppCompatActivity
         implements NfcAdapter.CreateNdefMessageCallback,
-        StartActivityCallbacks {
+        FSAFActivityCallbacks {
     private static final String TAG = "StartActivity";
 
     private static final String STATE_KEY = "chan_state";
@@ -101,18 +101,14 @@ public class StartActivity
 
     @Inject
     DatabaseManager databaseManager;
-
     @Inject
     WatchManager watchManager;
-
     @Inject
     SiteResolver siteResolver;
-
     @Inject
     SiteService siteService;
-
     @Inject
-    FileManager fileManager;
+    FileChooser fileChooser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +121,7 @@ public class StartActivity
 
         Chan.injector().instance(ThemeHelper.class).setupContext(this);
 
-        fileManager.setCallbacks(this);
+        fileChooser.setCallbacks(this);
 
         imagePickDelegate = new ImagePickDelegate(this);
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
@@ -546,7 +542,7 @@ public class StartActivity
             return;
         }
 
-        fileManager.removeCallbacks();
+        fileChooser.removeCallbacks();
 
         // TODO: clear whole stack?
         stackTop().onHide();
@@ -558,7 +554,7 @@ public class StartActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (fileManager.onActivityResult(requestCode, resultCode, data)) {
+        if (fileChooser.onActivityResult(requestCode, resultCode, data)) {
             return;
         }
 
@@ -603,7 +599,7 @@ public class StartActivity
     }
 
     @Override
-    public void myStartActivityForResult(@NotNull Intent intent, int requestCode) {
+    public void fsafStartActivityForResult(@NotNull Intent intent, int requestCode) {
         startActivityForResult(intent, requestCode);
     }
 }

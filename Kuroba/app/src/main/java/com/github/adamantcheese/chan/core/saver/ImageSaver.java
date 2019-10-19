@@ -27,12 +27,15 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.saf.FileManager;
-import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
+import com.github.adamantcheese.chan.ui.settings.base_directory.FilesBaseDirectory;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.DirectorySegment;
+import com.github.k1rakishou.fsaf.file.FileSegment;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -97,18 +100,16 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         String fileName = filterName(name + "." + postImage.extension);
 
         AbstractFile saveFile = saveLocation
-                .clone()
-                .appendFileNameSegment(fileName);
+                .clone(new FileSegment(fileName));
 
-        while (saveFile.exists()) {
+        while (fileManager.exists(saveFile)) {
             String resultFileName = name + "_" +
                     Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX)
                     + "." + postImage.extension;
 
             fileName = filterName(resultFileName);
             saveFile = saveLocation
-                    .clone()
-                    .appendFileNameSegment(fileName);
+                    .clone(new FileSegment(fileName));
         }
 
         task.setDestination(saveFile);
@@ -147,25 +148,27 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     @Nullable
     public AbstractFile getSaveLocation(ImageSaveTask task) {
-        AbstractFile baseSaveDir = fileManager.newSaveLocationFile();
+        AbstractFile baseSaveDir = fileManager.newBaseDirectoryFile(FilesBaseDirectory.class);
         if (baseSaveDir == null) {
             Logger.e(TAG, "getSaveLocation() fileManager.newSaveLocationFile() returned null");
             return null;
         }
 
-        if (!baseSaveDir.exists() && !baseSaveDir.create()) {
+        AbstractFile createdBaseSaveDir = fileManager.create(baseSaveDir);
+
+        if (!fileManager.exists(baseSaveDir) || createdBaseSaveDir == null) {
             Logger.e(TAG, "Couldn't create base image save directory");
             return null;
         }
 
-        if (!fileManager.baseSaveLocalDirectoryExists()) {
+        if (!fileManager.baseDirectoryExists(FilesBaseDirectory.class)) {
             Logger.e(TAG, "Base save local directory does not exist");
             return null;
         }
 
         String subFolder = task.getSubFolder();
         if (subFolder != null) {
-            baseSaveDir.appendSubDirSegment(subFolder);
+            baseSaveDir.clone(new DirectorySegment(subFolder));
         }
 
         return baseSaveDir;
@@ -211,8 +214,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             }
 
             AbstractFile destinationFile = saveLocation
-                    .appendSubDirSegment(subFolder)
-                    .appendFileNameSegment(fileName);
+                    .clone(new DirectorySegment(subFolder), new FileSegment(fileName));
 
             task.setDestination(destinationFile);
             startTask(task);
@@ -277,7 +279,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             } else {
                 text = getAppContext().getString(
                         R.string.image_save_as,
-                        task.getDestination().getName());
+                        fileManager.getName(task.getDestination()));
             }
         } else {
             text = getString(R.string.image_save_failed);

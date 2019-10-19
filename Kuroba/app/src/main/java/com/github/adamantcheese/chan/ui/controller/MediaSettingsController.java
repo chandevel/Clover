@@ -21,15 +21,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.widget.Toast;
 
-import androidx.documentfile.provider.DocumentFile;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
-import com.github.adamantcheese.chan.core.saf.FileManager;
-import com.github.adamantcheese.chan.core.saf.callback.DirectoryChooserCallback;
-import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
-import com.github.adamantcheese.chan.core.saf.file.ExternalFile;
-import com.github.adamantcheese.chan.core.saf.file.FileDescriptorMode;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
@@ -37,21 +31,22 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileChooser;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.callback.DirectoryChooserCallback;
+import com.github.k1rakishou.fsaf.document_file.CachingDocumentFile;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -78,9 +73,8 @@ public class MediaSettingsController extends SettingsController {
 
     @Inject
     FileManager fileManager;
-
     @Inject
-    DatabaseManager databaseManager;
+    FileChooser fileChooser;
 
     public MediaSettingsController(Context context) {
         super(context);
@@ -266,6 +260,7 @@ public class MediaSettingsController extends SettingsController {
                 })
                 .setNegativeButton(R.string.use_saf_dialog_negative_button_text, (dialog, which) -> {
                     onLocalThreadsLocationUseOldApiClicked();
+                    dialog.dismiss();
                 })
                 .create();
 
@@ -280,7 +275,9 @@ public class MediaSettingsController extends SettingsController {
                 context,
                 SaveLocationController.SaveLocationControllerMode.LocalThreadsSaveLocation,
                 dirPath -> {
-                    AbstractFile oldLocalThreadsDirectory = fileManager.newLocalThreadFile();
+                    AbstractFile oldLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
+                            LocalThreadsBaseDirectory.class
+                    );
 
                     Logger.d(TAG, "SaveLocationController with LocalThreadsSaveLocation mode returned dir "
                             + dirPath);
@@ -289,7 +286,10 @@ public class MediaSettingsController extends SettingsController {
                     ChanSettings.localThreadLocation.setSync("");
                     ChanSettings.localThreadLocation.setSync(dirPath);
 
-                    AbstractFile newLocalThreadsDirectory = fileManager.newLocalThreadFile();
+                    AbstractFile newLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
+                            LocalThreadsBaseDirectory.class
+                    );
+
                     askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
                             oldLocalThreadsDirectory,
                             newLocalThreadsDirectory);
@@ -302,10 +302,14 @@ public class MediaSettingsController extends SettingsController {
      * Select a directory where local threads will be stored via the SAF
      */
     private void onLocalThreadsLocationUseSAFClicked() {
-        fileManager.openChooseDirectoryDialog(new DirectoryChooserCallback() {
+        fileChooser.openChooseDirectoryDialog(new DirectoryChooserCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
-                AbstractFile oldLocalThreadsDirectory = fileManager.newLocalThreadFile();
+                // TODO: check that there are no files in the directory and warn the user that something
+                //  might go wrong in this case
+                AbstractFile oldLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
+                        LocalThreadsBaseDirectory.class
+                );
 
                 ChanSettings.localThreadsLocationUri.set(uri.toString());
                 String defaultDir = ChanSettings.getDefaultLocalThreadsLocation();
@@ -313,7 +317,10 @@ public class MediaSettingsController extends SettingsController {
                 ChanSettings.localThreadLocation.setNoUpdate(defaultDir);
                 localThreadsLocation.setDescription(uri.toString());
 
-                AbstractFile newLocalThreadsDirectory = fileManager.newLocalThreadFile();
+                AbstractFile newLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
+                        LocalThreadsBaseDirectory.class
+                );
+
                 askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
                         oldLocalThreadsDirectory,
                         newLocalThreadsDirectory);
@@ -337,7 +344,7 @@ public class MediaSettingsController extends SettingsController {
                 .setPositiveButton("Move", (dialog, which) -> {
                     moveOldFilesToTheNewDirectory(oldLocalThreadsDirectory, newLocalThreadsDirectory);
                 })
-                .setNegativeButton("Do not move", (dialog, which) -> {})
+                .setNegativeButton("Do not", (dialog, which) -> dialog.dismiss())
                 .create();
 
         alertDialog.show();
@@ -356,41 +363,84 @@ public class MediaSettingsController extends SettingsController {
         Logger.d(TAG, "oldLocalThreadsDirectory = " + oldLocalThreadsDirectory.getFullPath()
                 + ", newLocalThreadsDirectory = " + newLocalThreadsDirectory.getFullPath());
 
-        navigationController.pushController(new LoadingViewController(context, true));
+        int filesCount = fileManager.listFiles(oldLocalThreadsDirectory).size();
+        if (filesCount == 0) {
+            Toast.makeText(context, "No files to copy", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        fileCopyingExecutor.execute(() -> {
-            boolean result = fileManager.copyDirectoryWithContent(
-                    oldLocalThreadsDirectory,
-                    newLocalThreadsDirectory);
-
-            runOnUiThread(() -> {
-                navigationController.popController();
-
-                if (!result) {
-                    // TODO: strings
-                    Toast.makeText(
+        // TODO: Strings
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle("Copy files")
+                .setMessage("Do you want to copy " + filesCount + " from an old directory to the new one?")
+                .setPositiveButton("Copy", ((dialog, which) -> {
+                    LoadingViewController loadingViewController = new LoadingViewController(
                             context,
-                            "Could not copy one directory's file into another one",
-                            Toast.LENGTH_LONG
-                    ).show();
-                } else {
-                    if (!fileManager.forgetSAFTree(oldLocalThreadsDirectory)) {
+                            false);
+                    navigationController.pushController(loadingViewController);
+
+                    fileCopyingExecutor.execute(() -> {
+                        moveFilesInternal(
+                                oldLocalThreadsDirectory,
+                                newLocalThreadsDirectory,
+                                loadingViewController);
+                    });
+                }))
+                .setNegativeButton("Do not", ((dialog, which) -> dialog.dismiss()))
+                .create();
+
+        alertDialog.show();
+    }
+
+    private void moveFilesInternal(
+            @NonNull AbstractFile oldLocalThreadsDirectory,
+            @NonNull AbstractFile newLocalThreadsDirectory,
+            LoadingViewController loadingViewController) {
+        boolean result = fileManager.copyDirectoryWithContent(
+                oldLocalThreadsDirectory,
+                newLocalThreadsDirectory,
+                false,
+                (fileIndex, totalFilesCount) -> {
+                    runOnUiThread(() -> {
                         // TODO: strings
-                        Toast.makeText(
-                                context,
-                                "Files were copied but couldn't remove SAF permissions from the old directory",
-                                Toast.LENGTH_SHORT
-                        ).show();
-                    } else {
-                        // TODO: strings
-                        Toast.makeText(
-                                context,
-                                "Successfully copied files",
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-                }
-            });
+                        String text = String.format(
+                                Locale.US,
+                                // TODO: strings
+                                "Copying file %d out of %d",
+                                fileIndex,
+                                totalFilesCount);
+
+                        loadingViewController.updateWithText(text);
+                    });
+
+                    return Unit.INSTANCE;
+                });
+
+        runOnUiThread(() -> {
+            navigationController.popController();
+
+            if (!result) {
+                // TODO: strings
+                Toast.makeText(
+                        context,
+                        "Could not copy one directory's file into another one",
+                        Toast.LENGTH_LONG
+                ).show();
+            } else {
+                Uri safTreeuri = oldLocalThreadsDirectory
+                        .<CachingDocumentFile>getFileRoot().getHolder().getUri();
+
+                fileChooser.forgetSAFTree(safTreeuri);
+
+                // TODO: delete old directory dialog
+
+                // TODO: strings
+                Toast.makeText(
+                        context,
+                        "Successfully copied files",
+                        Toast.LENGTH_LONG
+                ).show();
+            }
         });
     }
 
@@ -403,6 +453,7 @@ public class MediaSettingsController extends SettingsController {
                 })
                 .setNegativeButton(R.string.use_saf_dialog_negative_button_text, (dialog, which) -> {
                     onSaveLocationUseOldApiClicked();
+                    dialog.dismiss();
                 })
                 .create();
 
@@ -432,15 +483,16 @@ public class MediaSettingsController extends SettingsController {
      * Select a directory where saved images will be stored via the SAF
      */
     private void onSaveLocationUseSAFClicked() {
-        fileManager.openChooseDirectoryDialog(new DirectoryChooserCallback() {
+        fileChooser.openChooseDirectoryDialog(new DirectoryChooserCallback() {
             @Override
             public void onResult(@NotNull Uri uri) {
+                // TODO: check that there are no files in the directory at warn user that something
+                //  might go wrong in this case
                 ChanSettings.saveLocationUri.set(uri.toString());
 
                 String defaultDir = ChanSettings.getDefaultSaveLocationDir();
                 ChanSettings.saveLocation.setNoUpdate(defaultDir);
                 saveLocation.setDescription(uri.toString());
-
             }
 
             @Override
@@ -448,175 +500,6 @@ public class MediaSettingsController extends SettingsController {
                 Toast.makeText(context, reason, Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    private void testMethod(@NotNull Uri uri) {
-        {
-            ExternalFile externalFile = fileManager.fromUri(uri)
-                    .appendSubDirSegment("123")
-                    .appendSubDirSegment("456")
-                    .appendSubDirSegment("789")
-                    .appendFileNameSegment("test123.txt")
-                    .createNew();
-
-            if (!externalFile.isFile()) {
-                throw new RuntimeException("test123.txt is not a file");
-            }
-
-            if (externalFile.isDirectory()) {
-                throw new RuntimeException("test123.txt is a directory");
-            }
-
-            if (externalFile == null || !externalFile.exists()) {
-                throw new RuntimeException("Couldn't create test123.txt");
-            }
-
-            if (!externalFile.getName().equals("test123.txt")) {
-                throw new RuntimeException("externalFile name != test123.txt");
-            }
-
-            boolean externalFile2Exists = fileManager.fromUri(uri)
-                    .appendSubDirSegment("123")
-                    .appendSubDirSegment("456")
-                    .appendSubDirSegment("789")
-                    .exists();
-
-            if (!externalFile2Exists) {
-                throw new RuntimeException("789 directory does not exist");
-            }
-
-            if (!externalFile.delete() && externalFile.exists()) {
-                throw new RuntimeException("Couldn't delete test123.txt");
-            }
-        }
-
-        {
-            AbstractFile externalFile = fileManager.newSaveLocationFile()
-                    .appendSubDirSegment("1234")
-                    .appendSubDirSegment("4566")
-                    .appendFileNameSegment("filename.json")
-                    .createNew();
-
-            if (externalFile == null || !externalFile.exists()) {
-                throw new RuntimeException("Couldn't create filename.json");
-            }
-
-            if (!externalFile.isFile()) {
-                throw new RuntimeException("filename.json is not a file");
-            }
-
-            if (externalFile.isDirectory()) {
-                throw new RuntimeException("filename.json is not a directory");
-            }
-
-            if (!externalFile.getName().equals("filename.json")) {
-                throw new RuntimeException("externalFile1 name != filename.json");
-            }
-
-            AbstractFile dir = fileManager.newSaveLocationFile()
-                    .appendSubDirSegment("1234")
-                    .appendSubDirSegment("4566");
-
-            if (!dir.getName().equals("4566")) {
-                throw new RuntimeException("dir.name != 4566, name = " + dir.getName());
-            }
-
-            AbstractFile foundFile = dir.findFile("filename.json");
-            if (foundFile == null || !foundFile.exists()) {
-                throw new RuntimeException("Couldn't find filename.json");
-            }
-
-            // Write string to the file
-            String testString = "Hello world";
-
-            foundFile.withFileDescriptor(FileDescriptorMode.WriteTruncate, (fd) -> {
-                try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(fd))) {
-                    osw.write(testString);
-                    osw.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                return Unit.INSTANCE;
-            });
-
-            if (foundFile.getLength() != testString.length()) {
-                throw new RuntimeException("file length != testString.length(), file length = "
-                        + foundFile.getLength());
-            }
-
-            foundFile.withFileDescriptor(FileDescriptorMode.Read, (fd) -> {
-                try (InputStreamReader isr = new InputStreamReader(new FileInputStream(fd))) {
-                    char[] stringBytes = new char[testString.length()];
-                    int read = isr.read(stringBytes);
-
-                    if (read != testString.length()) {
-                        throw new RuntimeException("read bytes != testString.length(), read = " + read);
-                    }
-
-                    String resultString = new String(stringBytes);
-                    if (!resultString.equals(testString)) {
-                        throw new RuntimeException("resultString != testString, resultString = "
-                                + resultString);
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                return Unit.INSTANCE;
-            });
-
-            // Write another string that is shorter than the previous string
-            String testString2 = "Hello";
-
-            foundFile.withFileDescriptor(FileDescriptorMode.WriteTruncate, (fd) -> {
-                try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(fd))) {
-                    osw.write(testString2);
-                    osw.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                return Unit.INSTANCE;
-            });
-
-            if (foundFile.getLength() != testString2.length()) {
-                throw new RuntimeException("file length != testString.length(), file length = "
-                        + foundFile.getLength());
-            }
-
-            foundFile.withFileDescriptor(FileDescriptorMode.Read, (fd) -> {
-                try (InputStreamReader isr = new InputStreamReader(new FileInputStream(fd))) {
-                    char[] stringBytes = new char[testString2.length()];
-                    int read = isr.read(stringBytes);
-
-                    if (read != testString2.length()) {
-                        throw new RuntimeException("read bytes != testString2.length(), read = " + read);
-                    }
-
-                    String resultString = new String(stringBytes);
-                    if (!resultString.equals(testString2)) {
-                        throw new RuntimeException("resultString != testString2, resultString = "
-                                + resultString);
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                return Unit.INSTANCE;
-            });
-        }
-
-        {
-            ExternalFile externalFile = fileManager.fromUri(uri);
-            if (!externalFile.getName().equals("Test")) {
-                throw new RuntimeException("externalFile.name != Test, name = " + externalFile.getName());
-            }
-        }
-
-        System.out.println("All tests passed!");
     }
 
     private void setupMediaLoadTypesSetting(SettingsGroup loading) {

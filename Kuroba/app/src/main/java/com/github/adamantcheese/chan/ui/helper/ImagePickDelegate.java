@@ -31,10 +31,10 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
-import com.github.adamantcheese.chan.core.saf.FileManager;
-import com.github.adamantcheese.chan.core.saf.file.RawFile;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -187,7 +187,7 @@ public class ImagePickDelegate implements Runnable {
             }
 
             is = new FileInputStream(fileDescriptor.getFileDescriptor());
-            os = cacheFile.getOutputStream();
+            os = fileManager.getOutputStream(cacheFile);
 
             if (os == null) {
                 throw new IOException("Could not get OutputStream from the cacheFile, " +
@@ -206,7 +206,7 @@ public class ImagePickDelegate implements Runnable {
         }
 
         if (!success) {
-            if (!cacheFile.delete()) {
+            if (!fileManager.delete(cacheFile)) {
                 Logger.e(TAG, "Could not delete picked_file after copy fail");
             }
         }

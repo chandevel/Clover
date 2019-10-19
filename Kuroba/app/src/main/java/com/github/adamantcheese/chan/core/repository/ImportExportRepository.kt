@@ -23,10 +23,11 @@ import com.github.adamantcheese.chan.core.database.DatabaseManager
 import com.github.adamantcheese.chan.core.model.export.*
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig
 import com.github.adamantcheese.chan.core.model.orm.*
-import com.github.adamantcheese.chan.core.saf.file.ExternalFile
-import com.github.adamantcheese.chan.core.saf.file.FileDescriptorMode
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.Logger
+import com.github.k1rakishou.fsaf.FileManager
+import com.github.k1rakishou.fsaf.file.ExternalFile
+import com.github.k1rakishou.fsaf.file.FileDescriptorMode
 import com.google.gson.Gson
 import java.io.FileReader
 import java.io.FileWriter
@@ -39,7 +40,8 @@ class ImportExportRepository @Inject
 constructor(
         private val databaseManager: DatabaseManager,
         private val databaseHelper: DatabaseHelper,
-        private val gson: Gson
+        private val gson: Gson,
+        private val fileManager: FileManager
 ) {
 
     fun exportTo(settingsFile: ExternalFile, isNewFile: Boolean, callbacks: ImportExportCallbacks) {
@@ -53,7 +55,7 @@ constructor(
 
                 val json = gson.toJson(appSettings)
 
-                if (!settingsFile.exists() || !settingsFile.canWrite()) {
+                if (!fileManager.exists(settingsFile) || !fileManager.canWrite(settingsFile)) {
                     throw IOException(
                             "Something wrong with export file (Can't write or it doesn't exist) "
                                     + settingsFile.getFullPath()
@@ -68,7 +70,7 @@ constructor(
                     fdm = FileDescriptorMode.Write
                 }
 
-                val result = settingsFile.withFileDescriptor(fdm) { fileDescriptor ->
+                fileManager.withFileDescriptor(settingsFile, fdm) { fileDescriptor ->
                     FileWriter(fileDescriptor).use { writer ->
                         writer.write(json)
                         writer.flush()
@@ -76,10 +78,6 @@ constructor(
 
                     Logger.d(TAG, "Exporting done!")
                     callbacks.onSuccess(ImportExport.Export)
-                }
-
-                if (result.isFailure) {
-                    throw result.exceptionOrNull()!!
                 }
 
             } catch (error: Throwable) {
@@ -93,21 +91,24 @@ constructor(
     fun importFrom(settingsFile: ExternalFile, callbacks: ImportExportCallbacks) {
         databaseManager.runTask {
             try {
-                if (!settingsFile.exists()) {
+                if (!fileManager.exists(settingsFile)) {
                     Logger.i(TAG, "There is nothing to import, importFile does not exist "
                             + settingsFile.getFullPath())
                     callbacks.onNothingToImportExport(ImportExport.Import)
                     return@runTask
                 }
 
-                if (!settingsFile.canRead()) {
+                if (!fileManager.canRead(settingsFile)) {
                     throw IOException(
                             "Something wrong with import file (Can't read or it doesn't exist) "
                                     + settingsFile.getFullPath()
                     )
                 }
 
-                val result = settingsFile.withFileDescriptor(FileDescriptorMode.Read) { fileDescriptor ->
+                fileManager.withFileDescriptor(
+                        settingsFile,
+                        FileDescriptorMode.Read
+                ) { fileDescriptor ->
                     FileReader(fileDescriptor).use { reader ->
                         val appSettings = gson.fromJson(reader, ExportedAppSettings::class.java)
 
@@ -122,10 +123,6 @@ constructor(
                         Logger.d(TAG, "Importing done!")
                         callbacks.onSuccess(ImportExport.Import)
                     }
-                }
-
-                if (result.isFailure) {
-                    throw result.exceptionOrNull()!!
                 }
 
             } catch (error: Throwable) {

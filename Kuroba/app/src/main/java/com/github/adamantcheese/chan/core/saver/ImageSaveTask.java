@@ -17,18 +17,17 @@
 package com.github.adamantcheese.chan.core.saver;
 
 import android.content.Intent;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.saf.FileManager;
-import com.github.adamantcheese.chan.core.saf.file.AbstractFile;
-import com.github.adamantcheese.chan.core.saf.file.RawFile;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +35,6 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class ImageSaveTask extends FileCacheListener implements Runnable {
     private static final String TAG = "ImageSaveTask";
@@ -96,7 +94,7 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     @Override
     public void run() {
         try {
-            if (destination.exists()) {
+            if (fileManager.exists(destination)) {
                 onDestination();
                 // Manually call postFinished()
                 postFinished(success);
@@ -123,8 +121,8 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     }
 
     private void deleteDestination() {
-        if (destination.exists()) {
-            if (!destination.delete()) {
+        if (fileManager.exists(destination)) {
+            if (!fileManager.delete(destination)) {
                 Logger.e(TAG, "Could not delete destination after an interrupt");
             }
         }
@@ -146,24 +144,12 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         boolean result = false;
 
         try {
-            AbstractFile createdDestinationFile = destination.createNew();
+            AbstractFile createdDestinationFile = fileManager.create(destination);
             if (createdDestinationFile == null) {
                 throw new IOException("Could not create destination file, path = " + destination.getFullPath());
             }
 
-            // TODO: check whether this change broke something
-            // If destination is a raw file then we need to check whether the parent directory exists.
-            // Otherwise we don't
-//            if (createdDestinationFile instanceof RawFile) {
-//                AbstractFile parent = createdDestinationFile
-//                        .clone() // TODO: do we need to clone this file?
-//                        .getParent();
-//                if (parent == null || (!parent.create() && !parent.isDirectory())) {
-//                    throw new IOException("Could not create parent directory");
-//                }
-//            }
-
-            if (createdDestinationFile.isDirectory()) {
+            if (fileManager.isDirectory(createdDestinationFile)) {
                 throw new IOException("Destination file is already a directory");
             }
 
