@@ -531,21 +531,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         GifImageView gifView = findGifImageView();
         if (imageView == null && gifView == null) return;
         boolean isImage = imageView != null && gifView == null;
-        if (backgroundToggle) {
-            if (isImage) {
-                imageView.setTileBackgroundColor(Color.TRANSPARENT);
-            } else {
-                gifView.getDrawable().setColorFilter(Color.TRANSPARENT, PorterDuff.Mode.DST_OVER);
-            }
-            backgroundToggle = false;
+        int backgroundColor = backgroundToggle ? Color.TRANSPARENT : BACKGROUND_COLOR;
+        if (isImage) {
+            imageView.setTileBackgroundColor(backgroundColor);
         } else {
-            if (isImage) {
-                imageView.setTileBackgroundColor(BACKGROUND_COLOR);
-            } else {
-                gifView.getDrawable().setColorFilter(BACKGROUND_COLOR, PorterDuff.Mode.DST_OVER);
-            }
-            backgroundToggle = true;
+            gifView.getDrawable().setColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER);
         }
+        backgroundToggle = !backgroundToggle;
     }
 
     private void setBitImageFileInternal(File file, boolean tiling, final Mode forMode) {
