@@ -240,7 +240,7 @@ public class MediaSettingsController extends SettingsController {
     private void updateThreadFolderSetting() {
         if (ChanSettings.saveBoardFolder.get()) {
             threadFolderSetting.setEnabled(true);
-        } else if (!ChanSettings.saveBoardFolder.get()) {
+        } else {
             if (ChanSettings.saveThreadFolder.get()) {
                 threadFolderSetting.onClick(threadFolderSetting.view);
             }
