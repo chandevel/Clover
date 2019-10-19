@@ -657,10 +657,10 @@ public class PostCell extends LinearLayout implements PostCellInterface {
                             callback.onPostLinkableClicked(post, linkable1);
                         } else if (linkable2 != null && linkable1 != null) {
                             //spoilered link, figure out which span is the spoiler
-                            if (linkable1.type == PostLinkable.Type.SPOILER && linkable1.getSpoilerState()) {
+                            if (linkable1.type == PostLinkable.Type.SPOILER && linkable1.isSpoilerVisible()) {
                                 //linkable2 is the link
                                 callback.onPostLinkableClicked(post, linkable2);
-                            } else if (linkable2.type == PostLinkable.Type.SPOILER && linkable2.getSpoilerState()) {
+                            } else if (linkable2.type == PostLinkable.Type.SPOILER && linkable2.isSpoilerVisible()) {
                                 //linkable 1 is the link
                                 callback.onPostLinkableClicked(post, linkable1);
                             } else {
