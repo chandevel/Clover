@@ -52,7 +52,6 @@ class MediaSettingsControllerPresenter(
                 ChanSettings.localThreadLocation.setNoUpdate(defaultDir)
 
                 withCallbacks {
-                    // TODO LocalThreadsLocation.setDescription()
                     updateLocalThreadsLocation(uri.toString())
                 }
 
@@ -193,7 +192,6 @@ class MediaSettingsControllerPresenter(
         })
     }
 
-
     fun moveOldFilesToTheNewDirectory(
             oldBaseDirectory: AbstractFile?,
             newBaseDirectory: AbstractFile?
@@ -210,7 +208,16 @@ class MediaSettingsControllerPresenter(
                         + ", newLocalThreadsDirectory = " + newBaseDirectory.getFullPath()
         )
 
-        val filesCount = fileManager.listFiles(oldBaseDirectory).size
+        var filesCount = 0
+
+        fileManager.traverseDirectory(
+                oldBaseDirectory,
+                true,
+                FileManager.TraverseMode.OnlyFiles
+        ) {
+            ++filesCount
+        }
+
         if (filesCount == 0) {
             withCallbacks {
                 // TODO: strings
@@ -221,7 +228,7 @@ class MediaSettingsControllerPresenter(
         }
 
         withCallbacks {
-            showCopyFilesDialog(oldBaseDirectory, newBaseDirectory)
+            showCopyFilesDialog(filesCount, oldBaseDirectory, newBaseDirectory)
         }
     }
 
@@ -286,6 +293,7 @@ class MediaSettingsControllerPresenter(
         fun updateSaveLocationViewText(newLocation: String)
 
         fun showCopyFilesDialog(
+                filesCount: Int,
                 oldBaseDirectory: AbstractFile,
                 newBaseDirectory: AbstractFile
         )

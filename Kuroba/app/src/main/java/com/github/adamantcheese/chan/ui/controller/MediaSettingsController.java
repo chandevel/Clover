@@ -24,6 +24,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
@@ -68,11 +69,12 @@ public class MediaSettingsController
     private LoadingViewController loadingViewController;
     private MediaSettingsControllerPresenter presenter;
 
-
     @Inject
     FileManager fileManager;
     @Inject
     FileChooser fileChooser;
+    @Inject
+    DatabaseManager databaseManager;
 
     public MediaSettingsController(Context context) {
         super(context);
@@ -232,6 +234,15 @@ public class MediaSettingsController
         localThreadsLocation.setDescription(getLocalThreadsLocation());
     }
 
+    private void showStopAllDownloadingThreadsDialog(long downloadingThreadsCount) {
+        new AlertDialog.Builder(context)
+                .setTitle("There are " + downloadingThreadsCount + " threads being downloaded")
+                .setMessage("You have to stop all the threads that are being downloaded before changing local threads base directory!")
+                .setPositiveButton("OK", ((dialog, which) -> dialog.dismiss()))
+                .create()
+                .show();
+    }
+
     private String getLocalThreadsLocation() {
         if (!ChanSettings.localThreadsLocationUri.get().isEmpty()) {
             return ChanSettings.localThreadsLocationUri.get();
@@ -241,6 +252,15 @@ public class MediaSettingsController
     }
 
     private void showUseSAFOrOldAPIForLocalThreadsLocationDialog() {
+        long downloadingThreadsCount = databaseManager.runTask(() -> {
+            return databaseManager.getDatabaseSavedThreadManager().countDownloadingThreads().call();
+        });
+
+        if (downloadingThreadsCount > 0) {
+            showStopAllDownloadingThreadsDialog(downloadingThreadsCount);
+            return;
+        }
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.use_saf_for_local_threads_location_dialog_title)
                 .setMessage(R.string.use_saf_for_local_threads_location_dialog_message)
@@ -339,7 +359,7 @@ public class MediaSettingsController
         // TODO: strings
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle("Move old local threads to the new directory?")
-                .setMessage("This operation may take quite some time. Once started this operation shouldn't be canceled")
+                .setMessage("This operation may take quite some time. Once started this operation must not be canceled.")
                 .setPositiveButton("Move", (dialog, which) -> {
                     presenter.moveOldFilesToTheNewDirectory(
                             oldBaseDirectory,
@@ -407,22 +427,24 @@ public class MediaSettingsController
 
     @Override
     public void showCopyFilesDialog(
+            int filesCount,
             @NotNull AbstractFile oldBaseDirectory,
             @NotNull AbstractFile newBaseDirectory
     ) {
         BackgroundUtils.ensureMainThread();
 
+        if (loadingViewController != null) {
+            throw new IllegalStateException(
+                    "Previous loadingViewController was not destroyed"
+            );
+        }
+
         // TODO: strings
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle("Copy files")
-                .setMessage("Do you want to copy $filesCount from an old directory to the new one?")
+                .setMessage("Do you want to copy " + filesCount +
+                        " files from old directory to the new one?")
                 .setPositiveButton("Copy", (dialog, which) -> {
-                    if (loadingViewController != null) {
-                        throw new IllegalStateException(
-                                "Previous loadingViewController was not destroyed"
-                        );
-                    }
-
                     loadingViewController = new LoadingViewController(
                             context,
                             false
@@ -447,7 +469,9 @@ public class MediaSettingsController
      * ==============================================
      * */
 
-    private void forgetPreviousExternalBaseDirectory(@NonNull AbstractFile oldLocalThreadsDirectory) {
+    private void forgetPreviousExternalBaseDirectory(
+            @NonNull AbstractFile oldLocalThreadsDirectory
+    ) {
         if (oldLocalThreadsDirectory instanceof ExternalFile) {
             Uri safTreeuri = oldLocalThreadsDirectory
                     .<CachingDocumentFile>getFileRoot().getHolder().uri();

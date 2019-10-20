@@ -28,6 +28,17 @@ public class DatabaseSavedThreadManager {
         inject(this);
     }
 
+    public Callable<Long> countDownloadingThreads() {
+        return () -> {
+            return helper.savedThreadDao.queryBuilder()
+                    .where()
+                    .eq(SavedThread.IS_STOPPED, false)
+                    .and()
+                    .eq(SavedThread.IS_FULLY_DOWNLOADED, false)
+                    .countOf();
+        };
+    }
+
     public Callable<List<SavedThread>> getSavedThreads() {
         return () -> {
             // We don't need fully downloaded threads here
@@ -129,6 +140,7 @@ public class DatabaseSavedThreadManager {
                 return true;
             }
 
+            savedThread.isStopped = true;
             savedThread.isFullyDownloaded = true;
             helper.savedThreadDao.update(savedThread);
 

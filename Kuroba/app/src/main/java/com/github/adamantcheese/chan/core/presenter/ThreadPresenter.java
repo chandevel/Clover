@@ -336,12 +336,17 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             return startedSaving;
         }
 
-        pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
-        if (PinType.hasNoFlags(pin.pinType)) {
+        if (!PinType.hasWatchNewPostsFlag(pin.pinType)) {
+            pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
             watchManager.deletePin(pin);
         } else {
-            watchManager.updatePin(pin);
             watchManager.stopSavingThread(pin.loadable);
+
+            // Remove the flag after stopping thread saving, otherwise we just won't find the thread
+            // because the pin won't have the download flag which we check somewhere deep inside the
+            // stopSavingThread() method
+            pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
+            watchManager.updatePin(pin);
         }
 
         loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;

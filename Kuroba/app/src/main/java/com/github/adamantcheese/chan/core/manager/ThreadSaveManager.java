@@ -138,7 +138,7 @@ public class ThreadSaveManager {
                         },
                         (error) -> Logger.e(TAG,
                                 "Uncaught exception!!! workerQueue is in error state now!!! " +
-                                "This should not happen!!!", error),
+                                        "This should not happen!!!", error),
                         () -> Logger.e(TAG,
                                 "workerQueue stream has completed!!! This should not happen!!!"));
     }
@@ -971,9 +971,7 @@ public class ThreadSaveManager {
 
         Logger.d(TAG, "Downloading is in progress for an image with loadable "
                 + loadableToString(loadable) +
-                ", percent = " + percent +
-                ", total = " + count +
-                ", current = " + index);
+                ", " + index + "/" + count + " (" + percent + "%)");
     }
 
     private void deleteImageCompletely(
