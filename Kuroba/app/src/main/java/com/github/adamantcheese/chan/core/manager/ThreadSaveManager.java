@@ -23,12 +23,13 @@ import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.DirectorySegment;
 import com.github.k1rakishou.fsaf.file.FileSegment;
+import com.github.k1rakishou.fsaf.file.Segment;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -58,6 +59,7 @@ import okhttp3.ResponseBody;
 public class ThreadSaveManager {
     private static final String TAG = "ThreadSaveManager";
     private static final int OKHTTP_TIMEOUT_SECONDS = 30;
+    private static final int REQUEST_BUFFERING_TIME_SECONDS = 30;
     private static final int MAX_RETRY_ATTEMPTS = 3;
     private static final boolean VERBOSE_LOG = false;
 
@@ -125,53 +127,103 @@ public class ThreadSaveManager {
         // Just buffer everything in the internal queue when the consumers are slow (and they are
         // always slow because they have to download images, but we check whether a download request
         // is already enqueued so it's okay for us to rely on the buffering)
-        workerQueue.onBackpressureBuffer().concatMapSingle((loadable) -> {
-            SaveThreadParameters parameters;
-            List<Post> postsToSave = new ArrayList<>();
+        workerQueue
+                .onBackpressureBuffer()
+                // Collect all the request over some time
+                .buffer(REQUEST_BUFFERING_TIME_SECONDS, TimeUnit.SECONDS)
+                .concatMap(this::processCollectedRequests)
+                .subscribe(
+                        (res) -> {
+                            // OK
+                        },
+                        (error) -> Logger.e(TAG,
+                                "Uncaught exception!!! workerQueue is in error state now!!! " +
+                                "This should not happen!!!", error),
+                        () -> Logger.e(TAG,
+                                "workerQueue stream has completed!!! This should not happen!!!"));
+    }
 
-            synchronized (activeDownloads) {
-                Logger.d(TAG, "New downloading request started " + loadableToString(loadable)
-                        + ", activeDownloads count = " + activeDownloads.size());
-                parameters = activeDownloads.get(loadable);
+    private Flowable<Boolean> processCollectedRequests(List<Loadable> loadableList) {
+        if (loadableList.isEmpty()) {
+            return Flowable.just(true);
+        }
 
-                if (parameters != null) {
-                    // Use a copy of the list to avoid ConcurrentModificationExceptions
-                    postsToSave.addAll(parameters.postsToSave);
-                }
-            }
+        Logger.d(TAG, "Collected " + loadableList.size() + " local thread download requests");
 
-            if (parameters == null) {
-                Logger.e(TAG, "Could not find download parameters for loadable "
-                        + loadableToString(loadable));
-                return Single.just(false);
-            }
+        AbstractFile baseLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
+                LocalThreadsBaseDirectory.class
+        );
 
-            return saveThreadInternal(loadable, postsToSave)
-                    // Use the executor's thread to process the queue elements. Everything above
-                    // will executed on this executor's threads.
-                    .subscribeOn(Schedulers.from(executorService))
-                    // Everything below will be executed on the main thread
-                    .observeOn(AndroidSchedulers.mainThread())
-                    // Handle errors
-                    .doOnError((error) -> onDownloadingError(error, loadable))
-                    // Handle results
-                    .doOnSuccess((result) -> onDownloadingCompleted(result, loadable))
-                    .doOnEvent((result, error) -> {
-                        synchronized (activeDownloads) {
-                            Logger.d(TAG, "Downloading request has completed for loadable "
-                                    + loadableToString(loadable) +
-                                    ", activeDownloads count = "
-                                    + activeDownloads.size());
+        if (baseLocalThreadsDirectory == null) {
+            Logger.e(TAG, "LocalThreadsBaseDirectory is not registered!");
+            return Flowable.just(false);
+        }
+
+        /**
+         * Create an in-memory snapshot of a directory with files and sub directories with their
+         * files. This will SIGNIFICANTLY improve the files operations speed until this snapshot is
+         * released. For this reason we collect the request so that we can create a snapshot process
+         * all of the collected request in one big batch and then release the snapshot.
+         * */
+        Logger.d(TAG, "Snapshot created");
+        fileManager.createSnapshot(baseLocalThreadsDirectory, true);
+
+        return Flowable.fromIterable(loadableList)
+                .concatMap((loadable) -> {
+                    SaveThreadParameters parameters;
+                    List<Post> postsToSave = new ArrayList<>();
+
+                    synchronized (activeDownloads) {
+                        Logger.d(TAG, "New downloading request started " + loadableToString(loadable)
+                                + ", activeDownloads count = " + activeDownloads.size());
+                        parameters = activeDownloads.get(loadable);
+
+                        if (parameters != null) {
+                            // Use a copy of the list to avoid ConcurrentModificationExceptions
+                            postsToSave.addAll(parameters.postsToSave);
                         }
-                    })
-                    // Suppress all of the exceptions so that the stream does not complete
-                    .onErrorReturnItem(false);
-        }).subscribe(
-                (res) -> {
-                },
-                (error) -> Logger.e(TAG, "Uncaught exception!!! workerQueue is in error state now!!! " +
-                        "This should not happen!!!", error),
-                () -> Logger.e(TAG, "workerQueue stream has completed!!! This should not happen!!!"));
+                    }
+
+                    if (parameters == null) {
+                        Logger.e(TAG, "Could not find download parameters for loadable "
+                                + loadableToString(loadable));
+                        return Flowable.just(false);
+                    }
+
+                    return saveThreadInternal(loadable, postsToSave)
+                            // Use the executor's thread to process the queue elements. Everything above
+                            // will executed on this executor's threads.
+                            .subscribeOn(Schedulers.from(executorService))
+                            // Everything below will be executed on the main thread
+                            .observeOn(AndroidSchedulers.mainThread())
+                            // Handle errors
+                            .doOnError((error) -> onDownloadingError(error, loadable))
+                            // Handle results
+                            .doOnSuccess((result) -> onDownloadingCompleted(result, loadable))
+                            .doOnEvent((result, error) -> {
+                                synchronized (activeDownloads) {
+                                    Logger.d(TAG, "Downloading request has completed for loadable "
+                                            + loadableToString(loadable) +
+                                            ", activeDownloads count = "
+                                            + activeDownloads.size());
+                                }
+                            })
+                            // Suppress all of the exceptions so that the stream does not complete
+                            .onErrorReturnItem(false)
+                            .toFlowable();
+                })
+                .doOnTerminate(() -> {
+                    /**
+                     * Release the snapshot. It is important to do this. Otherwise the cached files
+                     * will stay in memory and if one of the files will get deleted from the disk
+                     * by the user the snapshot will become dirty meaning that it doesn't contain
+                     * the actual information of the directory. And this may lead to unexpected bugs.
+                     *
+                     * !!! Always release snapshots when you have executed all of your file operations. !!!
+                     * */
+                    Logger.d(TAG, "Snapshot released");
+                    fileManager.releaseSnapshot(baseLocalThreadsDirectory);
+                });
     }
 
     /**
@@ -439,46 +491,46 @@ public class ThreadSaveManager {
                 boardSaveDir,
                 spoilerImageUrl)
         )
-        .flatMap((res) -> {
-            // For each post create a new inner rx stream (so they can be processed in parallel)
-            return Flowable.fromIterable(newPosts)
-                    // Here we create a separate reactive stream for each image request.
-                    // But we use an executor service with limited threads amount, so there
-                    // will be only this much at a time.
-                    //                   |
-                    //                 / | \
-                    //                /  |  \
-                    //               /   |   \
-                    //               V   V   V // Separate streams.
-                    //               |   |   |
-                    //               o   o   o // Download images in parallel.
-                    //               |   |   |
-                    //               V   V   V // Combine them back to a single stream.
-                    //               \   |   /
-                    //                \  |  /
-                    //                 \ | /
-                    //                   |
-                    .flatMap((post) -> {
-                        return downloadImages(
-                                loadable,
-                                threadSaveDirImages,
-                                post,
-                                currentImageDownloadIndex,
-                                postsWithImages,
-                                imageDownloadsWithIoError,
-                                maxImageIoErrors);
-                    })
-                    .toList()
-                    .doOnSuccess((list) -> Logger.d(TAG, "PostImage download result list = " + list));
-        })
-        .flatMap((res) -> {
-            return Single.defer(() -> {
-                return tryUpdateLastSavedPostNo(loadable, newPosts);
-            });
-        })
-        // Have to use blockingGet here. This is a place where all of the exception will come
-        // out from
-        .blockingGet();
+                .flatMap((res) -> {
+                    // For each post create a new inner rx stream (so they can be processed in parallel)
+                    return Flowable.fromIterable(newPosts)
+                            // Here we create a separate reactive stream for each image request.
+                            // But we use an executor service with limited threads amount, so there
+                            // will be only this much at a time.
+                            //                   |
+                            //                 / | \
+                            //                /  |  \
+                            //               /   |   \
+                            //               V   V   V // Separate streams.
+                            //               |   |   |
+                            //               o   o   o // Download images in parallel.
+                            //               |   |   |
+                            //               V   V   V // Combine them back to a single stream.
+                            //               \   |   /
+                            //                \  |  /
+                            //                 \ | /
+                            //                   |
+                            .flatMap((post) -> {
+                                return downloadImages(
+                                        loadable,
+                                        threadSaveDirImages,
+                                        post,
+                                        currentImageDownloadIndex,
+                                        postsWithImages,
+                                        imageDownloadsWithIoError,
+                                        maxImageIoErrors);
+                            })
+                            .toList()
+                            .doOnSuccess((list) -> Logger.d(TAG, "PostImage download result list = " + list));
+                })
+                .flatMap((res) -> {
+                    return Single.defer(() -> {
+                        return tryUpdateLastSavedPostNo(loadable, newPosts);
+                    });
+                })
+                // Have to use blockingGet here. This is a place where all of the exception will come
+                // out from
+                .blockingGet();
     }
 
     private Single<Boolean> tryUpdateLastSavedPostNo(@NonNull Loadable loadable, List<Post> newPosts) {
@@ -511,7 +563,7 @@ public class ThreadSaveManager {
         }
 
         return baseDir
-                .clone(new DirectorySegment(getBoardSubDir(loadable)));
+                .clone(getBoardSubDir(loadable));
     }
 
     private AbstractFile getThreadSaveDir(Loadable loadable) throws IOException {
@@ -525,7 +577,7 @@ public class ThreadSaveManager {
         }
 
         return baseDir
-                .clone(new DirectorySegment(getThreadSubDir(loadable)));
+                .clone(getThreadSubDir(loadable));
     }
 
     private void dealWithMediaScanner(AbstractFile threadSaveDirImages) throws CouldNotCreateNoMediaFile {
@@ -586,7 +638,6 @@ public class ThreadSaveManager {
      * If a post has at least one image that has not been downloaded yet it will be
      * redownloaded again
      */
-    // FIXME: VERY SLOW!!!
     private List<Post> filterAndSortPosts(
             AbstractFile threadSaveDirImages,
             Loadable loadable,
@@ -639,7 +690,8 @@ public class ThreadSaveManager {
             String loadableString = loadableToString(loadable);
 
             Logger.d(TAG, "filterAndSortPosts() completed in "
-                    + delta + "ms for loadable " + loadableString);
+                    + delta + "ms for loadable " + loadableString
+                    + " with " + inputPosts.size() + " posts");
         }
     }
 
@@ -669,8 +721,9 @@ public class ThreadSaveManager {
 
                 long length = fileManager.getLength(originalImage);
                 if (length == -1L) {
-                    throw new IllegalStateException("originalImage.getLength() returned -1, " +
+                    Logger.e(TAG, "originalImage.getLength() returned -1, " +
                             "originalImagePath = " + originalImage.getFullPath());
+                    return false;
                 }
 
                 if (length == 0L) {
@@ -705,8 +758,9 @@ public class ThreadSaveManager {
 
                 long length = fileManager.getLength(thumbnailImage);
                 if (length == -1L) {
-                    throw new IllegalStateException("thumbnailImage.getLength() returned -1, " +
+                    Logger.e(TAG, "thumbnailImage.getLength() returned -1, " +
                             "thumbnailImagePath = " + thumbnailImage.getFullPath());
+                    return false;
                 }
 
                 if (length == 0L) {
@@ -1135,14 +1189,20 @@ public class ThreadSaveManager {
      * When user cancels a download we need to delete the thread from the disk as well
      */
     private void deleteThreadFilesFromDisk(Loadable loadable) {
-        String subDirs = getThreadSubDir(loadable);
+        AbstractFile baseDirectory = fileManager.newBaseDirectoryFile(
+                LocalThreadsBaseDirectory.class
+        );
 
-        File threadSaveDir = new File(ChanSettings.saveLocation.get(), subDirs);
-        if (!threadSaveDir.exists()) {
+        if (baseDirectory == null) {
+            throw new IllegalStateException("LocalThreadsBaseDirectory is not registered!");
+        }
+
+        AbstractFile threadSaveDir = baseDirectory.clone(getThreadSubDir(loadable));
+        if (!fileManager.exists(threadSaveDir)) {
             return;
         }
 
-        IOUtils.deleteDirWithContents(threadSaveDir);
+        fileManager.delete(threadSaveDir);
     }
 
     /**
@@ -1165,28 +1225,30 @@ public class ThreadSaveManager {
         return SPOILER_FILE_NAME + "." + extension;
     }
 
-    public static String getThreadSubDir(Loadable loadable) {
+    public static List<Segment> getThreadSubDir(Loadable loadable) {
         // 4chan/g/11223344
-        return loadable.site.name() +
-                File.separator +
-                loadable.boardCode +
-                File.separator + loadable.no;
+        return Arrays.asList(
+                new DirectorySegment(loadable.site.name()),
+                new DirectorySegment(loadable.boardCode),
+                new DirectorySegment(String.valueOf(loadable.no)));
     }
 
-    public static String getImagesSubDir(Loadable loadable) {
+    public static List<Segment> getImagesSubDir(Loadable loadable) {
         // 4chan/g/11223344/images
-        return loadable.site.name() +
-                File.separator +
-                loadable.boardCode +
-                File.separator + loadable.no +
-                File.separator + IMAGES_DIR_NAME;
+        return Arrays.asList(
+                new DirectorySegment(loadable.site.name()),
+                new DirectorySegment(loadable.boardCode),
+                new DirectorySegment(String.valueOf(loadable.no)),
+                new DirectorySegment(IMAGES_DIR_NAME)
+        );
     }
 
-    public static String getBoardSubDir(Loadable loadable) {
+    public static List<Segment> getBoardSubDir(Loadable loadable) {
         // 4chan/g
-        return loadable.site.name() +
-                File.separator +
-                loadable.boardCode;
+        return Arrays.asList(
+                new DirectorySegment(loadable.site.name()),
+                new DirectorySegment(loadable.boardCode)
+        );
     }
 
     /**

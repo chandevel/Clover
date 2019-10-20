@@ -24,6 +24,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
@@ -31,34 +32,29 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
-import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
-import com.github.k1rakishou.fsaf.callback.DirectoryChooserCallback;
 import com.github.k1rakishou.fsaf.document_file.CachingDocumentFile;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.ExternalFile;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
-import kotlin.Unit;
-
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
-public class MediaSettingsController extends SettingsController {
+public class MediaSettingsController
+        extends SettingsController
+        implements MediaSettingsControllerPresenter.MediaSettingsControllerCallbacks {
     private static final String TAG = "MediaSettingsController";
 
     // Special setting views
@@ -69,7 +65,9 @@ public class MediaSettingsController extends SettingsController {
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
 
-    private Executor fileCopyingExecutor = Executors.newSingleThreadExecutor();
+    private LoadingViewController loadingViewController;
+    private MediaSettingsControllerPresenter presenter;
+
 
     @Inject
     FileManager fileManager;
@@ -86,8 +84,9 @@ public class MediaSettingsController extends SettingsController {
         inject(this);
 
         EventBus.getDefault().register(this);
-
         navigation.setTitle(R.string.settings_screen_media);
+
+        presenter = new MediaSettingsControllerPresenter(fileManager, fileChooser, this);
 
         setupLayout();
         populatePreferences();
@@ -102,6 +101,7 @@ public class MediaSettingsController extends SettingsController {
     public void onDestroy() {
         super.onDestroy();
 
+        presenter.onDestroy();
         EventBus.getDefault().unregister(this);
     }
 
@@ -209,17 +209,24 @@ public class MediaSettingsController extends SettingsController {
         }
     }
 
+    /**
+     * ==============================================
+     * Setup Local Threads location
+     * ==============================================
+     * */
+
     private void setupLocalThreadLocationSetting(SettingsGroup media) {
         if (!ChanSettings.incrementalThreadDownloadingEnabled.get()) {
-            Logger.d(TAG, "setupLocalThreadLocationSetting() incrementalThreadDownloadingEnabled is disabled");
+            Logger.d(TAG, "setupLocalThreadLocationSetting() " +
+                    "incrementalThreadDownloadingEnabled is disabled");
             return;
         }
 
         LinkSettingView localThreadsLocationSetting = new LinkSettingView(this,
                 R.string.media_settings_local_threads_location_title,
                 0,
-                v -> showUseSAFOrOldAPIForLocalThreadsLocationDialog());
-
+                v -> showUseSAFOrOldAPIForLocalThreadsLocationDialog()
+        );
 
         localThreadsLocation = (LinkSettingView) media.add(localThreadsLocationSetting);
         localThreadsLocation.setDescription(getLocalThreadsLocation());
@@ -232,6 +239,42 @@ public class MediaSettingsController extends SettingsController {
 
         return ChanSettings.localThreadLocation.get();
     }
+
+    private void showUseSAFOrOldAPIForLocalThreadsLocationDialog() {
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(R.string.use_saf_for_local_threads_location_dialog_title)
+                .setMessage(R.string.use_saf_for_local_threads_location_dialog_message)
+                .setPositiveButton(R.string.use_saf_dialog_positive_button_text, (dialog, which) -> {
+                    presenter.onLocalThreadsLocationUseSAFClicked();
+                })
+                .setNegativeButton(R.string.use_saf_dialog_negative_button_text, (dialog, which) -> {
+                    onLocalThreadsLocationUseOldApiClicked();
+                    dialog.dismiss();
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    /**
+     * Select a directory where local threads will be stored via the old Java File API
+     */
+    private void onLocalThreadsLocationUseOldApiClicked() {
+        SaveLocationController saveLocationController = new SaveLocationController(
+                context,
+                SaveLocationController.SaveLocationControllerMode.LocalThreadsSaveLocation,
+                dirPath -> {
+                    presenter.onLocalThreadsLocationChosen(dirPath);
+                });
+
+        navigationController.pushController(saveLocationController);
+    }
+
+    /**
+     * ==============================================
+     * Setup Save Files location
+     * ==============================================
+     * */
 
     private void setupSaveLocationSetting(SettingsGroup media) {
         LinkSettingView chooseSaveLocationSetting = new LinkSettingView(this,
@@ -251,205 +294,12 @@ public class MediaSettingsController extends SettingsController {
         return ChanSettings.saveLocation.get();
     }
 
-    private void showUseSAFOrOldAPIForLocalThreadsLocationDialog() {
-        AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.use_saf_for_local_threads_location_dialog_title)
-                .setMessage(R.string.use_saf_for_local_threads_location_dialog_message)
-                .setPositiveButton(R.string.use_saf_dialog_positive_button_text, (dialog, which) -> {
-                    onLocalThreadsLocationUseSAFClicked();
-                })
-                .setNegativeButton(R.string.use_saf_dialog_negative_button_text, (dialog, which) -> {
-                    onLocalThreadsLocationUseOldApiClicked();
-                    dialog.dismiss();
-                })
-                .create();
-
-        alertDialog.show();
-    }
-
-    /**
-     * Select a directory where local threads will be stored via the old Java File API
-     */
-    private void onLocalThreadsLocationUseOldApiClicked() {
-        SaveLocationController saveLocationController = new SaveLocationController(
-                context,
-                SaveLocationController.SaveLocationControllerMode.LocalThreadsSaveLocation,
-                dirPath -> {
-                    AbstractFile oldLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
-                            LocalThreadsBaseDirectory.class
-                    );
-
-                    Logger.d(TAG, "SaveLocationController with LocalThreadsSaveLocation mode returned dir "
-                            + dirPath);
-
-                    // Supa hack to get the callback called
-                    ChanSettings.localThreadLocation.setSync("");
-                    ChanSettings.localThreadLocation.setSync(dirPath);
-
-                    AbstractFile newLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
-                            LocalThreadsBaseDirectory.class
-                    );
-
-                    askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
-                            oldLocalThreadsDirectory,
-                            newLocalThreadsDirectory);
-                });
-
-        navigationController.pushController(saveLocationController);
-    }
-
-    /**
-     * Select a directory where local threads will be stored via the SAF
-     */
-    private void onLocalThreadsLocationUseSAFClicked() {
-        fileChooser.openChooseDirectoryDialog(new DirectoryChooserCallback() {
-            @Override
-            public void onResult(@NotNull Uri uri) {
-                // TODO: check that there are no files in the directory and warn the user that something
-                //  might go wrong in this case
-                AbstractFile oldLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
-                        LocalThreadsBaseDirectory.class
-                );
-
-                ChanSettings.localThreadsLocationUri.set(uri.toString());
-                String defaultDir = ChanSettings.getDefaultLocalThreadsLocation();
-
-                ChanSettings.localThreadLocation.setNoUpdate(defaultDir);
-                localThreadsLocation.setDescription(uri.toString());
-
-                AbstractFile newLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
-                        LocalThreadsBaseDirectory.class
-                );
-
-                askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
-                        oldLocalThreadsDirectory,
-                        newLocalThreadsDirectory);
-            }
-
-            @Override
-            public void onCancel(@NotNull String reason) {
-                Toast.makeText(context, reason, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
-            AbstractFile oldLocalThreadsDirectory,
-            AbstractFile newLocalThreadsDirectory) {
-
-        // TODO: strings
-        AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle("Move old local threads to the new directory?")
-                .setMessage("This operation may take quite some time. Once started this operation shouldn't be canceled, otherwise something may break")
-                .setPositiveButton("Move", (dialog, which) -> {
-                    moveOldFilesToTheNewDirectory(oldLocalThreadsDirectory, newLocalThreadsDirectory);
-                })
-                .setNegativeButton("Do not", (dialog, which) -> dialog.dismiss())
-                .create();
-
-        alertDialog.show();
-    }
-
-    private void moveOldFilesToTheNewDirectory(
-            @Nullable AbstractFile oldLocalThreadsDirectory,
-            @Nullable AbstractFile newLocalThreadsDirectory) {
-        if (oldLocalThreadsDirectory == null || newLocalThreadsDirectory == null) {
-            Logger.e(TAG, "One of the directories is null, cannot copy " +
-                    "(oldLocalThreadsDirectory is null == " + (oldLocalThreadsDirectory == null) + ")" +
-                    ", newLocalThreadsDirectory is null == " + (newLocalThreadsDirectory == null) + ")");
-            return;
-        }
-
-        Logger.d(TAG, "oldLocalThreadsDirectory = " + oldLocalThreadsDirectory.getFullPath()
-                + ", newLocalThreadsDirectory = " + newLocalThreadsDirectory.getFullPath());
-
-        int filesCount = fileManager.listFiles(oldLocalThreadsDirectory).size();
-        if (filesCount == 0) {
-            Toast.makeText(context, "No files to copy", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // TODO: Strings
-        AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle("Copy files")
-                .setMessage("Do you want to copy " + filesCount + " from an old directory to the new one?")
-                .setPositiveButton("Copy", ((dialog, which) -> {
-                    LoadingViewController loadingViewController = new LoadingViewController(
-                            context,
-                            false);
-                    navigationController.pushController(loadingViewController);
-
-                    fileCopyingExecutor.execute(() -> {
-                        moveFilesInternal(
-                                oldLocalThreadsDirectory,
-                                newLocalThreadsDirectory,
-                                loadingViewController);
-                    });
-                }))
-                .setNegativeButton("Do not", ((dialog, which) -> dialog.dismiss()))
-                .create();
-
-        alertDialog.show();
-    }
-
-    private void moveFilesInternal(
-            @NonNull AbstractFile oldLocalThreadsDirectory,
-            @NonNull AbstractFile newLocalThreadsDirectory,
-            LoadingViewController loadingViewController) {
-        boolean result = fileManager.copyDirectoryWithContent(
-                oldLocalThreadsDirectory,
-                newLocalThreadsDirectory,
-                false,
-                (fileIndex, totalFilesCount) -> {
-                    runOnUiThread(() -> {
-                        // TODO: strings
-                        String text = String.format(
-                                Locale.US,
-                                // TODO: strings
-                                "Copying file %d out of %d",
-                                fileIndex,
-                                totalFilesCount);
-
-                        loadingViewController.updateWithText(text);
-                    });
-
-                    return Unit.INSTANCE;
-                });
-
-        runOnUiThread(() -> {
-            navigationController.popController();
-
-            if (!result) {
-                // TODO: strings
-                Toast.makeText(
-                        context,
-                        "Could not copy one directory's file into another one",
-                        Toast.LENGTH_LONG
-                ).show();
-            } else {
-                Uri safTreeuri = oldLocalThreadsDirectory
-                        .<CachingDocumentFile>getFileRoot().getHolder().getUri();
-
-                fileChooser.forgetSAFTree(safTreeuri);
-
-                // TODO: delete old directory dialog
-
-                // TODO: strings
-                Toast.makeText(
-                        context,
-                        "Successfully copied files",
-                        Toast.LENGTH_LONG
-                ).show();
-            }
-        });
-    }
-
     private void showUseSAFOrOldAPIForSaveLocationDialog() {
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.use_saf_for_save_location_dialog_title)
                 .setMessage(R.string.use_saf_for_save_location_dialog_message)
                 .setPositiveButton(R.string.use_saf_dialog_positive_button_text, (dialog, which) -> {
-                    onSaveLocationUseSAFClicked();
+                    presenter.onSaveLocationUseSAFClicked();
                 })
                 .setNegativeButton(R.string.use_saf_dialog_negative_button_text, (dialog, which) -> {
                     onSaveLocationUseOldApiClicked();
@@ -468,38 +318,144 @@ public class MediaSettingsController extends SettingsController {
                 context,
                 SaveLocationController.SaveLocationControllerMode.ImageSaveLocation,
                 dirPath -> {
-                    Logger.d(TAG, "SaveLocationController with ImageSaveLocation mode returned dir "
-                            + dirPath);
-
-                    // Supa hack to get the callback called
-                    ChanSettings.saveLocation.setSync("");
-                    ChanSettings.saveLocation.setSync(dirPath);
+                    presenter.onSaveLocationChosen(dirPath);
                 });
 
         navigationController.pushController(saveLocationController);
     }
 
     /**
-     * Select a directory where saved images will be stored via the SAF
-     */
-    private void onSaveLocationUseSAFClicked() {
-        fileChooser.openChooseDirectoryDialog(new DirectoryChooserCallback() {
-            @Override
-            public void onResult(@NotNull Uri uri) {
-                // TODO: check that there are no files in the directory at warn user that something
-                //  might go wrong in this case
-                ChanSettings.saveLocationUri.set(uri.toString());
+     * ==============================================
+     * Presenter callbacks
+     * ==============================================
+     * */
 
-                String defaultDir = ChanSettings.getDefaultSaveLocationDir();
-                ChanSettings.saveLocation.setNoUpdate(defaultDir);
-                saveLocation.setDescription(uri.toString());
+    @Override
+    public void askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
+            @NonNull AbstractFile oldBaseDirectory,
+            @NonNull AbstractFile newBaseDirectory
+    ) {
+
+        // TODO: strings
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle("Move old local threads to the new directory?")
+                .setMessage("This operation may take quite some time. Once started this operation shouldn't be canceled")
+                .setPositiveButton("Move", (dialog, which) -> {
+                    presenter.moveOldFilesToTheNewDirectory(
+                            oldBaseDirectory,
+                            newBaseDirectory
+                    );
+                })
+                .setNegativeButton("Do not", (dialog, which) -> dialog.dismiss())
+                .create();
+
+        alertDialog.show();
+    }
+
+    @Override
+    public void onCopyDirectoryEnded(
+            @NonNull AbstractFile oldBaseDirectory,
+            @NonNull AbstractFile newBaseDirectory,
+            boolean result
+    ) {
+        BackgroundUtils.ensureMainThread();
+
+        navigationController.popController();
+        loadingViewController = null;
+
+        if (!result) {
+            // TODO: strings
+            showToast("Could not copy one directory's file into another one", Toast.LENGTH_LONG);
+        } else {
+            if (oldBaseDirectory instanceof ExternalFile) {
+                forgetPreviousExternalBaseDirectory(oldBaseDirectory);
             }
 
-            @Override
-            public void onCancel(@NotNull String reason) {
-                Toast.makeText(context, reason, Toast.LENGTH_LONG).show();
+            // TODO: delete old directory dialog
+
+            // TODO: strings
+            showToast("Successfully copied files", Toast.LENGTH_LONG);
+        }
+    }
+
+    @Override
+    public void updateLoadingViewText(@NotNull String text) {
+        BackgroundUtils.ensureMainThread();
+
+        if (loadingViewController != null) {
+            loadingViewController.updateWithText(text);
+        }
+    }
+
+    @Override
+    public void updateSaveLocationViewText(@NotNull String newLocation) {
+        BackgroundUtils.ensureMainThread();
+        saveLocation.setDescription(newLocation);
+    }
+
+    @Override
+    public void showToast(@NotNull String message, int length) {
+        BackgroundUtils.ensureMainThread();
+        Toast.makeText(context, message, length).show();
+    }
+
+    @Override
+    public void updateLocalThreadsLocation(@NotNull String newLocation) {
+        BackgroundUtils.ensureMainThread();
+        localThreadsLocation.setDescription(newLocation);
+    }
+
+    @Override
+    public void showCopyFilesDialog(
+            @NotNull AbstractFile oldBaseDirectory,
+            @NotNull AbstractFile newBaseDirectory
+    ) {
+        BackgroundUtils.ensureMainThread();
+
+        // TODO: strings
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle("Copy files")
+                .setMessage("Do you want to copy $filesCount from an old directory to the new one?")
+                .setPositiveButton("Copy", (dialog, which) -> {
+                    if (loadingViewController != null) {
+                        throw new IllegalStateException(
+                                "Previous loadingViewController was not destroyed"
+                        );
+                    }
+
+                    loadingViewController = new LoadingViewController(
+                            context,
+                            false
+                    );
+
+                    navigationController.pushController(loadingViewController);
+
+                    presenter.moveFilesInternal(
+                            oldBaseDirectory,
+                            newBaseDirectory
+                    );
+                })
+                .setNegativeButton("Do not", (dialog, which) -> dialog.dismiss())
+                .create();
+
+        alertDialog.show();
+    }
+
+    /**
+     * ==============================================
+     * Other methods
+     * ==============================================
+     * */
+
+    private void forgetPreviousExternalBaseDirectory(@NonNull AbstractFile oldLocalThreadsDirectory) {
+        if (oldLocalThreadsDirectory instanceof ExternalFile) {
+            Uri safTreeuri = oldLocalThreadsDirectory
+                    .<CachingDocumentFile>getFileRoot().getHolder().uri();
+
+            if (!fileChooser.forgetSAFTree(safTreeuri)) {
+                showToast("Couldn't release uri permissions", Toast.LENGTH_SHORT);
             }
-        });
+        }
     }
 
     private void setupMediaLoadTypesSetting(SettingsGroup loading) {

@@ -26,9 +26,9 @@ import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBase
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
-import com.github.k1rakishou.fsaf.file.DirectorySegment;
 import com.github.k1rakishou.fsaf.file.FileSegment;
 import com.github.k1rakishou.fsaf.file.RawFile;
+import com.github.k1rakishou.fsaf.file.Segment;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,12 +88,11 @@ public class FileCache implements FileCacheDownloader.Callback {
                 return null;
             }
 
-            String imageDir = ThreadSaveManager.getImagesSubDir(loadable);
+            // TODO: double check, may not work as expected
+            List<Segment> segments = new ArrayList<>(ThreadSaveManager.getImagesSubDir(loadable));
+            segments.add(new FileSegment(filename));
 
-            AbstractFile imageOnDiskFile = baseDirFile.clone(
-                    new DirectorySegment(imageDir),
-                    new FileSegment(filename)
-            );
+            AbstractFile imageOnDiskFile = baseDirFile.clone(segments);
 
             if (fileManager.exists(imageOnDiskFile)
                     && fileManager.isFile(imageOnDiskFile)

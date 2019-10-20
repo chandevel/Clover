@@ -18,16 +18,12 @@ package com.github.adamantcheese.chan.core.di;
 
 import android.app.NotificationManager;
 import android.content.Context;
-import android.net.Uri;
-
-import androidx.annotation.NonNull;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.ui.settings.base_directory.FilesBaseDirectory;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
@@ -40,8 +36,6 @@ import com.github.k1rakishou.fsaf.manager.RawFileManager;
 import com.github.k1rakishou.fsaf.manager.base_directory.DirectoryManager;
 
 import org.codejargon.feather.Provides;
-
-import java.io.File;
 
 import javax.inject.Singleton;
 
@@ -117,10 +111,9 @@ public class AppModule {
         );
         RawFileManager rawFileManager = new RawFileManager();
 
-        LocalThreadsBaseDirectory localThreadsBaseDirectory = buildLocalThreadsBaseDirectory();
-        FilesBaseDirectory filesBaseDirectory = buildImagesBaseDirectory();
-
-        // Add your base directories here
+        // Add new base directories here
+        LocalThreadsBaseDirectory localThreadsBaseDirectory = new LocalThreadsBaseDirectory();
+        FilesBaseDirectory filesBaseDirectory = new FilesBaseDirectory();
 
         FileManager fileManager = new FileManager(
                 applicationContext,
@@ -145,40 +138,5 @@ public class AppModule {
     @Singleton
     public FileChooser provideFileChooser() {
         return new FileChooser(applicationContext);
-    }
-
-    private FilesBaseDirectory buildImagesBaseDirectory() {
-        Uri dirUri = null;
-        if (ChanSettings.saveLocationUri.get().length() > 0) {
-            dirUri = Uri.parse(ChanSettings.saveLocationUri.get());
-        }
-
-        File dirFile = null;
-        if (ChanSettings.saveLocation.get().length() > 0) {
-            dirFile = new File(ChanSettings.saveLocation.get());
-        }
-
-        return new FilesBaseDirectory(
-                dirUri,
-                dirFile
-        );
-    }
-
-    @NonNull
-    private LocalThreadsBaseDirectory buildLocalThreadsBaseDirectory() {
-        Uri dirUri = null;
-        if (ChanSettings.localThreadsLocationUri.get().length() > 0) {
-            dirUri = Uri.parse(ChanSettings.localThreadsLocationUri.get());
-        }
-
-        File dirFile = null;
-        if (ChanSettings.localThreadLocation.get().length() > 0) {
-            dirFile = new File(ChanSettings.localThreadLocation.get());
-        }
-
-        return new LocalThreadsBaseDirectory(
-                dirUri,
-                dirFile
-        );
     }
 }

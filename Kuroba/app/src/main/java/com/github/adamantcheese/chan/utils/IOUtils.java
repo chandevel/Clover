@@ -119,17 +119,4 @@ public class IOUtils {
             IOUtils.closeQuietly(os);
         }
     }
-
-    public static void deleteDirWithContents(File dir) {
-        if (dir.isDirectory()) {
-            File[] files = dir.listFiles();
-            if (files != null) {
-                for (File c : files) {
-                    deleteDirWithContents(c);
-                }
-            }
-        }
-
-        dir.delete();
-    }
 }

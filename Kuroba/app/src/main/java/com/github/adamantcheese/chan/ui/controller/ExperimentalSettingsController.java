@@ -92,12 +92,11 @@ public class ExperimentalSettingsController extends SettingsController {
             }
 
             databaseManager.getDatabasePinManager().updatePins(downloadPins).call();
-            boolean usesSAF = ChanSettings.isLocalThreadsDirUsesSAF();
 
             for (Pin pin : downloadPins) {
                 databaseManager.getDatabaseSavedThreadManager().deleteThreadFromDisk(
-                        pin.loadable,
-                        usesSAF);
+                        pin.loadable
+                );
             }
 
             return null;

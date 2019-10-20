@@ -16,11 +16,13 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
-import com.github.k1rakishou.fsaf.file.DirectorySegment;
 import com.github.k1rakishou.fsaf.file.FileSegment;
+import com.github.k1rakishou.fsaf.file.Segment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -130,15 +132,16 @@ public class ImageLoaderV2 {
                             "fileManager.newLocalThreadFile() returned null");
                 }
 
-                String imageDir;
+                List<Segment> segments = new ArrayList<>();
+
                 if (isSpoiler) {
-                    imageDir = ThreadSaveManager.getBoardSubDir(loadable);
+                    segments.addAll(ThreadSaveManager.getBoardSubDir(loadable));
                 } else {
-                    imageDir = ThreadSaveManager.getImagesSubDir(loadable);
+                    segments.addAll(ThreadSaveManager.getImagesSubDir(loadable));
                 }
 
-                AbstractFile imageOnDiskFile = baseDirFile
-                        .clone(new DirectorySegment(imageDir), new FileSegment(filename));
+                segments.add(new FileSegment(filename));
+                AbstractFile imageOnDiskFile = baseDirFile.clone(segments);
 
                 boolean exists = fileManager.exists(imageOnDiskFile);
                 boolean isFile = fileManager.isFile(imageOnDiskFile);
@@ -175,7 +178,9 @@ public class ImageLoaderV2 {
 
                     mainThreadHandler.post(() -> {
                         container.setBitmap(bitmap);
-                        container.setRequestUrl(imageDir);
+
+                        // TODO: may not work
+                        container.setRequestUrl(imageOnDiskFile.getFullPath());
 
                         if (container.getListener() != null) {
                             container.getListener().onResponse(container, true);

@@ -3,16 +3,12 @@ package com.github.adamantcheese.chan.core.database;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
-import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
-import com.github.k1rakishou.fsaf.file.DirectorySegment;
 import com.j256.ormlite.stmt.DeleteBuilder;
 
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -174,48 +170,35 @@ public class DatabaseSavedThreadManager {
             db.where().eq(SavedThread.LOADABLE_ID, loadable.id);
             db.delete();
 
-            deleteThreadFromDisk(loadable, ChanSettings.isLocalThreadsDirUsesSAF());
+            deleteThreadFromDisk(loadable);
             return null;
         };
     }
 
-    public void deleteThreadFromDisk(Loadable loadable, boolean usesSAF) {
-        if (usesSAF) {
-            String threadSubDir = ThreadSaveManager.getThreadSubDir(loadable);
+    // TODO: may not work, but in theory it should
+    public void deleteThreadFromDisk(Loadable loadable) {
+        AbstractFile localThreadsDir = fileManager.newBaseDirectoryFile(
+                LocalThreadsBaseDirectory.class
+        );
 
-            AbstractFile localThreadsDir = fileManager.newBaseDirectoryFile(
-                    LocalThreadsBaseDirectory.class
-            );
+        if (localThreadsDir == null
+                || !fileManager.exists(localThreadsDir)
+                || !fileManager.isDirectory(localThreadsDir)) {
+            // Probably already deleted
+            return;
+        }
 
-            if (localThreadsDir == null
-                    || !fileManager.exists(localThreadsDir)
-                    || !fileManager.isDirectory(localThreadsDir)) {
-                // Probably already deleted
-                return;
-            }
+        AbstractFile threadDir = localThreadsDir
+                .clone(ThreadSaveManager.getThreadSubDir(loadable));
 
-            AbstractFile threadDir = localThreadsDir
-                    .clone(new DirectorySegment(threadSubDir));
+        if (!fileManager.exists(threadDir) || !fileManager.isDirectory(threadDir)) {
+            // Probably already deleted
+            return;
+        }
 
-            if (!fileManager.exists(threadDir) || !fileManager.isDirectory(threadDir)) {
-                // Probably already deleted
-                return;
-            }
-
-            if (!fileManager.delete(threadDir)) {
-                Logger.d(TAG, "deleteThreadFromDisk() Could not delete SAF directory "
-                        + threadDir.getFullPath());
-            }
-        } else {
-            String threadSubDir = ThreadSaveManager.getThreadSubDir(loadable);
-            File threadSaveDir = new File(ChanSettings.localThreadLocation.get(), threadSubDir);
-
-            if (!threadSaveDir.exists() || !threadSaveDir.isDirectory()) {
-                // Probably already deleted
-                return;
-            }
-
-            IOUtils.deleteDirWithContents(threadSaveDir);
+        if (!fileManager.delete(threadDir)) {
+            Logger.d(TAG, "deleteThreadFromDisk() Could not delete SAF directory "
+                    + threadDir.getFullPath());
         }
     }
 
