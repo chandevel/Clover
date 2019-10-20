@@ -729,11 +729,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                             }
                         }
 
-                        //do onclick on all postlinkables afterwards, so that we don't update the spoiler state early
+                        //do onclick on all spoiler postlinkables afterwards, so that we don't update the spoiler state early
                         for (ClickableSpan s : link) {
-                            if (s instanceof PostLinkable) {
-                                PostLinkable item = (PostLinkable) s;
-                                item.onClick(widget);
+                            if (s instanceof PostLinkable && ((PostLinkable) s).type == PostLinkable.Type.SPOILER) {
+                                s.onClick(widget);
                             }
                         }
 
