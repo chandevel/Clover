@@ -530,7 +530,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         boardDelete.where()
                 .eq("site", board.siteId)
                 .and()
-                .eq("code", board.code);
+                .eq("value", board.code);
         boardDelete.delete();
     }
 }
