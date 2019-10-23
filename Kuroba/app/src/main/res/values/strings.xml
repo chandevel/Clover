@@ -512,8 +512,10 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_video_open_external_description">Play videos in an external media player app</string>
     <string name="setting_share_url">Share URL to image</string>
     <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
+    <string name="settings_remove_image_spoilers">Remove image spoilers</string>
+    <string name="settings_remove_image_spoilers_description">Always reveal spoiler thumbnails and images</string>
     <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
-    <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images</string>
+    <string name="settings_reveal_image_spoilers_description">Automatically reveal spoiler images, not thumbnails</string>
     <string name="settings_allow_media_scanner_scan_local_threads_title">Allow the Android media scanner to scan images from locally saved threads</string>
     <string name="settings_allow_media_scanner_scan_local_threads_description">If enabled, images that were downloaded along with threads will appear in other applications, like galleries, messengers, etc. You may have to restart your phone or wait for the changes to kick in.</string>
     <string name="settings_group_media_loading">Media loading</string>

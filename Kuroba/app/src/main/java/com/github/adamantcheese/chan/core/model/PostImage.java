@@ -146,7 +146,7 @@ public class PostImage {
         }
 
         public PostImage build() {
-            if (ChanSettings.revealImageSpoilers.get()) {
+            if (ChanSettings.removeImageSpoilers.get()) {
                 spoiler = false;
             }
 
