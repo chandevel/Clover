@@ -113,7 +113,8 @@ public class CommentParserHelper {
                             .getJSONObject("snippet")
                             .getString("title"); //the response is well formatted so this will always work
                     youtubeTitleCache.put(URL, title);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    title = URL; //fall back to just showing the URL, otherwise it will display "null" which is pretty useless
                 }
             }
             //prepend two spaces for the youtube icon later
