@@ -188,8 +188,12 @@ public class FileCacheDownloader implements Runnable {
                 }
             });
         } finally {
-            Util.closeQuietly(sourceCloseable);
-            Util.closeQuietly(sinkCloseable);
+            if(sourceCloseable != null) {
+                Util.closeQuietly(sourceCloseable);
+            }
+            if(sinkCloseable != null) {
+                Util.closeQuietly(sinkCloseable);
+            }
 
             if (call != null) {
                 call.cancel();
