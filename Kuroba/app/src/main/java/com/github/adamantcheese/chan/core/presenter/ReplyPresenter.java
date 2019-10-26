@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.text.TextUtils;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
@@ -28,7 +29,9 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
+import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
+import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -305,29 +308,43 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     @Override
     public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
         if (replyResponse.posted) {
-            if (loadable.isThreadMode()) {
-                lastReplyRepository.putLastReply(loadable.site, loadable.board);
-            } else if (loadable.isCatalogMode()) {
-                lastReplyRepository.putLastThread(loadable.site, loadable.board);
+            //if the thread being presented has changed in the time waiting for this call to complete, the loadable field in
+            //ReplyPresenter will be incorrect; reconstruct the loadable (local to this method) from the reply response
+            Site localSite = Chan.injector().instance(SiteRepository.class).forId(replyResponse.siteId);
+            Board localBoard = Chan.injector().instance(BoardRepository.class).getFromCode(localSite, replyResponse.boardCode);
+            Loadable localLoadable = databaseManager.getDatabaseLoadableManager().get(
+                    Loadable.forThread(localSite, localBoard, //this loadable is for the reply response's site and board
+                            replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo, //if the replyresponse's threadno is 0, then it's a new thread so use the post number
+                            PostHelper.getTitle(null, //get a title for the time being, will be updated later when the watchmanager updates
+                                    Loadable.forThread(localSite, localBoard,
+                                            replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo, ""))));
+
+            //if we're in the same thread as the post was made in, just use the loadable from the presenter
+            //if we're in a different thread from where the post was made, use the rebuilt loadable
+            //this is really just insurance that we've got the right thing
+            localLoadable = loadable.equals(localLoadable) ? loadable : localLoadable;
+
+            if (localLoadable.isThreadMode()) {
+                lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
+            } else if (localLoadable.isCatalogMode()) {
+                lastReplyRepository.putLastThread(localLoadable.site, localLoadable.board);
             }
 
             if (ChanSettings.postPinThread.get()) {
-                if (loadable.isThreadMode()) {
+                if (localLoadable.isThreadMode()) { //ensure this is the same thread loadable, so we can make a pin with a thumbnail
                     ChanThread thread = callback.getThread();
                     if (thread != null) {
-                        watchManager.createPin(loadable, thread.getOp(), PinType.WATCH_NEW_POSTS);
+                        watchManager.createPin(localLoadable, thread.getOp(), PinType.WATCH_NEW_POSTS);
+                    } else {
+                        watchManager.createPin(localLoadable);
                     }
                 } else {
-                    Loadable postedLoadable = databaseManager.getDatabaseLoadableManager()
-                            .get(Loadable.forThread(loadable.site, loadable.board,
-                                    replyResponse.postNo, PostHelper.getTitle(null, loadable)));
-
-                    watchManager.createPin(postedLoadable);
+                    watchManager.createPin(localLoadable); //not same thread or catalog loadable, make pin without a thumbnail
                 }
             }
 
             SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(
-                    loadable.site, loadable.board, replyResponse.postNo, replyResponse.password);
+                    localLoadable.site, localLoadable.board, replyResponse.postNo, replyResponse.password);
             databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager()
                     .saveReply(savedReply));
 
@@ -337,13 +354,12 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             String name = draft.name;
             draft = new Reply();
             draft.name = name;
-            replyManager.putReply(loadable, draft);
+            replyManager.putReply(localLoadable, draft);
             callback.loadDraftIntoViews(draft);
             callback.onPosted();
 
-            if (bound && !loadable.isThreadMode()) {
-                callback.showThread(databaseManager.getDatabaseLoadableManager().get(
-                        Loadable.forThread(loadable.site, loadable.board, replyResponse.postNo, PostHelper.getTitle(null, loadable))));
+            if (bound && loadable.isCatalogMode()) { //special case for new threads, don't use localLoadable
+                callback.showThread(databaseManager.getDatabaseLoadableManager().get(localLoadable));
             }
         } else if (replyResponse.requireAuthentication) {
             switchPage(Page.AUTHENTICATION);

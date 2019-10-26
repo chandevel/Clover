@@ -421,6 +421,8 @@ public abstract class CommonSite extends SiteBase {
 
             reply.password = Long.toHexString(site.secureRandom.nextLong());
             replyResponse.password = reply.password;
+            replyResponse.siteId = reply.loadable.siteId;
+            replyResponse.boardCode = reply.loadable.boardCode;
 
             MultipartHttpCall call = new MultipartHttpCall(site) {
                 @Override

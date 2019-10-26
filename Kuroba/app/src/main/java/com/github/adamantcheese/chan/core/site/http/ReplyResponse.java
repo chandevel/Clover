@@ -27,7 +27,7 @@ public class ReplyResponse {
     /**
      * {@code true} if the post when through, {@code false} otherwise.
      */
-    public boolean posted;
+    public boolean posted = false;
 
     /**
      * Error message used to show to the user if {@link #posted} is {@code false}.
@@ -36,9 +36,11 @@ public class ReplyResponse {
     public String errorMessage;
 
     // TODO(multi-site)
-    public int threadNo;
-    public int postNo;
-    public String password;
-    public boolean probablyBanned;
-    public boolean requireAuthentication;
+    public int siteId = 0;
+    public String boardCode = "";
+    public int threadNo = 0;
+    public int postNo = 0;
+    public String password = "";
+    public boolean probablyBanned = false;
+    public boolean requireAuthentication = false;
 }
