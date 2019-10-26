@@ -56,14 +56,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     public void startDownloadTask(Context context, final ImageSaveTask task) {
         PostImage postImage = task.getPostImage();
-        String name = ChanSettings.saveServerFilename.get() ? postImage.serverFilename : postImage.filename;
-        String fileName = filterName(name + "." + postImage.extension);
-        File saveFile = new File(getSaveLocation(task), fileName);
-        while (saveFile.exists()) {
-            fileName = filterName(name + "_" + Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX) + "." + postImage.extension);
-            saveFile = new File(getSaveLocation(task), fileName);
-        }
-        task.setDestination(saveFile);
+        task.setDestination(deduplicateFile(postImage, task));
 
         if (hasPermission(context)) {
             startTask(task);
@@ -144,8 +137,8 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private void startBundledTaskInternal(String subFolder, List<ImageSaveTask> tasks) {
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
-            String fileName = filterName(postImage.serverFilename + "." + postImage.extension);
-            task.setDestination(new File(getSaveLocation(task) + File.separator + subFolder + File.separator + fileName));
+            task.setSubFolder(subFolder);
+            task.setDestination(deduplicateFile(postImage, task));
 
             startTask(task);
         }
@@ -195,6 +188,17 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             name = "_";
         }
         return name;
+    }
+
+    private File deduplicateFile(PostImage postImage, ImageSaveTask task) {
+        String name = ChanSettings.saveServerFilename.get() ? postImage.serverFilename : postImage.filename;
+        String fileName = filterName(name + "." + postImage.extension);
+        File saveFile = new File(getSaveLocation(task), fileName);
+        while (saveFile.exists()) {
+            fileName = filterName(name + "_" + Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX) + "." + postImage.extension);
+            saveFile = new File(getSaveLocation(task), fileName);
+        }
+        return saveFile;
     }
 
     private boolean hasPermission(Context context) {

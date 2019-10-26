@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.TextSettingView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -103,6 +104,8 @@ public class MediaSettingsController extends SettingsController {
             SettingsGroup media = new SettingsGroup(R.string.settings_group_media);
 
             setupSaveLocationSetting(media);
+
+            media.add(new TextSettingView(this, "These two options don't apply to albums"));
 
             boardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
                     ChanSettings.saveBoardFolder,
