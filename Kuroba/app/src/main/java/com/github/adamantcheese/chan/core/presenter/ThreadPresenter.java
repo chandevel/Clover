@@ -1127,6 +1127,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
         if (!TextUtils.isEmpty(post.id)) {
             text.append("\nId: ").append(post.id);
+            int count = 0;
+            try {
+                for (Post p : chanLoader.getThread().getPostsUnsafe()) {
+                    if (p.id.equals(post.id)) count++;
+                }
+            } catch (Exception ignored) {
+            }
+            text.append("\nCount: ").append(count);
         }
 
         if (!TextUtils.isEmpty(post.tripcode)) {
