@@ -76,7 +76,7 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
                                 postImage.thumbnailUrl.toString());
 
                         fileName = ThreadSaveManager.formatThumbnailImageName(
-                                postImage.originalName,
+                                postImage.serverFilename,
                                 extension);
                     }
 
