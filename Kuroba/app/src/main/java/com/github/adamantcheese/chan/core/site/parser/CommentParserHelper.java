@@ -150,18 +150,18 @@ public class CommentParserHelper {
     }
 
     public static void addPostImages(Post.Builder post) {
-        if(ChanSettings.parsePostImageLinks.get()) {
-            for(PostLinkable linkable : post.getLinkables()) {
-                if(linkable.type == PostLinkable.Type.LINK) {
+        if (ChanSettings.parsePostImageLinks.get()) {
+            for (PostLinkable linkable : post.getLinkables()) {
+                if (linkable.type == PostLinkable.Type.LINK) {
                     Matcher matcher = imageUrlPattern.matcher(((String) linkable.value));
-                    if(matcher.matches()) {
+                    if (matcher.matches()) {
                         post.images(Collections.singletonList(
                                 new PostImage.Builder()
-                                        .serverFilename(matcher.group(1))
+                                        .serverFilename("linked_image")
                                         .thumbnailUrl(HttpUrl.parse((String) linkable.value)) //just have the thumbnail for when spoilers are removed be the image itself; probably not a great idea
                                         .spoilerThumbnailUrl(HttpUrl.parse("https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png"))
                                         .imageUrl(HttpUrl.parse((String) linkable.value))
-                                        .filename("Linked_image")
+                                        .filename(matcher.group(1))
                                         .extension(matcher.group(2))
                                         .spoiler(true)
                                         .size(-1)
