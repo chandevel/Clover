@@ -56,7 +56,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     public void startDownloadTask(Context context, final ImageSaveTask task) {
         PostImage postImage = task.getPostImage();
-        String name = ChanSettings.saveServerFilename.get() ? postImage.originalName : postImage.filename;
+        String name = ChanSettings.saveServerFilename.get() ? postImage.serverFilename : postImage.filename;
         String fileName = filterName(name + "." + postImage.extension);
         File saveFile = new File(getSaveLocation(task), fileName);
         while (saveFile.exists()) {
@@ -144,7 +144,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private void startBundledTaskInternal(String subFolder, List<ImageSaveTask> tasks) {
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
-            String fileName = filterName(postImage.originalName + "." + postImage.extension);
+            String fileName = filterName(postImage.serverFilename + "." + postImage.extension);
             task.setDestination(new File(getSaveLocation(task) + File.separator + subFolder + File.separator + fileName));
 
             startTask(task);

@@ -65,14 +65,14 @@ public class ImageLoaderV2 {
                     }
 
                     formattedName = ThreadSaveManager.formatThumbnailImageName(
-                            postImage.originalName,
+                            postImage.serverFilename,
                             extension
                     );
                 } else {
                     String extension = postImage.extension;
 
                     formattedName = ThreadSaveManager.formatOriginalImageName(
-                            postImage.originalName,
+                            postImage.serverFilename,
                             extension
                     );
                 }

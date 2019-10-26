@@ -543,7 +543,7 @@ public class ThreadSaveManager {
     private boolean checkWhetherAllPostImagesAreAlreadySaved(File threadSaveDirImages, Post post) {
         for (PostImage postImage : post.images) {
             {
-                String originalImageFilename = postImage.originalName + "_"
+                String originalImageFilename = postImage.serverFilename + "_"
                         + ORIGINAL_FILE_NAME + "." + postImage.extension;
 
                 File originalImage = new File(threadSaveDirImages, originalImageFilename);
@@ -571,7 +571,7 @@ public class ThreadSaveManager {
             {
                 String thumbnailExtension = StringUtils.extractFileExtensionFromImageUrl(
                         postImage.thumbnailUrl.toString());
-                String thumbnailImageFilename = postImage.originalName + "_"
+                String thumbnailImageFilename = postImage.serverFilename + "_"
                         + THUMBNAIL_FILE_NAME + "." + thumbnailExtension;
 
                 File thumbnailImage = new File(threadSaveDirImages, thumbnailImageFilename);
@@ -699,7 +699,7 @@ public class ThreadSaveManager {
                         try {
                             downloadImageIntoFile(
                                     threadSaveDirImages,
-                                    postImage.originalName,
+                                    postImage.serverFilename,
                                     postImage.extension,
                                     thumbnailExtension,
                                     postImage.imageUrl,
@@ -707,23 +707,23 @@ public class ThreadSaveManager {
                                     loadable);
                         } catch (IOException error) {
                             Logger.e(TAG, "downloadImageIntoFile error for image "
-                                    + postImage.originalName + ", error message = %s", error.getMessage());
+                                    + postImage.serverFilename + ", error message = %s", error.getMessage());
 
                             deleteImageCompletely(
                                     threadSaveDirImages,
-                                    postImage.originalName,
+                                    postImage.serverFilename,
                                     postImage.extension);
                             throw error;
                         } catch (ImageWasAlreadyDeletedException error) {
-                            Logger.e(TAG, "Could not download an image " + postImage.originalName
+                            Logger.e(TAG, "Could not download an image " + postImage.serverFilename
                                     + " for loadable " + loadableToString(loadable) +
                                     ", got 404, adding it to the deletedImages set");
 
-                            addImageToAlreadyDeletedImage(loadable, postImage.originalName);
+                            addImageToAlreadyDeletedImage(loadable, postImage.serverFilename);
 
                             deleteImageCompletely(
                                     threadSaveDirImages,
-                                    postImage.originalName,
+                                    postImage.serverFilename,
                                     postImage.extension);
                             return Single.just(false);
                         }
@@ -736,7 +736,7 @@ public class ThreadSaveManager {
                             // Retry couple of times upon exceptions
                             .retry(MAX_RETRY_ATTEMPTS)
                             .doOnError((error) -> {
-                                Logger.e(TAG, "Error while trying to download image " + postImage.originalName, error);
+                                Logger.e(TAG, "Error while trying to download image " + postImage.serverFilename, error);
 
                                 if (error instanceof IOException) {
                                     imageDownloadsWithIoError.incrementAndGet();

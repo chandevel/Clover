@@ -59,7 +59,7 @@ public class FileCache implements FileCacheDownloader.Callback {
             FileCacheListener listener) {
         if (loadable.isLocal()) {
             String filename = ThreadSaveManager.formatOriginalImageName(
-                    postImage.originalName, postImage.extension);
+                    postImage.serverFilename, postImage.extension);
 
             String imageDir = ThreadSaveManager.getImagesSubDir(loadable);
             File fullImagePath = new File(ChanSettings.saveLocation.get(), imageDir);
