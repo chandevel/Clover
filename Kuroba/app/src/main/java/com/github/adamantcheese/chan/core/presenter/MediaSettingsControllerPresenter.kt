@@ -1,7 +1,9 @@
 package com.github.adamantcheese.chan.core.presenter
 
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
+import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory
@@ -11,10 +13,10 @@ import com.github.k1rakishou.fsaf.FileChooser
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.callback.DirectoryChooserCallback
 import com.github.k1rakishou.fsaf.file.AbstractFile
-import java.util.*
 import java.util.concurrent.Executors
 
 class MediaSettingsControllerPresenter(
+        private val appContext: Context,
         private val fileManager: FileManager,
         private val fileChooser: FileChooser,
         private var callbacks: MediaSettingsControllerCallbacks?
@@ -38,16 +40,17 @@ class MediaSettingsControllerPresenter(
 
                 if (oldLocalThreadsDirectory == null) {
                     withCallbacks {
-                        // TODO: string
-                        showToast("Old local threads base directory is " +
-                                "probably not registered (newBaseDirectoryFile returned null)")
+                        showToast(appContext.getString(R.string.media_settings_old_threads_base_dir_not_registered))
                     }
 
                     return
                 }
 
+                Logger.d(TAG, "onLocalThreadsLocationUseSAFClicked dir = $uri")
                 ChanSettings.localThreadsLocationUri.set(uri.toString())
-                ChanSettings.localThreadLocation.setNoUpdate(ChanSettings.getDefaultLocalThreadsLocation())
+                ChanSettings.localThreadLocation.setNoUpdate(
+                        ChanSettings.getDefaultLocalThreadsLocation()
+                )
 
                 withCallbacks {
                     updateLocalThreadsLocation(uri.toString())
@@ -59,8 +62,7 @@ class MediaSettingsControllerPresenter(
 
                 if (newLocalThreadsDirectory == null) {
                     withCallbacks {
-                        // TODO: strings
-                        showToast("New local threads base directory is probably not registered")
+                        showToast(appContext.getString(R.string.media_settings_new_threads_base_dir_not_registered))
                     }
 
                     return
@@ -89,15 +91,13 @@ class MediaSettingsControllerPresenter(
 
         if (oldLocalThreadsDirectory == null) {
             withCallbacks {
-                // TODO: String
-                showToast("Old local threads base directory is " +
-                        "probably not registered (newBaseDirectoryFile returned null)")
+                showToast(appContext.getString(R.string.media_settings_old_threads_base_dir_not_registered))
             }
 
             return
         }
 
-        Logger.d(TAG, "SaveLocationController with LocalThreadsSaveLocation mode returned dir $dirPath")
+        Logger.d(TAG, "onLocalThreadsLocationChosen dir = $dirPath")
         ChanSettings.localThreadLocation.setSyncNoCheck(dirPath)
 
         val newLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
@@ -106,8 +106,7 @@ class MediaSettingsControllerPresenter(
 
         if (newLocalThreadsDirectory == null) {
             withCallbacks {
-                // TODO: strings
-                showToast("New local threads base directory is probably not registered")
+                showToast(appContext.getString(R.string.media_settings_new_threads_base_dir_not_registered))
             }
 
             return
@@ -133,14 +132,14 @@ class MediaSettingsControllerPresenter(
 
                 if (oldSavedFileBaseDirectory == null) {
                     withCallbacks {
-                        // TODO: string
-                        showToast("Old saved files base directory is " +
-                                "probably not registered (newBaseDirectoryFile returned null)")
+                        showToast(appContext.getString(
+                                R.string.media_settings_old_saved_files_base_dir_not_registered))
                     }
 
                     return
                 }
 
+                Logger.d(TAG, "onSaveLocationUseSAFClicked dir = $uri")
                 ChanSettings.saveLocationUri.set(uri.toString())
                 ChanSettings.saveLocation.setNoUpdate(ChanSettings.getDefaultSaveLocationDir())
 
@@ -154,8 +153,8 @@ class MediaSettingsControllerPresenter(
 
                 if (newSavedFilesBaseDirectory == null) {
                     withCallbacks {
-                        // TODO: strings
-                        showToast("New saved files base directory is probably not registered")
+                        showToast(appContext.getString(
+                                R.string.media_settings_new_saved_files_base_dir_not_registered))
                     }
 
                     return
@@ -184,15 +183,14 @@ class MediaSettingsControllerPresenter(
 
         if (oldSaveFilesDirectory == null) {
             withCallbacks {
-                // TODO: String
-                showToast("Old save files base directory is " +
-                        "probably not registered (newBaseDirectoryFile returned null)")
+                showToast(appContext.getString(
+                        R.string.media_settings_old_saved_files_base_dir_not_registered))
             }
 
             return
         }
 
-        Logger.d(TAG, "SaveLocationController with ImageSaveLocation mode returned dir $dirPath")
+        Logger.d(TAG, "onSaveLocationChosen dir = $dirPath")
         ChanSettings.saveLocation.setSyncNoCheck(dirPath)
 
         val newSaveFilesDirectory = fileManager.newBaseDirectoryFile(
@@ -201,8 +199,8 @@ class MediaSettingsControllerPresenter(
 
         if (newSaveFilesDirectory == null) {
             withCallbacks {
-                // TODO: strings
-                showToast("New save files base directory is probably not registered")
+                showToast(appContext.getString(
+                        R.string.media_settings_new_saved_files_base_dir_not_registered))
             }
 
             return
@@ -244,8 +242,7 @@ class MediaSettingsControllerPresenter(
 
         if (filesCount == 0) {
             withCallbacks {
-                // TODO: strings
-                showToast("No files to copy")
+                showToast(appContext.getString(R.string.media_settings_no_files_to_copy))
             }
 
             return
@@ -272,13 +269,11 @@ class MediaSettingsControllerPresenter(
                 }
 
                 withCallbacks {
-                    // TODO: strings
-                    val text = String.format(
-                            Locale.US,
-                            // TODO: strings
-                            "Copying file %d out of %d",
+                    val text = appContext.getString(
+                            R.string.media_settings_copying_file,
                             fileIndex,
-                            totalFilesCount)
+                            totalFilesCount
+                    )
 
                     updateLoadingViewText(text)
                 }

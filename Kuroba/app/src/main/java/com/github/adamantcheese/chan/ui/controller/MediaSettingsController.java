@@ -51,6 +51,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class MediaSettingsController
@@ -88,7 +89,12 @@ public class MediaSettingsController
         EventBus.getDefault().register(this);
         navigation.setTitle(R.string.settings_screen_media);
 
-        presenter = new MediaSettingsControllerPresenter(fileManager, fileChooser, this);
+        presenter = new MediaSettingsControllerPresenter(
+                getAppContext(),
+                fileManager,
+                fileChooser,
+                this
+        );
 
         setupLayout();
         populatePreferences();
@@ -355,17 +361,23 @@ public class MediaSettingsController
             @NonNull AbstractFile oldBaseDirectory,
             @NonNull AbstractFile newBaseDirectory
     ) {
-        // TODO: strings
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle("Move old local threads to the new directory?")
-                .setMessage("This operation may take quite some time. Once started this operation must not be canceled.")
-                .setPositiveButton("Move", (dialog, which) -> {
-                    presenter.moveOldFilesToTheNewDirectory(
-                            oldBaseDirectory,
-                            newBaseDirectory
-                    );
-                })
-                .setNegativeButton("Do not", (dialog, which) -> dialog.dismiss())
+                .setTitle(context.getString(R.string.media_settings_move_threads_to_new_dir))
+                .setMessage(context.getString(R.string.media_settings_operation_may_take_some_time))
+                .setPositiveButton(
+                        context.getString(R.string.media_settings_move_threads),
+                        (dialog, which) -> {
+                            presenter.moveOldFilesToTheNewDirectory(
+                                    oldBaseDirectory,
+                                    newBaseDirectory
+                            );
+                        })
+                .setNegativeButton(
+                        context.getString(R.string.media_settings_do_not_move_threads),
+                        (dialog, which) -> {
+                            dialog.dismiss();
+                        }
+                )
                 .create();
 
         alertDialog.show();
@@ -376,17 +388,23 @@ public class MediaSettingsController
             @NotNull AbstractFile oldBaseDirectory,
             @NotNull AbstractFile newBaseDirectory
     ) {
-        // TODO: strings
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle("Move old saved files to the new directory?")
-                .setMessage("This operation may take quite some time. Once started this operation must not be canceled.")
-                .setPositiveButton("Move", (dialog, which) -> {
-                    presenter.moveOldFilesToTheNewDirectory(
-                            oldBaseDirectory,
-                            newBaseDirectory
-                    );
-                })
-                .setNegativeButton("Do not", (dialog, which) -> dialog.dismiss())
+                .setTitle(context.getString(R.string.media_settings_move_saved_file_to_new_dir))
+                .setMessage(context.getString(R.string.media_settings_operation_may_take_some_time))
+                .setPositiveButton(
+                        context.getString(R.string.media_settings_move_saved_files),
+                        (dialog, which) -> {
+                            presenter.moveOldFilesToTheNewDirectory(
+                                    oldBaseDirectory,
+                                    newBaseDirectory
+                            );
+                        })
+                .setNegativeButton(
+                        context.getString(R.string.media_settings_do_not_move_saved_files),
+                        (dialog, which) -> {
+                            dialog.dismiss();
+                        }
+                )
                 .create();
 
         alertDialog.show();
@@ -408,42 +426,48 @@ public class MediaSettingsController
         loadingViewController = null;
 
         if (!result) {
-            // TODO: strings
-            showToast("Could not copy one directory's file into another one", Toast.LENGTH_LONG);
+            showToast(context.getString(R.string.media_settings_couldnot_copy_files), Toast.LENGTH_LONG);
         } else {
             showDeleteOldDirectoryDialog(oldBaseDirectory);
-
-            // TODO: strings
-            showToast("Successfully copied files", Toast.LENGTH_LONG);
+            showToast(context.getString(R.string.media_settings_files_copied), Toast.LENGTH_LONG);
         }
     }
 
     private void showDeleteOldDirectoryDialog(
             @NonNull AbstractFile oldBaseDirectory
     ) {
-        // TODO: strings
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle("Would you like to delete old directory?")
-                .setMessage("Files have been copied and now exist in two directories. You may want to remove old directory since you won't need it anymore")
-                .setPositiveButton("Delete", (dialog, which) -> {
-                    if (!fileManager.delete(oldBaseDirectory)) {
-                        showToast("Couldn't delete old directory", Toast.LENGTH_LONG);
-                        return;
-                    }
+                .setTitle(context.getString(R.string.media_settings_would_you_life_to_delete_old_dir))
+                .setMessage(context.getString(R.string.media_settings_file_have_been_copied))
+                .setPositiveButton(
+                        context.getString(R.string.media_settings_delete_button_name),
+                        (dialog, which) -> {
+                            if (!fileManager.delete(oldBaseDirectory)) {
+                                showToast(
+                                        context.getString(R.string.media_settings_couldnot_delete_old_dir),
+                                        Toast.LENGTH_LONG
+                                );
+                                return;
+                            }
 
-                    if (oldBaseDirectory instanceof ExternalFile) {
-                        forgetPreviousExternalBaseDirectory(oldBaseDirectory);
-                    }
+                            if (oldBaseDirectory instanceof ExternalFile) {
+                                forgetPreviousExternalBaseDirectory(oldBaseDirectory);
+                            }
 
-                    showToast("Successfully deleted old directory", Toast.LENGTH_LONG);
-                })
-                .setNegativeButton("Do not", (dialog, which) -> {
-                    if (oldBaseDirectory instanceof ExternalFile) {
-                        forgetPreviousExternalBaseDirectory(oldBaseDirectory);
-                    }
+                            showToast(
+                                    context.getString(R.string.media_settings_old_dir_deleted),
+                                    Toast.LENGTH_LONG
+                            );
+                        })
+                .setNegativeButton(
+                        context.getString(R.string.media_settings_do_not_delete),
+                        (dialog, which) -> {
+                            if (oldBaseDirectory instanceof ExternalFile) {
+                                forgetPreviousExternalBaseDirectory(oldBaseDirectory);
+                            }
 
-                    dialog.dismiss();
-                })
+                            dialog.dismiss();
+                        })
                 .create();
 
         alertDialog.show();
@@ -490,25 +514,33 @@ public class MediaSettingsController
             );
         }
 
-        // TODO: strings
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle("Copy files")
-                .setMessage("Do you want to copy " + filesCount +
-                        " files from old directory to the new one?")
-                .setPositiveButton("Copy", (dialog, which) -> {
-                    loadingViewController = new LoadingViewController(
-                            context,
-                            false
-                    );
+                .setTitle(context.getString(R.string.media_settings_copy_files))
+                .setMessage(
+                        context.getString(R.string.media_settings_do_you_want_to_copy_files,
+                                filesCount)
+                )
+                .setPositiveButton(
+                        context.getString(R.string.media_settings_copy_files),
+                        (dialog, which) -> {
+                            loadingViewController = new LoadingViewController(
+                                    context,
+                                    false
+                            );
 
-                    navigationController.presentController(loadingViewController);
+                            navigationController.presentController(loadingViewController);
 
-                    presenter.moveFilesInternal(
-                            oldBaseDirectory,
-                            newBaseDirectory
-                    );
-                })
-                .setNegativeButton("Do not", (dialog, which) -> dialog.dismiss())
+                            presenter.moveFilesInternal(
+                                    oldBaseDirectory,
+                                    newBaseDirectory
+                            );
+                        })
+                .setNegativeButton(
+                        context.getString(R.string.media_settings_do_not_copy_files),
+                        (dialog, which) -> {
+                            dialog.dismiss();
+                        }
+                )
                 .create();
 
         alertDialog.show();
@@ -524,11 +556,14 @@ public class MediaSettingsController
             @NonNull AbstractFile oldLocalThreadsDirectory
     ) {
         if (oldLocalThreadsDirectory instanceof ExternalFile) {
-            Uri safTreeuri = oldLocalThreadsDirectory
+            Uri safTreeUri = oldLocalThreadsDirectory
                     .<CachingDocumentFile>getFileRoot().getHolder().uri();
 
-            if (!fileChooser.forgetSAFTree(safTreeuri)) {
-                showToast("Couldn't release uri permissions", Toast.LENGTH_SHORT);
+            if (!fileChooser.forgetSAFTree(safTreeUri)) {
+                showToast(
+                        context.getString(R.string.media_settings_could_not_release_uri_permissions),
+                        Toast.LENGTH_SHORT
+                );
             }
         }
     }
