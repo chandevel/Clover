@@ -193,6 +193,8 @@ public class DefaultPostParser implements PostParser {
             Logger.e(TAG, "Error parsing comment html", e);
         }
 
+        CommentParserHelper.addPostImages(post);
+
         return total;
     }
 

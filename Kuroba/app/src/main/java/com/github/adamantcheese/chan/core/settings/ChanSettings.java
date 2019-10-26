@@ -192,6 +192,7 @@ public class ChanSettings {
     public static final BooleanSetting enableLongPressURLCopy;
 
     public static final BooleanSetting parseYoutubeTitles;
+    public static final BooleanSetting parsePostImageLinks;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -304,6 +305,7 @@ public class ChanSettings {
         enableLongPressURLCopy = new BooleanSetting(p , "long_press_image_url_copy", true);
 
         parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", false);
+        parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", false);
     }
 
     public static ThemeColor getThemeAndColor() {

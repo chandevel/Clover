@@ -394,9 +394,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 }
 
                 if (ChanSettings.postFileInfo.get()) {
-                    SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() + " " +
-                            AndroidUtils.getReadableFileSize(image.size, false) + " " +
-                            image.imageWidth + "x" + image.imageHeight);
+                    SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() +
+                            (image.size == -1 ? "" : //if -1, linked image, no info
+                            " " + AndroidUtils.getReadableFileSize(image.size, false) + " " +
+                            image.imageWidth + "x" + image.imageHeight));
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                     titleParts.add(fileInfo);

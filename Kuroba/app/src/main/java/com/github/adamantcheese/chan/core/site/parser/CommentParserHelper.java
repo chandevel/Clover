@@ -31,6 +31,7 @@ import com.android.volley.toolbox.RequestFuture;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -41,12 +42,15 @@ import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -61,6 +65,8 @@ public class CommentParserHelper {
     private static final String API_KEY = "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE";
     private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
     private static LruCache<String, String> youtubeTitleCache = new LruCache<>(250); // a cache for titles to prevent extra network activity if not necessary
+
+    private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4)", Pattern.CASE_INSENSITIVE);
 
     /**
      * Detect links in the given spannable, and create PostLinkables with Type.LINK for the
@@ -141,5 +147,29 @@ public class CommentParserHelper {
         }
 
         return finalizedString;
+    }
+
+    public static void addPostImages(Post.Builder post) {
+        if(ChanSettings.parsePostImageLinks.get()) {
+            for(PostLinkable linkable : post.getLinkables()) {
+                if(linkable.type == PostLinkable.Type.LINK) {
+                    Matcher matcher = imageUrlPattern.matcher(((String) linkable.value));
+                    if(matcher.matches()) {
+                        post.images(Collections.singletonList(
+                                new PostImage.Builder()
+                                        .serverFilename(matcher.group(1))
+                                        .thumbnailUrl(HttpUrl.parse((String) linkable.value)) //just have the thumbnail for when spoilers are removed be the image itself; probably not a great idea
+                                        .spoilerThumbnailUrl(HttpUrl.parse("https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png"))
+                                        .imageUrl(HttpUrl.parse((String) linkable.value))
+                                        .filename("Linked_image")
+                                        .extension(matcher.group(2))
+                                        .spoiler(true)
+                                        .size(-1)
+                                        .build()
+                        ));
+                    }
+                }
+            }
+        }
     }
 }

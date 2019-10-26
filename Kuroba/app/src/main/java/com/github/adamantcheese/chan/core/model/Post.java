@@ -510,6 +510,10 @@ public class Post implements Comparable<Post> {
             return this;
         }
 
+        public List<PostLinkable> getLinkables() {
+            return linkables == null ? new ArrayList<>() : linkables;
+        }
+
         public Builder addReplyTo(int postId) {
             repliesToIds.add(postId);
             return this;
