@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -91,10 +92,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
         if (v == download) {
             int checkCount = getCheckCount();
             if (checkCount == 0) {
-                new AlertDialog.Builder(context)
-                        .setMessage(R.string.album_download_none_checked)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
+                Toast.makeText(context, R.string.album_download_none_checked, Toast.LENGTH_SHORT).show();
             } else {
                 final String folderForAlbum = Chan.injector().instance(ImageSaver.class).getSubFolder(loadable.title);
 
