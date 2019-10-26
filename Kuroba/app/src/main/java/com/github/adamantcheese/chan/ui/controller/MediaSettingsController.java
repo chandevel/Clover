@@ -215,7 +215,7 @@ public class MediaSettingsController
      * ==============================================
      * Setup Local Threads location
      * ==============================================
-     * */
+     */
 
     private void setupLocalThreadLocationSetting(SettingsGroup media) {
         if (!ChanSettings.incrementalThreadDownloadingEnabled.get()) {
@@ -294,7 +294,7 @@ public class MediaSettingsController
      * ==============================================
      * Setup Save Files location
      * ==============================================
-     * */
+     */
 
     private void setupSaveLocationSetting(SettingsGroup media) {
         LinkSettingView chooseSaveLocationSetting = new LinkSettingView(this,
@@ -348,17 +348,37 @@ public class MediaSettingsController
      * ==============================================
      * Presenter callbacks
      * ==============================================
-     * */
+     */
 
     @Override
     public void askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
             @NonNull AbstractFile oldBaseDirectory,
             @NonNull AbstractFile newBaseDirectory
     ) {
-
         // TODO: strings
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle("Move old local threads to the new directory?")
+                .setMessage("This operation may take quite some time. Once started this operation must not be canceled.")
+                .setPositiveButton("Move", (dialog, which) -> {
+                    presenter.moveOldFilesToTheNewDirectory(
+                            oldBaseDirectory,
+                            newBaseDirectory
+                    );
+                })
+                .setNegativeButton("Do not", (dialog, which) -> dialog.dismiss())
+                .create();
+
+        alertDialog.show();
+    }
+
+    @Override
+    public void askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(
+            @NotNull AbstractFile oldBaseDirectory,
+            @NotNull AbstractFile newBaseDirectory
+    ) {
+        // TODO: strings
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle("Move old saved files to the new directory?")
                 .setMessage("This operation may take quite some time. Once started this operation must not be canceled.")
                 .setPositiveButton("Move", (dialog, which) -> {
                     presenter.moveOldFilesToTheNewDirectory(
@@ -380,22 +400,53 @@ public class MediaSettingsController
     ) {
         BackgroundUtils.ensureMainThread();
 
-        navigationController.popController();
+        if (loadingViewController == null) {
+            throw new IllegalStateException("LoadingViewController was not shown beforehand!");
+        }
+
+        loadingViewController.stopPresenting();
         loadingViewController = null;
 
         if (!result) {
             // TODO: strings
             showToast("Could not copy one directory's file into another one", Toast.LENGTH_LONG);
         } else {
-            if (oldBaseDirectory instanceof ExternalFile) {
-                forgetPreviousExternalBaseDirectory(oldBaseDirectory);
-            }
-
-            // TODO: delete old directory dialog
+            showDeleteOldDirectoryDialog(oldBaseDirectory);
 
             // TODO: strings
             showToast("Successfully copied files", Toast.LENGTH_LONG);
         }
+    }
+
+    private void showDeleteOldDirectoryDialog(
+            @NonNull AbstractFile oldBaseDirectory
+    ) {
+        // TODO: strings
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle("Would you like to delete old directory?")
+                .setMessage("Files have been copied and now exist in two directories. You may want to remove old directory since you won't need it anymore")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    if (!fileManager.delete(oldBaseDirectory)) {
+                        showToast("Couldn't delete old directory", Toast.LENGTH_LONG);
+                        return;
+                    }
+
+                    if (oldBaseDirectory instanceof ExternalFile) {
+                        forgetPreviousExternalBaseDirectory(oldBaseDirectory);
+                    }
+
+                    showToast("Successfully deleted old directory", Toast.LENGTH_LONG);
+                })
+                .setNegativeButton("Do not", (dialog, which) -> {
+                    if (oldBaseDirectory instanceof ExternalFile) {
+                        forgetPreviousExternalBaseDirectory(oldBaseDirectory);
+                    }
+
+                    dialog.dismiss();
+                })
+                .create();
+
+        alertDialog.show();
     }
 
     @Override
@@ -450,7 +501,7 @@ public class MediaSettingsController
                             false
                     );
 
-                    navigationController.pushController(loadingViewController);
+                    navigationController.presentController(loadingViewController);
 
                     presenter.moveFilesInternal(
                             oldBaseDirectory,
@@ -467,7 +518,7 @@ public class MediaSettingsController
      * ==============================================
      * Other methods
      * ==============================================
-     * */
+     */
 
     private void forgetPreviousExternalBaseDirectory(
             @NonNull AbstractFile oldLocalThreadsDirectory

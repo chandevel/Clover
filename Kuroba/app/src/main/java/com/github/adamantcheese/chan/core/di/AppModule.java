@@ -25,14 +25,12 @@ import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
-import com.github.adamantcheese.chan.ui.settings.base_directory.FilesBaseDirectory;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
+import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
-import com.github.k1rakishou.fsaf.manager.ExternalFileManager;
-import com.github.k1rakishou.fsaf.manager.RawFileManager;
 import com.github.k1rakishou.fsaf.manager.base_directory.DirectoryManager;
 
 import org.codejargon.feather.Provides;
@@ -105,21 +103,14 @@ public class AppModule {
     @Singleton
     public FileManager provideFileManager() {
         DirectoryManager directoryManager = new DirectoryManager();
-        ExternalFileManager externalFileManager = new ExternalFileManager(
-                applicationContext,
-                directoryManager
-        );
-        RawFileManager rawFileManager = new RawFileManager();
 
         // Add new base directories here
         LocalThreadsBaseDirectory localThreadsBaseDirectory = new LocalThreadsBaseDirectory();
-        FilesBaseDirectory filesBaseDirectory = new FilesBaseDirectory();
+        SavedFilesBaseDirectory savedFilesBaseDirectory = new SavedFilesBaseDirectory();
 
         FileManager fileManager = new FileManager(
                 applicationContext,
-                directoryManager,
-                externalFileManager,
-                rawFileManager
+                directoryManager
         );
 
         fileManager.registerBaseDir(
@@ -127,8 +118,8 @@ public class AppModule {
                 localThreadsBaseDirectory
         );
         fileManager.registerBaseDir(
-                FilesBaseDirectory.class,
-                filesBaseDirectory
+                SavedFilesBaseDirectory.class,
+                savedFilesBaseDirectory
         );
 
         return fileManager;

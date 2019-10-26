@@ -127,4 +127,9 @@ public class JsonSettingsProvider implements SettingProvider {
     public interface Callback {
         void save();
     }
+
+    @Override
+    public void removeSync(String key) {
+        throw new UnsupportedOperationException();
+    }
 }

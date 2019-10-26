@@ -58,4 +58,16 @@ public class StringSetting extends Setting<String> {
             onValueChanged();
         }
     }
+
+    public void setSyncNoCheck(String value) {
+        settingProvider.putStringSync(key, value);
+        cached = value;
+        onValueChanged();
+    }
+
+    public void remove() {
+        settingProvider.removeSync(key);
+        hasCached = false;
+        cached = null;
+    }
 }

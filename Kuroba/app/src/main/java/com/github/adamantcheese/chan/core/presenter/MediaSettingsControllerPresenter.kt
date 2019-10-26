@@ -3,8 +3,8 @@ package com.github.adamantcheese.chan.core.presenter
 import android.net.Uri
 import android.widget.Toast
 import com.github.adamantcheese.chan.core.settings.ChanSettings
-import com.github.adamantcheese.chan.ui.settings.base_directory.FilesBaseDirectory
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
+import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory
 import com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileChooser
@@ -47,9 +47,7 @@ class MediaSettingsControllerPresenter(
                 }
 
                 ChanSettings.localThreadsLocationUri.set(uri.toString())
-                val defaultDir = ChanSettings.getDefaultLocalThreadsLocation()
-
-                ChanSettings.localThreadLocation.setNoUpdate(defaultDir)
+                ChanSettings.localThreadLocation.setNoUpdate(ChanSettings.getDefaultLocalThreadsLocation())
 
                 withCallbacks {
                     updateLocalThreadsLocation(uri.toString())
@@ -100,10 +98,7 @@ class MediaSettingsControllerPresenter(
         }
 
         Logger.d(TAG, "SaveLocationController with LocalThreadsSaveLocation mode returned dir $dirPath")
-
-        // Supa hack to get the callback called
-        ChanSettings.localThreadLocation.setSync("")
-        ChanSettings.localThreadLocation.setSync(dirPath)
+        ChanSettings.localThreadLocation.setSyncNoCheck(dirPath)
 
         val newLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
                 LocalThreadsBaseDirectory::class.java
@@ -126,9 +121,65 @@ class MediaSettingsControllerPresenter(
         }
     }
 
+    /**
+     * Select a directory where saved images will be stored via the SAF
+     */
+    fun onSaveLocationUseSAFClicked() {
+        fileChooser.openChooseDirectoryDialog(object : DirectoryChooserCallback() {
+            override fun onResult(uri: Uri) {
+                val oldSavedFileBaseDirectory = fileManager.newBaseDirectoryFile(
+                        SavedFilesBaseDirectory::class.java
+                )
+
+                if (oldSavedFileBaseDirectory == null) {
+                    withCallbacks {
+                        // TODO: string
+                        showToast("Old saved files base directory is " +
+                                "probably not registered (newBaseDirectoryFile returned null)")
+                    }
+
+                    return
+                }
+
+                ChanSettings.saveLocationUri.set(uri.toString())
+                ChanSettings.saveLocation.setNoUpdate(ChanSettings.getDefaultSaveLocationDir())
+
+                withCallbacks {
+                    updateSaveLocationViewText(uri.toString())
+                }
+
+                val newSavedFilesBaseDirectory = fileManager.newBaseDirectoryFile(
+                        SavedFilesBaseDirectory::class.java
+                )
+
+                if (newSavedFilesBaseDirectory == null) {
+                    withCallbacks {
+                        // TODO: strings
+                        showToast("New saved files base directory is probably not registered")
+                    }
+
+                    return
+                }
+
+                withCallbacks {
+                    askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(
+                            oldSavedFileBaseDirectory,
+                            newSavedFilesBaseDirectory
+                    )
+                }
+            }
+
+            override fun onCancel(reason: String) {
+                withCallbacks {
+                    showToast(reason, Toast.LENGTH_LONG)
+                }
+            }
+        })
+    }
+
     fun onSaveLocationChosen(dirPath: String) {
         val oldSaveFilesDirectory = fileManager.newBaseDirectoryFile(
-                FilesBaseDirectory::class.java
+                SavedFilesBaseDirectory::class.java
         )
 
         if (oldSaveFilesDirectory == null) {
@@ -142,13 +193,10 @@ class MediaSettingsControllerPresenter(
         }
 
         Logger.d(TAG, "SaveLocationController with ImageSaveLocation mode returned dir $dirPath")
-
-        // Supa hack to get the callback called
-        ChanSettings.saveLocation.setSync("")
-        ChanSettings.saveLocation.setSync(dirPath)
+        ChanSettings.saveLocation.setSyncNoCheck(dirPath)
 
         val newSaveFilesDirectory = fileManager.newBaseDirectoryFile(
-                FilesBaseDirectory::class.java
+                SavedFilesBaseDirectory::class.java
         )
 
         if (newSaveFilesDirectory == null) {
@@ -161,35 +209,11 @@ class MediaSettingsControllerPresenter(
         }
 
         withCallbacks {
-            askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
+            askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(
                     oldSaveFilesDirectory,
                     newSaveFilesDirectory
             )
         }
-    }
-
-    /**
-     * Select a directory where saved images will be stored via the SAF
-     */
-    fun onSaveLocationUseSAFClicked() {
-        fileChooser.openChooseDirectoryDialog(object : DirectoryChooserCallback() {
-            override fun onResult(uri: Uri) {
-                ChanSettings.saveLocationUri.set(uri.toString())
-
-                val defaultDir = ChanSettings.getDefaultSaveLocationDir()
-                ChanSettings.saveLocation.setNoUpdate(defaultDir)
-
-                withCallbacks {
-                    updateSaveLocationViewText(uri.toString())
-                }
-            }
-
-            override fun onCancel(reason: String) {
-                withCallbacks {
-                    showToast(reason, Toast.LENGTH_LONG)
-                }
-            }
-        })
     }
 
     fun moveOldFilesToTheNewDirectory(
@@ -240,7 +264,7 @@ class MediaSettingsControllerPresenter(
             val result = fileManager.copyDirectoryWithContent(
                     oldBaseDirectory,
                     newBaseDirectory,
-                    false
+                    true
             ) { fileIndex, totalFilesCount ->
                 if (callbacks == null) {
                     // User left the MediaSettings screen, we need to cancel the file copying
@@ -289,7 +313,12 @@ class MediaSettingsControllerPresenter(
                 newBaseDirectory: AbstractFile
         )
 
-        fun updateLoadingViewText(newLocation: String)
+        fun askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(
+                oldBaseDirectory: AbstractFile,
+                newBaseDirectory: AbstractFile
+        )
+
+        fun updateLoadingViewText(text: String)
         fun updateSaveLocationViewText(newLocation: String)
 
         fun showCopyFilesDialog(

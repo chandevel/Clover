@@ -6,7 +6,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.k1rakishou.fsaf.manager.base_directory.BaseDirectory
 import java.io.File
 
-class FilesBaseDirectory(
+class SavedFilesBaseDirectory(
 ) : BaseDirectory(BuildConfig.DEBUG) {
 
     override fun getDirFile(): File? {

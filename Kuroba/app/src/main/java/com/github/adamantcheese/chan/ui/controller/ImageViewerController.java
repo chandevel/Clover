@@ -43,7 +43,6 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.VolleyError;
 import com.davemorrissey.labs.subscaleview.ImageViewState;
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.image.ImageContainer;
@@ -74,6 +73,7 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.ui.view.TransitionImageView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -297,15 +297,18 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                                     imageViewerCallback.getPostForPostImage(postImage).no :
                                     presenter.getLoadable().no) +
                             "_";
+                    String fixedSubFolderName = StringUtils.dirNameRemoveBadCharacters(subFolderName);
+
                     String tempTitle = (presenter.getLoadable().no == 0 ?
                             PostHelper.getTitle(imageViewerCallback.getPostForPostImage(postImage), null) :
-                            presenter.getLoadable().title)
-                            .toLowerCase()
-                            .replaceAll(" ", "_")
-                            .replaceAll("[^a-z0-9_]", "");
-                    tempTitle = tempTitle.substring(0, Math.min(tempTitle.length(), 50));
-                    subFolderName = subFolderName + tempTitle;
+                            presenter.getLoadable().title);
+
+                    String fixedTitle = StringUtils.fileNameRemoveBadCharacters(tempTitle);
+
+                    subFolderName = fixedSubFolderName +
+                            fixedTitle.substring(0, Math.min(fixedTitle.length(), 50));
                 }
+
                 task.setSubFolder(subFolderName);
             }
 

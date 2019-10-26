@@ -30,8 +30,9 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
-import com.github.adamantcheese.chan.ui.settings.base_directory.FilesBaseDirectory;
+import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.DirectorySegment;
@@ -148,7 +149,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     @Nullable
     public AbstractFile getSaveLocation(ImageSaveTask task) {
-        AbstractFile baseSaveDir = fileManager.newBaseDirectoryFile(FilesBaseDirectory.class);
+        AbstractFile baseSaveDir = fileManager.newBaseDirectoryFile(SavedFilesBaseDirectory.class);
         if (baseSaveDir == null) {
             Logger.e(TAG, "getSaveLocation() fileManager.newSaveLocationFile() returned null");
             return null;
@@ -161,14 +162,14 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             return null;
         }
 
-        if (!fileManager.baseDirectoryExists(FilesBaseDirectory.class)) {
+        if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
             Logger.e(TAG, "Base save local directory does not exist");
             return null;
         }
 
         String subFolder = task.getSubFolder();
         if (subFolder != null) {
-            baseSaveDir.clone(new DirectorySegment(subFolder));
+            return baseSaveDir.cloneUnsafe(subFolder);
         }
 
         return baseSaveDir;
@@ -213,8 +214,10 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                 continue;
             }
 
+            String fixedSubfolderName = StringUtils.dirNameRemoveBadCharacters(subFolder);
+
             AbstractFile destinationFile = saveLocation
-                    .clone(new DirectorySegment(subFolder), new FileSegment(fileName));
+                    .clone(new DirectorySegment(fixedSubfolderName), new FileSegment(fileName));
 
             task.setDestination(destinationFile);
             startTask(task);

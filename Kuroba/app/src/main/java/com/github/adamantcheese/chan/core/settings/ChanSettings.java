@@ -382,14 +382,45 @@ public class ChanSettings {
      * Called on the Database thread.
      */
     public static String serializeToString() throws IOException {
+        String prevSaveLocationUri = null;
+        String prevLocalThreadsLocationUri = null;
+
+        // We need to check if the user has any of the location settings set to a SAF directory.
+        // We can't export them because if the user reinstalls the app and then imports a location
+        // setting that point to a SAF directory that directory won't be valid for the app because
+        // after clearing settings all permissions for that directory will be lost. So in case the
+        // user tries to export SAF directory paths we don't export them and instead export default
+        // locations. But we also don't wont to change the paths for the current app so we need to
+        // save the previous paths, patch the sharedPrefs file read it to string and then restore
+        // the current paths back to what they were before exporting.
+        if (!ChanSettings.saveLocationUri.get().isEmpty()) {
+            // Save the saveLocationUri
+            prevSaveLocationUri = ChanSettings.saveLocationUri.get();
+
+            ChanSettings.saveLocationUri.remove();
+            ChanSettings.saveLocation.setSyncNoCheck(ChanSettings.getDefaultSaveLocationDir());
+        }
+
+        if (!ChanSettings.localThreadsLocationUri.get().isEmpty()) {
+            // Save the localThreadsLocationUri
+            prevLocalThreadsLocationUri = ChanSettings.localThreadsLocationUri.get();
+
+            ChanSettings.localThreadsLocationUri.remove();
+            ChanSettings.localThreadLocation.setSyncNoCheck(
+                    ChanSettings.getDefaultLocalThreadsLocation()
+            );
+        }
+
         File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
 
         if (!file.exists()) {
-            throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
+            throw new IOException("Shared preferences file does not exist! " +
+                    "(" + file.getAbsolutePath() + ")");
         }
 
         if (!file.canRead()) {
-            throw new IOException("Cannot read from shared preferences file! (" + file.getAbsolutePath() + ")");
+            throw new IOException("Cannot read from shared preferences file!" +
+                    "(" + file.getAbsolutePath() + ")");
         }
 
         byte[] buffer = new byte[(int) file.length()];
@@ -398,8 +429,20 @@ public class ChanSettings {
             int readAmount = inputStream.read(buffer);
 
             if (readAmount != file.length()) {
-                throw new IOException("Could not read shared prefs file readAmount != fileLength " + readAmount + ", " + file.length());
+                throw new IOException("Could not read shared prefs file readAmount != fileLength "
+                        + readAmount + ", " + file.length());
             }
+        }
+
+        // Restore back the previous paths
+        if (prevSaveLocationUri != null) {
+            ChanSettings.saveLocation.setSyncNoCheck("");
+            ChanSettings.saveLocationUri.setSyncNoCheck(prevSaveLocationUri);
+        }
+
+        if (prevLocalThreadsLocationUri != null) {
+            ChanSettings.localThreadLocation.setSyncNoCheck("");
+            ChanSettings.localThreadsLocationUri.setSyncNoCheck(prevLocalThreadsLocationUri);
         }
 
         return new String(buffer);
@@ -413,27 +456,19 @@ public class ChanSettings {
         File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
 
         if (!file.exists()) {
-            throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
+            throw new IOException("Shared preferences file does not exist! " +
+                    "(" + file.getAbsolutePath() + ")");
         }
 
         if (!file.canWrite()) {
-            throw new IOException("Cannot write to shared preferences file! (" + file.getAbsolutePath() + ")");
+            throw new IOException("Cannot write to shared preferences file! " +
+                    "(" + file.getAbsolutePath() + ")");
         }
 
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
             outputStream.write(settings.getBytes());
             outputStream.flush();
         }
-    }
-
-    public static boolean isLocalThreadsDirUsesSAF() {
-        if (ChanSettings.localThreadsLocationUri.get().isEmpty()
-                && ChanSettings.localThreadLocation.get().isEmpty()) {
-            throw new IllegalStateException("Both localThreadsLocationUri and " +
-                    "localThreadLocation are empty!");
-        }
-
-        return !ChanSettings.localThreadsLocationUri.get().isEmpty();
     }
 
     public static class ThemeColor {
