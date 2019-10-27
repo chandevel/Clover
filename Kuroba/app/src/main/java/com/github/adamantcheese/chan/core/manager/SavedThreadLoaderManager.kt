@@ -23,7 +23,7 @@ class SavedThreadLoaderManager @Inject constructor(
             throw RuntimeException("Cannot be executed on the main thread!")
         }
 
-        val baseDir = fileManager.newBaseDirectoryFile(LocalThreadsBaseDirectory::class.java)
+        val baseDir = fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
         if (baseDir == null) {
             Logger.e(TAG, "loadSavedThread() fileManager.newLocalThreadFile() returned null")
             return null

@@ -34,9 +34,8 @@ class MediaSettingsControllerPresenter(
     fun onLocalThreadsLocationUseSAFClicked() {
         fileChooser.openChooseDirectoryDialog(object : DirectoryChooserCallback() {
             override fun onResult(uri: Uri) {
-                val oldLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
-                        LocalThreadsBaseDirectory::class.java
-                )
+                val oldLocalThreadsDirectory =
+                        fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
                 if (oldLocalThreadsDirectory == null) {
                     withCallbacks {
@@ -56,9 +55,8 @@ class MediaSettingsControllerPresenter(
                     updateLocalThreadsLocation(uri.toString())
                 }
 
-                val newLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
-                        LocalThreadsBaseDirectory::class.java
-                )
+                val newLocalThreadsDirectory =
+                        fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
                 if (newLocalThreadsDirectory == null) {
                     withCallbacks {
@@ -85,9 +83,8 @@ class MediaSettingsControllerPresenter(
     }
 
     fun onLocalThreadsLocationChosen(dirPath: String) {
-        val oldLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
-                LocalThreadsBaseDirectory::class.java
-        )
+        val oldLocalThreadsDirectory =
+                fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
         if (oldLocalThreadsDirectory == null) {
             withCallbacks {
@@ -100,9 +97,8 @@ class MediaSettingsControllerPresenter(
         Logger.d(TAG, "onLocalThreadsLocationChosen dir = $dirPath")
         ChanSettings.localThreadLocation.setSyncNoCheck(dirPath)
 
-        val newLocalThreadsDirectory = fileManager.newBaseDirectoryFile(
-                LocalThreadsBaseDirectory::class.java
-        )
+        val newLocalThreadsDirectory =
+                fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
         if (newLocalThreadsDirectory == null) {
             withCallbacks {
@@ -126,9 +122,8 @@ class MediaSettingsControllerPresenter(
     fun onSaveLocationUseSAFClicked() {
         fileChooser.openChooseDirectoryDialog(object : DirectoryChooserCallback() {
             override fun onResult(uri: Uri) {
-                val oldSavedFileBaseDirectory = fileManager.newBaseDirectoryFile(
-                        SavedFilesBaseDirectory::class.java
-                )
+                val oldSavedFileBaseDirectory =
+                        fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
                 if (oldSavedFileBaseDirectory == null) {
                     withCallbacks {
@@ -147,9 +142,8 @@ class MediaSettingsControllerPresenter(
                     updateSaveLocationViewText(uri.toString())
                 }
 
-                val newSavedFilesBaseDirectory = fileManager.newBaseDirectoryFile(
-                        SavedFilesBaseDirectory::class.java
-                )
+                val newSavedFilesBaseDirectory =
+                        fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
                 if (newSavedFilesBaseDirectory == null) {
                     withCallbacks {
@@ -177,9 +171,7 @@ class MediaSettingsControllerPresenter(
     }
 
     fun onSaveLocationChosen(dirPath: String) {
-        val oldSaveFilesDirectory = fileManager.newBaseDirectoryFile(
-                SavedFilesBaseDirectory::class.java
-        )
+        val oldSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
         if (oldSaveFilesDirectory == null) {
             withCallbacks {
@@ -193,9 +185,7 @@ class MediaSettingsControllerPresenter(
         Logger.d(TAG, "onSaveLocationChosen dir = $dirPath")
         ChanSettings.saveLocation.setSyncNoCheck(dirPath)
 
-        val newSaveFilesDirectory = fileManager.newBaseDirectoryFile(
-                SavedFilesBaseDirectory::class.java
-        )
+        val newSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
         if (newSaveFilesDirectory == null) {
             withCallbacks {
