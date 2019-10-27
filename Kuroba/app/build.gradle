@@ -96,12 +96,6 @@ android {
         exclude 'META-INF/LICENSE-W3C-TEST'
     }
 
-    // TODO: delete before pushing
-    configurations.all {
-        // Check for updates every build
-        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-    }
-
     buildTypes {
         release {
             /*
@@ -167,9 +161,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
-    // TODO: delete "changing = true" before pushing
-    implementation ('com.github.K1rakishou:Fuck-Storage-Access-Framework:develop-SNAPSHOT') { changing = true }
+    implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha'
 
     testImplementation 'junit:junit:4.12'
 }
