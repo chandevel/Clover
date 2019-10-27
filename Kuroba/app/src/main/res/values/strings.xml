@@ -710,6 +710,11 @@ Don't have a 4chan Pass?<br>
     <string name="import_or_export_dialog_title">Overwrite existing file or create a new one?</string>
     <string name="import_or_export_dialog_positive_button_text">Overwrite</string>
     <string name="import_or_export_dialog_negative_button_text">Create new</string>
+    <string name="import_or_export_warning">Warning!</string>
+    <string name="import_or_export_warning_super_long_message">You have %1$s %2$s %3$s set to be located in a directory that uses Storage Access Framework. Such directory locations cannot be exported into the settings file because SAF is fucking retarded (Basically if you try to export them and then use on another phone or if you delete the app then install it and import those settings the directory locations they are pointing to WILL NOT BE VALID ANYMORE AND THE APP WILL CRASH). Thus THEY WILL BE RESET TO DEFAULT in the exported settings file! So once you import them you will have to manually set back those locations in the Media Settings (so that the app can work with them). Sorry for such an inconvenience but there is nothing we can do. \n\nBlame Google for forcing this retarded fucking shit.</string>
+    <string name="import_or_export_warning_local_threads_base_dir">\"local threads base directory\"</string>
+    <string name="import_or_export_warning_and">and</string>
+    <string name="import_or_export_warning_saved_files_base_dir">\"saved files base directory\"</string>
     <string name="base_local_threads_dir_not_exists">Base local threads directory does not exist (or it was deleted). You need to manually set it again in Media settings.</string>
     <string name="album_download_could_not_save_one_or_more_images">Could not save one or more images</string>
     <string name="could_not_create_base_local_threads_dir">Could not create base local threads directory</string>

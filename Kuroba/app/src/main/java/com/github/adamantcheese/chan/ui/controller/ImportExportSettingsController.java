@@ -28,6 +28,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
@@ -120,19 +121,74 @@ public class ImportExportSettingsController extends SettingsController implement
         }
     }
 
+    private void onExportClicked() {
+        boolean localThreadsLocationIsSAFBacked = !ChanSettings.localThreadsLocationUri.get().isEmpty();
+        boolean savedFilesLocationIsSAFBacked = !ChanSettings.saveLocationUri.get().isEmpty();
+
+        if (localThreadsLocationIsSAFBacked || savedFilesLocationIsSAFBacked) {
+            showSomeBaseDirectoriesWillBeResetToDefaultDialog(
+                    localThreadsLocationIsSAFBacked,
+                    savedFilesLocationIsSAFBacked
+            );
+            return;
+        }
+
+        showCreateNewOrOverwriteDialog();
+    }
+
+    private void showSomeBaseDirectoriesWillBeResetToDefaultDialog(
+            boolean localThreadsLocationIsSAFBacked,
+            boolean savedFilesLocationIsSAFBacked
+    ) {
+        if (!localThreadsLocationIsSAFBacked && !savedFilesLocationIsSAFBacked) {
+            throw new IllegalStateException("Both variables are false, wtf?");
+        }
+
+        String localThreadsString = localThreadsLocationIsSAFBacked
+                ? context.getString(R.string.import_or_export_warning_local_threads_base_dir)
+                : "";
+        String andString = localThreadsLocationIsSAFBacked && savedFilesLocationIsSAFBacked
+                ? context.getString(R.string.import_or_export_warning_and)
+                : "";
+        String savedFilesString = savedFilesLocationIsSAFBacked
+                ? context.getString(R.string.import_or_export_warning_saved_files_base_dir)
+                : "";
+
+        String message = context.getString(
+                R.string.import_or_export_warning_super_long_message,
+                localThreadsString,
+                andString,
+                savedFilesString
+        );
+
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.import_or_export_warning))
+                .setMessage(message)
+                .setPositiveButton(R.string.media_settings_ok, (dialog, which) -> {
+                    dialog.dismiss();
+                    showCreateNewOrOverwriteDialog();
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
     /**
      * SAF is kinda retarded so it cannot be used to overwrite a file that already exist on the disk
      * (or at some network location). When trying to do so, a new file with appended "(1)" at the
      * end will appear. That's why there are two methods (one for overwriting an existing file and
      * the other one for creating a new file) instead of one that does everything.
      * */
-    private void onExportClicked() {
+    private void showCreateNewOrOverwriteDialog() {
+        int positiveButtonId = R.string.import_or_export_dialog_positive_button_text;
+        int negativeButtonId = R.string.import_or_export_dialog_negative_button_text;
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.import_or_export_dialog_title)
-                .setPositiveButton(R.string.import_or_export_dialog_positive_button_text, (dialog, which) -> {
+                .setPositiveButton(positiveButtonId, (dialog, which) -> {
                     overwriteExisting();
                 })
-                .setNegativeButton(R.string.import_or_export_dialog_negative_button_text, (dialog, which) -> {
+                .setNegativeButton(negativeButtonId, (dialog, which) -> {
                     createNew();
                 })
                 .create();
