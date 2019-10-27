@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
@@ -79,6 +80,8 @@ public class MediaSettingsController
     FileChooser fileChooser;
     @Inject
     DatabaseManager databaseManager;
+    @Inject
+    ThreadSaveManager threadSaveManager;
 
     public MediaSettingsController(Context context) {
         super(context);
@@ -261,10 +264,19 @@ public class MediaSettingsController
     }
 
     private void showStopAllDownloadingThreadsDialog(long downloadingThreadsCount) {
+        String title = context.getString(
+                R.string.media_settings_there_are_active_downloads,
+                downloadingThreadsCount
+        );
+        String message = context.getString(R.string.media_settings_you_have_to_stop_all_downloads);
+
         new AlertDialog.Builder(context)
-                .setTitle("There are " + downloadingThreadsCount + " threads being downloaded")
-                .setMessage("You have to stop all the threads that are being downloaded before changing local threads base directory!")
-                .setPositiveButton("OK", ((dialog, which) -> dialog.dismiss()))
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(
+                        context.getString(R.string.media_settings_ok),
+                        ((dialog, which) -> dialog.dismiss())
+                )
                 .create()
                 .show();
     }
@@ -287,13 +299,44 @@ public class MediaSettingsController
             return;
         }
 
+        boolean areThereActiveDownloads = threadSaveManager.isThereAtLeastOneActiveDownload();
+        if (areThereActiveDownloads) {
+            showSomeDownloadsAreStillBeingProcessed();
+            return;
+        }
+
+        int positiveButtonTextId = R.string.media_settings_use_saf_dialog_positive_button_text;
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.use_saf_for_local_threads_location_dialog_title)
-                .setMessage(R.string.use_saf_for_local_threads_location_dialog_message)
-                .setPositiveButton(R.string.use_saf_dialog_positive_button_text, (dialog, which) -> {
+                .setTitle(R.string.media_settings_use_saf_for_local_threads_location_dialog_title)
+                .setMessage(R.string.media_settings_use_saf_for_local_threads_location_dialog_message)
+                .setPositiveButton(positiveButtonTextId, (dialog, which) -> {
                     presenter.onLocalThreadsLocationUseSAFClicked();
                 })
-                .setNegativeButton(R.string.use_saf_dialog_negative_button_text, (dialog, which) -> {
+                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text, (dialog, which) -> {
+                    onLocalThreadsLocationUseOldApiClicked();
+                    dialog.dismiss();
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    private void showSomeDownloadsAreStillBeingProcessed() {
+        String title =
+                context.getString(R.string.media_settings_some_thread_downloads_are_still_processed);
+        String message =
+                context.getString(R.string.media_settings_do_not_terminate_the_app_manually);
+        int positiveButtonTextId = R.string.media_settings_use_saf_dialog_positive_button_text;
+        int negativeButtonTextId = R.string.media_settings_use_saf_dialog_negative_button_text;
+
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(positiveButtonTextId, (dialog, which) -> {
+                    presenter.onLocalThreadsLocationUseSAFClicked();
+                })
+                .setNegativeButton(negativeButtonTextId, (dialog, which) -> {
                     onLocalThreadsLocationUseOldApiClicked();
                     dialog.dismiss();
                 })
@@ -342,12 +385,12 @@ public class MediaSettingsController
 
     private void showUseSAFOrOldAPIForSaveLocationDialog() {
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.use_saf_for_save_location_dialog_title)
-                .setMessage(R.string.use_saf_for_save_location_dialog_message)
-                .setPositiveButton(R.string.use_saf_dialog_positive_button_text, (dialog, which) -> {
+                .setTitle(R.string.media_settings_use_saf_for_save_location_dialog_title)
+                .setMessage(R.string.media_settings_use_saf_for_save_location_dialog_message)
+                .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text, (dialog, which) -> {
                     presenter.onSaveLocationUseSAFClicked();
                 })
-                .setNegativeButton(R.string.use_saf_dialog_negative_button_text, (dialog, which) -> {
+                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text, (dialog, which) -> {
                     onSaveLocationUseOldApiClicked();
                     dialog.dismiss();
                 })
@@ -515,6 +558,12 @@ public class MediaSettingsController
     public void showToast(@NotNull String message, int length) {
         BackgroundUtils.ensureMainThread();
         Toast.makeText(context, message, length).show();
+    }
+
+    @Override
+    public void showToast(String message) {
+        BackgroundUtils.ensureMainThread();
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override

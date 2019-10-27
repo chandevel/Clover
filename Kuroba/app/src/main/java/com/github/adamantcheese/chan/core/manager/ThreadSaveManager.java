@@ -265,9 +265,21 @@ public class ThreadSaveManager {
             }
         }
 
+        Logger.d(TAG, "Enqueued new download request for loadable " + loadableToString(loadable));
+
         // Enqueue the download
         workerQueue.onNext(loadable);
         return true;
+    }
+
+    public boolean isThereAtLeastOneActiveDownload() {
+        boolean hasActiveDownloads = false;
+
+        synchronized (activeDownloads) {
+            hasActiveDownloads = !activeDownloads.isEmpty();
+        }
+
+        return hasActiveDownloads;
     }
 
     /**
@@ -1057,15 +1069,6 @@ public class ThreadSaveManager {
         if (!shouldDownloadImages()) {
             if (VERBOSE_LOG) {
                 Logger.d(TAG, "Cannot load images or videos with the current network");
-            }
-            return;
-        }
-
-        if (!isCurrentDownloadRunning(loadable)) {
-            if (isCurrentDownloadStopped(loadable)) {
-                Logger.d(TAG, "File downloading with name " + filename + " has been stopped");
-            } else {
-                Logger.d(TAG, "File downloading with name " + filename + " has been canceled");
             }
             return;
         }

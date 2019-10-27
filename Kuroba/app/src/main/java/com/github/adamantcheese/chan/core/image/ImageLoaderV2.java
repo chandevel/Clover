@@ -210,7 +210,7 @@ public class ImageLoaderV2 {
                             bitmapField.setAccessible(true);
                             urlField.setAccessible(true);
                             bitmapField.set(finalContainer, bitmap);
-                            urlField.set(finalContainer, bitmap);
+                            urlField.set(finalContainer, imageOnDiskFile.getFullPath());
 
                             if (imageListener != null) {
                                 imageListener.onResponse(finalContainer, true);
