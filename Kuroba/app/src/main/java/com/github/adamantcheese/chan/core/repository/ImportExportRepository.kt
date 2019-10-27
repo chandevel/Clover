@@ -607,6 +607,6 @@ constructor(
 
         // Don't forget to change this when changing any of the Export models.
         // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
-        const val CURRENT_EXPORT_SETTINGS_VERSION = 4
+        const val CURRENT_EXPORT_SETTINGS_VERSION = 5
     }
 }
