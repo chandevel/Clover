@@ -25,7 +25,7 @@ public class PostImage {
         STATIC, GIF, MOVIE
     }
 
-    public final String originalName;
+    public final String serverFilename;
     public final HttpUrl thumbnailUrl;
     public final HttpUrl spoilerThumbnailUrl;
     public final HttpUrl imageUrl;
@@ -39,7 +39,7 @@ public class PostImage {
     public final Type type;
 
     private PostImage(Builder builder) {
-        this.originalName = builder.originalName;
+        this.serverFilename = builder.serverFilename;
         this.thumbnailUrl = builder.thumbnailUrl;
         this.spoilerThumbnailUrl = builder.spoilerThumbnailUrl;
         this.imageUrl = builder.imageUrl;
@@ -66,7 +66,7 @@ public class PostImage {
 
     public boolean equalUrl(PostImage other) {
         if (imageUrl == null || other.imageUrl == null) {
-            return originalName.equals(other.originalName);
+            return serverFilename.equals(other.serverFilename);
         }
 
         return imageUrl.equals(other.imageUrl);
@@ -81,7 +81,7 @@ public class PostImage {
     }
 
     public static final class Builder {
-        private String originalName;
+        private String serverFilename;
         private HttpUrl thumbnailUrl;
         private HttpUrl spoilerThumbnailUrl;
         private HttpUrl imageUrl;
@@ -95,8 +95,8 @@ public class PostImage {
         public Builder() {
         }
 
-        public Builder originalName(String originalName) {
-            this.originalName = originalName;
+        public Builder serverFilename(String serverFilename) {
+            this.serverFilename = serverFilename;
             return this;
         }
 
@@ -146,7 +146,7 @@ public class PostImage {
         }
 
         public PostImage build() {
-            if (ChanSettings.revealImageSpoilers.get()) {
+            if (ChanSettings.removeImageSpoilers.get()) {
                 spoiler = false;
             }
 

@@ -34,8 +34,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
-
 public class PostImageThumbnailView extends ThumbnailView implements View.OnLongClickListener {
     private PostImage postImage;
     private Drawable playIcon;
@@ -60,7 +58,6 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
     public void setPostImage(Loadable loadable, PostImage postImage, boolean useHiRes, int width, int height) {
         if (this.postImage != postImage) {
             this.postImage = postImage;
-            int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
 
             if (postImage != null) {
                 if (!loadable.isLocal()) {
@@ -79,7 +76,7 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
                                 postImage.thumbnailUrl.toString());
 
                         fileName = ThreadSaveManager.formatThumbnailImageName(
-                                postImage.originalName,
+                                postImage.serverFilename,
                                 extension);
                     }
 
@@ -94,7 +91,7 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
     private String getUrl(PostImage postImage, boolean useHiRes) {
         String url = postImage.getThumbnailUrl().toString();
         if ((ChanSettings.autoLoadThreadImages.get() || ChanSettings.highResCells.get()) && useHiRes) {
-            if (!postImage.spoiler || ChanSettings.revealImageSpoilers.get()) {
+            if (!postImage.spoiler || ChanSettings.removeImageSpoilers.get()) {
                 url = postImage.type == PostImage.Type.STATIC ? postImage.imageUrl.toString() : postImage.getThumbnailUrl().toString();
             }
         }
@@ -138,15 +135,15 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
 
     @Override
     public boolean onLongClick(View v) {
-        if (postImage == null || postImage.imageUrl == null) {
+        if (postImage == null || postImage.imageUrl == null || !ChanSettings.enableLongPressURLCopy.get()) {
             return false;
         }
 
         ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
         assert clipboard != null;
-        ClipData clip = ClipData.newPlainText("File url", postImage.imageUrl.toString());
+        ClipData clip = ClipData.newPlainText("Image URL", postImage.imageUrl.toString());
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(getContext(), R.string.file_url_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.image_url_copied_to_clipboard, Toast.LENGTH_SHORT).show();
 
         return true;
     }

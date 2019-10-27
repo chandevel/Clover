@@ -353,7 +353,7 @@ public class Chan4 extends SiteBase {
         @Override
         public void pages(Board board, PagesListener listener) {
             requestQueue.add(new Chan4PagesRequest(Chan4.this, board, response -> listener.onPagesReceived(board, new Chan4PagesRequest.Pages(response)), (error) -> {
-                Logger.e(TAG, "Failed to get threads for board " + board.code);
+                Logger.e(TAG, "Failed to get pages for board " + board.code);
                 listener.onPagesReceived(board, new Chan4PagesRequest.Pages(new ArrayList<>()));
             }));
         }

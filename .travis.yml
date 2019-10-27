@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 sudo: false
 
 language: 
@@ -23,9 +24,6 @@ script:
   - chmod +x gradlew || travis_terminate 2;
   - ./gradlew assembleDevDebug --console plain -x lint || travis_terminate 3;
   - python3 upload_apk.py http://94.140.116.243:8080 multi-feature || travis_terminate 4;
-env:
-  global:
-    - secure: "gprEvVKY2eT3+fIMyMMYRlfxatt29pj2X6f6K7J4BnqwuZ9/EoHoE7sLKM/Z6H4Ssx2kaNFY25vTwtnv+D2rIxDsNbRFZEiGQ88nfQ6+0sqD8z+0/qgW1qZehzwBwj46wMb9wgMLxY9+LGIb/794/RQobHDaIbuKuwWak+23Qq7a445vNwkewSEyO57zh6GvVKMmWrFWBmb7DO/KItS+FFcKRy2k8qMpfgYShxjn0+Rm20oB3iZxACtyBDHxglahuCTo5h3ZMFmyBviiRDPS09rs8BbmMLGiSi6WQKVrWBTIkq+DbL6EIyIyGs3pNZZde38g8nES2Y02rKWbISwr2akVaTR7C+WRTV8VgPDDu4s4aAc8qQMyfVh921rdAmkoeMqikbNbJ7Z9PdRtD0axXlKqGdwKH9jRE639x4aIzDg6v8mMCdRzsO/2MCDc8XT0ylglFrpzlXZuvCrSI+eyUiN24nujufKR606SPPaf1Ifas6vh7NlZkpOzoH1Wj1nKksvfoeNxGADHgdTz5tsb//6MO1yTcdZgiLEC1u0pM79FXPvuV0bXlA8RTb+3s3wG0kxrMqXCfBVgGVURerCufOavfbENeMJiMdH0qMiNp0hGLIL/504ySYwOK+GuxjZOrXDnZ/ePKoYHOGkIyhAYYj9O0FFxFty7XgqdzrgdIhg="
 
 notifications:
   email: false

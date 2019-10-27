@@ -48,8 +48,10 @@ import com.github.adamantcheese.chan.utils.Logger;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -916,8 +918,9 @@ public class WatchManager implements WakeManager.Wakeable {
         }
 
         if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-            Logger.i(TAG, "Acquiring wakelock for pin watcher updates");
-            wakeManager.manageLock(true);
+            Logger.i(TAG, waitingForPinWatchersForBackgroundUpdate.size()
+                    + " pin watchers beginning updates, started at " + DateFormat.getTimeInstance().format(new Date()));
+            wakeManager.manageLock(true, WatchManager.this);
         }
     }
 
@@ -963,9 +966,9 @@ public class WatchManager implements WakeManager.Wakeable {
             waitingForPinWatchersForBackgroundUpdate.remove(pinWatcher);
 
             if (waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-                Logger.i(TAG, "All watchers updated, removing wakelock");
+                Logger.i(TAG, "All watchers updated, finished at " + DateFormat.getTimeInstance().format(new Date()));
                 waitingForPinWatchersForBackgroundUpdate = null;
-                wakeManager.manageLock(false);
+                wakeManager.manageLock(false, WatchManager.this);
             }
         }
     }
@@ -1122,8 +1125,6 @@ public class WatchManager implements WakeManager.Wakeable {
 
         @Override
         public void onChanLoaderData(ChanThread thread) {
-            Logger.d(TAG, "onChanLoaderData()");
-
             if (thread.getOp() != null) {
                 lastReplyCount = thread.getOp().getReplies();
             } else {
@@ -1137,7 +1138,7 @@ public class WatchManager implements WakeManager.Wakeable {
                     && pin.loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndViewable
                     && (thread.isArchived() || thread.isClosed())) {
                 NetworkResponse networkResponse = new NetworkResponse(
-                        NetworkResponse.STATUS_SERVICE_UNAVAILABLE,
+                        503,
                         EMPTY_BYTE_ARRAY,
                         Collections.emptyMap(),
                         true);

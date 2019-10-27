@@ -157,6 +157,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                 ViewGroup preferenceView = null;
                 String topValue = settingView.getTopDescription();
                 String bottomValue = settingView.getBottomDescription();
+                boolean noDivider = false;
 
                 if ((settingView instanceof ListSettingView)
                         || (settingView instanceof LinkSettingView)
@@ -165,6 +166,9 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                     preferenceView = (ViewGroup) inf.inflate(R.layout.setting_link, groupLayout, false);
                 } else if (settingView instanceof BooleanSettingView) {
                     preferenceView = (ViewGroup) inf.inflate(R.layout.setting_boolean, groupLayout, false);
+                } else if (settingView instanceof TextSettingView) {
+                    preferenceView = (ViewGroup) inf.inflate(R.layout.setting_text, groupLayout, false);
+                    noDivider = true;
                 }
 
                 setDescriptionText(preferenceView, topValue, bottomValue);
@@ -173,7 +177,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
 
                 settingView.setView(preferenceView);
 
-                if (i < group.settingViews.size() - 1) {
+                if (i < group.settingViews.size() - 1 && !noDivider) {
                     settingView.divider = inf.inflate(R.layout.setting_divider, groupLayout, false);
                     groupLayout.addView(settingView.divider);
                 }

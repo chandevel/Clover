@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.model.orm.*
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileManager
+import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.ExternalFile
 import com.github.k1rakishou.fsaf.file.FileDescriptorMode
 import com.google.gson.Gson
@@ -83,6 +84,7 @@ constructor(
             } catch (error: Throwable) {
                 Logger.e(TAG, "Error while trying to export settings", error)
 
+                deleteExportFile(settingsFile)
                 callbacks.onError(error, ImportExport.Export)
             }
         }
@@ -129,6 +131,12 @@ constructor(
                 Logger.e(TAG, "Error while trying to import settings", error)
                 callbacks.onError(error, ImportExport.Import)
             }
+        }
+    }
+
+    private fun deleteExportFile(exportFile: AbstractFile) {
+        if (!fileManager.delete(exportFile)) {
+            Logger.w(TAG, "Could not delete export file " + exportFile.getFullPath())
         }
     }
 
@@ -347,16 +355,12 @@ constructor(
 
         for (pin in pins) {
             val loadable = loadableMap[pin.loadable.id]
-            if (loadable == null) {
-                throw NullPointerException("Could not find Loadable by pin.loadable.id "
-                        + pin.loadable.id)
-            }
+                    ?: throw NullPointerException("Could not find Loadable by pin.loadable.id "
+                            + pin.loadable.id)
 
             val siteModel = sitesMap[loadable.siteId]
-            if (siteModel == null) {
-                throw NullPointerException("Could not find siteModel by loadable.siteId "
-                        + loadable.siteId)
-            }
+                    ?: throw NullPointerException("Could not find siteModel by loadable.siteId "
+                            + loadable.siteId)
 
             val exportedLoadable = ExportedLoadable(
                     loadable.boardCode,
@@ -535,6 +539,7 @@ constructor(
                 }
             }
         }
+
         appSettings.exportedFilters.removeAll(filtersToDelete)
 
         //boards

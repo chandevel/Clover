@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.AddCallback, View.OnClickListener {
     private BoardSetupPresenter presenter;
@@ -162,6 +164,8 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
             description = itemView.findViewById(R.id.description);
             check = itemView.findViewById(R.id.check);
             check.setOnCheckedChangeListener(this);
+            check.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+            check.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
 
             itemView.setOnClickListener(this);
         }

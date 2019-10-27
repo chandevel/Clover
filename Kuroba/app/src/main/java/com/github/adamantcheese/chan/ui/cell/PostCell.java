@@ -53,9 +53,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.image.ImageContainer;
-import com.github.adamantcheese.chan.core.image.ImageListener;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
@@ -78,6 +78,7 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import okhttp3.HttpUrl;
@@ -305,7 +306,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
     public ThumbnailView getThumbnailView(PostImage postImage) {
         for (int i = 0; i < post.images.size(); i++) {
             if (post.images.get(i).equalUrl(postImage)) {
-                return thumbnailViews.get(i);
+                return ChanSettings.textOnly.get() ? null : thumbnailViews.get(i);
             }
         }
 
@@ -393,9 +394,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 }
 
                 if (ChanSettings.postFileInfo.get()) {
-                    SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() + " " +
-                            AndroidUtils.getReadableFileSize(image.size, false) + " " +
-                            image.imageWidth + "x" + image.imageHeight);
+                    SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() +
+                            (image.size == -1 ? "" : //if -1, linked image, no info
+                            " " + AndroidUtils.getReadableFileSize(image.size, false) + " " +
+                            image.imageWidth + "x" + image.imageHeight));
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                     titleParts.add(fileInfo);
@@ -533,7 +535,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
 
         divider.setVisibility(showDivider ? VISIBLE : GONE);
 
-        if (ChanSettings.shiftPostFormat.get() && post.images.size() == 1) {
+        if (ChanSettings.shiftPostFormat.get() && post.images.size() == 1 && !ChanSettings.textOnly.get()) {
             //display width, we don't care about height here
             Point displaySize = new Point();
             WindowManager windowManager = (WindowManager) getContext().getSystemService(Activity.WINDOW_SERVICE);
@@ -611,12 +613,11 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 v.setClickable(true);
                 v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 v.setRounding(dp(2));
-                //pad top and left if setting is on, no right pad, pad bottom if last image to avoid clashing with divider, pad more if setting
-                v.setPadding(ChanSettings.padThumbs.get() ? dp(4) : 0,
-                        ChanSettings.padThumbs.get() && first ? dp(4) : 0,
+                p.setMargins(dp(4),
+                        first ? dp(4) : 0,
                         0,
                         i + 1 == post.images.size()
-                                ? dp(1) + (ChanSettings.padThumbs.get() ? dp(4) : 0)
+                                ? dp(1) + dp(4) //1 extra for bottom divider
                                 : 0);
 
                 relativeLayoutContainer.addView(v, p);
@@ -690,11 +691,13 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 int line = layout.getLineForVertical(y);
                 int off = layout.getOffsetForHorizontal(line, x);
 
-                ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
+                ClickableSpan[] links = buffer.getSpans(off, off, ClickableSpan.class);
+                List<ClickableSpan> link = new ArrayList<>();
+                Collections.addAll(link, links);
 
-                if (link.length > 0) {
-                    ClickableSpan clickableSpan1 = link[0];
-                    ClickableSpan clickableSpan2 = link.length > 1 ? link[1] : null;
+                if (link.size() > 0) {
+                    ClickableSpan clickableSpan1 = link.get(0);
+                    ClickableSpan clickableSpan2 = link.size() > 1 ? link.get(1) : null;
                     PostLinkable linkable1 = clickableSpan1 instanceof PostLinkable ? (PostLinkable) clickableSpan1 : null;
                     PostLinkable linkable2 = clickableSpan2 instanceof PostLinkable ? (PostLinkable) clickableSpan2 : null;
                     if (action == MotionEvent.ACTION_UP) {
@@ -705,23 +708,32 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                             callback.onPostLinkableClicked(post, linkable1);
                         } else if (linkable2 != null && linkable1 != null) {
                             //spoilered link, figure out which span is the spoiler
-                            if (linkable1.type == PostLinkable.Type.SPOILER && linkable1.getSpoilerState()) {
-                                //linkable2 is the link
-                                callback.onPostLinkableClicked(post, linkable2);
-                            } else if (linkable2.type == PostLinkable.Type.SPOILER && linkable2.getSpoilerState()) {
-                                //linkable 1 is the link
-                                callback.onPostLinkableClicked(post, linkable1);
+                            if (linkable1.type == PostLinkable.Type.SPOILER) {
+                                if (linkable1.isSpoilerVisible()) {
+                                    //linkable2 is the link and we're unspoilered
+                                    callback.onPostLinkableClicked(post, linkable2);
+                                } else {
+                                    //linkable2 is the link and we're spoilered; don't do the click event on the link yet
+                                    link.remove(linkable2);
+                                }
+                            } else if (linkable2.type == PostLinkable.Type.SPOILER) {
+                                if (linkable2.isSpoilerVisible()) {
+                                    //linkable 1 is the link and we're unspoilered
+                                    callback.onPostLinkableClicked(post, linkable1);
+                                } else {
+                                    //linkable1 is the link and we're spoilered; don't do the click event on the link yet
+                                    link.remove(linkable1);
+                                }
                             } else {
                                 //weird case where a double stack of linkables, but isn't spoilered (some 4chan stickied posts)
                                 callback.onPostLinkableClicked(post, linkable1);
                             }
                         }
 
-                        //do onclick on all postlinkables afterwards, so that we don't update the spoiler state early
+                        //do onclick on all spoiler postlinkables afterwards, so that we don't update the spoiler state early
                         for (ClickableSpan s : link) {
-                            if (s instanceof PostLinkable) {
-                                PostLinkable item = (PostLinkable) s;
-                                item.onClick(widget);
+                            if (s instanceof PostLinkable && ((PostLinkable) s).type == PostLinkable.Type.SPOILER) {
+                                s.onClick(widget);
                             }
                         }
 

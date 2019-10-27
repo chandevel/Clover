@@ -135,7 +135,8 @@ public class ChanSettings {
     public static final BooleanSetting anonymize;
     public static final BooleanSetting anonymizeIds;
     public static final BooleanSetting showAnonymousName;
-    public static final BooleanSetting revealImageSpoilers;
+    public static final BooleanSetting removeImageSpoilers;
+    public static final BooleanSetting revealimageSpoilers;
     public static final BooleanSetting revealTextSpoilers;
     public static final BooleanSetting repliesButtonsBottom;
     public static final BooleanSetting tapNoReply;
@@ -148,6 +149,7 @@ public class ChanSettings {
     public static final BooleanSetting saveBoardFolder;
     public static final BooleanSetting saveThreadFolder;
     public static final BooleanSetting videoDefaultMuted;
+    public static final BooleanSetting headsetDefaultMuted;
     public static final BooleanSetting videoAutoLoop;
     public static final BooleanSetting autoLoadThreadImages;
     public static final BooleanSetting allowMediaScannerToScanLocalThreads;
@@ -184,7 +186,6 @@ public class ChanSettings {
     public static final BooleanSetting shiftPostFormat;
     public static final BooleanSetting enableEmoji;
     public static final BooleanSetting highResCells;
-    public static final BooleanSetting padThumbs;
 
     public static final BooleanSetting incrementalThreadDownloadingEnabled;
     public static final BooleanSetting fullUserRotationEnable;
@@ -193,6 +194,10 @@ public class ChanSettings {
     public static final BooleanSetting alwaysOpenDrawer;
 
     public static final BooleanSetting moveInputToBottom;
+    public static final BooleanSetting enableLongPressURLCopy;
+
+    public static final BooleanSetting parseYoutubeTitles;
+    public static final BooleanSetting parsePostImageLinks;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -247,7 +252,8 @@ public class ChanSettings {
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
         showAnonymousName = new BooleanSetting(p, "preference_show_anonymous_name", false);
-        revealImageSpoilers = new BooleanSetting(p, "preference_reveal_image_spoilers", false);
+        removeImageSpoilers = new BooleanSetting(p, "preference_reveal_image_spoilers", false);
+        revealimageSpoilers = new BooleanSetting(p, "preference_auto_unspoil_images", true);
         revealTextSpoilers = new BooleanSetting(p, "preference_reveal_text_spoilers", false);
         repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
         tapNoReply = new BooleanSetting(p, "preference_tap_no_reply", false);
@@ -260,6 +266,7 @@ public class ChanSettings {
         saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
         saveThreadFolder = new BooleanSetting(p, "preference_save_subthread", false);
         videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
+        headsetDefaultMuted = new BooleanSetting(p, "preference_headset_default_muted", true);
         videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
         autoLoadThreadImages = new BooleanSetting(p, "preference_auto_load_thread", false);
         allowMediaScannerToScanLocalThreads = new BooleanSetting(p, "allow_media_scanner_to_scan_local_threads", false);
@@ -308,7 +315,6 @@ public class ChanSettings {
         shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
         enableEmoji = new BooleanSetting(p, "enable_emoji", false);
         highResCells = new BooleanSetting(p, "high_res_cells", false);
-        padThumbs = new BooleanSetting(p, "pad_thumbnails", true);
         incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
         fullUserRotationEnable = new BooleanSetting(p, "full_user_rotation_enable", true);
 
@@ -316,6 +322,10 @@ public class ChanSettings {
         alwaysOpenDrawer = new BooleanSetting(p, "drawer_auto_open_always", false);
 
         moveInputToBottom = new BooleanSetting(p, "move_input_bottom", false);
+        enableLongPressURLCopy = new BooleanSetting(p , "long_press_image_url_copy", true);
+
+        parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", false);
+        parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", false);
     }
 
     @NonNull

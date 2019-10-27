@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <uses-permission-sdk-23 android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
@@ -35,6 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:icon="${iconLoc}"
         android:label="${appName}"
         android:theme="@style/Chan.Theme">
+		
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -82,7 +84,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <data android:host="4channel.org" />
                 <data android:host="www.4channel.org" />
                 <data android:host="boards.4channel.org" />
-                <data android:host="8ch.net" />
             </intent-filter>
 
         </activity>

@@ -21,6 +21,8 @@ import com.github.k1rakishou.fsaf.file.Segment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -40,13 +42,14 @@ public class ImageLoaderV2 {
         this.fileManager = fileManager;
     }
 
-    public ImageContainer getImage(
+    public ImageLoader.ImageContainer getImage(
             boolean isThumbnail,
             Loadable loadable,
             PostImage postImage,
             int width,
             int height,
-            ImageListener imageListener) {
+            ImageLoader.ImageListener imageListener
+    ) {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be executed on the main thread!");
         }
@@ -71,14 +74,14 @@ public class ImageLoaderV2 {
                     }
 
                     formattedName = ThreadSaveManager.formatThumbnailImageName(
-                            postImage.originalName,
+                            postImage.serverFilename,
                             extension
                     );
                 } else {
                     String extension = postImage.extension;
 
                     formattedName = ThreadSaveManager.formatOriginalImageName(
-                            postImage.originalName,
+                            postImage.serverFilename,
                             extension
                     );
                 }
@@ -90,32 +93,56 @@ public class ImageLoaderV2 {
                     postImage.spoiler,
                     imageListener,
                     width,
-                    height);
+                    height
+            );
         } else {
             return imageLoader.get(
                     postImage.getThumbnailUrl().toString(),
                     imageListener,
                     width,
-                    height);
+                    height
+            );
         }
     }
 
-    public ImageContainer getFromDisk(
+    public ImageLoader.ImageContainer getFromDisk(
             Loadable loadable,
             String filename,
             boolean isSpoiler,
-            ImageListener imageListener,
+            ImageLoader.ImageListener imageListener,
             int width,
-            int height) {
+            int height
+    ) {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be executed on the main thread!");
         }
 
-        ImageContainer container = new ImageContainer(
-                null,
-                null,
-                null,
-                imageListener);
+        ImageLoader.ImageContainer container = null;
+
+        try {
+            @SuppressWarnings("JavaReflectionMemberAccess")
+            Constructor c = ImageLoader.ImageContainer.class.getConstructor(
+                    ImageLoader.class,
+                    Bitmap.class,
+                    String.class,
+                    String.class,
+                    ImageLoader.ImageListener.class
+            );
+
+            c.setAccessible(true);
+            container = (ImageLoader.ImageContainer) c.newInstance(
+                    imageLoader,
+                    null,
+                    null,
+                    null,
+                    imageListener
+            );
+
+        } catch (Exception failedSomething) {
+            return container;
+        }
+
+        final ImageLoader.ImageContainer finalContainer = container;
 
         diskLoaderExecutor.execute(() -> {
             try {
@@ -155,7 +182,7 @@ public class ImageLoaderV2 {
                             ", canRead = " + canRead + ")";
 
                     Logger.e(TAG, errorMessage);
-                    postError(container, errorMessage);
+                    postError(imageListener, errorMessage);
                     return;
                 }
 
@@ -172,50 +199,58 @@ public class ImageLoaderV2 {
 
                     if (bitmap == null) {
                         Logger.e(TAG, "Could not decode bitmap");
-                        postError(container, "Could not decode bitmap");
+                        postError(imageListener, "Could not decode bitmap");
                         return;
                     }
 
                     mainThreadHandler.post(() -> {
-                        container.setBitmap(bitmap);
+                        try {
+                            Field bitmapField = finalContainer.getClass().getDeclaredField("mBitmap");
+                            Field urlField = finalContainer.getClass().getDeclaredField("mRequestUrl");
+                            bitmapField.setAccessible(true);
+                            urlField.setAccessible(true);
+                            bitmapField.set(finalContainer, bitmap);
+                            urlField.set(finalContainer, bitmap);
 
-                        // TODO: may not work
-                        container.setRequestUrl(imageOnDiskFile.getFullPath());
-
-                        if (container.getListener() != null) {
-                            container.getListener().onResponse(container, true);
+                            if (imageListener != null) {
+                                imageListener.onResponse(finalContainer, true);
+                            }
+                        } catch (Exception e) {
+                            postError(imageListener, "Couldn't set fields");
                         }
                     });
                 }
             } catch (Exception e) {
                 String message = "Could not get an image from the disk, error message = "
                         + e.getMessage();
-                postError(container, message);
+
+                postError(imageListener, message);
             }
         });
 
         return container;
     }
 
-    private void postError(ImageContainer container, String message) {
+    private void postError(ImageLoader.ImageListener imageListener, String message) {
         mainThreadHandler.post(() -> {
-            if (container.getListener() != null) {
-                container.getListener().onErrorResponse(new VolleyError(message));
+            if (imageListener != null) {
+                imageListener.onErrorResponse(new VolleyError(message));
             }
         });
     }
 
-    public void cancelRequest(ImageContainer container) {
+    public void cancelRequest(ImageLoader.ImageContainer container) {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be executed on the main thread!");
         }
 
-        imageLoader.cancelRequest(container);
+        container.cancelRequest();
     }
 
-    public ImageContainer get(
+    public ImageLoader.ImageContainer get(
             String requestUrl,
-            ImageListener listener) {
+            ImageLoader.ImageListener listener
+    ) {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be executed on the main thread!");
         }
@@ -223,11 +258,12 @@ public class ImageLoaderV2 {
         return imageLoader.get(requestUrl, listener);
     }
 
-    public ImageContainer get(
+    public ImageLoader.ImageContainer get(
             String requestUrl,
-            ImageListener listener,
+            ImageLoader.ImageListener listener,
             int width,
-            int height) {
+            int height
+    ) {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be executed on the main thread!");
         }

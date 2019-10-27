@@ -110,9 +110,15 @@ public class ExperimentalSettingsController extends SettingsController {
                 ChanSettings.incrementalThreadDownloadingEnabled,
                 context.getString(R.string.incremental_thread_downloading_title),
                 context.getString(R.string.incremental_thread_downloading_description));
+        requiresRestart.add(group.add(incrementalThreadDownloadingSetting));
 
-        requiresRestart.add(incrementalThreadDownloadingSetting);
-        group.add(incrementalThreadDownloadingSetting);
+        requiresUiRefresh.add(group.add(new BooleanSettingView(this,
+                ChanSettings.parseYoutubeTitles,
+                R.string.setting_youtube_title, R.string.setting_youtube_title_description)));
+
+        requiresUiRefresh.add(group.add(new BooleanSettingView(this,
+                ChanSettings.parsePostImageLinks,
+                "Enable image link loading", "Adds any JPG, PNG, GIF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available")));
 
         groups.add(group);
     }

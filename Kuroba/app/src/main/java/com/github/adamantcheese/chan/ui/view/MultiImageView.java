@@ -35,6 +35,8 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.github.adamantcheese.chan.R;
@@ -43,8 +45,6 @@ import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.di.NetModule;
-import com.github.adamantcheese.chan.core.image.ImageContainer;
-import com.github.adamantcheese.chan.core.image.ImageListener;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -89,10 +89,28 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     private Context context;
     private ImageView playView;
-    private GestureDetector doubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector exoDoubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             callback.onDoubleTap();
+            return true;
+        }
+    });
+    private GestureDetector gifDoubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            GifDrawable drawable = (GifDrawable) findGifImageView().getDrawable();
+            if (drawable.isPlaying()) {
+                drawable.pause();
+            } else {
+                drawable.start();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            callback.onTap();
             return true;
         }
     });
@@ -384,14 +402,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
-        view.setOnClickListener((view1) -> {
-            if (drawable.isPlaying()) {
-                drawable.pause();
-            } else {
-                drawable.start();
-            }
-        });
-        view.setOnTouchListener((view1, motionEvent) -> doubleTapDetector.onTouchEvent(motionEvent));
+        view.setOnClickListener(null);
+        view.setOnTouchListener((view1, motionEvent) -> gifDoubleTapDetector.onTouchEvent(motionEvent));
         onModeLoaded(Mode.GIF, view);
     }
 
@@ -453,7 +465,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             exoPlayer.prepare(videoSource);
             exoPlayer.addAudioListener(this);
-            exoVideoView.setOnTouchListener((view, motionEvent) -> doubleTapDetector.onTouchEvent(motionEvent));
+            exoVideoView.setOnTouchListener((view, motionEvent) -> exoDoubleTapDetector.onTouchEvent(motionEvent));
 
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
@@ -475,21 +487,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         GifImageView gifView = findGifImageView();
         if (imageView == null && gifView == null) return;
         boolean isImage = imageView != null && gifView == null;
-        if (backgroundToggle) {
-            if (isImage) {
-                imageView.setTileBackgroundColor(Color.TRANSPARENT);
-            } else {
-                gifView.getDrawable().setColorFilter(Color.TRANSPARENT, PorterDuff.Mode.DST_OVER);
-            }
-            backgroundToggle = false;
+        int backgroundColor = backgroundToggle ? Color.TRANSPARENT : BACKGROUND_COLOR;
+        if (isImage) {
+            imageView.setTileBackgroundColor(backgroundColor);
         } else {
-            if (isImage) {
-                imageView.setTileBackgroundColor(BACKGROUND_COLOR);
-            } else {
-                gifView.getDrawable().setColorFilter(BACKGROUND_COLOR, PorterDuff.Mode.DST_OVER);
-            }
-            backgroundToggle = true;
+            gifView.getDrawable().setColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER);
         }
+        backgroundToggle = !backgroundToggle;
     }
 
     public void rotateImage(int degrees) {

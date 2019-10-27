@@ -168,7 +168,7 @@ public class ImageReencodingPresenter {
                 && !imageOptions.getRemoveMetadata()
                 && !imageOptions.getChangeImageChecksum()
                 && imageOptions.getReencodeSettings() == null) {
-            reply.fileName = getNewImageName();
+            reply.fileName = getNewImageName(reply.fileName, ReencodeType.AS_IS);
             callback.onImageOptionsApplied(reply);
             return;
         }
@@ -179,7 +179,7 @@ public class ImageReencodingPresenter {
                 callback.disableOrEnableButtons(false);
 
                 if (imageOptions.getRemoveFilename()) {
-                    reply.fileName = getNewImageName();
+                    reply.fileName = getNewImageName(reply.fileName, imageOptions.reencodeSettings != null ? imageOptions.reencodeSettings.reencodeType : ReencodeType.AS_IS);
                 }
 
                 reply.file = BitmapUtils.reencodeBitmapFile(
@@ -211,8 +211,22 @@ public class ImageReencodingPresenter {
         }
     }
 
-    private String getNewImageName() {
-        return String.valueOf(System.currentTimeMillis());
+    private String getNewImageName(String currentFileName, ReencodeType newType) {
+        String currentExt = "";
+        try {
+            currentExt = currentFileName.substring(currentFileName.lastIndexOf('.'));
+        } catch (Exception ignored) {
+        }
+        switch (newType) {
+            case AS_IS:
+                return System.currentTimeMillis() + currentExt;
+            case AS_PNG:
+                return System.currentTimeMillis() + ".png";
+            case AS_JPEG:
+                return System.currentTimeMillis() + ".jpg";
+            default:
+                return System.currentTimeMillis() + currentExt;
+        }
     }
 
     public static class ImageOptions {

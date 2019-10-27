@@ -32,10 +32,8 @@ import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
-import com.github.k1rakishou.fsaf.file.DirectorySegment;
 import com.github.k1rakishou.fsaf.file.FileSegment;
 
 import org.greenrobot.eventbus.EventBus;
@@ -95,25 +93,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         }
 
         PostImage postImage = task.getPostImage();
-        String name = ChanSettings.saveServerFilename.get()
-                ? postImage.originalName
-                : postImage.filename;
-        String fileName = filterName(name + "." + postImage.extension);
-
-        AbstractFile saveFile = saveLocation
-                .clone(new FileSegment(fileName));
-
-        while (fileManager.exists(saveFile)) {
-            String resultFileName = name + "_" +
-                    Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX)
-                    + "." + postImage.extension;
-
-            fileName = filterName(resultFileName);
-            saveFile = saveLocation
-                    .clone(new FileSegment(fileName));
-        }
-
-        task.setDestination(saveFile);
+        task.setDestination(deduplicateFile(postImage, task));
 
         // At this point we already have disk permissions
         startTask(task);
@@ -205,21 +185,15 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
-            String fileName = filterName(postImage.originalName + "." + postImage.extension);
 
-            AbstractFile saveLocation = getSaveLocation(task);
-            if (saveLocation == null) {
-                Logger.e(TAG, "startBundledTaskInternal() getSaveLocation() returned null");
+            AbstractFile deduplicateFile = deduplicateFile(postImage, task);
+            if (deduplicateFile == null) {
                 allSuccess = false;
                 continue;
             }
 
-            String fixedSubfolderName = StringUtils.dirNameRemoveBadCharacters(subFolder);
-
-            AbstractFile destinationFile = saveLocation
-                    .clone(new DirectorySegment(fixedSubfolderName), new FileSegment(fileName));
-
-            task.setDestination(destinationFile);
+            task.setSubFolder(subFolder);
+            task.setDestination(deduplicateFile);
             startTask(task);
         }
 
@@ -297,6 +271,36 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             name = "_";
         }
         return name;
+    }
+
+    @Nullable
+    private AbstractFile deduplicateFile(PostImage postImage, ImageSaveTask task) {
+        String name = ChanSettings.saveServerFilename.get()
+                ? postImage.serverFilename
+                : postImage.filename;
+
+        String fileName = filterName(name + "." + postImage.extension);
+
+        AbstractFile saveLocation = getSaveLocation(task);
+        if (saveLocation == null) {
+            Logger.e(TAG, "Save location is null!");
+            return null;
+        }
+
+        AbstractFile saveFile = saveLocation
+                .clone(new FileSegment(fileName));
+
+        while (fileManager.exists(saveFile)) {
+            String resultFileName = name + "_" +
+                    Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX)
+                    + "." + postImage.extension;
+
+            fileName = filterName(resultFileName);
+            saveFile = saveLocation
+                    .clone(new FileSegment(fileName));
+        }
+
+        return saveFile;
     }
 
     private boolean hasPermission(Context context) {

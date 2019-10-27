@@ -25,6 +25,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 public class Logger {
     private static final String TAG_PREFIX = getApplicationLabel() + " | ";
 
+    //region VERBOSE
     public static void v(String tag, String message) {
         if (BuildConfig.DEBUG) {
             Log.v(TAG_PREFIX + tag, message);
@@ -42,7 +43,9 @@ public class Logger {
             Log.v(TAG_PREFIX + tag, String.format(format, args));
         }
     }
+    //endregion VERBOSE
 
+    //region DEBUG
     public static void d(String tag, String message) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG_PREFIX + tag, message);
@@ -60,7 +63,9 @@ public class Logger {
             Log.d(TAG_PREFIX + tag, String.format(format, args));
         }
     }
+    //endregion DEBUG
 
+    //region INFO
     public static void i(String tag, String message) {
         Log.i(TAG_PREFIX + tag, message);
     }
@@ -72,7 +77,9 @@ public class Logger {
     public static void i(String tag, String format, Object... args) {
         Log.i(TAG_PREFIX + tag, String.format(format, args));
     }
+    //endregion INFO
 
+    //region WARN
     public static void w(String tag, String message) {
         Log.w(TAG_PREFIX + tag, message);
     }
@@ -84,7 +91,9 @@ public class Logger {
     public static void w(String tag, String format, Object... args) {
         Log.w(TAG_PREFIX + tag, String.format(format, args));
     }
+    //endregion WARN
 
+    //region ERROR
     public static void e(String tag, String message) {
         Log.e(TAG_PREFIX + tag, message);
     }
@@ -96,7 +105,9 @@ public class Logger {
     public static void e(String tag, String format, Object... args) {
         Log.e(TAG_PREFIX + tag, String.format(format, args));
     }
+    //endregion ERROR
 
+    //region WTF
     public static void wtf(String tag, String message) {
         Log.wtf(TAG_PREFIX + tag, message);
     }
@@ -108,7 +119,9 @@ public class Logger {
     public static void wtf(String tag, String format, Object... args) {
         Log.wtf(TAG_PREFIX + tag, String.format(format, args));
     }
+    //endregion WTF
 
+    //region TEST
     public static void test(String message) {
         if (BuildConfig.DEBUG) {
             Log.i(TAG_PREFIX + "test", message);
@@ -126,4 +139,5 @@ public class Logger {
             Log.i(TAG_PREFIX + "test", String.format(format, args));
         }
     }
+    //endregion TEST
 }

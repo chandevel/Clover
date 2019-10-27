@@ -135,6 +135,11 @@ public class BehaviourSettingsController extends SettingsController {
                     R.string.setting_tap_no_rely, 0));
 
             post.add(new BooleanSettingView(this,
+                    ChanSettings.enableLongPressURLCopy,
+                    R.string.settings_image_long_url,
+                    R.string.settings_image_long_url_description));
+
+            post.add(new BooleanSettingView(this,
                     ChanSettings.openLinkConfirmation,
                     R.string.setting_open_link_confirmation, 0));
             post.add(new BooleanSettingView(this,

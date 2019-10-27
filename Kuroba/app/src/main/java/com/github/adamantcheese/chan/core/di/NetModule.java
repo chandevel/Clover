@@ -38,18 +38,13 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 public class NetModule {
-    private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
     public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
 
     @Provides
     @Singleton
     public RequestQueue provideRequestQueue() {
         Logger.d(AppModule.DI_TAG, "Request queue");
-        File cacheDir = getCacheDir();
-        return Volley.newRequestQueue(getAppContext(),
-                USER_AGENT,
-                new ProxiedHurlStack(USER_AGENT),
-                new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
+        return Volley.newRequestQueue(getAppContext(), new ProxiedHurlStack());
     }
 
     @Provides

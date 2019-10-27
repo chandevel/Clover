@@ -510,16 +510,15 @@ public class ThreadSaveManager {
                             //                \  |  /
                             //                 \ | /
                             //                   |
-                            .flatMap((post) -> {
-                                return downloadImages(
+                            .flatMap((post) ->  downloadImages(
                                         loadable,
                                         threadSaveDirImages,
                                         post,
                                         currentImageDownloadIndex,
                                         postsWithImages,
                                         imageDownloadsWithIoError,
-                                        maxImageIoErrors);
-                            })
+                                        maxImageIoErrors))
+
                             .toList()
                             .doOnSuccess((list) -> Logger.d(TAG, "PostImage download result list = " + list));
                 })
@@ -701,7 +700,7 @@ public class ThreadSaveManager {
     ) {
         for (PostImage postImage : post.images) {
             {
-                String originalImageFilename = postImage.originalName + "_"
+                String originalImageFilename = postImage.serverFilename + "_"
                         + ORIGINAL_FILE_NAME + "." + postImage.extension;
 
                 AbstractFile originalImage = threadSaveDirImages
@@ -738,7 +737,7 @@ public class ThreadSaveManager {
             {
                 String thumbnailExtension = StringUtils.extractFileExtensionFromImageUrl(
                         postImage.thumbnailUrl.toString());
-                String thumbnailImageFilename = postImage.originalName + "_"
+                String thumbnailImageFilename = postImage.serverFilename + "_"
                         + THUMBNAIL_FILE_NAME + "." + thumbnailExtension;
 
                 AbstractFile thumbnailImage = threadSaveDirImages
@@ -878,7 +877,7 @@ public class ThreadSaveManager {
                         try {
                             downloadImageIntoFile(
                                     threadSaveDirImages,
-                                    postImage.originalName,
+                                    postImage.serverFilename,
                                     postImage.extension,
                                     thumbnailExtension,
                                     postImage.imageUrl,
@@ -886,23 +885,23 @@ public class ThreadSaveManager {
                                     loadable);
                         } catch (IOException error) {
                             Logger.e(TAG, "downloadImageIntoFile error for image "
-                                    + postImage.originalName + ", error message = %s", error.getMessage());
+                                    + postImage.serverFilename + ", error message = %s", error.getMessage());
 
                             deleteImageCompletely(
                                     threadSaveDirImages,
-                                    postImage.originalName,
+                                    postImage.serverFilename,
                                     postImage.extension);
                             throw error;
                         } catch (ImageWasAlreadyDeletedException error) {
-                            Logger.e(TAG, "Could not download an image " + postImage.originalName
+                            Logger.e(TAG, "Could not download an image " + postImage.serverFilename
                                     + " for loadable " + loadableToString(loadable) +
                                     ", got 404, adding it to the deletedImages set");
 
-                            addImageToAlreadyDeletedImage(loadable, postImage.originalName);
+                            addImageToAlreadyDeletedImage(loadable, postImage.serverFilename);
 
                             deleteImageCompletely(
                                     threadSaveDirImages,
-                                    postImage.originalName,
+                                    postImage.serverFilename,
                                     postImage.extension);
                             return Single.just(false);
                         }
@@ -915,18 +914,16 @@ public class ThreadSaveManager {
                             // Retry couple of times upon exceptions
                             .retry(MAX_RETRY_ATTEMPTS)
                             .doOnError((error) -> {
-                                Logger.e(TAG, "Error while trying to download image " + postImage.originalName, error);
+                                Logger.e(TAG, "Error while trying to download image " + postImage.serverFilename, error);
 
                                 if (error instanceof IOException) {
                                     imageDownloadsWithIoError.incrementAndGet();
                                 }
                             })
-                            .doOnEvent((result, event) -> {
-                                logThreadDownloadingProgress(
-                                        loadable,
-                                        currentImageDownloadIndex,
-                                        postsWithImagesCount);
-                            })
+                            .doOnEvent((result, event) -> logThreadDownloadingProgress(
+                                    loadable,
+                                    currentImageDownloadIndex,
+                                    postsWithImagesCount))
                             // Do nothing if an error occurs (like timeout exception) because we don't want
                             // to lose what we have already downloaded
                             .onErrorReturnItem(false);

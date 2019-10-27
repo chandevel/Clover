@@ -9,7 +9,6 @@ import android.text.style.TypefaceSpan;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.save.spans.SerializableAbsoluteSizeSpan;
 import com.github.adamantcheese.chan.core.model.save.spans.SerializableBackgroundColorSpan;
@@ -37,7 +36,6 @@ public class SpannableStringMapper {
     private static final Gson gson = new Gson()
             .newBuilder()
             .create();
-    private static final ThemeHelper themeHelper = Chan.injector().instance(ThemeHelper.class);
 
     @Nullable
     public static SerializableSpannableString serializeSpannableString(@Nullable CharSequence charSequence) {
@@ -327,7 +325,7 @@ public class SpannableStringMapper {
                 spanInfo.getSpanData(),
                 SerializablePostLinkableSpan.class);
 
-        Theme currentTheme = themeHelper.getTheme();
+        Theme currentTheme = ThemeHelper.getTheme();
         PostLinkable postLinkable;
 
         switch (serializablePostLinkableSpan.getPostLinkableType()) {

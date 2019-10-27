@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.site.parser;
 
 import android.graphics.Typeface;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
@@ -165,7 +166,7 @@ public class CommentParser {
 
             SpannableString res = new SpannableString(handlerLink.key);
             PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
-            res.setSpan(pl, 0, res.length(), 0);
+            res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
             post.addLinkable(pl);
 
             return res;

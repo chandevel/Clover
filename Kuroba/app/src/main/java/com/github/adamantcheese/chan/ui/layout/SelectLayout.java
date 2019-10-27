@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -32,6 +33,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -198,6 +200,8 @@ public class SelectLayout<T> extends LinearLayout implements SearchLayout.Search
             description = itemView.findViewById(R.id.description);
 
             checkBox.setOnCheckedChangeListener(this);
+            checkBox.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+            checkBox.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
 
             itemView.setOnClickListener(this);
         }

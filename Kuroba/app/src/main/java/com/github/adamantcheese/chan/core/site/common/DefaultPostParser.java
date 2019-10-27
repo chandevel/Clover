@@ -193,19 +193,31 @@ public class DefaultPostParser implements PostParser {
             Logger.e(TAG, "Error parsing comment html", e);
         }
 
+        CommentParserHelper.addPostImages(post);
+
         return total;
     }
 
     private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
-            SpannableString spannable = new SpannableString(text);
-            CommentParserHelper.detectLinks(theme, post, text, spannable);
+            //we need to replace youtube links with their titles before linkifying anything else
+            //because the string itself changes as a result of the titles shrinking/expanding the string length
+            //this would mess up the rest of the spans if we did it afterwards, so we do it as the first step
+            SpannableString spannable;
+            if (ChanSettings.parseYoutubeTitles.get()) {
+                spannable = CommentParserHelper.replaceYoutubeLinks(theme, post, text);
+                CommentParserHelper.detectLinks(theme, post, spannable.toString(), spannable);
+            } else {
+                spannable = new SpannableString(text);
+                CommentParserHelper.detectLinks(theme, post, text, spannable);
+            }
+
             return spannable;
         } else if (node instanceof Element) {
             String nodeName = node.nodeName();
             String styleAttr = node.attr("style");
-            if (!styleAttr.isEmpty()) {
+            if (!styleAttr.isEmpty() && !nodeName.equals("span")) {
                 nodeName = nodeName + '-' + styleAttr.split(":")[1].trim();
             }
 

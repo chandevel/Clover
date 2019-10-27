@@ -117,7 +117,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
             if (!chanThread.isArchived()
                     && !chanThread.isClosed()
                     && chanThread.getLoadable().loadableDownloadingState != Loadable.LoadableDownloadingState.AlreadyDownloaded) {
-                if (chanThread.getLoadable().loadableDownloadingState != Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+                if (chanThread.getLoadable().isLocal() && chanThread.getLoadable().loadableDownloadingState != Loadable.LoadableDownloadingState.AlreadyDownloaded) {
                     // To split Local Thread and (Loading Time | Loading) rows
                     builder.append('\n');
                 }

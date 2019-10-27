@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.TextSettingView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
@@ -62,6 +63,8 @@ public class MediaSettingsController
     // Special setting views
     private BooleanSettingView boardFolderSetting;
     private BooleanSettingView threadFolderSetting;
+    private BooleanSettingView videoDefaultMutedSetting;
+    private BooleanSettingView headsetDefaultMutedSetting;
     private LinkSettingView saveLocation;
     private LinkSettingView localThreadsLocation;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
@@ -103,6 +106,8 @@ public class MediaSettingsController
         onPreferenceChange(imageAutoLoadView);
 
         threadFolderSetting.setEnabled(ChanSettings.saveBoardFolder.get());
+
+        headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
     }
 
     @Override
@@ -121,6 +126,8 @@ public class MediaSettingsController
             updateVideoLoadModes();
         } else if (item == boardFolderSetting) {
             updateThreadFolderSetting();
+        } else if (item == videoDefaultMutedSetting) {
+            updateHeadsetDefaultMutedSetting();
         }
     }
 
@@ -157,6 +164,8 @@ public class MediaSettingsController
             setupSaveLocationSetting(media);
             setupLocalThreadLocationSetting(media);
 
+            media.add(new TextSettingView(this, "These two options don't apply to albums"));
+
             boardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
                     ChanSettings.saveBoardFolder,
                     R.string.setting_save_board_folder,
@@ -172,9 +181,15 @@ public class MediaSettingsController
                     R.string.setting_save_server_filename,
                     R.string.setting_save_server_filename_description));
 
-            media.add(new BooleanSettingView(this, ChanSettings.videoDefaultMuted,
+            videoDefaultMutedSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+                    ChanSettings.videoDefaultMuted,
                     R.string.setting_video_default_muted,
                     R.string.setting_video_default_muted_description));
+
+            headsetDefaultMutedSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+                    ChanSettings.headsetDefaultMuted,
+                    R.string.setting_headset_default_muted,
+                    R.string.setting_headset_default_muted_description));
 
             media.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal,
                     R.string.setting_video_open_external,
@@ -185,7 +200,12 @@ public class MediaSettingsController
                     R.string.setting_share_url, R.string.setting_share_url_description));
 
             media.add(new BooleanSettingView(this,
-                    ChanSettings.revealImageSpoilers,
+                    ChanSettings.removeImageSpoilers,
+                    R.string.settings_remove_image_spoilers,
+                    R.string.settings_remove_image_spoilers_description));
+
+            media.add(new BooleanSettingView(this,
+                    ChanSettings.revealimageSpoilers,
                     R.string.settings_reveal_image_spoilers,
                     R.string.settings_reveal_image_spoilers_description));
 
@@ -627,12 +647,16 @@ public class MediaSettingsController
     private void updateThreadFolderSetting() {
         if (ChanSettings.saveBoardFolder.get()) {
             threadFolderSetting.setEnabled(true);
-        } else if (!ChanSettings.saveBoardFolder.get()) {
+        } else {
             if (ChanSettings.saveThreadFolder.get()) {
                 threadFolderSetting.onClick(threadFolderSetting.view);
             }
             threadFolderSetting.setEnabled(false);
             ChanSettings.saveThreadFolder.set(false);
         }
+    }
+
+    private void updateHeadsetDefaultMutedSetting() {
+        headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
     }
 }

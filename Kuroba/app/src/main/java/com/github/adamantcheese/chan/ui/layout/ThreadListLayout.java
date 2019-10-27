@@ -294,7 +294,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
          */
         List<Post> filteredPosts = filter.apply(
                 thread.getPosts(),
-                thread.getLoadable().site.id(),
+                thread.getLoadable().siteId,
                 thread.getLoadable().board.code
         );
 

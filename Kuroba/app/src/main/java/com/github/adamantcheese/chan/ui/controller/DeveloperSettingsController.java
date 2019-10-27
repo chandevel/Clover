@@ -30,6 +30,14 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
+import com.github.adamantcheese.chan.core.manager.WakeManager;
+import com.github.adamantcheese.chan.utils.Logger;
+
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -38,6 +46,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class DeveloperSettingsController extends Controller {
+    private static final String TAG = "DEV";
     @Inject
     DatabaseManager databaseManager;
 
@@ -91,6 +100,68 @@ public class DeveloperSettingsController extends Controller {
         });
         resetDbButton.setText("Delete database");
         wrapper.addView(resetDbButton);
+
+        Button clearFilterWatchIgnores = new Button(context);
+        clearFilterWatchIgnores.setOnClickListener(v -> {
+            try {
+                FilterWatchManager filterWatchManager = Chan.injector().instance(FilterWatchManager.class);
+                Field ignoredField = filterWatchManager.getClass().getDeclaredField("ignoredPosts");
+                ignoredField.setAccessible(true);
+                ignoredField.set(filterWatchManager, Collections.synchronizedSet(new HashSet<Integer>()));
+                Logger.i(TAG, "Cleared ignores");
+            } catch (Exception e) {
+                Logger.i(TAG, "Failed to clear ignores");
+            }
+        });
+        clearFilterWatchIgnores.setText("Clear ignored filter watches");
+        wrapper.addView(clearFilterWatchIgnores);
+
+        Button dumpAllThreadStacks = new Button(context);
+        dumpAllThreadStacks.setOnClickListener(v -> {
+            Set<Thread> activeThreads = Thread.getAllStackTraces().keySet();
+            Logger.i("STACKDUMP-COUNT", String.valueOf(activeThreads.size()));
+            for (Thread t : activeThreads) {
+                //ignore these threads as they aren't relevant (main will always be this button press)
+                if (t.getName().equalsIgnoreCase("main")
+                        || t.getName().contains("Daemon")
+                        || t.getName().equalsIgnoreCase("Signal Catcher")
+                        || t.getName().contains("hwuiTask")
+                        || t.getName().contains("Binder:")
+                        || t.getName().equalsIgnoreCase("RenderThread")
+                        || t.getName().contains("maginfier pixel")
+                        || t.getName().contains("Jit thread")
+                        || t.getName().equalsIgnoreCase("Profile Saver")
+                        || t.getName().contains("Okio")
+                        || t.getName().contains("AsyncTask"))
+                    continue;
+                StackTraceElement[] elements = t.getStackTrace();
+                Logger.i("STACKDUMP-HEADER", "Thread: " + t.getName());
+                for (StackTraceElement e : elements) {
+                    Logger.i("STACKDUMP", e.toString());
+                }
+                Logger.i("STACKDUMP-FOOTER", "----------------");
+            }
+        });
+        dumpAllThreadStacks.setText("Dump active thread stack traces to log");
+        wrapper.addView(dumpAllThreadStacks);
+
+        Button forceFilterWatch = new Button(context);
+        forceFilterWatch.setOnClickListener(v -> {
+            try {
+                WakeManager wakeManager = Chan.injector().instance(WakeManager.class);
+                Field wakeables = wakeManager.getClass().getDeclaredField("wakeableSet");
+                wakeables.setAccessible(true);
+                for(WakeManager.Wakeable wakeable : (Set<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
+                    wakeable.onWake();
+                }
+                Logger.i(TAG, "Woke all wakeables");
+
+            } catch (Exception e) {
+                Logger.i(TAG, "Failed to run wakeables");
+            }
+        });
+        forceFilterWatch.setText("Force wakemanager wake");
+        wrapper.addView(forceFilterWatch);
 
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);

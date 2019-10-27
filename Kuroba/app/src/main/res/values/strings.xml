@@ -77,11 +77,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="other">%1$d new posts, %2$d quoting you</item>
     </plurals>
 
-    <string-array name="setting_watch_notify_modes">
-        <item>All posts</item>
-        <item>Only posts quoting you</item>
-    </string-array>
-
     <string-array name="setting_watch_sounds">
         <item>All posts</item>
         <item>Only posts quoting you</item>
@@ -97,7 +92,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>Purple</item>
     </string-array>
 
-    <string name="empty"></string>
+    <string name="empty" />
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -124,7 +119,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="update_install">Install</string>
 
-    <string name="update_install_downloading">Downloading update</string>
+    <string name="update_install_downloading">Downloading update…</string>
 
     <string name="update_install_download_failed">Download failed</string>
 
@@ -134,7 +129,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="update_retry">%1$s was not updated yet. Tap \"retry\" to retry the install.</string>
 
-    <string name="update_retry_button">retry</string>
+    <string name="update_retry_button">Retry</string>
     <string name="update_storage_permission_required_title">Storage permission required</string>
     <string name="update_storage_permission_required">
 "Permission to access storage is required for installing the update.
@@ -175,7 +170,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 
     <string name="search_hint">Search</string>
     <string name="search_results">Found %1$s for \"%2$s\"</string>
-    <string name="search_empty">Search subjects, comments, names and filenames</string>
+    <string name="search_empty">Search subjects, comments, names, and filenames</string>
     <string name="open_link_confirmation">Open this link?</string>
     <string name="open_thread_confirmation">Open this thread?</string>
     <string name="open_link_failed">No applications were found to open this link</string>
@@ -184,8 +179,8 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thumbnail_load_failed_network">Error</string>
     <string name="thumbnail_load_failed_server" translatable="false">404</string>
     <string name="image_preview_failed">Failed to show image</string>
-    <string name="image_preview_failed_oom">Failed to show image, out of memory</string>
-    <string name="image_failed_big_image">Failed to show image, deep-zoom loading failed</string>
+    <string name="image_preview_failed_oom">Failed to show image (out of memory)</string>
+    <string name="image_failed_big_image">Failed to show image (deep-zoom loading failed)</string>
     <string name="image_not_found">Image not found</string>
     <string name="image_spoiler_filename">Spoiler image</string>
     <string name="thread_boards_search_hint">Search</string>
@@ -195,7 +190,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_load_failed_server">Server error</string>
     <string name="thread_load_failed_not_found">404 not found</string>
     <string name="thread_refresh_bar_inactive">Tap to refresh</string>
-    <string name="thread_refresh_now">Loading</string>
+    <string name="thread_refresh_now">Loading…</string>
     <string name="thread_refresh_countdown">Loading in %1$ds</string>
     <string name="thread_load_failed_retry">Retry</string>
     <string name="thread_archived">Archived</string>
@@ -213,7 +208,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_empty_setup_title">Nothing to show</string>
     <string name="thread_empty_setup_body">Add a site to begin browsing</string>
     <string name="thread_empty_setup_hint">Add a site here</string>
-    <string name="setup_sites_title">Setup sites</string>
+    <string name="setup_sites_title">Set up sites</string>
 
     <string name="setup_sites_empty">No sites added</string>
     <string name="setup_sites_add_hint">Add a site here</string>
@@ -225,7 +220,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="setup_site_title">Configure %s</string>
     <string name="setup_site_group_general">General</string>
 
-    <string name="setup_site_boards">Setup boards</string>
+    <string name="setup_site_boards">Set up boards</string>
     <string name="setup_site_boards_description">%s added</string>
     <string name="setup_site_group_login">Authentication</string>
     <string name="setup_site_login">Login</string>
@@ -246,7 +241,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="filter_pattern_hint_regex">Pattern</string>
     <string name="filter_boards">Boards</string>
     <string name="filter_types">Types</string>
-    <string name="filter_all">all</string>
+    <string name="filter_all">All</string>
     <string name="filter_hide">Hide post</string>
     <string name="filter_color">Highlight post</string>
     <string name="filter_remove">Remove post</string>
@@ -261,15 +256,15 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="filter_help">
 <![CDATA[
 Filters act on a given pattern and a place to search the pattern.<br>
-If the pattern matches then the post can be hidden, removed, highlighted, or automatically bookmarked.<br>
+If the pattern matches, then the post can be hidden, removed, highlighted, or automatically bookmarked.<br>
 <p>
     These filters are pattern based, and have three modes:<br>
     <br>
     1. The pattern <tt>foo bar</tt> will match text that has any of the words in it. It will match <i>foo</i> or <i>bar</i>, but not <i>foobar</i>.
-    Placing a * allows any character to be filled in: <tt>f*o</tt> will match both <i>foo</i>, <i>foooo</i> but not <i>foobar</i><br>
+    Placing a * allows any character to be filled in: <tt>f*o</tt> will match both <i>foo</i> and <i>foooo</i>, but not <i>foobar</i><br>
     <br>
-    2. Quoting your pattern with <tt>\"</tt> like <tt>\"foo bar\"</tt> will match the text exactly.
-    <i>foo bar</i> matches but <i>foo</i> does not.<br>
+    2. Quoting your pattern with <tt>\"</tt> (like <tt>\"foo bar\"</tt>) will match the text exactly.
+    <i>foo bar</i> will match, but <i>foo</i> will not.<br>
     <br>
     3. Regular expressions. <tt>/^>implying/</tt> for example. You can use <tt>/^>ImPlYiNg/<b>i</b></tt> to make the regex case insensitive.
 </p>
@@ -306,7 +301,7 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="drawer_pin_removed">Removed \"%1$s\"</string>
     <string name="drawer_pin_with_saved_thread_removed">Removed pin \"%1$s\" with saved thread</string>
     <string name="drawer_pins_cleared">%1$s cleared</string>
-    <string name="drawer_pins_non_cleared">No bookmarks cleared.</string>
+    <string name="drawer_pins_non_cleared">No bookmarks cleared</string>
     <string name="drawer_pins_non_cleared_try_all">No bookmarks cleared. Hold to remove all.</string>
     <string name="post_highlight_id">Highlight ID</string>
     <string name="post_highlight_tripcode">Highlight tripcode</string>
@@ -351,7 +346,7 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="reply_comment_button_code">[c]</string>
     <string name="delete_confirm">Delete your post?</string>
 
-    <string name="delete_wait">Deleting post&#8230;</string>
+    <string name="delete_wait">Deleting post…</string>
     <string name="delete_success">Post deleted</string>
 
     <string name="delete_image_only">Only delete the image</string>
@@ -373,7 +368,7 @@ Note that for country code filtering, troll country codes should be prepended wi
 
     <string name="report_screen">Report %1$s</string>
 
-    <string name="image_save_notification_downloading">Downloading images</string>
+    <string name="image_save_notification_downloading">Downloading images…</string>
     <string name="image_save_notification_cancel">Tap to cancel</string>
     <string name="image_save_saved">Image saved</string>
     <string name="image_save_as">Saved as \"%1$s\"</string>
@@ -406,7 +401,7 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="settings_screen_watch">Thread watcher settings</string>
     <string name="settings_group_watch">Settings</string>
     <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
-    <string name="setting_watch_enable_background">Enable in the background</string>
+    <string name="setting_watch_enable_background">Enable in background</string>
     <string name="setting_watch_enable_background_description">Watch bookmarks when app is in the background</string>
     <string name="setting_watch_enable_filter_watch">Enable filter watching</string>
     <string name="setting_watch_enable_filter_watch_description">Watch posts that match filters marked as watch post</string>
@@ -460,8 +455,6 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_post_file_info">Show file info on posts</string>
     <string name="setting_post_filename">Show filename on posts</string>
     <string name="settings_group_images">Images</string>
-    <string name="setting_images_pad_thumbs">Pad thumbnails</string>
-    <string name="setting_images_pad_thumbs_description">Add extra space around thumbnails to move them away from the edges of the cell</string>
 
     <!-- Appearance gallery group -->
     <string name="setting_images_high_res">High resolution cells</string>
@@ -483,7 +476,7 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_post_default_name">Default post name</string>
 
     <!-- Behavior reply group -->
-    <string name="setting_text_only">Text only mode</string>
+    <string name="setting_text_only">Text-only mode</string>
     <string name="setting_text_only_description">Hide images when in board and thread view</string>
     <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
 
@@ -517,20 +510,21 @@ Note that for country code filtering, troll country codes should be prepended wi
 
     <string name="setting_save_thread_folder_description">Create a folder for each thread when saving</string>
     <string name="setting_save_server_filename">Save server filename</string>
-    <string name="setting_save_server_filename_description">
-"Save the image with the filename the site assigned.
-If disabled, save the image with the filename the uploader assigned."
-    </string>
+    <string name="setting_save_server_filename_description">Save the image with the filename the site assigned. If disabled, save the image with the filename the uploader assigned.</string>
     <string name="setting_video_default_muted">Start videos muted</string>
-    <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
+    <string name="setting_video_default_muted_description">If a video has audio, mute it by default</string>
+    <string name="setting_headset_default_muted">Mute headset videos</string>
+    <string name="setting_headset_default_muted_description">Mute the video even if a wired headset is connected</string>
     <string name="setting_video_open_external">Play videos with external player</string>
     <string name="setting_video_open_external_description">Play videos in an external media player app</string>
     <string name="setting_share_url">Share URL to image</string>
     <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
+    <string name="settings_remove_image_spoilers">Remove image spoilers</string>
+    <string name="settings_remove_image_spoilers_description">Always reveal spoiler thumbnails and images</string>
     <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
-    <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
+    <string name="settings_reveal_image_spoilers_description">Automatically reveal spoiler images, not thumbnails</string>
     <string name="settings_allow_media_scanner_scan_local_threads_title">Allow the Android media scanner to scan images from locally saved threads</string>
-    <string name="settings_allow_media_scanner_scan_local_threads_description">If enabled, images that were downloaded along with threads will appear in other applications, like galleries, messengers etc; You may have to restart your phone or wait for the changes to kick in</string>
+    <string name="settings_allow_media_scanner_scan_local_threads_description">If enabled, images that were downloaded along with threads will appear in other applications, like galleries, messengers, etc. You may have to restart your phone or wait for the changes to kick in.</string>
     <string name="settings_group_media_loading">Media loading</string>
     <string name="setting_image_auto_load">Automatically load images</string>
     <string name="setting_image_auto_load_all">Always</string>
@@ -543,9 +537,9 @@ If disabled, save the image with the filename the uploader assigned."
     <string name="setting_video_auto_loop">Enable automatic video-looping</string>
     <string name="setting_video_auto_loop_description">Automatically loop video content</string>
 
-    <string name="setting_auto_load_thread_images">Enable media prefetching</string>
+    <string name="setting_auto_load_thread_images">Enable media pre-fetching</string>
 
-    <string name="setting_auto_load_thread_images_description">Loads all images or videos in a thread immediately, subject to the settings above; Increases the filecache size to 1GB</string>
+    <string name="setting_auto_load_thread_images_description">Loads all images or videos in a thread immediately (subject to the settings above). Increases the filecache size to 1GB.</string>
     <string name="save_location_screen">Save location</string>
 
     <string name="save_location_storage_permission_required_title">Storage permission required</string>
@@ -565,7 +559,7 @@ Re-enable this permission in the app settings if you permanently disabled it."
 "Swipe to change the theme.
 Tap the toolbar menu to change its color."
     </string>
-    <string name="setting_theme_accent">Tap here to change the FAB color</string>
+    <string name="setting_theme_accent">Tap here to change the FAB color.</string>
     <string name="settings_open_logs">View logs</string>
 
 
@@ -583,7 +577,7 @@ Tap the toolbar menu to change its color."
     <string name="setting_pass_authenticated">Device authorized!</string>
     <string name="setting_pass_login">Submit</string>
     <string name="setting_pass_logout">Logout</string>
-    <string name="setting_pass_logging_in">Loading&#8230;</string>
+    <string name="setting_pass_logging_in">Loading…</string>
     <string name="setting_pass_error">Connection error</string>
     <string name="setting_pass_bottom_description">"
 <![CDATA[
@@ -600,7 +594,7 @@ Don't have a 4chan Pass?<br>
 
     <string name="scale_reduce">Reduce: %1$dx%2$d to %3$dx%4$d (%5$d%%)</string>
     <string name="could_not_decode_image_bitmap">Could not decode image bitmap</string>
-    <string name="could_not_apply_image_options">Could not apply new image options. Error message is %1$s</string>
+    <string name="could_not_apply_image_options">Could not apply new image options (error message is %1$s)</string>
     <string name="image_options_remove_filename">Remove filename</string>
     <string name="image_options_change_image_checksum">Change image checksum</string>
     <string name="image_options_fix_exif">Fix EXIF orientation</string>
@@ -614,14 +608,23 @@ Don't have a 4chan Pass?<br>
     <string name="reencode_image_reduce_default_text">Reduce: 0%</string>
     <string name="click_image_for_extra_options">Click image for extra options</string>
     <string name="settings_import_export">Import/Export</string>
-    <string name="settings_import_export_description">Import/Export settings/pins etc.</string>
-    <string name="import_or_export_settings">Import/Export settings</string>
+    <string name="settings_import_export_description">Import/export settings/pins, etc.</string>
+    <string name="import_or_export_settings">Import/export settings</string>
 
     <string name="export_settings">Export settings</string>
     <string name="export_settings_to_a_file">Export settings to a file</string>
     <string name="import_settings">Import settings</string>
     <string name="import_settings_from_a_file">Import settings from a file</string>
     <string name="successfully_exported_text">Exported successfully"</string>
+    <string name="import_warning_title">Warning</string>
+    <string name="import_warning_text">You are about to import settings/saved pins/filters/hidden posts from a file.
+        The file must be located at \"%1$s\" and have a name \"%2$s\".
+        This will clear all your existing settings/pins/threads and replace them with the ones from the file.
+        You MAY LOSE some of your settings/pins/hidden threads if you are trying to import a file created with a different app version (upgrade or downgrade).
+        The app will be restarted. \nAre you sure you want to continue?
+    </string>
+    <string name="successfully_exported_text">Exported successfully to \"%1$s\". File path has been copied to the clipboard.</string>
+    <string name="error_external_storage_is_not_mounted">External storage is not mounted</string>
     <string name="could_not_create_dir_for_export_error_text">Could not create directory for export file %1$s; you probably won\'t be able to export settings</string>
     <string name="apply_to_replies">Apply to replies</string>
     <string name="only_on_op">Only on OP</string>
@@ -640,30 +643,34 @@ Don't have a 4chan Pass?<br>
     <string name="select_all">Select all</string>
     <string name="settings_captcha_group">Captcha</string>
     <string name="settings_use_new_captcha_window">Use new captcha window for no-js captcha</string>
-    <string name="settings_use_real_google_cookies_description">When enabled, a GET request to google.com will be executed to get a cookie, which will be used for captcha authentication. The hardcoded ones sometimes will make you re-enter the captcha dozens of times. Those cookies will be updated automatically (every three months). You may update them manually if you want.</string>
+    <string name="settings_use_real_google_cookies_description">When enabled, a GET request to google.com will be executed to get a cookie, which will be used for captcha authentication.
+        The hardcoded ones sometimes will make you re-enter the captcha dozens of times.
+        Those cookies will be updated automatically (every three months).
+        You may update them manually if you want.
+    </string>
 
     <!-- Captcha settings -->
     <string name="captcha_layout_v2_verify_button_text">Verify</string>
     <string name="captcha_layout_v2_reload">Reload</string>
     <string name="captcha_layout_v2_use_old_captcha">Use old\ncaptcha</string>
 
-    <string name="captcha_layout_v2_you_have_to_select_at_least_one_image">You have to select at least one image (if you see a captcha that does not have any matching images then it is probably a bug; fill an issue and use the old captcha)</string>
+    <string name="captcha_layout_v2_you_have_to_select_at_least_one_image">You have to select at least one image (if you see a captcha that does not have any matching images, then it is probably a bug; fill an issue and use the old captcha)</string>
     <string name="captcha_layout_v2_verification_already_in_progress">Verification is already in progress</string>
     <string name="captcha_layout_v2_captcha_request_is_already_in_progress">Captcha request is already in progress</string>
     <string name="captcha_layout_v2_you_are_requesting_captcha_too_fast">You are requesting captcha too fast</string>
     <string name="captcha_layout_v2_refresh_cookies">Refresh cookies</string>
-    <string name="file_url_copied_to_clipboard">File url copied to clipboard</string>
+    <string name="image_url_copied_to_clipboard">Image URL copied to clipboard</string>
     <string name="delete_site_dialog_title">Delete site?</string>
     <string name="delete_site_dialog_message">Are you sure you want to delete "%1$s"? This action will delete the site and everything that is associated with it. The app will be restarted. Do you wish to proceed?</string>
 
-    <string name="could_not_remove_site_error_message">"Could not remove site %1$s, error message: %2$s</string>
+    <string name="could_not_remove_site_error_message">Could not remove site %1$s (error message: %2$s)</string>
 
-    <string name="reply_comment_empty">Comment body is empty.</string>
-    <string name="image_reencode_format_error">Something is wrong with this file.</string>
+    <string name="reply_comment_empty">Comment body is empty</string>
+    <string name="image_reencode_format_error">Something is wrong with this file</string>
     <string name="setting_bookmark_short_info">Short bookmark info</string>
     <string name="setting_bookmark_short_info_description">Shorter information in the bookmark menu for unread and quoted posts</string>
     <string name="filter_removed_undo">Removed filter %1$s</string>
-    <string name="image_url_get_attempt">Getting image from clipboard URL</string>
+    <string name="image_url_get_attempt">Getting image from clipboard URL…</string>
     <string name="image_url_get_failed">Failed to get image from clipboard</string>
     <string name="image_url_get_success">Got image from clipboard</string>
     <string name="setting_shift_post">Shift post format</string>
@@ -676,22 +683,30 @@ Don't have a 4chan Pass?<br>
     <string name="view_thread_controller_thread_downloading_requires_write_permission">Thread downloading requires the WRITE_EXTERNAL_STORAGE permission</string>
     <string name="warning">Warning</string>
 
-    <string name="drawer_controller_at_least_one_pin_has_download_flag">At least one pin has the \"Download\" flag, which makes this delete operation irreversible because this operation will delete all of the saved thread\'s files from the disk. Do you really want to delete all pins?</string>
+    <string name="drawer_controller_at_least_one_pin_has_download_flag">At least one pin has the \"Download\" flag, which makes this delete operation irreversible (because this operation will delete all of the saved thread\'s files from the disk). Do you really want to delete all pins?</string>
     <string name="drawer_controller_do_not_delete">Do not delete</string>
     <string name="drawer_controller_delete_all_pins">Delete all pins</string>
-    <string name="thread_layout_background_watcher_is_disabled_message">Thread is currently being downloaded but the background watcher is disabled so it won\'t be incrementally updated. To enable incremental thread updating you have to enable background thread watcher</string>
+    <string name="thread_layout_background_watcher_is_disabled_message">Thread is currently being downloaded, but the background watcher is disabled so it won\'t be incrementally updated. To enable incremental thread updating, you have to enable the background thread watcher.</string>
     <string name="settings_experimental_settings_title">⚠ EXPERIMENTAL ⚠</string>
-    <string name="settings_experimental_settings_description">These settings may be in an unstable state. They are for testing. They may break the app and you may have to reset the app data. Use them at your own risk if you are really interested in some feature. Backup your everything beforehand.</string>
+    <string name="settings_experimental_settings_description">These settings may be in an unstable state. They are for testing. They may break the app and you may have to reset the app data. Use them at your own risk if you are really interested in some feature. Backup everything beforehand.</string>
     <string name="incremental_thread_downloading_title">Incremental thread downloading</string>
     <string name="incremental_thread_downloading_description">Allows you to download threads to view them after the original thread dies</string>
     <string name="cannot_open_thread_in_browser_already_deleted">Can\'t open this thread in your browser, it\'s probably already been deleted</string>
-    <string name="cannot_send_thread_via_nfc_already_deleted">Can\'t send thread via the NFC, it\'s already been deleted</string>
+    <string name="cannot_send_thread_via_nfc_already_deleted">Can\'t send thread via NFC, it\'s already been deleted</string>
     <string name="cannot_shared_thread_already_deleted">Can\'t share this thread, it\'s already been deleted</string>
     <string name="view_local_version">View local version</string>
     <string name="view_view_version">View live version</string>
     <string name="local_thread_text">Local thread</string>
     <string name="setting_full_screen_rotation">Allow full sensor rotation</string>
     <string name="settings_always_open_drawer">Always open the drawer when a thread is bookmarked</string>
+    <string name="settings_image_long_url">Enable long-press image URL copy</string>
+    <string name="settings_image_long_url_description">Makes long-pressing on post images copy the image URL to the clipboard</string>
+    <string name="setting_youtube_title">Enable Youtube titles</string>
+    <string name="setting_youtube_title_description">Replaces Youtube links with their titles; do not enable if you have filter watching enabled, loading will fail eventually</string>
+    <string-array name="setting_watch_notify_modes">
+        <item>All posts</item>
+        <item>Only posts quoting you</item>
+    </string-array>
 
     <string name="use_saf_for_save_location_dialog_title">Use the new Storage Access Framework API to choose images download directory?</string>
     <string name="use_saf_for_local_threads_location_dialog_title">Use the new Storage Access Framework API to choose local threads download directory?</string>

@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.layout;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -184,7 +185,11 @@ public class ReplyLayout extends LoadView implements
         progressLayout = inflater.inflate(R.layout.layout_reply_progress, this, false);
         currentProgress = progressLayout.findViewById(R.id.current_progress);
 
+        spoiler.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        spoiler.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+
         // Setup reply layout views
+        fileName.setOnLongClickListener(v -> presenter.fileNameLongClicked());
         commentQuoteButton.setOnClickListener(this);
         commentSpoilerButton.setOnClickListener(this);
         commentCodeButton.setOnClickListener(this);
@@ -388,12 +393,11 @@ public class ReplyLayout extends LoadView implements
     }
 
     @Override
-    public void setPage(ReplyPresenter.Page page, boolean animate) {
+    public void setPage(ReplyPresenter.Page page) {
         switch (page) {
             case LOADING:
                 setWrappingMode(false);
-                View progressBar = setView(progressLayout);
-                progressBar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, dp(100)));
+                setView(progressLayout);
 
                 //reset progress to 0 upon uploading start
                 currentProgress.setVisibility(View.INVISIBLE);
@@ -404,16 +408,13 @@ public class ReplyLayout extends LoadView implements
                 break;
             case AUTHENTICATION:
                 setWrappingMode(true);
-
                 setView(captchaContainer);
-
                 captchaContainer.requestFocus(View.FOCUS_DOWN);
-
                 break;
         }
 
         if (page != ReplyPresenter.Page.AUTHENTICATION && authenticationLayout != null) {
-            AndroidUtils.removeFromParentView((View) authenticationLayout);
+            captchaContainer.removeView((View) authenticationLayout);
             authenticationLayout = null;
         }
     }
@@ -578,7 +579,7 @@ public class ReplyLayout extends LoadView implements
     @Override
     public void onFallbackToV1CaptchaView(boolean autoReply) {
         // fallback to v1 captcha window
-        presenter.switchPage(ReplyPresenter.Page.AUTHENTICATION, true, false, autoReply);
+        presenter.switchPage(ReplyPresenter.Page.AUTHENTICATION, false, autoReply);
     }
 
     @Override

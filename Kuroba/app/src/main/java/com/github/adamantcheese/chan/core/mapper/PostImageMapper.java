@@ -12,7 +12,7 @@ public class PostImageMapper {
 
     public static SerializablePostImage toSerializablePostImage(PostImage postImage) {
         return new SerializablePostImage(
-                postImage.originalName,
+                postImage.serverFilename,
                 postImage.filename,
                 postImage.extension,
                 postImage.imageUrl.toString(),
@@ -43,7 +43,7 @@ public class PostImageMapper {
         }
 
         return new PostImage.Builder()
-                .originalName(serializablePostImage.getOriginalName())
+                .serverFilename(serializablePostImage.getOriginalName())
                 .filename(serializablePostImage.getFilename())
                 .extension(serializablePostImage.getExtension())
                 .imageUrl(imageUrl)

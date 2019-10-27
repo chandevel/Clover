@@ -19,7 +19,9 @@ package com.github.adamantcheese.chan.ui.view;
 import android.content.Context;
 import android.util.AttributeSet;
 
-public class SelectionListeningEditText extends androidx.appcompat.widget.AppCompatEditText {
+import androidx.appcompat.widget.AppCompatEditText;
+
+public class SelectionListeningEditText extends AppCompatEditText {
     private SelectionChangedListener listener;
 
     public SelectionListeningEditText(Context context) {

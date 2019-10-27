@@ -30,7 +30,6 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -100,10 +99,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
         if (v == download) {
             int checkCount = getCheckCount();
             if (checkCount == 0) {
-                new AlertDialog.Builder(context)
-                        .setMessage(R.string.album_download_none_checked)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
+                Toast.makeText(context, R.string.album_download_none_checked, Toast.LENGTH_SHORT).show();
             } else {
                 final String folderForAlbum = imageSaver.getSubFolder(loadable.title);
 

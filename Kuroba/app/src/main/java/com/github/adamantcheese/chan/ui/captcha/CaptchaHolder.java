@@ -43,9 +43,7 @@ public class CaptchaHolder {
     }
 
     public void removeListener() {
-        mainThreadHandler.post(() -> {
-            captchaValidationListener = null;
-        });
+        mainThreadHandler.post(() -> captchaValidationListener = null);
     }
 
     public void addNewToken(String token, long tokenLifetime) {

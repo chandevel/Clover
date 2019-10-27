@@ -30,6 +30,7 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -586,6 +587,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             pin.watching = false;
 
             watchManager.updatePin(pin, true);
+        }
+
+        if (ChanSettings.watchFilterWatch.get() && result.getLoadable().isCatalogMode()) {
+            Chan.injector().instance(FilterWatchManager.class).onCatalogLoad(result);
         }
     }
 
@@ -1154,6 +1159,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
         if (!TextUtils.isEmpty(post.id)) {
             text.append("\nId: ").append(post.id);
+            int count = 0;
+            try {
+                for (Post p : chanLoader.getThread().getPostsUnsafe()) {
+                    if (p.id.equals(post.id)) count++;
+                }
+            } catch (Exception ignored) {
+            }
+            text.append("\nCount: ").append(count);
         }
 
         if (!TextUtils.isEmpty(post.tripcode)) {
@@ -1166,8 +1179,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                     text.append("\nTroll Country: ").append(icon.name);
                 } else if (icon.url.toString().contains("country")) {
                     text.append("\nCountry: ").append(icon.name);
-                } else {
-                    //only other icon type created is since4pass
+                } else if (icon.url.toString().contains("minileaf")) {
                     text.append("\n4chan Pass Year: ").append(icon.name);
                 }
             }

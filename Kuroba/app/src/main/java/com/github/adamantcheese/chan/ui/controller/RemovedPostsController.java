@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +16,17 @@ import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.graphics.ColorUtils;
 
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.image.ImageContainer;
-import com.github.adamantcheese.chan.core.image.ImageListener;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -72,6 +75,9 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
         viewHolder.setOnClickListener(this);
         restorePostsButton.setOnClickListener(this);
         selectAllButton.setOnClickListener(this);
+
+        selectAllButton.setBackgroundColor(ColorUtils.setAlphaComponent(ThemeHelper.getTheme().textPrimary, 32));
+        restorePostsButton.setBackgroundColor(ColorUtils.setAlphaComponent(ThemeHelper.getTheme().textPrimary, 32));
     }
 
     @Override
@@ -204,6 +210,8 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
             postNo.setText(String.format("No. %d", removedPost.postNo));
             postComment.setText(removedPost.comment);
             checkbox.setChecked(removedPost.isChecked());
+            checkbox.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+            checkbox.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
 
             if (removedPost.images.size() > 0) {
                 // load only the first image
@@ -212,7 +220,7 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
 
                 imageLoaderV2.get(image.getThumbnailUrl().toString(), new ImageListener() {
                     @Override
-                    public void onResponse(ImageContainer response, boolean isImmediate) {
+                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                         postImage.setImageBitmap(response.getBitmap());
                     }
 

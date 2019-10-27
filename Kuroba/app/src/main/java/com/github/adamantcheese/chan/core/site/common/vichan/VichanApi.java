@@ -206,7 +206,7 @@ public class VichanApi extends CommonSite.CommonApi {
             Map<String, String> args = makeArgument("tim", fileId,
                     "ext", fileExt);
             PostImage image = new PostImage.Builder()
-                    .originalName(fileId)
+                    .serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
@@ -317,7 +317,7 @@ public class VichanApi extends CommonSite.CommonApi {
             Map<String, String> args = makeArgument("tim", fileId,
                     "ext", fileExt);
             return new PostImage.Builder()
-                    .originalName(fileId)
+                    .serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))

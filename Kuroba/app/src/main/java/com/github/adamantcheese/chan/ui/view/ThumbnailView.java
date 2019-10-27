@@ -42,12 +42,13 @@ import com.android.volley.NetworkError;
 import com.android.volley.ParseError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.image.ImageContainer;
-import com.github.adamantcheese.chan.core.image.ImageListener;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import javax.inject.Inject;
 
@@ -99,7 +100,7 @@ public class ThumbnailView extends View implements ImageListener {
     }
 
     private void init() {
-        textPaint.setColor(0xff000000);
+        textPaint.setColor(ThemeHelper.getTheme().textPrimary);
         textPaint.setTextSize(sp(14));
 
         inject(this);

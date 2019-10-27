@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.layout;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.text.Editable;
 import android.text.Html;
@@ -166,6 +167,15 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         actionText.setOnClickListener(this);
         actionText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
                 getAttrColor(getContext(), R.attr.dropdown_dark_color), getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)), null);
+
+        enabled.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        enabled.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        applyToReplies.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        applyToReplies.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        onlyOnOP.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        onlyOnOP.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        applyToSaved.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        applyToSaved.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
     }
 
     public void setFilter(Filter filter) {

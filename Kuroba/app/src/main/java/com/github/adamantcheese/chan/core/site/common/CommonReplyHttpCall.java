@@ -48,6 +48,8 @@ public abstract class CommonReplyHttpCall extends HttpCall {
     public CommonReplyHttpCall(Site site, Reply reply) {
         super(site);
         this.reply = reply;
+        replyResponse.siteId = reply.loadable.siteId;
+        replyResponse.boardCode = reply.loadable.boardCode;
     }
 
     @Override
@@ -83,7 +85,7 @@ public abstract class CommonReplyHttpCall extends HttpCall {
                 } catch (NumberFormatException ignored) {
                 }
 
-                if (replyResponse.threadNo >= 0 && replyResponse.postNo >= 0) {
+                if (replyResponse.threadNo >= 0 && replyResponse.postNo > 0) { //threadNo can be 0 iff this is a new thread
                     replyResponse.posted = true;
                 }
             }
