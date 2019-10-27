@@ -39,6 +39,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.VolleyError;
@@ -281,32 +282,14 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             ImageSaveTask task = new ImageSaveTask(loadable, postImage);
             task.setShare(share);
             if (ChanSettings.saveBoardFolder.get()) {
-                String subFolderName =
-                        presenter.getLoadable().site.name() +
-                                File.separator +
-                                presenter.getLoadable().boardCode;
+                String subFolderName;
+
                 if (ChanSettings.saveThreadFolder.get()) {
-                    //save to op no appended with the first 50 characters of the subject
-                    //should be unique and perfectly understandable title wise
-                    //
-                    //if we're saving from the catalog, find the post for the image and use its attributes to keep everything consistent
-                    //as the loadable is for the catalog and doesn't have the right info
-                    subFolderName = subFolderName +
-                            File.separator +
-                            (presenter.getLoadable().no == 0 ?
-                                    imageViewerCallback.getPostForPostImage(postImage).no :
-                                    presenter.getLoadable().no) +
-                            "_";
-                    String fixedSubFolderName = StringUtils.dirNameRemoveBadCharacters(subFolderName);
-
-                    String tempTitle = (presenter.getLoadable().no == 0 ?
-                            PostHelper.getTitle(imageViewerCallback.getPostForPostImage(postImage), null) :
-                            presenter.getLoadable().title);
-
-                    String fixedTitle = StringUtils.fileNameRemoveBadCharacters(tempTitle);
-
-                    subFolderName = fixedSubFolderName +
-                            fixedTitle.substring(0, Math.min(fixedTitle.length(), 50));
+                    subFolderName = appendAdditionalSubDirectories(postImage);
+                } else {
+                    subFolderName = presenter.getLoadable().site.name()
+                            + File.separator
+                            + presenter.getLoadable().boardCode;
                 }
 
                 task.setSubFolder(subFolderName);
@@ -322,6 +305,41 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
             });
         }
+    }
+
+    @NonNull
+    private String appendAdditionalSubDirectories(PostImage postImage) {
+        // save to op no appended with the first 50 characters of the subject
+        // should be unique and perfectly understandable title wise
+        //
+        // if we're saving from the catalog, find the post for the image and use its attributes
+        // to keep everything consistent as the loadable is for the catalog and doesn't have
+        // the right info
+
+        String siteName = presenter.getLoadable().site.name();
+
+        int postNoString = presenter.getLoadable().no == 0
+                ? imageViewerCallback.getPostForPostImage(postImage).no
+                : presenter.getLoadable().no;
+
+        String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(siteName)
+                + File.separator
+                + StringUtils.dirNameRemoveBadCharacters(presenter.getLoadable().boardCode)
+                + File.separator
+                + postNoString
+                + "_";
+
+        String tempTitle = (presenter.getLoadable().no == 0
+                ? PostHelper.getTitle(imageViewerCallback.getPostForPostImage(postImage), null)
+                : presenter.getLoadable().title);
+
+        String sanitizedFileName = StringUtils.dirNameRemoveBadCharacters(tempTitle);
+        String truncatedFileName = sanitizedFileName.substring(
+                0,
+                Math.min(sanitizedFileName.length(), 50)
+        );
+
+        return sanitizedSubFolderName + truncatedFileName;
     }
 
     @Override

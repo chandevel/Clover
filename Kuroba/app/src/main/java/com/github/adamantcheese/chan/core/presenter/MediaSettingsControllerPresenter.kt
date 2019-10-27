@@ -5,6 +5,7 @@ import android.net.Uri
 import android.widget.Toast
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.settings.ChanSettings
+import com.github.adamantcheese.chan.ui.controller.MediaSettingsControllerCallbacks
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory
 import com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread
@@ -215,6 +216,20 @@ class MediaSettingsControllerPresenter(
             return
         }
 
+        // FIXME: this does not work when oldBaseDirectory was backed by the Java File and the new
+        //  one by SAF the paths will be different. I should probably remove the base dir prefixes
+        //  from both files split them into segments and compare segments.
+        if (oldBaseDirectory.getFullPath() == newBaseDirectory.getFullPath()) {
+            val message = appContext.getString(
+                    R.string.media_settings_you_are_trying_to_move_files_in_the_same_directory)
+
+            withCallbacks {
+                showToast(message, Toast.LENGTH_LONG)
+            }
+
+            return
+        }
+
         Logger.d(TAG,
                 "oldLocalThreadsDirectory = " + oldBaseDirectory.getFullPath()
                         + ", newLocalThreadsDirectory = " + newBaseDirectory.getFullPath()
@@ -287,36 +302,6 @@ class MediaSettingsControllerPresenter(
                 func(it)
             }
         }
-    }
-
-    interface MediaSettingsControllerCallbacks {
-        fun showToast(message: String, length: Int = Toast.LENGTH_SHORT)
-        fun updateLocalThreadsLocation(newLocation: String)
-
-        fun askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
-                oldBaseDirectory: AbstractFile,
-                newBaseDirectory: AbstractFile
-        )
-
-        fun askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(
-                oldBaseDirectory: AbstractFile,
-                newBaseDirectory: AbstractFile
-        )
-
-        fun updateLoadingViewText(text: String)
-        fun updateSaveLocationViewText(newLocation: String)
-
-        fun showCopyFilesDialog(
-                filesCount: Int,
-                oldBaseDirectory: AbstractFile,
-                newBaseDirectory: AbstractFile
-        )
-
-        fun onCopyDirectoryEnded(
-                oldBaseDirectory: AbstractFile,
-                newBaseDirectory: AbstractFile,
-                result: Boolean
-        )
     }
 
     companion object {

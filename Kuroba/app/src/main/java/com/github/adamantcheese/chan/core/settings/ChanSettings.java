@@ -22,6 +22,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -103,7 +104,9 @@ public class ChanSettings {
     }
 
     private static Proxy proxy;
-    private static final String sharedPrefsFile = "shared_prefs/com.github.adamantcheese.chan_preferences.xml";
+    private static final String sharedPrefsFile = "shared_prefs/"
+            + BuildConfig.APPLICATION_ID
+            + "_preferences.xml";
 
     private static final StringSetting theme;
     public static final OptionsSetting<LayoutMode> layoutMode;

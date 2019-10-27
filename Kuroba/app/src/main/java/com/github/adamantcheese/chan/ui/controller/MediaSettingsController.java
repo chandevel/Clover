@@ -57,7 +57,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class MediaSettingsController
         extends SettingsController
-        implements MediaSettingsControllerPresenter.MediaSettingsControllerCallbacks {
+        implements MediaSettingsControllerCallbacks {
     private static final String TAG = "MediaSettingsController";
 
     // Special setting views
@@ -448,37 +448,21 @@ public class MediaSettingsController
         if (!result) {
             showToast(context.getString(R.string.media_settings_couldnot_copy_files), Toast.LENGTH_LONG);
         } else {
-            showDeleteOldDirectoryDialog(oldBaseDirectory);
+            showDeleteOldFilesDialog(oldBaseDirectory);
             showToast(context.getString(R.string.media_settings_files_copied), Toast.LENGTH_LONG);
         }
     }
 
-    private void showDeleteOldDirectoryDialog(
+    private void showDeleteOldFilesDialog(
             @NonNull AbstractFile oldBaseDirectory
     ) {
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.media_settings_would_you_life_to_delete_old_dir))
+                .setTitle(context.getString(R.string.media_settings_would_you_like_to_delete_file_in_old_dir))
                 .setMessage(context.getString(R.string.media_settings_file_have_been_copied))
                 .setPositiveButton(
                         context.getString(R.string.media_settings_delete_button_name),
-                        (dialog, which) -> {
-                            if (!fileManager.delete(oldBaseDirectory)) {
-                                showToast(
-                                        context.getString(R.string.media_settings_couldnot_delete_old_dir),
-                                        Toast.LENGTH_LONG
-                                );
-                                return;
-                            }
-
-                            if (oldBaseDirectory instanceof ExternalFile) {
-                                forgetPreviousExternalBaseDirectory(oldBaseDirectory);
-                            }
-
-                            showToast(
-                                    context.getString(R.string.media_settings_old_dir_deleted),
-                                    Toast.LENGTH_LONG
-                            );
-                        })
+                        (dialog, which) -> onDeleteOldFilesClicked(oldBaseDirectory)
+                )
                 .setNegativeButton(
                         context.getString(R.string.media_settings_do_not_delete),
                         (dialog, which) -> {
@@ -491,6 +475,25 @@ public class MediaSettingsController
                 .create();
 
         alertDialog.show();
+    }
+
+    private void onDeleteOldFilesClicked(@NonNull AbstractFile oldBaseDirectory) {
+        if (!fileManager.deleteContent(oldBaseDirectory)) {
+            String message =
+                    context.getString(R.string.media_settings_couldnot_delete_files_in_old_dir);
+
+            showToast(message, Toast.LENGTH_LONG);
+            return;
+        }
+
+        if (oldBaseDirectory instanceof ExternalFile) {
+            forgetPreviousExternalBaseDirectory(oldBaseDirectory);
+        }
+
+        showToast(
+                context.getString(R.string.media_settings_old_dir_deleted),
+                Toast.LENGTH_LONG
+        );
     }
 
     @Override

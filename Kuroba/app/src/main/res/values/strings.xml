@@ -723,10 +723,10 @@ Don't have a 4chan Pass?<br>
     <string name="could_not_create_base_local_threads_dir">Could not create base local threads directory</string>
     <string name="media_settings_couldnot_copy_files">Could not copy one directory\'s file into another one</string>
     <string name="media_settings_files_copied">Successfully copied files</string>
-    <string name="media_settings_would_you_life_to_delete_old_dir">Would you like to delete old directory?</string>
-    <string name="media_settings_file_have_been_copied">Files have been copied and now exist in two directories. You may want to remove old directory since you won\'t need it anymore</string>
+    <string name="media_settings_would_you_like_to_delete_file_in_old_dir">Would you like to delete files in the old directory?</string>
+    <string name="media_settings_file_have_been_copied">Files have been copied and now exist in two directories. You may want to remove files in the old directory since you won\'t need them anymore</string>
     <string name="media_settings_delete_button_name">Delete</string>
-    <string name="media_settings_couldnot_delete_old_dir">Couldn\'t delete old directory</string>
+    <string name="media_settings_couldnot_delete_files_in_old_dir">Couldn\'t delete files in the old directory</string>
     <string name="media_settings_old_dir_deleted">Successfully deleted old directory</string>
     <string name="media_settings_do_not_delete">Do not</string>
     <string name="media_settings_copy_files">Copy files</string>
@@ -746,4 +746,5 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_new_saved_files_base_dir_not_registered">New saved files base directory is probably not registered</string>
     <string name="media_settings_no_files_to_copy">No files to copy</string>
     <string name="media_settings_copying_file">Copying file %1$d out of %2$d</string>
+    <string name="media_settings_you_are_trying_to_move_files_in_the_same_directory">You are trying to move files in the same directory. The directory was changed but the files were not touched.</string>
 </resources>
