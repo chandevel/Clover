@@ -185,7 +185,7 @@ public class ImportExportSettingsController extends SettingsController implement
 
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.import_or_export_dialog_title)
-                .setPositiveButton(positiveButtonId, (dialog, which) -> {
+                .setPositiveButton(positiveButtonId, (dialog, which) -> { 
                     overwriteExisting();
                 })
                 .setNegativeButton(negativeButtonId, (dialog, which) -> {
