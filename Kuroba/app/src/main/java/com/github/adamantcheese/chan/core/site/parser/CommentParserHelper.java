@@ -66,7 +66,7 @@ public class CommentParserHelper {
     private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
     private static LruCache<String, String> youtubeTitleCache = new LruCache<>(250); // a cache for titles to prevent extra network activity if not necessary
 
-    private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4)", Pattern.CASE_INSENSITIVE);
+    private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf)", Pattern.CASE_INSENSITIVE);
 
     /**
      * Detect links in the given spannable, and create PostLinkables with Type.LINK for the
