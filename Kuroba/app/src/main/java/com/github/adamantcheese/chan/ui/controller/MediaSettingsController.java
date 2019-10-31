@@ -274,7 +274,7 @@ public class MediaSettingsController
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(
-                        context.getString(R.string.media_settings_ok),
+                        context.getString(R.string.ok),
                         ((dialog, which) -> dialog.dismiss())
                 )
                 .create()
@@ -428,7 +428,7 @@ public class MediaSettingsController
                 .setTitle(context.getString(R.string.media_settings_move_threads_to_new_dir))
                 .setMessage(context.getString(R.string.media_settings_operation_may_take_some_time))
                 .setPositiveButton(
-                        context.getString(R.string.media_settings_move_threads),
+                        context.getString(R.string.move),
                         (dialog, which) -> {
                             presenter.moveOldFilesToTheNewDirectory(
                                     oldBaseDirectory,
@@ -436,7 +436,7 @@ public class MediaSettingsController
                             );
                         })
                 .setNegativeButton(
-                        context.getString(R.string.media_settings_do_not_move_threads),
+                        context.getString(R.string.do_not),
                         (dialog, which) -> {
                             dialog.dismiss();
                         }
@@ -455,7 +455,7 @@ public class MediaSettingsController
                 .setTitle(context.getString(R.string.media_settings_move_saved_file_to_new_dir))
                 .setMessage(context.getString(R.string.media_settings_operation_may_take_some_time))
                 .setPositiveButton(
-                        context.getString(R.string.media_settings_move_saved_files),
+                        context.getString(R.string.move),
                         (dialog, which) -> {
                             presenter.moveOldFilesToTheNewDirectory(
                                     oldBaseDirectory,
@@ -463,7 +463,7 @@ public class MediaSettingsController
                             );
                         })
                 .setNegativeButton(
-                        context.getString(R.string.media_settings_do_not_move_saved_files),
+                        context.getString(R.string.do_not),
                         (dialog, which) -> {
                             dialog.dismiss();
                         }
@@ -489,7 +489,7 @@ public class MediaSettingsController
         loadingViewController = null;
 
         if (!result) {
-            showToast(context.getString(R.string.media_settings_couldnot_copy_files), Toast.LENGTH_LONG);
+            showToast(context.getString(R.string.media_settings_could_not_copy_files), Toast.LENGTH_LONG);
         } else {
             showDeleteOldFilesDialog(oldBaseDirectory);
             showToast(context.getString(R.string.media_settings_files_copied), Toast.LENGTH_LONG);
@@ -503,11 +503,11 @@ public class MediaSettingsController
                 .setTitle(context.getString(R.string.media_settings_would_you_like_to_delete_file_in_old_dir))
                 .setMessage(context.getString(R.string.media_settings_file_have_been_copied))
                 .setPositiveButton(
-                        context.getString(R.string.media_settings_delete_button_name),
+                        context.getString(R.string.delete),
                         (dialog, which) -> onDeleteOldFilesClicked(oldBaseDirectory)
                 )
                 .setNegativeButton(
-                        context.getString(R.string.media_settings_do_not_delete),
+                        context.getString(R.string.do_not),
                         (dialog, which) -> {
                             if (oldBaseDirectory instanceof ExternalFile) {
                                 forgetPreviousExternalBaseDirectory(oldBaseDirectory);
@@ -523,7 +523,7 @@ public class MediaSettingsController
     private void onDeleteOldFilesClicked(@NonNull AbstractFile oldBaseDirectory) {
         if (!fileManager.deleteContent(oldBaseDirectory)) {
             String message =
-                    context.getString(R.string.media_settings_couldnot_delete_files_in_old_dir);
+                    context.getString(R.string.media_settings_could_not_delete_files_in_old_dir);
 
             showToast(message, Toast.LENGTH_LONG);
             return;
@@ -608,7 +608,7 @@ public class MediaSettingsController
                             );
                         })
                 .setNegativeButton(
-                        context.getString(R.string.media_settings_do_not_copy_files),
+                        context.getString(R.string.do_not),
                         (dialog, which) -> {
                             dialog.dismiss();
                         }

@@ -164,7 +164,7 @@ public class ImportExportSettingsController extends SettingsController implement
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.import_or_export_warning))
                 .setMessage(message)
-                .setPositiveButton(R.string.media_settings_ok, (dialog, which) -> {
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
                     dialog.dismiss();
                     showCreateNewOrOverwriteDialog();
                 })
@@ -174,11 +174,11 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     /**
-     * SAF is kinda retarded so it cannot be used to overwrite a file that already exist on the disk
+     * SAF is kinda horrible so it cannot be used to overwrite a file that already exist on the disk
      * (or at some network location). When trying to do so, a new file with appended "(1)" at the
      * end will appear. That's why there are two methods (one for overwriting an existing file and
      * the other one for creating a new file) instead of one that does everything.
-     * */
+     */
     private void showCreateNewOrOverwriteDialog() {
         int positiveButtonId = R.string.import_or_export_dialog_positive_button_text;
         int negativeButtonId = R.string.import_or_export_dialog_negative_button_text;
@@ -198,7 +198,7 @@ public class ImportExportSettingsController extends SettingsController implement
 
     /**
      * Opens an existing file (any file) for overwriting with the settings.
-     * */
+     */
     private void overwriteExisting() {
         fileChooser.openChooseFileDialog(new FileChooserCallback() {
             @Override
@@ -217,7 +217,7 @@ public class ImportExportSettingsController extends SettingsController implement
      * Creates a new file with the default name (that can be changed in the file chooser) with the
      * settings. Cannot be used for overwriting an old settings file (when trying to do so a new file
      * with appended "(1)" at the end will appear, e.g. "test (1).txt")
-     * */
+     */
     private void createNew() {
         fileChooser.openCreateFileDialog(EXPORT_FILE_NAME, new FileCreateCallback() {
             @Override

@@ -107,6 +107,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="create">Create</string>
 
     <string name="do_not">Do not</string>
+    <string name="move">Move</string>
 
     <string name="permission_app_settings">App settings</string>
     <string name="permission_grant">Grant</string>
@@ -711,7 +712,7 @@ Don't have a 4chan Pass?<br>
     <string name="import_or_export_dialog_positive_button_text">Overwrite</string>
     <string name="import_or_export_dialog_negative_button_text">Create new</string>
     <string name="import_or_export_warning">Warning!</string>
-    <string name="import_or_export_warning_super_long_message">You have %1$s %2$s %3$s set to be located in a directory that uses Storage Access Framework. Such directory locations cannot be exported into the settings file because SAF is fucking retarded (Basically if you try to export them and then use on another phone or if you delete the app then install it and import those settings the directory locations they are pointing to WILL NOT BE VALID ANYMORE AND THE APP WILL CRASH). Thus THEY WILL BE RESET TO DEFAULT in the exported settings file! So once you import them you will have to manually set back those locations in the Media Settings (so that the app can work with them). Sorry for such an inconvenience but there is nothing we can do. \n\nBlame Google for forcing this retarded fucking shit.</string>
+    <string name="import_or_export_warning_super_long_message">You have %1$s %2$s %3$s set to be located in a directory that uses the Storage Access Framework. These directory locations cannot be exported; THEY WILL BE RESET TO DEFAULT in the exported settings file! Once you import them you will have to manually set those locations in Media Settings again.</string>
     <string name="import_or_export_warning_local_threads_base_dir">\"local threads base directory\"</string>
     <string name="import_or_export_warning_and">and</string>
     <string name="import_or_export_warning_saved_files_base_dir">\"saved files base directory\"</string>
@@ -721,30 +722,23 @@ Don't have a 4chan Pass?<br>
 
     <string name="media_settings_use_saf_for_save_location_dialog_title">Use the new Storage Access Framework API to choose images download directory?</string>
     <string name="media_settings_use_saf_for_local_threads_location_dialog_title">Use the new Storage Access Framework API to choose local threads download directory?</string>
-    <string name="media_settings_use_saf_for_save_location_dialog_message">If you choose to use the SAF you will be able to choose the sd-card (or even something like Google Drive) as a place to store downloaded images</string>
-    <string name="media_settings_use_saf_for_local_threads_location_dialog_message">If you choose to use the SAF you will be able to choose the sd-card (or even something like Google Drive) as a place to store local threads images</string>
+    <string name="media_settings_use_saf_for_save_location_dialog_message">If you choose to use the SAF you will be able to choose an SD-card (or even something like Google Drive) as a place to store downloaded images</string>
+    <string name="media_settings_use_saf_for_local_threads_location_dialog_message">If you choose to use the SAF you will be able to choose the SD-card (or even something like Google Drive) as a place to store local threads images</string>
     <string name="media_settings_use_saf_dialog_positive_button_text">Use SAF API</string>
     <string name="media_settings_use_saf_dialog_negative_button_text">Use old API</string>
     <string name="media_settings_local_threads_location_title">Local threads location</string>
-    <string name="media_settings_couldnot_copy_files">Could not copy one directory\'s file into another one</string>
+    <string name="media_settings_could_not_copy_files">Could not copy one directory\'s file into another one</string>
     <string name="media_settings_files_copied">Successfully copied files</string>
     <string name="media_settings_would_you_like_to_delete_file_in_old_dir">Would you like to delete files in the old directory?</string>
     <string name="media_settings_file_have_been_copied">Files have been copied and now exist in two directories. You may want to remove files in the old directory since you won\'t need them anymore</string>
-    <string name="media_settings_delete_button_name">Delete</string>
-    <string name="media_settings_couldnot_delete_files_in_old_dir">Couldn\'t delete files in the old directory</string>
+    <string name="media_settings_could_not_delete_files_in_old_dir">Couldn\'t delete files in the old directory</string>
     <string name="media_settings_old_dir_deleted">Successfully deleted old directory</string>
-    <string name="media_settings_do_not_delete">Do not</string>
     <string name="media_settings_copy_files">Copy files</string>
     <string name="media_settings_do_you_want_to_copy_files">Do you want to copy %1$d files from old directory to the new one?"</string>
-    <string name="media_settings_do_not_copy_files">Do not</string>
     <string name="media_settings_could_not_release_uri_permissions">Couldn\'t release uri permissions</string>
     <string name="media_settings_move_threads_to_new_dir">Move old local threads to the new directory?</string>
     <string name="media_settings_operation_may_take_some_time">This operation may take quite some time. Once started this operation must not be canceled.</string>
-    <string name="media_settings_move_threads">Move</string>
     <string name="media_settings_move_saved_file_to_new_dir">Move old saved files to the new directory?</string>
-    <string name="media_settings_do_not_move_threads">Do not</string>
-    <string name="media_settings_move_saved_files">Move</string>
-    <string name="media_settings_do_not_move_saved_files">Do not</string>
     <string name="media_settings_old_threads_base_dir_not_registered">Old local threads base directory is probably not registered (newBaseDirectoryFile returned null)</string>
     <string name="media_settings_new_threads_base_dir_not_registered">New local threads base directory is probably not registered</string>
     <string name="media_settings_old_saved_files_base_dir_not_registered">Old saved files base directory is probably not registered (newBaseDirectoryFile returned null)</string>
@@ -754,7 +748,6 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_you_are_trying_to_move_files_in_the_same_directory">You are trying to move files in the same directory. The directory was changed but the files were not touched.</string>
     <string name="media_settings_there_are_active_downloads">There are %1$d threads being downloaded</string>
     <string name="media_settings_you_have_to_stop_all_downloads">You have to stop all the threads that are being downloaded before changing local threads base directory!</string>
-    <string name="media_settings_ok">OK</string>
     <string name="media_settings_some_thread_downloads_are_still_processed">Some thread downloads are still being processed</string>
     <string name="media_settings_do_not_terminate_the_app_manually">You may have to wait for couple of minutes until all active downloads are complete. DO NOT TERMINATE THE APP MANUALLY!!! Because this will break your local threads.</string>
 </resources>

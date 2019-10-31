@@ -186,13 +186,13 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
 
+            task.setSubFolder(subFolder);
             AbstractFile deduplicateFile = deduplicateFile(postImage, task);
             if (deduplicateFile == null) {
                 allSuccess = false;
                 continue;
             }
 
-            task.setSubFolder(subFolder);
             task.setDestination(deduplicateFile);
             startTask(task);
         }
