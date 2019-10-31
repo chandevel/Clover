@@ -23,6 +23,7 @@ import org.floens.chan.R;
 import org.floens.chan.controller.ui.NavigationControllerContainerLayout;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.settings.ChanSettings;
 
 import java.util.List;
 
@@ -43,6 +44,8 @@ public class ImageViewerNavigationController extends ToolbarNavigationController
         nav.setNavigationController(this);
         nav.setSwipeEnabled(false);
         toolbar = view.findViewById(R.id.toolbar);
+        if (ChanSettings.showToolbarImages.get())
+            toolbar.getLayoutParams().height = 0;
         toolbar.setCallback(this);
     }
 

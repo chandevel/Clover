@@ -35,10 +35,12 @@ import de.greenrobot.event.EventBus;
 
 public class ChanSettings {
     public enum MediaAutoLoadMode implements OptionSettingItem {
-        // ALways auto load, either wifi or mobile
+        // Always auto load, either wifi or mobile
         ALL("all"),
         // Only auto load if on wifi
         WIFI("wifi"),
+        // Wifi or ethernet
+        WIFI_ETHERNET("wifi | ethernet"),
         // Never auto load
         NONE("none");
 
@@ -98,6 +100,7 @@ public class ChanSettings {
     public static final BooleanSetting openLinkConfirmation;
     public static final BooleanSetting openLinkBrowser;
     public static final BooleanSetting autoRefreshThread;
+    public static final BooleanSetting showToolbarImages;
     //    public static final BooleanSetting imageAutoLoad;
     public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
     public static final OptionsSetting<MediaAutoLoadMode> videoAutoLoadNetwork;
@@ -178,6 +181,7 @@ public class ChanSettings {
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
         openLinkBrowser = new BooleanSetting(p, "preference_open_link_browser", false);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
+        showToolbarImages = new BooleanSetting(p, "preference_show_toolbar_images", true);
 //        imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
         imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
         videoAutoLoadNetwork = new OptionsSetting<>(p, "preference_video_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);

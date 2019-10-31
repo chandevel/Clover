@@ -364,6 +364,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
             return false;
         } else if (networkType == ChanSettings.MediaAutoLoadMode.WIFI) {
             return isConnected(ConnectivityManager.TYPE_WIFI);
+        } else if (networkType == ChanSettings.MediaAutoLoadMode.WIFI_ETHERNET) {
+            return isConnected(ConnectivityManager.TYPE_ETHERNET) || isConnected(ConnectivityManager.TYPE_WIFI);
         } else if (networkType == ChanSettings.MediaAutoLoadMode.ALL) {
             return true;
         }

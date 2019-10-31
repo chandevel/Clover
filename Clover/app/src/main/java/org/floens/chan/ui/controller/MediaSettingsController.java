@@ -122,6 +122,11 @@ public class MediaSettingsController extends SettingsController {
                     R.string.settings_reveal_image_spoilers,
                     R.string.settings_reveal_image_spoilers_description));
 
+            media.add(new BooleanSettingView(this,
+                    ChanSettings.showToolbarImages,
+                    R.string.setting_show_toolbar_images,
+                    R.string.setting_show_toolbar_images));
+
             groups.add(media);
         }
 
@@ -151,6 +156,9 @@ public class MediaSettingsController extends SettingsController {
                     break;
                 case WIFI:
                     name = R.string.setting_image_auto_load_wifi;
+                    break;
+                case WIFI_ETHERNET:
+                    name = R.string.setting_image_auto_load_wifi_ethernet;
                     break;
                 case NONE:
                     name = R.string.setting_image_auto_load_none;
