@@ -626,7 +626,12 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         if (file.length() > maxSize && maxSize != -1) {
             String fileSize = getReadableFileSize(file.length(), false);
             String maxSizeString = getReadableFileSize(maxSize, false);
-            String text = getRes().getString(probablyWebm ? R.string.reply_webm_too_big : R.string.reply_file_too_big, fileSize, maxSizeString);
+
+            int stringResId = probablyWebm
+                    ? R.string.reply_webm_too_big
+                    : R.string.reply_file_too_big;
+
+            String text = getRes().getString(stringResId, fileSize, maxSizeString);
             callback.openPreviewMessage(true, text);
         } else {
             callback.openPreviewMessage(false, null);

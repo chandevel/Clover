@@ -7,19 +7,24 @@ import android.os.Looper;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.FileSegment;
+import com.github.k1rakishou.fsaf.file.Segment;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -27,20 +32,24 @@ public class ImageLoaderV2 {
     private static final String TAG = "ImageLoaderV2";
 
     private ImageLoader imageLoader;
+    private FileManager fileManager;
+
     private Executor diskLoaderExecutor = Executors.newSingleThreadExecutor();
     private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
-    public ImageLoaderV2(ImageLoader imageLoader) {
+    public ImageLoaderV2(ImageLoader imageLoader, FileManager fileManager) {
         this.imageLoader = imageLoader;
+        this.fileManager = fileManager;
     }
 
-    public ImageContainer getImage(
+    public ImageLoader.ImageContainer getImage(
             boolean isThumbnail,
             Loadable loadable,
             PostImage postImage,
             int width,
             int height,
-            ImageListener imageListener) {
+            ImageLoader.ImageListener imageListener
+    ) {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be executed on the main thread!");
         }
@@ -84,108 +93,153 @@ public class ImageLoaderV2 {
                     postImage.spoiler,
                     imageListener,
                     width,
-                    height);
+                    height
+            );
         } else {
             return imageLoader.get(
                     postImage.getThumbnailUrl().toString(),
                     imageListener,
                     width,
-                    height);
+                    height
+            );
         }
     }
 
-    public ImageContainer getFromDisk(
+    public ImageLoader.ImageContainer getFromDisk(
             Loadable loadable,
             String filename,
             boolean isSpoiler,
-            ImageListener imageListener,
+            ImageLoader.ImageListener imageListener,
             int width,
-            int height) {
+            int height
+    ) {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be executed on the main thread!");
         }
 
-        ImageContainer container = null;
+        ImageLoader.ImageContainer container = null;
+
         try {
             @SuppressWarnings("JavaReflectionMemberAccess")
-            Constructor c = ImageContainer.class.getConstructor(ImageLoader.class, Bitmap.class, String.class, String.class, ImageListener.class);
+            Constructor c = ImageLoader.ImageContainer.class.getConstructor(
+                    ImageLoader.class,
+                    Bitmap.class,
+                    String.class,
+                    String.class,
+                    ImageLoader.ImageListener.class
+            );
+
             c.setAccessible(true);
-            container = (ImageContainer) c.newInstance(imageLoader, null, null, null, imageListener);
+            container = (ImageLoader.ImageContainer) c.newInstance(
+                    imageLoader,
+                    null,
+                    null,
+                    null,
+                    imageListener
+            );
+
         } catch (Exception failedSomething) {
             return container;
         }
 
-        ImageContainer finalContainer = container;
+        final ImageLoader.ImageContainer finalContainer = container;
 
         diskLoaderExecutor.execute(() -> {
-            String imageDir;
-            if (isSpoiler) {
-                imageDir = ThreadSaveManager.getBoardSubDir(loadable);
-            } else {
-                imageDir = ThreadSaveManager.getImagesSubDir(loadable);
-            }
-
-            File fullImagePath = new File(ChanSettings.saveLocation.get(), imageDir);
-            File imageOnDiskFile = new File(fullImagePath, filename);
-            String imageOnDisk = imageOnDiskFile.getAbsolutePath();
-
-            if (!imageOnDiskFile.exists() || !imageOnDiskFile.isFile() || !imageOnDiskFile.canRead()) {
-                String errorMessage = "Could not load image from the disk: " +
-                        "(path = " + imageOnDiskFile.getAbsolutePath() +
-                        ", exists = " + imageOnDiskFile.exists() +
-                        ", isFile = " + imageOnDiskFile.isFile() +
-                        ", canRead = " + imageOnDiskFile.canRead() + ")";
-                Logger.e(TAG, errorMessage);
-
-                mainThreadHandler.post(() -> {
-                    if (imageListener != null) {
-                        imageListener.onErrorResponse(new VolleyError(errorMessage));
-                    }
-                });
-                return;
-            }
-
-            // Image exists on the disk - try to load it and put in the cache
-            BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-            bitmapOptions.outWidth = width;
-            bitmapOptions.outHeight = height;
-
-            Bitmap bitmap = BitmapFactory.decodeFile(imageOnDisk, bitmapOptions);
-            if (bitmap == null) {
-                Logger.e(TAG, "Could not decode bitmap");
-
-                mainThreadHandler.post(() -> {
-                    if (imageListener != null) {
-                        imageListener.onErrorResponse(new VolleyError("Could not decode bitmap"));
-                    }
-                });
-                return;
-            }
-
-            mainThreadHandler.post(() -> {
-                try {
-                    Field bitmapField = finalContainer.getClass().getDeclaredField("mBitmap");
-                    Field urlField = finalContainer.getClass().getDeclaredField("mRequestUrl");
-                    bitmapField.setAccessible(true);
-                    urlField.setAccessible(true);
-                    bitmapField.set(finalContainer, bitmap);
-                    urlField.set(finalContainer, imageOnDisk);
-
-                    if (imageListener != null) {
-                        imageListener.onResponse(finalContainer, true);
-                    }
-                } catch (Exception e) {
-                    if (imageListener != null) {
-                        imageListener.onErrorResponse(new VolleyError("Couldn't set fields"));
-                    }
+            try {
+                if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
+                    throw new IOException("Base local threads directory does not exist");
                 }
-            });
+
+                AbstractFile baseDirFile = fileManager.newBaseDirectoryFile(
+                        LocalThreadsBaseDirectory.class
+                );
+
+                if (baseDirFile == null) {
+                    throw new IOException("getFromDisk() " +
+                            "fileManager.newLocalThreadFile() returned null");
+                }
+
+                List<Segment> segments = new ArrayList<>();
+
+                if (isSpoiler) {
+                    segments.addAll(ThreadSaveManager.getBoardSubDir(loadable));
+                } else {
+                    segments.addAll(ThreadSaveManager.getImagesSubDir(loadable));
+                }
+
+                segments.add(new FileSegment(filename));
+                AbstractFile imageOnDiskFile = baseDirFile.clone(segments);
+
+                boolean exists = fileManager.exists(imageOnDiskFile);
+                boolean isFile = fileManager.isFile(imageOnDiskFile);
+                boolean canRead = fileManager.canRead(imageOnDiskFile);
+
+                if (!exists || !isFile || !canRead) {
+                    String errorMessage = "Could not load image from the disk: " +
+                            "(path = " + imageOnDiskFile.getFullPath() +
+                            ", exists = " + exists +
+                            ", isFile = " + isFile +
+                            ", canRead = " + canRead + ")";
+
+                    Logger.e(TAG, errorMessage);
+                    postError(imageListener, errorMessage);
+                    return;
+                }
+
+                try (InputStream inputStream = fileManager.getInputStream(imageOnDiskFile)) {
+                    // Image exists on the disk - try to load it and put in the cache
+                    BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+                    bitmapOptions.outWidth = width;
+                    bitmapOptions.outHeight = height;
+
+                    Bitmap bitmap = BitmapFactory.decodeStream(
+                            inputStream,
+                            null,
+                            bitmapOptions);
+
+                    if (bitmap == null) {
+                        Logger.e(TAG, "Could not decode bitmap");
+                        postError(imageListener, "Could not decode bitmap");
+                        return;
+                    }
+
+                    mainThreadHandler.post(() -> {
+                        try {
+                            Field bitmapField = finalContainer.getClass().getDeclaredField("mBitmap");
+                            Field urlField = finalContainer.getClass().getDeclaredField("mRequestUrl");
+                            bitmapField.setAccessible(true);
+                            urlField.setAccessible(true);
+                            bitmapField.set(finalContainer, bitmap);
+                            urlField.set(finalContainer, imageOnDiskFile.getFullPath());
+
+                            if (imageListener != null) {
+                                imageListener.onResponse(finalContainer, true);
+                            }
+                        } catch (Exception e) {
+                            postError(imageListener, "Couldn't set fields");
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                String message = "Could not get an image from the disk, error message = "
+                        + e.getMessage();
+
+                postError(imageListener, message);
+            }
         });
 
         return container;
     }
 
-    public void cancelRequest(ImageContainer container) {
+    private void postError(ImageLoader.ImageListener imageListener, String message) {
+        mainThreadHandler.post(() -> {
+            if (imageListener != null) {
+                imageListener.onErrorResponse(new VolleyError(message));
+            }
+        });
+    }
+
+    public void cancelRequest(ImageLoader.ImageContainer container) {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be executed on the main thread!");
         }
@@ -193,9 +247,10 @@ public class ImageLoaderV2 {
         container.cancelRequest();
     }
 
-    public ImageContainer get(
+    public ImageLoader.ImageContainer get(
             String requestUrl,
-            ImageListener listener) {
+            ImageLoader.ImageListener listener
+    ) {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be executed on the main thread!");
         }
@@ -203,11 +258,12 @@ public class ImageLoaderV2 {
         return imageLoader.get(requestUrl, listener);
     }
 
-    public ImageContainer get(
+    public ImageLoader.ImageContainer get(
             String requestUrl,
-            ImageListener listener,
+            ImageLoader.ImageListener listener,
             int width,
-            int height) {
+            int height
+    ) {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be executed on the main thread!");
         }

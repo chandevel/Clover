@@ -26,10 +26,12 @@ import androidx.annotation.WorkerThread;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,10 +53,11 @@ public class FileCacheDownloader implements Runnable {
     private static final long NOTIFY_SIZE = BUFFER_SIZE * 8;
 
     private final String url;
-    private final File output;
+    private final RawFile output;
     private final Handler handler;
 
     // Main thread only.
+    private final FileManager fileManager;
     private final Callback callback;
     private final List<FileCacheListener> listeners = new ArrayList<>();
 
@@ -66,7 +69,8 @@ public class FileCacheDownloader implements Runnable {
     private Call call;
     private ResponseBody body;
 
-    public FileCacheDownloader(Callback callback, String url, File output) {
+    public FileCacheDownloader(FileManager fileManager, Callback callback, String url, RawFile output) {
+        this.fileManager = fileManager;
         this.callback = callback;
         this.url = url;
         this.output = output;
@@ -123,6 +127,7 @@ public class FileCacheDownloader implements Runnable {
     private void execute() {
         Closeable sourceCloseable = null;
         Closeable sinkCloseable = null;
+        OutputStream outputFileOutputStream = null;
 
         try {
             checkCancel();
@@ -132,18 +137,26 @@ public class FileCacheDownloader implements Runnable {
             Source source = body.source();
             sourceCloseable = source;
 
-            BufferedSink sink = Okio.buffer(Okio.sink(output));
+            if (!fileManager.exists(output) && fileManager.create(output) == null) {
+                throw new IOException("Couldn't create output file, output = "
+                        + output.getFullPath());
+            }
+
+            outputFileOutputStream = fileManager.getOutputStream(output);
+            if (outputFileOutputStream == null) {
+                throw new IOException("Couldn't get output file's OutputStream");
+            }
+
+            BufferedSink sink = Okio.buffer(Okio.sink(outputFileOutputStream));
             sinkCloseable = sink;
 
             checkCancel();
 
             log("got input stream");
-
             pipeBody(source, sink);
-
             log("done");
 
-            long fileLen = output.length();
+            long fileLen = fileManager.getLength(output);
 
             handler.post(() -> {
                 if (callback != null) {
@@ -188,11 +201,16 @@ public class FileCacheDownloader implements Runnable {
                 }
             });
         } finally {
-            if(sourceCloseable != null) {
+            if (sourceCloseable != null) {
                 Util.closeQuietly(sourceCloseable);
             }
-            if(sinkCloseable != null) {
+
+            if (sinkCloseable != null) {
                 Util.closeQuietly(sinkCloseable);
+            }
+
+            if (outputFileOutputStream != null) {
+                Util.closeQuietly(outputFileOutputStream);
             }
 
             if (call != null) {
@@ -273,8 +291,8 @@ public class FileCacheDownloader implements Runnable {
 
     @WorkerThread
     private void purgeOutput() {
-        if (output.exists()) {
-            final boolean deleteResult = output.delete();
+        if (fileManager.exists(output)) {
+            final boolean deleteResult = fileManager.delete(output);
 
             if (!deleteResult) {
                 log("could not delete the file in purgeOutput");

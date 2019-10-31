@@ -3,11 +3,12 @@ package com.github.adamantcheese.chan.core.database;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.utils.IOUtils;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
+import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.j256.ormlite.stmt.DeleteBuilder;
 
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -16,11 +17,26 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class DatabaseSavedThreadManager {
+    private static final String TAG = "DatabaseSavedThreadManager";
+
     @Inject
     DatabaseHelper helper;
+    @Inject
+    FileManager fileManager;
 
     public DatabaseSavedThreadManager() {
         inject(this);
+    }
+
+    public Callable<Long> countDownloadingThreads() {
+        return () -> {
+            return helper.savedThreadDao.queryBuilder()
+                    .where()
+                    .eq(SavedThread.IS_STOPPED, false)
+                    .and()
+                    .eq(SavedThread.IS_FULLY_DOWNLOADED, false)
+                    .countOf();
+        };
     }
 
     public Callable<List<SavedThread>> getSavedThreads() {
@@ -30,6 +46,16 @@ public class DatabaseSavedThreadManager {
                     .where()
                     .eq(SavedThread.IS_FULLY_DOWNLOADED, false)
                     .query();
+        };
+    }
+
+    public Callable<Boolean> hasSavedThreads() {
+        return () -> {
+            SavedThread savedThread = helper.savedThreadDao
+                    .queryBuilder()
+                    .queryForFirst();
+
+            return savedThread != null;
         };
     }
 
@@ -114,6 +140,7 @@ public class DatabaseSavedThreadManager {
                 return true;
             }
 
+            savedThread.isStopped = true;
             savedThread.isFullyDownloaded = true;
             helper.savedThreadDao.update(savedThread);
 
@@ -153,16 +180,36 @@ public class DatabaseSavedThreadManager {
             db.where().eq(SavedThread.LOADABLE_ID, loadable.id);
             db.delete();
 
-            String threadSubDir = ThreadSaveManager.getThreadSubDir(loadable);
-            File threadSaveDir = new File(ChanSettings.saveLocation.get(), threadSubDir);
-
-            if (!threadSaveDir.exists() || !threadSaveDir.isDirectory()) {
-                return null;
-            }
-
-            IOUtils.deleteDirWithContents(threadSaveDir);
+            deleteThreadFromDisk(loadable);
             return null;
         };
+    }
+
+    // TODO: may not work, but in theory it should
+    public void deleteThreadFromDisk(Loadable loadable) {
+        AbstractFile localThreadsDir = fileManager.newBaseDirectoryFile(
+                LocalThreadsBaseDirectory.class
+        );
+
+        if (localThreadsDir == null
+                || !fileManager.exists(localThreadsDir)
+                || !fileManager.isDirectory(localThreadsDir)) {
+            // Probably already deleted
+            return;
+        }
+
+        AbstractFile threadDir = localThreadsDir
+                .clone(ThreadSaveManager.getThreadSubDir(loadable));
+
+        if (!fileManager.exists(threadDir) || !fileManager.isDirectory(threadDir)) {
+            // Probably already deleted
+            return;
+        }
+
+        if (!fileManager.delete(threadDir)) {
+            Logger.d(TAG, "deleteThreadFromDisk() Could not delete SAF directory "
+                    + threadDir.getFullPath());
+        }
     }
 
     public Callable<Void> deleteSavedThreads(List<Loadable> loadableList) {

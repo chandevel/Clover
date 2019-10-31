@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.cache;
 
-import java.io.File;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 public abstract class FileCacheListener {
     public void onProgress(long downloaded, long total) {
@@ -25,7 +25,7 @@ public abstract class FileCacheListener {
     /**
      * Called when the file download was completed.
      */
-    public void onSuccess(File file) {
+    public void onSuccess(RawFile file) {
     }
 
     /**

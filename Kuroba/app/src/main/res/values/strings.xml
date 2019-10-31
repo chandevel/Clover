@@ -77,6 +77,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="other">%1$d new posts, %2$d quoting you</item>
     </plurals>
 
+    <string-array name="setting_watch_sounds">
+        <item>All posts</item>
+        <item>Only posts quoting you</item>
+    </string-array>
+    <string-array name="setting_watch_leds">
+        <item>None</item>
+        <item>White</item>
+        <item>Red</item>
+        <item>Yellow</item>
+        <item>Green</item>
+        <item>Cyan</item>
+        <item>Blue</item>
+        <item>Purple</item>
+    </string-array>
+
     <string name="empty" />
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
@@ -118,14 +133,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_storage_permission_required_title">Storage permission required</string>
     <string name="update_storage_permission_required">
 "Permission to access storage is required for installing the update.
-
-Re-enable this permission in the app settings if you permanently disabled it."</string>
-    <string name="storage_permission_required_to_export_settings">
-"Permission to access storage is required to export settings.
-
-Re-enable this permission in the app settings if you permanently disabled it."</string>
-    <string name="storage_permission_required_to_import_settings">
-"Permission to access storage is required to import settings.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
     <string name="minutes">%d minutes</string>
@@ -608,6 +615,7 @@ Don't have a 4chan Pass?<br>
     <string name="export_settings_to_a_file">Export settings to a file</string>
     <string name="import_settings">Import settings</string>
     <string name="import_settings_from_a_file">Import settings from a file</string>
+    <string name="successfully_exported_text">Exported successfully"</string>
     <string name="import_warning_title">Warning</string>
     <string name="import_warning_text">You are about to import settings/saved pins/filters/hidden posts from a file.
         The file must be located at \"%1$s\" and have a name \"%2$s\".
@@ -615,11 +623,8 @@ Don't have a 4chan Pass?<br>
         You MAY LOSE some of your settings/pins/hidden threads if you are trying to import a file created with a different app version (upgrade or downgrade).
         The app will be restarted. \nAre you sure you want to continue?
     </string>
-    <string name="successfully_exported_text">Exported successfully to \"%1$s\". File path has been copied to the clipboard.</string>
     <string name="error_external_storage_is_not_mounted">External storage is not mounted</string>
     <string name="could_not_create_dir_for_export_error_text">Could not create directory for export file %1$s; you probably won\'t be able to export settings</string>
-    <string name="default_directory_may_not_exist_message">The default directory may not exist yet. Do you want to check whether the directory exists and create it automatically?</string>
-    <string name="default_directory_may_not_exist_title">Default directory may not exist</string>
     <string name="apply_to_replies">Apply to replies</string>
     <string name="only_on_op">Only on OP</string>
     <string name="apply_to_saved">Apply to own posts</string>
@@ -702,18 +707,54 @@ Don't have a 4chan Pass?<br>
         <item>Only posts quoting you</item>
     </string-array>
 
-    <string-array name="setting_watch_sounds">
-        <item>All posts</item>
-        <item>Only posts quoting you</item>
-    </string-array>
-    <string-array name="setting_watch_leds">
-        <item>None</item>
-        <item>White</item>
-        <item>Red</item>
-        <item>Yellow</item>
-        <item>Green</item>
-        <item>Cyan</item>
-        <item>Blue</item>
-        <item>Purple</item>
-    </string-array>
+    <string name="import_or_export_dialog_title">Overwrite existing file or create a new one?</string>
+    <string name="import_or_export_dialog_positive_button_text">Overwrite</string>
+    <string name="import_or_export_dialog_negative_button_text">Create new</string>
+    <string name="import_or_export_warning">Warning!</string>
+    <string name="import_or_export_warning_super_long_message">You have %1$s %2$s %3$s set to be located in a directory that uses Storage Access Framework. Such directory locations cannot be exported into the settings file because SAF is fucking retarded (Basically if you try to export them and then use on another phone or if you delete the app then install it and import those settings the directory locations they are pointing to WILL NOT BE VALID ANYMORE AND THE APP WILL CRASH). Thus THEY WILL BE RESET TO DEFAULT in the exported settings file! So once you import them you will have to manually set back those locations in the Media Settings (so that the app can work with them). Sorry for such an inconvenience but there is nothing we can do. \n\nBlame Google for forcing this retarded fucking shit.</string>
+    <string name="import_or_export_warning_local_threads_base_dir">\"local threads base directory\"</string>
+    <string name="import_or_export_warning_and">and</string>
+    <string name="import_or_export_warning_saved_files_base_dir">\"saved files base directory\"</string>
+    <string name="base_local_threads_dir_not_exists">Base local threads directory does not exist (or it was deleted). You need to manually set it again in Media settings.</string>
+    <string name="album_download_could_not_save_one_or_more_images">Could not save one or more images</string>
+    <string name="could_not_create_base_local_threads_dir">Could not create base local threads directory</string>
+
+    <string name="media_settings_use_saf_for_save_location_dialog_title">Use the new Storage Access Framework API to choose images download directory?</string>
+    <string name="media_settings_use_saf_for_local_threads_location_dialog_title">Use the new Storage Access Framework API to choose local threads download directory?</string>
+    <string name="media_settings_use_saf_for_save_location_dialog_message">If you choose to use the SAF you will be able to choose the sd-card (or even something like Google Drive) as a place to store downloaded images</string>
+    <string name="media_settings_use_saf_for_local_threads_location_dialog_message">If you choose to use the SAF you will be able to choose the sd-card (or even something like Google Drive) as a place to store local threads images</string>
+    <string name="media_settings_use_saf_dialog_positive_button_text">Use SAF API</string>
+    <string name="media_settings_use_saf_dialog_negative_button_text">Use old API</string>
+    <string name="media_settings_local_threads_location_title">Local threads location</string>
+    <string name="media_settings_couldnot_copy_files">Could not copy one directory\'s file into another one</string>
+    <string name="media_settings_files_copied">Successfully copied files</string>
+    <string name="media_settings_would_you_like_to_delete_file_in_old_dir">Would you like to delete files in the old directory?</string>
+    <string name="media_settings_file_have_been_copied">Files have been copied and now exist in two directories. You may want to remove files in the old directory since you won\'t need them anymore</string>
+    <string name="media_settings_delete_button_name">Delete</string>
+    <string name="media_settings_couldnot_delete_files_in_old_dir">Couldn\'t delete files in the old directory</string>
+    <string name="media_settings_old_dir_deleted">Successfully deleted old directory</string>
+    <string name="media_settings_do_not_delete">Do not</string>
+    <string name="media_settings_copy_files">Copy files</string>
+    <string name="media_settings_do_you_want_to_copy_files">Do you want to copy %1$d files from old directory to the new one?"</string>
+    <string name="media_settings_do_not_copy_files">Do not</string>
+    <string name="media_settings_could_not_release_uri_permissions">Couldn\'t release uri permissions</string>
+    <string name="media_settings_move_threads_to_new_dir">Move old local threads to the new directory?</string>
+    <string name="media_settings_operation_may_take_some_time">This operation may take quite some time. Once started this operation must not be canceled.</string>
+    <string name="media_settings_move_threads">Move</string>
+    <string name="media_settings_move_saved_file_to_new_dir">Move old saved files to the new directory?</string>
+    <string name="media_settings_do_not_move_threads">Do not</string>
+    <string name="media_settings_move_saved_files">Move</string>
+    <string name="media_settings_do_not_move_saved_files">Do not</string>
+    <string name="media_settings_old_threads_base_dir_not_registered">Old local threads base directory is probably not registered (newBaseDirectoryFile returned null)</string>
+    <string name="media_settings_new_threads_base_dir_not_registered">New local threads base directory is probably not registered</string>
+    <string name="media_settings_old_saved_files_base_dir_not_registered">Old saved files base directory is probably not registered (newBaseDirectoryFile returned null)</string>
+    <string name="media_settings_new_saved_files_base_dir_not_registered">New saved files base directory is probably not registered</string>
+    <string name="media_settings_no_files_to_copy">No files to copy</string>
+    <string name="media_settings_copying_file">Copying file %1$d out of %2$d</string>
+    <string name="media_settings_you_are_trying_to_move_files_in_the_same_directory">You are trying to move files in the same directory. The directory was changed but the files were not touched.</string>
+    <string name="media_settings_there_are_active_downloads">There are %1$d threads being downloaded</string>
+    <string name="media_settings_you_have_to_stop_all_downloads">You have to stop all the threads that are being downloaded before changing local threads base directory!</string>
+    <string name="media_settings_ok">OK</string>
+    <string name="media_settings_some_thread_downloads_are_still_processed">Some thread downloads are still being processed</string>
+    <string name="media_settings_do_not_terminate_the_app_manually">You may have to wait for couple of minutes until all active downloads are complete. DO NOT TERMINATE THE APP MANUALLY!!! Because this will break your local threads.</string>
 </resources>

@@ -51,6 +51,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.file.RawFile;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -310,8 +311,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             }
 
             @Override
-            public void onSuccess(File file) {
-                setBitImageFileInternal(file, true, Mode.BIGIMAGE);
+            public void onSuccess(RawFile file) {
+                setBitImageFileInternal(
+                        new File(file.getFullPath()),
+                        true,
+                        Mode.BIGIMAGE);
             }
 
             @Override
@@ -349,9 +353,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             }
 
             @Override
-            public void onSuccess(File file) {
+            public void onSuccess(RawFile file) {
                 if (!hasContent || mode == Mode.GIF) {
-                    setGifFile(file);
+                    setGifFile(new File(file.getFullPath()));
                 }
             }
 
@@ -416,9 +420,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             }
 
             @Override
-            public void onSuccess(File file) {
+            public void onSuccess(RawFile file) {
                 if (!hasContent || mode == Mode.MOVIE) {
-                    setVideoFile(file);
+                    setVideoFile(new File(file.getFullPath()));
                 }
             }
 
@@ -444,7 +448,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(FileProvider.getUriForFile(getAppContext(), getAppContext().getPackageName() + ".fileprovider", file), "video/*");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
             AndroidUtils.openIntent(intent);
 
             onModeLoaded(Mode.MOVIE, null);

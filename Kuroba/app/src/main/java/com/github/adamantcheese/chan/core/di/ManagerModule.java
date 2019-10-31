@@ -37,6 +37,7 @@ import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
 
 import org.codejargon.feather.Provides;
 
@@ -136,18 +137,23 @@ public class ManagerModule {
     @Singleton
     public ThreadSaveManager provideSaveThreadManager(
             DatabaseManager databaseManager,
-            SavedThreadLoaderRepository savedThreadLoaderRepository) {
+            SavedThreadLoaderRepository savedThreadLoaderRepository,
+            FileManager fileManager) {
         Logger.d(AppModule.DI_TAG, "Thread save manager");
         return new ThreadSaveManager(
                 databaseManager,
-                savedThreadLoaderRepository);
+                savedThreadLoaderRepository,
+                fileManager);
     }
 
     @Provides
     @Singleton
     public SavedThreadLoaderManager provideSavedThreadLoaderManager(
-            SavedThreadLoaderRepository savedThreadLoaderRepository) {
+            SavedThreadLoaderRepository savedThreadLoaderRepository,
+            FileManager fileManager) {
         Logger.d(AppModule.DI_TAG, "Saved thread loader manager");
-        return new SavedThreadLoaderManager(savedThreadLoaderRepository);
+        return new SavedThreadLoaderManager(
+                savedThreadLoaderRepository,
+                fileManager);
     }
 }

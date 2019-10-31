@@ -44,11 +44,30 @@ public class StringSetting extends Setting<String> {
         }
     }
 
+    public void setNoUpdate(String value) {
+        if (!value.equals(get())) {
+            settingProvider.putString(key, value);
+            cached = value;
+        }
+    }
+
     public void setSync(String value) {
         if (!value.equals(get())) {
             settingProvider.putStringSync(key, value);
             cached = value;
             onValueChanged();
         }
+    }
+
+    public void setSyncNoCheck(String value) {
+        settingProvider.putStringSync(key, value);
+        cached = value;
+        onValueChanged();
+    }
+
+    public void remove() {
+        settingProvider.removeSync(key);
+        hasCached = false;
+        cached = null;
     }
 }

@@ -260,7 +260,9 @@ public class WatchNotification extends Service {
             Loadable loadable = entry.getValue().first;
             List<Post> posts = entry.getValue().second;
 
-            threadSaveManager.enqueueThreadToSave(loadable, posts);
+            if (!threadSaveManager.enqueueThreadToSave(loadable, posts)) {
+                watchManager.stopSavingThread(loadable);
+            }
         }
     }
 

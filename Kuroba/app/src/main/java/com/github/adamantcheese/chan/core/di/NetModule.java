@@ -24,6 +24,7 @@ import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
 
 import org.codejargon.feather.Provides;
 
@@ -48,9 +49,9 @@ public class NetModule {
 
     @Provides
     @Singleton
-    public FileCache provideFileCache() {
+    public FileCache provideFileCache(FileManager fileManager) {
         Logger.d(AppModule.DI_TAG, "File cache");
-        return new FileCache(new File(getCacheDir(), "filecache"));
+        return new FileCache(getCacheDir(), fileManager);
     }
 
     private File getCacheDir() {

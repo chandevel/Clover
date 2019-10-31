@@ -63,11 +63,13 @@ import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadListLayout;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
+import com.github.k1rakishou.fsaf.FileManager;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -108,13 +110,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     private static final int POST_OPTION_EXTRA = 15;
     private static final int POST_OPTION_REMOVE = 16;
 
-    private ThreadPresenterCallback threadPresenterCallback;
-    private WatchManager watchManager;
-    private DatabaseManager databaseManager;
-    private ChanLoaderFactory chanLoaderFactory;
-    private PageRequestManager pageRequestManager;
-    private ThreadSaveManager threadSaveManager;
+    private final WatchManager watchManager;
+    private final DatabaseManager databaseManager;
+    private final ChanLoaderFactory chanLoaderFactory;
+    private final PageRequestManager pageRequestManager;
+    private final ThreadSaveManager threadSaveManager;
+    private final FileManager fileManager;
 
+    private ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
     private ChanThreadLoader chanLoader;
     private boolean searchOpen;
@@ -130,12 +133,15 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                            DatabaseManager databaseManager,
                            ChanLoaderFactory chanLoaderFactory,
                            PageRequestManager pageRequestManager,
-                           ThreadSaveManager threadSaveManager) {
+                           ThreadSaveManager threadSaveManager,
+                           FileManager fileManager
+    ) {
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
         this.chanLoaderFactory = chanLoaderFactory;
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
+        this.fileManager = fileManager;
     }
 
     public void create(ThreadPresenterCallback threadPresenterCallback) {
@@ -248,6 +254,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             return;
         }
 
+        if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
+            // Base directory for local threads does not exist or was deleted
+            return;
+        }
+
         watchManager.startSavingThread(loadable);
         EventBus.getDefault().post(new WatchManager.PinMessages.PinChangedMessage(pin));
     }
@@ -318,15 +329,25 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
     public boolean save() {
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
-            return saveInternal();
+            boolean startedSaving = saveInternal();
+            if (!startedSaving) {
+                watchManager.stopSavingThread(loadable);
+            }
+
+            return startedSaving;
         }
 
-        pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
-        if (PinType.hasNoFlags(pin.pinType)) {
+        if (!PinType.hasWatchNewPostsFlag(pin.pinType)) {
+            pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
             watchManager.deletePin(pin);
         } else {
-            watchManager.updatePin(pin);
             watchManager.stopSavingThread(pin.loadable);
+
+            // Remove the flag after stopping thread saving, otherwise we just won't find the thread
+            // because the pin won't have the download flag which we check somewhere deep inside the
+            // stopSavingThread() method
+            pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
+            watchManager.updatePin(pin);
         }
 
         loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
@@ -335,6 +356,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
 
     private boolean saveInternal() {
         if (chanLoader.getThread() == null) {
+            Logger.e(TAG, "chanLoader.getThread() == null");
             return false;
         }
 
@@ -351,9 +373,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             }
 
             oldPin.pinType = PinType.addDownloadNewPostsFlag(oldPin.pinType);
-
             watchManager.updatePin(oldPin);
-            startSavingThreadInternal(loadable, postsToSave, oldPin);
+
+            if (!startSavingThreadInternal(loadable, postsToSave, oldPin)) {
+                return false;
+            }
+
             EventBus.getDefault().post(new WatchManager.PinMessages.PinChangedMessage(oldPin));
         } else {
             // Save button is clicked and bookmark button is not yet pressed
@@ -370,7 +395,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
                 throw new IllegalStateException("Could not find freshly created pin by loadable " + loadable);
             }
 
-            startSavingThreadInternal(loadable, postsToSave, newPin);
+            if (!startSavingThreadInternal(loadable, postsToSave, newPin)) {
+                return false;
+            }
+
             EventBus.getDefault().post(new WatchManager.PinMessages.PinAddedMessage(newPin));
         }
 
@@ -381,7 +409,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         return true;
     }
 
-    private void startSavingThreadInternal(
+    private boolean startSavingThreadInternal(
             Loadable loadable,
             List<Post> postsToSave,
             Pin newPin) {
@@ -389,7 +417,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             throw new IllegalStateException("newPin does not have DownloadFlag: " + newPin.pinType);
         }
 
-        watchManager.startSavingThread(loadable, postsToSave);
+        return watchManager.startSavingThread(loadable, postsToSave);
     }
 
     public boolean isPinned() {
@@ -599,7 +627,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
             return;
         }
 
-        threadSaveManager.enqueueThreadToSave(loadable, posts);
+        if (!threadSaveManager.enqueueThreadToSave(loadable, posts)) {
+            // Probably base directory was removed by the user, can't do anything other than
+            // just stop this download
+            watchManager.stopSavingThread(loadable);
+        }
     }
 
     @Override

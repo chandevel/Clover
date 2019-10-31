@@ -35,6 +35,18 @@ public class BackgroundUtils {
         return Thread.currentThread() == Looper.getMainLooper().getThread();
     }
 
+    public static void ensureMainThread() {
+        if (!isMainThread()) {
+            throw new IllegalStateException("Cannot be executed on a background thread!");
+        }
+    }
+
+    public static void ensureBackgroundThread() {
+        if (isMainThread()) {
+            throw new IllegalStateException("Cannot be executed on the main thread!");
+        }
+    }
+
     public static <T> Cancelable runWithExecutor(Executor executor, final Callable<T> background,
                                                  final BackgroundResult<T> result) {
         final AtomicBoolean cancelled = new AtomicBoolean(false);

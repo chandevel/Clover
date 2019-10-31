@@ -12,9 +12,7 @@ import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
-import com.github.adamantcheese.chan.utils.IOUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +21,8 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class ExperimentalSettingsController extends SettingsController {
+    private static final String TAG = "ExperimentalSettingsController";
+
     public ExperimentalSettingsController(Context context) {
         super(context);
     }
@@ -94,14 +94,9 @@ public class ExperimentalSettingsController extends SettingsController {
             databaseManager.getDatabasePinManager().updatePins(downloadPins).call();
 
             for (Pin pin : downloadPins) {
-                String threadSubDir = ThreadSaveManager.getThreadSubDir(pin.loadable);
-                File threadSaveDir = new File(ChanSettings.saveLocation.get(), threadSubDir);
-
-                if (!threadSaveDir.exists() || !threadSaveDir.isDirectory()) {
-                    continue;
-                }
-
-                IOUtils.deleteDirWithContents(threadSaveDir);
+                databaseManager.getDatabaseSavedThreadManager().deleteThreadFromDisk(
+                        pin.loadable
+                );
             }
 
             return null;

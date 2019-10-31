@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
@@ -42,13 +43,19 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
     private FilesLayout filesLayout;
     private FloatingActionButton setButton;
     private FloatingActionButton addButton;
-
     private RuntimePermissionsHelper runtimePermissionsHelper;
-
     private FileWatcher fileWatcher;
+    private SaveLocationControllerMode mode;
+    private SaveLocationControllerCallback callback;
 
-    public SaveLocationController(Context context) {
+    public SaveLocationController(
+            Context context,
+            SaveLocationControllerMode mode,
+            SaveLocationControllerCallback callback) {
         super(context);
+
+        this.callback = callback;
+        this.mode = mode;
     }
 
     @Override
@@ -65,7 +72,22 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
         addButton = view.findViewById(R.id.add_button);
         addButton.setOnClickListener(this);
 
-        File saveLocation = new File(ChanSettings.saveLocation.get());
+        File saveLocation;
+
+        if (mode == SaveLocationControllerMode.ImageSaveLocation) {
+            if (ChanSettings.saveLocation.get().isEmpty()) {
+                throw new IllegalStateException("saveLocation is empty!");
+            }
+
+            saveLocation = new File(ChanSettings.saveLocation.get());
+        } else {
+            if (ChanSettings.localThreadLocation.get().isEmpty()) {
+                throw new IllegalStateException("localThreadLocation is empty!");
+            }
+
+            saveLocation = new File(ChanSettings.localThreadLocation.get());
+        }
+
         fileWatcher = new FileWatcher(this, saveLocation);
 
         runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
@@ -79,8 +101,7 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
     @Override
     public void onClick(View v) {
         if (v == setButton) {
-            File currentPath = fileWatcher.getCurrentPath();
-            ChanSettings.saveLocation.set(currentPath.getAbsolutePath());
+            onDirectoryChosen();
             navigationController.popController();
         } else if (v == addButton) {
             @SuppressLint("InflateParams") final NewFolderLayout dialogView =
@@ -91,22 +112,42 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
                     .setView(dialogView)
                     .setTitle(R.string.save_new_folder)
                     .setPositiveButton(R.string.add, (dialog, which) -> {
-                        if (!dialogView.getFolderName().matches("\\A\\w+\\z")) {
-                            Toast.makeText(context, "Folder must be a word, no spaces", Toast.LENGTH_SHORT).show();
-                        } else {
-                            File newDir = new File(fileWatcher.getCurrentPath().getAbsolutePath() + File.separator + dialogView.getFolderName());
-                            //noinspection ResultOfMethodCallIgnored
-                            newDir.mkdir();
-                            fileWatcher.navigateTo(newDir);
-                            ChanSettings.saveLocation.set(fileWatcher.getCurrentPath().getAbsolutePath());
-                            navigationController.popController();
-                        }
-                        dialog.dismiss();
+                        onPositionButtonClick(dialogView, dialog);
                     })
                     .setNegativeButton(R.string.cancel, null)
                     .create()
                     .show();
         }
+    }
+
+    private void onPositionButtonClick(NewFolderLayout dialogView, DialogInterface dialog) {
+        if (!dialogView.getFolderName().matches("\\A\\w+\\z")) {
+            Toast.makeText(
+                    context,
+                    "Folder must be a word, no spaces",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            File newDir = new File(
+                    fileWatcher.getCurrentPath().getAbsolutePath()
+                            + File.separator
+                            + dialogView.getFolderName());
+
+            if (!newDir.mkdir()) {
+                throw new IllegalStateException("Could not create directory "
+                        + newDir.getAbsolutePath());
+            }
+
+            fileWatcher.navigateTo(newDir);
+
+            onDirectoryChosen();
+            navigationController.popController();
+        }
+
+        dialog.dismiss();
+    }
+
+    private void onDirectoryChosen() {
+        callback.onDirectorySelected(fileWatcher.getCurrentPath().getAbsolutePath());
     }
 
     @Override
@@ -145,5 +186,14 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
     private void initialize() {
         filesLayout.initialize();
         fileWatcher.initialize();
+    }
+
+    public interface SaveLocationControllerCallback {
+        void onDirectorySelected(String dirPath);
+    }
+
+    public enum SaveLocationControllerMode {
+        ImageSaveLocation,
+        LocalThreadsSaveLocation
     }
 }

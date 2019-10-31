@@ -16,16 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.Manifest;
-import android.content.ClipData;
-import android.content.ClipboardManager;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.os.Environment;
+import android.net.Uri;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -36,26 +33,41 @@ import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileChooser;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.callback.FileChooserCallback;
+import com.github.k1rakishou.fsaf.callback.FileCreateCallback;
+import com.github.k1rakishou.fsaf.file.ExternalFile;
 
-import java.io.File;
+import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 public class ImportExportSettingsController extends SettingsController implements
         ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
+    private static final String TAG = "ImportExportSettingsController";
     public static final String EXPORT_FILE_NAME = getApplicationLabel() + "_exported_settings.json";
 
-    @Nullable
+    @Inject
+    FileManager fileManager;
+    @Inject
+    FileChooser fileChooser;
+
     private ImportExportSettingsPresenter presenter;
 
     @Nullable
     private OnExportSuccessCallbacks callbacks;
 
     private LoadingViewController loadingViewController;
-    private File settingsFile = new File(ChanSettings.saveLocation.get(), EXPORT_FILE_NAME);
 
     public ImportExportSettingsController(Context context, @NonNull OnExportSuccessCallbacks callbacks) {
         super(context);
+
+        inject(this);
 
         this.callbacks = callbacks;
         this.loadingViewController = new LoadingViewController(context, true);
@@ -72,8 +84,6 @@ public class ImportExportSettingsController extends SettingsController implement
         setupLayout();
         populatePreferences();
         buildPreferences();
-
-        showCreateDirectoryDialog();
     }
 
     @Override
@@ -112,103 +122,154 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     private void onExportClicked() {
-        String state = Environment.getExternalStorageState();
-        if (!Environment.MEDIA_MOUNTED.equals(state)) {
-            showMessage(context.getString(R.string.error_external_storage_is_not_mounted));
+        boolean localThreadsLocationIsSAFBacked = !ChanSettings.localThreadsLocationUri.get().isEmpty();
+        boolean savedFilesLocationIsSAFBacked = !ChanSettings.saveLocationUri.get().isEmpty();
+
+        if (localThreadsLocationIsSAFBacked || savedFilesLocationIsSAFBacked) {
+            showSomeBaseDirectoriesWillBeResetToDefaultDialog(
+                    localThreadsLocationIsSAFBacked,
+                    savedFilesLocationIsSAFBacked
+            );
             return;
         }
 
-        ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
-            if (granted && presenter != null) {
-                navigationController.presentController(loadingViewController);
-                presenter.doExport(settingsFile);
-            } else {
-                ((StartActivity) context).getRuntimePermissionsHelper().showPermissionRequiredDialog(context,
-                        context.getString(R.string.update_storage_permission_required_title),
-                        context.getString(R.string.storage_permission_required_to_export_settings),
-                        this::onExportClicked);
+        showCreateNewOrOverwriteDialog();
+    }
+
+    private void showSomeBaseDirectoriesWillBeResetToDefaultDialog(
+            boolean localThreadsLocationIsSAFBacked,
+            boolean savedFilesLocationIsSAFBacked
+    ) {
+        if (!localThreadsLocationIsSAFBacked && !savedFilesLocationIsSAFBacked) {
+            throw new IllegalStateException("Both variables are false, wtf?");
+        }
+
+        String localThreadsString = localThreadsLocationIsSAFBacked
+                ? context.getString(R.string.import_or_export_warning_local_threads_base_dir)
+                : "";
+        String andString = localThreadsLocationIsSAFBacked && savedFilesLocationIsSAFBacked
+                ? context.getString(R.string.import_or_export_warning_and)
+                : "";
+        String savedFilesString = savedFilesLocationIsSAFBacked
+                ? context.getString(R.string.import_or_export_warning_saved_files_base_dir)
+                : "";
+
+        String message = context.getString(
+                R.string.import_or_export_warning_super_long_message,
+                localThreadsString,
+                andString,
+                savedFilesString
+        );
+
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.import_or_export_warning))
+                .setMessage(message)
+                .setPositiveButton(R.string.media_settings_ok, (dialog, which) -> {
+                    dialog.dismiss();
+                    showCreateNewOrOverwriteDialog();
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    /**
+     * SAF is kinda retarded so it cannot be used to overwrite a file that already exist on the disk
+     * (or at some network location). When trying to do so, a new file with appended "(1)" at the
+     * end will appear. That's why there are two methods (one for overwriting an existing file and
+     * the other one for creating a new file) instead of one that does everything.
+     * */
+    private void showCreateNewOrOverwriteDialog() {
+        int positiveButtonId = R.string.import_or_export_dialog_positive_button_text;
+        int negativeButtonId = R.string.import_or_export_dialog_negative_button_text;
+
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(R.string.import_or_export_dialog_title)
+                .setPositiveButton(positiveButtonId, (dialog, which) -> {
+                    overwriteExisting();
+                })
+                .setNegativeButton(negativeButtonId, (dialog, which) -> {
+                    createNew();
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    /**
+     * Opens an existing file (any file) for overwriting with the settings.
+     * */
+    private void overwriteExisting() {
+        fileChooser.openChooseFileDialog(new FileChooserCallback() {
+            @Override
+            public void onResult(@NotNull Uri uri) {
+                onFileChosen(uri, false);
+            }
+
+            @Override
+            public void onCancel(@NotNull String reason) {
+                showMessage(reason);
             }
         });
     }
 
-    private void showCreateDirectoryDialog() {
-        String state = Environment.getExternalStorageState();
-        if (!Environment.MEDIA_MOUNTED.equals(state)) {
-            showMessage(context.getString(R.string.error_external_storage_is_not_mounted));
-            return;
-        }
-
-        // if we already have the permission and the default directory already exists - do not show
-        // the dialog again
-        if (((StartActivity) context).getRuntimePermissionsHelper().hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            if (settingsFile.getParentFile().exists()) {
-                return;
+    /**
+     * Creates a new file with the default name (that can be changed in the file chooser) with the
+     * settings. Cannot be used for overwriting an old settings file (when trying to do so a new file
+     * with appended "(1)" at the end will appear, e.g. "test (1).txt")
+     * */
+    private void createNew() {
+        fileChooser.openCreateFileDialog(EXPORT_FILE_NAME, new FileCreateCallback() {
+            @Override
+            public void onResult(@NotNull Uri uri) {
+                onFileChosen(uri, true);
             }
-        }
 
-        // Ask the user's permission to check whether the default directory exists and create it if it doesn't
-        new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.default_directory_may_not_exist_title))
-                .setMessage(context.getString(R.string.default_directory_may_not_exist_message))
-                .setPositiveButton(context.getString(R.string.create), (dialog1, which) -> ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
-                    if (granted) {
-                        onPermissionGrantedForDirectoryCreation();
-                    }
-                }))
-                .setNegativeButton(context.getString(R.string.do_not), null)
-                .create()
-                .show();
+            @Override
+            public void onCancel(@NotNull String reason) {
+                showMessage(reason);
+            }
+        });
     }
 
-    private void onPermissionGrantedForDirectoryCreation() {
-        if (settingsFile.getParentFile().exists()) {
+    private void onFileChosen(Uri uri, boolean isNewFile) {
+        // We use SAF here by default because settings importing/exporting does not depend on the
+        // Kuroba default directory location. There is just no need to use old java files.
+        ExternalFile externalFile = fileManager.fromUri(uri);
+        if (externalFile == null) {
+            String message = "onFileChosen() fileManager.fromUri() returned null, uri = " + uri;
+
+            Logger.d(TAG, message);
+            showMessage(message);
             return;
         }
 
-        if (!settingsFile.getParentFile().mkdirs()) {
-            showMessage(context.getString(R.string.could_not_create_dir_for_export_error_text, settingsFile.getParentFile().getAbsolutePath()));
-        }
+        navigationController.presentController(loadingViewController);
+        presenter.doExport(externalFile, isNewFile);
     }
 
     private void onImportClicked() {
-        String state = Environment.getExternalStorageState();
-        if (!Environment.MEDIA_MOUNTED.equals(state)) {
-            showMessage(context.getString(R.string.error_external_storage_is_not_mounted));
-            return;
-        }
+        fileChooser.openChooseFileDialog(new FileChooserCallback() {
+            @Override
+            public void onResult(@NotNull Uri uri) {
+                ExternalFile externalFile = fileManager.fromUri(uri);
+                if (externalFile == null) {
+                    String message = "onImportClicked() fileManager.fromUri() returned null, uri = " + uri;
 
-        ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted -> {
-            if (granted) {
-                onPermissionGrantedForImport();
-            } else {
-                ((StartActivity) context).getRuntimePermissionsHelper().showPermissionRequiredDialog(context,
-                        context.getString(R.string.update_storage_permission_required_title),
-                        context.getString(R.string.storage_permission_required_to_import_settings),
-                        this::onImportClicked);
+                    Logger.d(TAG, message);
+                    showMessage(message);
+                    return;
+                }
+
+                navigationController.presentController(loadingViewController);
+                presenter.doImport(externalFile);
+            }
+
+            @Override
+            public void onCancel(@NotNull String reason) {
+                showMessage(reason);
             }
         });
-    }
-
-    private void onPermissionGrantedForImport() {
-        String warningMessage = context.getString(R.string.import_warning_text,
-                settingsFile.getParentFile().getPath(),
-                settingsFile.getName());
-
-        AlertDialog dialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.import_warning_title)
-                .setMessage(warningMessage)
-                .setPositiveButton(R.string.continue_text, (dialog1, which) -> onStartImportButtonClicked())
-                .setNegativeButton(R.string.cancel, null)
-                .create();
-
-        dialog.show();
-    }
-
-    private void onStartImportButtonClicked() {
-        if (presenter != null) {
-            navigationController.presentController(loadingViewController);
-            presenter.doImport(settingsFile);
-        }
     }
 
     @Override
@@ -219,11 +280,8 @@ public class ImportExportSettingsController extends SettingsController implement
                 if (importExport == ImportExportRepository.ImportExport.Import) {
                     ((StartActivity) context).restartApp();
                 } else {
-                    copyDirPathToClipboard();
                     clearAllChildControllers();
-
-                    showMessage(context.getString(R.string.successfully_exported_text,
-                            settingsFile.getAbsolutePath()));
+                    showMessage(context.getString(R.string.successfully_exported_text));
 
                     if (callbacks != null) {
                         callbacks.finish();
@@ -233,14 +291,6 @@ public class ImportExportSettingsController extends SettingsController implement
         }
     }
 
-    private void copyDirPathToClipboard() {
-        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("exported_file_path", settingsFile.getPath());
-
-        if (clipboard != null) {
-            clipboard.setPrimaryClip(clip);
-        }
-    }
 
     @Override
     public void onError(String message) {

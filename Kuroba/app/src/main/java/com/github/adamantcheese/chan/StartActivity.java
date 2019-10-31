@@ -61,6 +61,10 @@ import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileChooser;
+import com.github.k1rakishou.fsaf.callback.FSAFActivityCallbacks;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -73,7 +77,10 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
-public class StartActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
+public class StartActivity
+        extends AppCompatActivity
+        implements NfcAdapter.CreateNdefMessageCallback,
+        FSAFActivityCallbacks {
     private static final String TAG = "StartActivity";
 
     private static final String STATE_KEY = "chan_state";
@@ -94,15 +101,14 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     @Inject
     DatabaseManager databaseManager;
-
     @Inject
     WatchManager watchManager;
-
     @Inject
     SiteResolver siteResolver;
-
     @Inject
     SiteService siteService;
+    @Inject
+    FileChooser fileChooser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +120,8 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         }
 
         Chan.injector().instance(ThemeHelper.class).setupContext(this);
+
+        fileChooser.setCallbacks(this);
 
         imagePickDelegate = new ImagePickDelegate(this);
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
@@ -534,6 +542,8 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             return;
         }
 
+        fileChooser.removeCallbacks();
+
         // TODO: clear whole stack?
         stackTop().onHide();
         stackTop().onDestroy();
@@ -544,7 +554,13 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        imagePickDelegate.onActivityResult(requestCode, resultCode, data);
+        if (fileChooser.onActivityResult(requestCode, resultCode, data)) {
+            return;
+        }
+
+        if (imagePickDelegate.onActivityResult(requestCode, resultCode, data)) {
+            return;
+        }
     }
 
     private Controller stackTop() {
@@ -580,5 +596,10 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         finish();
 
         Runtime.getRuntime().exit(0);
+    }
+
+    @Override
+    public void fsafStartActivityForResult(@NotNull Intent intent, int requestCode) {
+        startActivityForResult(intent, requestCode);
     }
 }

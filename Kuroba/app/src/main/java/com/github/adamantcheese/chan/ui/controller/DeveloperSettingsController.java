@@ -35,7 +35,6 @@ import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

@@ -1,4 +1,7 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     // !!! IMPORTANT !!!
@@ -70,6 +73,10 @@ android {
         encoding = 'UTF-8'
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        freeCompilerArgs = ["-Xallow-result-return-type"]
     }
 
     lintOptions {
@@ -215,6 +222,10 @@ dependencies {
     implementation 'com.vdurmont:emoji-java:5.1.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha'
+
+    testImplementation 'junit:junit:4.12'
 }
 
 //========================================================

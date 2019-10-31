@@ -22,17 +22,23 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
+import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
+import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.FileSegment;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,52 +51,74 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private static final String TAG = "ImageSaver";
     private static final int MAX_NAME_LENGTH = 50;
     private static final Pattern UNSAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._\\\\ -]");
+
+    private FileManager fileManager;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private int doneTasks = 0;
     private int totalTasks = 0;
     private Toast toast;
 
-    public ImageSaver() {
+    public ImageSaver(FileManager fileManager) {
+        this.fileManager = fileManager;
+
         EventBus.getDefault().register(this);
     }
 
-    public void startDownloadTask(Context context, final ImageSaveTask task) {
+    public void startDownloadTask(
+            Context context,
+            final ImageSaveTask task,
+            DownloadTaskCallbacks callbacks) {
+        if (hasPermission(context)) {
+            startDownloadTaskInternal(task, callbacks);
+            return;
+        }
+
+        requestPermission(context, granted -> {
+            if (!granted) {
+                callbacks.onError("Cannot start saving images without WRITE permission");
+                return;
+            }
+
+            startDownloadTaskInternal(task, callbacks);
+        });
+    }
+
+    private void startDownloadTaskInternal(
+            ImageSaveTask task,
+            DownloadTaskCallbacks callbacks) {
+        AbstractFile saveLocation = getSaveLocation(task);
+        if (saveLocation == null) {
+            callbacks.onError("Couldn't figure out save location");
+            return;
+        }
+
         PostImage postImage = task.getPostImage();
         task.setDestination(deduplicateFile(postImage, task));
 
-        if (hasPermission(context)) {
-            startTask(task);
-            updateNotification();
-        } else {
-            // This does not request the permission when another request is pending.
-            // This is ok and will drop the task.
-            requestPermission(context, granted -> {
-                if (granted) {
-                    startTask(task);
-                    updateNotification();
-                } else {
-                    showToast(null, false, false);
-                }
-            });
-        }
+        // At this point we already have disk permissions
+        startTask(task);
+        updateNotification();
     }
 
     public boolean startBundledTask(Context context, final String subFolder, final List<ImageSaveTask> tasks) {
         if (hasPermission(context)) {
-            startBundledTaskInternal(subFolder, tasks);
-            return true;
-        } else {
-            // This does not request the permission when another request is pending.
-            // This is ok and will drop the tasks.
-            requestPermission(context, granted -> {
-                if (granted) {
-                    startBundledTaskInternal(subFolder, tasks);
-                } else {
-                    showToast(null, false, false);
-                }
-            });
-            return false;
+            return startBundledTaskInternal(subFolder, tasks);
         }
+
+        // This does not request the permission when another request is pending.
+        // This is ok and will drop the tasks.
+        requestPermission(context, granted -> {
+            if (granted) {
+                if (startBundledTaskInternal(subFolder, tasks)) {
+                    return;
+                }
+            }
+
+            showToast(null, false, false);
+        });
+
+        // TODO: uhh not sure about this one
+        return true;
     }
 
     public String getSubFolder(String name) {
@@ -99,14 +127,32 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         return filtered;
     }
 
-    public File getSaveLocation(ImageSaveTask task) {
-        String base = ChanSettings.saveLocation.get();
+    @Nullable
+    public AbstractFile getSaveLocation(ImageSaveTask task) {
+        AbstractFile baseSaveDir = fileManager.newBaseDirectoryFile(SavedFilesBaseDirectory.class);
+        if (baseSaveDir == null) {
+            Logger.e(TAG, "getSaveLocation() fileManager.newSaveLocationFile() returned null");
+            return null;
+        }
+
+        AbstractFile createdBaseSaveDir = fileManager.create(baseSaveDir);
+
+        if (!fileManager.exists(baseSaveDir) || createdBaseSaveDir == null) {
+            Logger.e(TAG, "Couldn't create base image save directory");
+            return null;
+        }
+
+        if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
+            Logger.e(TAG, "Base save local directory does not exist");
+            return null;
+        }
+
         String subFolder = task.getSubFolder();
         if (subFolder != null) {
-            return new File(base + File.separator + subFolder);
-        } else {
-            return new File(base);
+            return baseSaveDir.cloneUnsafe(subFolder);
         }
+
+        return baseSaveDir;
     }
 
     @Override
@@ -134,15 +180,25 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         executor.execute(task);
     }
 
-    private void startBundledTaskInternal(String subFolder, List<ImageSaveTask> tasks) {
+    private boolean startBundledTaskInternal(String subFolder, List<ImageSaveTask> tasks) {
+        boolean allSuccess = true;
+
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
-            task.setSubFolder(subFolder);
-            task.setDestination(deduplicateFile(postImage, task));
 
+            AbstractFile deduplicateFile = deduplicateFile(postImage, task);
+            if (deduplicateFile == null) {
+                allSuccess = false;
+                continue;
+            }
+
+            task.setSubFolder(subFolder);
+            task.setDestination(deduplicateFile);
             startTask(task);
         }
+
         updateNotification();
+        return allSuccess;
     }
 
     private void cancelAll() {
@@ -173,13 +229,40 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             toast.cancel();
         }
 
-        String text = success ?
-                (wasAlbumSave ? getAppContext().getString(R.string.album_download_success, getSaveLocation(task).getPath()) : getAppContext().getString(R.string.image_save_as, task.getDestination().getName())) :
-                getString(R.string.image_save_failed);
+        String text = getText(task, success, wasAlbumSave);
         toast = Toast.makeText(getAppContext(), text, Toast.LENGTH_LONG);
+
         if (task != null && !task.getShare()) {
             toast.show();
         }
+    }
+
+    private String getText(ImageSaveTask task, boolean success, boolean wasAlbumSave) {
+        String text;
+        if (success) {
+            if (wasAlbumSave) {
+                String location;
+                AbstractFile locationFile = getSaveLocation(task);
+
+                if (locationFile == null) {
+                    location = "Unknown location";
+                } else {
+                    location = locationFile.getFullPath();
+                }
+
+                text = getAppContext().getString(
+                        R.string.album_download_success,
+                        location);
+            } else {
+                text = getAppContext().getString(
+                        R.string.image_save_as,
+                        fileManager.getName(task.getDestination()));
+            }
+        } else {
+            text = getString(R.string.image_save_failed);
+        }
+
+        return text;
     }
 
     private String filterName(String name) {
@@ -190,14 +273,33 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         return name;
     }
 
-    private File deduplicateFile(PostImage postImage, ImageSaveTask task) {
-        String name = ChanSettings.saveServerFilename.get() ? postImage.serverFilename : postImage.filename;
+    @Nullable
+    private AbstractFile deduplicateFile(PostImage postImage, ImageSaveTask task) {
+        String name = ChanSettings.saveServerFilename.get()
+                ? postImage.serverFilename
+                : postImage.filename;
+
         String fileName = filterName(name + "." + postImage.extension);
-        File saveFile = new File(getSaveLocation(task), fileName);
-        while (saveFile.exists()) {
-            fileName = filterName(name + "_" + Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX) + "." + postImage.extension);
-            saveFile = new File(getSaveLocation(task), fileName);
+
+        AbstractFile saveLocation = getSaveLocation(task);
+        if (saveLocation == null) {
+            Logger.e(TAG, "Save location is null!");
+            return null;
         }
+
+        AbstractFile saveFile = saveLocation
+                .clone(new FileSegment(fileName));
+
+        while (fileManager.exists(saveFile)) {
+            String resultFileName = name + "_" +
+                    Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX)
+                    + "." + postImage.extension;
+
+            fileName = filterName(resultFileName);
+            saveFile = saveLocation
+                    .clone(new FileSegment(fileName));
+        }
+
         return saveFile;
     }
 
@@ -207,5 +309,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     private void requestPermission(Context context, RuntimePermissionsHelper.Callback callback) {
         ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
+    }
+
+    public interface DownloadTaskCallbacks {
+        void onError(String message);
     }
 }

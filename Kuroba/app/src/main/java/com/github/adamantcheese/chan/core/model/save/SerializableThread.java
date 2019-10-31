@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.model.save;
 
 import com.github.adamantcheese.chan.core.mapper.PostMapper;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
@@ -27,6 +28,10 @@ public class SerializableThread {
      * Merge old posts with new posts avoiding duplicates and then sort merged list
      */
     public SerializableThread merge(List<Post> posts) {
+        if (BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Cannot be executed on the main thread!");
+        }
+
         Set<SerializablePost> postsSet = new HashSet<>(posts.size() + postList.size());
         postsSet.addAll(postList);
 
@@ -36,6 +41,7 @@ public class SerializableThread {
 
         List<SerializablePost> filteredPosts = new ArrayList<>(postsSet.size());
         filteredPosts.addAll(postsSet);
+        postsSet.clear();
 
         Collections.sort(filteredPosts, postComparator);
 
@@ -44,5 +50,6 @@ public class SerializableThread {
         return this;
     }
 
-    private static final Comparator<SerializablePost> postComparator = (o1, o2) -> Integer.compare(o1.getNo(), o2.getNo());
+    private static final Comparator<SerializablePost> postComparator
+            = (o1, o2) -> Integer.compare(o1.getNo(), o2.getNo());
 }

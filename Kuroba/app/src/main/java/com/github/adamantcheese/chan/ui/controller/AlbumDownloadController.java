@@ -30,7 +30,6 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -47,6 +46,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 public class AlbumDownloadController extends Controller implements View.OnClickListener {
@@ -56,10 +58,15 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
     private List<AlbumDownloadItem> items = new ArrayList<>();
     private Loadable loadable;
 
+    @Inject
+    ImageSaver imageSaver;
+
     private boolean allChecked = true;
 
     public AlbumDownloadController(Context context) {
         super(context);
+
+        inject(this);
     }
 
     @Override
@@ -94,7 +101,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
             if (checkCount == 0) {
                 Toast.makeText(context, R.string.album_download_none_checked, Toast.LENGTH_SHORT).show();
             } else {
-                final String folderForAlbum = Chan.injector().instance(ImageSaver.class).getSubFolder(loadable.title);
+                final String folderForAlbum = imageSaver.getSubFolder(loadable.title);
 
                 String message = context.getString(R.string.album_download_confirm,
                         context.getResources().getQuantityString(R.plurals.image, checkCount, checkCount),
@@ -111,9 +118,15 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
                                 }
                             }
 
-                            if (Chan.injector().instance(ImageSaver.class).startBundledTask(context, folderForAlbum, tasks)) {
+                            if (imageSaver.startBundledTask(context, folderForAlbum, tasks)) {
                                 navigationController.popController();
+                                return;
                             }
+
+                            Toast.makeText(
+                                    context,
+                                    R.string.album_download_could_not_save_one_or_more_images,
+                                    Toast.LENGTH_SHORT).show();
                         })
                         .show();
             }

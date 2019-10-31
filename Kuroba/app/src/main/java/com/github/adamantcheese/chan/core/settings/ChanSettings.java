@@ -20,7 +20,11 @@ import android.net.ConnectivityManager;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
@@ -100,7 +104,9 @@ public class ChanSettings {
     }
 
     private static Proxy proxy;
-    private static final String sharedPrefsFile = "shared_prefs/com.github.adamantcheese.chan_preferences.xml";
+    private static final String sharedPrefsFile = "shared_prefs/"
+            + BuildConfig.APPLICATION_ID
+            + "_preferences.xml";
 
     private static final StringSetting theme;
     public static final OptionsSetting<LayoutMode> layoutMode;
@@ -122,6 +128,9 @@ public class ChanSettings {
     public static final BooleanSetting shortPinInfo;
 
     public static final StringSetting saveLocation;
+    public static final StringSetting saveLocationUri;
+    public static final StringSetting localThreadLocation;
+    public static final StringSetting localThreadsLocationUri;
     public static final BooleanSetting saveServerFilename;
     public static final BooleanSetting shareUrl;
     public static final BooleanSetting enableReplyFab;
@@ -182,7 +191,6 @@ public class ChanSettings {
     public static final BooleanSetting highResCells;
 
     public static final BooleanSetting incrementalThreadDownloadingEnabled;
-
     public static final BooleanSetting fullUserRotationEnable;
 
     public static final IntegerSetting drawerAutoOpenCount;
@@ -220,9 +228,26 @@ public class ChanSettings {
         postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
         shortPinInfo = new BooleanSetting(p, "preference_short_pin_info", true);
 
-        saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + getApplicationLabel());
-        saveLocation.addCallback((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
+        saveLocation = new StringSetting(p, "preference_image_save_location", getDefaultSaveLocationDir());
+        saveLocation.addCallback((setting, value) -> {
+            EventBus.getDefault().post(new SettingChanged<>(saveLocation));
+        });
+
+        saveLocationUri = new StringSetting(p, "preference_image_save_location_uri", "");
+        saveLocationUri.addCallback(((setting, value) -> {
+            EventBus.getDefault().post(new SettingChanged<>(saveLocationUri));
+        }));
+
+        localThreadLocation = new StringSetting(p, "local_threads_location", getDefaultLocalThreadsLocation());
+        localThreadLocation.addCallback(((setting, value) -> {
+            EventBus.getDefault().post(new SettingChanged<>(localThreadLocation));
+        }));
+
+        localThreadsLocationUri = new StringSetting(p, "local_threads_location_uri", "");
+        localThreadsLocationUri.addCallback((settings, value) -> {
+            EventBus.getDefault().post(new SettingChanged<>(localThreadsLocationUri));
+        });
+
         saveServerFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
         accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);
@@ -293,9 +318,7 @@ public class ChanSettings {
         shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
         enableEmoji = new BooleanSetting(p, "enable_emoji", false);
         highResCells = new BooleanSetting(p, "high_res_cells", false);
-
         incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
-
         fullUserRotationEnable = new BooleanSetting(p, "full_user_rotation_enable", true);
 
         drawerAutoOpenCount = new IntegerSetting(p, "drawer_auto_open_count", 0);
@@ -306,6 +329,22 @@ public class ChanSettings {
 
         parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", false);
         parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", false);
+    }
+
+    @NonNull
+    public static String getDefaultLocalThreadsLocation() {
+        return Environment.getExternalStorageDirectory()
+                + File.separator
+                + getApplicationLabel()
+                + File.separator
+                + ThreadSaveManager.SAVED_THREADS_DIR_NAME;
+    }
+
+    @NonNull
+    public static String getDefaultSaveLocationDir() {
+        return Environment.getExternalStorageDirectory()
+                + File.separator
+                + getApplicationLabel();
     }
 
     public static ThemeColor getThemeAndColor() {
@@ -356,14 +395,45 @@ public class ChanSettings {
      * Called on the Database thread.
      */
     public static String serializeToString() throws IOException {
+        String prevSaveLocationUri = null;
+        String prevLocalThreadsLocationUri = null;
+
+        // We need to check if the user has any of the location settings set to a SAF directory.
+        // We can't export them because if the user reinstalls the app and then imports a location
+        // setting that point to a SAF directory that directory won't be valid for the app because
+        // after clearing settings all permissions for that directory will be lost. So in case the
+        // user tries to export SAF directory paths we don't export them and instead export default
+        // locations. But we also don't wont to change the paths for the current app so we need to
+        // save the previous paths, patch the sharedPrefs file read it to string and then restore
+        // the current paths back to what they were before exporting.
+        if (!ChanSettings.saveLocationUri.get().isEmpty()) {
+            // Save the saveLocationUri
+            prevSaveLocationUri = ChanSettings.saveLocationUri.get();
+
+            ChanSettings.saveLocationUri.remove();
+            ChanSettings.saveLocation.setSyncNoCheck(ChanSettings.getDefaultSaveLocationDir());
+        }
+
+        if (!ChanSettings.localThreadsLocationUri.get().isEmpty()) {
+            // Save the localThreadsLocationUri
+            prevLocalThreadsLocationUri = ChanSettings.localThreadsLocationUri.get();
+
+            ChanSettings.localThreadsLocationUri.remove();
+            ChanSettings.localThreadLocation.setSyncNoCheck(
+                    ChanSettings.getDefaultLocalThreadsLocation()
+            );
+        }
+
         File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
 
         if (!file.exists()) {
-            throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
+            throw new IOException("Shared preferences file does not exist! " +
+                    "(" + file.getAbsolutePath() + ")");
         }
 
         if (!file.canRead()) {
-            throw new IOException("Cannot read from shared preferences file! (" + file.getAbsolutePath() + ")");
+            throw new IOException("Cannot read from shared preferences file!" +
+                    "(" + file.getAbsolutePath() + ")");
         }
 
         byte[] buffer = new byte[(int) file.length()];
@@ -372,8 +442,20 @@ public class ChanSettings {
             int readAmount = inputStream.read(buffer);
 
             if (readAmount != file.length()) {
-                throw new IOException("Could not read shared prefs file readAmount != fileLength " + readAmount + ", " + file.length());
+                throw new IOException("Could not read shared prefs file readAmount != fileLength "
+                        + readAmount + ", " + file.length());
             }
+        }
+
+        // Restore back the previous paths
+        if (prevSaveLocationUri != null) {
+            ChanSettings.saveLocation.setSyncNoCheck("");
+            ChanSettings.saveLocationUri.setSyncNoCheck(prevSaveLocationUri);
+        }
+
+        if (prevLocalThreadsLocationUri != null) {
+            ChanSettings.localThreadLocation.setSyncNoCheck("");
+            ChanSettings.localThreadsLocationUri.setSyncNoCheck(prevLocalThreadsLocationUri);
         }
 
         return new String(buffer);
@@ -387,11 +469,13 @@ public class ChanSettings {
         File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
 
         if (!file.exists()) {
-            throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
+            throw new IOException("Shared preferences file does not exist! " +
+                    "(" + file.getAbsolutePath() + ")");
         }
 
         if (!file.canWrite()) {
-            throw new IOException("Cannot write to shared preferences file! (" + file.getAbsolutePath() + ")");
+            throw new IOException("Cannot write to shared preferences file! " +
+                    "(" + file.getAbsolutePath() + ")");
         }
 
         try (FileOutputStream outputStream = new FileOutputStream(file)) {

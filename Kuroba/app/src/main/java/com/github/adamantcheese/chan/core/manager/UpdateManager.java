@@ -45,6 +45,7 @@ import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -180,14 +181,14 @@ public class UpdateManager {
             }
 
             @Override
-            public void onSuccess(File file) {
+            public void onSuccess(RawFile file) {
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
                 File copy = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS),
                         getApplicationLabel() + ".apk");
                 try {
-                    IOUtils.copyFile(file, copy);
+                    IOUtils.copyFile(new File(file.getFullPath()), copy);
                 } catch (IOException e) {
                     Logger.e(TAG, "requestApkInstall", e);
                     new AlertDialog.Builder(context)

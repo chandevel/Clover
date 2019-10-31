@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.saver;
 
 import android.content.Intent;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 
 import com.github.adamantcheese.chan.core.cache.FileCache;
@@ -25,8 +24,10 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,18 +35,19 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class ImageSaveTask extends FileCacheListener implements Runnable {
     private static final String TAG = "ImageSaveTask";
 
     @Inject
     FileCache fileCache;
+    @Inject
+    FileManager fileManager;
 
     private PostImage postImage;
     private Loadable loadable;
     private ImageSaveTaskCallback callback;
-    private File destination;
+    private AbstractFile destination;
     private boolean share;
     private String subFolder;
 
@@ -73,11 +75,11 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         return postImage;
     }
 
-    public void setDestination(File destination) {
+    public void setDestination(AbstractFile destination) {
         this.destination = destination;
     }
 
-    public File getDestination() {
+    public AbstractFile getDestination() {
         return destination;
     }
 
@@ -92,7 +94,7 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     @Override
     public void run() {
         try {
-            if (destination.exists()) {
+            if (fileManager.exists(destination)) {
                 onDestination();
                 // Manually call postFinished()
                 postFinished(success);
@@ -105,8 +107,8 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     }
 
     @Override
-    public void onSuccess(File file) {
-        if (copyToDestination(file)) {
+    public void onSuccess(RawFile file) {
+        if (copyToDestination(new File(file.getFullPath()))) {
             onDestination();
         } else {
             deleteDestination();
@@ -119,8 +121,8 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     }
 
     private void deleteDestination() {
-        if (destination.exists()) {
-            if (!destination.delete()) {
+        if (fileManager.exists(destination)) {
+            if (!fileManager.delete(destination)) {
                 Logger.e(TAG, "Could not delete destination after an interrupt");
             }
         }
@@ -128,26 +130,32 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     private void onDestination() {
         success = true;
-        MediaScannerConnection.scanFile(getAppContext(), new String[]{destination.getAbsolutePath()}, null, (path, uri) -> {
-            // Runs on a binder thread
-            AndroidUtils.runOnUiThread(() -> afterScan(uri));
-        });
+//        String[] paths = {destination.getFullPath()};
+
+        // FIXME: does not work. Who in their right mind even wants their downloaded images
+        //  to be scanned by the google botnet
+//        MediaScannerConnection.scanFile(getAppContext(), paths, null, (path, uri) -> {
+//            // Runs on a binder thread
+//            AndroidUtils.runOnUiThread(() -> afterScan(uri));
+//        });
     }
 
     private boolean copyToDestination(File source) {
         boolean result = false;
 
         try {
-            File parent = destination.getParentFile();
-            if (!parent.mkdirs() && !parent.isDirectory()) {
-                throw new IOException("Could not create parent directory");
+            AbstractFile createdDestinationFile = fileManager.create(destination);
+            if (createdDestinationFile == null) {
+                throw new IOException("Could not create destination file, path = " + destination.getFullPath());
             }
 
-            if (destination.isDirectory()) {
+            if (fileManager.isDirectory(createdDestinationFile)) {
                 throw new IOException("Destination file is already a directory");
             }
 
-            IOUtils.copyFile(source, destination);
+            if (!fileManager.copyFileContents(fileManager.fromRawFile(source), createdDestinationFile)) {
+                throw new IOException("Could not copy source file into destination");
+            }
 
             result = true;
         } catch (IOException e) {
