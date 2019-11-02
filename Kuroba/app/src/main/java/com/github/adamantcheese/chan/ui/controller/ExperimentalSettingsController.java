@@ -9,6 +9,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
+import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
@@ -118,7 +119,21 @@ public class ExperimentalSettingsController extends SettingsController {
 
         requiresUiRefresh.add(group.add(new BooleanSettingView(this,
                 ChanSettings.parsePostImageLinks,
-                "Enable image link loading", "Adds any JPG, PNG, GIF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available")));
+                R.string.setting_enable_image_link_loading,
+                R.string.setting_enable_image_link_loading_description)));
+
+        requiresUiRefresh.add(group.add(new LinkSettingView(
+                this,
+                // TODO(gestures): strings!
+                "Android 10 gesture zones",
+                "Adjust zones where new Android 10 gestures will be disabled",
+                (v) -> {
+                    AdjustAndroid10GestureZonesController adjustGestureZonesController
+                            = new AdjustAndroid10GestureZonesController(context);
+
+                    navigationController.pushController(adjustGestureZonesController);
+                }
+        )));
 
         groups.add(group);
     }

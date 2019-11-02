@@ -201,6 +201,7 @@ public class ChanSettings {
 
     public static final BooleanSetting parseYoutubeTitles;
     public static final BooleanSetting parsePostImageLinks;
+    public static final StringSetting androidTenGestureZones;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -329,6 +330,7 @@ public class ChanSettings {
 
         parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", false);
         parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", false);
+        androidTenGestureZones = new StringSetting(p, "android_ten_gesture_zones", "{}");
     }
 
     @NonNull
