@@ -267,9 +267,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     /**
      * @param isFileName is used to figure out what characters are allowed and what are not.
      *                   If set to false, then we additionally remove all '.' characters because
-     *                   directory name should have '.' characters (well it actually can but let's
-     *                   filter them anyway). If it's false then it is implied that the "name" param
-     *                   is a directory segment name.
+     *                   directory names should not have '.' characters (well they actually can but
+     *                   let's filter them anyway). If it's false then it is implied that the "name"
+     *                   param is a directory segment name.
      * */
     private String filterName(String name, boolean isFileName) {
         String filteredName;
