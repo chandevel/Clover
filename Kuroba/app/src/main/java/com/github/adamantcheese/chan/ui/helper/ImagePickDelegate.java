@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -76,6 +77,8 @@ public class ImagePickDelegate implements Runnable {
     }
 
     public void pick(ImagePickCallback callback, boolean longPressed) {
+        BackgroundUtils.ensureMainThread();
+
         if (this.callback == null) {
             this.callback = callback;
 
@@ -95,6 +98,8 @@ public class ImagePickDelegate implements Runnable {
                     Chan.injector().instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
                         @Override
                         public void onSuccess(RawFile file) {
+                            BackgroundUtils.ensureMainThread();
+
                             Toast.makeText(activity, activity.getString(R.string.image_url_get_success), Toast.LENGTH_SHORT).show();
                             Uri imageURL = Uri.parse(finalClipboardURL.toString());
                             callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
@@ -103,6 +108,8 @@ public class ImagePickDelegate implements Runnable {
 
                         @Override
                         public void onFail(boolean notFound) {
+                            BackgroundUtils.ensureMainThread();
+
                             Toast.makeText(activity, activity.getString(R.string.image_url_get_failed), Toast.LENGTH_SHORT).show();
                             callback.onFilePickError(true);
                             reset();

@@ -18,6 +18,8 @@ package com.github.adamantcheese.chan.core.cache;
 
 import com.github.k1rakishou.fsaf.file.RawFile;
 
+import java.io.IOException;
+
 public abstract class FileCacheListener {
     public void onProgress(long downloaded, long total) {
     }
@@ -26,6 +28,13 @@ public abstract class FileCacheListener {
      * Called when the file download was completed.
      */
     public void onSuccess(RawFile file) {
+    }
+
+    /**
+     *  @param error is an exception that terminated the downloading process
+     * */
+    public void onNetworkError(IOException error) {
+
     }
 
     /**

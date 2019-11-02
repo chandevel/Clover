@@ -43,6 +43,7 @@ import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.file.RawFile;
@@ -174,14 +175,20 @@ public class UpdateManager {
      * @param response that contains the APK file URL
      */
     public void doUpdate(UpdateApiRequest.UpdateApiResponse response) {
+        BackgroundUtils.ensureMainThread();
+
         fileCache.downloadFile(response.apkURL.toString(), new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
+
                 updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded / (double) total)));
             }
 
             @Override
             public void onSuccess(RawFile file) {
+                BackgroundUtils.ensureMainThread();
+
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
                 File copy = new File(Environment.getExternalStoragePublicDirectory(
@@ -202,6 +209,8 @@ public class UpdateManager {
 
             @Override
             public void onFail(boolean notFound) {
+                BackgroundUtils.ensureMainThread();
+
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
                 new AlertDialog.Builder(context)
@@ -212,6 +221,8 @@ public class UpdateManager {
 
             @Override
             public void onCancel() {
+                BackgroundUtils.ensureMainThread();
+
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
                 new AlertDialog.Builder(context)

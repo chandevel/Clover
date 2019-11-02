@@ -67,6 +67,7 @@ import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBase
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -499,6 +500,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
      */
     @Override
     public void onChanLoaderData(ChanThread result) {
+        BackgroundUtils.ensureMainThread();
+
         loadable.loadableDownloadingState = result.getLoadable().loadableDownloadingState;
         Logger.d(TAG, "onChanLoaderData() loadableDownloadingState = "
                 + loadable.loadableDownloadingState.name());
