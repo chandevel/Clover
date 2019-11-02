@@ -289,7 +289,8 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         boolean isOnlyExtensionLeft
                 = (extension != null && (filteredName.length() - extension.length() - 1) == 0);
 
-        // filteredName.length() == 0 will only be true when "name" parameter not have an extension
+        // filteredName.length() == 0 will only be true when "name" parameter does not have an
+        // extension
         if (filteredName.length() == 0 || isOnlyExtensionLeft) {
             String appendExtension;
 
