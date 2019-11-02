@@ -469,8 +469,10 @@ public class ChanSettings {
         File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
 
         if (!file.exists()) {
-            throw new IOException("Shared preferences file does not exist! " +
-                    "(" + file.getAbsolutePath() + ")");
+            // Hack to create the shared_prefs file when it does not exist so that we don't cancel
+            // settings importing because shared_prefs file does not exist
+            String fontSize = ChanSettings.fontSize.get();
+            ChanSettings.fontSize.setSyncNoCheck(fontSize);
         }
 
         if (!file.canWrite()) {
