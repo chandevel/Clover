@@ -58,13 +58,13 @@ public class ImageLoaderV2 {
             String formattedName;
 
             if (postImage.spoiler) {
-                String extension = StringUtils.extractFileExtensionFromImageUrl(
+                String extension = StringUtils.extractFileNameExtension(
                         postImage.spoilerThumbnailUrl.toString());
 
                 formattedName = ThreadSaveManager.formatSpoilerImageName(extension);
             } else {
                 if (isThumbnail) {
-                    String extension = StringUtils.extractFileExtensionFromImageUrl(
+                    String extension = StringUtils.extractFileNameExtension(
                             postImage.thumbnailUrl.toString());
 
                     if (extension == null) {
