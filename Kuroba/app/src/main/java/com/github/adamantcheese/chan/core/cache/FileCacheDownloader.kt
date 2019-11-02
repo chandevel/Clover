@@ -241,10 +241,9 @@ class FileCacheDownloader(
 
     private fun postErrorResult(finalCancelled: Boolean, finalIsNotFound: Boolean) {
         BackgroundUtils.ensureBackgroundThread()
+        purgeOutput()
 
         handler.post {
-            purgeOutput()
-
             for (callback in listeners) {
                 if (finalCancelled) {
                     callback.onCancel()
