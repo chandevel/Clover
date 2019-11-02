@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.FileSegment;
@@ -122,7 +123,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     }
 
     public String getSubFolder(String name) {
-        String filtered = filterName(name);
+        String filtered = filterDirName(name);
         filtered = filtered.substring(0, Math.min(filtered.length(), MAX_NAME_LENGTH));
         return filtered;
     }
@@ -265,7 +266,15 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         return text;
     }
 
-    private String filterName(String name) {
+    private String filterDirName(String name) {
+        name = StringUtils.dirNameRemoveBadCharacters(name);
+        if (name.length() == 0) {
+            name = "_";
+        }
+        return name;
+    }
+
+    private String filterFileName(String name) {
         name = UNSAFE_CHARACTERS_PATTERN.matcher(name).replaceAll("");
         if (name.length() == 0) {
             name = "_";
@@ -279,7 +288,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                 ? postImage.serverFilename
                 : postImage.filename;
 
-        String fileName = filterName(name + "." + postImage.extension);
+        String fileName = filterFileName(name + "." + postImage.extension);
 
         AbstractFile saveLocation = getSaveLocation(task);
         if (saveLocation == null) {
@@ -295,7 +304,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                     Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX)
                     + "." + postImage.extension;
 
-            fileName = filterName(resultFileName);
+            fileName = filterFileName(resultFileName);
             saveFile = saveLocation
                     .clone(new FileSegment(fileName));
         }
