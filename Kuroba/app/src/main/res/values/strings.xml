@@ -737,7 +737,7 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_do_you_want_to_copy_files">Do you want to copy %1$d files from old directory to the new one?"</string>
     <string name="media_settings_could_not_release_uri_permissions">Couldn\'t release uri permissions</string>
     <string name="media_settings_move_threads_to_new_dir">Move old local threads to the new directory?</string>
-    <string name="media_settings_operation_may_take_some_time">This operation may take quite some time. Once started this operation must not be canceled. Make sure you are not trying to move file into the same directory!!!</string>
+    <string name="media_settings_operation_may_take_some_time">This operation may take quite some time. Once started this operation must not be canceled. Make sure you didn\'t choose the same directory twice!!!</string>
     <string name="media_settings_move_saved_file_to_new_dir">Move old saved files to the new directory?</string>
     <string name="media_settings_old_threads_base_dir_not_registered">Old local threads base directory is probably not registered (newBaseDirectoryFile returned null)</string>
     <string name="media_settings_new_threads_base_dir_not_registered">New local threads base directory is probably not registered</string>
