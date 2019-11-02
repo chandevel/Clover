@@ -340,6 +340,8 @@ class FileCacheDownloader(
     @WorkerThread
     @Throws(IOException::class)
     private fun checkCancel() {
+        BackgroundUtils.ensureBackgroundThread()
+
         if (cancel.get()) {
             throw CancelException()
         }
@@ -347,6 +349,8 @@ class FileCacheDownloader(
 
     @WorkerThread
     private fun purgeOutput() {
+        BackgroundUtils.ensureBackgroundThread()
+
         if (fileManager.exists(output)) {
             val deleteResult = fileManager.delete(output)
 
@@ -358,6 +362,8 @@ class FileCacheDownloader(
 
     @WorkerThread
     private fun postProgress(downloaded: Long, total: Long) {
+        BackgroundUtils.ensureBackgroundThread()
+
         handler.post {
             for (callback in listeners) {
                 callback.onProgress(downloaded, total)
