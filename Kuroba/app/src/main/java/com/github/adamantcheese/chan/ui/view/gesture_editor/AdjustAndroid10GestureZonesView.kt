@@ -66,11 +66,12 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
         currentEditableZone.onTouchStart(x, y)
     }
 
-    override fun onMoving(dx: Float, dy: Float) {
+    override fun onMoving(x: Float, y: Float, dx: Float, dy: Float) {
         check(shown) { "View is not shown but onMoving is called!" }
 
-        currentEditableZone.onMoving(dx, dy)
-        invalidate()
+        if (currentEditableZone.onMoving(dx, dy)) {
+            invalidate()
+        }
     }
 
     override fun onTouchEnd() {
@@ -90,7 +91,6 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
 }
 
 enum class AttachSide {
-    Center, // For tests
     Left,
     Right,
     Top,

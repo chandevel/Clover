@@ -8,8 +8,8 @@ import com.github.adamantcheese.chan.ui.view.gesture_editor.AdjustAndroid10Gestu
 import com.github.adamantcheese.chan.ui.view.gesture_editor.AttachSide
 
 class AdjustAndroid10GestureZonesController(context: Context) : Controller(context) {
-
     private lateinit var adjustZonesView: AdjustAndroid10GestureZonesView
+    private var presenting = false
 
     private val globalLayoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
         override fun onGlobalLayout() {
@@ -21,6 +21,7 @@ class AdjustAndroid10GestureZonesController(context: Context) : Controller(conte
 
     override fun onCreate() {
         super.onCreate()
+        presenting = true
 
         view = inflateRes(R.layout.controller_adjust_android_ten_gesture_zones)
         adjustZonesView = view.findViewById(R.id.adjust_gesture_zones_view)
@@ -28,12 +29,23 @@ class AdjustAndroid10GestureZonesController(context: Context) : Controller(conte
     }
 
     private fun onViewLaidOut() {
-        adjustZonesView.show(AttachSide.Center)
+        adjustZonesView.show(AttachSide.Right)
+    }
+
+    override fun onBack(): Boolean {
+        if (presenting) {
+            presenting = false
+            stopPresenting()
+            return true
+        }
+
+        return super.onBack()
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
+        presenting = false
         adjustZonesView.hide()
     }
 

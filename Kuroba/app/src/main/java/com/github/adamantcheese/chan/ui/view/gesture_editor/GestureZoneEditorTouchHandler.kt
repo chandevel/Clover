@@ -28,7 +28,7 @@ class GestureZoneEditorTouchHandler(
                 val dx = event.x - prevMovePosition.x
                 val dy = event.y - prevMovePosition.y
 
-                callbacks.onMoving(dx, dy)
+                callbacks.onMoving(event.x, event.y, dx, dy)
                 prevMovePosition.set(event.x, event.y)
             }
             MotionEvent.ACTION_UP,
@@ -45,6 +45,6 @@ class GestureZoneEditorTouchHandler(
 
 interface GestureZoneEditorTouchHandlerCallbacks {
     fun onTouchStart(x: Float, y: Float)
-    fun onMoving(dx: Float, dy: Float)
+    fun onMoving(x: Float, y: Float, dx: Float, dy: Float)
     fun onTouchEnd()
 }

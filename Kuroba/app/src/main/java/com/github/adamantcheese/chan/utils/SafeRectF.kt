@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.utils
 
 import android.graphics.PointF
 import android.graphics.RectF
+import com.github.adamantcheese.chan.utils.AndroidUtils.dp
 
 /**
  *              SafeRectF               |             RectF                   |      Android Phone Screen
@@ -68,12 +69,33 @@ class SafeRectF {
         _y += dy
     }
 
-    fun resize(width: Float, height: Float) {
-        check(width > 0f) { "width must be greater than 0f!" }
-        check(height > 0f) { "height must be greater than 0f!" }
+    fun setSize(width: Float, height: Float) {
+        check(width >= MINIMUM_SIZE) { "width must be >= MINIMUM_SIZE!" }
+        check(height >= MINIMUM_SIZE) { "height must be >= MINIMUM_SIZE!" }
+
+        check(width <= MAXIMUM_SIZE) { "width must be <= MAXIMUM_SIZE!" }
+        check(height <= MAXIMUM_SIZE) { "height must be <= MAXIMUM_SIZE!" }
 
         _width = width
         _height = height
+    }
+
+    fun resizeWidth(width: Float): Boolean {
+        if (width < MINIMUM_SIZE || width > MAXIMUM_SIZE) {
+            return false
+        }
+
+        _width = width
+        return true
+    }
+
+    fun resizeHeight(height: Float): Boolean {
+        if (height < MINIMUM_SIZE || height > MAXIMUM_SIZE) {
+            return false
+        }
+
+        _height = height
+        return true
     }
 
     fun contains(point: PointF): Boolean {
@@ -119,5 +141,10 @@ class SafeRectF {
     fun center(): PointF {
         _center.set(x + (width / 2f), y + (height / 2f))
         return _center
+    }
+
+    companion object {
+        val MINIMUM_SIZE = dp(16f).toFloat()
+        val MAXIMUM_SIZE = dp(200f).toFloat()
     }
 }

@@ -7,16 +7,19 @@ import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.adamantcheese.chan.utils.SafeRectF
 
 class EditableZone {
-    private var currentAttachSide = AttachSide.Center
+    private var currentAttachSide = AttachSide.Left
     private var viewWidth = 0f
     private var viewHeight = 0f
+
+    // This represent whether the whole zone is being moved by the user
     private var isMoving = false
+    private var isResizing = false
 
     private val zoneDefaultWidth = AndroidUtils.dp(96f).toFloat()
     private val zoneDefaultHeight = AndroidUtils.dp(96f).toFloat()
     private val handleSize = AndroidUtils.dp(16f).toFloat()
     private val zone = SafeRectF(0f, 0f, 0f, 0f)
-    private val handles = mutableMapOf<AttachSide, SafeRectF>()
+    private val handle = SafeRectF(0f, 0f, 0f, 0f)
 
     private val currentEditableZonePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
@@ -60,104 +63,113 @@ class EditableZone {
                 x = viewWidth / 2f
                 y = viewHeight.toFloat() - zoneDefaultHeight
             }
-            AttachSide.Center -> {
-                x = (viewWidth / 2f) - (zoneDefaultWidth / 2f)
-                y = (viewHeight / 2f) - (zoneDefaultWidth / 2f)
-            }
         }
 
         currentAttachSide = attachSide
         zone.moveTo(x, y)
-        zone.resize(zoneDefaultWidth, zoneDefaultHeight)
+        zone.setSize(zoneDefaultWidth, zoneDefaultHeight)
 
-        initHandles()
+        initHandle(attachSide)
     }
 
     fun draw(canvas: Canvas) {
         // Draw zone
         canvas.drawRect(zone.asRectF(), currentEditableZonePaint)
 
-        // Draw handles
-        for ((attachSide, zoneRect) in handles) {
-            if (attachSide == currentAttachSide) {
-                continue
-            }
-
-            canvas.drawRect(zoneRect.asRectF(), handlePaint)
-        }
+        // Draw the handle
+        canvas.drawRect(handle.asRectF(), handlePaint)
     }
 
     fun onTouchStart(x: Float, y: Float) {
         isMoving = zone.contains(x, y)
+        isResizing = handle.contains(x, y)
+
+        check(!(isMoving && isResizing)) {
+            "isMoving and isResizing are both true!"
+        }
     }
 
-    fun onMoving(dx: Float, dy: Float) {
-        if (!isMoving) {
-            return
-        }
-
-        // We are moving the whole zone (this should probably only be used for testing)
-        handles.forEach { (_, handle) ->
+    fun onMoving(dx: Float, dy: Float): Boolean {
+        if (isMoving) {
+            // We are moving the whole zone (this should probably only be used for testing)
             handle.moveBy(dx, dy)
+            zone.moveBy(dx, dy)
+            return true
         }
 
-        zone.moveBy(dx, dy)
+        if (isResizing) {
+            onResizing(dx, dy)
+            return true
+        }
+
+        return false
+    }
+
+    private fun onResizing(dx: Float, dy: Float) {
+        val oldWidth = zone.width
+        val oldHeight = zone.height
+
+        when (currentAttachSide) {
+            AttachSide.Left -> {
+                if (zone.resizeWidth(oldWidth + dx)) {
+                    handle.moveBy(dx, 0f)
+                }
+
+                if (zone.resizeHeight(oldHeight + dy)) {
+                    handle.moveBy(0f, dy)
+                }
+            }
+            AttachSide.Right -> {
+                if (zone.resizeWidth(oldWidth - dx)) {
+                    zone.moveBy(dx, 0f)
+                    handle.moveBy(dx, 0f)
+                }
+
+                if (zone.resizeHeight(oldHeight + dy)) {
+                    handle.moveBy(0f, dy)
+                }
+            }
+            AttachSide.Top -> TODO()
+            AttachSide.Bottom -> TODO()
+        }
     }
 
     fun onTouchEnd() {
         isMoving = false
+        isResizing = false
     }
 
-    private fun initHandles() {
-        check(handles.isEmpty()) { "Handles are already initialized!!!" }
-
-        for (side in AttachSide.values()) {
-            if (side == currentAttachSide) {
-                continue
+    private fun initHandle(attachSide: AttachSide) {
+        when (attachSide) {
+            AttachSide.Left -> {
+                handle.moveTo(
+                        zone.right() + handleSize,
+                        zone.bottom() + handleSize
+                )
             }
-
-            val halfWidth = (zone.width / 2f) - (handleSize / 2f)
-            val halfHeight = (zone.height / 2f) - (handleSize / 2f)
-
-            when (side) {
-                AttachSide.Left -> {
-                    handles[AttachSide.Left] = SafeRectF(
-                            zone.left() - (handleSize * 2f),
-                            zone.top() + halfHeight,
-                            handleSize,
-                            handleSize
-                    )
-                }
-                AttachSide.Right -> {
-                    handles[AttachSide.Right] = SafeRectF(
-                            zone.right() + handleSize,
-                            zone.top() + halfHeight,
-                            handleSize,
-                            handleSize
-                    )
-                }
-                AttachSide.Top -> {
-                    handles[AttachSide.Top] = SafeRectF(
-                            zone.left() + halfWidth,
-                            zone.top() - (handleSize * 2f),
-                            handleSize,
-                            handleSize
-                    )
-                }
-                AttachSide.Bottom -> {
-                    handles[AttachSide.Bottom] = SafeRectF(
-                            zone.left() + halfWidth,
-                            zone.bottom() + handleSize,
-                            handleSize,
-                            handleSize
-                    )
-                }
-                else -> {
-                    // Do nothing with center
-                }
+            AttachSide.Right -> {
+                handle.moveTo(
+                        zone.left() - (handleSize * 2f),
+                        zone.bottom() + handleSize
+                )
             }
-
+            AttachSide.Top -> {
+//                handle.moveTo(
+//                        zone.right() + handleSize,
+//                        zone.top() + handleSize
+//                )
+            }
+            AttachSide.Bottom -> {
+//                handles[AttachSide.Bottom] = SafeRectF(
+//                        zone.left() + halfWidth,
+//                        zone.bottom() + handleSize,
+//                        handleSize,
+//                        handleSize
+//                )
+            }
         }
+
+        handle.setSize(handleSize, handleSize)
     }
 
 }
