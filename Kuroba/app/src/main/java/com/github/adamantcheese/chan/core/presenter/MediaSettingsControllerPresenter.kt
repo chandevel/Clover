@@ -300,7 +300,7 @@ class MediaSettingsControllerPresenter(
         if (callbacks == null) {
             // This may actually happen if the user has "Don't keep activities" developer setting
             // turned on! In such case we want to notify the user that the setting is PROBABLY on
-            // so he should disable it if it's really turned on because that setting will kill
+            // so they should disable it if it's really turned on because that setting will kill
             // any activity as soon as it goes into the "Paused" state.
 
             runOnUiThread {
