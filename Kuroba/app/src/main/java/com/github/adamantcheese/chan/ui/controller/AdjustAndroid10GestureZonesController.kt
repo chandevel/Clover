@@ -4,7 +4,8 @@ import android.content.Context
 import android.view.ViewTreeObserver
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.controller.Controller
-import com.github.adamantcheese.chan.ui.view.AdjustAndroid10GestureZonesView
+import com.github.adamantcheese.chan.ui.view.gesture_editor.AdjustAndroid10GestureZonesView
+import com.github.adamantcheese.chan.ui.view.gesture_editor.AttachSide
 
 class AdjustAndroid10GestureZonesController(context: Context) : Controller(context) {
 
@@ -27,12 +28,13 @@ class AdjustAndroid10GestureZonesController(context: Context) : Controller(conte
     }
 
     private fun onViewLaidOut() {
-        adjustZonesView.show(AdjustAndroid10GestureZonesView.AttachSide.Center)
+        adjustZonesView.show(AttachSide.Center)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-    }
 
+        adjustZonesView.hide()
+    }
 
 }

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.github.adamantcheese.chan.ui.view.AdjustAndroid10GestureZonesView
+    <com.github.adamantcheese.chan.ui.view.gesture_editor.AdjustAndroid10GestureZonesView
         android:id="@+id/adjust_gesture_zones_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

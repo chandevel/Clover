@@ -131,7 +131,7 @@ public class ExperimentalSettingsController extends SettingsController {
                     AdjustAndroid10GestureZonesController adjustGestureZonesController
                             = new AdjustAndroid10GestureZonesController(context);
 
-                    navigationController.pushController(adjustGestureZonesController);
+                    navigationController.presentController(adjustGestureZonesController);
                 }
         )));
 
