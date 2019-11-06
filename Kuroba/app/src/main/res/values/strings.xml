@@ -81,16 +81,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>All posts</item>
         <item>Only posts quoting you</item>
     </string-array>
-    <string-array name="setting_watch_leds">
-        <item>None</item>
-        <item>White</item>
-        <item>Red</item>
-        <item>Yellow</item>
-        <item>Green</item>
-        <item>Cyan</item>
-        <item>Blue</item>
-        <item>Purple</item>
-    </string-array>
 
     <string name="empty" />
     <string name="cancel">Cancel</string>
