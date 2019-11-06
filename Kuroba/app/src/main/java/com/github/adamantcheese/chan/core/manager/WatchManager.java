@@ -1162,7 +1162,8 @@ public class WatchManager implements WakeManager.Wakeable {
              */
             pin.loadable.setTitle(PostHelper.getTitle(thread.getOp(), pin.loadable));
 
-            if (pin.thumbnailUrl == null && thread.getOp() != null && thread.getOp().image() != null) {
+            //Forcibly update the thumbnail, if there is no thumbnail currently, or if it doesn't match the thread for some reason
+            if (thread.getOp() != null && thread.getOp().image() != null && (pin.thumbnailUrl.isEmpty() || !pin.thumbnailUrl.equals(thread.getOp().image().getThumbnailUrl().toString()))) {
                 pin.thumbnailUrl = thread.getOp().image().getThumbnailUrl().toString();
             }
 

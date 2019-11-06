@@ -326,7 +326,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             }
 
             if (ChanSettings.postPinThread.get()) {
-                if (localLoadable.isThreadMode()) { //ensure this is the same thread loadable, so we can make a pin with a thumbnail
+                if (localLoadable.isThreadMode()) {
+                    //reply
                     ChanThread thread = callback.getThread();
                     if (thread != null) {
                         watchManager.createPin(localLoadable, thread.getOp(), PinType.WATCH_NEW_POSTS);
@@ -334,7 +335,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                         watchManager.createPin(localLoadable);
                     }
                 } else {
-                    watchManager.createPin(localLoadable); //not same thread or catalog loadable, make pin without a thumbnail
+                    //new thread
+                    watchManager.createPin(localLoadable);
                 }
             }
 
