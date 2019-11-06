@@ -319,11 +319,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                                     Loadable.forThread(localSite, localBoard,
                                             replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo, ""))));
 
-            //if we're in the same thread as the post was made in, just use the loadable from the presenter
-            //if we're in a different thread from where the post was made, use the rebuilt loadable
-            //this is really just insurance that we've got the right thing
-            localLoadable = loadable.equals(localLoadable) ? loadable : localLoadable;
-
             if (localLoadable.isThreadMode()) {
                 lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
             } else if (localLoadable.isCatalogMode()) {
@@ -358,8 +353,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             callback.loadDraftIntoViews(draft);
             callback.onPosted();
 
-            if (bound && loadable.isCatalogMode()) { //special case for new threads, don't use localLoadable
-                callback.showThread(databaseManager.getDatabaseLoadableManager().get(localLoadable));
+            if (bound && loadable.isCatalogMode()) { //special case for new threads, check if we were on the catalog with the nonlocal loadable
+                callback.showThread(localLoadable);
             }
         } else if (replyResponse.requireAuthentication) {
             switchPage(Page.AUTHENTICATION);
