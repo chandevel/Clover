@@ -29,6 +29,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.gson.Gson;
 
 import java.util.concurrent.Executor;
@@ -212,10 +213,11 @@ public class ImageReencodingPresenter {
     }
 
     private String getNewImageName(String currentFileName, ReencodeType newType) {
-        String currentExt = "";
-        try {
-            currentExt = currentFileName.substring(currentFileName.lastIndexOf('.'));
-        } catch (Exception ignored) {
+        String currentExt = StringUtils.extractFileExtensionFromImageUrl(currentFileName);
+        if (currentExt == null) {
+            currentExt = "";
+        } else {
+            currentExt = "." + currentExt;
         }
         switch (newType) {
             case AS_IS:

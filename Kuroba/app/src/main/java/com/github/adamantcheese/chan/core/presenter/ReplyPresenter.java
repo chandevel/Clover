@@ -47,6 +47,7 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.vdurmont.emoji.EmojiParser;
 
 import java.io.File;
@@ -436,11 +437,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     public boolean fileNameLongClicked() {
-        String currentFile = draft.fileName;
-        String currentExt = "";
-        try {
-            currentExt = currentFile.substring(currentFile.lastIndexOf('.'));
-        } catch (Exception ignored) {
+        String currentExt = StringUtils.extractFileExtensionFromImageUrl(draft.fileName);
+        if (currentExt == null) {
+            currentExt = "";
+        } else {
+            currentExt = "." + currentExt;
         }
         draft.fileName = System.currentTimeMillis() + currentExt;
         callback.loadDraftIntoViews(draft);
