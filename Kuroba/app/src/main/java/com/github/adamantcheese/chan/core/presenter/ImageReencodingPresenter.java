@@ -213,7 +213,7 @@ public class ImageReencodingPresenter {
     }
 
     private String getNewImageName(String currentFileName, ReencodeType newType) {
-        String currentExt = StringUtils.extractFileExtensionFromImageUrl(currentFileName);
+        String currentExt = StringUtils.extractFileNameExtension(currentFileName);
         if (currentExt == null) {
             currentExt = "";
         } else {

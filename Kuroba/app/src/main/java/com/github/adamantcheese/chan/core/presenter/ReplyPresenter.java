@@ -437,7 +437,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     public boolean fileNameLongClicked() {
-        String currentExt = StringUtils.extractFileExtensionFromImageUrl(draft.fileName);
+        String currentExt = StringUtils.extractFileNameExtension(draft.fileName);
         if (currentExt == null) {
             currentExt = "";
         } else {
