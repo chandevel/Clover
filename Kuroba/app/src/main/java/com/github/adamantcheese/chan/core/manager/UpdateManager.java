@@ -22,7 +22,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.text.Html;
@@ -32,6 +31,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.FileProvider;
 
 import com.android.volley.RequestQueue;
 import com.github.adamantcheese.chan.BuildConfig;
@@ -185,9 +185,10 @@ public class UpdateManager {
             public void onSuccess(RawFile file) {
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
+                //put a copy into the Downloads folder, for archive/rollback purposes
                 File copy = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS),
-                        getApplicationLabel() + ".apk");
+                        getApplicationLabel() + "_" + BuildConfig.VERSION_NAME + ".apk");
                 try {
                     IOUtils.copyFile(new File(file.getFullPath()), copy);
                 } catch (IOException e) {
@@ -198,7 +199,8 @@ public class UpdateManager {
                             .show();
                     return;
                 }
-                installApk(copy);
+                //install from the filecache rather than downloads, as the Environment.DIRECTORY_DOWNLOADS may not be "Download"
+                installApk(new File(file.getFullPath()));
             }
 
             @Override
@@ -235,7 +237,7 @@ public class UpdateManager {
         // Then launch the APK install intent.
         Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.setDataAndType(Uri.fromFile(apk),
+        intent.setDataAndType(FileProvider.getUriForFile(context, context.getPackageName() + ".fileprovider", apk),
                 "application/vnd.android.package-archive");
 
         // The installer wants a content scheme from android N and up,
