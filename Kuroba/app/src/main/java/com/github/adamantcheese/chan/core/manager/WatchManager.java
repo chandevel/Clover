@@ -63,6 +63,8 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.isInForeground;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Manages all Pin related management.
@@ -108,15 +110,15 @@ public class WatchManager implements WakeManager.Wakeable {
     /**
      * When all pins have flag WatchNewPosts use short interval
      */
-    private static final long FOREGROUND_INTERVAL_ONLY_WATCHES = 15 * 1000;
+    private static final long FOREGROUND_INTERVAL_ONLY_WATCHES = SECONDS.toMillis(15);
     /**
      * When we have pins of both types use mixed interval
      */
-    private static final long FOREGROUND_INTERVAL_MIXED = 60 * 1000;
+    private static final long FOREGROUND_INTERVAL_MIXED = MINUTES.toMillis(1);
     /**
      * When all pins have flag DownloadNewPosts use long interval
      */
-    private static final long FOREGROUND_INTERVAL_ONLY_DOWNLOADS = 180 * 1000;
+    private static final long FOREGROUND_INTERVAL_ONLY_DOWNLOADS = MINUTES.toMillis(3);
     private static final int MESSAGE_UPDATE = 1;
 
     private final DatabaseManager databaseManager;
