@@ -41,6 +41,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Deals with background alarms specifically. No foreground stuff here.
@@ -71,7 +72,7 @@ public class WakeManager {
     }
 
     public void onBroadcastReceived() {
-        if (System.currentTimeMillis() - lastBackgroundUpdateTime < 90 * 1000) { //wait 90 seconds between background updates
+        if (System.currentTimeMillis() - lastBackgroundUpdateTime < SECONDS.toMillis(90)) {
             Logger.w(TAG, "Background update broadcast ignored because it was requested too soon");
         } else {
             lastBackgroundUpdateTime = System.currentTimeMillis();

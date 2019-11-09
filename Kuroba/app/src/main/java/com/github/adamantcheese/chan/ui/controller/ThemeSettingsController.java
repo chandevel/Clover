@@ -65,6 +65,7 @@ import java.util.List;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ThemeSettingsController extends Controller implements View.OnClickListener {
@@ -270,7 +271,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     .board(dummyBoard)
                     .id(123456789)
                     .opId(1)
-                    .setUnixTimestampSeconds((System.currentTimeMillis() - MINUTES.toMillis(30)) / 1000)
+                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .subject("Lorem ipsum")
                     .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>" +
