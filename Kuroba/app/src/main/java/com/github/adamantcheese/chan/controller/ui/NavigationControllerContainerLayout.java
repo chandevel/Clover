@@ -39,7 +39,13 @@ public class NavigationControllerContainerLayout extends FrameLayout {
     private NavigationController navigationController;
 
     private int slopPixels;
-    private int minimalMovedPixels;
+
+    /**
+     * How many pixels we should move a finger to the right before we start moving the whole
+     * controller to the right when in Phone layout. (The lower it is the easier it is to start
+     * moving the controller which may make it harder to click other views)
+     * */
+    private int minimalMovedPixels = dp(20);
     private int maxFlingPixels;
 
     private boolean swipeEnabled = true;
@@ -95,7 +101,6 @@ public class NavigationControllerContainerLayout extends FrameLayout {
     private void init() {
         ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
         slopPixels = viewConfiguration.getScaledTouchSlop();
-        minimalMovedPixels = dp(3);
         maxFlingPixels = viewConfiguration.getScaledMaximumFlingVelocity();
 
         scroller = new Scroller(getContext());

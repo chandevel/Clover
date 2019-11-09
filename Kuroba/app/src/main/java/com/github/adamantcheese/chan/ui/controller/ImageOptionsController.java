@@ -263,13 +263,6 @@ public class ImageOptionsController extends Controller implements
     }
 
     @Override
-    public void showCouldNotDecodeBitmapError() {
-        //called on the background thread!
-
-        AndroidUtils.runOnUiThread(() -> showToastMessage(context.getString(R.string.could_not_decode_image_bitmap)));
-    }
-
-    @Override
     public void onImageOptionsApplied(Reply reply) {
         //called on the background thread!
 
@@ -303,10 +296,6 @@ public class ImageOptionsController extends Controller implements
             cancel.setEnabled(enabled);
             ok.setEnabled(enabled);
         });
-    }
-
-    private void showToastMessage(String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     private Window getWindow() {

@@ -54,6 +54,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static java.util.concurrent.TimeUnit.DAYS;
 
 /**
  * Calls the update API and downloads and requests installs of APK files.
@@ -123,7 +124,7 @@ public class UpdateManager {
 
         if (!manual) {
             long lastUpdateTime = ChanSettings.updateCheckTime.get();
-            long interval = 1000 * 60 * 60 * 24 * 5; //5 days
+            long interval = DAYS.toMillis(5);
             long now = System.currentTimeMillis();
             long delta = (lastUpdateTime + interval) - now;
             if (delta > 0) {

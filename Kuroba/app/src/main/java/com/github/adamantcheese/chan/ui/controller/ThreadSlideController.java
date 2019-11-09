@@ -297,7 +297,7 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
             navigation.swipeable = false;
             navigation.handlesToolbarInset = true;
             navigation.hasDrawer = true;
-            toolbar.setNavigationItem(false, true, navigation, null);
+            toolbar.setNavigationItem(true, true, navigation, null);
         }
     }
 

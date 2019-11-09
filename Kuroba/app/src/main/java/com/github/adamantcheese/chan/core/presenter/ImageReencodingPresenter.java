@@ -16,19 +16,26 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.util.Pair;
+import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.gson.Gson;
 
 import java.util.concurrent.Executor;
@@ -38,15 +45,13 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class ImageReencodingPresenter {
     private final static String TAG = "ImageReencodingPresenter";
 
     @Inject
     ReplyManager replyManager;
-
-    private static final int DECODED_IMAGE_WIDTH = 340;
-    private static final int DECODED_IMAGE_HEGIHT = 180;
 
     private Executor executor = Executors.newSingleThreadExecutor();
     private ImageReencodingPresenterCallback callback;
@@ -77,14 +82,14 @@ public class ImageReencodingPresenter {
 
     public void loadImagePreview() {
         Reply reply = replyManager.getReply(loadable);
-
+        Point displaySize = AndroidUtils.getDisplaySize();
         ImageDecoder.decodeFileOnBackgroundThread(
                 reply.file,
-                dp(DECODED_IMAGE_WIDTH),
-                dp(DECODED_IMAGE_HEGIHT),
+                dp(displaySize.x > displaySize.y ? displaySize.y : displaySize.x), //decode to the device width/height, whatever is smaller
+                0,
                 (bitmap) -> {
                     if (bitmap == null) {
-                        callback.showCouldNotDecodeBitmapError();
+                        Toast.makeText(getAppContext(), getAppContext().getString(R.string.could_not_decode_image_bitmap), Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -212,10 +217,11 @@ public class ImageReencodingPresenter {
     }
 
     private String getNewImageName(String currentFileName, ReencodeType newType) {
-        String currentExt = "";
-        try {
-            currentExt = currentFileName.substring(currentFileName.lastIndexOf('.'));
-        } catch (Exception ignored) {
+        String currentExt = StringUtils.extractFileNameExtension(currentFileName);
+        if (currentExt == null) {
+            currentExt = "";
+        } else {
+            currentExt = "." + currentExt;
         }
         switch (newType) {
             case AS_IS:
@@ -379,8 +385,6 @@ public class ImageReencodingPresenter {
     }
 
     public interface ImageReencodingPresenterCallback {
-        void showCouldNotDecodeBitmapError();
-
         void showImagePreview(Bitmap bitmap);
 
         void disableOrEnableButtons(boolean enabled);

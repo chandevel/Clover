@@ -226,6 +226,7 @@ dependencies {
     implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha'
 
     testImplementation 'junit:junit:4.12'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 }
 
 //========================================================

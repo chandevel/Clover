@@ -537,7 +537,6 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             // Replace some op parameters to the real op (index 0).
             // This is done on the main thread to avoid race conditions.
             Post realOp = thread.getOp();
-            thread.setOp(realOp);
             if (fakeOp != null) {
                 realOp.setClosed(fakeOp.closed);
                 realOp.setArchived(fakeOp.archived);

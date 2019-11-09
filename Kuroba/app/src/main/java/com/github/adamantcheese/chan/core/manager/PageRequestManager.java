@@ -31,9 +31,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 public class PageRequestManager implements SiteActions.PagesListener {
     private static final String TAG = "PageRequestManager";
-    private static final int THREE_MINUTES = 3 * 60 * 1000;
 
     private Set<String> requestedBoards = Collections.synchronizedSet(new HashSet<>());
     private Set<String> savedBoards = Collections.synchronizedSet(new HashSet<>());
@@ -92,7 +93,7 @@ public class PageRequestManager implements SiteActions.PagesListener {
         if (b == null) return; //if for any reason the board is null, don't do anything
         Long lastUpdate = boardTimeMap.get(b.code); //had some null issues for some reason? arisuchan in particular?
         long lastUpdateTime = lastUpdate != null ? lastUpdate : 0L;
-        if (lastUpdateTime + THREE_MINUTES <= System.currentTimeMillis()) {
+        if (lastUpdateTime + MINUTES.toMillis(3) <= System.currentTimeMillis()) {
             Logger.d(TAG, "Requesting existing board pages for /" + b.code + "/, timeout");
             requestBoard(b);
         }

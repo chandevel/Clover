@@ -24,7 +24,6 @@ import java.util.List;
 public class ChanThread {
     private Loadable loadable;
     private List<Post> posts;
-    private Post op;
     private boolean closed = false;
     private boolean archived = false;
 
@@ -95,10 +94,6 @@ public class ChanThread {
      */
     public synchronized Post getOp() {
         return posts.get(0);
-    }
-
-    public synchronized void setOp(Post op) {
-        this.op = op;
     }
 
     /**

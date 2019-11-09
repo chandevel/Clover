@@ -30,20 +30,20 @@ public class StringUtils {
     }
 
     @Nullable
-    public static String extractFileExtensionFromImageUrl(String url) {
-        int index = url.lastIndexOf('.');
+    public static String extractFileNameExtension(String filename) {
+        int index = filename.lastIndexOf('.');
         if (index == -1) {
             return null;
         }
 
-        return url.substring(index + 1);
+        return filename.substring(index + 1);
     }
 
     public static String dirNameRemoveBadCharacters(String dirName) {
         return dirName
                 .toLowerCase()
                 .replaceAll(" ", "_")
-                .replaceAll("[^a-z0-9_]", "");
+                .replaceAll("[^a-z0-9_-]", "");
     }
 
     /**
@@ -53,6 +53,6 @@ public class StringUtils {
         return filename
                 .toLowerCase()
                 .replaceAll(" ", "_")
-                .replaceAll("[^a-z0-9_.]", "");
+                .replaceAll("[^a-z0-9_.-]", "");
     }
 }

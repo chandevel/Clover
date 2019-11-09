@@ -661,6 +661,11 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void showImageReencodingWindow(Loadable loadable, boolean supportsReencode) {
+        if (this.getFocusedChild() != null) {
+            View currentFocus = this.getFocusedChild();
+            AndroidUtils.hideKeyboard(currentFocus);
+            currentFocus.clearFocus();
+        }
         imageReencodingHelper.showController(loadable, supportsReencode);
     }
 

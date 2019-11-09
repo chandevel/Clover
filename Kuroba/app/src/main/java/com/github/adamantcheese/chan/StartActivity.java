@@ -122,7 +122,6 @@ public class StartActivity
         Chan.injector().instance(ThemeHelper.class).setupContext(this);
 
         fileChooser.setCallbacks(this);
-
         imagePickDelegate = new ImagePickDelegate(this);
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
         updateManager = new UpdateManager(this);
