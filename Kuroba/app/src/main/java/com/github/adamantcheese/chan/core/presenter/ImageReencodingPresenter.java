@@ -163,7 +163,7 @@ public class ImageReencodingPresenter {
                 && !imageOptions.getRemoveMetadata()
                 && !imageOptions.getChangeImageChecksum()
                 && imageOptions.getReencodeSettings() == null) {
-            callback.onImageOptionsApplied(reply);
+            callback.onImageOptionsApplied(reply, false);
             return;
         }
 
@@ -174,7 +174,7 @@ public class ImageReencodingPresenter {
                 && !imageOptions.getChangeImageChecksum()
                 && imageOptions.getReencodeSettings() == null) {
             reply.fileName = getNewImageName(reply.fileName, ReencodeType.AS_IS);
-            callback.onImageOptionsApplied(reply);
+            callback.onImageOptionsApplied(reply, true);
             return;
         }
 
@@ -204,7 +204,7 @@ public class ImageReencodingPresenter {
                 callback.disableOrEnableButtons(true);
             }
 
-            callback.onImageOptionsApplied(reply);
+            callback.onImageOptionsApplied(reply, imageOptions.getRemoveFilename());
 
             synchronized (this) {
                 cancelable = null;
@@ -389,7 +389,7 @@ public class ImageReencodingPresenter {
 
         void disableOrEnableButtons(boolean enabled);
 
-        void onImageOptionsApplied(Reply reply);
+        void onImageOptionsApplied(Reply reply, boolean filenameRemoved);
 
         void showFailedToReencodeImage(Throwable error);
     }

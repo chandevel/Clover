@@ -263,12 +263,12 @@ public class ImageOptionsController extends Controller implements
     }
 
     @Override
-    public void onImageOptionsApplied(Reply reply) {
+    public void onImageOptionsApplied(Reply reply, boolean filenameRemoved) {
         //called on the background thread!
 
         AndroidUtils.runOnUiThread(() -> {
             imageReencodingHelper.pop();
-            callbacks.onImageOptionsApplied(reply);
+            callbacks.onImageOptionsApplied(reply, filenameRemoved);
         });
     }
 
@@ -305,6 +305,6 @@ public class ImageOptionsController extends Controller implements
     public interface ImageOptionsControllerCallbacks {
         void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat, @Nullable Pair<Integer, Integer> dims);
 
-        void onImageOptionsApplied(Reply reply);
+        void onImageOptionsApplied(Reply reply, boolean filenameRemoved);
     }
 }
