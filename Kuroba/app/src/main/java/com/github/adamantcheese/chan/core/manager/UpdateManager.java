@@ -188,7 +188,7 @@ public class UpdateManager {
                 //put a copy into the Downloads folder, for archive/rollback purposes
                 File copy = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS),
-                        getApplicationLabel() + "_" + BuildConfig.VERSION_NAME + ".apk");
+                        getApplicationLabel() + "_" + response.versionCodeString + ".apk");
                 try {
                     IOUtils.copyFile(new File(file.getFullPath()), copy);
                 } catch (IOException e) {
