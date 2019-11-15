@@ -740,4 +740,6 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_you_have_to_stop_all_downloads">You have to stop all the threads that are being downloaded before changing local threads base directory!</string>
     <string name="media_settings_some_thread_downloads_are_still_processed">Some thread downloads are still being processed</string>
     <string name="media_settings_do_not_terminate_the_app_manually">You may have to wait for couple of minutes until all active downloads are complete. DO NOT TERMINATE THE APP MANUALLY!!! Because this will break your local threads.</string>
+    <string name="setting_image_link_loading_title">Enable image link loading</string>
+    <string name="setting_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
 </resources>
