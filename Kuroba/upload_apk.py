@@ -32,7 +32,7 @@ def getLatestCommitHash(baseUrl):
 
 def uploadApk(baseUrl, headers, latestCommits):
     apkPath = ""
-    for p in pathlib.Path("app/build/outputs/apk/dev/debug/").iterdir():
+    for p in Path("app/build/outputs/apk/dev/debug/").iterdir():
         if p.is_file() and str(p).endswith("apk"):
             apkPath = str(p)
             break
