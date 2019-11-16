@@ -683,10 +683,12 @@ public class ReplyLayout extends LoadView implements
         return callback.getThread();
     }
 
-    public void onImageOptionsApplied(Reply reply) {
-        // Update the filename EditText. Otherwise it will change back the image name upon changing
-        // the message comment (because of the textwatcher)
-        fileName.setText(reply.fileName);
+    public void onImageOptionsApplied(Reply reply, boolean filenameRemoved) {
+        if (filenameRemoved) {
+            fileName.setText(reply.fileName); //update edit field with new filename
+        } else {
+            reply.fileName = fileName.getText().toString(); //update reply with existing filename (may have been changed by user)
+        }
 
         presenter.onImageOptionsApplied(reply);
     }

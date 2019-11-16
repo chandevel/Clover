@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -30,6 +32,8 @@ import javax.inject.Inject;
 
 public class BrowsePresenter implements Observer {
     private final DatabaseManager databaseManager;
+
+    @Nullable
     private Callback callback;
 
     private boolean hadBoards;
@@ -53,6 +57,7 @@ public class BrowsePresenter implements Observer {
     }
 
     public void destroy() {
+        this.callback = null;
         savedBoardsObservable.deleteObserver(this);
     }
 
@@ -76,7 +81,9 @@ public class BrowsePresenter implements Observer {
     }
 
     public void onBoardsFloatingMenuSiteClicked(Site site) {
-        callback.loadSiteSetup(site);
+        if (callback != null) {
+            callback.loadSiteSetup(site);
+        }
     }
 
     @Override
@@ -107,9 +114,12 @@ public class BrowsePresenter implements Observer {
     }
 
     private void loadBoard(Board board) {
-        currentBoard = board;
-        callback.loadBoard(getLoadableForBoard(board));
-        callback.showArchiveOption(board.site.boardFeature(Site.BoardFeature.ARCHIVE, board));
+        if (callback != null) {
+            currentBoard = board;
+
+            callback.loadBoard(getLoadableForBoard(board));
+            callback.showArchiveOption(board.site.boardFeature(Site.BoardFeature.ARCHIVE, board));
+        }
     }
 
     public interface Callback {

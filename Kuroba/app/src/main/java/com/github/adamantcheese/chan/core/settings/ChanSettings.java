@@ -200,6 +200,8 @@ public class ChanSettings {
     public static final BooleanSetting parseYoutubeTitles;
     public static final BooleanSetting parsePostImageLinks;
 
+    public static final StringSetting previousDevHash;
+
     static {
         try {
             SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -309,6 +311,8 @@ public class ChanSettings {
 
             parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", false);
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", false);
+
+            previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.

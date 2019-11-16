@@ -777,8 +777,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         recyclerView.removeItemDecoration(PARTY);
     }
 
-    public void onImageOptionsApplied(Reply modifiedReply) {
-        reply.onImageOptionsApplied(modifiedReply);
+    public void onImageOptionsApplied(Reply modifiedReply, boolean filenameRemoved) {
+        reply.onImageOptionsApplied(modifiedReply, filenameRemoved);
     }
 
     public interface ThreadListLayoutPresenterCallback {

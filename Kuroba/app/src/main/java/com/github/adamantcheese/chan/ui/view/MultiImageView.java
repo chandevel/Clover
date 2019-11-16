@@ -173,27 +173,24 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     }
 
     public void setMode(Loadable loadable, final Mode newMode, boolean center) {
-        if (this.mode != newMode) {
-            this.mode = newMode;
-
-            AndroidUtils.waitForMeasure(this, view -> {
-                switch (newMode) {
-                    case LOWRES:
-                        setThumbnail(loadable, postImage, center);
-                        break;
-                    case BIGIMAGE:
-                        setBigImage(loadable, postImage);
-                        break;
-                    case GIF:
-                        setGif(loadable, postImage);
-                        break;
-                    case MOVIE:
-                        setVideo(loadable, postImage);
-                        break;
-                }
-                return true;
-            });
-        }
+        this.mode = newMode;
+        AndroidUtils.waitForMeasure(this, view -> {
+            switch (newMode) {
+                case LOWRES:
+                    setThumbnail(loadable, postImage, center);
+                    break;
+                case BIGIMAGE:
+                    setBigImage(loadable, postImage);
+                    break;
+                case GIF:
+                    setGif(loadable, postImage);
+                    break;
+                case MOVIE:
+                    setVideo(loadable, postImage);
+                    break;
+            }
+            return true;
+        });
     }
 
     public Mode getMode() {
