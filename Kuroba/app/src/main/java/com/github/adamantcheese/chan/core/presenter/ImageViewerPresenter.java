@@ -277,18 +277,16 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     private void cancelPreviousImageDownload(int position) {
-        Set<FileCacheDownloader> toRemove = new HashSet<>();
         for (FileCacheDownloader downloader : preloadingImages) {
             if (position - 1 >= 0) {
-                if (downloader.getUrl().equals(images.get(position - 1).imageUrl.toString())) {
-                    toRemove.add(downloader);
+                PostImage previousImage = images.get(position - 1);
+                if (downloader.getUrl().equals(previousImage.imageUrl.toString())) {
+                    downloader.cancel();
+                    preloadingImages.remove(downloader);
+                    return;
                 }
             }
         }
-        for (FileCacheDownloader downloader : toRemove) {
-            downloader.cancel();
-        }
-        preloadingImages.removeAll(toRemove);
     }
 
     @Override
