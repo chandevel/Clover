@@ -35,8 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:allowBackup="true"
         android:icon="${iconLoc}"
         android:label="${appName}"
-        android:theme="@style/Chan.Theme">
-		
+        android:theme="@style/Chan.Theme"
+        android:usesCleartextTraffic="${devBuild}">
 
         <uses-library
             android:name="org.apache.http.legacy"

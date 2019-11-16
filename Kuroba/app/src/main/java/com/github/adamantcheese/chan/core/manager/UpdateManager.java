@@ -25,15 +25,16 @@ import android.content.Intent;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.text.Html;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 
 import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -49,8 +50,12 @@ import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
+
+import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
@@ -106,6 +111,17 @@ public class UpdateManager {
             return;
         }
 
+        if (BuildConfig.DEV_BUILD && !ChanSettings.previousDevHash.get().equals(BuildConfig.COMMIT_HASH)) {
+            final AlertDialog dialog = new AlertDialog.Builder(context)
+                    .setMessage(getApplicationLabel() + " was updated to the latest commit.")
+                    .setPositiveButton(R.string.ok, null)
+                    .create();
+            dialog.setCanceledOnTouchOutside(true);
+            dialog.show();
+            ChanSettings.previousDevHash.set(BuildConfig.COMMIT_HASH);
+            return;
+        }
+
         runUpdateApi(false);
     }
 
@@ -114,17 +130,9 @@ public class UpdateManager {
     }
 
     private void runUpdateApi(final boolean manual) {
-        if (BuildConfig.DEV_BUILD) {
-            Toast.makeText(
-                    context,
-                    "Updater is currently disabled for dev builds. Should be fixed pretty soon!",
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-
         if (!manual) {
             long lastUpdateTime = ChanSettings.updateCheckTime.get();
-            long interval = DAYS.toMillis(5);
+            long interval = DAYS.toMillis(BuildConfig.UPDATE_DELAY);
             long now = System.currentTimeMillis();
             long delta = (lastUpdateTime + interval) - now;
             if (delta > 0) {
@@ -135,27 +143,78 @@ public class UpdateManager {
         }
 
         Logger.d(TAG, "Calling update API");
-        volleyRequestQueue.add(new UpdateApiRequest(response -> {
-            if (!processUpdateApiResponse(response) && manual) {
-                new AlertDialog.Builder(context)
-                        .setTitle(context.getString(R.string.update_none, getApplicationLabel()))
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            }
-        }, error -> {
-            Logger.e(TAG, "Failed to process API call for updating", error);
+        if (!BuildConfig.DEV_BUILD) {
+            //region Release build
+            volleyRequestQueue.add(new UpdateApiRequest(response -> {
+                if (!processUpdateApiResponse(response) && manual) {
+                    new AlertDialog.Builder(context)
+                            .setTitle(context.getString(R.string.update_none, getApplicationLabel()))
+                            .setPositiveButton(R.string.ok, null)
+                            .show();
+                }
+            }, error -> {
+                Logger.e(TAG, "Failed to process stable API call for updating", error);
 
-            if (manual) {
-                new AlertDialog.Builder(context)
-                        .setTitle(R.string.update_check_failed)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            }
-        }));
+                if (manual) {
+                    new AlertDialog.Builder(context)
+                            .setTitle(R.string.update_check_failed)
+                            .setPositiveButton(R.string.ok, null)
+                            .show();
+                }
+            }));
+            //endregion
+        } else {
+            //region Dev build
+            JsonObjectRequest request = new JsonObjectRequest(BuildConfig.DEV_API_ENDPOINT + "/latest_apk_uuid", null,
+                    (response) -> {
+                        try {
+                            int versionCode = response.getInt("apk_version");
+                            String commitHash = response.getString("commit_hash");
+                            if (versionCode == BuildConfig.VERSION_CODE && commitHash.equals(BuildConfig.COMMIT_HASH) && manual) {
+                                //same version and commit, no update needed
+                                new AlertDialog.Builder(context)
+                                        .setTitle(context.getString(R.string.update_none, getApplicationLabel()))
+                                        .setPositiveButton(R.string.ok, null)
+                                        .show();
+                            } else {
+                                //new version or commit, update
+                                Matcher versionCodeStringMatcher = Pattern.compile("(\\d+)(\\d{2})(\\d{2})").matcher(String.valueOf(versionCode));
+                                if (versionCodeStringMatcher.matches()) {
+                                    UpdateApiRequest.UpdateApiResponse fauxResponse = new UpdateApiRequest.UpdateApiResponse();
+                                    fauxResponse.versionCode = versionCode;
+                                    fauxResponse.versionCodeString = "v" +
+                                            Integer.valueOf(versionCodeStringMatcher.group(1)) + "." +
+                                            Integer.valueOf(versionCodeStringMatcher.group(2)) + "." +
+                                            Integer.valueOf(versionCodeStringMatcher.group(3)) + "-" + commitHash.substring(0, 7);
+                                    fauxResponse.apkURL = HttpUrl.parse(BuildConfig.DEV_API_ENDPOINT + "/apk/" + versionCode + "_" + commitHash + ".apk");
+                                    fauxResponse.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
+                                    processUpdateApiResponse(fauxResponse);
+                                } else {
+                                    throw new Exception(); // to reuse the failed code below
+                                }
+                            }
+                        } catch (Exception e) { // any exceptions just fail out
+                            Logger.e(TAG, "Failed to process API call for updating");
+                            new AlertDialog.Builder(context)
+                                    .setTitle(R.string.update_check_failed)
+                                    .setPositiveButton(R.string.ok, null)
+                                    .show();
+                        }
+                    },
+                    (response) -> {
+                        Logger.e(TAG, "Failed to process dev API call for updating");
+                        new AlertDialog.Builder(context)
+                                .setTitle(R.string.update_check_failed)
+                                .setPositiveButton(R.string.ok, null)
+                                .show();
+                    });
+            volleyRequestQueue.add(request);
+            //endregion
+        }
     }
 
     private boolean processUpdateApiResponse(UpdateApiRequest.UpdateApiResponse response) {
-        if (response.versionCode > BuildConfig.VERSION_CODE) {
+        if (response.versionCode > BuildConfig.VERSION_CODE || BuildConfig.DEV_BUILD) {
             AlertDialog dialog = new AlertDialog.Builder(context)
                     .setTitle(getApplicationLabel() + " " + response.versionCodeString + " available")
                     .setMessage(!response.updateTitle.isEmpty() ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body)
