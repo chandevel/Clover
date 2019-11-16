@@ -114,8 +114,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="update_install_download_failed">Download failed</string>
 
-    <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
-
     <string name="update_retry_title">Retry update</string>
 
     <string name="update_retry">%1$s was not updated yet. Tap \"retry\" to retry the install.</string>

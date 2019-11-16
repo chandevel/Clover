@@ -158,7 +158,7 @@ public class UpdateManager {
         if (response.versionCode > BuildConfig.VERSION_CODE) {
             AlertDialog dialog = new AlertDialog.Builder(context)
                     .setTitle(getApplicationLabel() + " " + response.versionCodeString + " available")
-                    .setMessage(TextUtils.concat(response.updateTitle, "; ", response.body))
+                    .setMessage(!response.updateTitle.isEmpty() ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body)
                     .setNegativeButton(R.string.update_later, null)
                     .setPositiveButton(R.string.update_install, (dialog1, which) -> updateInstallRequested(response))
                     .create();
@@ -186,21 +186,16 @@ public class UpdateManager {
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
                 //put a copy into the Downloads folder, for archive/rollback purposes
-                File copy = new File(Environment.getExternalStoragePublicDirectory(
+                File downloadAPKcopy = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS),
                         getApplicationLabel() + "_" + response.versionCodeString + ".apk");
+                File updateAPK = new File(file.getFullPath());
                 try {
-                    IOUtils.copyFile(new File(file.getFullPath()), copy);
-                } catch (IOException e) {
-                    Logger.e(TAG, "requestApkInstall", e);
-                    new AlertDialog.Builder(context)
-                            .setTitle(R.string.update_install_download_move_failed)
-                            .setPositiveButton(R.string.ok, null)
-                            .show();
-                    return;
+                    IOUtils.copyFile(updateAPK, downloadAPKcopy);
+                } catch (Exception ignored) { //if we fail to move the downloaded file, just ignore it
                 }
                 //install from the filecache rather than downloads, as the Environment.DIRECTORY_DOWNLOADS may not be "Download"
-                installApk(new File(file.getFullPath()));
+                installApk(updateAPK);
             }
 
             @Override

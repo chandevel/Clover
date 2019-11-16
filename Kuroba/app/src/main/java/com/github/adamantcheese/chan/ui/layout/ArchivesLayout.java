@@ -61,7 +61,7 @@ public class ArchivesLayout extends LinearLayout {
 
         @Override
         public String toString() {
-            return first;
+            return String.valueOf(first);
         }
     }
 
