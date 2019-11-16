@@ -197,6 +197,25 @@ android {
             debuggable = false
         }
         debug {
+            File f = file('debug.properties')
+            if (f.exists()) {
+                Properties props = new Properties()
+                InputStream is = new FileInputStream(f)
+                props.load(is)
+
+                signingConfigs {
+                    debug {
+                        storeFile file(props['keystoreFile'])
+                        storePassword props['keystorePass']
+                        keyAlias props['keyAlias']
+                        keyPassword props['keyPass']
+                    }
+                }
+
+                is.close()
+                signingConfig signingConfigs.debug
+            }
+
             minifyEnabled false
             debuggable = true
         }
