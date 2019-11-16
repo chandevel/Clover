@@ -16,11 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Pair;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
