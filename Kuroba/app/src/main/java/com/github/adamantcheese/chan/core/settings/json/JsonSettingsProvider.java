@@ -132,4 +132,9 @@ public class JsonSettingsProvider implements SettingProvider {
     public void removeSync(String key) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void putIntSync(String key, Integer value) {
+        throw new UnsupportedOperationException();
+    }
 }

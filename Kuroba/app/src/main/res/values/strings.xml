@@ -92,6 +92,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="undo">Undo</string>
     <string name="save">Mark as my post</string>
     <string name="unsave">Unmark as my post</string>
+    <string name="done">Done</string>
 
     <string name="continue_text">Continue</string>
     <string name="create">Create</string>
@@ -720,14 +721,14 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_could_not_copy_files">Could not copy one directory\'s file into another one</string>
     <string name="media_settings_files_copied">Successfully copied files</string>
     <string name="media_settings_would_you_like_to_delete_file_in_old_dir">Would you like to delete files in the old directory?</string>
-    <string name="media_settings_file_have_been_copied">Files have been copied and now exist in two directories. You may want to remove files in the old directory since you won\'t need them anymore. Make sure you didn\'t choose the same directory twice!!! Otherwise all your files will be deleted!</string>
+    <string name="media_settings_file_have_been_copied">Files have been copied and now exist in two directories. You may want to remove files in the old directory since you won\'t need them anymore.</string>
     <string name="media_settings_could_not_delete_files_in_old_dir">Couldn\'t delete files in the old directory</string>
-    <string name="media_settings_old_dir_deleted">Successfully deleted old directory</string>
+    <string name="media_settings_old_files_deleted">Successfully deleted files in the old directory</string>
     <string name="media_settings_copy_files">Copy files</string>
     <string name="media_settings_do_you_want_to_copy_files">Do you want to copy %1$d files from old directory to the new one?"</string>
     <string name="media_settings_could_not_release_uri_permissions">Couldn\'t release uri permissions</string>
     <string name="media_settings_move_threads_to_new_dir">Move old local threads to the new directory?</string>
-    <string name="media_settings_operation_may_take_some_time">This operation may take quite some time. Once started this operation must not be canceled. Make sure you didn\'t choose the same directory twice!!!</string>
+    <string name="media_settings_operation_may_take_some_time">This operation may take quite some time. Once started this operation must not be canceled.</string>
     <string name="media_settings_move_saved_file_to_new_dir">Move old saved files to the new directory?</string>
     <string name="media_settings_old_threads_base_dir_not_registered">Old local threads base directory is probably not registered (newBaseDirectoryFile returned null)</string>
     <string name="media_settings_new_threads_base_dir_not_registered">New local threads base directory is probably not registered</string>
@@ -735,9 +736,9 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_new_saved_files_base_dir_not_registered">New saved files base directory is probably not registered</string>
     <string name="media_settings_no_files_to_copy">No files to copy</string>
     <string name="media_settings_copying_file">Copying file %1$d out of %2$d</string>
-    <string name="media_settings_you_are_trying_to_move_files_in_the_same_directory">You are trying to move files in the same directory. The directory was changed but the files were not touched.</string>
     <string name="media_settings_there_are_active_downloads">There are %1$d threads being downloaded</string>
     <string name="media_settings_you_have_to_stop_all_downloads">You have to stop all the threads that are being downloaded before changing local threads base directory!</string>
     <string name="media_settings_some_thread_downloads_are_still_processed">Some thread downloads are still being processed</string>
     <string name="media_settings_do_not_terminate_the_app_manually">You may have to wait for couple of minutes until all active downloads are complete. DO NOT TERMINATE THE APP MANUALLY!!! Because this will break your local threads.</string>
+    <string name="media_settings_cannot_continue_write_permission">Cannot continue without WRITE_EXTERNAL_STORAGE</string>
 </resources>

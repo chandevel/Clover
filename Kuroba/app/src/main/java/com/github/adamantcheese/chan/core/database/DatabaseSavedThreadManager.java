@@ -185,7 +185,6 @@ public class DatabaseSavedThreadManager {
         };
     }
 
-    // TODO: may not work, but in theory it should
     public void deleteThreadFromDisk(Loadable loadable) {
         AbstractFile localThreadsDir = fileManager.newBaseDirectoryFile(
                 LocalThreadsBaseDirectory.class

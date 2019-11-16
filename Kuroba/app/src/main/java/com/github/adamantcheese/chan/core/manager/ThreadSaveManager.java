@@ -388,13 +388,6 @@ public class ThreadSaveManager {
                 throw new RuntimeException("Cannot be executed on the main thread!");
             }
 
-            if (ChanSettings.localThreadLocation.get().isEmpty()
-                    && ChanSettings.localThreadsLocationUri.get().isEmpty()) {
-                // wtf???
-                throw new IllegalStateException("Both localThreadLocation and " +
-                        "localThreadLocationUri are empty!");
-            }
-
             if (!isCurrentDownloadRunning(loadable)) {
                 // This download was cancelled or stopped while waiting in the queue.
                 Logger.d(TAG, "Download for loadable " + loadableToString(loadable) +

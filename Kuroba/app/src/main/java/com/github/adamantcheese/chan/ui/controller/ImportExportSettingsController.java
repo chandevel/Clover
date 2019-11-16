@@ -122,8 +122,8 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     private void onExportClicked() {
-        boolean localThreadsLocationIsSAFBacked = !ChanSettings.localThreadsLocationUri.get().isEmpty();
-        boolean savedFilesLocationIsSAFBacked = !ChanSettings.saveLocationUri.get().isEmpty();
+        boolean localThreadsLocationIsSAFBacked = ChanSettings.localThreadLocation.isSafDirActive();
+        boolean savedFilesLocationIsSAFBacked = !ChanSettings.saveLocation.isSafDirActive();
 
         if (localThreadsLocationIsSAFBacked || savedFilesLocationIsSAFBacked) {
             showSomeBaseDirectoriesWillBeResetToDefaultDialog(

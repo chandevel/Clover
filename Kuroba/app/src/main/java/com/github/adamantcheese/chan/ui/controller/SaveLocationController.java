@@ -75,17 +75,17 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
         File saveLocation;
 
         if (mode == SaveLocationControllerMode.ImageSaveLocation) {
-            if (ChanSettings.saveLocation.get().isEmpty()) {
+            if (ChanSettings.saveLocation.getFileApiBaseDir().get().isEmpty()) {
                 throw new IllegalStateException("saveLocation is empty!");
             }
 
-            saveLocation = new File(ChanSettings.saveLocation.get());
+            saveLocation = new File(ChanSettings.saveLocation.getFileApiBaseDir().get());
         } else {
-            if (ChanSettings.localThreadLocation.get().isEmpty()) {
+            if (ChanSettings.localThreadLocation.getFileApiBaseDir().get().isEmpty()) {
                 throw new IllegalStateException("localThreadLocation is empty!");
             }
 
-            saveLocation = new File(ChanSettings.localThreadLocation.get());
+            saveLocation = new File(ChanSettings.localThreadLocation.getFileApiBaseDir().get());
         }
 
         fileWatcher = new FileWatcher(this, saveLocation);

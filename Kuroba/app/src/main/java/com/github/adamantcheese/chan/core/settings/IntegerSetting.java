@@ -43,4 +43,12 @@ public class IntegerSetting extends Setting<Integer> {
             onValueChanged();
         }
     }
+
+    public void setSync(Integer value) {
+        if (!value.equals(get())) {
+            settingProvider.putIntSync(key, value);
+            cached = value;
+            onValueChanged();
+        }
+    }
 }

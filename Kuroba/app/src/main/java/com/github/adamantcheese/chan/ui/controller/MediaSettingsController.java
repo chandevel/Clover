@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
@@ -24,10 +25,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
@@ -73,6 +76,7 @@ public class MediaSettingsController
 
     private LoadingViewController loadingViewController;
     private MediaSettingsControllerPresenter presenter;
+    private RuntimePermissionsHelper runtimePermissionsHelper;
 
     @Inject
     FileManager fileManager;
@@ -92,6 +96,7 @@ public class MediaSettingsController
         super.onCreate();
         inject(this);
 
+        runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
         EventBus.getDefault().register(this);
         navigation.setTitle(R.string.settings_screen_media);
 
@@ -109,7 +114,6 @@ public class MediaSettingsController
         onPreferenceChange(imageAutoLoadView);
 
         threadFolderSetting.setEnabled(ChanSettings.saveBoardFolder.get());
-
         headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
     }
 
@@ -136,26 +140,24 @@ public class MediaSettingsController
 
     @Subscribe
     public void onEvent(ChanSettings.SettingChanged<?> setting) {
-        if (setting.setting == ChanSettings.saveLocationUri) {
+        if (setting.setting == ChanSettings.saveLocation.getSafBaseDir()) {
             // Image save location (SAF) was chosen
-            String defaultDir = ChanSettings.getDefaultSaveLocationDir();
-
-            ChanSettings.saveLocation.setNoUpdate(defaultDir);
-            saveLocation.setDescription(ChanSettings.saveLocationUri.get());
-        } else if (setting.setting == ChanSettings.localThreadsLocationUri) {
+            ChanSettings.saveLocation.resetFileDir();
+            saveLocation.setDescription(ChanSettings.saveLocation.getSafBaseDir().get());
+        } else if (setting.setting == ChanSettings.localThreadLocation.getSafBaseDir()) {
             // Local threads location (SAF) was chosen
-            String defaultDir = ChanSettings.getDefaultLocalThreadsLocation();
-
-            ChanSettings.localThreadLocation.setNoUpdate(defaultDir);
-            localThreadsLocation.setDescription(ChanSettings.localThreadsLocationUri.get());
-        } else if (setting.setting == ChanSettings.saveLocation) {
+            ChanSettings.localThreadLocation.resetFileDir();
+            localThreadsLocation.setDescription(
+                    ChanSettings.localThreadLocation.getSafBaseDir().get()
+            );
+        } else if (setting.setting == ChanSettings.saveLocation.getFileApiBaseDir()) {
             // Image save location (Java File API) was chosen
-            ChanSettings.saveLocationUri.setNoUpdate("");
-            saveLocation.setDescription(ChanSettings.saveLocation.get());
-        } else if (setting.setting == ChanSettings.localThreadLocation) {
+            saveLocation.setDescription(ChanSettings.saveLocation.getFileApiBaseDir().get());
+        } else if (setting.setting == ChanSettings.localThreadLocation.getFileApiBaseDir()) {
             // Local threads location (Java File API) was chosen
-            ChanSettings.localThreadsLocationUri.setNoUpdate("");
-            localThreadsLocation.setDescription(ChanSettings.localThreadLocation.get());
+            localThreadsLocation.setDescription(
+                    ChanSettings.localThreadLocation.getFileApiBaseDir().get()
+            );
         }
     }
 
@@ -282,14 +284,32 @@ public class MediaSettingsController
     }
 
     private String getLocalThreadsLocation() {
-        if (!ChanSettings.localThreadsLocationUri.get().isEmpty()) {
-            return ChanSettings.localThreadsLocationUri.get();
+        if (ChanSettings.localThreadLocation.isSafDirActive()) {
+            return ChanSettings.localThreadLocation.getSafBaseDir().get();
         }
 
-        return ChanSettings.localThreadLocation.get();
+        return ChanSettings.localThreadLocation.getFileApiBaseDir().get();
     }
 
     private void showUseSAFOrOldAPIForLocalThreadsLocationDialog() {
+        if (!runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            String message =
+                    context.getString(R.string.media_settings_cannot_continue_write_permission);
+
+            runtimePermissionsHelper.requestPermission(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    granted -> {
+                        if (!granted) {
+                            showToast(message, Toast.LENGTH_LONG);
+                        } else {
+                            showUseSAFOrOldAPIForLocalThreadsLocationDialog();
+                        }
+                    }
+            );
+
+            return;
+        }
+
         long downloadingThreadsCount = databaseManager.runTask(() -> {
             return databaseManager.getDatabaseSavedThreadManager().countDownloadingThreads().call();
         });
@@ -305,15 +325,16 @@ public class MediaSettingsController
             return;
         }
 
-        int positiveButtonTextId = R.string.media_settings_use_saf_dialog_positive_button_text;
+        int positiveButtonStringId = R.string.media_settings_use_saf_dialog_positive_button_text;
+        int negativeButtonStringId = R.string.media_settings_use_saf_dialog_negative_button_text;
 
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.media_settings_use_saf_for_local_threads_location_dialog_title)
                 .setMessage(R.string.media_settings_use_saf_for_local_threads_location_dialog_message)
-                .setPositiveButton(positiveButtonTextId, (dialog, which) -> {
+                .setPositiveButton(positiveButtonStringId, (dialog, which) -> {
                     presenter.onLocalThreadsLocationUseSAFClicked();
                 })
-                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text, (dialog, which) -> {
+                .setNegativeButton(negativeButtonStringId, (dialog, which) -> {
                     onLocalThreadsLocationUseOldApiClicked();
                     dialog.dismiss();
                 })
@@ -376,21 +397,42 @@ public class MediaSettingsController
     }
 
     private String getSaveLocation() {
-        if (!ChanSettings.saveLocationUri.get().isEmpty()) {
-            return ChanSettings.saveLocationUri.get();
+        if (ChanSettings.saveLocation.isSafDirActive()) {
+            return ChanSettings.saveLocation.getSafBaseDir().get();
         }
 
-        return ChanSettings.saveLocation.get();
+        return ChanSettings.saveLocation.getFileApiBaseDir().get();
     }
 
     private void showUseSAFOrOldAPIForSaveLocationDialog() {
+        if (!runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            String message =
+                    context.getString(R.string.media_settings_cannot_continue_write_permission);
+
+            runtimePermissionsHelper.requestPermission(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    granted -> {
+                        if (!granted) {
+                            showToast(message, Toast.LENGTH_LONG);
+                        } else {
+                            showUseSAFOrOldAPIForSaveLocationDialog();
+                        }
+                    }
+            );
+
+            return;
+        }
+
+        int positiveButtonStringId = R.string.media_settings_use_saf_dialog_positive_button_text;
+        int negativeButtonStringId = R.string.media_settings_use_saf_dialog_negative_button_text;
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.media_settings_use_saf_for_save_location_dialog_title)
                 .setMessage(R.string.media_settings_use_saf_for_save_location_dialog_message)
-                .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text, (dialog, which) -> {
+                .setPositiveButton(positiveButtonStringId, (dialog, which) -> {
                     presenter.onSaveLocationUseSAFClicked();
                 })
-                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text, (dialog, which) -> {
+                .setNegativeButton(negativeButtonStringId, (dialog, which) -> {
                     onSaveLocationUseOldApiClicked();
                     dialog.dismiss();
                 })
@@ -424,6 +466,11 @@ public class MediaSettingsController
             @NonNull AbstractFile oldBaseDirectory,
             @NonNull AbstractFile newBaseDirectory
     ) {
+        if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
+            showToast(context.getString(R.string.done), Toast.LENGTH_LONG);
+            return;
+        }
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.media_settings_move_threads_to_new_dir))
                 .setMessage(context.getString(R.string.media_settings_operation_may_take_some_time))
@@ -451,6 +498,11 @@ public class MediaSettingsController
             @NotNull AbstractFile oldBaseDirectory,
             @NotNull AbstractFile newBaseDirectory
     ) {
+        if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
+            showToast(context.getString(R.string.done), Toast.LENGTH_LONG);
+            return;
+        }
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.media_settings_move_saved_file_to_new_dir))
                 .setMessage(context.getString(R.string.media_settings_operation_may_take_some_time))
@@ -489,19 +541,28 @@ public class MediaSettingsController
         loadingViewController = null;
 
         if (!result) {
-            showToast(context.getString(R.string.media_settings_could_not_copy_files), Toast.LENGTH_LONG);
+            showToast(
+                    context.getString(R.string.media_settings_could_not_copy_files),
+                    Toast.LENGTH_LONG
+            );
         } else {
             showDeleteOldFilesDialog(oldBaseDirectory);
-            showToast(context.getString(R.string.media_settings_files_copied), Toast.LENGTH_LONG);
+            showToast(
+                    context.getString(R.string.media_settings_files_copied),
+                    Toast.LENGTH_LONG
+            );
         }
     }
 
     private void showDeleteOldFilesDialog(
             @NonNull AbstractFile oldBaseDirectory
     ) {
+        int titleStringId = R.string.media_settings_would_you_like_to_delete_file_in_old_dir;
+        int messageStringId = R.string.media_settings_file_have_been_copied;
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.media_settings_would_you_like_to_delete_file_in_old_dir))
-                .setMessage(context.getString(R.string.media_settings_file_have_been_copied))
+                .setTitle(context.getString(titleStringId))
+                .setMessage(context.getString(messageStringId))
                 .setPositiveButton(
                         context.getString(R.string.delete),
                         (dialog, which) -> onDeleteOldFilesClicked(oldBaseDirectory)
@@ -534,7 +595,7 @@ public class MediaSettingsController
         }
 
         showToast(
-                context.getString(R.string.media_settings_old_dir_deleted),
+                context.getString(R.string.media_settings_old_files_deleted),
                 Toast.LENGTH_LONG
         );
     }
