@@ -222,12 +222,11 @@ public class ImageReencodingPresenter {
             currentExt = "." + currentExt;
         }
         switch (newType) {
-            case AS_IS:
-                return System.currentTimeMillis() + currentExt;
             case AS_PNG:
                 return System.currentTimeMillis() + ".png";
             case AS_JPEG:
                 return System.currentTimeMillis() + ".jpg";
+            case AS_IS:
             default:
                 return System.currentTimeMillis() + currentExt;
         }

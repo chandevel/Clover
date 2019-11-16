@@ -557,9 +557,7 @@ public class StartActivity
             return;
         }
 
-        if (imagePickDelegate.onActivityResult(requestCode, resultCode, data)) {
-            return;
-        }
+        imagePickDelegate.onActivityResult(requestCode, resultCode, data);
     }
 
     private Controller stackTop() {
