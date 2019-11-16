@@ -49,7 +49,7 @@ class MediaSettingsControllerPresenter(
                     return
                 }
 
-                if (fileManager.isBaseDirAlreadyRegistered(uri)) {
+                if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(uri)) {
                     val toastStringId = R.string.media_settings_base_directory_is_already_registered
 
                     withCallbacks {
@@ -110,7 +110,7 @@ class MediaSettingsControllerPresenter(
             return
         }
 
-        if (fileManager.isBaseDirAlreadyRegistered(dirPath)) {
+        if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(dirPath)) {
             val toastStringId = R.string.media_settings_base_directory_is_already_registered
 
             withCallbacks {
@@ -164,7 +164,7 @@ class MediaSettingsControllerPresenter(
                     return
                 }
 
-                if (fileManager.isBaseDirAlreadyRegistered(uri)) {
+                if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(uri)) {
                     val toastStringId = R.string.media_settings_base_directory_is_already_registered
 
                     withCallbacks {
@@ -225,7 +225,7 @@ class MediaSettingsControllerPresenter(
             return
         }
 
-        if (fileManager.isBaseDirAlreadyRegistered(dirPath)) {
+        if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(dirPath)) {
             val toastStringId = R.string.media_settings_base_directory_is_already_registered
 
             withCallbacks {
