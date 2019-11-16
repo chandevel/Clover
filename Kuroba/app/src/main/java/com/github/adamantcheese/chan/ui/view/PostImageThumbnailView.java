@@ -67,12 +67,12 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
                     String fileName;
 
                     if (postImage.spoiler) {
-                        String extension = StringUtils.extractFileExtensionFromImageUrl(
+                        String extension = StringUtils.extractFileNameExtension(
                                 postImage.spoilerThumbnailUrl.toString());
 
                         fileName = ThreadSaveManager.formatSpoilerImageName(extension);
                     } else {
-                        String extension = StringUtils.extractFileExtensionFromImageUrl(
+                        String extension = StringUtils.extractFileNameExtension(
                                 postImage.thumbnailUrl.toString());
 
                         fileName = ThreadSaveManager.formatThumbnailImageName(

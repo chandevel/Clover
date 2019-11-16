@@ -263,19 +263,12 @@ public class ImageOptionsController extends Controller implements
     }
 
     @Override
-    public void showCouldNotDecodeBitmapError() {
-        //called on the background thread!
-
-        AndroidUtils.runOnUiThread(() -> showToastMessage(context.getString(R.string.could_not_decode_image_bitmap)));
-    }
-
-    @Override
-    public void onImageOptionsApplied(Reply reply) {
+    public void onImageOptionsApplied(Reply reply, boolean filenameRemoved) {
         //called on the background thread!
 
         AndroidUtils.runOnUiThread(() -> {
             imageReencodingHelper.pop();
-            callbacks.onImageOptionsApplied(reply);
+            callbacks.onImageOptionsApplied(reply, filenameRemoved);
         });
     }
 
@@ -305,10 +298,6 @@ public class ImageOptionsController extends Controller implements
         });
     }
 
-    private void showToastMessage(String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-    }
-
     private Window getWindow() {
         return ((Activity) context).getWindow();
     }
@@ -316,6 +305,6 @@ public class ImageOptionsController extends Controller implements
     public interface ImageOptionsControllerCallbacks {
         void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat, @Nullable Pair<Integer, Integer> dims);
 
-        void onImageOptionsApplied(Reply reply);
+        void onImageOptionsApplied(Reply reply, boolean filenameRemoved);
     }
 }

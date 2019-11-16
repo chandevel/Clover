@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.ui.service.SavingNotification;
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.FileSegment;
@@ -43,7 +44,6 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.regex.Pattern;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -51,7 +51,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private static final String TAG = "ImageSaver";
     private static final int MAX_NAME_LENGTH = 50;
-    private static final Pattern UNSAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._\\\\ -]");
 
     private FileManager fileManager;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -123,7 +122,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     }
 
     public String getSubFolder(String name) {
-        String filtered = filterName(name);
+        String filtered = filterName(name, false);
         filtered = filtered.substring(0, Math.min(filtered.length(), MAX_NAME_LENGTH));
         return filtered;
     }
@@ -287,12 +286,47 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         return text;
     }
 
-    private String filterName(String name) {
-        name = UNSAFE_CHARACTERS_PATTERN.matcher(name).replaceAll("");
-        if (name.length() == 0) {
-            name = "_";
+    /**
+     * @param isFileName is used to figure out what characters are allowed and what are not.
+     *                   If set to false, then we additionally remove all '.' characters because
+     *                   directory names should not have '.' characters (well they actually can but
+     *                   let's filter them anyway). If it's false then it is implied that the "name"
+     *                   param is a directory segment name.
+     * */
+    private String filterName(String name, boolean isFileName) {
+        String filteredName;
+
+        if (isFileName) {
+            filteredName = StringUtils.fileNameRemoveBadCharacters(name);
+        } else {
+            filteredName = StringUtils.dirNameRemoveBadCharacters(name);
         }
-        return name;
+
+        String extension = StringUtils.extractFileNameExtension(filteredName);
+
+        // Remove the extension length + the '.' symbol from the resulting "filteredName" length
+        // and if it equals to 0 that means that the whole file name consists of bad characters
+        // (e.g. the whole filename consists of japanese characters) so we need to generate a new
+        // file name
+        boolean isOnlyExtensionLeft
+                = (extension != null && (filteredName.length() - extension.length() - 1) == 0);
+
+        // filteredName.length() == 0 will only be true when "name" parameter does not have an
+        // extension
+        if (filteredName.length() == 0 || isOnlyExtensionLeft) {
+            String appendExtension;
+
+            if (extension != null) {
+                // extractFileNameExtension returns an extension without the '.' symbol
+                appendExtension = "." + extension;
+            } else {
+                appendExtension = "";
+            }
+
+            filteredName = System.currentTimeMillis() + appendExtension;
+        }
+
+        return filteredName;
     }
 
     @Nullable
@@ -301,7 +335,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                 ? postImage.serverFilename
                 : postImage.filename;
 
-        String fileName = filterName(name + "." + postImage.extension);
+        String fileName = filterName(name + "." + postImage.extension, true);
 
         AbstractFile saveLocation = getSaveLocation(task);
         if (saveLocation == null) {
@@ -317,7 +351,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                     Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX)
                     + "." + postImage.extension;
 
-            fileName = filterName(resultFileName);
+            fileName = filterName(resultFileName, true);
             saveFile = saveLocation
                     .clone(new FileSegment(fileName));
         }

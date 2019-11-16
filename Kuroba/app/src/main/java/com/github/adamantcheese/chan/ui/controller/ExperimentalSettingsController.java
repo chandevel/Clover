@@ -118,7 +118,8 @@ public class ExperimentalSettingsController extends SettingsController {
 
         requiresUiRefresh.add(group.add(new BooleanSettingView(this,
                 ChanSettings.parsePostImageLinks,
-                "Enable image link loading", "Adds any JPG, PNG, GIF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available")));
+                context.getString(R.string.setting_image_link_loading_title),
+                context.getString(R.string.setting_image_link_loading_description))));
 
         groups.add(group);
     }

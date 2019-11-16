@@ -70,8 +70,8 @@ public class ImageOptionsHelper implements
     }
 
     @Override
-    public void onImageOptionsApplied(Reply reply) {
-        callbacks.onImageOptionsApplied(reply);
+    public void onImageOptionsApplied(Reply reply, boolean filenameRemoved) {
+        callbacks.onImageOptionsApplied(reply, filenameRemoved);
     }
 
     @Override
@@ -99,6 +99,6 @@ public class ImageOptionsHelper implements
     public interface ImageReencodingHelperCallback {
         void presentReencodeOptionsController(Controller controller);
 
-        void onImageOptionsApplied(Reply reply);
+        void onImageOptionsApplied(Reply reply, boolean filenameRemoved);
     }
 }

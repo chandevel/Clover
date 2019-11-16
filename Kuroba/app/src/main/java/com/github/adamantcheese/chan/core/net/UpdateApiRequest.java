@@ -47,7 +47,7 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                 case "tag_name":
                     try {
                         response.versionCodeString = reader.nextString();
-                        Pattern versionPattern = Pattern.compile("v(\\d+?)\\.(\\d+?)\\.(\\d+?)");
+                        Pattern versionPattern = Pattern.compile("v(\\d+?)\\.(\\d{1,2})\\.(\\d{1,2})");
                         Matcher versionMatcher = versionPattern.matcher(response.versionCodeString);
                         if (versionMatcher.matches()) {
                             response.versionCode = Integer.parseInt(versionMatcher.group(3))
@@ -103,9 +103,9 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
     }
 
     public static class UpdateApiResponse {
-        public int versionCode;
+        public int versionCode = 0;
         public String versionCodeString;
-        public String updateTitle;
+        public String updateTitle = "";
         public HttpUrl apkURL;
         public Spanned body;
     }

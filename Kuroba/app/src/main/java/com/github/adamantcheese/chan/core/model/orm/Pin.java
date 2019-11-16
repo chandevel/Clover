@@ -48,8 +48,8 @@ public class Pin implements Comparable<Pin>, Cloneable {
     @DatabaseField
     public boolean isError = false;
 
-    @DatabaseField
-    public String thumbnailUrl = null;
+    @DatabaseField(canBeNull = false)
+    public String thumbnailUrl = "";
 
     @DatabaseField
     public int order = -1;

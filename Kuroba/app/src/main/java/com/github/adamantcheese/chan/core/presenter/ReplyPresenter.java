@@ -47,6 +47,7 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.vdurmont.emoji.EmojiParser;
 
 import java.io.File;
@@ -319,11 +320,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                                     Loadable.forThread(localSite, localBoard,
                                             replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo, ""))));
 
-            //if we're in the same thread as the post was made in, just use the loadable from the presenter
-            //if we're in a different thread from where the post was made, use the rebuilt loadable
-            //this is really just insurance that we've got the right thing
-            localLoadable = loadable.equals(localLoadable) ? loadable : localLoadable;
-
             if (localLoadable.isThreadMode()) {
                 lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
             } else if (localLoadable.isCatalogMode()) {
@@ -331,7 +327,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             }
 
             if (ChanSettings.postPinThread.get()) {
-                if (localLoadable.isThreadMode()) { //ensure this is the same thread loadable, so we can make a pin with a thumbnail
+                if (localLoadable.isThreadMode()) {
+                    //reply
                     ChanThread thread = callback.getThread();
                     if (thread != null) {
                         watchManager.createPin(localLoadable, thread.getOp(), PinType.WATCH_NEW_POSTS);
@@ -339,7 +336,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                         watchManager.createPin(localLoadable);
                     }
                 } else {
-                    watchManager.createPin(localLoadable); //not same thread or catalog loadable, make pin without a thumbnail
+                    //new thread
+                    watchManager.createPin(localLoadable);
                 }
             }
 
@@ -358,8 +356,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             callback.loadDraftIntoViews(draft);
             callback.onPosted();
 
-            if (bound && loadable.isCatalogMode()) { //special case for new threads, don't use localLoadable
-                callback.showThread(databaseManager.getDatabaseLoadableManager().get(localLoadable));
+            if (bound && loadable.isCatalogMode()) { //special case for new threads, check if we were on the catalog with the nonlocal loadable
+                callback.showThread(localLoadable);
             }
         } else if (replyResponse.requireAuthentication) {
             switchPage(Page.AUTHENTICATION);
@@ -439,11 +437,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     public boolean fileNameLongClicked() {
-        String currentFile = draft.fileName;
-        String currentExt = "";
-        try {
-            currentExt = currentFile.substring(currentFile.lastIndexOf('.'));
-        } catch (Exception ignored) {
+        String currentExt = StringUtils.extractFileNameExtension(draft.fileName);
+        if (currentExt == null) {
+            currentExt = "";
+        } else {
+            currentExt = "." + currentExt;
         }
         draft.fileName = System.currentTimeMillis() + currentExt;
         callback.loadDraftIntoViews(draft);

@@ -39,6 +39,7 @@ import java.net.Proxy;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ChanSettings {
     public enum MediaAutoLoadMode implements OptionSettingItem {
@@ -202,6 +203,8 @@ public class ChanSettings {
     public static final BooleanSetting parseYoutubeTitles;
     public static final BooleanSetting parsePostImageLinks;
 
+    public static final StringSetting previousDevHash;
+
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
@@ -284,7 +287,7 @@ public class ChanSettings {
         watchFilterWatch = new BooleanSetting(p, "preference_watch_filter_watch", false);
         watchFilterWatch.addCallback(((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(watchFilterWatch))));
-        watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", 15 * 60 * 1000); //15 minute default
+        watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", (int) MINUTES.toMillis(15));
         watchBackgroundInterval.addCallback((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(watchBackgroundInterval)));
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
@@ -325,10 +328,12 @@ public class ChanSettings {
         alwaysOpenDrawer = new BooleanSetting(p, "drawer_auto_open_always", false);
 
         moveInputToBottom = new BooleanSetting(p, "move_input_bottom", false);
-        enableLongPressURLCopy = new BooleanSetting(p , "long_press_image_url_copy", true);
+        enableLongPressURLCopy = new BooleanSetting(p, "long_press_image_url_copy", true);
 
         parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", false);
         parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", false);
+
+        previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
     }
 
     @NonNull

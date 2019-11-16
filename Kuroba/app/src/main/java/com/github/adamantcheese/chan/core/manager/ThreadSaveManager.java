@@ -748,7 +748,7 @@ public class ThreadSaveManager {
             }
 
             {
-                String thumbnailExtension = StringUtils.extractFileExtensionFromImageUrl(
+                String thumbnailExtension = StringUtils.extractFileNameExtension(
                         postImage.thumbnailUrl.toString());
                 String thumbnailImageFilename = postImage.serverFilename + "_"
                         + THUMBNAIL_FILE_NAME + "." + thumbnailExtension;
@@ -795,7 +795,7 @@ public class ThreadSaveManager {
     ) throws IOException {
         // If the board uses spoiler image - download it
         if (loadable.board.spoilers && spoilerImageUrl != null) {
-            String spoilerImageExtension = StringUtils.extractFileExtensionFromImageUrl(
+            String spoilerImageExtension = StringUtils.extractFileNameExtension(
                     spoilerImageUrl.toString());
             if (spoilerImageExtension == null) {
                 Logger.e(TAG, "Could not extract spoiler image extension from url, spoilerImageUrl = "
@@ -873,7 +873,7 @@ public class ThreadSaveManager {
                             return Single.just(false);
                         }
 
-                        String thumbnailExtension = StringUtils.extractFileExtensionFromImageUrl(
+                        String thumbnailExtension = StringUtils.extractFileNameExtension(
                                 postImage.thumbnailUrl.toString());
 
                         if (thumbnailExtension == null) {

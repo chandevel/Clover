@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,7 +43,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -537,9 +535,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
 
         if (ChanSettings.shiftPostFormat.get() && post.images.size() == 1 && !ChanSettings.textOnly.get()) {
             //display width, we don't care about height here
-            Point displaySize = new Point();
-            WindowManager windowManager = (WindowManager) getContext().getSystemService(Activity.WINDOW_SERVICE);
-            windowManager.getDefaultDisplay().getSize(displaySize);
+            Point displaySize = AndroidUtils.getDisplaySize();
 
             //thumbnail size
             int thumbnailSize = getResources().getDimensionPixelSize(R.dimen.cell_post_thumbnail_size);
