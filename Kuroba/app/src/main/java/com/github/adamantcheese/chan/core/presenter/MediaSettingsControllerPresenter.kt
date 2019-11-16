@@ -49,6 +49,16 @@ class MediaSettingsControllerPresenter(
                     return
                 }
 
+                if (fileManager.isBaseDirAlreadyRegistered(uri)) {
+                    val toastStringId = R.string.media_settings_base_directory_is_already_registered
+
+                    withCallbacks {
+                        showToast(appContext.getString(toastStringId))
+                    }
+
+                    return
+                }
+
                 Logger.d(TAG, "onLocalThreadsLocationUseSAFClicked dir = $uri")
                 ChanSettings.localThreadLocation.setSafBaseDir(uri)
                 ChanSettings.localThreadLocation.resetFileDir()
@@ -92,6 +102,16 @@ class MediaSettingsControllerPresenter(
 
         if (oldLocalThreadsDirectory == null) {
             val toastStringId = R.string.media_settings_old_threads_base_dir_not_registered
+
+            withCallbacks {
+                showToast(appContext.getString(toastStringId))
+            }
+
+            return
+        }
+
+        if (fileManager.isBaseDirAlreadyRegistered(dirPath)) {
+            val toastStringId = R.string.media_settings_base_directory_is_already_registered
 
             withCallbacks {
                 showToast(appContext.getString(toastStringId))
@@ -144,6 +164,16 @@ class MediaSettingsControllerPresenter(
                     return
                 }
 
+                if (fileManager.isBaseDirAlreadyRegistered(uri)) {
+                    val toastStringId = R.string.media_settings_base_directory_is_already_registered
+
+                    withCallbacks {
+                        showToast(appContext.getString(toastStringId))
+                    }
+
+                    return
+                }
+
                 Logger.d(TAG, "onSaveLocationUseSAFClicked dir = $uri")
                 ChanSettings.saveLocation.setSafBaseDir(uri)
                 ChanSettings.saveLocation.resetFileDir()
@@ -187,6 +217,16 @@ class MediaSettingsControllerPresenter(
 
         if (oldSaveFilesDirectory == null) {
             val toastStringId = R.string.media_settings_old_saved_files_base_dir_not_registered
+
+            withCallbacks {
+                showToast(appContext.getString(toastStringId))
+            }
+
+            return
+        }
+
+        if (fileManager.isBaseDirAlreadyRegistered(dirPath)) {
+            val toastStringId = R.string.media_settings_base_directory_is_already_registered
 
             withCallbacks {
                 showToast(appContext.getString(toastStringId))

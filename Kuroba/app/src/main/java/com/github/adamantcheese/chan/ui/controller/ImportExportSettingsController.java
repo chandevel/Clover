@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -56,6 +57,8 @@ public class ImportExportSettingsController extends SettingsController implement
     FileManager fileManager;
     @Inject
     FileChooser fileChooser;
+    @Inject
+    DatabaseManager databaseManager;
 
     private ImportExportSettingsPresenter presenter;
 
@@ -123,7 +126,7 @@ public class ImportExportSettingsController extends SettingsController implement
 
     private void onExportClicked() {
         boolean localThreadsLocationIsSAFBacked = ChanSettings.localThreadLocation.isSafDirActive();
-        boolean savedFilesLocationIsSAFBacked = !ChanSettings.saveLocation.isSafDirActive();
+        boolean savedFilesLocationIsSAFBacked = ChanSettings.saveLocation.isSafDirActive();
 
         if (localThreadsLocationIsSAFBacked || savedFilesLocationIsSAFBacked) {
             showSomeBaseDirectoriesWillBeResetToDefaultDialog(
@@ -154,16 +157,32 @@ public class ImportExportSettingsController extends SettingsController implement
                 ? context.getString(R.string.import_or_export_warning_saved_files_base_dir)
                 : "";
 
-        String message = context.getString(
-                R.string.import_or_export_warning_super_long_message,
+        String messagePartOne = context.getString(
+                R.string.import_or_export_warning_super_long_message_part_one,
                 localThreadsString,
                 andString,
                 savedFilesString
         );
 
+        String messagePartTwo = "";
+
+        if (localThreadsLocationIsSAFBacked) {
+            long downloadingThreadsCount = databaseManager.runTask(() ->
+                    databaseManager.getDatabaseSavedThreadManager().countDownloadingThreads().call()
+            );
+
+            if (downloadingThreadsCount > 0) {
+                messagePartTwo = context.getString(
+                        R.string.import_or_export_warning_super_long_message_part_two
+                );
+            }
+        }
+
+        String fullMessage = String.format("%s %s", messagePartOne, messagePartTwo);
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.import_or_export_warning))
-                .setMessage(message)
+                .setMessage(fullMessage)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     dialog.dismiss();
                     showCreateNewOrOverwriteDialog();
