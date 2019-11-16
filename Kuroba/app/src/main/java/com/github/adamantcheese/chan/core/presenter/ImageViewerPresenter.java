@@ -108,7 +108,6 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         PostImage postImage = images.get(selectedPosition);
         if (postImage.type == PostImage.Type.MOVIE) {
-            // VideoView doesn't work with invisible visibility
             callback.setImageMode(postImage, MultiImageView.Mode.LOWRES, true);
         }
 
@@ -118,7 +117,10 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.startPreviewOutTransition(loadable, postImage);
         callback.showProgress(false);
 
-        cancelPreloadingImages();
+        for (FileCacheDownloader preloadingImage : preloadingImages) {
+            preloadingImage.cancel();
+        }
+        preloadingImages.clear();
     }
 
     public void onVolumeClicked() {
@@ -214,7 +216,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         if (callback.getImageMode(postImage) == MultiImageView.Mode.LOWRES) {
             onLowResInCenter();
         }
-        // Else let onModeChange handle it
+        // Else let onModeLoaded handle it
 
         callback.showProgress(progress.get(selectedPosition) >= 0f);
         callback.onLoadProgress(progress.get(selectedPosition));
@@ -272,13 +274,6 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 }
             }
         }
-    }
-
-    private void cancelPreloadingImages() {
-        for (FileCacheDownloader preloadingImage : preloadingImages) {
-            preloadingImage.cancel();
-        }
-        preloadingImages.clear();
     }
 
     private void cancelPreviousImageDownload(int position) {
