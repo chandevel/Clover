@@ -119,8 +119,6 @@ class FileCacheDownloader(
         var call: Call? = null
         var body: ResponseBody? = null
 
-        val startTime = System.currentTimeMillis()
-
         try {
             BackgroundUtils.ensureBackgroundThread()
             checkCancel()
@@ -137,6 +135,7 @@ class FileCacheDownloader(
 
             checkCancel()
 
+            val startTime = System.currentTimeMillis()
             val (newCall, newBody) = getBody()
             if (newBody == null) {
                 throw IOException("body == null")
