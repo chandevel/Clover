@@ -61,6 +61,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.FastTextView;
@@ -367,7 +368,13 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             time = DateUtils.getRelativeTimeSpanString(post.time * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0);
         }
 
-        String noText = "No." + post.no;
+        String noText = "No. " + post.no;
+        if (ChanSettings.addDubs.get()) {
+            String repeat = CommentParserHelper.getRepeatDigits(post.no);
+            if (repeat != null) {
+                noText += " (" + repeat + ")";
+            }
+        }
         SpannableString date = new SpannableString(noText + " " + time);
         date.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, date.length(), 0);
@@ -394,8 +401,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 if (ChanSettings.postFileInfo.get()) {
                     SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() +
                             (image.size == -1 ? "" : //if -1, linked image, no info
-                            " " + AndroidUtils.getReadableFileSize(image.size, false) + " " +
-                            image.imageWidth + "x" + image.imageHeight));
+                                    " " + AndroidUtils.getReadableFileSize(image.size, false) + " " +
+                                            image.imageWidth + "x" + image.imageHeight));
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                     titleParts.add(fileInfo);
