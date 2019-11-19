@@ -805,7 +805,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
         int index = -1;
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (Post item : posts) {
-            if (!item.images.isEmpty()) {
+            if (!item.images.isEmpty() && !item.deleted.get()) { //deleted posts always have 404'd images
                 for (PostImage image : item.images) {
                     images.add(image);
                     if (image.equalUrl(postImage)) {
