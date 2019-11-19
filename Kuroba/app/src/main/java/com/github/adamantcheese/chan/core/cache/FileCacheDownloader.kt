@@ -82,7 +82,6 @@ class FileCacheDownloader(
         if (cancel.compareAndSet(false, true)) {
             // Did not start running yet, mark finished here.
             if (!running.get() && callback != null) {
-                Thread.currentThread().interrupt();
                 callback.downloaderFinished(this)
             }
         }
