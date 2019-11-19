@@ -121,6 +121,11 @@ public class ExperimentalSettingsController extends SettingsController {
                 context.getString(R.string.setting_image_link_loading_title),
                 context.getString(R.string.setting_image_link_loading_description))));
 
+        requiresUiRefresh.add(group.add(new BooleanSettingView(this,
+                ChanSettings.addDubs,
+                R.string.add_dubs_title,
+                R.string.add_dubs_description)));
+
         groups.add(group);
     }
 }

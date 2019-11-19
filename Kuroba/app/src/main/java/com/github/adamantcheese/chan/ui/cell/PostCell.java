@@ -78,6 +78,7 @@ import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
@@ -367,7 +368,13 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             time = DateUtils.getRelativeTimeSpanString(post.time * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0);
         }
 
-        String noText = "No." + post.no;
+        String noText = "No. " + post.no;
+        if (ChanSettings.addDubs.get()) {
+            String repeat = getRepeatDigits(post.no);
+            if (repeat != null) {
+                noText += " (" + repeat + ")";
+            }
+        }
         SpannableString date = new SpannableString(noText + " " + time);
         date.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, date.length(), 0);
@@ -394,8 +401,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 if (ChanSettings.postFileInfo.get()) {
                     SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() +
                             (image.size == -1 ? "" : //if -1, linked image, no info
-                            " " + AndroidUtils.getReadableFileSize(image.size, false) + " " +
-                            image.imageWidth + "x" + image.imageHeight));
+                                    " " + AndroidUtils.getReadableFileSize(image.size, false) + " " +
+                                            image.imageWidth + "x" + image.imageHeight));
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                     titleParts.add(fileInfo);
@@ -655,6 +662,38 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         // Fallback to old method in case the comment does not have any spaces/individual words
         CharSequence commentText = precedingBoundary > 0 ? post.comment.subSequence(0, precedingBoundary) : post.comment.subSequence(0, PostCell.COMMENT_MAX_LENGTH_BOARD);
         return TextUtils.concat(commentText, "\u2026"); // append ellipsis
+    }
+
+    private String getRepeatDigits(int no) {
+        String number = String.valueOf(no);
+        if (Pattern.compile("(\\d)\\1$").matcher(number).find()) {
+            return "Dubs";
+        }
+        if (Pattern.compile("(\\d)\\1{2}$").matcher(number).find()) {
+            return "Trips";
+        }
+        if (Pattern.compile("(\\d)\\1{3}$").matcher(number).find()) {
+            return "Quads";
+        }
+        if (Pattern.compile("(\\d)\\1{4}$").matcher(number).find()) {
+            return "Quints";
+        }
+        if (Pattern.compile("(\\d)\\1{5}$").matcher(number).find()) {
+            return "Sexes";
+        }
+        if (Pattern.compile("(\\d)\\1{6}$").matcher(number).find()) {
+            return "Septs";
+        }
+        if (Pattern.compile("(\\d)\\1{7}$").matcher(number).find()) {
+            return "Octs";
+        }
+        if (Pattern.compile("(\\d)\\1{8}$").matcher(number).find()) {
+            return "Nons";
+        }
+        if (Pattern.compile("(\\d)\\1{9}$").matcher(number).find()) {
+            return "Decs";
+        }
+        return null;
     }
 
     private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);

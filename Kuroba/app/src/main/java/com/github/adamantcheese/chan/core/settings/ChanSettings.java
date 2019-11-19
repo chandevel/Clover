@@ -205,6 +205,8 @@ public class ChanSettings {
 
     public static final StringSetting previousDevHash;
 
+    public static final BooleanSetting addDubs;
+
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
@@ -334,6 +336,8 @@ public class ChanSettings {
         parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", false);
 
         previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
+
+        addDubs = new BooleanSetting(p, "add_dubs", false);
     }
 
     @NonNull
