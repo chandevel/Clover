@@ -117,6 +117,10 @@ public class ExperimentalSettingsController extends SettingsController {
                 R.string.setting_youtube_title, R.string.setting_youtube_title_description)));
 
         requiresUiRefresh.add(group.add(new BooleanSettingView(this,
+                ChanSettings.parseYoutubeDuration,
+                R.string.setting_youtube_dur_title, R.string.setting_youtube_dur_description)));
+
+        requiresUiRefresh.add(group.add(new BooleanSettingView(this,
                 ChanSettings.parsePostImageLinks,
                 context.getString(R.string.setting_image_link_loading_title),
                 context.getString(R.string.setting_image_link_loading_description))));

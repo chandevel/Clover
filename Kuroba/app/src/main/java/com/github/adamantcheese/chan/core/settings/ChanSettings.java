@@ -201,6 +201,7 @@ public class ChanSettings {
     public static final BooleanSetting enableLongPressURLCopy;
 
     public static final BooleanSetting parseYoutubeTitles;
+    public static final BooleanSetting parseYoutubeDuration;
     public static final BooleanSetting parsePostImageLinks;
 
     public static final StringSetting previousDevHash;
@@ -333,6 +334,7 @@ public class ChanSettings {
         enableLongPressURLCopy = new BooleanSetting(p, "long_press_image_url_copy", true);
 
         parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", false);
+        parseYoutubeDuration = new BooleanSetting(p, "parse_youtube_duration", false);
         parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", false);
 
         previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
