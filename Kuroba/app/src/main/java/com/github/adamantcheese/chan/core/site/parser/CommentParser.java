@@ -25,13 +25,19 @@ import android.text.style.UnderlineSpan;
 
 import androidx.annotation.AnyThread;
 
+import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 import java.io.UnsupportedEncodingException;
@@ -72,7 +78,7 @@ public class CommentParser {
     public void addDefaultRules() {
         rule(tagRule("a").action(this::handleAnchor));
 
-        rule(tagRule("span").cssClass("deadlink").foregroundColor(StyleRule.ForegroundColor.QUOTE).strikeThrough());
+        rule(tagRule("span").cssClass("deadlink").foregroundColor(StyleRule.ForegroundColor.QUOTE).strikeThrough().action(this::handleDead));
         rule(tagRule("span").cssClass("spoiler").link(PostLinkable.Type.SPOILER));
         rule(tagRule("span").cssClass("fortune").action(this::handleFortune));
         rule(tagRule("span").cssClass("abbr").nullify());
@@ -231,6 +237,26 @@ public class CommentParser {
         return span(TextUtils.concat(parts.toArray(new CharSequence[0])),
                 new ForegroundColorSpanHashed(theme.inlineQuoteColor),
                 new AbsoluteSizeSpanHashed(sp(12f)));
+    }
+
+    public CharSequence handleDead(Theme theme,
+                                   PostParser.Callback callback,
+                                   Post.Builder builder,
+                                   CharSequence text,
+                                   Element deadlink) {
+        // html looks like <span class="deadlink">&gt;&gt;number</span>
+        int postNo = Integer.parseInt(Parser.unescapeEntities(deadlink.text(), true).substring(2));
+        List<ArchivesLayout.PairForAdapter> boards = Chan.injector().instance(ArchivesManager.class).domainsForBoard(builder.board);
+        if (!boards.isEmpty() && builder.op) {
+            //only allow deadlinks to be parsed in the OP, as they are likely previous thread links
+            //if a deadlink appears in a regular post that is likely to be a dead post link, we are unable to link to an archive
+            //as there are no URLs that directly will allow you to link to a post and be redirected to the right thread
+            Site site = builder.board.site;
+            String link = site.resolvable().desktopUrl(Loadable.forThread(site, builder.board, postNo, ""), builder.build());
+            link = link.replace("https://boards.4chan.org/", "https://" + boards.get(0).second + "/");
+            text = span(text, new PostLinkable(theme, text, link, PostLinkable.Type.LINK));
+        }
+        return text;
     }
 
     public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback) {
