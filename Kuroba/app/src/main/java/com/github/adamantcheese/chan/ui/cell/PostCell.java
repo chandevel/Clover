@@ -61,6 +61,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.FastTextView;
@@ -78,7 +79,6 @@ import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
@@ -370,7 +370,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
 
         String noText = "No. " + post.no;
         if (ChanSettings.addDubs.get()) {
-            String repeat = getRepeatDigits(post.no);
+            String repeat = CommentParserHelper.getRepeatDigits(post.no);
             if (repeat != null) {
                 noText += " (" + repeat + ")";
             }
@@ -662,38 +662,6 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         // Fallback to old method in case the comment does not have any spaces/individual words
         CharSequence commentText = precedingBoundary > 0 ? post.comment.subSequence(0, precedingBoundary) : post.comment.subSequence(0, PostCell.COMMENT_MAX_LENGTH_BOARD);
         return TextUtils.concat(commentText, "\u2026"); // append ellipsis
-    }
-
-    private String getRepeatDigits(int no) {
-        String number = String.valueOf(no);
-        if (Pattern.compile("(\\d)\\1$").matcher(number).find()) {
-            return "Dubs";
-        }
-        if (Pattern.compile("(\\d)\\1{2}$").matcher(number).find()) {
-            return "Trips";
-        }
-        if (Pattern.compile("(\\d)\\1{3}$").matcher(number).find()) {
-            return "Quads";
-        }
-        if (Pattern.compile("(\\d)\\1{4}$").matcher(number).find()) {
-            return "Quints";
-        }
-        if (Pattern.compile("(\\d)\\1{5}$").matcher(number).find()) {
-            return "Sexes";
-        }
-        if (Pattern.compile("(\\d)\\1{6}$").matcher(number).find()) {
-            return "Septs";
-        }
-        if (Pattern.compile("(\\d)\\1{7}$").matcher(number).find()) {
-            return "Octs";
-        }
-        if (Pattern.compile("(\\d)\\1{8}$").matcher(number).find()) {
-            return "Nons";
-        }
-        if (Pattern.compile("(\\d)\\1{9}$").matcher(number).find()) {
-            return "Decs";
-        }
-        return null;
     }
 
     private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
