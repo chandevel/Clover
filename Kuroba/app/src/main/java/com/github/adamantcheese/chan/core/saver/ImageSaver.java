@@ -325,13 +325,15 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                 .clone(new FileSegment(fileName));
 
         while (fileManager.exists(saveFile)) {
-            String resultFileName = name + "_" +
-                    Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX)
+            String resultFileName = name + "_"
+                    //dedupe shared files to have their own file name; ok to overwrite, prevents lots of downloads for multiple shares
+                    + (task.getShare() ? "shared" : Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX))
                     + "." + postImage.extension;
 
             fileName = filterName(resultFileName, true);
             saveFile = saveLocation
                     .clone(new FileSegment(fileName));
+            if(task.getShare()) break; //otherwise we'd get stuck in the loop, because the file would always be the same
         }
 
         return saveFile;
