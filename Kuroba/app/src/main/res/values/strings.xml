@@ -171,7 +171,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="image_preview_failed_oom">Failed to show image (out of memory)</string>
     <string name="image_failed_big_image">Failed to show image (deep-zoom loading failed)</string>
     <string name="image_not_found">Image not found</string>
-    <string name="image_spoiler_filename">Spoiler image</string>
+    <string name="image_spoiler_filename">Spoilered file</string>
     <string name="thread_boards_search_hint">Search</string>
     <string name="thread_load_failed_ssl">HTTPS error</string>
     <string name="thread_load_failed_network">Network error</string>
