@@ -744,4 +744,5 @@ Don't have a 4chan Pass?<br>
     <string name="add_dubs_description">Appends your GET to your post number, for FUN!</string>
     <string name="setting_youtube_dur_title">Enable Youtube durations</string>
     <string name="setting_youtube_dur_description">Adds duration parsing to Youtube titles; does not do anything with titles off</string>
+    <string name="pdf_not_viewable">PDFs are not internally viewable; you can still download this file.</string>
 </resources>

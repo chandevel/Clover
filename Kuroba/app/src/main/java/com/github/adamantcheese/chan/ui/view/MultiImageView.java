@@ -76,7 +76,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class MultiImageView extends FrameLayout implements View.OnClickListener, AudioListener, LifecycleObserver {
     public enum Mode {
-        UNLOADED, LOWRES, BIGIMAGE, GIF, MOVIE
+        UNLOADED, LOWRES, BIGIMAGE, GIF, MOVIE, OTHER
     }
 
     private static final String TAG = "MultiImageView";
@@ -187,6 +187,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                     break;
                 case MOVIE:
                     setVideo(loadable, postImage);
+                    break;
+                case OTHER:
+                    setOther(loadable, postImage);
                     break;
             }
             return true;
@@ -475,6 +478,12 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     public void onAudioSessionId(int audioSessionId) {
         if (exoPlayer.getAudioFormat() != null) {
             callback.onAudioLoaded(this);
+        }
+    }
+
+    private void setOther(Loadable loadable, PostImage image) {
+        if (image.type == PostImage.Type.PDF) {
+            Toast.makeText(context, R.string.pdf_not_viewable, Toast.LENGTH_LONG).show();
         }
     }
 

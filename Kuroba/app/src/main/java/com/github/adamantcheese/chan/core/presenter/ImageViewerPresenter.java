@@ -222,7 +222,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.onLoadProgress(progress.get(selectedPosition));
     }
 
-    // Called from either a page swipe caused a lowres image to the center or an
+    // Called from either a page swipe caused a lowres image to be in the center or an
     // onModeLoaded when a unloaded image was swiped to the center earlier
     private void onLowResInCenter() {
         PostImage postImage = images.get(selectedPosition);
@@ -234,6 +234,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 callback.setImageMode(postImage, MultiImageView.Mode.GIF, true);
             } else if (postImage.type == PostImage.Type.MOVIE && videoAutoLoad(loadable, postImage)) {
                 callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
+            } else if (postImage.type == PostImage.Type.PDF) {
+                callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
             }
         }
 
@@ -312,6 +314,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                     callback.setImageMode(postImage, MultiImageView.Mode.GIF, true);
                 } else if (postImage.type == PostImage.Type.MOVIE && currentMode != MultiImageView.Mode.MOVIE) {
                     callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
+                } else if (postImage.type == PostImage.Type.PDF && currentMode != MultiImageView.Mode.OTHER) {
+                    callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
                 } else {
                     if (callback.isImmersive()) {
                         callback.showSystemUI(true);
@@ -429,8 +433,6 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         void setTitle(PostImage postImage, int index, int count, boolean spoiler);
 
         void scrollToImage(PostImage postImage);
-
-        void saveImage();
 
         MultiImageView.Mode getImageMode(PostImage postImage);
 
