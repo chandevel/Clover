@@ -21,15 +21,18 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.ActionMode;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -112,9 +115,6 @@ public class ReplyLayout extends LoadView implements
     private EditText options;
     private EditText fileName;
     private LinearLayout nameOptions;
-    private Button commentQuoteButton;
-    private Button commentSpoilerButton;
-    private Button commentCodeButton;
     private SelectionListeningEditText comment;
     private TextView commentCounter;
     private CheckBox spoiler;
@@ -178,9 +178,6 @@ public class ReplyLayout extends LoadView implements
         options = replyInputLayout.findViewById(R.id.options);
         fileName = replyInputLayout.findViewById(R.id.file_name);
         nameOptions = replyInputLayout.findViewById(R.id.name_options);
-        commentQuoteButton = replyInputLayout.findViewById(R.id.comment_quote);
-        commentSpoilerButton = replyInputLayout.findViewById(R.id.comment_spoiler);
-        commentCodeButton = replyInputLayout.findViewById(R.id.comment_code);
         comment = replyInputLayout.findViewById(R.id.comment);
         commentCounter = replyInputLayout.findViewById(R.id.comment_counter);
         spoiler = replyInputLayout.findViewById(R.id.spoiler);
@@ -201,15 +198,13 @@ public class ReplyLayout extends LoadView implements
 
         // Setup reply layout views
         fileName.setOnLongClickListener(v -> presenter.fileNameLongClicked());
-        commentQuoteButton.setOnClickListener(this);
-        commentSpoilerButton.setOnClickListener(this);
-        commentCodeButton.setOnClickListener(this);
 
         comment.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
         comment.setOnFocusChangeListener((view, focused) -> {
             if (!focused) AndroidUtils.hideKeyboard(comment);
         });
+        setupCommentContextMenu();
 
         previewHolder.setOnClickListener(this);
 
@@ -319,12 +314,6 @@ public class ReplyLayout extends LoadView implements
             if (authenticationLayout != null) {
                 authenticationLayout.hardReset();
             }
-        } else if (v == commentQuoteButton) {
-            presenter.commentQuoteClicked();
-        } else if (v == commentSpoilerButton) {
-            presenter.commentSpoilerClicked();
-        } else if (v == commentCodeButton) {
-            presenter.commentCodeClicked();
         }
     }
 
@@ -551,21 +540,6 @@ public class ReplyLayout extends LoadView implements
     }
 
     @Override
-    public void openCommentQuoteButton(boolean open) {
-        commentQuoteButton.setVisibility(open ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    public void openCommentSpoilerButton(boolean open) {
-        commentSpoilerButton.setVisibility(open ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    public void openCommentCodeButton(boolean open) {
-        commentCodeButton.setVisibility(open ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
     public void openFileName(boolean open) {
         fileName.setVisibility(open ? View.VISIBLE : View.GONE);
     }
@@ -654,6 +628,95 @@ public class ReplyLayout extends LoadView implements
         if (!blockSelectionChange) {
             presenter.onSelectionChanged();
         }
+    }
+
+    private void setupCommentContextMenu() {
+        comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+            private MenuItem quoteMenuItem;
+            private MenuItem spoilerMenuItem;
+            private MenuItem codeMenuItem;
+            private MenuItem mathMenuItem;
+            private MenuItem eqnMenuItem;
+            private boolean processed;
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                //menu item cleanup, these aren't needed for this
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    menu.removeItem(android.R.id.shareText);
+                }
+                menu.removeItem(android.R.id.copy);
+                //setup standard items
+                // >greentext
+                quoteMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_quote,
+                        1, R.string.post_quote);
+                // [spoiler] tags
+                if (callback.getThread() != null && callback.getThread().getLoadable().board.spoilers) {
+                    spoilerMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_spoiler,
+                            2, R.string.reply_comment_button_spoiler);
+                }
+
+                //setup specific items
+                // g [code]
+                if (callback.getThread() != null
+                        && callback.getThread().getLoadable().board.site.name().equals("4chan")
+                        && callback.getThread().getLoadable().board.code.equals("g")) {
+                    codeMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_code,
+                            3, R.string.reply_comment_button_code);
+                }
+                // sci [eqn] and [math]
+                if (callback.getThread() != null
+                        && callback.getThread().getLoadable().board.site.name().equals("4chan")
+                        && callback.getThread().getLoadable().board.code.equals("sci")) {
+                    eqnMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_eqn,
+                            4, R.string.reply_comment_button_eqn);
+                    mathMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_math,
+                            5, R.string.reply_comment_button_math);
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return true;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                if (item == quoteMenuItem) {
+                    insertTags(">", "");
+                } else if (item == spoilerMenuItem) {
+                    insertTags("[spoiler]", "[/spoiler]");
+                } else if (item == codeMenuItem) {
+                    insertTags("[code]", "[/code]");
+                } else if (item == eqnMenuItem) {
+                    insertTags("[eqn]", "[/eqn]");
+                } else if (item == mathMenuItem) {
+                    insertTags("[math]", "[/math]");
+                }
+
+                if (processed) {
+                    mode.finish();
+                    processed = false;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            @SuppressWarnings("ConstantConditions")
+            // for all items, can only be called if >=1 character selected
+            private void insertTags(String before, String after) {
+                int selectionStart = comment.getSelectionStart();
+                comment.getText().insert(comment.getSelectionEnd(), after);
+                comment.getText().insert(selectionStart, before);
+                processed = true;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+            }
+        });
     }
 
     @SuppressWarnings("EmptyMethod")

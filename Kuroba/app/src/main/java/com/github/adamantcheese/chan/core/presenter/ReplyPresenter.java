@@ -170,13 +170,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         if (!loadable.isThreadMode()) {
             callback.openSubject(moreOpen);
         }
-        callback.openCommentQuoteButton(moreOpen);
-        if (board.spoilers) {
-            callback.openCommentSpoilerButton(moreOpen);
-        }
-        if (board.site.name().equals("4chan") && board.code.equals("g")) {
-            callback.openCommentCodeButton(moreOpen);
-        }
         if (previewOpen) {
             callback.openFileName(moreOpen);
             if (board.spoilers) {
@@ -448,18 +441,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         return true;
     }
 
-    public void commentQuoteClicked() {
-        commentInsert(">");
-    }
-
-    public void commentSpoilerClicked() {
-        commentInsert("[spoiler]", "[/spoiler]");
-    }
-
-    public void commentCodeClicked() {
-        commentInsert("[code]", "[/code]");
-    }
-
     public void quote(Post post, boolean withText) {
         handleQuote(post, withText ? post.comment.toString() : null);
     }
@@ -497,26 +478,16 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             }
         }
 
-        commentInsert(extraNewline + postQuote + textQuoteResult.toString());
-
-        highlightQuotes();
-    }
-
-    private void commentInsert(String insertBefore) {
-        commentInsert(insertBefore, "");
-    }
-
-    private void commentInsert(String insertBefore, String insertAfter) {
+        String insert = extraNewline + postQuote + textQuoteResult.toString();
         draft.comment = new StringBuilder(draft.comment)
-                .insert(draft.selectionStart, insertBefore)
-                .insert(draft.selectionEnd + insertBefore.length(), insertAfter)
+                .insert(draft.selectionStart, insert)
                 .toString();
-        /* Since this method is only used for quote insertion and spoilers,
-        both of which should set the cursor to right after the selected text for more typing,
-        set the selection start to the new end */
-        draft.selectionEnd += insertBefore.length();
+        // Set the selection start to the new end
+        draft.selectionEnd += insert.length();
         draft.selectionStart = draft.selectionEnd;
         callback.loadDraftIntoViews(draft);
+
+        highlightQuotes();
     }
 
     @Override
@@ -542,9 +513,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.openMessage(false, true, "", false);
         callback.setExpanded(false);
         callback.openSubject(false);
-        callback.openCommentQuoteButton(false);
-        callback.openCommentSpoilerButton(false);
-        callback.openCommentCodeButton(false);
         callback.openNameOptions(false);
         callback.openFileName(false);
         callback.openSpoiler(false, false);
@@ -682,12 +650,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         void openNameOptions(boolean open);
 
         void openSubject(boolean open);
-
-        void openCommentQuoteButton(boolean open);
-
-        void openCommentSpoilerButton(boolean open);
-
-        void openCommentCodeButton(boolean open);
 
         void openFileName(boolean open);
 

@@ -331,8 +331,10 @@ Note that for country code filtering, troll country codes should be prepended wi
 
     <string name="reply_captcha_text">Type the text</string>
     <string name="reply_comment_button_quote" translatable="false">&gt;</string>
-    <string name="reply_comment_button_spoiler">[s]</string>
-    <string name="reply_comment_button_code">[c]</string>
+    <string name="reply_comment_button_spoiler">Spoiler</string>
+    <string name="reply_comment_button_code">Code</string>
+    <string name="reply_comment_button_eqn">Eqn</string>
+    <string name="reply_comment_button_math">Math</string>
     <string name="delete_confirm">Delete your post?</string>
 
     <string name="delete_wait">Deleting post…</string>
