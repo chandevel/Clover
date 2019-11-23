@@ -33,6 +33,7 @@ public class ArchivesManager implements SiteActions.ArchiveRequestListener {
 
     public List<ArchivesLayout.PairForAdapter> domainsForBoard(Board b) {
         List<ArchivesLayout.PairForAdapter> result = new ArrayList<>();
+        if(archivesList == null) return result;
         for (Archives a : archivesList) {
             for (String code : a.boards) {
                 if (code.equals(b.code)) {
