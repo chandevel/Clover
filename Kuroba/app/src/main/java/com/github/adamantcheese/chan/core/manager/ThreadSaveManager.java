@@ -85,6 +85,7 @@ public class ThreadSaveManager {
             .writeTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .connectTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .callTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .build();
     private ExecutorService executorService
             = Executors.newFixedThreadPool(getThreadsCountForDownloaderExecutor());
@@ -389,7 +390,7 @@ public class ThreadSaveManager {
             }
 
             if (!isCurrentDownloadRunning(loadable)) {
-                // This download was cancelled or stopped while waiting in the queue.
+                // This download was canceled or stopped while waiting in the queue.
                 Logger.d(TAG, "Download for loadable " + loadableToString(loadable) +
                         " was canceled or stopped while it was waiting in the queue");
                 return false;
@@ -1099,7 +1100,7 @@ public class ThreadSaveManager {
         synchronized (activeDownloads) {
             SaveThreadParameters parameters = activeDownloads.get(loadable);
             if (parameters != null) {
-                if (parameters.isCancelled()) {
+                if (parameters.isCanceled()) {
                     return true;
                 }
             }
@@ -1290,8 +1291,8 @@ public class ThreadSaveManager {
             return state.get() == DownloadRequestState.Running;
         }
 
-        public boolean isCancelled() {
-            return state.get() == DownloadRequestState.Cancelled;
+        public boolean isCanceled() {
+            return state.get() == DownloadRequestState.Canceled;
         }
 
         public boolean isStopped() {
@@ -1303,7 +1304,7 @@ public class ThreadSaveManager {
         }
 
         public void cancel() {
-            state.compareAndSet(DownloadRequestState.Running, DownloadRequestState.Cancelled);
+            state.compareAndSet(DownloadRequestState.Running, DownloadRequestState.Canceled);
         }
     }
 
@@ -1359,7 +1360,7 @@ public class ThreadSaveManager {
 
     public enum DownloadRequestState {
         Running(0),
-        Cancelled(1),   // Pin is removed or both buttons (watch posts and save posts) are unpressed.
+        Canceled(1),   // Pin is removed or both buttons (watch posts and save posts) are unpressed.
         Stopped(2);     // Save posts button is unpressed.
 
         private int type;

@@ -392,7 +392,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     public void setTitle(PostImage postImage, int index, int count, boolean spoiler) {
         if (spoiler) {
-            navigation.title = getString(R.string.image_spoiler_filename);
+            navigation.title = getString(R.string.image_spoiler_filename) + " (" + postImage.extension.toUpperCase() + ")";
         } else {
             navigation.title = postImage.filename + "." + postImage.extension;
         }
@@ -402,10 +402,6 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     public void scrollToImage(PostImage postImage) {
         imageViewerCallback.scrollToImage(postImage);
-    }
-
-    public void saveImage() {
-        saveShare(false, presenter.getCurrentPostImage());
     }
 
     public void showProgress(boolean show) {

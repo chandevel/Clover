@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -155,7 +156,22 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     }
 
     @Override
+    public void imageSaveTaskFailed(Throwable error) {
+        BackgroundUtils.ensureMainThread();
+
+        if (toast != null) {
+            toast.cancel();
+        }
+
+        String errorMessage = "Failed to save the image. Reason " + error.getMessage();
+        toast = Toast.makeText(getAppContext(), errorMessage, Toast.LENGTH_LONG);
+        toast.show();
+    }
+
+    @Override
     public void imageSaveTaskFinished(ImageSaveTask task, boolean success) {
+        BackgroundUtils.ensureMainThread();
+
         doneTasks++;
         boolean wasAlbumSave = false;
         if (doneTasks == totalTasks) {
@@ -164,7 +180,11 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             doneTasks = 0;
         }
         updateNotification();
-        showToast(task, success, wasAlbumSave);
+
+        // Do not show the toast when image download has failed; we will show it in imageSaveTaskFailed
+        if (success) {
+            showToast(task, true, wasAlbumSave);
+        }
     }
 
     @Subscribe
@@ -325,13 +345,15 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                 .clone(new FileSegment(fileName));
 
         while (fileManager.exists(saveFile)) {
-            String resultFileName = name + "_" +
-                    Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX)
+            String resultFileName = name + "_"
+                    //dedupe shared files to have their own file name; ok to overwrite, prevents lots of downloads for multiple shares
+                    + (task.getShare() ? "shared" : Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX))
                     + "." + postImage.extension;
 
             fileName = filterName(resultFileName, true);
             saveFile = saveLocation
                     .clone(new FileSegment(fileName));
+            if(task.getShare()) break; //otherwise we'd get stuck in the loop, because the file would always be the same
         }
 
         return saveFile;

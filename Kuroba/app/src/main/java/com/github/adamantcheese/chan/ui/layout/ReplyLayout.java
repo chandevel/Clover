@@ -584,6 +584,9 @@ public class ReplyLayout extends LoadView implements
     }
 
     public void focusComment() {
+        //this is a hack to make sure text is selectable
+        comment.setEnabled(false);
+        comment.setEnabled(true);
         comment.post(() -> AndroidUtils.requestViewAndKeyboardFocus(comment));
     }
 

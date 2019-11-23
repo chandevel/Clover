@@ -320,7 +320,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
     private void bindPost(Theme theme, Post post) {
         bound = true;
 
-        threadMode = callback.getLoadable().isThreadMode();
+        // Assume that we're in thread mode if the loadable is null
+        threadMode = callback.getLoadable() == null || callback.getLoadable().isThreadMode();
 
         setPostLinkableListener(post, true);
 

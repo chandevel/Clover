@@ -190,6 +190,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        //this is a hack to make sure text is selectable
         super.onViewAttachedToWindow(holder);
         if (holder.itemView instanceof PostCell) {
             PostCell cell = (PostCell) holder.itemView;

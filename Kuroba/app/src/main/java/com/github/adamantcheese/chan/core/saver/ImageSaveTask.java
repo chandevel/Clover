@@ -25,6 +25,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
@@ -104,7 +105,9 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
                 // Manually call postFinished()
                 postFinished(success);
             } else {
-                fileCache.downloadFile(loadable, postImage, this);
+                AndroidUtils.runOnUiThread(() -> {
+                    fileCache.downloadFile(loadable, postImage, this);
+                });
             }
         } catch (Exception e) {
             Logger.e(TAG, "Uncaught exception", e);
@@ -113,6 +116,8 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     @Override
     public void onSuccess(RawFile file) {
+        BackgroundUtils.ensureMainThread();
+
         if (copyToDestination(new File(file.getFullPath()))) {
             onDestination();
         } else {
@@ -121,7 +126,17 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     }
 
     @Override
+    public void onNetworkError(IOException error) {
+        super.onNetworkError(error);
+        BackgroundUtils.ensureMainThread();
+
+        postError(error);
+    }
+
+    @Override
     public void onEnd() {
+        BackgroundUtils.ensureMainThread();
+
         postFinished(success);
     }
 
@@ -188,12 +203,19 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         }
     }
 
+    private void postError(Throwable error) {
+        AndroidUtils.runOnUiThread(() -> {
+            callback.imageSaveTaskFailed(error);
+        });
+    }
+
     private void postFinished(final boolean success) {
         AndroidUtils.runOnUiThread(() ->
                 callback.imageSaveTaskFinished(ImageSaveTask.this, success));
     }
 
     public interface ImageSaveTaskCallback {
+        void imageSaveTaskFailed(Throwable error);
         void imageSaveTaskFinished(ImageSaveTask task, boolean success);
     }
 }

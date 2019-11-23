@@ -45,7 +45,7 @@ public class NavigationControllerContainerLayout extends FrameLayout {
      * controller to the right when in Phone layout. (The lower it is the easier it is to start
      * moving the controller which may make it harder to click other views)
      * */
-    private int minimalMovedPixels = dp(20);
+    private int minimalMovedPixels = dp(10);
     private int maxFlingPixels;
 
     private boolean swipeEnabled = true;
