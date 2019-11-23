@@ -269,6 +269,13 @@ public class Loadable implements Cloneable {
                 || loadableDownloadingState == LoadableDownloadingState.AlreadyDownloaded;
     }
 
+    /**
+     * Thread is being downloaded but we are not currently viewing the local copy
+     * */
+    public boolean isDownloading() {
+        return loadableDownloadingState == LoadableDownloadingState.DownloadingAndNotViewable;
+    }
+
     public static Loadable readFromParcel(Parcel parcel) {
         Loadable loadable = new Loadable();
         /*loadable.id = */

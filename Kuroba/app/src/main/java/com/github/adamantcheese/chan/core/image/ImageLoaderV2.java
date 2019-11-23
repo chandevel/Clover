@@ -5,12 +5,15 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.Nullable;
+
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -54,8 +57,9 @@ public class ImageLoaderV2 {
             throw new RuntimeException("Must be executed on the main thread!");
         }
 
-        if (loadable.isLocal()) {
+        if (loadable.isLocal() || loadable.isDownloading()) {
             String formattedName;
+            Logger.d(TAG, "Loading image " + postImage.imageUrl.toString() + " from the disk");
 
             if (postImage.spoiler) {
                 String extension = StringUtils.extractFileNameExtension(
@@ -69,8 +73,10 @@ public class ImageLoaderV2 {
 
                     if (extension == null) {
                         // We expect images to have extensions
-                        throw new NullPointerException("Could not extract extension from a thumbnailUrl = "
-                                + postImage.thumbnailUrl.toString());
+                        throw new NullPointerException(
+                                "Could not extract extension from a thumbnailUrl = "
+                                + postImage.thumbnailUrl.toString()
+                        );
                     }
 
                     formattedName = ThreadSaveManager.formatThumbnailImageName(
@@ -93,9 +99,28 @@ public class ImageLoaderV2 {
                     postImage.spoiler,
                     imageListener,
                     width,
-                    height
+                    height,
+                    () -> {
+                        Logger.d(TAG,
+                                "Falling back to load the image " +
+                                postImage.imageUrl.toString() +
+                                        " via the imageLoaderV1"
+                        );
+
+                        return imageLoader.get(
+                                postImage.getThumbnailUrl().toString(),
+                                imageListener,
+                                width,
+                                height
+                        );
+                    }
             );
         } else {
+            Logger.d(
+                    TAG,
+                    "Loading image " + postImage.imageUrl.toString() + " via the imageLoaderV1"
+            );
+
             return imageLoader.get(
                     postImage.getThumbnailUrl().toString(),
                     imageListener,
@@ -105,13 +130,15 @@ public class ImageLoaderV2 {
         }
     }
 
+    @SuppressWarnings("DuplicateExpressions")
     public ImageLoader.ImageContainer getFromDisk(
             Loadable loadable,
             String filename,
             boolean isSpoiler,
             ImageLoader.ImageListener imageListener,
             int width,
-            int height
+            int height,
+            @Nullable ImageLoaderFallbackCallback callback
     ) {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be executed on the main thread!");
@@ -139,7 +166,8 @@ public class ImageLoaderV2 {
             );
 
         } catch (Exception failedSomething) {
-            return container;
+            Logger.e(TAG, "Reflection failed", failedSomething);
+            return null;
         }
 
         final ImageLoader.ImageContainer finalContainer = container;
@@ -155,8 +183,17 @@ public class ImageLoaderV2 {
                 );
 
                 if (baseDirFile == null) {
-                    throw new IOException("getFromDisk() " +
-                            "fileManager.newLocalThreadFile() returned null");
+                    // User has deleted the base directory with all the files,
+                    // fallback to loading the image from the server
+                    Logger.w(TAG, "Base saved files directory does not exist");
+
+                    if (imageListener != null && callback != null) {
+                        AndroidUtils.runOnUiThread(() -> {
+                            imageListener.onResponse(callback.onLocalImageDoesNotExist(), true);
+                        });
+                    }
+
+                    return;
                 }
 
                 List<Segment> segments = new ArrayList<>();
@@ -175,14 +212,15 @@ public class ImageLoaderV2 {
                 boolean canRead = fileManager.canRead(imageOnDiskFile);
 
                 if (!exists || !isFile || !canRead) {
-                    String errorMessage = "Could not load image from the disk: " +
-                            "(path = " + imageOnDiskFile.getFullPath() +
-                            ", exists = " + exists +
-                            ", isFile = " + isFile +
-                            ", canRead = " + canRead + ")";
+                    // Local file does not exist, fallback to loading the image from the server
+                    Logger.d(TAG, "Local image does not exist (or is inaccessible)");
 
-                    Logger.e(TAG, errorMessage);
-                    postError(imageListener, errorMessage);
+                    if (imageListener != null && callback != null) {
+                        AndroidUtils.runOnUiThread(() -> {
+                            imageListener.onResponse(callback.onLocalImageDoesNotExist(), true);
+                        });
+                    }
+
                     return;
                 }
 
@@ -221,10 +259,14 @@ public class ImageLoaderV2 {
                     });
                 }
             } catch (Exception e) {
-                String message = "Could not get an image from the disk, error message = "
-                        + e.getMessage();
+                // Some error has occurred, fallback to loading the image from the server
+                Logger.e(TAG, "Error while trying to load a local image", e);
 
-                postError(imageListener, message);
+                if (imageListener != null && callback != null) {
+                    AndroidUtils.runOnUiThread(() -> {
+                        imageListener.onResponse(callback.onLocalImageDoesNotExist(), true);
+                    });
+                }
             }
         });
 
@@ -269,5 +311,9 @@ public class ImageLoaderV2 {
         }
 
         return imageLoader.get(requestUrl, listener, width, height);
+    }
+
+    private interface ImageLoaderFallbackCallback {
+        ImageLoader.ImageContainer onLocalImageDoesNotExist();
     }
 }

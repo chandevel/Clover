@@ -135,7 +135,15 @@ public class ThumbnailView extends View implements ImageListener {
             boolean isSpoiler,
             int width,
             int height) {
-        container = imageLoaderV2.getFromDisk(loadable, filename, isSpoiler, this, width, height);
+        container = imageLoaderV2.getFromDisk(
+                loadable,
+                filename,
+                isSpoiler,
+                this,
+                width,
+                height,
+                null
+        );
     }
 
     public void setCircular(boolean circular) {
