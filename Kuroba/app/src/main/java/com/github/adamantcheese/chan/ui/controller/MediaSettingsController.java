@@ -467,6 +467,8 @@ public class MediaSettingsController
             @NonNull AbstractFile newBaseDirectory
     ) {
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
+            forgetOldSAFBaseDirectory(oldBaseDirectory);
+
             showToast(context.getString(R.string.done), Toast.LENGTH_LONG);
             return;
         }
@@ -493,12 +495,20 @@ public class MediaSettingsController
         alertDialog.show();
     }
 
+    private void forgetOldSAFBaseDirectory(@NonNull AbstractFile oldBaseDirectory) {
+        if (oldBaseDirectory instanceof ExternalFile) {
+            forgetPreviousExternalBaseDirectory(oldBaseDirectory);
+        }
+    }
+
     @Override
     public void askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(
             @NotNull AbstractFile oldBaseDirectory,
             @NotNull AbstractFile newBaseDirectory
     ) {
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
+            forgetOldSAFBaseDirectory(oldBaseDirectory);
+
             showToast(context.getString(R.string.done), Toast.LENGTH_LONG);
             return;
         }
@@ -546,6 +556,13 @@ public class MediaSettingsController
                     Toast.LENGTH_LONG
             );
         } else {
+            if (fileManager.isChildOfDirectory(oldBaseDirectory, newBaseDirectory)) {
+                forgetOldSAFBaseDirectory(oldBaseDirectory);
+
+                showToast(context.getString(R.string.done), Toast.LENGTH_LONG);
+                return;
+            }
+
             showDeleteOldFilesDialog(oldBaseDirectory);
             showToast(
                     context.getString(R.string.media_settings_files_copied),
@@ -570,9 +587,7 @@ public class MediaSettingsController
                 .setNegativeButton(
                         context.getString(R.string.do_not),
                         (dialog, which) -> {
-                            if (oldBaseDirectory instanceof ExternalFile) {
-                                forgetPreviousExternalBaseDirectory(oldBaseDirectory);
-                            }
+                            forgetOldSAFBaseDirectory(oldBaseDirectory);
 
                             dialog.dismiss();
                         })
@@ -590,9 +605,7 @@ public class MediaSettingsController
             return;
         }
 
-        if (oldBaseDirectory instanceof ExternalFile) {
-            forgetPreviousExternalBaseDirectory(oldBaseDirectory);
-        }
+        forgetOldSAFBaseDirectory(oldBaseDirectory);
 
         showToast(
                 context.getString(R.string.media_settings_old_files_deleted),
