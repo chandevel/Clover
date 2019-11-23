@@ -85,6 +85,7 @@ public class ThreadSaveManager {
             .writeTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .connectTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .callTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .build();
     private ExecutorService executorService
             = Executors.newFixedThreadPool(getThreadsCountForDownloaderExecutor());

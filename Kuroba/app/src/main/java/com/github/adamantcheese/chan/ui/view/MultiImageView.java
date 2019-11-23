@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -50,6 +51,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.file.RawFile;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -294,6 +296,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     }
 
     private void setBigImage(Loadable loadable, PostImage postImage) {
+        BackgroundUtils.ensureMainThread();
+
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading big image");
             return;
@@ -307,11 +311,15 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         bigImageRequest = fileCache.downloadFile(loadable, postImage, new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
+
                 callback.onProgress(MultiImageView.this, downloaded, total);
             }
 
             @Override
             public void onSuccess(RawFile file) {
+                BackgroundUtils.ensureMainThread();
+
                 setBitImageFileInternal(
                         new File(file.getFullPath()),
                         true,
@@ -320,6 +328,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             @Override
             public void onFail(boolean notFound) {
+                BackgroundUtils.ensureMainThread();
+
                 if (notFound) {
                     onNotFoundError();
                 } else {
@@ -329,6 +339,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             @Override
             public void onEnd() {
+                BackgroundUtils.ensureMainThread();
+
                 bigImageRequest = null;
                 callback.showProgress(MultiImageView.this, false);
             }
@@ -336,6 +348,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     }
 
     private void setGif(Loadable loadable, PostImage postImage) {
+        BackgroundUtils.ensureMainThread();
+
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
             return;
@@ -349,11 +363,15 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         gifRequest = fileCache.downloadFile(loadable, postImage, new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
+
                 callback.onProgress(MultiImageView.this, downloaded, total);
             }
 
             @Override
             public void onSuccess(RawFile file) {
+                BackgroundUtils.ensureMainThread();
+
                 if (!hasContent || mode == Mode.GIF) {
                     setGifFile(new File(file.getFullPath()));
                 }
@@ -361,6 +379,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             @Override
             public void onFail(boolean notFound) {
+                BackgroundUtils.ensureMainThread();
+
                 if (notFound) {
                     onNotFoundError();
                 } else {
@@ -370,6 +390,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             @Override
             public void onEnd() {
+                BackgroundUtils.ensureMainThread();
+
                 gifRequest = null;
                 callback.showProgress(MultiImageView.this, false);
             }
@@ -408,6 +430,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     }
 
     private void setVideo(Loadable loadable, PostImage postImage) {
+        BackgroundUtils.ensureMainThread();
+
         if (videoRequest != null) {
             return;
         }
@@ -416,11 +440,15 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         videoRequest = fileCache.downloadFile(loadable, postImage, new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
+
                 callback.onProgress(MultiImageView.this, downloaded, total);
             }
 
             @Override
             public void onSuccess(RawFile file) {
+                BackgroundUtils.ensureMainThread();
+
                 if (!hasContent || mode == Mode.MOVIE) {
                     setVideoFile(new File(file.getFullPath()));
                 }
@@ -428,6 +456,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             @Override
             public void onFail(boolean notFound) {
+                BackgroundUtils.ensureMainThread();
+
                 if (notFound) {
                     onNotFoundError();
                 } else {
@@ -437,6 +467,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             @Override
             public void onEnd() {
+                BackgroundUtils.ensureMainThread();
+
                 videoRequest = null;
                 callback.showProgress(MultiImageView.this, false);
             }
@@ -446,7 +478,14 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     private void setVideoFile(final File file) {
         if (ChanSettings.videoOpenExternal.get()) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(FileProvider.getUriForFile(getAppContext(), getAppContext().getPackageName() + ".fileprovider", file), "video/*");
+
+            Uri uriForFile = FileProvider.getUriForFile(
+                    getAppContext(),
+                    getAppContext().getPackageName() + ".fileprovider",
+                    file
+            );
+
+            intent.setDataAndType(uriForFile, "video/*");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             AndroidUtils.openIntent(intent);
 

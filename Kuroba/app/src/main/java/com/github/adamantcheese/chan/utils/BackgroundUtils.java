@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.utils;
 import android.content.Context;
 import android.os.Looper;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 
 import java.util.concurrent.Callable;
@@ -37,13 +38,23 @@ public class BackgroundUtils {
 
     public static void ensureMainThread() {
         if (!isMainThread()) {
-            throw new IllegalStateException("Cannot be executed on a background thread!");
+            if (BuildConfig.DEV_BUILD) {
+                throw new IllegalStateException("Cannot be executed on a background thread!");
+            } else {
+                Logger.e("BackgroundUtils", "ensureMainThread() expected main thread but got "
+                        + Thread.currentThread().getName());
+            }
         }
     }
 
     public static void ensureBackgroundThread() {
         if (isMainThread()) {
-            throw new IllegalStateException("Cannot be executed on the main thread!");
+            if (BuildConfig.DEV_BUILD) {
+                throw new IllegalStateException("Cannot be executed on the main thread!");
+            } else {
+                Logger.e("BackgroundUtils", "ensureBackgroundThread() expected background " +
+                        "thread but got main");
+            }
         }
     }
 

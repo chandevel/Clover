@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
@@ -64,7 +65,6 @@ public class FileCache implements FileCacheDownloader.Callback {
         cacheHandler.clearCache();
     }
 
-    @MainThread
     public FileCacheDownloader downloadFile(
             Loadable loadable,
             @NonNull PostImage postImage,
@@ -127,6 +127,8 @@ public class FileCache implements FileCacheDownloader.Callback {
      */
     @MainThread
     public FileCacheDownloader downloadFile(@NonNull String url, FileCacheListener listener) {
+        BackgroundUtils.ensureMainThread();
+
         FileCacheDownloader runningDownloaderForKey = getDownloaderByKey(url);
         if (runningDownloaderForKey != null) {
             if (listener != null) {
@@ -176,6 +178,8 @@ public class FileCache implements FileCacheDownloader.Callback {
     }
 
     private void handleFileImmediatelyAvailable(FileCacheListener listener, AbstractFile file) {
+        BackgroundUtils.ensureMainThread();
+
         // TODO: setLastModified doesn't seem to work on Android...
 //        if (!file.setLastModified(System.currentTimeMillis())) {
 //            Logger.e(TAG, "Could not set last modified time on file");
@@ -210,12 +214,22 @@ public class FileCache implements FileCacheDownloader.Callback {
             RawFile file,
             String url
     ) {
-        FileCacheDownloader downloader = new FileCacheDownloader(fileManager, this, url, file);
+        BackgroundUtils.ensureMainThread();
+
+        FileCacheDownloader downloader = new FileCacheDownloader(
+                fileManager,
+                this,
+                file,
+                url
+        );
+
         if (listener != null) {
             downloader.addListener(listener);
         }
+
         downloadPool.submit(downloader);
         downloaders.add(downloader);
+
         return downloader;
     }
 }

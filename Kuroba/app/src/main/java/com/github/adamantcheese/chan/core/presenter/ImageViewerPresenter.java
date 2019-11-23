@@ -28,6 +28,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -245,6 +246,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     // This won't actually change any modes, but it will preload the image so that it's
     // available immediately when the user swipes right.
     private void preloadNext() {
+        BackgroundUtils.ensureMainThread();
+
         if (selectedPosition + 1 < images.size()) {
             PostImage next = images.get(selectedPosition + 1);
 
@@ -264,6 +267,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                         new FileCacheListener() {
                             @Override
                             public void onEnd() {
+                                BackgroundUtils.ensureMainThread();
+
                                 if (preloadDownload[0] != null) {
                                     preloadingImages.remove(preloadDownload[0]);
                                 }

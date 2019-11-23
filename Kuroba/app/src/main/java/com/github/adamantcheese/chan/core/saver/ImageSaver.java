@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -155,7 +156,22 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     }
 
     @Override
+    public void imageSaveTaskFailed(Throwable error) {
+        BackgroundUtils.ensureMainThread();
+
+        if (toast != null) {
+            toast.cancel();
+        }
+
+        String errorMessage = "Failed to save the image. Reason " + error.getMessage();
+        toast = Toast.makeText(getAppContext(), errorMessage, Toast.LENGTH_LONG);
+        toast.show();
+    }
+
+    @Override
     public void imageSaveTaskFinished(ImageSaveTask task, boolean success) {
+        BackgroundUtils.ensureMainThread();
+
         doneTasks++;
         boolean wasAlbumSave = false;
         if (doneTasks == totalTasks) {
@@ -164,7 +180,13 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             doneTasks = 0;
         }
         updateNotification();
-        showToast(task, success, wasAlbumSave);
+
+        if (success) {
+            showToast(task, true, wasAlbumSave);
+        }
+
+        // Do not show the toast when image downloading have failed, because we will show it in other
+        // place right after an error is thrown
     }
 
     @Subscribe

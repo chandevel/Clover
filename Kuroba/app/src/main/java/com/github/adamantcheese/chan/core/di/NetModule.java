@@ -29,6 +29,7 @@ import com.github.k1rakishou.fsaf.FileManager;
 import org.codejargon.feather.Provides;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
 
@@ -83,7 +84,13 @@ public class NetModule {
 
         public OkHttpClient getProxiedClient() {
             if (proxiedClient == null) {
-                proxiedClient = newBuilder().proxy(ChanSettings.getProxy()).build();
+                proxiedClient = newBuilder()
+                        .proxy(ChanSettings.getProxy())
+                        .connectTimeout(20, TimeUnit.SECONDS)
+                        .readTimeout(20, TimeUnit.SECONDS)
+                        .writeTimeout(20, TimeUnit.SECONDS)
+                        .callTimeout(20, TimeUnit.SECONDS)
+                        .build();
             }
             return proxiedClient;
         }

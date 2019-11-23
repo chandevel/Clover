@@ -42,6 +42,7 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderRequest;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -265,6 +266,8 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     }
 
     public void quickLoad() {
+        BackgroundUtils.ensureMainThread();
+
         if (thread == null) {
             throw new IllegalStateException("Cannot quick load without already loaded thread");
         }
