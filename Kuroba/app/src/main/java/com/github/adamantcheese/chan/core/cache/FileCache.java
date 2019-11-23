@@ -142,7 +142,7 @@ public class FileCache implements FileCacheDownloader.Callback {
             handleFileImmediatelyAvailable(listener, file);
             return null;
         } else {
-            return handleStartDownload(fileManager, listener, file, url);
+            return handleStartDownload(listener, file, url);
         }
     }
 
@@ -180,14 +180,15 @@ public class FileCache implements FileCacheDownloader.Callback {
     private void handleFileImmediatelyAvailable(FileCacheListener listener, AbstractFile file) {
         BackgroundUtils.ensureMainThread();
 
-        // TODO: setLastModified doesn't seem to work on Android...
-//        if (!file.setLastModified(System.currentTimeMillis())) {
-//            Logger.e(TAG, "Could not set last modified time on file");
-//        }
-
         if (listener != null) {
             if (file instanceof RawFile) {
                 listener.onSuccess((RawFile) file);
+                try {
+                    if (new File(file.getFullPath()).setLastModified(System.currentTimeMillis())) {
+                        Logger.e(TAG, "Could not set last modified time on file");
+                    }
+                } catch (Exception ignored) {
+                }
             } else {
                 try {
                     RawFile resultFile = fileManager.fromRawFile(cacheHandler.randomCacheFile());
@@ -209,19 +210,11 @@ public class FileCache implements FileCacheDownloader.Callback {
     }
 
     private FileCacheDownloader handleStartDownload(
-            FileManager fileManager,
-            FileCacheListener listener,
-            RawFile file,
-            String url
-    ) {
+            FileCacheListener listener, RawFile file, String url) {
         BackgroundUtils.ensureMainThread();
 
-        FileCacheDownloader downloader = new FileCacheDownloader(
-                fileManager,
-                this,
-                file,
-                url
-        );
+        FileCacheDownloader downloader =
+                new FileCacheDownloader(fileManager, this, file, url);
 
         if (listener != null) {
             downloader.addListener(listener);
