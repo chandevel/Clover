@@ -528,9 +528,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     @Override
-    public void onFilePickError(boolean cancelled) {
+    public void onFilePickError(boolean canceled) {
         pickingFile = false;
-        if (!cancelled) {
+        if (!canceled) {
             callback.onFilePickError();
         }
     }

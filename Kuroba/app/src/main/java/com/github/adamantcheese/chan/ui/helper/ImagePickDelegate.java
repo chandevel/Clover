@@ -142,7 +142,7 @@ public class ImagePickDelegate implements Runnable {
         }
 
         boolean ok = false;
-        boolean cancelled = false;
+        boolean canceled = false;
 
         if (resultCode == Activity.RESULT_OK && data != null) {
             uri = data.getData();
@@ -171,11 +171,11 @@ public class ImagePickDelegate implements Runnable {
             new Thread(this).start();
             ok = true;
         } else if (resultCode == Activity.RESULT_CANCELED) {
-            cancelled = true;
+            canceled = true;
         }
 
         if (!ok) {
-            callback.onFilePickError(cancelled);
+            callback.onFilePickError(canceled);
             reset();
         }
 
@@ -239,6 +239,6 @@ public class ImagePickDelegate implements Runnable {
     public interface ImagePickCallback {
         void onFilePicked(String fileName, File file);
 
-        void onFilePickError(boolean cancelled);
+        void onFilePickError(boolean canceled);
     }
 }

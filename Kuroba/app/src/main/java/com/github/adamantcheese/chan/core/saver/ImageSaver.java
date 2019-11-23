@@ -181,12 +181,10 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         }
         updateNotification();
 
+        // Do not show the toast when image download has failed; we will show it in imageSaveTaskFailed
         if (success) {
             showToast(task, true, wasAlbumSave);
         }
-
-        // Do not show the toast when image downloading have failed, because we will show it in other
-        // place right after an error is thrown
     }
 
     @Subscribe

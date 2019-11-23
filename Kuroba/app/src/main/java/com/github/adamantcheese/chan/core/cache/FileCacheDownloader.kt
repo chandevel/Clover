@@ -180,7 +180,7 @@ class FileCacheDownloader(
             BackgroundUtils.ensureBackgroundThread()
 
             var isNotFound = false
-            var cancelled = false
+            var canceled = false
 
             when (e) {
                 is HttpCodeIOException -> {
@@ -190,8 +190,8 @@ class FileCacheDownloader(
                 }
                 is CancelException -> {
                     // Don't log the stack.
-                    log("exception: cancelled")
-                    cancelled = true
+                    log("exception: canceled")
+                    canceled = true
                 }
                 else -> {
                     if (retryRequest()) {
@@ -208,9 +208,9 @@ class FileCacheDownloader(
             }
 
             val finalIsNotFound = isNotFound
-            val finalCancelled = cancelled
+            val finalCanceled = canceled
 
-            postErrorResult(finalCancelled, finalIsNotFound)
+            postErrorResult(finalCanceled, finalIsNotFound)
         } finally {
             BackgroundUtils.ensureBackgroundThread()
 
@@ -237,13 +237,13 @@ class FileCacheDownloader(
         }
     }
 
-    private fun postErrorResult(finalCancelled: Boolean, finalIsNotFound: Boolean) {
+    private fun postErrorResult(finalCanceled: Boolean, finalIsNotFound: Boolean) {
         BackgroundUtils.ensureBackgroundThread()
         purgeOutput()
 
         handler.post {
             for (callback in listeners) {
-                if (finalCancelled) {
+                if (finalCanceled) {
                     callback.onCancel()
                 } else {
                     callback.onFail(finalIsNotFound)

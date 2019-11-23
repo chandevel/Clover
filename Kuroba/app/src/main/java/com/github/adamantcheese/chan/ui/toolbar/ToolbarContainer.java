@@ -64,7 +64,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentV
  * currentView is the view where is animated to. The previousView is removed and cleared if the
  * animation finished.
  * <p>
- * Transitions are user-controlled animations that can be cancelled of finished. For that the
+ * Transitions are user-controlled animations that can be canceled of finished. For that the
  * currentView describes the view that was originally there, and the transitionView is the view
  * what is possibly transitioned to.
  * <p>
