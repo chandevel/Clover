@@ -30,7 +30,8 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
-public class BrowsePresenter implements Observer {
+public class BrowsePresenter
+        implements Observer {
     private final DatabaseManager databaseManager;
 
     @Nullable

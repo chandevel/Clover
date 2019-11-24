@@ -25,14 +25,14 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
-
 import com.github.adamantcheese.chan.utils.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
-public abstract class JsonReaderRequest<T> extends Request<T> {
+public abstract class JsonReaderRequest<T>
+        extends Request<T> {
     private static final Charset UTF8 = Charset.forName("UTF-8");
 
     protected final Listener<T> listener;
@@ -80,7 +80,9 @@ public abstract class JsonReaderRequest<T> extends Request<T> {
      *
      * @param reader A json reader to use
      * @return null or the data
+     *
      * @throws Exception none or an exception
      */
-    public abstract T readJson(JsonReader reader) throws Exception;
+    public abstract T readJson(JsonReader reader)
+            throws Exception;
 }

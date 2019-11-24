@@ -79,7 +79,8 @@ public class NetModule {
     }
 
     //this is basically the same as OkHttpClient, but with a singleton for a proxy instance
-    public class ProxiedOkHttpClient extends OkHttpClient {
+    public class ProxiedOkHttpClient
+            extends OkHttpClient {
         private OkHttpClient proxiedClient;
 
         public OkHttpClient getProxiedClient() {
@@ -95,5 +96,4 @@ public class NetModule {
             return proxiedClient;
         }
     }
-
 }

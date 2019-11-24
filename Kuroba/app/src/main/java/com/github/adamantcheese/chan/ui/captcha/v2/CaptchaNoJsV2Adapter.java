@@ -17,7 +17,8 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CaptchaNoJsV2Adapter extends BaseAdapter {
+public class CaptchaNoJsV2Adapter
+        extends BaseAdapter {
     private static final int ANIMATION_DURATION = 50;
 
     private LayoutInflater inflater;
@@ -60,12 +61,13 @@ public class CaptchaNoJsV2Adapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.layout_captcha_challenge_image, parent, false);
 
             AppCompatImageView imageView = convertView.findViewById(R.id.captcha_challenge_image);
-            ConstraintLayout blueCheckmarkHolder = convertView.findViewById(R.id.captcha_challenge_blue_checkmark_holder);
+            ConstraintLayout blueCheckmarkHolder
+                    = convertView.findViewById(R.id.captcha_challenge_blue_checkmark_holder);
 
             ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(imageSize, imageSize);
             imageView.setLayoutParams(layoutParams);
 
-            imageView.setOnClickListener((view) -> {
+            imageView.setOnClickListener(view -> {
                 view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
 
                 imageList.get(position).toggleChecked();

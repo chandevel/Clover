@@ -46,18 +46,16 @@ public class ExportedLoadable {
     @Nullable
     private String title;
 
-    public ExportedLoadable(
-            String boardCode,
-            long loadableId,
-            int lastLoaded,
-            int lastViewed,
-            int listViewIndex,
-            int listViewTop,
-            int mode,
-            int no,
-            int siteId,
-            @NonNull
-                    String title
+    public ExportedLoadable(String boardCode,
+                            long loadableId,
+                            int lastLoaded,
+                            int lastViewed,
+                            int listViewIndex,
+                            int listViewTop,
+                            int mode,
+                            int no,
+                            int siteId,
+                            @NonNull String title
     ) {
         this.boardCode = boardCode;
         this.loadableId = loadableId;
@@ -116,7 +114,13 @@ public class ExportedLoadable {
     @Override
     public String toString() {
         return String.format(Locale.US,
-                "boardCode = %s, loadableId = %d, no = %d, mode= %d, siteId = %d, title = %s",
-                boardCode, loadableId, no, mode, siteId, title);
+                             "boardCode = %s, loadableId = %d, no = %d, mode= %d, siteId = %d, title = %s",
+                             boardCode,
+                             loadableId,
+                             no,
+                             mode,
+                             siteId,
+                             title
+        );
     }
 }

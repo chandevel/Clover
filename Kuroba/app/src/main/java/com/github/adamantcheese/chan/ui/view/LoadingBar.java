@@ -25,7 +25,8 @@ import android.view.View;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-public class LoadingBar extends View {
+public class LoadingBar
+        extends View {
     private static final float MINIMUM_PROGRESS = 0.1f;
 
     private float progress;

@@ -100,22 +100,22 @@ public class NavigationItem {
         }
 
         public MenuOverflowBuilder withOverflow() {
-            return new MenuOverflowBuilder(
-                    this,
-                    new ToolbarMenuItem(
-                            ToolbarMenu.OVERFLOW_ID,
-                            R.drawable.ic_more_vert_white_24dp,
-                            ToolbarMenuItem::showSubmenu));
+            return new MenuOverflowBuilder(this,
+                                           new ToolbarMenuItem(ToolbarMenu.OVERFLOW_ID,
+                                                               R.drawable.ic_more_vert_white_24dp,
+                                                               ToolbarMenuItem::showSubmenu
+                                           )
+            );
         }
 
         public MenuOverflowBuilder withOverflow(ToolbarMenuItem.ToobarThreedotMenuCallback threedotMenuCallback) {
-            return new MenuOverflowBuilder(
-                    this,
-                    new ToolbarMenuItem(
-                            ToolbarMenu.OVERFLOW_ID,
-                            R.drawable.ic_more_vert_white_24dp,
-                            ToolbarMenuItem::showSubmenu,
-                            threedotMenuCallback));
+            return new MenuOverflowBuilder(this,
+                                           new ToolbarMenuItem(ToolbarMenu.OVERFLOW_ID,
+                                                               R.drawable.ic_more_vert_white_24dp,
+                                                               ToolbarMenuItem::showSubmenu,
+                                                               threedotMenuCallback
+                                           )
+            );
         }
 
         public ToolbarMenu build() {
@@ -145,11 +145,19 @@ public class NavigationItem {
             return withSubItem(id, getString(text), true, clicked);
         }
 
-        public MenuOverflowBuilder withSubItem(int id, int text, boolean enabled, ToolbarMenuSubItem.ClickCallback clicked) {
+        public MenuOverflowBuilder withSubItem(int id,
+                                               int text,
+                                               boolean enabled,
+                                               ToolbarMenuSubItem.ClickCallback clicked
+        ) {
             return withSubItem(id, getString(text), enabled, clicked);
         }
 
-        public MenuOverflowBuilder withSubItem(int id, String text, boolean enabled, ToolbarMenuSubItem.ClickCallback clicked) {
+        public MenuOverflowBuilder withSubItem(int id,
+                                               String text,
+                                               boolean enabled,
+                                               ToolbarMenuSubItem.ClickCallback clicked
+        ) {
             menuItem.addSubItem(new ToolbarMenuSubItem(id, text, enabled, clicked));
 
             return this;

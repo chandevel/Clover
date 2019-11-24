@@ -28,6 +28,7 @@ import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -85,11 +86,14 @@ import okhttp3.HttpUrl;
 import static android.text.TextUtils.isEmpty;
 import static com.github.adamantcheese.chan.Chan.injector;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
-public class PostCell extends LinearLayout implements PostCellInterface, View.OnTouchListener {
+public class PostCell
+        extends LinearLayout
+        implements PostCellInterface, View.OnTouchListener {
     private static final String TAG = "PostCell";
     private static final int COMMENT_MAX_LENGTH_BOARD = 350;
 
@@ -217,9 +221,11 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         gestureDetector = new GestureDetector(getContext(), new DoubleTapGestureListener());
     }
 
-    private void showOptions(View anchor, List<FloatingMenuItem> items,
+    private void showOptions(View anchor,
+                             List<FloatingMenuItem> items,
                              List<FloatingMenuItem> extraItems,
-                             Object extraOption) {
+                             Object extraOption
+    ) {
         if (ThemeHelper.getTheme().isLightTheme) {
             options.setImageResource(R.drawable.ic_overflow_black);
         }
@@ -271,13 +277,11 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                         boolean showDivider,
                         ChanSettings.PostViewMode postViewMode,
                         boolean compact,
-                        Theme theme) {
-        if (this.post == post &&
-                this.selectable == selectable &&
-                this.highlighted == highlighted &&
-                this.selected == selected &&
-                this.markedNo == markedNo &&
-                this.showDivider == showDivider) {
+                        Theme theme
+    ) {
+        if (this.post == post && this.selectable == selectable && this.highlighted == highlighted
+                && this.selected == selected && this.markedNo == markedNo && this.showDivider == showDivider)
+        {
             return;
         }
 
@@ -366,7 +370,11 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         if (ChanSettings.postFullDate.get()) {
             time = PostHelper.getLocalDate(post);
         } else {
-            time = DateUtils.getRelativeTimeSpanString(post.time * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0);
+            time = DateUtils.getRelativeTimeSpanString(post.time * 1000L,
+                                                       System.currentTimeMillis(),
+                                                       DateUtils.SECOND_IN_MILLIS,
+                                                       0
+            );
         }
 
         String noText = "No. " + post.no;
@@ -391,7 +399,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 boolean postFileName = ChanSettings.postFilename.get();
                 if (postFileName) {
                     //that special character forces it to be left-to-right, as textDirection didn't want to be obeyed
-                    String filename = '\u200E' + (image.spoiler ? getString(R.string.image_spoiler_filename) : image.filename + "." + image.extension);
+                    String filename = '\u200E' + (
+                            image.spoiler
+                                    ? getString(R.string.image_spoiler_filename)
+                                    : image.filename + "." + image.extension);
                     SpannableString fileInfo = new SpannableString("\n" + filename);
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
@@ -400,10 +411,12 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 }
 
                 if (ChanSettings.postFileInfo.get()) {
-                    SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() +
-                            (image.size == -1 ? "" : //if -1, linked image, no info
-                                    " " + AndroidUtils.getReadableFileSize(image.size, false) + " " +
-                                            image.imageWidth + "x" + image.imageHeight));
+                    SpannableStringBuilder fileInfo = new SpannableStringBuilder();
+                    fileInfo.append(postFileName ? " " : "\n");
+                    fileInfo.append(image.extension.toUpperCase());
+                    //if -1, linked image, no info
+                    fileInfo.append(image.size == -1 ? "" : " " + AndroidUtils.getReadableFileSize(image.size, false));
+                    fileInfo.append(image.size == -1 ? "" : " " + image.imageWidth + "x" + image.imageHeight);
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                     titleParts.add(fileInfo);
@@ -462,8 +475,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
 
                     @Override
                     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                        quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote,
-                                0, R.string.post_quote);
+                        quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote, 0, R.string.post_quote);
                         return true;
                     }
 
@@ -475,8 +487,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                     @Override
                     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                         if (item == quoteMenuItem) {
-                            CharSequence selection = comment.getText().subSequence(
-                                    comment.getSelectionStart(), comment.getSelectionEnd());
+                            CharSequence selection = comment.getText()
+                                                            .subSequence(comment.getSelectionStart(),
+                                                                         comment.getSelectionEnd()
+                                                            );
                             callback.onPostSelectionQuoted(post, selection);
                             mode.finish();
                             return true;
@@ -524,15 +538,19 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             replies.setVisibility(View.VISIBLE);
 
             int replyCount = threadMode ? repliesFromSize : post.getReplies();
-            String text = getResources().getQuantityString(R.plurals.reply, replyCount, replyCount);
+            String text = getQuantityString(R.plurals.reply, replyCount, replyCount);
 
             if (!threadMode && post.getImagesCount() > 0) {
-                text += ", " + getResources().getQuantityString(R.plurals.image, post.getImagesCount(), post.getImagesCount());
+                text += ", " + getQuantityString(R.plurals.image, post.getImagesCount(), post.getImagesCount());
             }
 
             replies.setText(text);
             comment.setPadding(comment.getPaddingLeft(), comment.getPaddingTop(), comment.getPaddingRight(), 0);
-            replies.setPadding(replies.getPaddingLeft(), paddingPx, replies.getPaddingRight(), replies.getPaddingBottom());
+            replies.setPadding(replies.getPaddingLeft(),
+                               paddingPx,
+                               replies.getPaddingRight(),
+                               replies.getPaddingBottom()
+            );
         } else {
             replies.setVisibility(View.GONE);
             comment.setPadding(comment.getPaddingLeft(), comment.getPaddingTop(), comment.getPaddingRight(), paddingPx);
@@ -549,22 +567,35 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             int thumbnailSize = getResources().getDimensionPixelSize(R.dimen.cell_post_thumbnail_size);
 
             //get the width of the cell for calculations, height we don't need but measure it anyways
-            this.measure(MeasureSpec.makeMeasureSpec(ChanSettings.layoutMode.get() == ChanSettings.LayoutMode.SPLIT ? displaySize.x / 2 : displaySize.x, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(displaySize.y, MeasureSpec.AT_MOST));
+            this.measure(MeasureSpec.makeMeasureSpec(
+                    ChanSettings.layoutMode.get() == ChanSettings.LayoutMode.SPLIT ? displaySize.x / 2 : displaySize.x,
+                    MeasureSpec.AT_MOST
+            ), MeasureSpec.makeMeasureSpec(displaySize.y, MeasureSpec.AT_MOST));
 
             //we want the heights here, but the widths must be the exact size between the thumbnail and view edge so that we calculate offsets right
-            title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-            icons.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-            comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
+                          MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            );
+            icons.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
+                          MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            );
+            comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
+                            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            );
             int wrapHeight = title.getMeasuredHeight() + icons.getMeasuredHeight();
             int extraWrapHeight = wrapHeight + comment.getMeasuredHeight();
             //wrap if the title+icons height is larger than 0.8x the thumbnail size, or if everything is over 1.6x the thumbnail size
             if ((wrapHeight >= 0.8f * thumbnailSize) || extraWrapHeight >= 1.6f * thumbnailSize) {
                 RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
                 commentParams.removeRule(RelativeLayout.RIGHT_OF);
-                if (title.getMeasuredHeight() + (icons.getVisibility() == VISIBLE ? icons.getMeasuredHeight() : 0) < thumbnailSize) {
+                if (title.getMeasuredHeight() + (icons.getVisibility() == VISIBLE ? icons.getMeasuredHeight() : 0)
+                        < thumbnailSize)
+                {
                     commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_view);
                 } else {
-                    commentParams.addRule(RelativeLayout.BELOW, (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title));
+                    commentParams.addRule(RelativeLayout.BELOW,
+                                          (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title)
+                    );
                 }
                 comment.setLayoutParams(commentParams);
 
@@ -576,7 +607,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 replyParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
                 replies.setLayoutParams(replyParams);
 
-                RelativeLayout.LayoutParams replyExtraParams = (RelativeLayout.LayoutParams) repliesAdditionalArea.getLayoutParams();
+                RelativeLayout.LayoutParams replyExtraParams
+                        = (RelativeLayout.LayoutParams) repliesAdditionalArea.getLayoutParams();
                 replyExtraParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
                 repliesAdditionalArea.setLayoutParams(replyExtraParams);
             }
@@ -603,8 +635,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 // The first thumbnail uses thumbnail_view so that the layout can offset to that.
                 final int idToSet = first ? R.id.thumbnail_view : generatedId++;
                 v.setId(idToSet);
-                final int size = getResources()
-                        .getDimensionPixelSize(R.dimen.cell_post_thumbnail_size);
+                final int size = getResources().getDimensionPixelSize(R.dimen.cell_post_thumbnail_size);
 
                 RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(size, size);
                 p.alignWithParent = true;
@@ -617,12 +648,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 v.setClickable(true);
                 v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 v.setRounding(dp(2));
-                p.setMargins(dp(4),
-                        first ? dp(4) : 0,
-                        0,
-                        i + 1 == post.images.size()
-                                ? dp(1) + dp(4) //1 extra for bottom divider
-                                : 0);
+                p.setMargins(dp(4), first ? dp(4) : 0, 0,
+                             //1 extra for bottom divider
+                             i + 1 == post.images.size() ? dp(1) + dp(4) : 0
+                );
 
                 relativeLayoutContainer.addView(v, p);
                 thumbnailViews.add(v);
@@ -661,7 +690,9 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         bi.setText(post.comment.toString());
         int precedingBoundary = bi.following(PostCell.COMMENT_MAX_LENGTH_BOARD);
         // Fallback to old method in case the comment does not have any spaces/individual words
-        CharSequence commentText = precedingBoundary > 0 ? post.comment.subSequence(0, precedingBoundary) : post.comment.subSequence(0, PostCell.COMMENT_MAX_LENGTH_BOARD);
+        CharSequence commentText = precedingBoundary > 0
+                ? post.comment.subSequence(0, precedingBoundary)
+                : post.comment.subSequence(0, PostCell.COMMENT_MAX_LENGTH_BOARD);
         return TextUtils.concat(commentText, "\u2026"); // append ellipsis
     }
 
@@ -676,12 +707,15 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
      * A MovementMethod that searches for PostLinkables.<br>
      * See {@link PostLinkable} for more information.
      */
-    public class PostViewMovementMethod extends LinkMovementMethod {
+    public class PostViewMovementMethod
+            extends LinkMovementMethod {
         @Override
         public boolean onTouchEvent(@NonNull TextView widget, @NonNull Spannable buffer, @NonNull MotionEvent event) {
             int action = event.getActionMasked();
 
-            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_DOWN) {
+            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL
+                    || action == MotionEvent.ACTION_DOWN)
+            {
                 int x = (int) event.getX();
                 int y = (int) event.getY();
 
@@ -702,8 +736,12 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
                 if (link.size() > 0) {
                     ClickableSpan clickableSpan1 = link.get(0);
                     ClickableSpan clickableSpan2 = link.size() > 1 ? link.get(1) : null;
-                    PostLinkable linkable1 = clickableSpan1 instanceof PostLinkable ? (PostLinkable) clickableSpan1 : null;
-                    PostLinkable linkable2 = clickableSpan2 instanceof PostLinkable ? (PostLinkable) clickableSpan2 : null;
+                    PostLinkable linkable1 = clickableSpan1 instanceof PostLinkable
+                            ? (PostLinkable) clickableSpan1
+                            : null;
+                    PostLinkable linkable2 = clickableSpan2 instanceof PostLinkable
+                            ? (PostLinkable) clickableSpan2
+                            : null;
                     if (action == MotionEvent.ACTION_UP) {
                         ignoreNextOnClick = true;
 
@@ -743,7 +781,11 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
 
                         buffer.removeSpan(BACKGROUND_SPAN);
                     } else if (action == MotionEvent.ACTION_DOWN && clickableSpan1 instanceof PostLinkable) {
-                        buffer.setSpan(BACKGROUND_SPAN, buffer.getSpanStart(clickableSpan1), buffer.getSpanEnd(clickableSpan1), 0);
+                        buffer.setSpan(BACKGROUND_SPAN,
+                                       buffer.getSpanStart(clickableSpan1),
+                                       buffer.getSpanEnd(clickableSpan1),
+                                       0
+                        );
                     } else if (action == MotionEvent.ACTION_CANCEL) {
                         buffer.removeSpan(BACKGROUND_SPAN);
                     }
@@ -763,7 +805,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
      * This version is for the {@link FastTextView}.<br>
      * See {@link PostLinkable} for more information.
      */
-    private class PostViewFastMovementMethod implements FastTextViewMovementMethod {
+    private class PostViewFastMovementMethod
+            implements FastTextViewMovementMethod {
         @Override
         public boolean onTouchEvent(@NonNull FastTextView widget, @NonNull Spanned buffer, @NonNull MotionEvent event) {
             int action = event.getActionMasked();
@@ -794,7 +837,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         }
     }
 
-    private class PostNumberClickableSpan extends ClickableSpan {
+    private class PostNumberClickableSpan
+            extends ClickableSpan {
         @Override
         public void onClick(View widget) {
             callback.onPostNoClicked(post);
@@ -811,7 +855,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
     private static Bitmap trashIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.trash_icon);
     private static Bitmap archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
 
-    public static class PostIcons extends View {
+    public static class PostIcons
+            extends View {
         private static final int STICKY = 0x1;
         private static final int CLOSED = 0x2;
         private static final int DELETED = 0x4;
@@ -878,7 +923,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
             httpIcons = new ArrayList<>(icons.size());
             for (PostHttpIcon icon : icons) {
                 int codeIndex = icon.name.indexOf('/'); //this is for country codes
-                PostIconsHttpIcon j = new PostIconsHttpIcon(this, icon.name.substring(0, codeIndex != -1 ? codeIndex : icon.name.length()), icon.url);
+                String name = icon.name.substring(0, codeIndex != -1 ? codeIndex : icon.name.length());
+                PostIconsHttpIcon j = new PostIconsHttpIcon(this, name, icon.url);
                 httpIcons.add(j);
                 j.request();
             }
@@ -962,7 +1008,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         }
     }
 
-    private static class PostIconsHttpIcon implements ImageListener {
+    private static class PostIconsHttpIcon
+            implements ImageListener {
         private final PostIcons postIcons;
         private final String name;
         private final HttpUrl url;
@@ -1001,7 +1048,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, View.On
         }
     }
 
-    private class DoubleTapGestureListener extends GestureDetector.SimpleOnGestureListener {
+    private class DoubleTapGestureListener
+            extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             callback.onPostDoubleClicked(post);

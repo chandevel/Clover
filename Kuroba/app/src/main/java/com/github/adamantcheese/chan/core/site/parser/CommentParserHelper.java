@@ -60,17 +60,22 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParserHelper {
-    private static final LinkExtractor LINK_EXTRACTOR = LinkExtractor.builder()
+    private static final LinkExtractor LINK_EXTRACTOR = LinkExtractor
+            .builder()
             .linkTypes(EnumSet.of(LinkType.URL))
             .build();
 
-    private static Pattern youtubeLinkPattern = Pattern.compile("\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
+    private static Pattern youtubeLinkPattern = Pattern.compile(
+            "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
     private static final String API_KEY = "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE";
     private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
-    private static LruCache<String, String> youtubeTitleCache = new LruCache<>(250); // a cache for titles to prevent extra network activity if not necessary
+    // a cache for titles and durations to prevent extra api calls if not necessary
+    private static LruCache<String, String> youtubeTitleCache = new LruCache<>(250);
     private static LruCache<String, String> youtubeDurCache = new LruCache<>(250);
 
+    //@formatter:off
     private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf)", Pattern.CASE_INSENSITIVE);
+    //@formatter:on
 
     private static final Pattern dubsPattern = Pattern.compile("(\\d)\\1$");
     private static final Pattern tripsPattern = Pattern.compile("(\\d)\\1{2}$");
@@ -100,13 +105,18 @@ public class CommentParserHelper {
             final PostLinkable pl = new PostLinkable(theme, linkText, linkText, PostLinkable.Type.LINK);
             //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
             //we use 500 here for to go below post linkables, but above everything else basically
-            spannable.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
+            spannable.setSpan(pl,
+                              link.getBeginIndex(),
+                              link.getEndIndex(),
+                              (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+            );
             post.addLinkable(pl);
         }
     }
 
     public static SpannableString replaceYoutubeLinks(Theme theme, Post.Builder post, String text) {
-        Map<String, String> titleURLMap = new HashMap<>(); //this map is inverted i.e. the title maps to the URL rather than the other way around
+        Map<String, String> titleURLMap
+                = new HashMap<>(); //this map is inverted i.e. the title maps to the URL rather than the other way around
         StringBuffer newString = new StringBuffer();
         //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
         Matcher linkMatcher = youtubeLinkPattern.matcher(text);
@@ -115,13 +125,15 @@ public class CommentParserHelper {
             RequestFuture<JSONObject> future = RequestFuture.newFuture();
             //this must be a GET request, so the jsonRequest object is null per documentation
             JsonObjectRequest request = new JsonObjectRequest(
-                    "https://www.googleapis.com/youtube/v3/videos?part=snippet" +
-                            (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "") +
-                            "&id=" + videoID +
-                            "&fields=items%28id%2Csnippet%28title%29" +
-                            (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails%28duration%29" : "") +
-                            "%29&key=" + API_KEY,
-                    null, future, future);
+                    "https://www.googleapis.com/youtube/v3/videos?part=snippet"
+                            + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "") + "&id=" + videoID
+                            + "&fields=items%28id%2Csnippet%28title%29" + (
+                            ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails%28duration%29" : "")
+                            + "%29&key=" + API_KEY,
+                    null,
+                    future,
+                    future
+            );
             Chan.injector().instance(RequestQueue.class).add(request);
 
             String URL = linkMatcher.group(0);
@@ -145,19 +157,25 @@ public class CommentParserHelper {
                                 .getString("duration"); //the response is well formatted so this will always work
                         PeriodFormatter formatter = new PeriodFormatterBuilder()
                                 .minimumPrintedDigits(0)
-                                .appendHours().appendSuffix(":")
-                                .appendMinutes().appendSuffix(":")
-                                .appendSeconds().toFormatter();
+                                .appendHours()
+                                .appendSuffix(":")
+                                .appendMinutes()
+                                .appendSuffix(":")
+                                .appendSeconds()
+                                .toFormatter();
                         duration = formatter.print(Period.parse(duration));
                         youtubeDurCache.put(URL, duration);
                     }
                 } catch (Exception e) {
-                    title = URL; //fall back to just showing the URL, otherwise it will display "null" which is pretty useless
+                    //fall back to just showing the URL, otherwise it will display "null" which is pretty useless
+                    title = URL;
                     duration = null;
                 }
             }
             //prepend two spaces for the youtube icon later
-            String extraDur = ChanSettings.parseYoutubeDuration.get() ? (duration != null ? " [" + duration + "]" : "") : "";
+            String extraDur = ChanSettings.parseYoutubeDuration.get()
+                    ? (duration != null ? " [" + duration + "]" : "")
+                    : "";
             titleURLMap.put("  " + title + extraDur, URL);
             linkMatcher.appendReplacement(newString, "  " + title + extraDur);
         }
@@ -169,7 +187,11 @@ public class CommentParserHelper {
         for (String key : titleURLMap.keySet()) {
             //set the linkable to be the entire length, including the icon
             PostLinkable pl = new PostLinkable(theme, key, titleURLMap.get(key), PostLinkable.Type.LINK);
-            finalizedString.setSpan(pl, newString.indexOf(key), newString.indexOf(key) + key.length(), (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
+            finalizedString.setSpan(pl,
+                                    newString.indexOf(key),
+                                    newString.indexOf(key) + key.length(),
+                                    (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+            );
             post.addLinkable(pl);
 
             //set the youtube icon span for the linkable
@@ -177,7 +199,11 @@ public class CommentParserHelper {
             int height = Integer.parseInt(ChanSettings.fontSize.get());
             int width = (int) (sp(height) / (youtubeIcon.getHeight() / (float) youtubeIcon.getWidth()));
             ytIcon.getDrawable().setBounds(0, 0, width, sp(height));
-            finalizedString.setSpan(ytIcon, newString.indexOf(key), newString.indexOf(key) + 1, (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
+            finalizedString.setSpan(ytIcon,
+                                    newString.indexOf(key),
+                                    newString.indexOf(key) + 1,
+                                    (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+            );
         }
 
         return finalizedString;
@@ -186,22 +212,24 @@ public class CommentParserHelper {
     public static void addPostImages(Post.Builder post) {
         if (ChanSettings.parsePostImageLinks.get()) {
             for (PostLinkable linkable : post.getLinkables()) {
-                if (post.images != null && post.images.size() >= 5) return; //max 5 images hotlinked
+                if (post.images != null && post.images.size() >= 5)
+                    return; //max 5 images hotlinked
                 if (linkable.type == PostLinkable.Type.LINK) {
                     Matcher matcher = imageUrlPattern.matcher(((String) linkable.value));
                     if (matcher.matches()) {
-                        post.images(Collections.singletonList(
-                                new PostImage.Builder()
-                                        .serverFilename(matcher.group(1))
-                                        .thumbnailUrl(HttpUrl.parse((String) linkable.value)) //just have the thumbnail for when spoilers are removed be the image itself; probably not a great idea
-                                        .spoilerThumbnailUrl(HttpUrl.parse("https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png"))
-                                        .imageUrl(HttpUrl.parse((String) linkable.value))
-                                        .filename(matcher.group(1))
-                                        .extension(matcher.group(2))
-                                        .spoiler(true)
-                                        .size(-1)
-                                        .build()
-                        ));
+                        post.images(
+                                Collections.singletonList(
+                                        new PostImage.Builder()
+                                                .serverFilename(matcher.group(1))
+                                                .thumbnailUrl(HttpUrl.parse((String) linkable.value)) //just have the thumbnail for when spoilers are removed be the image itself; probably not a great idea
+                                                .spoilerThumbnailUrl(HttpUrl.parse(
+                                                        "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png"))
+                                                .imageUrl(HttpUrl.parse((String) linkable.value))
+                                                .filename(matcher.group(1))
+                                                .extension(matcher.group(2))
+                                                .spoiler(true)
+                                                .size(-1)
+                                                .build()));
                     }
                 }
             }

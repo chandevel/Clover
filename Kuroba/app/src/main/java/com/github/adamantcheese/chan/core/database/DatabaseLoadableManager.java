@@ -105,9 +105,11 @@ public class DatabaseLoadableManager {
      *
      * @param loadable Loadable that only has its id loaded
      * @return a loadable ready to use.
+     *
      * @throws SQLException database error
      */
-    public Loadable refreshForeign(final Loadable loadable) throws SQLException {
+    public Loadable refreshForeign(final Loadable loadable)
+            throws SQLException {
         if (loadable.id == 0) {
             throw new IllegalArgumentException("This only works loadables that have their id loaded");
         }
@@ -139,11 +141,15 @@ public class DatabaseLoadableManager {
                 return cachedLoadable;
             } else {
                 QueryBuilder<Loadable, Integer> builder = helper.loadableDao.queryBuilder();
-                List<Loadable> results = builder.where()
-                        .eq("site", loadable.siteId).and()
+                List<Loadable> results = builder
+                        .where()
+                        .eq("site", loadable.siteId)
+                        .and()
                         .eq("mode", loadable.mode)
-                        .and().eq("board", loadable.boardCode)
-                        .and().eq("no", loadable.no)
+                        .and()
+                        .eq("board", loadable.boardCode)
+                        .and()
+                        .eq("no", loadable.no)
                         .query();
 
                 if (results.size() > 1) {
@@ -187,8 +193,9 @@ public class DatabaseLoadableManager {
 
             int deletedCount = builder.delete();
             if (loadableIdSet.size() != deletedCount) {
-                throw new IllegalStateException("Deleted count didn't equal loadableIdSet.size(). (deletedCount = "
-                        + deletedCount + "), " + "(loadableIdSet = " + loadableIdSet.size() + ")");
+                throw new IllegalStateException(
+                        "Deleted count didn't equal loadableIdSet.size(). (deletedCount = " + deletedCount + "), "
+                                + "(loadableIdSet = " + loadableIdSet.size() + ")");
             }
 
             return null;

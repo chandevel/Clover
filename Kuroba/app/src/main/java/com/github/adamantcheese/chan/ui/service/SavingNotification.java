@@ -38,7 +38,8 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
-public class SavingNotification extends Service {
+public class SavingNotification
+        extends Service {
     public static final String DONE_TASKS_KEY = "done_tasks";
     public static final String TOTAL_TASKS_KEY = "total_tasks";
     private static final String CANCEL_KEY = "cancel";
@@ -63,7 +64,10 @@ public class SavingNotification extends Service {
         super.onCreate();
         inject(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR, "Save notification", NotificationManager.IMPORTANCE_LOW));
+            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR,
+                                                                                  "Save notification",
+                                                                                  NotificationManager.IMPORTANCE_LOW
+            ));
         }
 
         startForeground(NOTIFICATION_ID, getNotification());
@@ -115,6 +119,5 @@ public class SavingNotification extends Service {
         }
     }
 
-    public static class SavingCancelRequestMessage {
-    }
+    public static class SavingCancelRequestMessage {}
 }

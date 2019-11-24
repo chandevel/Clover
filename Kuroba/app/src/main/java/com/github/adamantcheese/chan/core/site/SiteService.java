@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
@@ -68,7 +67,8 @@ public class SiteService {
 
     public void updateUserSettings(Site site, JsonSettings jsonSettings) {
         SiteModel siteModel = siteRepository.byId(site.id());
-        if (siteModel == null) throw new NullPointerException("siteModel == null");
+        if (siteModel == null)
+            throw new NullPointerException("siteModel == null");
         siteRepository.updateSiteUserSettingsAsync(siteModel, jsonSettings);
     }
 

@@ -36,7 +36,8 @@ import java.util.List;
  * Container for a view with an ProgressBar. Toggles between the view and a
  * ProgressBar.
  */
-public class LoadView extends FrameLayout {
+public class LoadView
+        extends FrameLayout {
     private int fadeDuration = 200;
     private Listener listener;
 
@@ -103,7 +104,8 @@ public class LoadView extends FrameLayout {
                 final View child = getChildAt(i);
 
                 // We don't add a listener to remove the view we also animate in.
-                if (child == newView) continue;
+                if (child == newView)
+                    continue;
 
                 ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(child, View.ALPHA, 0f);
                 objectAnimator.addListener(new AnimatorListenerAdapter() {

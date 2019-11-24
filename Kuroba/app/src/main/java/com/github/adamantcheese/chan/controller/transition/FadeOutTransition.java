@@ -25,7 +25,8 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.github.adamantcheese.chan.controller.ControllerTransition;
 
-public class FadeOutTransition extends ControllerTransition {
+public class FadeOutTransition
+        extends ControllerTransition {
     @Override
     public void perform() {
         Animator toAlpha = ObjectAnimator.ofFloat(from.view, View.ALPHA, 1f, 0f);

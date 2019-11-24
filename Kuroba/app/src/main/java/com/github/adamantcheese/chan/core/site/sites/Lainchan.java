@@ -31,7 +31,8 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 
 import okhttp3.HttpUrl;
 
-public class Lainchan extends CommonSite {
+public class Lainchan
+        extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
@@ -53,8 +54,10 @@ public class Lainchan extends CommonSite {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl().newBuilder()
-                        .addPathSegment(loadable.boardCode).addPathSegment("res")
+                return getUrl()
+                        .newBuilder()
+                        .addPathSegment(loadable.boardCode)
+                        .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
                         .toString();
             } else {
@@ -68,25 +71,24 @@ public class Lainchan extends CommonSite {
         setName("Lainchan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://lainchan.org/favicon.ico")));
 
-        setBoards(
-                Board.fromSiteNameCode(this, "Programming", "λ"),
-                Board.fromSiteNameCode(this, "Do It Yourself", "Δ"),
-                Board.fromSiteNameCode(this, "Security", "sec"),
-                Board.fromSiteNameCode(this, "Technology", "Ω"),
-                Board.fromSiteNameCode(this, "Games and Interactive Media", "inter"),
-                Board.fromSiteNameCode(this, "Literature", "lit"),
-                Board.fromSiteNameCode(this, "Musical and Audible Media", "music"),
-                Board.fromSiteNameCode(this, "Visual Media", "vis"),
-                Board.fromSiteNameCode(this, "Humanity", "hum"),
-                Board.fromSiteNameCode(this, "Drugs 3.0", "drug"),
-                Board.fromSiteNameCode(this, "Consciousness and Dreams", "zzz"),
-                Board.fromSiteNameCode(this, "layer", "layer"),
-                Board.fromSiteNameCode(this, "Questions and Complaints", "q"),
-                Board.fromSiteNameCode(this, "Random", "r"),
-                Board.fromSiteNameCode(this, "Lain", "lain"),
-                Board.fromSiteNameCode(this, "Culture 15 freshly bumped threads", "culture"),
-                Board.fromSiteNameCode(this, "Psychopharmacology 15 freshly bumped threads", "psy"),
-                Board.fromSiteNameCode(this, "15 freshly bumped threads", "mega")
+        setBoards(Board.fromSiteNameCode(this, "Programming", "λ"),
+                  Board.fromSiteNameCode(this, "Do It Yourself", "Δ"),
+                  Board.fromSiteNameCode(this, "Security", "sec"),
+                  Board.fromSiteNameCode(this, "Technology", "Ω"),
+                  Board.fromSiteNameCode(this, "Games and Interactive Media", "inter"),
+                  Board.fromSiteNameCode(this, "Literature", "lit"),
+                  Board.fromSiteNameCode(this, "Musical and Audible Media", "music"),
+                  Board.fromSiteNameCode(this, "Visual Media", "vis"),
+                  Board.fromSiteNameCode(this, "Humanity", "hum"),
+                  Board.fromSiteNameCode(this, "Drugs 3.0", "drug"),
+                  Board.fromSiteNameCode(this, "Consciousness and Dreams", "zzz"),
+                  Board.fromSiteNameCode(this, "layer", "layer"),
+                  Board.fromSiteNameCode(this, "Questions and Complaints", "q"),
+                  Board.fromSiteNameCode(this, "Random", "r"),
+                  Board.fromSiteNameCode(this, "Lain", "lain"),
+                  Board.fromSiteNameCode(this, "Culture 15 freshly bumped threads", "culture"),
+                  Board.fromSiteNameCode(this, "Psychopharmacology 15 freshly bumped threads", "psy"),
+                  Board.fromSiteNameCode(this, "15 freshly bumped threads", "mega")
         );
 
         setResolvable(URL_HANDLER);
@@ -98,9 +100,7 @@ public class Lainchan extends CommonSite {
             }
         });
 
-        setEndpoints(new VichanEndpoints(this,
-                "https://lainchan.org",
-                "https://lainchan.org"));
+        setEndpoints(new VichanEndpoints(this, "https://lainchan.org", "https://lainchan.org"));
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());

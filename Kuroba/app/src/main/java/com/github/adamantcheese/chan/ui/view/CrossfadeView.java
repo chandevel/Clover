@@ -23,7 +23,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
-public class CrossfadeView extends FrameLayout {
+public class CrossfadeView
+        extends FrameLayout {
 
     private View viewOne;
     private View viewTwo;

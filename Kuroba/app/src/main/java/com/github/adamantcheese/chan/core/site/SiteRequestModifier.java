@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-
 import android.webkit.WebView;
 
 import com.github.adamantcheese.chan.core.site.http.HttpCall;

@@ -42,7 +42,12 @@ public class HintPopup {
         return show(context, anchor, text, 0, 0);
     }
 
-    public static HintPopup show(final Context context, final View anchor, final String text, final int offsetX, final int offsetY) {
+    public static HintPopup show(final Context context,
+                                 final View anchor,
+                                 final String text,
+                                 final int offsetX,
+                                 final int offsetY
+    ) {
         HintPopup hintPopup = new HintPopup(context, anchor, text, offsetX, offsetY, false);
         hintPopup.show();
         return hintPopup;
@@ -60,8 +65,13 @@ public class HintPopup {
     private boolean centered = false;
     private boolean wiggle = false;
 
-    public HintPopup(Context context, final View anchor, final String text,
-                     final int offsetX, final int offsetY, final boolean top) {
+    public HintPopup(Context context,
+                     final View anchor,
+                     final String text,
+                     final int offsetX,
+                     final int offsetY,
+                     final boolean top
+    ) {
         this.anchor = anchor;
         this.text = text;
         this.offsetX = offsetX;
@@ -73,13 +83,16 @@ public class HintPopup {
 
     @SuppressLint("InflateParams")
     private void createView(Context context) {
-        popupView = (ViewGroup) LayoutInflater.from(context)
-                .inflate(top ? R.layout.popup_hint_top : R.layout.popup_hint, null);
+        popupView = (ViewGroup)
+                LayoutInflater.from(context).inflate(top ? R.layout.popup_hint_top : R.layout.popup_hint, null);
 
         TextView textView = popupView.findViewById(R.id.text);
         textView.setText(text);
 
-        popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow = new PopupWindow(popupView,
+                                      ViewGroup.LayoutParams.WRAP_CONTENT,
+                                      ViewGroup.LayoutParams.WRAP_CONTENT
+        );
         popupWindow.setOutsideTouchable(true);
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
     }
@@ -99,14 +112,9 @@ public class HintPopup {
                 popupWindow.showAsDropDown(anchor, xoff, yoff);
 
                 if (wiggle) {
-                    TimeInterpolator wiggleInterpolator = input ->
-                            (float) Math.sin(60 * input * 2.0 * Math.PI);
+                    TimeInterpolator wiggler = input -> (float) Math.sin(60 * input * 2.0 * Math.PI);
 
-                    popupView.animate()
-                            .translationY(dp(2))
-                            .setInterpolator(wiggleInterpolator)
-                            .setDuration(60000)
-                            .start();
+                    popupView.animate().translationY(dp(2)).setInterpolator(wiggler).setDuration(60000).start();
                 }
             }
         }, 400);

@@ -29,7 +29,8 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
-public class SitesSetupPresenter implements Observer {
+public class SitesSetupPresenter
+        implements Observer {
     private static final String TAG = "SitesSetupPresenter";
 
     private final SiteService siteService;
@@ -43,8 +44,7 @@ public class SitesSetupPresenter implements Observer {
     private List<Site> sitesShown = new ArrayList<>();
 
     @Inject
-    public SitesSetupPresenter(SiteService siteService, SiteRepository siteRepository,
-                               BoardManager boardManager) {
+    public SitesSetupPresenter(SiteService siteService, SiteRepository siteRepository, BoardManager boardManager) {
         this.siteService = siteService;
         this.siteRepository = siteRepository;
         this.boardManager = boardManager;

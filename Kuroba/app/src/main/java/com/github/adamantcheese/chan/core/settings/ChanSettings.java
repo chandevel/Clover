@@ -42,7 +42,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ChanSettings {
-    public enum MediaAutoLoadMode implements OptionSettingItem {
+    public enum MediaAutoLoadMode
+            implements OptionSettingItem {
         // ALways auto load, either wifi or mobile
         ALL("all"),
         // Only auto load if on wifi
@@ -66,11 +67,14 @@ public class ChanSettings {
                 return false;
             } else if (networkType == ChanSettings.MediaAutoLoadMode.WIFI) {
                 return isConnected(ConnectivityManager.TYPE_WIFI);
-            } else return networkType == ChanSettings.MediaAutoLoadMode.ALL;
+            } else {
+                return networkType == ChanSettings.MediaAutoLoadMode.ALL;
+            }
         }
     }
 
-    public enum PostViewMode implements OptionSettingItem {
+    public enum PostViewMode
+            implements OptionSettingItem {
         LIST("list"),
         CARD("grid");
 
@@ -86,7 +90,8 @@ public class ChanSettings {
         }
     }
 
-    public enum LayoutMode implements OptionSettingItem {
+    public enum LayoutMode
+            implements OptionSettingItem {
         AUTO("auto"),
         PHONE("phone"),
         SLIDE("slide"),
@@ -105,9 +110,7 @@ public class ChanSettings {
     }
 
     private static Proxy proxy;
-    private static final String sharedPrefsFile = "shared_prefs/"
-            + BuildConfig.APPLICATION_ID
-            + "_preferences.xml";
+    private static final String sharedPrefsFile = "shared_prefs/" + BuildConfig.APPLICATION_ID + "_preferences.xml";
 
     private static final StringSetting theme;
     public static final OptionsSetting<LayoutMode> layoutMode;
@@ -222,8 +225,16 @@ public class ChanSettings {
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
         openLinkBrowser = new BooleanSetting(p, "preference_open_link_browser", false);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
-        imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
-        videoAutoLoadNetwork = new OptionsSetting<>(p, "preference_video_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
+        imageAutoLoadNetwork = new OptionsSetting<>(p,
+                                                    "preference_image_auto_load_network",
+                                                    MediaAutoLoadMode.class,
+                                                    MediaAutoLoadMode.WIFI
+        );
+        videoAutoLoadNetwork = new OptionsSetting<>(p,
+                                                    "preference_video_auto_load_network",
+                                                    MediaAutoLoadMode.class,
+                                                    MediaAutoLoadMode.WIFI
+        );
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
         textOnly = new BooleanSetting(p, "preference_text_only", false);
         boardViewMode = new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);
@@ -235,24 +246,24 @@ public class ChanSettings {
         shortPinInfo = new BooleanSetting(p, "preference_short_pin_info", true);
 
         saveLocation = new StringSetting(p, "preference_image_save_location", getDefaultSaveLocationDir());
-        saveLocation.addCallback((setting, value) -> {
-            EventBus.getDefault().post(new SettingChanged<>(saveLocation));
-        });
+        saveLocation.addCallback(
+                (setting, value) -> EventBus.getDefault().post(new SettingChanged<>(saveLocation))
+        );
 
         saveLocationUri = new StringSetting(p, "preference_image_save_location_uri", "");
-        saveLocationUri.addCallback(((setting, value) -> {
-            EventBus.getDefault().post(new SettingChanged<>(saveLocationUri));
-        }));
+        saveLocationUri.addCallback(
+                (setting, value) -> EventBus.getDefault().post(new SettingChanged<>(saveLocationUri))
+        );
 
         localThreadLocation = new StringSetting(p, "local_threads_location", getDefaultLocalThreadsLocation());
-        localThreadLocation.addCallback(((setting, value) -> {
-            EventBus.getDefault().post(new SettingChanged<>(localThreadLocation));
-        }));
+        localThreadLocation.addCallback(
+                (setting, value) -> EventBus.getDefault().post(new SettingChanged<>(localThreadLocation))
+        );
 
         localThreadsLocationUri = new StringSetting(p, "local_threads_location_uri", "");
-        localThreadsLocationUri.addCallback((settings, value) -> {
-            EventBus.getDefault().post(new SettingChanged<>(localThreadsLocationUri));
-        });
+        localThreadsLocationUri.addCallback(
+                (settings, value) -> EventBus.getDefault().post(new SettingChanged<>(localThreadsLocationUri))
+        );
 
         saveServerFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
@@ -281,18 +292,23 @@ public class ChanSettings {
         allowMediaScannerToScanLocalThreads = new BooleanSetting(p, "allow_media_scanner_to_scan_local_threads", false);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
-        watchEnabled.addCallback((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(watchEnabled)));
+        watchEnabled.addCallback((setting, value) -> EventBus.getDefault().post(new SettingChanged<>(watchEnabled)));
         watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
-        watchBackground.addCallback((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(watchBackground)));
+        watchBackground.addCallback(
+                (setting, value) -> EventBus.getDefault().post(new SettingChanged<>(watchBackground))
+        );
         watchLastPageNotify = new BooleanSetting(p, "preference_watch_last_page_notify", false);
         watchFilterWatch = new BooleanSetting(p, "preference_watch_filter_watch", false);
-        watchFilterWatch.addCallback(((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(watchFilterWatch))));
-        watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", (int) MINUTES.toMillis(15));
-        watchBackgroundInterval.addCallback((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(watchBackgroundInterval)));
+        watchFilterWatch.addCallback(
+                (setting, value) -> EventBus.getDefault().post(new SettingChanged<>(watchFilterWatch))
+        );
+        watchBackgroundInterval = new IntegerSetting(p,
+                                                     "preference_watch_background_interval",
+                                                     (int) MINUTES.toMillis(15)
+        );
+        watchBackgroundInterval.addCallback(
+                (setting, value) -> EventBus.getDefault().post(new SettingChanged<>(watchBackgroundInterval))
+        );
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
         watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
         watchPeek = new BooleanSetting(p, "preference_watch_peek", true);
@@ -344,18 +360,13 @@ public class ChanSettings {
 
     @NonNull
     public static String getDefaultLocalThreadsLocation() {
-        return Environment.getExternalStorageDirectory()
-                + File.separator
-                + getApplicationLabel()
-                + File.separator
+        return Environment.getExternalStorageDirectory() + File.separator + getApplicationLabel() + File.separator
                 + ThreadSaveManager.SAVED_THREADS_DIR_NAME;
     }
 
     @NonNull
     public static String getDefaultSaveLocationDir() {
-        return Environment.getExternalStorageDirectory()
-                + File.separator
-                + getApplicationLabel();
+        return Environment.getExternalStorageDirectory() + File.separator + getApplicationLabel();
     }
 
     public static ThemeColor getThemeAndColor() {
@@ -405,7 +416,8 @@ public class ChanSettings {
      * Reads setting from the shared preferences file to a string.
      * Called on the Database thread.
      */
-    public static String serializeToString() throws IOException {
+    public static String serializeToString()
+            throws IOException {
         String prevSaveLocationUri = null;
         String prevLocalThreadsLocationUri = null;
 
@@ -430,21 +442,17 @@ public class ChanSettings {
             prevLocalThreadsLocationUri = ChanSettings.localThreadsLocationUri.get();
 
             ChanSettings.localThreadsLocationUri.remove();
-            ChanSettings.localThreadLocation.setSyncNoCheck(
-                    ChanSettings.getDefaultLocalThreadsLocation()
-            );
+            ChanSettings.localThreadLocation.setSyncNoCheck(ChanSettings.getDefaultLocalThreadsLocation());
         }
 
         File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
 
         if (!file.exists()) {
-            throw new IOException("Shared preferences file does not exist! " +
-                    "(" + file.getAbsolutePath() + ")");
+            throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
         }
 
         if (!file.canRead()) {
-            throw new IOException("Cannot read from shared preferences file!" +
-                    "(" + file.getAbsolutePath() + ")");
+            throw new IOException("Cannot read from shared preferences file! (" + file.getAbsolutePath() + ")");
         }
 
         byte[] buffer = new byte[(int) file.length()];
@@ -453,8 +461,8 @@ public class ChanSettings {
             int readAmount = inputStream.read(buffer);
 
             if (readAmount != file.length()) {
-                throw new IOException("Could not read shared prefs file readAmount != fileLength "
-                        + readAmount + ", " + file.length());
+                throw new IOException("Could not read shared prefs file readAmount != fileLength " + readAmount + ", "
+                                              + file.length());
             }
         }
 
@@ -476,17 +484,16 @@ public class ChanSettings {
      * Reads settings from string and writes them to the shared preferences file.
      * Called on the Database thread.
      */
-    public static void deserializeFromString(String settings) throws IOException {
+    public static void deserializeFromString(String settings)
+            throws IOException {
         File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
 
         if (!file.exists()) {
-            throw new IOException("Shared preferences file does not exist! " +
-                    "(" + file.getAbsolutePath() + ")");
+            throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
         }
 
         if (!file.canWrite()) {
-            throw new IOException("Cannot write to shared preferences file! " +
-                    "(" + file.getAbsolutePath() + ")");
+            throw new IOException("Cannot write to shared preferences file! (" + file.getAbsolutePath() + ")");
         }
 
         try (FileOutputStream outputStream = new FileOutputStream(file)) {

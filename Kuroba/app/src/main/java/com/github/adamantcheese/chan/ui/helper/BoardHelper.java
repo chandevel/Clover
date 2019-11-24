@@ -101,9 +101,7 @@ public class BoardHelper {
         int name = FuzzySearch.ratio(board.name, query);
         int description = FuzzySearch.weightedRatio(getDescription(board), query);
 
-        return code * 8 +
-                name * 5 +
-                Math.max(0, description - 30) * 4;
+        return code * 8 + name * 5 + Math.max(0, description - 30) * 4;
     }
 
     public static String boardUniqueId(Board board) {

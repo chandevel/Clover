@@ -40,7 +40,8 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.List;
 
-public class PostRepliesController extends BaseFloatingController {
+public class PostRepliesController
+        extends BaseFloatingController {
     private PostPopupHelper postPopupHelper;
     private ThreadPresenter presenter;
 
@@ -142,23 +143,24 @@ public class PostRepliesController extends BaseFloatingController {
                 if (convertView instanceof PostCellInterface && !ChanSettings.shiftPostFormat.get()) {
                     postCell = (PostCellInterface) convertView;
                 } else {
-                    postCell = (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
+                    postCell = (PostCellInterface)
+                            LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
                 }
 
                 final Post p = getItem(position);
                 boolean showDivider = position < getCount() - 1;
-                postCell.setPost(
-                        loadable,
-                        p,
-                        presenter,
-                        false,
-                        false,
-                        false,
-                        data.forPost.no,
-                        showDivider,
-                        ChanSettings.PostViewMode.LIST,
-                        false,
-                        ThemeHelper.getTheme());
+                postCell.setPost(loadable,
+                                 p,
+                                 presenter,
+                                 false,
+                                 false,
+                                 false,
+                                 data.forPost.no,
+                                 showDivider,
+                                 ChanSettings.PostViewMode.LIST,
+                                 false,
+                                 ThemeHelper.getTheme()
+                );
 
                 return (View) postCell;
             }

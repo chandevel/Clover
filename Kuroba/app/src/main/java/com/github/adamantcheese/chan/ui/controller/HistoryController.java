@@ -54,9 +54,9 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class HistoryController extends Controller implements
-        CompoundButton.OnCheckedChangeListener,
-        ToolbarNavigationController.ToolbarSearchCallback {
+public class HistoryController
+        extends Controller
+        implements CompoundButton.OnCheckedChangeListener, ToolbarNavigationController.ToolbarSearchCallback {
     @Inject
     DatabaseManager databaseManager;
 
@@ -82,11 +82,12 @@ public class HistoryController extends Controller implements
         navigation.setTitle(R.string.history_screen);
 
         navigation.buildMenu()
-                .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
-                .withOverflow()
-                .withSubItem(R.string.history_clear, this::clearHistoryClicked)
-                .withSubItem(R.string.saved_reply_clear, this::clearSavedReplyClicked)
-                .build().build();
+                  .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
+                  .withOverflow()
+                  .withSubItem(R.string.history_clear, this::clearHistoryClicked)
+                  .withSubItem(R.string.saved_reply_clear, this::clearSavedReplyClicked)
+                  .build()
+                  .build();
 
         SwitchCompat historyEnabledSwitch = new SwitchCompat(context);
         historyEnabledSwitch.setChecked(ChanSettings.historyEnabled.get());
@@ -127,8 +128,9 @@ public class HistoryController extends Controller implements
         new AlertDialog.Builder(context)
                 .setTitle(R.string.saved_reply_clear_confirm)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.saved_reply_clear_confirm_button, (dialog, which) ->
-                        databaseManager.runTaskAsync(databaseSavedReplyManager.clearSavedReplies()))
+                .setPositiveButton(R.string.saved_reply_clear_confirm_button,
+                                   (dialog, which) -> databaseManager.runTaskAsync(databaseSavedReplyManager.clearSavedReplies())
+                )
                 .show();
     }
 
@@ -160,7 +162,9 @@ public class HistoryController extends Controller implements
         adapter.search(entered);
     }
 
-    private class HistoryAdapter extends RecyclerView.Adapter<HistoryCell> implements DatabaseManager.TaskResult<List<History>> {
+    private class HistoryAdapter
+            extends RecyclerView.Adapter<HistoryCell>
+            implements DatabaseManager.TaskResult<List<History>> {
         private List<History> sourceList = new ArrayList<>();
         private List<History> displayList = new ArrayList<>();
         private String searchQuery;
@@ -173,7 +177,9 @@ public class HistoryController extends Controller implements
 
         @Override
         public HistoryCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new HistoryCell(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_history, parent, false));
+            return new HistoryCell(
+                    LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_history, parent, false)
+            );
         }
 
         @Override
@@ -234,7 +240,9 @@ public class HistoryController extends Controller implements
         }
     }
 
-    private class HistoryCell extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class HistoryCell
+            extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         private ThumbnailView thumbnail;
         private TextView text;
         private TextView subtext;
@@ -267,7 +275,6 @@ public class HistoryController extends Controller implements
                     deleteHistory(history);
                 }
             }
-
         }
     }
 }

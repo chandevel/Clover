@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -50,8 +51,12 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class AlbumDownloadController extends Controller implements View.OnClickListener {
+public class AlbumDownloadController
+        extends Controller
+        implements View.OnClickListener {
     private GridRecyclerView recyclerView;
     private FloatingActionButton download;
 
@@ -77,9 +82,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
 
         updateTitle();
 
-        navigation.buildMenu()
-                .withItem(R.drawable.ic_select_all_white_24dp, this::onCheckAllClicked)
-                .build();
+        navigation.buildMenu().withItem(R.drawable.ic_select_all_white_24dp, this::onCheckAllClicked).build();
 
         download = view.findViewById(R.id.download);
         download.setOnClickListener(this);
@@ -103,9 +106,10 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
             } else {
                 final String folderForAlbum = imageSaver.getSubFolder(loadable.title);
 
-                String message = context.getString(R.string.album_download_confirm,
-                        context.getResources().getQuantityString(R.plurals.image, checkCount, checkCount),
-                        folderForAlbum);
+                String message = getString(R.string.album_download_confirm,
+                                           getQuantityString(R.plurals.image, checkCount, checkCount),
+                                           folderForAlbum
+                );
 
                 new AlertDialog.Builder(context)
                         .setMessage(message)
@@ -123,12 +127,11 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
                                 return;
                             }
 
-                            Toast.makeText(
-                                    context,
-                                    R.string.album_download_could_not_save_one_or_more_images,
-                                    Toast.LENGTH_SHORT).show();
-                        })
-                        .show();
+                            Toast.makeText(context,
+                                           R.string.album_download_could_not_save_one_or_more_images,
+                                           Toast.LENGTH_SHORT
+                            ).show();
+                        }).show();
             }
         }
     }
@@ -159,7 +162,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
     }
 
     private void updateTitle() {
-        navigation.title = context.getString(R.string.album_download_screen, getCheckCount(), items.size());
+        navigation.title = getString(R.string.album_download_screen, getCheckCount(), items.size());
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
     }
 
@@ -189,15 +192,15 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
         }
     }
 
-    private class AlbumAdapter extends RecyclerView.Adapter<AlbumDownloadCell> {
+    private class AlbumAdapter
+            extends RecyclerView.Adapter<AlbumDownloadCell> {
         public AlbumAdapter() {
             setHasStableIds(true);
         }
 
         @Override
         public AlbumDownloadCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.cell_album_download, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_album_download, parent, false);
 
             return new AlbumDownloadCell(view);
         }
@@ -221,7 +224,9 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
         }
     }
 
-    private class AlbumDownloadCell extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class AlbumDownloadCell
+            extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         private ImageView checkbox;
         private PostImageThumbnailView thumbnailView;
 
@@ -247,15 +252,16 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
     private void setItemChecked(AlbumDownloadCell cell, boolean checked, boolean animated) {
         float scale = checked ? 0.75f : 1f;
         if (animated) {
-            cell.thumbnailView.animate().scaleX(scale).scaleY(scale)
-                    .setInterpolator(new DecelerateInterpolator(3f)).setDuration(500).start();
+            Interpolator slowdown = new DecelerateInterpolator(3f);
+            cell.thumbnailView.animate().scaleX(scale).scaleY(scale).setInterpolator(slowdown).setDuration(500).start();
         } else {
             cell.thumbnailView.setScaleX(scale);
             cell.thumbnailView.setScaleY(scale);
         }
 
-        Drawable drawable = context.getDrawable(checked ? R.drawable.ic_check_circle_white_24dp :
-                R.drawable.ic_radio_button_unchecked_white_24dp);
+        Drawable drawable = context.getDrawable(checked
+                                                        ? R.drawable.ic_check_circle_white_24dp
+                                                        : R.drawable.ic_radio_button_unchecked_white_24dp);
         assert drawable != null;
 
         if (checked) {

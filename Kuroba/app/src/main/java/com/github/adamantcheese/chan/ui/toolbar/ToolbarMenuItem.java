@@ -58,10 +58,7 @@ public class ToolbarMenuItem {
     // Views, only non-null if attached to ToolbarMenuView.
     private ImageView view;
 
-    public ToolbarMenuItem(
-            int id,
-            int drawable,
-            ClickCallback clicked) {
+    public ToolbarMenuItem(int id, int drawable, ClickCallback clicked) {
         this(id, getAppContext().getDrawable(drawable), clicked);
     }
 
@@ -71,11 +68,11 @@ public class ToolbarMenuItem {
         this.clicked = clicked;
     }
 
-    public ToolbarMenuItem(
-            int id,
-            int drawable,
-            ClickCallback clicked,
-            @Nullable ToobarThreedotMenuCallback threedotMenuCallback) {
+    public ToolbarMenuItem(int id,
+                           int drawable,
+                           ClickCallback clicked,
+                           @Nullable ToobarThreedotMenuCallback threedotMenuCallback
+    ) {
         this.id = id;
         this.drawable = getAppContext().getDrawable(drawable);
         this.clicked = clicked;

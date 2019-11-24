@@ -31,7 +31,9 @@ import com.github.adamantcheese.chan.ui.layout.SplitNavigationControllerLayout;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
-public class SplitNavigationController extends Controller implements DoubleNavigationController {
+public class SplitNavigationController
+        extends Controller
+        implements DoubleNavigationController {
     public Controller leftController;
     public Controller rightController;
 
@@ -197,8 +199,7 @@ public class SplitNavigationController extends Controller implements DoubleNavig
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        return (rightController != null && rightController.dispatchKeyEvent(event)) ||
-                (leftController != null && leftController.dispatchKeyEvent(event)) ||
-                super.dispatchKeyEvent(event);
+        return (rightController != null && rightController.dispatchKeyEvent(event)) || (
+                leftController != null && leftController.dispatchKeyEvent(event)) || super.dispatchKeyEvent(event);
     }
 }

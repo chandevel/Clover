@@ -35,7 +35,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class SearchLayout extends LinearLayout {
+public class SearchLayout
+        extends LinearLayout {
     private EditText searchView;
     private ImageView clearButton;
 

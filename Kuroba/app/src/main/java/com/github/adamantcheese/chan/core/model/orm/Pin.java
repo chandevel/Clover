@@ -23,7 +23,8 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "pin")
-public class Pin implements Comparable<Pin>, Cloneable {
+public class Pin
+        implements Comparable<Pin>, Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -66,18 +67,17 @@ public class Pin implements Comparable<Pin>, Cloneable {
     public Pin() {
     }
 
-    public Pin(
-            Loadable loadable,
-            boolean watching,
-            int watchLastCount,
-            int watchNewCount,
-            int quoteLastCount,
-            int quoteNewCount,
-            boolean isError,
-            String thumbnailUrl,
-            int order,
-            boolean archived,
-            int pinType
+    public Pin(Loadable loadable,
+               boolean watching,
+               int watchLastCount,
+               int watchNewCount,
+               int quoteLastCount,
+               int quoteNewCount,
+               boolean isError,
+               String thumbnailUrl,
+               int order,
+               boolean archived,
+               int pinType
     ) {
         this.loadable = loadable;
         this.watching = watching;
@@ -153,20 +153,14 @@ public class Pin implements Comparable<Pin>, Cloneable {
 
         Pin other = (Pin) obj;
 
-        return this.id == other.id
-                && this.loadable.id == other.loadable.id;
+        return this.id == other.id && this.loadable.id == other.loadable.id;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "[id = " + id +
-                ", pinType = " + pinType +
-                ", isError = " + isError +
-                ", isArchived = " + archived +
-                ", watching = " + watching +
-                ", (active) = " + (!isError && !archived) +
-                ", no = " + loadable.no +
-                "]";
+        return "[id = " + id + ", pinType = " + pinType + ", isError = " + isError + ", isArchived = " + archived
+                + ", watching = " + watching + ", (active) = " + (!isError && !archived) + ", no = " + loadable.no
+                + "]";
     }
 }

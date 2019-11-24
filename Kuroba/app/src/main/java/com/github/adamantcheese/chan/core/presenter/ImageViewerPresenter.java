@@ -41,7 +41,8 @@ import static android.content.Context.AUDIO_SERVICE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 
-public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
+public class ImageViewerPresenter
+        implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewerPresenter";
 
     private final Callback callback;
@@ -69,7 +70,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         inject(this);
 
         AudioManager audioManager = (AudioManager) AndroidUtils.getAppContext().getSystemService(AUDIO_SERVICE);
-        muted = ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get() || !audioManager.isWiredHeadsetOn());
+        muted = ChanSettings.videoDefaultMuted.get() && (
+                ChanSettings.headsetDefaultMuted.get() || !audioManager.isWiredHeadsetOn());
     }
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
@@ -104,7 +106,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     public void onExit() {
-        if (entering || exiting) return;
+        if (entering || exiting)
+            return;
         exiting = true;
 
         PostImage postImage = images.get(selectedPosition);
@@ -163,7 +166,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     @Override
     public void onModeLoaded(MultiImageView multiImageView, MultiImageView.Mode mode) {
-        if (exiting) return;
+        if (exiting)
+            return;
 
         if (mode == MultiImageView.Mode.LOWRES) {
             // lowres is requested at the beginning of the transition,
@@ -263,18 +267,16 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 // Array to allow access from within the callback (the callback should really
                 // pass the filecachedownloader itself).
                 final FileCacheDownloader[] preloadDownload = new FileCacheDownloader[1];
-                preloadDownload[0] = fileCache.downloadFile(loadable, next,
-                        new FileCacheListener() {
-                            @Override
-                            public void onEnd() {
-                                BackgroundUtils.ensureMainThread();
+                preloadDownload[0] = fileCache.downloadFile(loadable, next, new FileCacheListener() {
+                    @Override
+                    public void onEnd() {
+                        BackgroundUtils.ensureMainThread();
 
-                                if (preloadDownload[0] != null) {
-                                    preloadingImages.remove(preloadDownload[0]);
-                                }
-                            }
+                        if (preloadDownload[0] != null) {
+                            preloadingImages.remove(preloadDownload[0]);
                         }
-                );
+                    }
+                });
 
                 if (preloadDownload[0] != null) {
                     preloadingImages.add(preloadDownload[0]);
@@ -405,8 +407,11 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     private void setTitle(PostImage postImage, int position) {
-        callback.setTitle(postImage, position, images.size(),
-                postImage.spoiler && callback.getImageMode(postImage) == MultiImageView.Mode.LOWRES);
+        callback.setTitle(postImage,
+                          position,
+                          images.size(),
+                          postImage.spoiler && callback.getImageMode(postImage) == MultiImageView.Mode.LOWRES
+        );
     }
 
     private List<PostImage> getOther(int position) {

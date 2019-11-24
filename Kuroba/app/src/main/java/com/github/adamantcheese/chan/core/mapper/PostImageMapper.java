@@ -11,17 +11,16 @@ import okhttp3.HttpUrl;
 public class PostImageMapper {
 
     public static SerializablePostImage toSerializablePostImage(PostImage postImage) {
-        return new SerializablePostImage(
-                postImage.serverFilename,
-                postImage.filename,
-                postImage.extension,
-                postImage.imageUrl.toString(),
-                postImage.thumbnailUrl.toString(),
-                postImage.spoilerThumbnailUrl.toString(),
-                postImage.imageWidth,
-                postImage.imageHeight,
-                postImage.spoiler,
-                postImage.size
+        return new SerializablePostImage(postImage.serverFilename,
+                                         postImage.filename,
+                                         postImage.extension,
+                                         postImage.imageUrl.toString(),
+                                         postImage.thumbnailUrl.toString(),
+                                         postImage.spoilerThumbnailUrl.toString(),
+                                         postImage.imageWidth,
+                                         postImage.imageHeight,
+                                         postImage.spoiler,
+                                         postImage.size
         );
     }
 
@@ -56,8 +55,7 @@ public class PostImageMapper {
                 .build();
     }
 
-    public static List<PostImage> fromSerializablePostImageList(
-            List<SerializablePostImage> serializablePostImageList) {
+    public static List<PostImage> fromSerializablePostImageList(List<SerializablePostImage> serializablePostImageList) {
         List<PostImage> postImageList = new ArrayList<>(serializablePostImageList.size());
 
         for (SerializablePostImage serializablePostImage : serializablePostImageList) {

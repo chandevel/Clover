@@ -77,7 +77,13 @@ public class Theme {
     public ThemeDrawable helpDrawable = new ThemeDrawable(R.drawable.ic_help_outline_white_24dp, 0.54f);
     public ThemeDrawable refreshDrawable = new ThemeDrawable(R.drawable.ic_refresh_white_24dp, 0.54f);
 
-    public Theme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor, Typeface mainFont, Typeface altFont) {
+    public Theme(String displayName,
+                 String name,
+                 int resValue,
+                 ThemeHelper.PrimaryColor primaryColor,
+                 Typeface mainFont,
+                 Typeface altFont
+    ) {
         this.displayName = displayName;
         this.name = name;
         this.resValue = resValue;

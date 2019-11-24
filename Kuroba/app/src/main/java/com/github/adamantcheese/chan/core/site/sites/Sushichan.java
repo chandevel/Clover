@@ -31,7 +31,8 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 
 import okhttp3.HttpUrl;
 
-public class Sushichan extends CommonSite {
+public class Sushichan
+        extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
@@ -53,8 +54,10 @@ public class Sushichan extends CommonSite {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl().newBuilder()
-                        .addPathSegment(loadable.boardCode).addPathSegment("res")
+                return getUrl()
+                        .newBuilder()
+                        .addPathSegment(loadable.boardCode)
+                        .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
                         .toString();
             } else {
@@ -68,18 +71,17 @@ public class Sushichan extends CommonSite {
         setName("Sushichan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://sushigirl.us/favicon.ico")));
 
-        setBoards(
-                Board.fromSiteNameCode(this, "artsy", "wildcard"),
-                Board.fromSiteNameCode(this, "sushi social", "lounge"),
-                Board.fromSiteNameCode(this, "vidya gaems", "arcade"),
-                Board.fromSiteNameCode(this, "cute things", "kawaii"),
-                Board.fromSiteNameCode(this, "tasty morsels & delights", "kitchen"),
-                Board.fromSiteNameCode(this, "enjoyable sounds", "tunes"),
-                Board.fromSiteNameCode(this, "arts & literature", "culture"),
-                Board.fromSiteNameCode(this, "technology", "silicon"),
-                Board.fromSiteNameCode(this, "site meta-discussion", "yakuza"),
-                Board.fromSiteNameCode(this, "internet death cult", "hell"),
-                Board.fromSiteNameCode(this, "dat ecchi & hentai goodness", "lewd")
+        setBoards(Board.fromSiteNameCode(this, "artsy", "wildcard"),
+                  Board.fromSiteNameCode(this, "sushi social", "lounge"),
+                  Board.fromSiteNameCode(this, "vidya gaems", "arcade"),
+                  Board.fromSiteNameCode(this, "cute things", "kawaii"),
+                  Board.fromSiteNameCode(this, "tasty morsels & delights", "kitchen"),
+                  Board.fromSiteNameCode(this, "enjoyable sounds", "tunes"),
+                  Board.fromSiteNameCode(this, "arts & literature", "culture"),
+                  Board.fromSiteNameCode(this, "technology", "silicon"),
+                  Board.fromSiteNameCode(this, "site meta-discussion", "yakuza"),
+                  Board.fromSiteNameCode(this, "internet death cult", "hell"),
+                  Board.fromSiteNameCode(this, "dat ecchi & hentai goodness", "lewd")
         );
 
         setResolvable(URL_HANDLER);
@@ -91,9 +93,7 @@ public class Sushichan extends CommonSite {
             }
         });
 
-        setEndpoints(new VichanEndpoints(this,
-                "https://sushigirl.us/",
-                "https://sushigirl.us/"));
+        setEndpoints(new VichanEndpoints(this, "https://sushigirl.us/", "https://sushigirl.us/"));
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());

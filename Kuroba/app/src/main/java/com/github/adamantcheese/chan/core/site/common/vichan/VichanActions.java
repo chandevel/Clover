@@ -35,7 +35,8 @@ import okhttp3.Response;
 
 import static android.text.TextUtils.isEmpty;
 
-public class VichanActions extends CommonSite.CommonActions {
+public class VichanActions
+        extends CommonSite.CommonActions {
     public VichanActions(CommonSite commonSite) {
         super(commonSite);
     }
@@ -77,8 +78,7 @@ public class VichanActions extends CommonSite.CommonActions {
 
     @Override
     public void prepare(MultipartHttpCall call, Reply reply, ReplyResponse replyResponse) {
-        VichanAntispam antispam = new VichanAntispam(
-                HttpUrl.parse(site.resolvable().desktopUrl(reply.loadable, null)));
+        VichanAntispam antispam = new VichanAntispam(HttpUrl.parse(site.resolvable().desktopUrl(reply.loadable, null)));
         antispam.addDefaultIgnoreFields();
         for (Map.Entry<String, String> e : antispam.get().entrySet()) {
             call.parameter(e.getKey(), e.getValue());

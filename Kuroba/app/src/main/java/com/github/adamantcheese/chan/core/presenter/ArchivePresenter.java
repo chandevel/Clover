@@ -31,7 +31,8 @@ import javax.inject.Inject;
 
 import static android.text.TextUtils.isEmpty;
 
-public class ArchivePresenter implements SiteActions.ArchiveListener {
+public class ArchivePresenter
+        implements SiteActions.ArchiveListener {
     private DatabaseManager databaseManager;
 
     private Callback callback;

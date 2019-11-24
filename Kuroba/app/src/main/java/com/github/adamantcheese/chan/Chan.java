@@ -46,7 +46,9 @@ import javax.inject.Inject;
 import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
 
-public class Chan extends Application implements Application.ActivityLifecycleCallbacks {
+public class Chan
+        extends Application
+        implements Application.ActivityLifecycleCallbacks {
     private int activityForegroundCounter = 0;
 
     @Inject
@@ -80,14 +82,13 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
 
-        feather = Feather.with(
-                new AppModule(this),
-                new DatabaseModule(),
-                new NetModule(),
-                new GsonModule(),
-                new RepositoryModule(),
-                new SiteModule(),
-                new ManagerModule()
+        feather = Feather.with(new AppModule(this),
+                               new DatabaseModule(),
+                               new NetModule(),
+                               new GsonModule(),
+                               new RepositoryModule(),
+                               new SiteModule(),
+                               new ManagerModule()
         );
         feather.injectFields(this);
 

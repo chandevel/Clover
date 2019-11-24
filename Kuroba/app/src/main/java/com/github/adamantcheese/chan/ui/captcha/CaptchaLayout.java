@@ -36,7 +36,9 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
-public class CaptchaLayout extends WebView implements AuthenticationLayoutInterface {
+public class CaptchaLayout
+        extends WebView
+        implements AuthenticationLayoutInterface {
     private static final String TAG = "CaptchaLayout";
 
     private AuthenticationLayoutCallback callback;
@@ -79,8 +81,9 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
         setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(@NonNull ConsoleMessage consoleMessage) {
-                Logger.i(TAG, consoleMessage.lineNumber() + ":" + consoleMessage.message()
-                        + " " + consoleMessage.sourceId());
+                Logger.i(TAG,
+                         consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId()
+                );
                 return true;
             }
         });

@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.http;
 
-
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 

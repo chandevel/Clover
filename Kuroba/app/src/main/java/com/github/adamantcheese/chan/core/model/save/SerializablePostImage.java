@@ -26,17 +26,17 @@ public class SerializablePostImage {
     @SerializedName("size")
     private long size;
 
-    public SerializablePostImage(
-            String originalName,
-            String filename,
-            String extension,
-            String imageUrl,
-            String thumbnailUrlString,
-            String spoilerUrlString,
-            int imageWidth,
-            int imageHeight,
-            boolean spoiler,
-            long size) {
+    public SerializablePostImage(String originalName,
+                                 String filename,
+                                 String extension,
+                                 String imageUrl,
+                                 String thumbnailUrlString,
+                                 String spoilerUrlString,
+                                 int imageWidth,
+                                 int imageHeight,
+                                 boolean spoiler,
+                                 long size
+    ) {
         this.originalName = originalName;
         this.filename = filename;
         this.extension = extension;
@@ -92,8 +92,7 @@ public class SerializablePostImage {
 
     @Override
     public int hashCode() {
-        return 31 * originalName.hashCode() +
-                31 * filename.hashCode();
+        return 31 * originalName.hashCode() + 31 * filename.hashCode();
     }
 
     @Override
@@ -112,7 +111,6 @@ public class SerializablePostImage {
 
         SerializablePostImage otherPostImage = (SerializablePostImage) other;
 
-        return this.originalName.equals(otherPostImage.originalName)
-                && this.filename.equals(otherPostImage.filename);
+        return this.originalName.equals(otherPostImage.originalName) && this.filename.equals(otherPostImage.filename);
     }
 }

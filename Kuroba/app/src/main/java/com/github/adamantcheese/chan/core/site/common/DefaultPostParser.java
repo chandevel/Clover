@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.common;
 
-
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
@@ -48,7 +47,8 @@ import java.util.List;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
-public class DefaultPostParser implements PostParser {
+public class DefaultPostParser
+        implements PostParser {
     private static final String TAG = "DefaultPostParser";
 
     private CommentParser commentParser;
@@ -120,7 +120,9 @@ public class DefaultPostParser implements PostParser {
             }
         }
 
-        if (!TextUtils.isEmpty(builder.name) && (!builder.name.equals(defaultName) || ChanSettings.showAnonymousName.get())) {
+        if (!TextUtils.isEmpty(builder.name) && (
+                !builder.name.equals(defaultName) || ChanSettings.showAnonymousName.get()))
+        {
             nameSpan = new SpannableString(builder.name);
             nameSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, nameSpan.length(), 0);
         }
@@ -232,16 +234,15 @@ public class DefaultPostParser implements PostParser {
                 }
             }
 
-            CharSequence allInnerText = TextUtils.concat(
-                    texts.toArray(new CharSequence[0]));
+            CharSequence allInnerText = TextUtils.concat(texts.toArray(new CharSequence[0]));
 
-            CharSequence result = commentParser.handleTag(
-                    callback,
-                    theme,
-                    post,
-                    nodeName,
-                    allInnerText,
-                    (Element) node);
+            CharSequence result = commentParser.handleTag(callback,
+                                                          theme,
+                                                          post,
+                                                          nodeName,
+                                                          allInnerText,
+                                                          (Element) node
+            );
             if (result != null) {
                 return result;
             } else {

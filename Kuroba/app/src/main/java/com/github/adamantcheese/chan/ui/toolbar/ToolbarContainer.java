@@ -71,7 +71,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentV
  * This is also the class that is responsible for the orientation and animation of the arrow-menu
  * drawable.
  */
-public class ToolbarContainer extends FrameLayout {
+public class ToolbarContainer
+        extends FrameLayout {
     private Callback callback;
 
     private ArrowMenuDrawable arrowMenu;
@@ -183,8 +184,7 @@ public class ToolbarContainer extends FrameLayout {
         return transitionView != null || previousView != null;
     }
 
-    public void startTransition(
-            NavigationItem item, ToolbarPresenter.TransitionAnimationStyle style) {
+    public void startTransition(NavigationItem item, ToolbarPresenter.TransitionAnimationStyle style) {
         if (transitionView != null) {
             throw new IllegalStateException("Already in transition mode");
         }
@@ -251,10 +251,10 @@ public class ToolbarContainer extends FrameLayout {
         }
     }
 
-    private void setAnimation(ItemView view, ItemView previousView,
-                              ToolbarPresenter.AnimationStyle animationStyle) {
-        if (animationStyle == ToolbarPresenter.AnimationStyle.PUSH ||
-                animationStyle == ToolbarPresenter.AnimationStyle.POP) {
+    private void setAnimation(ItemView view, ItemView previousView, ToolbarPresenter.AnimationStyle animationStyle) {
+        if (animationStyle == ToolbarPresenter.AnimationStyle.PUSH
+                || animationStyle == ToolbarPresenter.AnimationStyle.POP)
+        {
             final boolean pushing = animationStyle == ToolbarPresenter.AnimationStyle.PUSH;
 
             // Previous animation
@@ -271,7 +271,8 @@ public class ToolbarContainer extends FrameLayout {
                     ToolbarContainer.this.previousView = null;
                 }
             });
-            if (!pushing) previousAnimation.setStartDelay(100);
+            if (!pushing)
+                previousAnimation.setStartDelay(100);
             animatorSet.put(previousView.view, previousAnimation);
 
             post(previousAnimation::start);
@@ -293,14 +294,14 @@ public class ToolbarContainer extends FrameLayout {
                     animatorSet.remove(view.view);
                 }
             });
-            if (!pushing) animation.setStartDelay(100);
+            if (!pushing)
+                animation.setStartDelay(100);
             animatorSet.put(view.view, animation);
 
             post(animation::start);
         } else if (animationStyle == ToolbarPresenter.AnimationStyle.FADE) {
             // Previous animation
-            ValueAnimator previousAnimation =
-                    ObjectAnimator.ofFloat(previousView.view, View.ALPHA, 1f, 0f);
+            ValueAnimator previousAnimation = ObjectAnimator.ofFloat(previousView.view, View.ALPHA, 1f, 0f);
             previousAnimation.setDuration(300);
             previousAnimation.setInterpolator(new LinearInterpolator());
             previousAnimation.addListener(new AnimatorListenerAdapter() {
@@ -374,8 +375,7 @@ public class ToolbarContainer extends FrameLayout {
         arrowMenu.setProgress(progress);
     }
 
-    private void transitionProgressAnimation(
-            float progress, ToolbarPresenter.TransitionAnimationStyle style) {
+    private void transitionProgressAnimation(float progress, ToolbarPresenter.TransitionAnimationStyle style) {
         progress = Math.max(0f, Math.min(1f, progress));
 
         final int offset = dp(16);
@@ -439,8 +439,8 @@ public class ToolbarContainer extends FrameLayout {
 
         @NonNull
         private LinearLayout createNavigationLayout(NavigationItem item, Theme theme) {
-            @SuppressLint("InflateParams")
-            LinearLayout menu = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
+            @SuppressLint("InflateParams") LinearLayout menu = (LinearLayout)
+                    LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
             menu.setGravity(Gravity.CENTER_VERTICAL);
 
             FrameLayout titleContainer = menu.findViewById(R.id.title_container);
@@ -454,12 +454,14 @@ public class ToolbarContainer extends FrameLayout {
             // Middle title with arrow and callback
             if (item.middleMenu != null) {
                 int arrowColor = getAttrColor(getContext(), R.attr.dropdown_light_color);
-                int arrowPressedColor = getAttrColor(
-                        getContext(), R.attr.dropdown_light_pressed_color);
-                final Drawable arrowDrawable = new DropdownArrowDrawable(
-                        dp(12), dp(12), true, arrowColor, arrowPressedColor);
-                titleView.setCompoundDrawablesWithIntrinsicBounds(
-                        null, null, arrowDrawable, null);
+                int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
+                final Drawable arrowDrawable = new DropdownArrowDrawable(dp(12),
+                                                                         dp(12),
+                                                                         true,
+                                                                         arrowColor,
+                                                                         arrowPressedColor
+                );
+                titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowDrawable, null);
                 titleView.setOnClickListener(v -> item.middleMenu.show(titleView));
                 //Default stuff for nothing there
                 if (item.title.isEmpty()) {
@@ -475,8 +477,11 @@ public class ToolbarContainer extends FrameLayout {
                 titleView.setLayoutParams(titleParams);
                 subtitleView.setText(item.subtitle);
                 subtitleView.setTextColor(Color.WHITE);
-                titleView.setPadding(titleView.getPaddingLeft(), dp(5f),
-                        titleView.getPaddingRight(), titleView.getPaddingBottom());
+                titleView.setPadding(titleView.getPaddingLeft(),
+                                     dp(5f),
+                                     titleView.getPaddingRight(),
+                                     titleView.getPaddingBottom()
+                );
             } else {
                 titleContainer.removeView(subtitleView);
             }
@@ -485,9 +490,9 @@ public class ToolbarContainer extends FrameLayout {
             if (item.rightView != null) {
                 removeFromParentView(item.rightView);
                 item.rightView.setPadding(0, 0, dp(16), 0);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                                             LinearLayout.LayoutParams.MATCH_PARENT
+                );
                 menu.addView(item.rightView, lp);
             }
 
@@ -495,9 +500,9 @@ public class ToolbarContainer extends FrameLayout {
             if (item.menu != null) {
                 menuView = new ToolbarMenuView(getContext());
 
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                                             LinearLayout.LayoutParams.MATCH_PARENT
+                );
                 menu.addView(this.menuView, lp);
             }
 
@@ -515,7 +520,11 @@ public class ToolbarContainer extends FrameLayout {
             }
 
             searchLayout.setCatalogSearchColors();
-            searchLayout.setPadding(dp(16), searchLayout.getPaddingTop(), searchLayout.getPaddingRight(), searchLayout.getPaddingBottom());
+            searchLayout.setPadding(dp(16),
+                                    searchLayout.getPaddingTop(),
+                                    searchLayout.getPaddingRight(),
+                                    searchLayout.getPaddingBottom()
+            );
 
             return searchLayout;
         }

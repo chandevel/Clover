@@ -53,10 +53,11 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class CaptchaNoJsLayoutV2 extends FrameLayout
-        implements AuthenticationLayoutInterface,
-        CaptchaNoJsPresenterV2.AuthenticationCallbacks {
+public class CaptchaNoJsLayoutV2
+        extends FrameLayout
+        implements AuthenticationLayoutInterface, CaptchaNoJsPresenterV2.AuthenticationCallbacks {
     private static final String TAG = "CaptchaNoJsLayoutV2";
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
@@ -147,12 +148,10 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
             case ALREADY_SHUTDOWN:
                 break;
             case HOLD_YOUR_HORSES:
-                showToast(getContext().getString(
-                        R.string.captcha_layout_v2_you_are_requesting_captcha_too_fast));
+                showToast(getString(R.string.captcha_layout_v2_you_are_requesting_captcha_too_fast));
                 break;
             case ALREADY_IN_PROGRESS:
-                showToast(getContext().getString(
-                        R.string.captcha_layout_v2_captcha_request_is_already_in_progress));
+                showToast(getString(R.string.captcha_layout_v2_captcha_request_is_already_in_progress));
                 break;
         }
     }
@@ -240,11 +239,11 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         if (captchaInfo.getCaptchaTitle() != null) {
             if (captchaInfo.getCaptchaTitle().hasBold()) {
                 SpannableString spannableString = new SpannableString(captchaInfo.getCaptchaTitle().getTitle());
-                spannableString.setSpan(
-                        new StyleSpan(Typeface.BOLD),
-                        captchaInfo.getCaptchaTitle().getBoldStart(),
-                        captchaInfo.getCaptchaTitle().getBoldEnd(),
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableString.setSpan(new StyleSpan(Typeface.BOLD),
+                                        captchaInfo.getCaptchaTitle().getBoldStart(),
+                                        captchaInfo.getCaptchaTitle().getBoldEnd(),
+                                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                );
 
                 captchaChallengeTitle.setText(spannableString);
             } else {
@@ -263,10 +262,10 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
                     captchaVerifyButton.setEnabled(false);
                     break;
                 case NO_IMAGES_SELECTED:
-                    showToast(getContext().getString(R.string.captcha_layout_v2_you_have_to_select_at_least_one_image));
+                    showToast(getString(R.string.captcha_layout_v2_you_have_to_select_at_least_one_image));
                     break;
                 case ALREADY_IN_PROGRESS:
-                    showToast(getContext().getString(R.string.captcha_layout_v2_verification_already_in_progress));
+                    showToast(getString(R.string.captcha_layout_v2_verification_already_in_progress));
                     break;
                 case ALREADY_SHUTDOWN:
                     // do nothing

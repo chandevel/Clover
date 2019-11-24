@@ -27,7 +27,8 @@ import java.util.concurrent.Callable;
 
 // Called concurrently to parse the post html and the filters on it
 // belong to ChanReaderRequest
-class PostParseCallable implements Callable<Post> {
+class PostParseCallable
+        implements Callable<Post> {
     private static final String TAG = "PostParseCallable";
 
     private FilterEngine filterEngine;
@@ -41,7 +42,9 @@ class PostParseCallable implements Callable<Post> {
                              List<Filter> filters,
                              DatabaseSavedReplyManager savedReplyManager,
                              Post.Builder post,
-                             ChanReader reader, Set<Integer> internalIds) {
+                             ChanReader reader,
+                             Set<Integer> internalIds
+    ) {
         this.filterEngine = filterEngine;
         this.filters = filters;
         this.savedReplyManager = savedReplyManager;
@@ -71,18 +74,18 @@ class PostParseCallable implements Callable<Post> {
     }
 
     private void processPostFilter(Post.Builder post) {
-        for (Filter filter : filters) {
-            if (filterEngine.matches(filter, post)) {
-                FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
+        for (Filter f : filters) {
+            if (filterEngine.matches(f, post)) {
+                FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(f.action);
                 switch (action) {
                     case COLOR:
-                        post.filter(filter.color, false, false, false, filter.applyToReplies, filter.onlyOnOP, filter.applyToSaved);
+                        post.filter(f.color, false, false, false, f.applyToReplies, f.onlyOnOP, f.applyToSaved);
                         break;
                     case HIDE:
-                        post.filter(0, true, false, false, filter.applyToReplies, filter.onlyOnOP, false);
+                        post.filter(0, true, false, false, f.applyToReplies, f.onlyOnOP, false);
                         break;
                     case REMOVE:
-                        post.filter(0, false, true, false, filter.applyToReplies, filter.onlyOnOP, false);
+                        post.filter(0, false, true, false, f.applyToReplies, f.onlyOnOP, false);
                         break;
                     case WATCH:
                         post.filter(0, false, false, true, false, true, false);

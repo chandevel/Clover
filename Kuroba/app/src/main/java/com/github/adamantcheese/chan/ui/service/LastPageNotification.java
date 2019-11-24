@@ -30,7 +30,8 @@ import javax.inject.Inject;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
 
-public class LastPageNotification extends Service {
+public class LastPageNotification
+        extends Service {
     //random notification ID's, so one notification per thread
     private Random random = new Random();
 
@@ -52,13 +53,18 @@ public class LastPageNotification extends Service {
         super.onCreate();
         inject(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID, "Last page notification", NotificationManager.IMPORTANCE_HIGH);
-            alert.setSound(DEFAULT_NOTIFICATION_URI, new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
-                    .setLegacyStreamType(AudioManager.STREAM_NOTIFICATION)
-                    .build());
+            NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID,
+                                                                "Last page notification",
+                                                                NotificationManager.IMPORTANCE_HIGH
+            );
+            alert.setSound(DEFAULT_NOTIFICATION_URI,
+                           new AudioAttributes.Builder()
+                                   .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
+                                   .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                   .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                                   .setLegacyStreamType(AudioManager.STREAM_NOTIFICATION)
+                                   .build()
+            );
             alert.enableLights(true);
             alert.setLightColor(Color.RED);
             notificationManager.createNotificationChannel(alert);
@@ -78,16 +84,23 @@ public class LastPageNotification extends Service {
     private Notification getNotification(int pinId) {
         Intent intent = new Intent(this, StartActivity.class);
         intent.setAction(Intent.ACTION_MAIN)
-                .addCategory(Intent.CATEGORY_LAUNCHER)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |
-                        Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-                .putExtra("pin_id", pinId);
+              .addCategory(Intent.CATEGORY_LAUNCHER)
+              .setFlags(
+                      Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                              | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+              .putExtra("pin_id", pinId);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, random.nextInt(), intent, PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(this,
+                                          random.nextInt(),
+                                          intent,
+                                          PendingIntent.FLAG_ONE_SHOT
+                );
         DateFormat time = SimpleDateFormat.getTimeInstance(DateFormat.SHORT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setSmallIcon(R.drawable.ic_stat_notify_alert)
+        builder
+                .setSmallIcon(R.drawable.ic_stat_notify_alert)
                 .setContentTitle(time.format(new Date()) + " - " + getString(R.string.thread_page_limit))
                 .setContentText(watchManager.findPinById(pinId).loadable.title)
                 .setContentIntent(pendingIntent)

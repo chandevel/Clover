@@ -21,20 +21,22 @@ import android.text.style.BackgroundColorSpan;
 /**
  * A version of BackgroundColorSpan that has proper equals and hashCode implementations. Used to fix the hashcode result from SpannableStringBuilder.
  */
-public class BackgroundColorSpanHashed extends BackgroundColorSpan {
+public class BackgroundColorSpanHashed
+        extends BackgroundColorSpan {
     public BackgroundColorSpanHashed(int color) {
         super(color);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         BackgroundColorSpanHashed that = (BackgroundColorSpanHashed) o;
 
         return getBackgroundColor() == that.getBackgroundColor();
-
     }
 
     @Override

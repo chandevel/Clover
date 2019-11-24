@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -75,8 +76,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentV
  * It also features a search field at the top. The data shown is controlled by
  * {@link BoardsMenuPresenter}.
  */
-public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuPresenter.Callback,
-        Observer {
+public class BrowseBoardsFloatingMenu
+        extends FrameLayout
+        implements BoardsMenuPresenter.Callback, Observer {
     private View anchor;
     private RecyclerView recyclerView;
 
@@ -109,8 +111,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         setFocusable(true);
     }
 
-    public void show(ViewGroup baseView, View anchor, ClickCallback clickCallback,
-                     Board selectedBoard) {
+    public void show(ViewGroup baseView, View anchor, ClickCallback clickCallback, Board selectedBoard) {
         this.anchor = anchor;
         this.clickCallback = clickCallback;
 
@@ -124,10 +125,11 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(null);
 
-        rootView.addView(this, new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        ));
+        rootView.addView(this,
+                         new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                                    ViewGroup.LayoutParams.MATCH_PARENT
+                         )
+        );
 
         requestFocus();
 
@@ -148,8 +150,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
                     setupIcon.setColorFilter(ThemeHelper.getTheme().textPrimary, PorterDuff.Mode.SRC_IN);
                     setIcon(SiteIcon.fromDrawable(setupIcon));
                     setBoardsType(BoardsType.STATIC);
-                    setConfig(new CommonConfig() {
-                    });
+                    setConfig(new CommonConfig() {});
                     setResolvable(new CommonSiteUrlHandler() {
                         @Override
                         public HttpUrl getUrl() {
@@ -172,8 +173,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
                             return null;
                         }
                     });
-                    setActions(new CommonActions(null) {
-                    });
+                    setActions(new CommonActions(null) {});
                     setParser(new CommentParser());
                 }
             };
@@ -195,7 +195,8 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
     }
 
     private void itemClicked(Site site, Board board) {
-        if (!isInteractive()) return;
+        if (!isInteractive())
+            return;
 
         if (board != null) {
             clickCallback.onBoardClicked(board);
@@ -214,7 +215,8 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
     }
 
     private void dismiss() {
-        if (dismissed) return;
+        if (dismissed)
+            return;
         dismissed = true;
 
         items.deleteObserver(this);
@@ -279,8 +281,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (isInteractive() && keyCode == KeyEvent.KEYCODE_BACK && event.isTracking() &&
-                !event.isCanceled()) {
+        if (isInteractive() && keyCode == KeyEvent.KEYCODE_BACK && event.isTracking() && !event.isCanceled()) {
             dismiss();
             return true;
         }
@@ -290,7 +291,8 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!isInteractive()) return super.onTouchEvent(event);
+        if (!isInteractive())
+            return super.onTouchEvent(event);
 
         dismiss();
         return true;
@@ -303,26 +305,22 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
     private void animateIn() {
         setAlpha(0f);
         setTranslationY(-dp(25));
-        post(() -> animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setInterpolator(new DecelerateInterpolator(2f))
-                .setDuration(250).start());
+        Interpolator slowdown = new DecelerateInterpolator(2f);
+        post(() -> animate().alpha(1f).translationY(0f).setInterpolator(slowdown).setDuration(250).start());
     }
 
     private void animateOut(Runnable done) {
-        animate().alpha(0f)
-                .setInterpolator(new DecelerateInterpolator(2f)).setDuration(250)
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        done.run();
-                    }
-                })
-                .start();
+        Interpolator slowdown = new DecelerateInterpolator(2f);
+        animate().alpha(0f).setInterpolator(slowdown).setDuration(250).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                done.run();
+            }
+        }).start();
     }
 
-    private class BrowseBoardsAdapter extends RecyclerView.Adapter<ViewHolder> {
+    private class BrowseBoardsAdapter
+            extends RecyclerView.Adapter<ViewHolder> {
         public BrowseBoardsAdapter() {
             setHasStableIds(true);
         }
@@ -349,14 +347,11 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             if (viewType == Item.Type.SEARCH.typeId) {
-                return new InputViewHolder(inflater.inflate(
-                        R.layout.cell_browse_input, parent, false));
+                return new InputViewHolder(inflater.inflate(R.layout.cell_browse_input, parent, false));
             } else if (viewType == Item.Type.SITE.typeId) {
-                return new SiteViewHolder(inflater.inflate(
-                        R.layout.cell_browse_site, parent, false));
+                return new SiteViewHolder(inflater.inflate(R.layout.cell_browse_site, parent, false));
             } else if (viewType == Item.Type.BOARD.typeId) {
-                return new BoardViewHolder(inflater.inflate(
-                        R.layout.cell_browse_board, parent, false));
+                return new BoardViewHolder(inflater.inflate(R.layout.cell_browse_board, parent, false));
             } else {
                 throw new IllegalArgumentException();
             }
@@ -379,8 +374,9 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         }
     }
 
-    private class InputViewHolder extends ViewHolder implements TextWatcher,
-            OnFocusChangeListener, OnClickListener, OnKeyListener {
+    private class InputViewHolder
+            extends ViewHolder
+            implements TextWatcher, OnFocusChangeListener, OnClickListener, OnKeyListener {
         private EditText input;
 
         public InputViewHolder(View itemView) {
@@ -415,8 +411,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
 
         @Override
         public void onClick(View v) {
-            ((LinearLayoutManager) recyclerView.getLayoutManager())
-                    .scrollToPositionWithOffset(0, 0);
+            ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(0, 0);
         }
 
         @Override
@@ -428,7 +423,8 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         }
     }
 
-    private class SiteViewHolder extends ViewHolder {
+    private class SiteViewHolder
+            extends ViewHolder {
         View divider;
         ImageView image;
         TextView text;
@@ -439,7 +435,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         public SiteViewHolder(View itemView) {
             super(itemView);
 
-            itemView.setOnClickListener((v) -> itemClicked(site, null));
+            itemView.setOnClickListener(v -> itemClicked(site, null));
 
             // View binding
             divider = itemView.findViewById(R.id.divider);
@@ -470,7 +466,8 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         }
     }
 
-    private class BoardViewHolder extends ViewHolder {
+    private class BoardViewHolder
+            extends ViewHolder {
         TextView text;
 
         Board board;
@@ -478,7 +475,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         public BoardViewHolder(View itemView) {
             super(itemView);
 
-            itemView.setOnClickListener((v) -> itemClicked(null, board));
+            itemView.setOnClickListener(v -> itemClicked(null, board));
 
             // View binding
             text = (TextView) itemView;

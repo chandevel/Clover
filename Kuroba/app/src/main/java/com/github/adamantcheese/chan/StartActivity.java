@@ -79,8 +79,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 
 public class StartActivity
         extends AppCompatActivity
-        implements NfcAdapter.CreateNdefMessageCallback,
-        FSAFActivityCallbacks {
+        implements NfcAdapter.CreateNdefMessageCallback, FSAFActivityCallbacks {
     private static final String TAG = "StartActivity";
 
     private static final String STATE_KEY = "chan_state";
@@ -157,9 +156,12 @@ public class StartActivity
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             Logger.e("UNCAUGHT", sw.toString());
-            Logger.e("UNCAUGHT", ".\n----------------------------------------\nEND OF CURRENT RUNTIME MESSAGES\n----------------------------------------\n.");
+            Logger.e("UNCAUGHT",
+                     ".\n----------------------------------------\nEND OF CURRENT RUNTIME MESSAGES\n----------------------------------------\n."
+            );
             Logger.e("UNCAUGHT", "Android API Level: " + Build.VERSION.SDK_INT);
-            Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME + " " + (AndroidUtils.getIsOfficial() ? "Official" : "Unofficial"));
+            Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME + " " + (
+                    AndroidUtils.getIsOfficial() ? "Release" : "Development"));
             Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
             System.exit(999);
         });
@@ -198,8 +200,7 @@ public class StartActivity
         final Uri data = getIntent().getData();
         // Start from an url launch.
         if (data != null) {
-            final SiteResolver.LoadableResult loadableResult =
-                    siteResolver.resolveLoadableForUrl(data.toString());
+            final SiteResolver.LoadableResult loadableResult = siteResolver.resolveLoadableForUrl(data.toString());
 
             if (loadableResult != null) {
                 handled = true;
@@ -213,8 +214,7 @@ public class StartActivity
             } else {
                 new AlertDialog.Builder(this)
                         .setMessage(getString(R.string.open_link_not_matched, getApplicationLabel()))
-                        .setPositiveButton(R.string.ok, (dialog, which) ->
-                                AndroidUtils.openLink(data.toString()))
+                        .setPositiveButton(R.string.ok, (dialog, which) -> AndroidUtils.openLink(data.toString()))
                         .show();
             }
         }
@@ -271,8 +271,7 @@ public class StartActivity
                     // object instance is reused. This means that the loadables we gave to the
                     // state are the same instance, and also have the id set etc. We don't need to
                     // query these from the loadablemanager.
-                    DatabaseLoadableManager loadableManager =
-                            databaseManager.getDatabaseLoadableManager();
+                    DatabaseLoadableManager loadableManager = databaseManager.getDatabaseLoadableManager();
                     if (stateLoadable.id == 0) {
                         stateLoadable = loadableManager.get(stateLoadable);
                     }
@@ -316,7 +315,9 @@ public class StartActivity
 
         if (layoutMode == ChanSettings.LayoutMode.SLIDE) {
             ThreadSlideController slideController = new ThreadSlideController(this);
-            slideController.setEmptyView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.layout_split_empty, null));
+            slideController.setEmptyView(
+                    (ViewGroup) LayoutInflater.from(this)
+                                              .inflate(R.layout.layout_split_empty, null));
             mainNavigationController.pushController(slideController, false);
             slideController.setLeftController(browseController);
         } else {
@@ -407,16 +408,15 @@ public class StartActivity
             Loadable thread = null;
 
             if (drawerController.childControllers.get(0) instanceof SplitNavigationController) {
-                SplitNavigationController doubleNav = (SplitNavigationController) drawerController.childControllers.get(0);
-                if (doubleNav.getRightController() instanceof NavigationController) {
-                    NavigationController rightNavigationController = (NavigationController) doubleNav.getRightController();
+                SplitNavigationController dblNav = (SplitNavigationController) drawerController.childControllers.get(0);
+                if (dblNav.getRightController() instanceof NavigationController) {
+                    NavigationController rightNavigationController = (NavigationController) dblNav.getRightController();
                     for (Controller controller : rightNavigationController.childControllers) {
                         if (controller instanceof ViewThreadController) {
                             thread = ((ViewThreadController) controller).getLoadable();
                             break;
                         }
                     }
-
                 }
             } else {
                 List<Controller> controllers = mainNavigationController.childControllers;
@@ -447,16 +447,17 @@ public class StartActivity
     public NdefMessage createNdefMessage(NfcEvent event) {
         Controller threadController = null;
         if (drawerController.childControllers.get(0) instanceof DoubleNavigationController) {
-            SplitNavigationController splitNavigationController = (SplitNavigationController) drawerController.childControllers.get(0);
+            SplitNavigationController splitNavigationController
+                    = (SplitNavigationController) drawerController.childControllers.get(0);
             if (splitNavigationController.rightController instanceof NavigationController) {
-                NavigationController rightNavigationController = (NavigationController) splitNavigationController.rightController;
+                NavigationController rightNavigationController
+                        = (NavigationController) splitNavigationController.rightController;
                 for (Controller controller : rightNavigationController.childControllers) {
                     if (controller instanceof NfcAdapter.CreateNdefMessageCallback) {
                         threadController = controller;
                         break;
                     }
                 }
-
             }
         }
 
@@ -527,7 +528,8 @@ public class StartActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         runtimePermissionsHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -575,8 +577,7 @@ public class StartActivity
 
         if (!isTaskRoot()) {
             Intent intent = getIntent();
-            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) &&
-                    Intent.ACTION_MAIN.equals(intent.getAction())) {
+            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && Intent.ACTION_MAIN.equals(intent.getAction())) {
                 Logger.w(TAG, "Workaround for intent mismatch.");
                 intentMismatchWorkaroundActive = true;
                 finish();

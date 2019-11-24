@@ -37,7 +37,11 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
  */
 public class ImageDecoder {
 
-    public static void decodeFileOnBackgroundThread(final File file, final int maxWidth, final int maxHeight, ImageDecoderCallback callback) {
+    public static void decodeFileOnBackgroundThread(final File file,
+                                                    final int maxWidth,
+                                                    final int maxHeight,
+                                                    ImageDecoderCallback callback
+    ) {
         Thread thread = new Thread(() -> {
             final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
             Bitmap videoBitmap = null;
@@ -46,13 +50,24 @@ public class ImageDecoder {
                 video.setDataSource(file.getAbsolutePath());
                 Bitmap frameBitmap = video.getFrameAtTime();
                 Bitmap audioIconBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.ic_volume_up_white_24dp);
-                Bitmap audioBitmap = Bitmap.createScaledBitmap(audioIconBitmap, audioIconBitmap.getWidth() * 3, audioIconBitmap.getHeight() * 3, true);
+                Bitmap audioBitmap = Bitmap.createScaledBitmap(audioIconBitmap,
+                                                               audioIconBitmap.getWidth() * 3,
+                                                               audioIconBitmap.getHeight() * 3,
+                                                               true
+                );
                 boolean hasAudio = "yes".equals(video.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO));
                 if (hasAudio && frameBitmap != null) {
-                    videoBitmap = Bitmap.createBitmap(frameBitmap.getWidth(), frameBitmap.getHeight(), frameBitmap.getConfig());
+                    videoBitmap = Bitmap.createBitmap(frameBitmap.getWidth(),
+                                                      frameBitmap.getHeight(),
+                                                      frameBitmap.getConfig()
+                    );
                     Canvas temp = new Canvas(videoBitmap);
                     temp.drawBitmap(frameBitmap, new Matrix(), null);
-                    temp.drawBitmap(audioBitmap, frameBitmap.getWidth() - audioBitmap.getWidth(), frameBitmap.getHeight() - audioBitmap.getHeight(), null);
+                    temp.drawBitmap(audioBitmap,
+                                    frameBitmap.getWidth() - audioBitmap.getWidth(),
+                                    frameBitmap.getHeight() - audioBitmap.getHeight(),
+                                    null
+                    );
                 } else {
                     videoBitmap = frameBitmap;
                 }

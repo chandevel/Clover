@@ -31,9 +31,15 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
  * PostCell has a {@link PostCell.PostViewMovementMethod}, that searches spans at the location the TextView was tapped,
  * and handled if it was a PostLinkable.
  */
-public class PostLinkable extends ClickableSpan {
+public class PostLinkable
+        extends ClickableSpan {
     public enum Type {
-        QUOTE, LINK, SPOILER, THREAD, BOARD, SEARCH
+        QUOTE,
+        LINK,
+        SPOILER,
+        THREAD,
+        BOARD,
+        SEARCH
     }
 
     public final Theme theme;
@@ -62,7 +68,9 @@ public class PostLinkable extends ClickableSpan {
 
     @Override
     public void updateDrawState(@NonNull TextPaint ds) {
-        if (type == Type.QUOTE || type == Type.LINK || type == Type.THREAD || type == Type.BOARD || type == Type.SEARCH) {
+        if (type == Type.QUOTE || type == Type.LINK || type == Type.THREAD || type == Type.BOARD
+                || type == Type.SEARCH)
+        {
             if (type == Type.QUOTE) {
                 if (value instanceof Integer && ((int) value) == markedNo) {
                     ds.setColor(theme.highlightQuoteColor);

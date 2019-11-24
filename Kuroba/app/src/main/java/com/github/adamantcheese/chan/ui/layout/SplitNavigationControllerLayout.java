@@ -24,7 +24,8 @@ import android.widget.LinearLayout;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class SplitNavigationControllerLayout extends LinearLayout {
+public class SplitNavigationControllerLayout
+        extends LinearLayout {
     private final int dividerWidth;
     private final int minimumLeftWidth;
     private final double ratio;

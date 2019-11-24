@@ -90,7 +90,8 @@ public class ToolbarPresenter {
     }
 
     void openSearch() {
-        if (item == null || item.search) return;
+        if (item == null || item.search)
+            return;
 
         cancelTransitionIfNeeded();
 
@@ -101,7 +102,8 @@ public class ToolbarPresenter {
     }
 
     boolean closeSearch() {
-        if (item == null || !item.search) return false;
+        if (item == null || !item.search)
+            return false;
 
         item.search = false;
         item.searchText = null;

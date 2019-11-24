@@ -36,7 +36,9 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class LoginController extends Controller implements View.OnClickListener, SiteActions.LoginListener {
+public class LoginController
+        extends Controller
+        implements View.OnClickListener, SiteActions.LoginListener {
     private CrossfadeView crossfadeView;
     private TextView errors;
     private Button button;

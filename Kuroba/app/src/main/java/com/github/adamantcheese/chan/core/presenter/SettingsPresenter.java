@@ -36,10 +36,8 @@ public class SettingsPresenter {
     }
 
     public void show() {
-        long siteCount = databaseManager.runTask(
-                databaseManager.getDatabaseSiteManager().getCount());
-        long filterCount = databaseManager.runTask(
-                databaseManager.getDatabaseFilterManager().getCount());
+        long siteCount = databaseManager.runTask(databaseManager.getDatabaseSiteManager().getCount());
+        long filterCount = databaseManager.runTask(databaseManager.getDatabaseFilterManager().getCount());
 
         callback.setSiteCount((int) siteCount);
         callback.setFiltersCount((int) filterCount);

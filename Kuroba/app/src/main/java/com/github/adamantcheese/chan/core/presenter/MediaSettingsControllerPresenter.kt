@@ -1,14 +1,13 @@
 package com.github.adamantcheese.chan.core.presenter
 
-import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.settings.ChanSettings
-import com.github.adamantcheese.chan.ui.controller.MediaSettingsControllerCallbacks
+import com.github.adamantcheese.chan.ui.controller.settings.MediaSettingsControllerCallbacks
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory
-import com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread
+import com.github.adamantcheese.chan.utils.AndroidUtils.*
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileChooser
 import com.github.k1rakishou.fsaf.FileManager
@@ -17,7 +16,6 @@ import com.github.k1rakishou.fsaf.file.AbstractFile
 import java.util.concurrent.Executors
 
 class MediaSettingsControllerPresenter(
-        private val appContext: Context,
         private val fileManager: FileManager,
         private val fileChooser: FileChooser,
         private var callbacks: MediaSettingsControllerCallbacks?
@@ -40,7 +38,7 @@ class MediaSettingsControllerPresenter(
 
                 if (oldLocalThreadsDirectory == null) {
                     withCallbacks {
-                        showToast(appContext.getString(R.string.media_settings_old_threads_base_dir_not_registered))
+                        showToast(getString(R.string.media_settings_old_threads_base_dir_not_registered))
                     }
 
                     return
@@ -61,7 +59,7 @@ class MediaSettingsControllerPresenter(
 
                 if (newLocalThreadsDirectory == null) {
                     withCallbacks {
-                        showToast(appContext.getString(R.string.media_settings_new_threads_base_dir_not_registered))
+                        showToast(getString(R.string.media_settings_new_threads_base_dir_not_registered))
                     }
 
                     return
@@ -89,7 +87,7 @@ class MediaSettingsControllerPresenter(
 
         if (oldLocalThreadsDirectory == null) {
             withCallbacks {
-                showToast(appContext.getString(R.string.media_settings_old_threads_base_dir_not_registered))
+                showToast(getString(R.string.media_settings_old_threads_base_dir_not_registered))
             }
 
             return
@@ -103,7 +101,7 @@ class MediaSettingsControllerPresenter(
 
         if (newLocalThreadsDirectory == null) {
             withCallbacks {
-                showToast(appContext.getString(R.string.media_settings_new_threads_base_dir_not_registered))
+                showToast(getString(R.string.media_settings_new_threads_base_dir_not_registered))
             }
 
             return
@@ -128,7 +126,7 @@ class MediaSettingsControllerPresenter(
 
                 if (oldSavedFileBaseDirectory == null) {
                     withCallbacks {
-                        showToast(appContext.getString(
+                        showToast(getString(
                                 R.string.media_settings_old_saved_files_base_dir_not_registered))
                     }
 
@@ -148,7 +146,7 @@ class MediaSettingsControllerPresenter(
 
                 if (newSavedFilesBaseDirectory == null) {
                     withCallbacks {
-                        showToast(appContext.getString(
+                        showToast(getString(
                                 R.string.media_settings_new_saved_files_base_dir_not_registered))
                     }
 
@@ -176,7 +174,7 @@ class MediaSettingsControllerPresenter(
 
         if (oldSaveFilesDirectory == null) {
             withCallbacks {
-                showToast(appContext.getString(
+                showToast(getString(
                         R.string.media_settings_old_saved_files_base_dir_not_registered))
             }
 
@@ -190,7 +188,7 @@ class MediaSettingsControllerPresenter(
 
         if (newSaveFilesDirectory == null) {
             withCallbacks {
-                showToast(appContext.getString(
+                showToast(getString(
                         R.string.media_settings_new_saved_files_base_dir_not_registered))
             }
 
@@ -220,7 +218,7 @@ class MediaSettingsControllerPresenter(
         //  one by SAF the paths will be different. I should probably remove the base dir prefixes
         //  from both files split them into segments and compare segments.
         if (oldBaseDirectory.getFullPath() == newBaseDirectory.getFullPath()) {
-            val message = appContext.getString(
+            val message = getString(
                     R.string.media_settings_you_are_trying_to_move_files_in_the_same_directory)
 
             withCallbacks {
@@ -247,7 +245,7 @@ class MediaSettingsControllerPresenter(
 
         if (filesCount == 0) {
             withCallbacks {
-                showToast(appContext.getString(R.string.media_settings_no_files_to_copy))
+                showToast(getString(R.string.media_settings_no_files_to_copy))
             }
 
             return
@@ -274,7 +272,7 @@ class MediaSettingsControllerPresenter(
                 }
 
                 withCallbacks {
-                    val text = appContext.getString(
+                    val text = getString(
                             R.string.media_settings_copying_file,
                             fileIndex,
                             totalFilesCount
@@ -304,11 +302,11 @@ class MediaSettingsControllerPresenter(
             // any activity as soon as it goes into the "Paused" state.
 
             runOnUiThread {
-                val string = appContext.getString(
+                val string = getString(
                         R.string.media_settings_dont_keep_activities_setting_is_probably_turned_on
                 )
 
-                Toast.makeText(appContext, string, Toast.LENGTH_LONG).show()
+                Toast.makeText(getAppContext(), string, Toast.LENGTH_LONG).show()
             }
         } else {
             runOnUiThread {

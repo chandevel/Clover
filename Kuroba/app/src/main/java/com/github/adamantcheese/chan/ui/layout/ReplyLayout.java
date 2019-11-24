@@ -83,13 +83,11 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class ReplyLayout extends LoadView implements
-        View.OnClickListener,
-        ReplyPresenter.ReplyPresenterCallback,
-        TextWatcher,
-        ImageDecoder.ImageDecoderCallback,
-        SelectionListeningEditText.SelectionChangedListener,
-        CaptchaHolder.CaptchaValidationListener {
+public class ReplyLayout
+        extends LoadView
+        implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher,
+                   ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
+                   CaptchaHolder.CaptchaValidationListener {
     private static final String TAG = "ReplyLayout";
 
     @Inject
@@ -202,15 +200,19 @@ public class ReplyLayout extends LoadView implements
         comment.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
         comment.setOnFocusChangeListener((view, focused) -> {
-            if (!focused) AndroidUtils.hideKeyboard(comment);
+            if (!focused)
+                AndroidUtils.hideKeyboard(comment);
         });
         setupCommentContextMenu();
 
         previewHolder.setOnClickListener(this);
 
-        moreDropdown = new DropdownArrowDrawable(dp(16), dp(16), !ChanSettings.moveInputToBottom.get(),
-                getAttrColor(getContext(), R.attr.dropdown_dark_color),
-                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color));
+        moreDropdown = new DropdownArrowDrawable(dp(16),
+                                                 dp(16),
+                                                 !ChanSettings.moveInputToBottom.get(),
+                                                 getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                                                 getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
+        );
         more.setImageDrawable(moreDropdown);
         setRoundItemBackground(more);
         more.setOnClickListener(this);
@@ -328,13 +330,16 @@ public class ReplyLayout extends LoadView implements
                                          SiteAuthentication authentication,
                                          AuthenticationLayoutCallback callback,
                                          boolean useV2NoJsCaptcha,
-                                         boolean autoReply) {
+                                         boolean autoReply
+    ) {
         if (authenticationLayout == null) {
             switch (authentication.type) {
                 case CAPTCHA1: {
                     final LayoutInflater inflater = LayoutInflater.from(getContext());
-                    authenticationLayout = (LegacyCaptchaLayout) inflater.inflate(
-                            R.layout.layout_captcha_legacy, captchaContainer, false);
+                    authenticationLayout = (LegacyCaptchaLayout) inflater.inflate(R.layout.layout_captcha_legacy,
+                                                                                  captchaContainer,
+                                                                                  false
+                    );
                     break;
                 }
                 case CAPTCHA2: {
@@ -365,11 +370,9 @@ public class ReplyLayout extends LoadView implements
                 case GENERIC_WEBVIEW: {
                     GenericWebViewAuthenticationLayout view = new GenericWebViewAuthenticationLayout(getContext());
 
-                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                            LayoutParams.MATCH_PARENT,
-                            LayoutParams.MATCH_PARENT
+                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
+                                                                                   LayoutParams.MATCH_PARENT
                     );
-//                    params.setMargins(dp(8), dp(8), dp(8), dp(200));
                     view.setLayoutParams(params);
 
                     authenticationLayout = view;
@@ -514,18 +517,18 @@ public class ReplyLayout extends LoadView implements
 
         comment.setMaxLines(expanded ? 500 : 6);
 
-        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                expanded ? dp(150) : dp(100)
+        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                                                                    expanded ? dp(150) : dp(100)
         ));
 
         float startRotation = ChanSettings.moveInputToBottom.get() ? 1f : 0f;
         float endRotation = ChanSettings.moveInputToBottom.get() ? 0f : 1f;
-        ValueAnimator animator = ValueAnimator.ofFloat(expanded ? startRotation : endRotation, expanded ? endRotation : startRotation);
+        ValueAnimator animator = ValueAnimator.ofFloat(expanded ? startRotation : endRotation,
+                                                       expanded ? endRotation : startRotation
+        );
         animator.setInterpolator(new DecelerateInterpolator(2f));
         animator.setDuration(400);
-        animator.addUpdateListener(animation ->
-                moreDropdown.setRotation((float) animation.getAnimatedValue()));
+        animator.addUpdateListener(animation -> moreDropdown.setRotation((float) animation.getAnimatedValue()));
         animator.start();
     }
 
@@ -648,30 +651,41 @@ public class ReplyLayout extends LoadView implements
                 menu.removeItem(android.R.id.copy);
                 //setup standard items
                 // >greentext
-                quoteMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_quote,
-                        1, R.string.post_quote);
+                quoteMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_quote, 1, R.string.post_quote);
                 // [spoiler] tags
                 if (callback.getThread() != null && callback.getThread().getLoadable().board.spoilers) {
-                    spoilerMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_spoiler,
-                            2, R.string.reply_comment_button_spoiler);
+                    spoilerMenuItem = menu.add(Menu.NONE,
+                                               R.id.reply_selection_action_spoiler,
+                                               2,
+                                               R.string.reply_comment_button_spoiler
+                    );
                 }
 
                 //setup specific items
                 // g [code]
-                if (callback.getThread() != null
-                        && callback.getThread().getLoadable().board.site.name().equals("4chan")
-                        && callback.getThread().getLoadable().board.code.equals("g")) {
-                    codeMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_code,
-                            3, R.string.reply_comment_button_code);
+                if (callback.getThread() != null && callback.getThread().getLoadable().board.site.name().equals("4chan")
+                        && callback.getThread().getLoadable().board.code.equals("g"))
+                {
+                    codeMenuItem = menu.add(Menu.NONE,
+                                            R.id.reply_selection_action_code,
+                                            3,
+                                            R.string.reply_comment_button_code
+                    );
                 }
                 // sci [eqn] and [math]
-                if (callback.getThread() != null
-                        && callback.getThread().getLoadable().board.site.name().equals("4chan")
-                        && callback.getThread().getLoadable().board.code.equals("sci")) {
-                    eqnMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_eqn,
-                            4, R.string.reply_comment_button_eqn);
-                    mathMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_math,
-                            5, R.string.reply_comment_button_math);
+                if (callback.getThread() != null && callback.getThread().getLoadable().board.site.name().equals("4chan")
+                        && callback.getThread().getLoadable().board.code.equals("sci"))
+                {
+                    eqnMenuItem = menu.add(Menu.NONE,
+                                           R.id.reply_selection_action_eqn,
+                                           4,
+                                           R.string.reply_comment_button_eqn
+                    );
+                    mathMenuItem = menu.add(Menu.NONE,
+                                            R.id.reply_selection_action_math,
+                                            5,
+                                            R.string.reply_comment_button_math
+                    );
                 }
                 return true;
             }
@@ -753,7 +767,8 @@ public class ReplyLayout extends LoadView implements
         if (filenameRemoved) {
             fileName.setText(reply.fileName); //update edit field with new filename
         } else {
-            reply.fileName = fileName.getText().toString(); //update reply with existing filename (may have been changed by user)
+            //update reply with existing filename (may have been changed by user)
+            reply.fileName = fileName.getText().toString();
         }
 
         presenter.onImageOptionsApplied(reply);
@@ -761,7 +776,7 @@ public class ReplyLayout extends LoadView implements
 
     private void showReencodeImageHint() {
         if (!ChanSettings.reencodeHintShown.get()) {
-            String message = getContext().getString(R.string.click_image_for_extra_options);
+            String message = getString(R.string.click_image_for_extra_options);
             HintPopup hintPopup = HintPopup.show(getContext(), preview, message, dp(-32), dp(16));
             hintPopup.wiggle();
 

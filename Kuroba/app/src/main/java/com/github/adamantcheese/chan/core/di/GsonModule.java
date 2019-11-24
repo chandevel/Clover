@@ -35,15 +35,13 @@ public class GsonModule {
     @Provides
     @Singleton
     public Gson provideGson() {
-        RuntimeTypeAdapterFactory<JsonSetting> userSettingAdapter =
-                RuntimeTypeAdapterFactory.of(JsonSetting.class, "type")
-                        .registerSubtype(StringJsonSetting.class, "string")
-                        .registerSubtype(IntegerJsonSetting.class, "integer")
-                        .registerSubtype(LongJsonSetting.class, "long")
-                        .registerSubtype(BooleanJsonSetting.class, "boolean");
+        RuntimeTypeAdapterFactory<JsonSetting> userSettingAdapter = RuntimeTypeAdapterFactory
+                .of(JsonSetting.class, "type")
+                .registerSubtype(StringJsonSetting.class, "string")
+                .registerSubtype(IntegerJsonSetting.class, "integer")
+                .registerSubtype(LongJsonSetting.class, "long")
+                .registerSubtype(BooleanJsonSetting.class, "boolean");
         Logger.d(AppModule.DI_TAG, "Gson module");
-        return new GsonBuilder()
-                .registerTypeAdapterFactory(userSettingAdapter)
-                .create();
+        return new GsonBuilder().registerTypeAdapterFactory(userSettingAdapter).create();
     }
 }

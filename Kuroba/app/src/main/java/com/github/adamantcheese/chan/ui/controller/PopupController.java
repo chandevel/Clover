@@ -24,7 +24,9 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 
-public class PopupController extends Controller implements View.OnClickListener {
+public class PopupController
+        extends Controller
+        implements View.OnClickListener {
     private FrameLayout container;
 
     public PopupController(Context context) {

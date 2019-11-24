@@ -25,7 +25,8 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
 import java.util.List;
 
-public class ImageViewerNavigationController extends ToolbarNavigationController {
+public class ImageViewerNavigationController
+        extends ToolbarNavigationController {
 
     public ImageViewerNavigationController(Context context) {
         super(context);
@@ -44,14 +45,20 @@ public class ImageViewerNavigationController extends ToolbarNavigationController
         toolbar.setCallback(this);
     }
 
-    public void showImages(final List<PostImage> images, final int index, final Loadable loadable,
-                           ImageViewerController.ImageViewerCallback imageViewerCallback) {
+    public void showImages(final List<PostImage> images,
+                           final int index,
+                           final Loadable loadable,
+                           ImageViewerController.ImageViewerCallback imageViewerCallback
+    ) {
         showImages(images, index, loadable, imageViewerCallback, null);
     }
 
-    public void showImages(final List<PostImage> images, final int index, final Loadable loadable,
+    public void showImages(final List<PostImage> images,
+                           final int index,
+                           final Loadable loadable,
                            ImageViewerController.ImageViewerCallback imageViewerCallback,
-                           ImageViewerController.GoPostCallback goPostCallback) {
+                           ImageViewerController.GoPostCallback goPostCallback
+    ) {
         ImageViewerController imageViewerController = new ImageViewerController(loadable, context, toolbar);
         imageViewerController.setGoPostCallback(goPostCallback);
         pushController(imageViewerController, false);

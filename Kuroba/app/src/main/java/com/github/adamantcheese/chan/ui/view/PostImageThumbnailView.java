@@ -34,7 +34,9 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-public class PostImageThumbnailView extends ThumbnailView implements View.OnLongClickListener {
+public class PostImageThumbnailView
+        extends ThumbnailView
+        implements View.OnLongClickListener {
     private PostImage postImage;
     private Drawable playIcon;
     private Rect bounds = new Rect();
@@ -67,17 +69,14 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
                     String fileName;
 
                     if (postImage.spoiler) {
-                        String extension = StringUtils.extractFileNameExtension(
-                                postImage.spoilerThumbnailUrl.toString());
+                        String extension
+                                = StringUtils.extractFileNameExtension(postImage.spoilerThumbnailUrl.toString());
 
                         fileName = ThreadSaveManager.formatSpoilerImageName(extension);
                     } else {
-                        String extension = StringUtils.extractFileNameExtension(
-                                postImage.thumbnailUrl.toString());
+                        String extension = StringUtils.extractFileNameExtension(postImage.thumbnailUrl.toString());
 
-                        fileName = ThreadSaveManager.formatThumbnailImageName(
-                                postImage.serverFilename,
-                                extension);
+                        fileName = ThreadSaveManager.formatThumbnailImageName(postImage.serverFilename, extension);
                     }
 
                     setUrlFromDisk(loadable, fileName, postImage.spoiler, width, height);
@@ -92,7 +91,9 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
         String url = postImage.getThumbnailUrl().toString();
         if ((ChanSettings.autoLoadThreadImages.get() || ChanSettings.highResCells.get()) && useHiRes) {
             if (!postImage.spoiler || ChanSettings.removeImageSpoilers.get()) {
-                url = postImage.type == PostImage.Type.STATIC ? postImage.imageUrl.toString() : postImage.getThumbnailUrl().toString();
+                url = postImage.type == PostImage.Type.STATIC
+                        ? postImage.imageUrl.toString()
+                        : postImage.getThumbnailUrl().toString();
             }
         }
 
@@ -123,10 +124,14 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         } else {
             int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-            if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED || heightMode == MeasureSpec.AT_MOST)) {
+            if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (
+                    heightMode == MeasureSpec.UNSPECIFIED || heightMode == MeasureSpec.AT_MOST))
+            {
                 int width = MeasureSpec.getSize(widthMeasureSpec);
 
-                super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec((int) (width / ratio), MeasureSpec.EXACTLY));
+                super.onMeasure(widthMeasureSpec,
+                                MeasureSpec.makeMeasureSpec((int) (width / ratio), MeasureSpec.EXACTLY)
+                );
             } else {
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             }
@@ -139,7 +144,8 @@ public class PostImageThumbnailView extends ThumbnailView implements View.OnLong
             return false;
         }
 
-        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext()
+                                                                    .getSystemService(Context.CLIPBOARD_SERVICE);
         assert clipboard != null;
         ClipData clip = ClipData.newPlainText("Image URL", postImage.imageUrl.toString());
         clipboard.setPrimaryClip(clip);

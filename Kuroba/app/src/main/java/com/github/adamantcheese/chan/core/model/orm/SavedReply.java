@@ -32,8 +32,7 @@ public class SavedReply {
         this.password = password;
     }
 
-    public static SavedReply fromSiteBoardNoPassword(Site site, Board board, int no,
-                                                     String password) {
+    public static SavedReply fromSiteBoardNoPassword(Site site, Board board, int no, String password) {
         SavedReply savedReply = new SavedReply();
         savedReply.siteId = site.id();
         savedReply.site = site;
@@ -65,8 +64,10 @@ public class SavedReply {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         SavedReply other = (SavedReply) o;
 

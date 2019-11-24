@@ -29,7 +29,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackg
 /**
  * The container view for the list of ToolbarMenuItems, a list of ImageViews.
  */
-public class ToolbarMenuView extends LinearLayout {
+public class ToolbarMenuView
+        extends LinearLayout {
     private ToolbarMenu menu;
 
     public ToolbarMenuView(Context context) {
@@ -65,7 +66,7 @@ public class ToolbarMenuView extends LinearLayout {
         for (ToolbarMenuItem item : menu.items) {
             ImageView imageView = new ImageView(getContext());
 
-            imageView.setOnClickListener((v) -> handleClick(item));
+            imageView.setOnClickListener(v -> handleClick(item));
             imageView.setFocusable(true);
             imageView.setScaleType(ImageView.ScaleType.CENTER);
 

@@ -58,7 +58,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
-public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class DrawerAdapter
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     //PIN_OFFSET is the number of items before the pins
     //(in this case, settings, history, and the bookmarked threads title)
     private static final int PIN_OFFSET = 3;
@@ -113,7 +114,10 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
 
             @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            public boolean onMove(RecyclerView recyclerView,
+                                  RecyclerView.ViewHolder viewHolder,
+                                  RecyclerView.ViewHolder target
+            ) {
                 int from = viewHolder.getAdapterPosition();
                 int to = target.getAdapterPosition();
 
@@ -139,16 +143,20 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case TYPE_HEADER:
-                return new HeaderHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_header, parent, false));
+                return new HeaderHolder(
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_header, parent, false));
             case TYPE_PIN:
-                return new PinViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_pin, parent, false));
+                return new PinViewHolder(
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_pin, parent, false));
             case TYPE_LINK:
-                return new LinkHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_link, parent, false));
+                return new LinkHolder(
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_link, parent, false));
             case TYPE_BOARD_INPUT:
-                return new RecyclerView.ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_browse_input, parent, false)) {
-                };
+                return new RecyclerView.ViewHolder(
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_browse_input, parent, false)) {};
             case TYPE_DIVIDER:
-                return new DividerHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_divider, parent, false));
+                return new DividerHolder(
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_divider, parent, false));
         }
         throw new IllegalArgumentException();
     }
@@ -226,7 +234,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public void onPinChanged(RecyclerView recyclerView, Pin pin) {
-        PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(watchManager.getAllPins().indexOf(pin) + PIN_OFFSET);
+        PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(
+                watchManager.getAllPins().indexOf(pin) + PIN_OFFSET);
         if (holder != null) {
             updatePinViewHolder(holder, pin);
             notifyItemChanged(watchManager.getAllPins().indexOf(pin) + PIN_OFFSET);
@@ -261,12 +270,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
                 String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
                 //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
-                String totalCount = PinHelper.getShortUnreadCount(pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1);
+                String totalCount = PinHelper.getShortUnreadCount(
+                        pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1);
                 watchCount.setVisibility(View.VISIBLE);
 
-                String watchCountText = ChanSettings.shortPinInfo.get()
-                        ? newCount
-                        : totalCount + " / " + newCount;
+                String watchCountText = ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount;
                 watchCount.setText(watchCountText);
 
                 if (!pin.watching) {
@@ -282,7 +290,9 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 Board pinBoard = pin.loadable.board;
                 boolean italicize = false, bold = false;
                 //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
-                if ((pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1) >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) {
+                if ((pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1)
+                        >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0)
+                {
                     //italics for bump limit
                     italicize = true;
                 }
@@ -322,9 +332,9 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             holder.itemView.setBackgroundColor(0x22000000);
             holder.highlighted = true;
         } else if (!highlighted && holder.highlighted) {
-            Drawable attrDrawable = AndroidUtils.getAttrDrawable(
-                    holder.itemView.getContext(),
-                    android.R.attr.selectableItemBackground);
+            Drawable attrDrawable = AndroidUtils.getAttrDrawable(holder.itemView.getContext(),
+                                                                 android.R.attr.selectableItemBackground
+            );
 
             holder.itemView.setBackground(attrDrawable);
             holder.highlighted = false;
@@ -368,8 +378,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         if (savedThread.isFullyDownloaded) {
             if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
-                AnimatedVectorDrawableCompat drawable =
-                        (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
+                AnimatedVectorDrawableCompat drawable
+                        = (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
                 drawable.stop();
                 drawable.clearAnimationCallbacks();
             }
@@ -380,8 +390,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         if (savedThread.isStopped) {
             if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
-                AnimatedVectorDrawableCompat drawable =
-                        (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
+                AnimatedVectorDrawableCompat drawable
+                        = (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
                 drawable.stop();
                 drawable.clearAnimationCallbacks();
             }
@@ -391,8 +401,9 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
 
         if (!(holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat)) {
-            AnimatedVectorDrawableCompat downloadAnimation =
-                    AnimationUtils.createAnimatedDownloadIcon(context, ThemeHelper.getTheme().textPrimary);
+            AnimatedVectorDrawableCompat downloadAnimation = AnimationUtils.createAnimatedDownloadIcon(context,
+                                                                                                       ThemeHelper.getTheme().textPrimary
+            );
             holder.threadDownloadIcon.setImageDrawable(downloadAnimation);
 
             downloadAnimation.start();
@@ -407,7 +418,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    private class PinViewHolder extends RecyclerView.ViewHolder {
+    private class PinViewHolder
+            extends RecyclerView.ViewHolder {
         private boolean highlighted;
         private ThumbnailView image;
         private TextView textView;
@@ -449,7 +461,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public class HeaderHolder extends RecyclerView.ViewHolder {
+    public class HeaderHolder
+            extends RecyclerView.ViewHolder {
         private TextView text;
         private ImageView clear;
 
@@ -468,10 +481,12 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public enum HeaderAction {
-        CLEAR, CLEAR_ALL
+        CLEAR,
+        CLEAR_ALL
     }
 
-    private class LinkHolder extends RecyclerView.ViewHolder {
+    private class LinkHolder
+            extends RecyclerView.ViewHolder {
         private ImageView image;
         private TextView text;
 
@@ -494,7 +509,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    private class DividerHolder extends RecyclerView.ViewHolder {
+    private class DividerHolder
+            extends RecyclerView.ViewHolder {
         private boolean withBackground = false;
         private View divider;
 

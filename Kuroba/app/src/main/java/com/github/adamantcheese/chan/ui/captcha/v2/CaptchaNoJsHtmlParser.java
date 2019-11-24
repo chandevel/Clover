@@ -47,21 +47,20 @@ import okhttp3.Response;
 public class CaptchaNoJsHtmlParser {
     private static final String TAG = "CaptchaNoJsHtmlParser";
     private static final String googleBaseUrl = "https://www.google.com";
-    private static final Pattern checkboxesPattern =
-            Pattern.compile("<input class=\"fbc-imageselect-checkbox-\\d+\" type=\"checkbox\" name=\"response\" value=\"(\\d+)\">");
+    private static final Pattern checkboxesPattern = Pattern.compile(
+            "<input class=\"fbc-imageselect-checkbox-\\d+\" type=\"checkbox\" name=\"response\" value=\"(\\d+)\">");
 
     // FIXME: this pattern captures the C parameter as many times as it is in the HTML.
     // Should match only the first occurrence instead.
-    private static final Pattern cParameterPattern =
-            Pattern.compile("<input type=\"hidden\" name=\"c\" value=\"(.*?)\"/>");
-    private static final Pattern challengeTitlePattern =
-            Pattern.compile("<div class=\"(rc-imageselect-desc-no-canonical|rc-imageselect-desc)\">(.*?)</div>");
-    private static final Pattern challengeImageUrlPattern =
-            Pattern.compile("<img class=\"fbc-imageselect-payload\" src=\"(.*?)&");
-    private static final Pattern challengeTitleBoldPartPattern =
-            Pattern.compile("<strong>(.*?)</strong>");
-    private static final Pattern verificationTokenPattern =
-            Pattern.compile("<div class=\"fbc-verification-token\"><textarea dir=\"ltr\" readonly>(.*?)</textarea></div>");
+    private static final Pattern cParameterPattern = Pattern.compile(
+            "<input type=\"hidden\" name=\"c\" value=\"(.*?)\"/>");
+    private static final Pattern challengeTitlePattern = Pattern.compile(
+            "<div class=\"(rc-imageselect-desc-no-canonical|rc-imageselect-desc)\">(.*?)</div>");
+    private static final Pattern challengeImageUrlPattern = Pattern.compile(
+            "<img class=\"fbc-imageselect-payload\" src=\"(.*?)&");
+    private static final Pattern challengeTitleBoldPartPattern = Pattern.compile("<strong>(.*?)</strong>");
+    private static final Pattern verificationTokenPattern = Pattern.compile(
+            "<div class=\"fbc-verification-token\"><textarea dir=\"ltr\" readonly>(.*?)</textarea></div>");
     private static final String CHALLENGE_IMAGE_FILE_NAME = "challenge_image_file";
     private static final int SUCCESS_STATUS_CODE = 200;
 
@@ -74,9 +73,7 @@ public class CaptchaNoJsHtmlParser {
     @NonNull
     public CaptchaInfo parseHtml(String responseHtml, String siteKey)
             throws CaptchaNoJsV2ParsingError, IOException {
-        if (BackgroundUtils.isMainThread()) {
-            throw new RuntimeException("Must not be executed on the main thread!");
-        }
+        BackgroundUtils.ensureBackgroundThread();
 
         CaptchaInfo captchaInfo = new CaptchaInfo();
 
@@ -96,10 +93,9 @@ public class CaptchaNoJsHtmlParser {
     }
 
     @NonNull
-    String parseVerificationToken(String responseHtml) throws CaptchaNoJsV2ParsingError {
-        if (BackgroundUtils.isMainThread()) {
-            throw new RuntimeException("Must not be executed on the main thread!");
-        }
+    String parseVerificationToken(String responseHtml)
+            throws CaptchaNoJsV2ParsingError {
+        BackgroundUtils.ensureBackgroundThread();
 
         Matcher matcher = verificationTokenPattern.matcher(responseHtml);
         if (!matcher.find()) {
@@ -122,10 +118,8 @@ public class CaptchaNoJsHtmlParser {
         return token;
     }
 
-    private void parseChallengeTitle(
-            String responseHtml,
-            CaptchaInfo captchaInfo
-    ) throws CaptchaNoJsV2ParsingError {
+    private void parseChallengeTitle(String responseHtml, CaptchaInfo captchaInfo)
+            throws CaptchaNoJsV2ParsingError {
         Matcher matcher = challengeTitlePattern.matcher(responseHtml);
         if (!matcher.find()) {
             throw new CaptchaNoJsV2ParsingError("Could not parse challenge title " + responseHtml);
@@ -145,10 +139,10 @@ public class CaptchaNoJsHtmlParser {
                 String boldPart = titleMatcher.group(1);
                 String resultTitle = firstPart + boldPart;
 
-                captchaTitle = new CaptchaInfo.CaptchaTitle(
-                        resultTitle,
-                        firstPart.length(),
-                        firstPart.length() + boldPart.length());
+                captchaTitle = new CaptchaInfo.CaptchaTitle(resultTitle,
+                                                            firstPart.length(),
+                                                            firstPart.length() + boldPart.length()
+                );
             } else {
                 // could not find it
                 captchaTitle = new CaptchaInfo.CaptchaTitle(title, -1, -1);
@@ -165,11 +159,8 @@ public class CaptchaNoJsHtmlParser {
         captchaInfo.setCaptchaTitle(captchaTitle);
     }
 
-    private void parseAndDownloadChallengeImage(
-            String responseHtml,
-            CaptchaInfo captchaInfo,
-            String siteKey
-    ) throws CaptchaNoJsV2ParsingError, IOException {
+    private void parseAndDownloadChallengeImage(String responseHtml, CaptchaInfo captchaInfo, String siteKey)
+            throws CaptchaNoJsV2ParsingError, IOException {
         Matcher matcher = challengeImageUrlPattern.matcher(responseHtml);
         if (!matcher.find()) {
             throw new CaptchaNoJsV2ParsingError("Could not parse challenge image url");
@@ -195,9 +186,7 @@ public class CaptchaNoJsHtmlParser {
         String fullUrl = googleBaseUrl + challengeImageUrl + "&k=" + siteKey;
         File challengeImageFile = downloadAndStoreImage(fullUrl);
 
-        Pair<Integer, Integer> columnsAndRows = calculateColumnsAndRows(
-                captchaInfo.captchaType
-        );
+        Pair<Integer, Integer> columnsAndRows = calculateColumnsAndRows(captchaInfo.captchaType);
 
         Integer columns = columnsAndRows.first;
         Integer rows = columnsAndRows.second;
@@ -215,9 +204,8 @@ public class CaptchaNoJsHtmlParser {
     }
 
     @NonNull
-    private Pair<Integer, Integer> calculateColumnsAndRows(
-            CaptchaInfo.CaptchaType captchaType
-    ) throws CaptchaNoJsV2ParsingError {
+    private Pair<Integer, Integer> calculateColumnsAndRows(CaptchaInfo.CaptchaType captchaType)
+            throws CaptchaNoJsV2ParsingError {
         switch (captchaType) {
             case CANONICAL: {
                 // 3x3 captcha with square images
@@ -235,10 +223,8 @@ public class CaptchaNoJsHtmlParser {
         }
     }
 
-    private void parseCParameter(
-            String responseHtml,
-            CaptchaInfo captchaInfo
-    ) throws CaptchaNoJsV2ParsingError {
+    private void parseCParameter(String responseHtml, CaptchaInfo captchaInfo)
+            throws CaptchaNoJsV2ParsingError {
         Matcher matcher = cParameterPattern.matcher(responseHtml);
         if (!matcher.find()) {
             throw new CaptchaNoJsV2ParsingError("Could not parse c parameter");
@@ -264,10 +250,8 @@ public class CaptchaNoJsHtmlParser {
         captchaInfo.setcParameter(cParameter);
     }
 
-    private void parseCheckboxes(
-            String responseHtml,
-            CaptchaInfo captchaInfo
-    ) throws CaptchaNoJsV2ParsingError {
+    private void parseCheckboxes(String responseHtml, CaptchaInfo captchaInfo)
+            throws CaptchaNoJsV2ParsingError {
         Matcher matcher = checkboxesPattern.matcher(responseHtml);
         Set<Integer> checkboxesSet = new HashSet<>(matcher.groupCount());
         int index = 0;
@@ -306,10 +290,9 @@ public class CaptchaNoJsHtmlParser {
     }
 
     @NonNull
-    private File downloadAndStoreImage(String fullUrl) throws IOException, CaptchaNoJsV2ParsingError {
-        Request request = new Request.Builder()
-                .url(fullUrl)
-                .build();
+    private File downloadAndStoreImage(String fullUrl)
+            throws IOException, CaptchaNoJsV2ParsingError {
+        Request request = new Request.Builder().url(fullUrl).build();
 
         try (Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute()) {
             if (response.code() != SUCCESS_STATUS_CODE) {
@@ -333,7 +316,8 @@ public class CaptchaNoJsHtmlParser {
         }
     }
 
-    private File getChallengeImageFile() throws CaptchaNoJsV2ParsingError, IOException {
+    private File getChallengeImageFile()
+            throws CaptchaNoJsV2ParsingError, IOException {
         File imageFile = new File(context.getCacheDir(), CHALLENGE_IMAGE_FILE_NAME);
 
         if (imageFile.exists()) {
@@ -366,12 +350,12 @@ public class CaptchaNoJsHtmlParser {
 
             for (int column = 0; column < columns; ++column) {
                 for (int row = 0; row < rows; ++row) {
-                    Bitmap imagePiece = Bitmap.createBitmap(
-                            originalBitmap,
-                            row * imageWidth,
-                            column * imageHeight,
-                            imageWidth,
-                            imageHeight);
+                    Bitmap imagePiece = Bitmap.createBitmap(originalBitmap,
+                                                            row * imageWidth,
+                                                            column * imageHeight,
+                                                            imageWidth,
+                                                            imageHeight
+                    );
 
                     resultImages.add(imagePiece);
                 }
@@ -394,7 +378,8 @@ public class CaptchaNoJsHtmlParser {
         }
     }
 
-    public static class CaptchaNoJsV2ParsingError extends Exception {
+    public static class CaptchaNoJsV2ParsingError
+            extends Exception {
         public CaptchaNoJsV2ParsingError(String message) {
             super(message);
         }

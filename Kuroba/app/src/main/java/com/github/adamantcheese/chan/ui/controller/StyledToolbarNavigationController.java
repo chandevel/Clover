@@ -25,7 +25,8 @@ import com.github.adamantcheese.chan.controller.ui.NavigationControllerContainer
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
-public class StyledToolbarNavigationController extends ToolbarNavigationController {
+public class StyledToolbarNavigationController
+        extends ToolbarNavigationController {
     public StyledToolbarNavigationController(Context context) {
         super(context);
     }
@@ -47,7 +48,6 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
     @Override
     public boolean popController(ControllerTransition controllerTransition) {
         return !toolbar.isTransitioning() && super.popController(controllerTransition);
-
     }
 
     @Override

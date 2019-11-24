@@ -54,7 +54,10 @@ public class RuntimePermissionsHelper {
             pendingCallback.callback = callback;
             pendingCallback.permission = permission;
 
-            ActivityCompat.requestPermissions((Activity) callbackActvity, new String[]{permission}, RUNTIME_PERMISSION_RESULT_ID);
+            ActivityCompat.requestPermissions((Activity) callbackActvity,
+                                              new String[]{permission},
+                                              RUNTIME_PERMISSION_RESULT_ID
+            );
 
             return true;
         } else {
@@ -62,13 +65,15 @@ public class RuntimePermissionsHelper {
         }
     }
 
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == RUNTIME_PERMISSION_RESULT_ID && pendingCallback != null) {
+    public void onRequestPermissionsResult(int reqCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (reqCode == RUNTIME_PERMISSION_RESULT_ID && pendingCallback != null) {
             boolean granted = false;
 
             for (int i = 0; i < permissions.length; i++) {
                 String permission = permissions[i];
-                if (permission.equals(pendingCallback.permission) && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                if (permission.equals(pendingCallback.permission)
+                        && grantResults[i] == PackageManager.PERMISSION_GRANTED)
+                {
                     granted = true;
                     break;
                 }
@@ -79,7 +84,11 @@ public class RuntimePermissionsHelper {
         }
     }
 
-    public void showPermissionRequiredDialog(final Context context, String title, String message, final PermissionRequiredDialogCallback callback) {
+    public void showPermissionRequiredDialog(final Context context,
+                                             String title,
+                                             String message,
+                                             final PermissionRequiredDialogCallback callback
+    ) {
         new AlertDialog.Builder(context)
                 .setTitle(title)
                 .setMessage(message)
@@ -87,7 +96,8 @@ public class RuntimePermissionsHelper {
                 .setNeutralButton(R.string.permission_app_settings, (dialog, which) -> {
                     callback.retryPermissionRequest();
                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.parse("package:" + context.getPackageName()));
+                                               Uri.parse("package:" + context.getPackageName())
+                    );
                     AndroidUtils.openIntent(intent);
                 })
                 .setPositiveButton(R.string.permission_grant, (dialog, which) -> callback.retryPermissionRequest())

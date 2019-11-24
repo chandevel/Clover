@@ -37,14 +37,11 @@ public class ExportedSite {
     @SerializedName("exported_pins")
     private List<ExportedPin> exportedPins;
 
-    public ExportedSite(
-            int siteId,
-            @NonNull
-                    String configuration,
-            int order,
-            @NonNull
-                    String userSettings,
-            List<ExportedPin> exportedPins
+    public ExportedSite(int siteId,
+                        @NonNull String configuration,
+                        int order,
+                        @NonNull String userSettings,
+                        List<ExportedPin> exportedPins
     ) {
         this.siteId = siteId;
         this.configuration = configuration;

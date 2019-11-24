@@ -10,7 +10,9 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter;
 import com.google.android.material.textfield.TextInputLayout;
 
-public class SiteAddLayout extends LinearLayout implements SitesSetupPresenter.AddCallback {
+public class SiteAddLayout
+        extends LinearLayout
+        implements SitesSetupPresenter.AddCallback {
     private EditText url;
     private TextInputLayout urlContainer;
 

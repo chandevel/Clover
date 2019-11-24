@@ -61,10 +61,12 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class FiltersController extends Controller implements
-        ToolbarNavigationController.ToolbarSearchCallback,
-        View.OnClickListener {
+public class FiltersController
+        extends Controller
+        implements ToolbarNavigationController.ToolbarSearchCallback, View.OnClickListener {
     @Inject
     DatabaseManager databaseManager;
 
@@ -80,15 +82,18 @@ public class FiltersController extends Controller implements
     private boolean attached;
 
     private ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-            ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
-    ) {
+            ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
         @Override
-        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+        public boolean onMove(RecyclerView recyclerView,
+                              RecyclerView.ViewHolder viewHolder,
+                              RecyclerView.ViewHolder target
+        ) {
             int from = viewHolder.getAdapterPosition();
             int to = target.getAdapterPosition();
 
-            if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION || !TextUtils.isEmpty(adapter.searchQuery)) {
+            if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION
+                    || !TextUtils.isEmpty(adapter.searchQuery))
+            {
                 //require that no search is going on while we do the sorting
                 return false;
             }
@@ -120,9 +125,9 @@ public class FiltersController extends Controller implements
         navigation.setTitle(R.string.filters_screen);
         navigation.swipeable = false;
         navigation.buildMenu()
-                .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
-                .withItem(R.drawable.ic_help_outline_white_24dp, this::helpClicked)
-                .build();
+                  .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
+                  .withItem(R.drawable.ic_help_outline_white_24dp, this::helpClicked)
+                  .build();
 
         adapter = new FilterAdapter();
 
@@ -194,25 +199,27 @@ public class FiltersController extends Controller implements
     private void helpClicked(ToolbarMenuItem item) {
         final AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle("Help")
-                .setMessage(Html.fromHtml("You can use Regex101 for more comprehensive explanations " +
-                        "of your regular expressions, or as a playground for figuring out an expression. Use Javascript to test.<br><br>" +
-                        "Actions do the following:<br>" +
-                        "<b>Hide:</b> Replace the post with a stub. You can tap it to un-hide it.<br>" +
-                        "<b>Highlight:</b> A colored bar of your choosing will appear on the left hand side of this post.<br>" +
-                        "<b>Remove:</b> Remove this post. It won't be visible at all.<br>" +
-                        "<b>Watch:</b> If you have the thread watcher enabled and background watching on, and the watch filters option checked, " +
-                        "catalogs will be periodically checked based on your interval setting and any OP that matches the filter will be put into your bookmarks.<br><br>" +
-                        "Enabled filters have priority from top to bottom. Filter precedence for actions is as follows:<br>" +
-                        "1) Capcode or sticky<br>" +
-                        "2) OP<br>" +
-                        "3) Saved replies (your posts)<br>" +
-                        "4) Tripcode<br>" +
-                        "5) Name<br>" +
-                        "6) Comment<br>" +
-                        "7) ID<br>" +
-                        "8) Subject<br>" +
-                        "9) Country Code<br>" +
-                        "10) Filename"))
+                .setMessage(
+                        Html.fromHtml(
+                                "You can use Regex101 for more comprehensive explanations "
+                                        + "of your regular expressions, or as a playground for figuring out an expression. Use Javascript to test.<br><br>"
+                                        + "Actions do the following:<br>"
+                                        + "<b>Hide:</b> Replace the post with a stub. You can tap it to un-hide it.<br>"
+                                        + "<b>Highlight:</b> A colored bar of your choosing will appear on the left hand side of this post.<br>"
+                                        + "<b>Remove:</b> Remove this post. It won't be visible at all.<br>"
+                                        + "<b>Watch:</b> If you have the thread watcher enabled and background watching on, and the watch filters option checked, "
+                                        + "catalogs will be periodically checked based on your interval setting and any OP that matches the filter will be put into your bookmarks.<br><br>"
+                                        + "Enabled filters have priority from top to bottom. Filter precedence for actions is as follows:<br>"
+                                        + "1) Capcode or sticky<br>"
+                                        + "2) OP<br>"
+                                        + "3) Saved replies (your posts)<br>"
+                                        + "4) Tripcode<br>"
+                                        + "5) Name<br>"
+                                        + "6) Comment<br>"
+                                        + "7) ID<br>"
+                                        + "8) Subject<br>"
+                                        + "9) Country Code<br>"
+                                        + "10) Filename"))
                 .setPositiveButton("Close", null)
                 .setNegativeButton("Open Regex101", (dialog1, which) -> AndroidUtils.openLink("https://regex101.com/"))
                 .show();
@@ -220,7 +227,8 @@ public class FiltersController extends Controller implements
     }
 
     public void showFilterDialog(final Filter filter) {
-        final FilterLayout filterLayout = (FilterLayout) LayoutInflater.from(context).inflate(R.layout.layout_filter, null);
+        final FilterLayout filterLayout = (FilterLayout)
+                LayoutInflater.from(context).inflate(R.layout.layout_filter, null);
 
         final AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setView(filterLayout)
@@ -247,7 +255,10 @@ public class FiltersController extends Controller implements
         EventBus.getDefault().post(new RefreshUIMessage("filters"));
         adapter.reload();
 
-        Snackbar s = Snackbar.make(view, context.getString(R.string.filter_removed_undo, clone.pattern), Snackbar.LENGTH_LONG);
+        Snackbar s = Snackbar.make(view,
+                                   getString(R.string.filter_removed_undo, clone.pattern),
+                                   Snackbar.LENGTH_LONG
+        );
         s.setAction(R.string.undo, v -> {
             filterEngine.createOrUpdateFilter(clone);
             adapter.reload();
@@ -282,7 +293,8 @@ public class FiltersController extends Controller implements
         adapter.filter();
     }
 
-    private class FilterAdapter extends RecyclerView.Adapter<FilterCell> {
+    private class FilterAdapter
+            extends RecyclerView.Adapter<FilterCell> {
         private List<Filter> sourceList = new ArrayList<>();
         private List<Filter> displayList = new ArrayList<>();
         private String searchQuery;
@@ -295,24 +307,32 @@ public class FiltersController extends Controller implements
 
         @Override
         public FilterCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new FilterCell(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_filter, parent, false));
+            return new FilterCell(LayoutInflater
+                                          .from(parent.getContext())
+                                          .inflate(R.layout.cell_filter, parent, false));
         }
 
         @Override
         public void onBindViewHolder(FilterCell holder, int position) {
             Filter filter = displayList.get(position);
             holder.text.setText(filter.pattern);
-            holder.text.setTextColor(getAttrColor(context, filter.enabled ? R.attr.text_color_primary : R.attr.text_color_hint));
-            holder.subtext.setTextColor(getAttrColor(context, filter.enabled ? R.attr.text_color_secondary : R.attr.text_color_hint));
+            holder.text.setTextColor(getAttrColor(context,
+                                                  filter.enabled ? R.attr.text_color_primary : R.attr.text_color_hint
+            ));
+            holder.subtext.setTextColor(getAttrColor(context,
+                                                     filter.enabled
+                                                             ? R.attr.text_color_secondary
+                                                             : R.attr.text_color_hint
+            ));
             int types = FilterType.forFlags(filter.type).size();
-            String subText = context.getResources().getQuantityString(R.plurals.type, types, types);
+            String subText = getQuantityString(R.plurals.type, types, types);
 
             subText += " \u2013 ";
             if (filter.allBoards) {
-                subText += context.getString(R.string.filter_summary_all_boards);
+                subText += getString(R.string.filter_summary_all_boards);
             } else {
                 int size = filterEngine.getFilterBoardCount(filter);
-                subText += context.getResources().getQuantityString(R.plurals.board, size, size);
+                subText += getQuantityString(R.plurals.board, size, size);
             }
 
             subText += " \u2013 " + FilterAction.actionName(FilterAction.forId(filter.action));
@@ -372,7 +392,9 @@ public class FiltersController extends Controller implements
         }
     }
 
-    private class FilterCell extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class FilterCell
+            extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         private TextView text;
         private TextView subtext;
 

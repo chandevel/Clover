@@ -26,7 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
  * A RecyclerView with a GridLayoutManager that manages the span count by dividing the width of the
  * view with the value set by {@link #setSpanWidth(int)}.
  */
-public class GridRecyclerView extends RecyclerView {
+public class GridRecyclerView
+        extends RecyclerView {
     private GridLayoutManager gridLayoutManager;
     private int spanWidth;
     private int realSpanWidth;

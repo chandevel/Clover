@@ -44,7 +44,8 @@ import static java.util.concurrent.TimeUnit.HOURS;
 public class CacheHandler {
     private static final String TAG = "CacheHandler";
     //1GB for prefetching, so that entire threads can be loaded at once more easily, otherwise 100MB is plenty
-    private static final long FILE_CACHE_DISK_SIZE = (ChanSettings.autoLoadThreadImages.get() ? 1000 : 100) * 1024 * 1024;
+    private static final long FILE_CACHE_DISK_SIZE =
+            (ChanSettings.autoLoadThreadImages.get() ? 1000 : 100) * 1024 * 1024;
     private static final String CACHE_EXTENSION = "cache";
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
@@ -75,17 +76,14 @@ public class CacheHandler {
     public RawFile get(String key) {
         createDirectories();
 
-        String fileName = String.format(
-                "%s.%s",
-                // We need extension here because AbstractFile expects all file names to have
-                // extensions
-                String.valueOf(key.hashCode()), CACHE_EXTENSION);
+        // AbstractFile expects all file names to have extensions
+        String fileName = String.format("%s.%s", String.valueOf(key.hashCode()), CACHE_EXTENSION);
 
-        return (RawFile) cacheDirFile
-                .clone(new FileSegment(fileName));
+        return (RawFile) cacheDirFile.clone(new FileSegment(fileName));
     }
 
-    public File randomCacheFile() throws IOException {
+    public File randomCacheFile()
+            throws IOException {
         createDirectories();
 
         File cacheDir = new File(cacheDirFile.getFullPath());
@@ -96,8 +94,8 @@ public class CacheHandler {
         }
 
         if (!newFile.createNewFile()) {
-            throw new IOException("Could not create new file in cache directory, newFile = "
-                    + newFile.getAbsolutePath());
+            throw new IOException(
+                    "Could not create new file in cache directory, newFile = " + newFile.getAbsolutePath());
         }
 
         return newFile;
@@ -132,8 +130,7 @@ public class CacheHandler {
         if (fileManager.exists(cacheDirFile) && fileManager.isDirectory(cacheDirFile)) {
             for (AbstractFile file : fileManager.listFiles(cacheDirFile)) {
                 if (!fileManager.delete(file)) {
-                    Logger.d(TAG, "Could not delete cache file while clearing cache " +
-                            fileManager.getName(file));
+                    Logger.d(TAG, "Could not delete cache file while clearing cache " + fileManager.getName(file));
                 }
             }
         }
@@ -192,7 +189,9 @@ public class CacheHandler {
                     Logger.e(TAG, "Failed to delete cache file for trim");
                 }
                 removed.add(fileLongPair);
-            } else break; //only because we sorted earlier
+            } else {
+                break; //only because we sorted earlier
+            }
         }
         for (Pair<AbstractFile, Long> deleted : removed) {
             files.remove(deleted);

@@ -32,7 +32,8 @@ import com.github.adamantcheese.chan.core.saver.FileWatcher;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
-public class FilesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class FilesAdapter
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int ITEM_TYPE_FOLDER = 0;
     private static final int ITEM_TYPE_FILE = 1;
 
@@ -55,8 +56,7 @@ public class FilesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public FileViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new FileViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.cell_file, parent, false));
+        return new FileViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_file, parent, false));
     }
 
     @Override
@@ -77,8 +77,7 @@ public class FilesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     fileViewHolder.image.setVisibility(View.GONE);
                 } else {
                     fileViewHolder.image.setVisibility(View.VISIBLE);
-                    Drawable drawable = DrawableCompat.wrap(
-                            context.getDrawable(R.drawable.ic_folder_black_24dp));
+                    Drawable drawable = DrawableCompat.wrap(context.getDrawable(R.drawable.ic_folder_black_24dp));
                     DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_secondary));
                     fileViewHolder.image.setImageDrawable(drawable);
                 }
@@ -120,7 +119,9 @@ public class FilesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         callback.onFileItemClicked(fileItem);
     }
 
-    public class FileViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class FileViewHolder
+            extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         private ImageView image;
         private TextView text;
 

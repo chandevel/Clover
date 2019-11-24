@@ -28,7 +28,9 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-public class GenericWebViewAuthenticationLayout extends WebView implements AuthenticationLayoutInterface {
+public class GenericWebViewAuthenticationLayout
+        extends WebView
+        implements AuthenticationLayoutInterface {
     public static final int CHECK_INTERVAL = 500;
 
     private final Handler handler = new Handler();

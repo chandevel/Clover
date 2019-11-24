@@ -23,6 +23,7 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -75,10 +76,18 @@ import pl.droidsonroids.gif.GifImageView;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 
-public class MultiImageView extends FrameLayout implements View.OnClickListener, AudioListener, LifecycleObserver {
+public class MultiImageView
+        extends FrameLayout
+        implements View.OnClickListener, AudioListener, LifecycleObserver {
     public enum Mode {
-        UNLOADED, LOWRES, BIGIMAGE, GIF, MOVIE, OTHER
+        UNLOADED,
+        LOWRES,
+        BIGIMAGE,
+        GIF,
+        MOVIE,
+        OTHER
     }
 
     private static final String TAG = "MultiImageView";
@@ -91,14 +100,14 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     private Context context;
     private ImageView playView;
-    private GestureDetector exoDoubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector exoDoubleTapDetector = new GestureDetector(context, new SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             callback.onDoubleTap();
             return true;
         }
     });
-    private GestureDetector gifDoubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector gifDoubleTapDetector = new GestureDetector(context, new SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             GifDrawable drawable = (GifDrawable) findGifImageView().getDrawable();
@@ -111,7 +120,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         }
 
         @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
+        public boolean onSingleTapConfirmed(MotionEvent e
+        ) {
             callback.onTap();
             return true;
         }
@@ -149,7 +159,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         playView = new ImageView(getContext());
         playView.setVisibility(View.GONE);
         playView.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
-        addView(playView, new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+        addView(playView,
+                new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER)
+        );
 
         if (context instanceof StartActivity) {
             ((StartActivity) context).getLifecycle().addObserver(this);
@@ -259,33 +271,37 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             return;
         }
 
-        thumbnailRequest = imageLoaderV2.getImage(
-                true,
-                loadable,
-                postImage,
-                getWidth(),
-                getHeight(),
-                new ImageListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        thumbnailRequest = null;
-                        if (center) {
-                            onError();
-                        }
-                    }
+        thumbnailRequest = imageLoaderV2.getImage(true,
+                                                  loadable,
+                                                  postImage,
+                                                  getWidth(),
+                                                  getHeight(),
+                                                  new ImageListener() {
+                                                      @Override
+                                                      public void onErrorResponse(VolleyError error) {
+                                                          thumbnailRequest = null;
+                                                          if (center) {
+                                                              onError();
+                                                          }
+                                                      }
 
-                    @Override
-                    public void onResponse(ImageContainer response, boolean isImmediate) {
-                        thumbnailRequest = null;
+                                                      @Override
+                                                      public void onResponse(ImageContainer response,
+                                                                             boolean isImmediate
+                                                      ) {
+                                                          thumbnailRequest = null;
 
-                        if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
-                            ImageView thumbnail = new ImageView(getContext());
-                            thumbnail.setImageBitmap(response.getBitmap());
+                                                          if (response.getBitmap() != null && (
+                                                                  !hasContent || mode == Mode.LOWRES))
+                                                          {
+                                                              ImageView thumbnail = new ImageView(getContext());
+                                                              thumbnail.setImageBitmap(response.getBitmap());
 
-                            onModeLoaded(Mode.LOWRES, thumbnail);
-                        }
-                    }
-                });
+                                                              onModeLoaded(Mode.LOWRES, thumbnail);
+                                                          }
+                                                      }
+                                                  }
+        );
 
         if (thumbnailRequest != null && thumbnailRequest.getBitmap() != null) {
             // Request was immediate and thumbnailRequest was first set to null in onResponse, and then set to the container
@@ -320,10 +336,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             public void onSuccess(RawFile file) {
                 BackgroundUtils.ensureMainThread();
 
-                setBitImageFileInternal(
-                        new File(file.getFullPath()),
-                        true,
-                        Mode.BIGIMAGE);
+                setBitImageFileInternal(new File(file.getFullPath()), true, Mode.BIGIMAGE);
             }
 
             @Override
@@ -479,11 +492,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         if (ChanSettings.videoOpenExternal.get()) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
 
-            Uri uriForFile = FileProvider.getUriForFile(
-                    getAppContext(),
-                    getAppContext().getPackageName() + ".fileprovider",
-                    file
-            );
+            Uri uriForFile = FileProvider.getUriForFile(getAppContext(), getAppFileProvider(), file);
 
             intent.setDataAndType(uriForFile, "video/*");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -494,13 +503,12 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             PlayerView exoVideoView = new PlayerView(getContext());
             exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
             exoVideoView.setPlayer(exoPlayer);
-            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
-                    Util.getUserAgent(getContext(), NetModule.USER_AGENT));
-            MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(android.net.Uri.fromFile(file));
+            String userAgent = Util.getUserAgent(getAppContext(), NetModule.USER_AGENT);
+            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(), userAgent);
+            ProgressiveMediaSource.Factory progressiveFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
+            MediaSource videoSource = progressiveFactory.createMediaSource(Uri.fromFile(file));
 
-            exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
-                    Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
+            exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
             exoPlayer.prepare(videoSource);
             exoPlayer.addAudioListener(this);
@@ -530,7 +538,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         final int BACKGROUND_COLOR = Color.argb(255, 211, 217, 241);
         CustomScaleImageView imageView = findScaleImageView();
         GifImageView gifView = findGifImageView();
-        if (imageView == null && gifView == null) return;
+        if (imageView == null && gifView == null)
+            return;
         boolean isImage = imageView != null && gifView == null;
         int backgroundColor = backgroundToggle ? Color.TRANSPARENT : BACKGROUND_COLOR;
         if (isImage) {
@@ -543,7 +552,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     public void rotateImage(int degrees) {
         CustomScaleImageView imageView = findScaleImageView();
-        if (imageView == null) return;
+        if (imageView == null)
+            return;
         if (degrees % 90 != 0 && degrees >= -90 && degrees <= 180)
             throw new IllegalArgumentException("Degrees must be a multiple of 90 and in the range -90 < deg < 180");
         //swap the current scale to the opposite one every 90 degree increment

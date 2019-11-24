@@ -40,19 +40,13 @@ public class StringUtils {
     }
 
     public static String dirNameRemoveBadCharacters(String dirName) {
-        return dirName
-                .toLowerCase()
-                .replaceAll(" ", "_")
-                .replaceAll("[^a-z0-9_-]", "");
+        return dirName.toLowerCase().replaceAll(" ", "_").replaceAll("[^a-z0-9_-]", "");
     }
 
     /**
      * The same as dirNameRemoveBadCharacters but allows dots since file names can have extensions
-     * */
+     */
     public static String fileNameRemoveBadCharacters(String filename) {
-        return filename
-                .toLowerCase()
-                .replaceAll(" ", "_")
-                .replaceAll("[^a-z0-9_.-]", "");
+        return filename.toLowerCase().replaceAll(" ", "_").replaceAll("[^a-z0-9_.-]", "");
     }
 }

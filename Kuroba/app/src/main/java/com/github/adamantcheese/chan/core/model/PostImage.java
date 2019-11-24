@@ -22,7 +22,10 @@ import okhttp3.HttpUrl;
 
 public class PostImage {
     public enum Type {
-        STATIC, GIF, MOVIE, PDF
+        STATIC,
+        GIF,
+        MOVIE,
+        PDF
     }
 
     public final String serverFilename;

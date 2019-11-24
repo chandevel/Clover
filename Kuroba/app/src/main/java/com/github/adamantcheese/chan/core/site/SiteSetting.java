@@ -41,8 +41,7 @@ public class SiteSetting {
         this.setting = setting;
     }
 
-    public static SiteSetting forOption(OptionsSetting<?> options, String name,
-                                        List<String> optionNames) {
+    public static SiteSetting forOption(OptionsSetting<?> options, String name, List<String> optionNames) {
         SiteSetting setting = new SiteSetting(name, options);
         setting.optionNames = optionNames;
         return setting;

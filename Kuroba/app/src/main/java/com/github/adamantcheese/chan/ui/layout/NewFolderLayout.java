@@ -9,7 +9,8 @@ import com.github.adamantcheese.chan.R;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
-public class NewFolderLayout extends LinearLayout {
+public class NewFolderLayout
+        extends LinearLayout {
     private EditText folderName;
 
     public NewFolderLayout(Context context) {

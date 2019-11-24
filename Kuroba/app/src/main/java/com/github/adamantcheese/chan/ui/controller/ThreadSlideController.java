@@ -35,7 +35,10 @@ import java.lang.reflect.Field;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
-public class ThreadSlideController extends Controller implements DoubleNavigationController, SlidingPaneLayout.PanelSlideListener, ToolbarNavigationController.ToolbarSearchCallback {
+public class ThreadSlideController
+        extends Controller
+        implements DoubleNavigationController, SlidingPaneLayout.PanelSlideListener,
+                   ToolbarNavigationController.ToolbarSearchCallback {
     private static final String TAG = "ThreadSlideController";
 
     public Controller leftController;
@@ -236,20 +239,28 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
 
     @Override
     public void onSearchVisibilityChanged(boolean visible) {
-        if (leftOpen() && leftController != null && leftController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
+        if (leftOpen() && leftController != null
+                && leftController instanceof ToolbarNavigationController.ToolbarSearchCallback)
+        {
             ((ToolbarNavigationController.ToolbarSearchCallback) leftController).onSearchVisibilityChanged(visible);
         }
-        if (!leftOpen() && rightController != null && rightController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
+        if (!leftOpen() && rightController != null
+                && rightController instanceof ToolbarNavigationController.ToolbarSearchCallback)
+        {
             ((ToolbarNavigationController.ToolbarSearchCallback) rightController).onSearchVisibilityChanged(visible);
         }
     }
 
     @Override
     public void onSearchEntered(String entered) {
-        if (leftOpen() && leftController != null && leftController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
+        if (leftOpen() && leftController != null
+                && leftController instanceof ToolbarNavigationController.ToolbarSearchCallback)
+        {
             ((ToolbarNavigationController.ToolbarSearchCallback) leftController).onSearchEntered(entered);
         }
-        if (!leftOpen() && rightController != null && rightController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
+        if (!leftOpen() && rightController != null
+                && rightController instanceof ToolbarNavigationController.ToolbarSearchCallback)
+        {
             ((ToolbarNavigationController.ToolbarSearchCallback) rightController).onSearchEntered(entered);
         }
     }

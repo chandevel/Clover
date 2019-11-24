@@ -34,7 +34,8 @@ import com.j256.ormlite.table.DatabaseTable;
  * references the same loadable and that the loadable is properly saved in the database.
  */
 @DatabaseTable(tableName = "loadable")
-public class Loadable implements Cloneable {
+public class Loadable
+        implements Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -93,16 +94,15 @@ public class Loadable implements Cloneable {
     protected Loadable() {
     }
 
-    public static Loadable importLoadable(
-            int siteId,
-            int mode,
-            String boardCode,
-            int no,
-            String title,
-            int listViewIndex,
-            int listViewTop,
-            int lastViewed,
-            int lastLoaded
+    public static Loadable importLoadable(int siteId,
+                                          int mode,
+                                          String boardCode,
+                                          int no,
+                                          String title,
+                                          int listViewIndex,
+                                          int listViewTop,
+                                          int lastViewed,
+                                          int lastLoaded
     ) {
         Loadable loadable = new Loadable();
         loadable.siteId = siteId;
@@ -232,19 +232,9 @@ public class Loadable implements Cloneable {
 
     @Override
     public String toString() {
-        return "Loadable{" +
-                "id=" + id +
-                ", mode=" + mode +
-                ", board='" + boardCode + '\'' +
-                ", no=" + no +
-                ", title='" + title + '\'' +
-                ", listViewIndex=" + listViewIndex +
-                ", listViewTop=" + listViewTop +
-                ", lastViewed=" + lastViewed +
-                ", lastLoaded=" + lastLoaded +
-                ", markedNo=" + markedNo +
-                ", dirty=" + dirty +
-                '}';
+        return "Loadable{id=" + id + ", mode=" + mode + ", board='" + boardCode + '\'' + ", no=" + no + ", title='"
+                + title + '\'' + ", listViewIndex=" + listViewIndex + ", listViewTop=" + listViewTop + ", lastViewed="
+                + lastViewed + ", lastLoaded=" + lastLoaded + ", markedNo=" + markedNo + ", dirty=" + dirty + '}';
     }
 
     public boolean isThreadMode() {
@@ -304,7 +294,8 @@ public class Loadable implements Cloneable {
         copy.site = site;
         copy.mode = mode;
         // TODO: for empty loadables
-        if (board != null) copy.board = board.clone();
+        if (board != null)
+            copy.board = board.clone();
         copy.boardCode = boardCode;
         copy.no = no;
         copy.title = title;

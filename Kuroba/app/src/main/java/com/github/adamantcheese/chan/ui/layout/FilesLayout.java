@@ -39,7 +39,9 @@ import java.util.Map;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
-public class FilesLayout extends LinearLayout implements FilesAdapter.Callback, View.OnClickListener {
+public class FilesLayout
+        extends LinearLayout
+        implements FilesAdapter.Callback, View.OnClickListener {
     private ViewGroup backLayout;
     private ImageView backImage;
     private TextView backText;

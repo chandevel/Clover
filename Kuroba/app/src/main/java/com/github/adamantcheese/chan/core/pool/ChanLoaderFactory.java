@@ -39,7 +39,10 @@ public class ChanLoaderFactory {
     private Map<Loadable, ChanThreadLoader> threadLoaders = new HashMap<>();
     private LruCache<Loadable, ChanThreadLoader> threadLoadersCache = new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
 
-    public ChanThreadLoader obtain(Loadable loadable, WatchManager watchManager, ChanThreadLoader.ChanLoaderCallback listener) {
+    public ChanThreadLoader obtain(Loadable loadable,
+                                   WatchManager watchManager,
+                                   ChanThreadLoader.ChanLoaderCallback listener
+    ) {
         ChanThreadLoader chanLoader;
         if (loadable.isThreadMode()) {
             if (!loadable.isFromDatabase()) {

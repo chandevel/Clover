@@ -21,9 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CaptchaHolder {
     private static final String TAG = "CaptchaHolder";
     private static final long INTERVAL = 5000;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm:ss",
-            Locale.US);
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
     private AtomicBoolean running = new AtomicBoolean(false);
 
     private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
@@ -51,8 +49,9 @@ public class CaptchaHolder {
 
         synchronized (captchaQueue) {
             captchaQueue.add(0, new CaptchaInfo(token, tokenLifetime + System.currentTimeMillis()));
-            Logger.d(TAG, "A new token has been added, validCount = " +
-                    captchaQueue.size() + ", token = " + trimToken(token));
+            Logger.d(TAG,
+                     "A new token has been added, validCount = " + captchaQueue.size() + ", token = " + trimToken(token)
+            );
         }
 
         notifyListener();
@@ -123,9 +122,11 @@ public class CaptchaHolder {
                     captchasCountDecreased = true;
                     it.remove();
 
-                    Logger.d(TAG, "Captcha token got expired, now = " + sdf.format(now) +
-                            ", token validUntil = " + sdf.format(captchaInfo.getValidUntil())
-                            + ", token = " + trimToken(captchaInfo.getToken()));
+                    Logger.d(TAG,
+                             "Captcha token got expired, now = " + sdf.format(now) + ", token validUntil = "
+                                     + sdf.format(captchaInfo.getValidUntil()) + ", token = "
+                                     + trimToken(captchaInfo.getToken())
+                    );
                 }
             }
 
@@ -153,7 +154,8 @@ public class CaptchaHolder {
         });
     }
 
-    private class CheckCaptchaFreshnessTask extends TimerTask {
+    private class CheckCaptchaFreshnessTask
+            extends TimerTask {
         @Override
         public void run() {
             removeNotValidTokens();
@@ -183,9 +185,8 @@ public class CaptchaHolder {
 
         @Override
         public int hashCode() {
-            return token.hashCode() *
-                    31 * (int) (validUntil & 0x00000000FFFFFFFFL) *
-                    31 * (int) ((validUntil >> 32) & 0x00000000FFFFFFFFL);
+            return token.hashCode() * 31 * (int) (validUntil & 0x00000000FFFFFFFFL) * 31 * (int) (
+                    (validUntil >> 32) & 0x00000000FFFFFFFFL);
         }
 
         @Override
@@ -204,8 +205,7 @@ public class CaptchaHolder {
 
             CaptchaInfo otherCaptchaInfo = (CaptchaInfo) other;
 
-            return token.equals(otherCaptchaInfo.token) &&
-                    validUntil == otherCaptchaInfo.getValidUntil();
+            return token.equals(otherCaptchaInfo.token) && validUntil == otherCaptchaInfo.getValidUntil();
         }
 
         @NonNull

@@ -277,14 +277,11 @@ class FileCacheDownloader(
     private fun getBody(): Pair<Call, ResponseBody?> {
         BackgroundUtils.ensureBackgroundThread()
 
-        val request = Request.Builder()
-                .url(url)
-                .header("User-Agent", NetModule.USER_AGENT)
-                .build()
+        val request = Request.Builder().url(url).header("User-Agent", NetModule.USER_AGENT).build()
 
         //we want to use the proxy instance here
-        val call = (Chan.injector().instance(OkHttpClient::class.java) as NetModule.ProxiedOkHttpClient)
-                .proxiedClient.newCall(request)
+        val call = (Chan.injector().instance(OkHttpClient::class.java)
+                as NetModule.ProxiedOkHttpClient).proxiedClient.newCall(request)
 
         val response = call.execute()
         if (!response.isSuccessful) {

@@ -22,7 +22,8 @@ import android.webkit.WebView;
 
 import com.github.adamantcheese.chan.controller.Controller;
 
-public class LicensesController extends Controller {
+public class LicensesController
+        extends Controller {
     private String title;
     private String url;
 

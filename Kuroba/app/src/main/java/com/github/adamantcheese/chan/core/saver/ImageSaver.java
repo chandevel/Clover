@@ -48,7 +48,8 @@ import java.util.concurrent.Executors;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
+public class ImageSaver
+        implements ImageSaveTask.ImageSaveTaskCallback {
     private static final String TAG = "ImageSaver";
     private static final int MAX_NAME_LENGTH = 50;
 
@@ -64,10 +65,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         EventBus.getDefault().register(this);
     }
 
-    public void startDownloadTask(
-            Context context,
-            final ImageSaveTask task,
-            DownloadTaskCallbacks callbacks) {
+    public void startDownloadTask(Context context, final ImageSaveTask task, DownloadTaskCallbacks callbacks) {
         if (hasPermission(context)) {
             startDownloadTaskInternal(task, callbacks);
             return;
@@ -83,9 +81,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         });
     }
 
-    private void startDownloadTaskInternal(
-            ImageSaveTask task,
-            DownloadTaskCallbacks callbacks) {
+    private void startDownloadTaskInternal(ImageSaveTask task, DownloadTaskCallbacks callbacks) {
         AbstractFile saveLocation = getSaveLocation(task);
         if (saveLocation == null) {
             callbacks.onError("Couldn't figure out save location");
@@ -269,13 +265,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                     location = locationFile.getFullPath();
                 }
 
-                text = getAppContext().getString(
-                        R.string.album_download_success,
-                        location);
+                text = getAppContext().getString(R.string.album_download_success, location);
             } else {
-                text = getAppContext().getString(
-                        R.string.image_save_as,
-                        fileManager.getName(task.getDestination()));
+                text = getAppContext().getString(R.string.image_save_as, fileManager.getName(task.getDestination()));
             }
         } else {
             text = getString(R.string.image_save_failed);
@@ -290,7 +282,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
      *                   directory names should not have '.' characters (well they actually can but
      *                   let's filter them anyway). If it's false then it is implied that the "name"
      *                   param is a directory segment name.
-     * */
+     */
     private String filterName(String name, boolean isFileName) {
         String filteredName;
 
@@ -306,8 +298,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         // and if it equals to 0 that means that the whole file name consists of bad characters
         // (e.g. the whole filename consists of japanese characters) so we need to generate a new
         // file name
-        boolean isOnlyExtensionLeft
-                = (extension != null && (filteredName.length() - extension.length() - 1) == 0);
+        boolean isOnlyExtensionLeft = (extension != null && (filteredName.length() - extension.length() - 1) == 0);
 
         // filteredName.length() == 0 will only be true when "name" parameter does not have an
         // extension
@@ -329,9 +320,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     @Nullable
     private AbstractFile deduplicateFile(PostImage postImage, ImageSaveTask task) {
-        String name = ChanSettings.saveServerFilename.get()
-                ? postImage.serverFilename
-                : postImage.filename;
+        String name = ChanSettings.saveServerFilename.get() ? postImage.serverFilename : postImage.filename;
 
         String fileName = filterName(name + "." + postImage.extension, true);
 
@@ -341,30 +330,33 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             return null;
         }
 
-        AbstractFile saveFile = saveLocation
-                .clone(new FileSegment(fileName));
+        AbstractFile saveFile = saveLocation.clone(new FileSegment(fileName));
 
         while (fileManager.exists(saveFile)) {
+            String currentTimeHash = Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX);
             String resultFileName = name + "_"
                     //dedupe shared files to have their own file name; ok to overwrite, prevents lots of downloads for multiple shares
-                    + (task.getShare() ? "shared" : Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX))
-                    + "." + postImage.extension;
+                    + (task.getShare() ? "shared" : currentTimeHash) + "." + postImage.extension;
 
             fileName = filterName(resultFileName, true);
-            saveFile = saveLocation
-                    .clone(new FileSegment(fileName));
-            if(task.getShare()) break; //otherwise we'd get stuck in the loop, because the file would always be the same
+            saveFile = saveLocation.clone(new FileSegment(fileName));
+            if (task.getShare())
+                break; //otherwise we'd get stuck in the loop, because the file would always be the same
         }
 
         return saveFile;
     }
 
     private boolean hasPermission(Context context) {
-        return ((StartActivity) context).getRuntimePermissionsHelper().hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        return ((StartActivity) context)
+                .getRuntimePermissionsHelper()
+                .hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     private void requestPermission(Context context, RuntimePermissionsHelper.Callback callback) {
-        ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
+        ((StartActivity) context)
+                .getRuntimePermissionsHelper()
+                .requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
     }
 
     public interface DownloadTaskCallbacks {

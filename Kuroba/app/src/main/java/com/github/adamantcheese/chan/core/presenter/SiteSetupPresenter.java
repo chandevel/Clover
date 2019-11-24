@@ -43,11 +43,9 @@ public class SiteSetupPresenter {
     }
 
     private void setBoardCount(Callback callback, Site site) {
-        callback.setBoardCount(
-                databaseManager.runTask(
-                        databaseManager.getDatabaseBoardManager().getSiteSavedBoards(site)
-                ).size()
-        );
+        callback.setBoardCount(databaseManager
+                                       .runTask(databaseManager.getDatabaseBoardManager().getSiteSavedBoards(site))
+                                       .size());
     }
 
     public interface Callback {

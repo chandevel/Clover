@@ -35,7 +35,9 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
-public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.AddCallback, View.OnClickListener {
+public class BoardAddLayout
+        extends LinearLayout
+        implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.AddCallback, View.OnClickListener {
     private BoardSetupPresenter presenter;
 
     private SuggestionsAdapter suggestionsAdapter;
@@ -117,7 +119,8 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         presenter.onAddDialogPositiveClicked();
     }
 
-    private class SuggestionsAdapter extends RecyclerView.Adapter<SuggestionCell> {
+    private class SuggestionsAdapter
+            extends RecyclerView.Adapter<SuggestionCell> {
         public SuggestionsAdapter() {
             setHasStableIds(true);
         }
@@ -135,8 +138,7 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         @Override
         public SuggestionCell onCreateViewHolder(ViewGroup parent, int viewType) {
             return new SuggestionCell(
-                    LayoutInflater.from(parent.getContext())
-                            .inflate(R.layout.cell_board_suggestion, parent, false));
+                    LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_board_suggestion, parent, false));
         }
 
         @Override
@@ -148,7 +150,9 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         }
     }
 
-    private class SuggestionCell extends RecyclerView.ViewHolder implements OnClickListener, CompoundButton.OnCheckedChangeListener {
+    private class SuggestionCell
+            extends RecyclerView.ViewHolder
+            implements OnClickListener, CompoundButton.OnCheckedChangeListener {
         private TextView text;
         private TextView description;
         private CheckBox check;

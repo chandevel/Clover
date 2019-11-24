@@ -49,9 +49,11 @@ import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
-public class ImagePickDelegate implements Runnable {
+public class ImagePickDelegate
+        implements Runnable {
     private static final String TAG = "ImagePickActivity";
 
     private static final int IMAGE_PICK_RESULT = 2;
@@ -86,35 +88,44 @@ public class ImagePickDelegate implements Runnable {
                 Toast.makeText(activity, activity.getString(R.string.image_url_get_attempt), Toast.LENGTH_SHORT).show();
                 HttpUrl clipboardURL = null;
                 try {
-                    ClipboardManager manager = (ClipboardManager) getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipboardManager manager
+                            = (ClipboardManager) getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
                     clipboardURL = HttpUrl.get(manager.getPrimaryClip().getItemAt(0).getText().toString());
                 } catch (Exception ignored) {
-                    Toast.makeText(activity, activity.getString(R.string.image_url_get_failed), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, getString(R.string.image_url_get_failed), Toast.LENGTH_SHORT).show();
                     callback.onFilePickError(true);
                     reset();
                 }
                 if (clipboardURL != null) {
                     HttpUrl finalClipboardURL = clipboardURL;
-                    Chan.injector().instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
-                        @Override
-                        public void onSuccess(RawFile file) {
-                            BackgroundUtils.ensureMainThread();
+                    Chan.injector()
+                        .instance(FileCache.class)
+                        .downloadFile(clipboardURL.toString(), new FileCacheListener() {
+                            @Override
+                            public void onSuccess(RawFile file) {
+                                BackgroundUtils.ensureMainThread();
 
-                            Toast.makeText(activity, activity.getString(R.string.image_url_get_success), Toast.LENGTH_SHORT).show();
-                            Uri imageURL = Uri.parse(finalClipboardURL.toString());
-                            callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
-                            reset();
-                        }
+                                Toast.makeText(activity,
+                                               activity.getString(R.string.image_url_get_success),
+                                               Toast.LENGTH_SHORT
+                                ).show();
+                                Uri imageURL = Uri.parse(finalClipboardURL.toString());
+                                callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
+                                reset();
+                            }
 
-                        @Override
-                        public void onFail(boolean notFound) {
-                            BackgroundUtils.ensureMainThread();
+                            @Override
+                            public void onFail(boolean notFound) {
+                                BackgroundUtils.ensureMainThread();
 
-                            Toast.makeText(activity, activity.getString(R.string.image_url_get_failed), Toast.LENGTH_SHORT).show();
-                            callback.onFilePickError(true);
-                            reset();
-                        }
-                    });
+                                Toast.makeText(activity,
+                                               activity.getString(R.string.image_url_get_failed),
+                                               Toast.LENGTH_SHORT
+                                ).show();
+                                callback.onFilePickError(true);
+                                reset();
+                            }
+                        });
                 }
             } else {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -197,8 +208,8 @@ public class ImagePickDelegate implements Runnable {
             os = fileManager.getOutputStream(cacheFile);
 
             if (os == null) {
-                throw new IOException("Could not get OutputStream from the cacheFile, " +
-                        "cacheFile = " + cacheFile.getFullPath());
+                throw new IOException(
+                        "Could not get OutputStream from the cacheFile, cacheFile = " + cacheFile.getFullPath());
             }
 
             boolean fullyCopied = IOUtils.copy(is, os, MAX_FILE_SIZE);

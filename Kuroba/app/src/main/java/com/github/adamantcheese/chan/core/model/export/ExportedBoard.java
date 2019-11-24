@@ -76,35 +76,31 @@ public class ExportedBoard {
     @SerializedName("archive")
     private boolean archive;
 
-    public ExportedBoard(
-            int siteId,
-            boolean saved,
-            int order,
-            @NonNull
-                    String name,
-            @NonNull
-                    String code,
-            boolean workSafe,
-            int perPage,
-            int pages,
-            int maxFileSize,
-            int maxWebmSize,
-            int maxCommentChars,
-            int bumpLimit,
-            int imageLimit,
-            int cooldownThreads,
-            int cooldownReplies,
-            int cooldownImages,
-            boolean spoilers,
-            int customSpoilers,
-            boolean userIds,
-            boolean codeTags,
-            boolean preuploadCaptcha,
-            boolean countryFlags,
-            boolean mathTags,
-            @NonNull
-                    String description,
-            boolean archive
+    public ExportedBoard(int siteId,
+                         boolean saved,
+                         int order,
+                         @NonNull String name,
+                         @NonNull String code,
+                         boolean workSafe,
+                         int perPage,
+                         int pages,
+                         int maxFileSize,
+                         int maxWebmSize,
+                         int maxCommentChars,
+                         int bumpLimit,
+                         int imageLimit,
+                         int cooldownThreads,
+                         int cooldownReplies,
+                         int cooldownImages,
+                         boolean spoilers,
+                         int customSpoilers,
+                         boolean userIds,
+                         boolean codeTags,
+                         boolean preuploadCaptcha,
+                         boolean countryFlags,
+                         boolean mathTags,
+                         @NonNull String description,
+                         boolean archive
     ) {
         this.siteId = siteId;
         this.saved = saved;

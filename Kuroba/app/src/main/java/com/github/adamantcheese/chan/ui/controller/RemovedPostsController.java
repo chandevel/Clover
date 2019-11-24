@@ -38,7 +38,9 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
-public class RemovedPostsController extends BaseFloatingController implements View.OnClickListener {
+public class RemovedPostsController
+        extends BaseFloatingController
+        implements View.OnClickListener {
     private static final String TAG = "RemovedPostsController";
 
     @Inject
@@ -54,9 +56,7 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
     @Nullable
     private RemovedPostAdapter adapter;
 
-    public RemovedPostsController(
-            Context context,
-            RemovedPostsHelper removedPostsHelper) {
+    public RemovedPostsController(Context context, RemovedPostsHelper removedPostsHelper) {
         super(context);
         this.removedPostsHelper = removedPostsHelper;
 
@@ -92,9 +92,7 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
     }
 
     public void showRemovePosts(List<Post> removedPosts) {
-        if (!BackgroundUtils.isMainThread()) {
-            throw new RuntimeException("Must be executed on the main thread!");
-        }
+        BackgroundUtils.ensureMainThread();
 
         RemovedPost[] removedPostsArray = new RemovedPost[removedPosts.size()];
 
@@ -104,10 +102,7 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
         }
 
         if (adapter == null) {
-            adapter = new RemovedPostAdapter(
-                    context,
-                    imageLoaderV2,
-                    R.layout.layout_removed_posts);
+            adapter = new RemovedPostAdapter(context, imageLoaderV2, R.layout.layout_removed_posts);
 
             postsListView.setAdapter(adapter);
         }
@@ -175,7 +170,8 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
         }
     }
 
-    public static class RemovedPostAdapter extends ArrayAdapter<RemovedPost> {
+    public static class RemovedPostAdapter
+            extends ArrayAdapter<RemovedPost> {
         private ImageLoaderV2 imageLoaderV2;
         private List<RemovedPost> removedPostsCopy = new ArrayList<>();
 
@@ -190,15 +186,12 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
             RemovedPost removedPost = getItem(position);
 
             if (removedPost == null) {
-                throw new RuntimeException("removedPost is null! position = " +
-                        position + ", items count = " + getCount());
+                throw new RuntimeException(
+                        "removedPost is null! position = " + position + ", items count = " + getCount());
             }
 
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(
-                        R.layout.layout_removed_post,
-                        parent,
-                        false);
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.layout_removed_post, parent, false);
             }
 
             LinearLayout viewHolder = convertView.findViewById(R.id.removed_post_view_holder);
@@ -234,8 +227,8 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
                 postImage.setVisibility(View.GONE);
             }
 
-            checkbox.setOnClickListener((v) -> onItemClick(position));
-            viewHolder.setOnClickListener((v) -> onItemClick(position));
+            checkbox.setOnClickListener(v -> onItemClick(position));
+            viewHolder.setOnClickListener(v -> onItemClick(position));
 
             return convertView;
         }
@@ -265,7 +258,8 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
             List<Integer> selectedPosts = new ArrayList<>();
 
             for (RemovedPost removedPost : removedPostsCopy) {
-                if (removedPost == null) continue;
+                if (removedPost == null)
+                    continue;
 
                 if (removedPost.isChecked()) {
                     selectedPosts.add(removedPost.getPostNo());

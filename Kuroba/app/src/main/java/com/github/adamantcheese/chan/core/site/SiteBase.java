@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-
 import com.android.volley.RequestQueue;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
@@ -34,7 +33,8 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.Chan.injector;
 
-public abstract class SiteBase implements Site {
+public abstract class SiteBase
+        implements Site {
     protected int id;
     protected SiteConfig config;
 
@@ -67,7 +67,9 @@ public abstract class SiteBase implements Site {
         boardManager = injector.instance(BoardManager.class);
         SiteService siteService = injector.instance(SiteService.class);
 
-        settingsProvider = new JsonSettingsProvider(userSettings, () -> siteService.updateUserSettings(this, userSettings));
+        settingsProvider = new JsonSettingsProvider(userSettings,
+                                                    () -> siteService.updateUserSettings(this, userSettings)
+        );
 
         initializeSettings();
 

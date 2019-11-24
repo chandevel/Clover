@@ -26,7 +26,8 @@ import android.view.animation.DecelerateInterpolator;
 import com.github.adamantcheese.chan.controller.ControllerTransition;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-public class PushControllerTransition extends ControllerTransition {
+public class PushControllerTransition
+        extends ControllerTransition {
     @Override
     public void perform() {
         AndroidUtils.waitForMeasure(to.view, view -> {

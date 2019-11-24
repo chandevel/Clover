@@ -21,7 +21,8 @@ import android.os.Parcelable;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
-public class ChanState implements Parcelable {
+public class ChanState
+        implements Parcelable {
     public Loadable board;
     public Loadable thread;
 

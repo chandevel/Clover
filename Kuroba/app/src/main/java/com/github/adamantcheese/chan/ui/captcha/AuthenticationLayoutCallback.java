@@ -20,7 +20,8 @@ public interface AuthenticationLayoutCallback {
     void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout,
                                   String challenge,
                                   String response,
-                                  boolean autoReply);
+                                  boolean autoReply
+    );
 
     void onFallbackToV1CaptchaView(boolean autoReply);
 }

@@ -26,7 +26,8 @@ import java.util.Map;
 
 import okhttp3.HttpUrl;
 
-public class VichanEndpoints extends CommonSite.CommonEndpoints {
+public class VichanEndpoints
+        extends CommonSite.CommonEndpoints {
     protected final CommonSite.SimpleHttpUrl root;
     protected final CommonSite.SimpleHttpUrl sys;
 

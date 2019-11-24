@@ -38,7 +38,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
  * A simple implementation of a TextView that caches the used StaticLayouts for performance.<br>
  * This view was made for {@link com.github.adamantcheese.chan.ui.cell.PostCell} and {@link com.github.adamantcheese.chan.ui.cell.CardPostCell} and may have untested behaviour with other layouts.
  */
-public class FastTextView extends View {
+public class FastTextView
+        extends View {
     private static final String TAG = "FastTextView";
     private static LruCache<FastTextViewItem, StaticLayout> textCache = new LruCache<>(250);
 
@@ -160,7 +161,9 @@ public class FastTextView extends View {
         int height = 0;
         if (widthMode == MeasureSpec.EXACTLY) {
             width = widthSize;
-        } else if ((widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED) && !TextUtils.isEmpty(text)) {
+        } else if ((widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED)
+                && !TextUtils.isEmpty(text))
+        {
             width = Math.round(Layout.getDesiredWidth(text, paint) + getPaddingLeft() + getPaddingRight());
             if (widthMode == MeasureSpec.AT_MOST) {
                 width = Math.min(width, widthSize);
@@ -240,14 +243,19 @@ public class FastTextView extends View {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             FastTextViewItem that = (FastTextViewItem) o;
 
-            if (color != that.color) return false;
-            if (Float.compare(that.textSize, textSize) != 0) return false;
-            if (layoutWidth != that.layoutWidth) return false;
+            if (color != that.color)
+                return false;
+            if (Float.compare(that.textSize, textSize) != 0)
+                return false;
+            if (layoutWidth != that.layoutWidth)
+                return false;
             return text.equals(that.text);
         }
 

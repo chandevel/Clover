@@ -37,7 +37,9 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
-public class ImageSaveTask extends FileCacheListener implements Runnable {
+public class ImageSaveTask
+        extends FileCacheListener
+        implements Runnable {
     private static final String TAG = "ImageSaveTask";
 
     @Inject
@@ -145,12 +147,12 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     private void onDestination() {
         success = true;
-//        String[] paths = {destination.getFullPath()};
-//        FIXME: does not work
-//        MediaScannerConnection.scanFile(getAppContext(), paths, null, (path, uri) -> {
-//            // Runs on a binder thread
-//            AndroidUtils.runOnUiThread(() -> afterScan(uri));
-//        });
+        //        String[] paths = {destination.getFullPath()};
+        //        FIXME: does not work
+        //        MediaScannerConnection.scanFile(getAppContext(), paths, null, (path, uri) -> {
+        //            // Runs on a binder thread
+        //            AndroidUtils.runOnUiThread(() -> afterScan(uri));
+        //        });
     }
 
     private boolean copyToDestination(File source) {
@@ -196,12 +198,12 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     }
 
     private void postFinished(final boolean success) {
-        AndroidUtils.runOnUiThread(() ->
-                callback.imageSaveTaskFinished(ImageSaveTask.this, success));
+        AndroidUtils.runOnUiThread(() -> callback.imageSaveTaskFinished(ImageSaveTask.this, success));
     }
 
     public interface ImageSaveTaskCallback {
         void imageSaveTaskFailed(Throwable error);
+
         void imageSaveTaskFinished(ImageSaveTask task, boolean success);
     }
 }

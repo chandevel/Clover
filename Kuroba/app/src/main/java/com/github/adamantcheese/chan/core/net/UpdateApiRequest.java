@@ -32,14 +32,15 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
-public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateApiResponse> {
-    public UpdateApiRequest(Response.Listener<UpdateApiResponse> listener,
-                            Response.ErrorListener errorListener) {
+public class UpdateApiRequest
+        extends JsonReaderRequest<UpdateApiRequest.UpdateApiResponse> {
+    public UpdateApiRequest(Response.Listener<UpdateApiResponse> listener, Response.ErrorListener errorListener) {
         super(BuildConfig.UPDATE_API_ENDPOINT, listener, errorListener);
     }
 
     @Override
-    public UpdateApiResponse readJson(JsonReader reader) throws Exception {
+    public UpdateApiResponse readJson(JsonReader reader)
+            throws Exception {
         UpdateApiResponse response = new UpdateApiResponse();
         reader.beginObject();
         while (reader.hasNext()) {
@@ -50,9 +51,9 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                         Pattern versionPattern = Pattern.compile("v(\\d+?)\\.(\\d{1,2})\\.(\\d{1,2})");
                         Matcher versionMatcher = versionPattern.matcher(response.versionCodeString);
                         if (versionMatcher.matches()) {
-                            response.versionCode = Integer.parseInt(versionMatcher.group(3))
-                                    + (Integer.parseInt(versionMatcher.group(2)) * 100)
-                                    + (Integer.parseInt(versionMatcher.group(1)) * 10000);
+                            response.versionCode = Integer.parseInt(versionMatcher.group(3)) + (
+                                    Integer.parseInt(versionMatcher.group(2)) * 100) + (
+                                    Integer.parseInt(versionMatcher.group(1)) * 10000);
                         }
                     } catch (Exception e) {
                         throw new VolleyError("Tag name wasn't of the form v(major).(minor).(patch)!");
@@ -94,9 +95,7 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
             }
         }
         reader.endObject();
-        if (response.versionCode == 0
-                || response.apkURL == null
-                || response.body == null) {
+        if (response.versionCode == 0 || response.apkURL == null || response.body == null) {
             throw new VolleyError("Update API response is incomplete, issue with github release listing!");
         }
         return response;

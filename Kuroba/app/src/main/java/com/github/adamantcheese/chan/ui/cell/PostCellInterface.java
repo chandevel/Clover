@@ -38,7 +38,8 @@ public interface PostCellInterface {
                  boolean showDivider,
                  ChanSettings.PostViewMode postViewMode,
                  boolean compact,
-                 Theme theme);
+                 Theme theme
+    );
 
     Post getPost();
 
@@ -55,8 +56,7 @@ public interface PostCellInterface {
 
         void onShowPostReplies(Post post);
 
-        Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu,
-                                     List<FloatingMenuItem> extraMenu);
+        Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu, List<FloatingMenuItem> extraMenu);
 
         void onPostOptionClicked(Post post, Object id);
 

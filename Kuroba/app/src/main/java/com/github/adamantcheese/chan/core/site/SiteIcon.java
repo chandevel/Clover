@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 

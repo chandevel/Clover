@@ -43,19 +43,16 @@ public class SiteRepository {
     }
 
     public SiteModel byId(int id) {
-        return databaseManager.runTask(databaseManager.getDatabaseSiteManager()
-                .byId(id));
+        return databaseManager.runTask(databaseManager.getDatabaseSiteManager().byId(id));
     }
 
     public void setId(SiteModel siteModel, int id) {
-        databaseManager.runTask(databaseManager.getDatabaseSiteManager()
-                .updateId(siteModel, id));
+        databaseManager.runTask(databaseManager.getDatabaseSiteManager().updateId(siteModel, id));
     }
 
     public void updateSiteUserSettingsAsync(SiteModel siteModel, JsonSettings jsonSettings) {
         siteModel.storeUserSettings(jsonSettings);
-        databaseManager.runTaskAsync(databaseManager.getDatabaseSiteManager()
-                .update(siteModel));
+        databaseManager.runTaskAsync(databaseManager.getDatabaseSiteManager().update(siteModel));
     }
 
     public Map<Integer, Integer> getOrdering() {
@@ -68,19 +65,16 @@ public class SiteRepository {
             ids.add(site.id());
         }
 
-        databaseManager.runTaskAsync(
-                databaseManager.getDatabaseSiteManager().updateOrdering(ids),
-                (r) -> {
-                    sitesObservable.wasReordered();
-                    sitesObservable.notifyObservers();
-                });
+        databaseManager.runTaskAsync(databaseManager.getDatabaseSiteManager().updateOrdering(ids), r -> {
+            sitesObservable.wasReordered();
+            sitesObservable.notifyObservers();
+        });
     }
 
     public void initialize() {
         List<Site> sites = new ArrayList<>();
 
-        List<SiteModel> models = databaseManager.runTask(
-                databaseManager.getDatabaseSiteManager().getAll());
+        List<SiteModel> models = databaseManager.runTask(databaseManager.getDatabaseSiteManager().getAll());
 
         for (SiteModel siteModel : models) {
             SiteConfigSettingsHolder holder;
@@ -146,10 +140,7 @@ public class SiteRepository {
         SiteConfig config = configFields.first;
         JsonSettings settings = configFields.second;
 
-        return new SiteConfigSettingsHolder(
-                instantiateSiteClass(config.classId),
-                config,
-                settings);
+        return new SiteConfigSettingsHolder(instantiateSiteClass(config.classId), config, settings);
     }
 
     private Site instantiateSiteClass(int classId) {
@@ -190,7 +181,8 @@ public class SiteRepository {
         });
     }
 
-    private void removeFilters(Site site) throws Exception {
+    private void removeFilters(Site site)
+            throws Exception {
         List<Filter> filtersToDelete = new ArrayList<>();
 
         for (Filter filter : databaseManager.getDatabaseFilterManager().getFilters().call()) {
@@ -210,7 +202,8 @@ public class SiteRepository {
         databaseManager.getDatabaseFilterManager().deleteFilters(filtersToDelete).call();
     }
 
-    public class Sites extends Observable {
+    public class Sites
+            extends Observable {
         private List<Site> sites = Collections.unmodifiableList(new ArrayList<>());
         private SparseArray<Site> sitesById = new SparseArray<>();
 
@@ -230,8 +223,7 @@ public class SiteRepository {
             Map<Integer, Integer> ordering = getOrdering();
 
             List<Site> ordered = new ArrayList<>(sites);
-            Collections.sort(ordered,
-                    (lhs, rhs) -> ordering.get(lhs.id()) - ordering.get(rhs.id()));
+            Collections.sort(ordered, (lhs, rhs) -> ordering.get(lhs.id()) - ordering.get(rhs.id()));
 
             return ordered;
         }

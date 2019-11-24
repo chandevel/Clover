@@ -35,7 +35,8 @@ import com.github.adamantcheese.chan.controller.NavigationController;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class NavigationControllerContainerLayout extends FrameLayout {
+public class NavigationControllerContainerLayout
+        extends FrameLayout {
     private NavigationController navigationController;
 
     private int slopPixels;
@@ -44,7 +45,7 @@ public class NavigationControllerContainerLayout extends FrameLayout {
      * How many pixels we should move a finger to the right before we start moving the whole
      * controller to the right when in Phone layout. (The lower it is the easier it is to start
      * moving the controller which may make it harder to click other views)
-     * */
+     */
     private int minimalMovedPixels = dp(10);
     private int maxFlingPixels;
 
@@ -118,7 +119,9 @@ public class NavigationControllerContainerLayout extends FrameLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (!swipeEnabled || tracking || navigationController.isBlockingInput() || !navigationController.getTop().navigation.swipeable || getBelowTop() == null) {
+        if (!swipeEnabled || tracking || navigationController.isBlockingInput()
+                || !navigationController.getTop().navigation.swipeable || getBelowTop() == null)
+        {
             return false;
         }
 
@@ -199,7 +202,9 @@ public class NavigationControllerContainerLayout extends FrameLayout {
                 if (translationX > 0) {
                     boolean doFlingAway = false;
 
-                    if ((velocity > 0 && Math.abs(velocity) > dp(800) && Math.abs(velocity) < maxFlingPixels) || translationX >= getWidth() * 3 / 4) {
+                    if ((velocity > 0 && Math.abs(velocity) > dp(800) && Math.abs(velocity) < maxFlingPixels)
+                            || translationX >= getWidth() * 3 / 4)
+                    {
                         velocity = Math.max(dp(2000), velocity);
 
                         scroller.fling(translationX, 0, velocity, 0, 0, Integer.MAX_VALUE, 0, 0);

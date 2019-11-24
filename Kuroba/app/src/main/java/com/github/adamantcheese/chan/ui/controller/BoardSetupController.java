@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -58,8 +57,12 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class BoardSetupController extends Controller implements View.OnClickListener, BoardSetupPresenter.Callback {
+public class BoardSetupController
+        extends Controller
+        implements View.OnClickListener, BoardSetupPresenter.Callback {
     @Inject
     BoardSetupPresenter presenter;
 
@@ -73,11 +76,12 @@ public class BoardSetupController extends Controller implements View.OnClickList
     private Site site;
 
     private ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-            ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
-    ) {
+            ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
         @Override
-        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+        public boolean onMove(RecyclerView recyclerView,
+                              RecyclerView.ViewHolder viewHolder,
+                              RecyclerView.ViewHolder target
+        ) {
             int from = viewHolder.getAdapterPosition();
             int to = target.getAdapterPosition();
 
@@ -112,7 +116,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
         view = inflateRes(R.layout.controller_board_setup);
 
         // Navigation
-        navigation.title = context.getString(R.string.setup_board_title, site.name());
+        navigation.title = getString(R.string.setup_board_title, site.name());
         navigation.swipeable = false;
 
         // View binding
@@ -126,8 +130,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
         // View setup
         savedBoardsRecycler.setLayoutManager(new LinearLayoutManager(context));
         savedBoardsRecycler.setAdapter(savedAdapter);
-        savedBoardsRecycler.addItemDecoration(
-                new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
+        savedBoardsRecycler.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
 
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
@@ -159,18 +162,16 @@ public class BoardSetupController extends Controller implements View.OnClickList
 
     @Override
     public void showAddDialog() {
-        @SuppressLint("InflateParams") final BoardAddLayout boardAddLayout =
-                (BoardAddLayout) LayoutInflater.from(context)
-                        .inflate(R.layout.layout_board_add, null);
+        @SuppressLint("InflateParams") final BoardAddLayout boardAddLayout = (BoardAddLayout)
+                LayoutInflater.from(context).inflate(R.layout.layout_board_add, null);
 
         boardAddLayout.setPresenter(presenter);
 
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setView(boardAddLayout)
-//                .setTitle(R.string.setup_board_add)
-                .setPositiveButton(R.string.add, (dialog1, which) -> boardAddLayout.onPositiveClicked())
-                .setNegativeButton(R.string.cancel, null)
-                .create();
+                .setPositiveButton(R.string.add,
+                                   (dialog1, which) -> boardAddLayout.onPositiveClicked()
+                ).setNegativeButton(R.string.cancel, null).create();
 
         Window window = dialog.getWindow();
         assert window != null;
@@ -187,8 +188,9 @@ public class BoardSetupController extends Controller implements View.OnClickList
     @Override
     public void showRemovedSnackbar(final Board board) {
         Snackbar snackbar = Snackbar.make(view,
-                context.getString(R.string.setup_board_removed, BoardHelper.getName(board)),
-                Snackbar.LENGTH_LONG);
+                                          getString(R.string.setup_board_removed, BoardHelper.getName(board)),
+                                          Snackbar.LENGTH_LONG
+        );
         fixSnackbarText(context, snackbar);
 
         snackbar.setAction(R.string.undo, v -> presenter.undoRemoveBoard(board));
@@ -200,14 +202,17 @@ public class BoardSetupController extends Controller implements View.OnClickList
         savedBoardsRecycler.smoothScrollToPosition(savedAdapter.getItemCount());
 
         Snackbar snackbar = Snackbar.make(view,
-                context.getString(R.string.setup_board_added,
-                        context.getResources().getQuantityString(R.plurals.board, count, count)),
-                Snackbar.LENGTH_LONG);
+                                          getString(R.string.setup_board_added,
+                                                    getQuantityString(R.plurals.board, count, count)
+                                          ),
+                                          Snackbar.LENGTH_LONG
+        );
         fixSnackbarText(context, snackbar);
         snackbar.show();
     }
 
-    private class SavedBoardsAdapter extends RecyclerView.Adapter<SavedBoardCell> {
+    private class SavedBoardsAdapter
+            extends RecyclerView.Adapter<SavedBoardCell> {
         private List<Board> savedBoards;
 
         public SavedBoardsAdapter() {
@@ -226,9 +231,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
 
         @Override
         public SavedBoardCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new SavedBoardCell(
-                    LayoutInflater.from(context)
-                            .inflate(R.layout.cell_board, parent, false));
+            return new SavedBoardCell(LayoutInflater.from(context).inflate(R.layout.cell_board, parent, false));
         }
 
         @Override
@@ -262,7 +265,8 @@ public class BoardSetupController extends Controller implements View.OnClickList
         }
     }
 
-    private class SavedBoardCell extends RecyclerView.ViewHolder {
+    private class SavedBoardCell
+            extends RecyclerView.ViewHolder {
         private TextView text;
         private TextView description;
 

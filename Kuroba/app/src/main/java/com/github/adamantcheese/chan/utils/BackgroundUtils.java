@@ -32,7 +32,7 @@ public class BackgroundUtils {
         return ((Chan) Chan.injector().instance(Context.class)).getApplicationInForeground();
     }
 
-    public static boolean isMainThread() {
+    private static boolean isMainThread() {
         return Thread.currentThread() == Looper.getMainLooper().getThread();
     }
 
@@ -41,8 +41,9 @@ public class BackgroundUtils {
             if (BuildConfig.DEV_BUILD) {
                 throw new IllegalStateException("Cannot be executed on a background thread!");
             } else {
-                Logger.e("BackgroundUtils", "ensureMainThread() expected main thread but got "
-                        + Thread.currentThread().getName());
+                Logger.e("BackgroundUtils",
+                         "ensureMainThread() expected main thread but got " + Thread.currentThread().getName()
+                );
             }
         }
     }
@@ -52,14 +53,15 @@ public class BackgroundUtils {
             if (BuildConfig.DEV_BUILD) {
                 throw new IllegalStateException("Cannot be executed on the main thread!");
             } else {
-                Logger.e("BackgroundUtils", "ensureBackgroundThread() expected background " +
-                        "thread but got main");
+                Logger.e("BackgroundUtils", "ensureBackgroundThread() expected background thread but got main");
             }
         }
     }
 
-    public static <T> Cancelable runWithExecutor(Executor executor, final Callable<T> background,
-                                                 final BackgroundResult<T> result) {
+    public static <T> Cancelable runWithExecutor(Executor executor,
+                                                 final Callable<T> background,
+                                                 final BackgroundResult<T> result
+    ) {
         final AtomicBoolean canceled = new AtomicBoolean(false);
         Cancelable cancelable = () -> canceled.set(true);
 

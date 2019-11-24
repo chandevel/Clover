@@ -44,10 +44,12 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class ArchiveController extends Controller implements ArchivePresenter.Callback,
-        ToolbarNavigationController.ToolbarSearchCallback,
-        SwipeRefreshLayout.OnRefreshListener {
+public class ArchiveController
+        extends Controller
+        implements ArchivePresenter.Callback, ToolbarNavigationController.ToolbarSearchCallback,
+                   SwipeRefreshLayout.OnRefreshListener {
     private CrossfadeView crossfadeView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private View progress;
@@ -77,10 +79,8 @@ public class ArchiveController extends Controller implements ArchivePresenter.Ca
         view = inflateRes(R.layout.controller_archive);
 
         // Navigation
-        navigation.title = context.getString(R.string.archive_title, BoardHelper.getName(board));
-        navigation.buildMenu()
-                .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
-                .build();
+        navigation.title = getString(R.string.archive_title, BoardHelper.getName(board));
+        navigation.buildMenu().withItem(R.drawable.ic_search_white_24dp, this::searchClicked).build();
 
         // View binding
         crossfadeView = view.findViewById(R.id.crossfade);
@@ -95,8 +95,7 @@ public class ArchiveController extends Controller implements ArchivePresenter.Ca
         // View setup
         archiveRecyclerview.setLayoutManager(new LinearLayoutManager(context));
         archiveRecyclerview.setAdapter(adapter);
-        archiveRecyclerview.addItemDecoration(
-                new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
+        archiveRecyclerview.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         FastScrollerHelper.create(archiveRecyclerview);
         crossfadeView.toggle(false, false);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -156,7 +155,8 @@ public class ArchiveController extends Controller implements ArchivePresenter.Ca
         presenter.onItemClicked(item);
     }
 
-    private class ArchiveAdapter extends RecyclerView.Adapter<ArchiveCell> {
+    private class ArchiveAdapter
+            extends RecyclerView.Adapter<ArchiveCell> {
         private List<Archive.ArchiveItem> archiveItems = new ArrayList<>();
 
         @Override
@@ -166,8 +166,7 @@ public class ArchiveController extends Controller implements ArchivePresenter.Ca
 
         @Override
         public ArchiveCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ArchiveCell(LayoutInflater.from(context)
-                    .inflate(R.layout.cell_archive, parent, false));
+            return new ArchiveCell(LayoutInflater.from(context).inflate(R.layout.cell_archive, parent, false));
         }
 
         @Override
@@ -184,7 +183,8 @@ public class ArchiveController extends Controller implements ArchivePresenter.Ca
         }
     }
 
-    private class ArchiveCell extends RecyclerView.ViewHolder {
+    private class ArchiveCell
+            extends RecyclerView.ViewHolder {
         private TextView text;
         private Archive.ArchiveItem item;
 

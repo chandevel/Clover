@@ -25,9 +25,9 @@ import com.github.adamantcheese.chan.core.presenter.SiteSetupPresenter;
 import com.github.adamantcheese.chan.core.settings.OptionsSetting;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
+import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
 import java.util.ArrayList;
@@ -36,8 +36,12 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class SiteSetupController extends SettingsController implements SiteSetupPresenter.Callback {
+public class SiteSetupController
+        extends SettingsController
+        implements SiteSetupPresenter.Callback {
     @Inject
     SiteSetupPresenter presenter;
 
@@ -56,7 +60,7 @@ public class SiteSetupController extends SettingsController implements SiteSetup
 
         // Navigation
         navigation.setTitle(R.string.settings_screen);
-        navigation.title = context.getString(R.string.setup_site_title, site.name());
+        navigation.title = getString(R.string.setup_site_title, site.name());
 
         // View binding
         view = inflateRes(R.layout.settings_layout);
@@ -83,18 +87,16 @@ public class SiteSetupController extends SettingsController implements SiteSetup
 
     @Override
     public void setBoardCount(int boardCount) {
-        String boardsString = context.getResources().getQuantityString(
-                R.plurals.board, boardCount, boardCount);
-        String descriptionText = context.getString(
-                R.string.setup_site_boards_description, boardsString);
+        String boardsString = getQuantityString(R.plurals.board, boardCount, boardCount);
+        String descriptionText = getString(R.string.setup_site_boards_description, boardsString);
         boardsLink.setDescription(descriptionText);
     }
 
     @Override
     public void setIsLoggedIn(boolean isLoggedIn) {
-        String text = context.getString(isLoggedIn ?
-                R.string.setup_site_login_description_enabled :
-                R.string.setup_site_login_description_disabled);
+        String text = getString(isLoggedIn
+                                        ? R.string.setup_site_login_description_enabled
+                                        : R.string.setup_site_login_description_disabled);
         loginLink.setDescription(text);
     }
 
@@ -128,29 +130,23 @@ public class SiteSetupController extends SettingsController implements SiteSetup
 
     @SuppressWarnings("unchecked")
     @NonNull
-    private ListSettingView<?> getListSettingView(
-            SiteSetting setting,
-            OptionsSetting optionsSetting,
-            List<ListSettingView.Item<Enum>> items) {
+    private ListSettingView<?> getListSettingView(SiteSetting setting,
+                                                  OptionsSetting optionsSetting,
+                                                  List<ListSettingView.Item<Enum>> items
+    ) {
         // we know it's an enum
-        return (ListSettingView<?>) new ListSettingView(this,
-                optionsSetting, setting.name, items);
+        return (ListSettingView<?>) new ListSettingView(this, optionsSetting, setting.name, items);
     }
 
     @Override
     public void showLogin() {
         SettingsGroup login = new SettingsGroup(R.string.setup_site_group_login);
 
-        loginLink = new LinkSettingView(
-                this,
-                context.getString(R.string.setup_site_login),
-                "",
-                v -> {
-                    LoginController loginController = new LoginController(context);
-                    loginController.setSite(site);
-                    navigationController.pushController(loginController);
-                }
-        );
+        loginLink = new LinkSettingView(this, getString(R.string.setup_site_login), "", v -> {
+            LoginController loginController = new LoginController(context);
+            loginController.setSite(site);
+            navigationController.pushController(loginController);
+        });
 
         login.add(loginLink);
 
@@ -160,15 +156,11 @@ public class SiteSetupController extends SettingsController implements SiteSetup
     private void populatePreferences() {
         SettingsGroup general = new SettingsGroup(R.string.setup_site_group_general);
 
-        boardsLink = new LinkSettingView(
-                this,
-                context.getString(R.string.setup_site_boards),
-                "",
-                v -> {
-                    BoardSetupController boardSetupController = new BoardSetupController(context);
-                    boardSetupController.setSite(site);
-                    navigationController.pushController(boardSetupController);
-                });
+        boardsLink = new LinkSettingView(this, getString(R.string.setup_site_boards), "", v -> {
+            BoardSetupController boardSetupController = new BoardSetupController(context);
+            boardSetupController.setSite(site);
+            navigationController.pushController(boardSetupController);
+        });
         general.add(boardsLink);
 
         groups.add(general);

@@ -47,18 +47,17 @@ public class ExportedFilter {
     @SerializedName("apply_to_saved")
     private boolean applyToSaved;
 
-    public ExportedFilter(
-            boolean enabled,
-            int type,
-            @NonNull String pattern,
-            boolean allBoards,
-            @NonNull String boards,
-            int action,
-            int color,
-            boolean applyToReplies,
-            int order,
-            boolean onlyOnOp,
-            boolean applyToSaved
+    public ExportedFilter(boolean enabled,
+                          int type,
+                          @NonNull String pattern,
+                          boolean allBoards,
+                          @NonNull String boards,
+                          int action,
+                          int color,
+                          boolean applyToReplies,
+                          int order,
+                          boolean onlyOnOp,
+                          boolean applyToSaved
     ) {
         this.enabled = enabled;
         this.type = type;

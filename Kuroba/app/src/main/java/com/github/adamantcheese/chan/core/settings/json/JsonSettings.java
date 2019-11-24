@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.settings.json;
 
-
 import com.google.gson.annotations.SerializedName;
 
 import java.util.HashMap;

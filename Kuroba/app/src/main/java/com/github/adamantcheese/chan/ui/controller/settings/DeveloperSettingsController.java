@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.controller;
+package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
+import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.lang.reflect.Field;
@@ -45,7 +46,8 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
-public class DeveloperSettingsController extends Controller {
+public class DeveloperSettingsController
+        extends Controller {
     private static final String TAG = "DEV";
     @Inject
     DatabaseManager databaseManager;
@@ -151,11 +153,10 @@ public class DeveloperSettingsController extends Controller {
                 WakeManager wakeManager = Chan.injector().instance(WakeManager.class);
                 Field wakeables = wakeManager.getClass().getDeclaredField("wakeableSet");
                 wakeables.setAccessible(true);
-                for(WakeManager.Wakeable wakeable : (Set<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
+                for (WakeManager.Wakeable wakeable : (Set<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
                     wakeable.onWake();
                 }
                 Logger.i(TAG, "Woke all wakeables");
-
             } catch (Exception e) {
                 Logger.i(TAG, "Failed to run wakeables");
             }

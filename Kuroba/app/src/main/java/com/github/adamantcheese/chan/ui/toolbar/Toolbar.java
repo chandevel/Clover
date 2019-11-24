@@ -23,6 +23,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -43,8 +44,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class Toolbar extends LinearLayout implements
-        View.OnClickListener, ToolbarPresenter.Callback, ToolbarContainer.Callback {
+public class Toolbar
+        extends LinearLayout
+        implements View.OnClickListener, ToolbarPresenter.Callback, ToolbarContainer.Callback {
     public static final int TOOLBAR_COLLAPSE_HIDE = 1000000;
     public static final int TOOLBAR_COLLAPSE_SHOW = -1000000;
 
@@ -60,8 +62,7 @@ public class Toolbar extends LinearLayout implements
 
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            if (recyclerView.getLayoutManager() != null &&
-                    newState == RecyclerView.SCROLL_STATE_IDLE) {
+            if (recyclerView.getLayoutManager() != null && newState == RecyclerView.SCROLL_STATE_IDLE) {
                 processRecyclerViewScroll(recyclerView);
             }
         }
@@ -91,7 +92,8 @@ public class Toolbar extends LinearLayout implements
         super(context, attrs, defStyle);
 
         setOrientation(HORIZONTAL);
-        if (isInEditMode()) return;
+        if (isInEditMode())
+            return;
 
         presenter = new ToolbarPresenter(this);
 
@@ -109,8 +111,10 @@ public class Toolbar extends LinearLayout implements
         setRoundItemBackground(arrowMenuView);
 
         int toolbarSize = getResources().getDimensionPixelSize(R.dimen.toolbar_height);
-        FrameLayout.LayoutParams leftButtonContainerLp = new FrameLayout.LayoutParams(
-                toolbarSize, FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER_VERTICAL);
+        FrameLayout.LayoutParams leftButtonContainerLp = new FrameLayout.LayoutParams(toolbarSize,
+                                                                                      FrameLayout.LayoutParams.MATCH_PARENT,
+                                                                                      Gravity.CENTER_VERTICAL
+        );
         leftButtonContainer.addView(arrowMenuView, leftButtonContainerLp);
 
         navigationItemContainer = new ToolbarContainer(getContext());
@@ -161,10 +165,8 @@ public class Toolbar extends LinearLayout implements
         scrollOffset = Math.max(0, Math.min(getHeight(), scrollOffset));
 
         if (animated) {
-            animate().translationY(-scrollOffset)
-                    .setDuration(300)
-                    .setInterpolator(new DecelerateInterpolator(2f))
-                    .start();
+            Interpolator slowdown = new DecelerateInterpolator(2f);
+            animate().translationY(-scrollOffset).setDuration(300).setInterpolator(slowdown).start();
 
             boolean collapse = scrollOffset > 0;
             for (ToolbarCollapseCallback c : collapseCallbacks) {
@@ -222,7 +224,8 @@ public class Toolbar extends LinearLayout implements
         return navigationItemContainer.isTransitioning();
     }
 
-    public void setNavigationItem(final boolean animate, final boolean pushing, final NavigationItem item, Theme theme) {
+    public void setNavigationItem(final boolean animate, final boolean pushing, final NavigationItem item, Theme theme
+    ) {
         ToolbarPresenter.AnimationStyle animationStyle;
         if (!animate) {
             animationStyle = ToolbarPresenter.AnimationStyle.NONE;
@@ -267,14 +270,12 @@ public class Toolbar extends LinearLayout implements
     }
 
     @Override
-    public void showForNavigationItem(
-            NavigationItem item, Theme theme, ToolbarPresenter.AnimationStyle animation) {
+    public void showForNavigationItem(NavigationItem item, Theme theme, ToolbarPresenter.AnimationStyle animation) {
         navigationItemContainer.set(item, theme, animation);
     }
 
     @Override
-    public void containerStartTransition(
-            NavigationItem item, ToolbarPresenter.TransitionAnimationStyle animation) {
+    public void containerStartTransition(NavigationItem item, ToolbarPresenter.TransitionAnimationStyle animation) {
         navigationItemContainer.startTransition(item, animation);
     }
 
@@ -302,7 +303,6 @@ public class Toolbar extends LinearLayout implements
         }
     }
 
-
     @Override
     public void onSearchInput(NavigationItem item, String input) {
         callback.onSearchEntered(item, input);
@@ -322,14 +322,11 @@ public class Toolbar extends LinearLayout implements
         int firstVisibleElement = -1;
 
         if (layoutManager instanceof GridLayoutManager) {
-            firstVisibleElement = ((GridLayoutManager) layoutManager)
-                    .findFirstCompletelyVisibleItemPosition();
+            firstVisibleElement = ((GridLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
         } else if (layoutManager instanceof LinearLayoutManager) {
-            firstVisibleElement = ((LinearLayoutManager) layoutManager)
-                    .findFirstCompletelyVisibleItemPosition();
+            firstVisibleElement = ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
         } else {
-            throw new IllegalStateException("Not implemented for " +
-                    layoutManager.getClass().getName());
+            throw new IllegalStateException("Not implemented for " + layoutManager.getClass().getName());
         }
 
         return firstVisibleElement == 0;

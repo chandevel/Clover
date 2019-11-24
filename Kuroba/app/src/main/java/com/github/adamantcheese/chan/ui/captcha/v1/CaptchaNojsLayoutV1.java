@@ -57,7 +57,9 @@ import static com.github.adamantcheese.chan.Chan.inject;
  * It directly loads the captcha2 fallback url into a webview, and on each requests it executes
  * some javascript that will tell the callback if the token is there.
  */
-public class CaptchaNojsLayoutV1 extends WebView implements AuthenticationLayoutInterface {
+public class CaptchaNojsLayoutV1
+        extends WebView
+        implements AuthenticationLayoutInterface {
     private static final String TAG = "CaptchaNojsLayout";
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
@@ -110,8 +112,9 @@ public class CaptchaNojsLayoutV1 extends WebView implements AuthenticationLayout
         setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(@NonNull ConsoleMessage consoleMessage) {
-                Logger.i(TAG, consoleMessage.lineNumber() + ":" + consoleMessage.message()
-                        + " " + consoleMessage.sourceId());
+                Logger.i(TAG,
+                         consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId()
+                );
                 return true;
             }
         });
@@ -122,8 +125,8 @@ public class CaptchaNojsLayoutV1 extends WebView implements AuthenticationLayout
                 super.onPageFinished(view, url);
 
                 // Fails if there is no token yet, which is ok.
-                final String setResponseJavascript = "CaptchaCallback.onCaptchaEntered(" +
-                        "document.querySelector('.fbc-verification-token textarea').value);";
+                final String setResponseJavascript = "CaptchaCallback.onCaptchaEntered("
+                        + "document.querySelector('.fbc-verification-token textarea').value);";
                 view.loadUrl("javascript:" + setResponseJavascript);
             }
 
@@ -175,13 +178,14 @@ public class CaptchaNojsLayoutV1 extends WebView implements AuthenticationLayout
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(Call call, Response response)
+                    throws IOException {
                 ResponseBody body = response.body();
-                if (body == null) throw new IOException();
+                if (body == null)
+                    throw new IOException();
                 String responseHtml = body.string();
 
-                post(() -> loadDataWithBaseURL(recaptchaUrl,
-                        responseHtml, "text/html", "UTF-8", null));
+                post(() -> loadDataWithBaseURL(recaptchaUrl, responseHtml, "text/html", "UTF-8", null));
             }
         });
     }

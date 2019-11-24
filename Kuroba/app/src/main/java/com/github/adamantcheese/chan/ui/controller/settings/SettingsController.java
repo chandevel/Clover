@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.settings;
+package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -28,6 +28,14 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
+import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
+import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
+import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
+import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.SettingView;
+import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.StringSettingView;
+import com.github.adamantcheese.chan.ui.settings.TextSettingView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -37,7 +45,9 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class SettingsController extends Controller implements AndroidUtils.OnMeasuredCallback {
+public class SettingsController
+        extends Controller
+        implements AndroidUtils.OnMeasuredCallback {
     protected LinearLayout content;
     protected List<SettingsGroup> groups = new ArrayList<>();
 
@@ -81,10 +91,9 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     }
 
     public void onPreferenceChange(SettingView item) {
-        if ((item instanceof ListSettingView)
-                || (item instanceof StringSettingView)
-                || (item instanceof IntegerSettingView)
-                || (item instanceof LinkSettingView)) {
+        if ((item instanceof ListSettingView) || (item instanceof StringSettingView)
+                || (item instanceof IntegerSettingView) || (item instanceof LinkSettingView))
+        {
             setDescriptionText(item.view, item.getTopDescription(), item.getBottomDescription());
         }
 
@@ -159,10 +168,9 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                 String bottomValue = settingView.getBottomDescription();
                 boolean noDivider = false;
 
-                if ((settingView instanceof ListSettingView)
-                        || (settingView instanceof LinkSettingView)
-                        || (settingView instanceof StringSettingView)
-                        || (settingView instanceof IntegerSettingView)) {
+                if ((settingView instanceof ListSettingView) || (settingView instanceof LinkSettingView)
+                        || (settingView instanceof StringSettingView) || (settingView instanceof IntegerSettingView))
+                {
                     preferenceView = (ViewGroup) inf.inflate(R.layout.setting_link, groupLayout, false);
                 } else if (settingView instanceof BooleanSettingView) {
                     preferenceView = (ViewGroup) inf.inflate(R.layout.setting_boolean, groupLayout, false);

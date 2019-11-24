@@ -529,9 +529,7 @@ constructor(
             val splitBoards = boards.split(",".toRegex()).dropLastWhile { it.isEmpty() }
 
             for (uniqueId in splitBoards) {
-                val split = uniqueId
-                        .split(":".toRegex())
-                        .dropLastWhile { it.isEmpty() }
+                val split = uniqueId.split(":".toRegex()).dropLastWhile { it.isEmpty() }
 
                 if (split.size == 2 && Integer.parseInt(split[0]) == site.siteId) {
                     filtersToDelete.add(filter)

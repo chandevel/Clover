@@ -63,20 +63,16 @@ public class PostUtils {
      * Collects all hidden posts with their replies.
      * This function is slow so it must be executed on the background thread
      */
-    public static List<PostHide> findHiddenPostsWithReplies(
-            List<PostHide> hiddenPostsFirstIteration,
-            Map<Integer, Post> postsFastLookupMap
+    public static List<PostHide> findHiddenPostsWithReplies(List<PostHide> hiddenPostsFirstIteration,
+                                                            Map<Integer, Post> postsFastLookupMap
     ) {
-        @SuppressLint("UseSparseArrays")
-        Map<Integer, PostHide> hiddenPostsFastLookupMap = new HashMap<>();
+        @SuppressLint("UseSparseArrays") Map<Integer, PostHide> hiddenPostsFastLookupMap = new HashMap<>();
 
         for (PostHide postHide : hiddenPostsFirstIteration) {
             hiddenPostsFastLookupMap.put(postHide.no, postHide);
         }
 
-        List<PostHide> newHiddenPosts = search(
-                hiddenPostsFastLookupMap,
-                postsFastLookupMap);
+        List<PostHide> newHiddenPosts = search(hiddenPostsFastLookupMap, postsFastLookupMap);
 
         if (newHiddenPosts.isEmpty()) {
             return hiddenPostsFirstIteration;
@@ -93,9 +89,8 @@ public class PostUtils {
      * For every post checks whether it has a reply to already hidden post and adds that post to the
      * hidden posts list if it has. Checks for some flags to decide whether that post should be hidden or not.
      */
-    private static List<PostHide> search(
-            Map<Integer, PostHide> hiddenPostsFastLookupMap,
-            Map<Integer, Post> postsFastLookupMap
+    private static List<PostHide> search(Map<Integer, PostHide> hiddenPostsFastLookupMap,
+                                         Map<Integer, Post> postsFastLookupMap
     ) {
         Set<PostHide> newHiddenPosts = new HashSet<>();
 
@@ -114,7 +109,9 @@ public class PostUtils {
                 }
 
                 PostHide toInheritBaseInfoFrom = hiddenPostsFastLookupMap.get(replyTo);
-                if (repliedToPost.isOP || toInheritBaseInfoFrom == null || !toInheritBaseInfoFrom.hideRepliesToThisPost) {
+                if (repliedToPost.isOP || toInheritBaseInfoFrom == null
+                        || !toInheritBaseInfoFrom.hideRepliesToThisPost)
+                {
                     // skip if OP or if has a flag to not hide replies to this post
                     continue;
                 }
@@ -130,5 +127,4 @@ public class PostUtils {
 
         return new ArrayList<>(newHiddenPosts);
     }
-
 }

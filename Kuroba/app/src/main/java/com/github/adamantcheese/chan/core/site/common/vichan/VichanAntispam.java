@@ -54,17 +54,26 @@ public class VichanAntispam {
     }
 
     public void addDefaultIgnoreFields() {
-        fieldsToIgnore.addAll(Arrays.asList("board", "thread", "name", "email",
-                "subject", "body", "password", "file", "spoiler", "json_response",
-                "file_url1", "file_url2", "file_url3"));
+        fieldsToIgnore.addAll(Arrays.asList("board",
+                                            "thread",
+                                            "name",
+                                            "email",
+                                            "subject",
+                                            "body",
+                                            "password",
+                                            "file",
+                                            "spoiler",
+                                            "json_response",
+                                            "file_url1",
+                                            "file_url2",
+                                            "file_url3"
+        ));
     }
 
     public Map<String, String> get() {
         Map<String, String> res = new HashMap<>();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+        Request request = new Request.Builder().url(url).build();
         try {
             Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute();
             ResponseBody body = response.body();

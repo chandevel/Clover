@@ -21,7 +21,9 @@ import android.util.LruCache;
 
 import com.android.volley.toolbox.ImageLoader;
 
-public class BitmapLruImageCache extends LruCache<String, Bitmap> implements ImageLoader.ImageCache {
+public class BitmapLruImageCache
+        extends LruCache<String, Bitmap>
+        implements ImageLoader.ImageCache {
     public BitmapLruImageCache(int maxSize) {
         super(maxSize);
     }

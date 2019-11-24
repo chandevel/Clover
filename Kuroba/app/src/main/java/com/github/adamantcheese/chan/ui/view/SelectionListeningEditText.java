@@ -21,7 +21,8 @@ import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatEditText;
 
-public class SelectionListeningEditText extends AppCompatEditText {
+public class SelectionListeningEditText
+        extends AppCompatEditText {
     private SelectionChangedListener listener;
 
     public SelectionListeningEditText(Context context) {

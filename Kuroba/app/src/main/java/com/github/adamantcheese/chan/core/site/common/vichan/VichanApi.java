@@ -20,13 +20,15 @@ import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
 
-public class VichanApi extends CommonSite.CommonApi {
+public class VichanApi
+        extends CommonSite.CommonApi {
     public VichanApi(CommonSite commonSite) {
         super(commonSite);
     }
 
     @Override
-    public void loadThread(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+    public void loadThread(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception {
         reader.beginObject();
         // Page object
         while (reader.hasNext()) {
@@ -47,7 +49,8 @@ public class VichanApi extends CommonSite.CommonApi {
     }
 
     @Override
-    public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+    public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception {
         reader.beginArray(); // Array of pages
 
         while (reader.hasNext()) {
@@ -74,7 +77,8 @@ public class VichanApi extends CommonSite.CommonApi {
     }
 
     @Override
-    public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+    public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception {
         Post.Builder builder = new Post.Builder();
         builder.board(queue.getLoadable().board);
 
@@ -203,8 +207,7 @@ public class VichanApi extends CommonSite.CommonApi {
 
         // The file from between the other values.
         if (fileId != null && fileName != null && fileExt != null) {
-            Map<String, String> args = makeArgument("tim", fileId,
-                    "ext", fileExt);
+            Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
             PostImage image = new PostImage.Builder()
                     .serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
@@ -244,22 +247,20 @@ public class VichanApi extends CommonSite.CommonApi {
         }
 
         if (countryCode != null && countryName != null) {
-            HttpUrl countryUrl = endpoints.icon("country",
-                    makeArgument("country_code", countryCode));
+            HttpUrl countryUrl = endpoints.icon("country", makeArgument("country_code", countryCode));
             builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/" + countryCode));
         }
 
         if (trollCountryCode != null && countryName != null) {
-            HttpUrl countryUrl = endpoints.icon("troll_country",
-                    makeArgument("troll_country_code", trollCountryCode));
+            HttpUrl countryUrl = endpoints.icon("troll_country", makeArgument("troll_country_code", trollCountryCode));
             builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/t_" + trollCountryCode));
         }
 
         queue.addForParse(builder);
     }
 
-    private PostImage readPostImage(JsonReader reader, Post.Builder builder,
-                                    SiteEndpoints endpoints) throws IOException {
+    private PostImage readPostImage(JsonReader reader, Post.Builder builder, SiteEndpoints endpoints)
+            throws IOException {
         try {
             reader.beginObject();
         } catch (Exception e) {
@@ -314,8 +315,7 @@ public class VichanApi extends CommonSite.CommonApi {
         reader.endObject();
 
         if (fileId != null && fileName != null && fileExt != null) {
-            Map<String, String> args = makeArgument("tim", fileId,
-                    "ext", fileExt);
+            Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
             return new PostImage.Builder()
                     .serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))

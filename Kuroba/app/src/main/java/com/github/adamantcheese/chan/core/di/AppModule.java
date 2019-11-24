@@ -56,17 +56,14 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public ImageLoaderV2 provideImageLoaderV2(
-            RequestQueue requestQueue,
-            Context applicationContext,
-            ThemeHelper themeHelper,
-            FileManager fileManager
+    public ImageLoaderV2 provideImageLoaderV2(RequestQueue requestQueue,
+                                              Context applicationContext,
+                                              ThemeHelper themeHelper,
+                                              FileManager fileManager
     ) {
         final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         final int lruImageCacheSize = runtimeMemory / 8;
-        ImageLoader imageLoader = new ImageLoader(
-                requestQueue,
-                new BitmapLruImageCache(lruImageCacheSize));
+        ImageLoader imageLoader = new ImageLoader(requestQueue, new BitmapLruImageCache(lruImageCacheSize));
         Logger.d(DI_TAG, "Image loader v2");
         return new ImageLoaderV2(imageLoader, fileManager);
     }
@@ -108,19 +105,10 @@ public class AppModule {
         LocalThreadsBaseDirectory localThreadsBaseDirectory = new LocalThreadsBaseDirectory();
         SavedFilesBaseDirectory savedFilesBaseDirectory = new SavedFilesBaseDirectory();
 
-        FileManager fileManager = new FileManager(
-                applicationContext,
-                directoryManager
-        );
+        FileManager fileManager = new FileManager(applicationContext, directoryManager);
 
-        fileManager.registerBaseDir(
-                LocalThreadsBaseDirectory.class,
-                localThreadsBaseDirectory
-        );
-        fileManager.registerBaseDir(
-                SavedFilesBaseDirectory.class,
-                savedFilesBaseDirectory
-        );
+        fileManager.registerBaseDir(LocalThreadsBaseDirectory.class, localThreadsBaseDirectory);
+        fileManager.registerBaseDir(SavedFilesBaseDirectory.class, savedFilesBaseDirectory);
 
         return fileManager;
     }

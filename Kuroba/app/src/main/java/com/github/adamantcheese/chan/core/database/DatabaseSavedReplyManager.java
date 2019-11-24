@@ -84,9 +84,9 @@ public class DatabaseSavedReplyManager {
 
     public Callable<Void> load() {
         return () -> {
-            Chan.injector().provider(DatabaseManager.class).get().trimTable(helper.savedDao, "savedreply",
-                    SAVED_REPLY_TRIM_TRIGGER, SAVED_REPLY_TRIM_COUNT);
-
+            Chan.injector()
+                .instance(DatabaseManager.class)
+                .trimTable(helper.savedDao, "savedreply", SAVED_REPLY_TRIM_TRIGGER, SAVED_REPLY_TRIM_COUNT);
             final List<SavedReply> all = helper.savedDao.queryForAll();
 
             synchronized (savedRepliesByNo) {
@@ -153,10 +153,14 @@ public class DatabaseSavedReplyManager {
     public Callable<SavedReply> findSavedReply(final Board board, final int no) {
         return () -> {
             QueryBuilder<SavedReply, Integer> builder = helper.savedDao.queryBuilder();
-            List<SavedReply> query = builder.where()
+            List<SavedReply> query = builder
+                    .where()
                     .eq("site", board.siteId)
-                    .and().eq("board", board.code)
-                    .and().eq("no", no).query();
+                    .and()
+                    .eq("board", board.code)
+                    .and()
+                    .eq("no", no)
+                    .query();
             return query.isEmpty() ? null : query.get(0);
         };
     }

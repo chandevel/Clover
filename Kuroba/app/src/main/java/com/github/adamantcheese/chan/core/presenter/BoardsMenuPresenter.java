@@ -31,7 +31,8 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
-public class BoardsMenuPresenter implements Observer {
+public class BoardsMenuPresenter
+        implements Observer {
     private BoardRepository.SitesBoards allBoards;
 
     private Items items;
@@ -79,7 +80,8 @@ public class BoardsMenuPresenter implements Observer {
         items.update(this.allBoards.get(), filter);
     }
 
-    public static class Items extends Observable {
+    public static class Items
+            extends Observable {
         public List<Item> items = new ArrayList<>();
         private int itemIdCounter = 1;
 

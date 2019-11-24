@@ -47,8 +47,7 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public BoardManager provideBoardManager(
-            BoardRepository boardRepository
+    public BoardManager provideBoardManager(BoardRepository boardRepository
     ) {
         Logger.d(AppModule.DI_TAG, "Board manager");
         return new BoardManager(boardRepository);
@@ -77,21 +76,14 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public WatchManager provideWatchManager(
-            DatabaseManager databaseManager,
-            ChanLoaderFactory chanLoaderFactory,
-            WakeManager wakeManager,
-            PageRequestManager pageRequestManager,
-            ThreadSaveManager threadSaveManager
+    public WatchManager provideWatchManager(DatabaseManager databaseManager,
+                                            ChanLoaderFactory chanLoaderFactory,
+                                            WakeManager wakeManager,
+                                            PageRequestManager pageRequestManager,
+                                            ThreadSaveManager threadSaveManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
-        return new WatchManager(
-                databaseManager,
-                chanLoaderFactory,
-                wakeManager,
-                pageRequestManager,
-                threadSaveManager
-        );
+        return new WatchManager(databaseManager, chanLoaderFactory, wakeManager, pageRequestManager, threadSaveManager);
     }
 
     @Provides
@@ -103,16 +95,21 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public FilterWatchManager provideFilterWatchManager(
-            WakeManager wakeManager,
-            FilterEngine filterEngine,
-            WatchManager watchManager,
-            ChanLoaderFactory chanLoaderFactory,
-            BoardRepository boardRepository,
-            DatabaseManager databaseManager
+    public FilterWatchManager provideFilterWatchManager(WakeManager wakeManager,
+                                                        FilterEngine filterEngine,
+                                                        WatchManager watchManager,
+                                                        ChanLoaderFactory chanLoaderFactory,
+                                                        BoardRepository boardRepository,
+                                                        DatabaseManager databaseManager
     ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
-        return new FilterWatchManager(wakeManager, filterEngine, watchManager, chanLoaderFactory, boardRepository, databaseManager);
+        return new FilterWatchManager(wakeManager,
+                                      filterEngine,
+                                      watchManager,
+                                      chanLoaderFactory,
+                                      boardRepository,
+                                      databaseManager
+        );
     }
 
     @Provides
@@ -124,7 +121,8 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public ArchivesManager provideArchivesManager() throws Exception {
+    public ArchivesManager provideArchivesManager()
+            throws Exception {
         Logger.d(AppModule.DI_TAG, "Archives manager (4chan only)");
         //archives are only for 4chan, make a dummy site instance for this method
         Site chan4 = Chan4.class.newInstance();
@@ -135,25 +133,20 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public ThreadSaveManager provideSaveThreadManager(
-            DatabaseManager databaseManager,
-            SavedThreadLoaderRepository savedThreadLoaderRepository,
-            FileManager fileManager) {
+    public ThreadSaveManager provideSaveThreadManager(DatabaseManager databaseManager,
+                                                      SavedThreadLoaderRepository savedThreadLoaderRepository,
+                                                      FileManager fileManager
+    ) {
         Logger.d(AppModule.DI_TAG, "Thread save manager");
-        return new ThreadSaveManager(
-                databaseManager,
-                savedThreadLoaderRepository,
-                fileManager);
+        return new ThreadSaveManager(databaseManager, savedThreadLoaderRepository, fileManager);
     }
 
     @Provides
     @Singleton
-    public SavedThreadLoaderManager provideSavedThreadLoaderManager(
-            SavedThreadLoaderRepository savedThreadLoaderRepository,
-            FileManager fileManager) {
+    public SavedThreadLoaderManager provideSavedThreadLoaderManager(SavedThreadLoaderRepository savedThreadLoaderRepository,
+                                                                    FileManager fileManager
+    ) {
         Logger.d(AppModule.DI_TAG, "Saved thread loader manager");
-        return new SavedThreadLoaderManager(
-                savedThreadLoaderRepository,
-                fileManager);
+        return new SavedThreadLoaderManager(savedThreadLoaderRepository, fileManager);
     }
 }

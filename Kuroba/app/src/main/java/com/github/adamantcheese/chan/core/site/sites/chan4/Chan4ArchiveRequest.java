@@ -29,10 +29,13 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Chan4ArchiveRequest extends HtmlReaderRequest<Archive> {
-    public Chan4ArchiveRequest(Site site, Board board,
+public class Chan4ArchiveRequest
+        extends HtmlReaderRequest<Archive> {
+    public Chan4ArchiveRequest(Site site,
+                               Board board,
                                Response.Listener<Archive> listener,
-                               Response.ErrorListener errorListener) {
+                               Response.ErrorListener errorListener
+    ) {
         super(site.endpoints().archive(board).toString(), listener, errorListener);
     }
 

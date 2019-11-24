@@ -31,7 +31,8 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 
 import okhttp3.HttpUrl;
 
-public class Arisuchan extends CommonSite {
+public class Arisuchan
+        extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
@@ -53,8 +54,10 @@ public class Arisuchan extends CommonSite {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl().newBuilder()
-                        .addPathSegment(loadable.boardCode).addPathSegment("res")
+                return getUrl()
+                        .newBuilder()
+                        .addPathSegment(loadable.boardCode)
+                        .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
                         .toString();
             } else {
@@ -68,16 +71,15 @@ public class Arisuchan extends CommonSite {
         setName("Arisuchan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://arisuchan.jp/favicon.ico")));
 
-        setBoards(
-                Board.fromSiteNameCode(this, "technology", "tech"),
-                Board.fromSiteNameCode(this, "art and creative", "art"),
-                Board.fromSiteNameCode(this, "culture and media", "cult"),
-                Board.fromSiteNameCode(this, "psychology and psychonautics", "psy"),
-                Board.fromSiteNameCode(this, "programming", "λ"),
-                Board.fromSiteNameCode(this, "shape your world", "Δ"),
-                Board.fromSiteNameCode(this, "Киберпанк", "ru"),
-                Board.fromSiteNameCode(this, "miscellaneous", "r"),
-                Board.fromSiteNameCode(this, "arisuchan meta", "q")
+        setBoards(Board.fromSiteNameCode(this, "technology", "tech"),
+                  Board.fromSiteNameCode(this, "art and creative", "art"),
+                  Board.fromSiteNameCode(this, "culture and media", "cult"),
+                  Board.fromSiteNameCode(this, "psychology and psychonautics", "psy"),
+                  Board.fromSiteNameCode(this, "programming", "λ"),
+                  Board.fromSiteNameCode(this, "shape your world", "Δ"),
+                  Board.fromSiteNameCode(this, "Киберпанк", "ru"),
+                  Board.fromSiteNameCode(this, "miscellaneous", "r"),
+                  Board.fromSiteNameCode(this, "arisuchan meta", "q")
         );
 
         setResolvable(URL_HANDLER);
@@ -89,9 +91,7 @@ public class Arisuchan extends CommonSite {
             }
         });
 
-        setEndpoints(new VichanEndpoints(this,
-                "https://arisuchan.jp",
-                "https://arisuchan.jp"));
+        setEndpoints(new VichanEndpoints(this, "https://arisuchan.jp", "https://arisuchan.jp"));
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());

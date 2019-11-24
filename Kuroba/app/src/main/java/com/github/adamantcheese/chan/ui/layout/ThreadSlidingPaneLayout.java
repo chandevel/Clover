@@ -29,7 +29,8 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class ThreadSlidingPaneLayout extends SlidingPaneLayout {
+public class ThreadSlidingPaneLayout
+        extends SlidingPaneLayout {
     public ViewGroup leftPane;
     public ViewGroup rightPane;
 

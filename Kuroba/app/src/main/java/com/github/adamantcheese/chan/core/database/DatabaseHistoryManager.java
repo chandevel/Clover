@@ -49,7 +49,9 @@ public class DatabaseHistoryManager {
 
     public Callable<Void> load() {
         return () -> {
-            Chan.injector().provider(DatabaseManager.class).get().trimTable(helper.historyDao, "history", HISTORY_TRIM_TRIGGER, HISTORY_TRIM_COUNT);
+            Chan.injector()
+                .instance(DatabaseManager.class)
+                .trimTable(helper.historyDao, "history", HISTORY_TRIM_TRIGGER, HISTORY_TRIM_COUNT);
 
             return null;
         };

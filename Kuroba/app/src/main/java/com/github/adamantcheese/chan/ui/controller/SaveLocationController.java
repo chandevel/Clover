@@ -39,7 +39,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 
-public class SaveLocationController extends Controller implements FileWatcher.FileWatcherCallback, FilesAdapter.Callback, FilesLayout.Callback, View.OnClickListener {
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
+public class SaveLocationController
+        extends Controller
+        implements FileWatcher.FileWatcherCallback, FilesAdapter.Callback, FilesLayout.Callback, View.OnClickListener {
     private FilesLayout filesLayout;
     private FloatingActionButton setButton;
     private FloatingActionButton addButton;
@@ -48,10 +52,10 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
     private SaveLocationControllerMode mode;
     private SaveLocationControllerCallback callback;
 
-    public SaveLocationController(
-            Context context,
-            SaveLocationControllerMode mode,
-            SaveLocationControllerCallback callback) {
+    public SaveLocationController(Context context,
+                                  SaveLocationControllerMode mode,
+                                  SaveLocationControllerCallback callback
+    ) {
         super(context);
 
         this.callback = callback;
@@ -104,9 +108,8 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
             onDirectoryChosen();
             navigationController.popController();
         } else if (v == addButton) {
-            @SuppressLint("InflateParams") final NewFolderLayout dialogView =
-                    (NewFolderLayout) LayoutInflater.from(context)
-                            .inflate(R.layout.layout_folder_add, null);
+            @SuppressLint("InflateParams") final NewFolderLayout dialogView = (NewFolderLayout)
+                    LayoutInflater.from(context).inflate(R.layout.layout_folder_add, null);
 
             new AlertDialog.Builder(context)
                     .setView(dialogView)
@@ -122,19 +125,13 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
 
     private void onPositionButtonClick(NewFolderLayout dialogView, DialogInterface dialog) {
         if (!dialogView.getFolderName().matches("\\A\\w+\\z")) {
-            Toast.makeText(
-                    context,
-                    "Folder must be a word, no spaces",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Folder must be a word, no spaces", Toast.LENGTH_SHORT).show();
         } else {
             File newDir = new File(
-                    fileWatcher.getCurrentPath().getAbsolutePath()
-                            + File.separator
-                            + dialogView.getFolderName());
+                    fileWatcher.getCurrentPath().getAbsolutePath() + File.separator + dialogView.getFolderName());
 
             if (!newDir.mkdir()) {
-                throw new IllegalStateException("Could not create directory "
-                        + newDir.getAbsolutePath());
+                throw new IllegalStateException("Could not create directory " + newDir.getAbsolutePath());
             }
 
             fileWatcher.navigateTo(newDir);
@@ -173,11 +170,10 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
             if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 initialize();
             } else {
-                runtimePermissionsHelper.showPermissionRequiredDialog(
-                        context,
-                        context.getString(R.string.save_location_storage_permission_required_title),
-                        context.getString(R.string.save_location_storage_permission_required),
-                        this::requestPermission
+                runtimePermissionsHelper.showPermissionRequiredDialog(context,
+                                                                      getString(R.string.save_location_storage_permission_required_title),
+                                                                      getString(R.string.save_location_storage_permission_required),
+                                                                      this::requestPermission
                 );
             }
         });

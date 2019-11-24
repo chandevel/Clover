@@ -16,7 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.settings;
 
-public class LongSetting extends Setting<Long> {
+public class LongSetting
+        extends Setting<Long> {
     private boolean hasCached = false;
     private Long cached;
 

@@ -35,11 +35,10 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    public ImportExportRepository provideImportExportRepository(
-            DatabaseManager databaseManager,
-            DatabaseHelper databaseHelper,
-            Gson gson,
-            FileManager fileManager
+    public ImportExportRepository provideImportExportRepository(DatabaseManager databaseManager,
+                                                                DatabaseHelper databaseHelper,
+                                                                Gson gson,
+                                                                FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Import export repository");
         return new ImportExportRepository(databaseManager, databaseHelper, gson, fileManager);
@@ -47,19 +46,14 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    public SiteRepository provideSiteRepository(
-            DatabaseManager databaseManager
-    ) {
+    public SiteRepository provideSiteRepository(DatabaseManager databaseManager) {
         Logger.d(AppModule.DI_TAG, "Site repository");
         return new SiteRepository(databaseManager);
     }
 
     @Provides
     @Singleton
-    public BoardRepository provideBoardRepository(
-            DatabaseManager databaseManager,
-            SiteRepository siteRepository
-    ) {
+    public BoardRepository provideBoardRepository(DatabaseManager databaseManager, SiteRepository siteRepository) {
         Logger.d(AppModule.DI_TAG, "Board repository");
         return new BoardRepository(databaseManager, siteRepository);
     }
@@ -73,10 +67,7 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    public SavedThreadLoaderRepository provideSavedThreadLoaderRepository(
-            Gson gson,
-            FileManager fileManager
-    ) {
+    public SavedThreadLoaderRepository provideSavedThreadLoaderRepository(Gson gson, FileManager fileManager) {
         Logger.d(AppModule.DI_TAG, "Saved thread loader repository");
         return new SavedThreadLoaderRepository(gson, fileManager);
     }

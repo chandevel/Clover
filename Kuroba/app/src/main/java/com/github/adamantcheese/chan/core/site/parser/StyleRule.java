@@ -189,7 +189,8 @@ public class StyleRule {
                               PostParser.Callback callback,
                               Post.Builder post,
                               CharSequence text,
-                              Element element) {
+                              Element element
+    ) {
         if (nullify) {
             return null;
         }
@@ -296,6 +297,7 @@ public class StyleRule {
                              PostParser.Callback callback,
                              Post.Builder post,
                              CharSequence text,
-                             Element element);
+                             Element element
+        );
     }
 }

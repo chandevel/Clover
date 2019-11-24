@@ -41,13 +41,13 @@ public class BitmapUtils {
 
     private static final Random random = new Random();
 
-    public static File reencodeBitmapFile(
-            @NonNull File inputBitmapFile,
-            boolean fixExif,
-            boolean removeMetadata,
-            boolean changeImageChecksum,
-            @Nullable ImageReencodingPresenter.ReencodeSettings reencodeSettings
-    ) throws IOException {
+    public static File reencodeBitmapFile(@NonNull File inputBitmapFile,
+                                          boolean fixExif,
+                                          boolean removeMetadata,
+                                          boolean changeImageChecksum,
+                                          @Nullable ImageReencodingPresenter.ReencodeSettings reencodeSettings
+    )
+            throws IOException {
         int quality = MAX_QUALITY;
         int reduce = MIN_REDUCE;
         ImageReencodingPresenter.ReencodeType reencodeType = ImageReencodingPresenter.ReencodeType.AS_IS;
@@ -75,12 +75,10 @@ public class BitmapUtils {
         }
 
         //all parameters are default - do nothing
-        if (quality == MAX_QUALITY
-                && reduce == MIN_REDUCE
-                && reencodeType == ImageReencodingPresenter.ReencodeType.AS_IS
-                && !fixExif
-                && !removeMetadata
-                && !changeImageChecksum) {
+        if (quality == MAX_QUALITY && reduce == MIN_REDUCE
+                && reencodeType == ImageReencodingPresenter.ReencodeType.AS_IS && !fixExif && !removeMetadata
+                && !changeImageChecksum)
+        {
             return inputBitmapFile;
         }
 
@@ -114,7 +112,9 @@ public class BitmapUtils {
             //fix exif
             if (compressFormat == Bitmap.CompressFormat.JPEG && fixExif) {
                 ExifInterface exif = new ExifInterface(inputBitmapFile.getAbsolutePath());
-                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                                                       ExifInterface.ORIENTATION_UNDEFINED
+                );
                 switch (orientation) {
                     case ExifInterface.ORIENTATION_ROTATE_270:
                         matrix.postRotate(270);
@@ -131,15 +131,7 @@ public class BitmapUtils {
                 }
             }
 
-            Bitmap newBitmap = Bitmap.createBitmap(
-                    bitmap,
-                    0,
-                    0,
-                    bitmap.getWidth(),
-                    bitmap.getHeight(),
-                    matrix,
-                    true
-            );
+            Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
             File tempFile = null;
 
@@ -171,7 +163,8 @@ public class BitmapUtils {
         }
     }
 
-    private static File getTempFilename() throws IOException {
+    private static File getTempFilename()
+            throws IOException {
         File outputDir = getAppContext().getCacheDir();
         deleteOldTempFiles(outputDir.listFiles());
 
@@ -214,20 +207,19 @@ public class BitmapUtils {
     public static boolean isFileSupportedForReencoding(File file) {
         try {
             Bitmap.CompressFormat imageFormat = getImageFormat(file);
-            return imageFormat == Bitmap.CompressFormat.JPEG
-                    || imageFormat == Bitmap.CompressFormat.PNG;
+            return imageFormat == Bitmap.CompressFormat.JPEG || imageFormat == Bitmap.CompressFormat.PNG;
         } catch (IOException e) {
             // ignore
             return false;
         }
     }
 
-    public static Bitmap.CompressFormat getImageFormat(File file) throws IOException {
+    public static Bitmap.CompressFormat getImageFormat(File file)
+            throws IOException {
         if (!file.exists() || !file.isFile() || !file.canRead()) {
-            throw new IOException("File " + file.getAbsolutePath() + " is inaccessible " +
-                    "(exists = " + file.exists() +
-                    ", isFile = " + file.isFile() +
-                    ", canRead = " + file.canRead() + ")");
+            throw new IOException(
+                    "File " + file.getAbsolutePath() + " is inaccessible (exists = " + file.exists() + ", isFile = "
+                            + file.isFile() + ", canRead = " + file.canRead() + ")");
         }
 
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
@@ -275,29 +267,26 @@ public class BitmapUtils {
      *
      * @param file image
      * @return a pair of dimensions, in WIDTH then HEIGHT order
+     *
      * @throws IOException if anything went wrong
      */
-    public static Pair<Integer, Integer> getImageDims(File file) throws IOException {
-        if (file == null) throw new IOException();
+    public static Pair<Integer, Integer> getImageDims(File file)
+            throws IOException {
+        if (file == null)
+            throw new IOException();
         Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
         return new Pair<>(bitmap.getWidth(), bitmap.getHeight());
     }
 
     @Nullable
-    public static Bitmap getBitmapFromVectorDrawable(
-            Context context,
-            int width,
-            int height,
-            @DrawableRes int drawableId) {
+    public static Bitmap getBitmapFromVectorDrawable(Context context, int width, int height, @DrawableRes int drawableId
+    ) {
         Drawable originalDrawable = ContextCompat.getDrawable(context, drawableId);
         if (originalDrawable == null) {
             return null;
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(
-                width,
-                height,
-                Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
         Canvas canvas = new Canvas(bitmap);
         originalDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());

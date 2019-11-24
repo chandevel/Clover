@@ -52,22 +52,19 @@ public class ExportedPin {
     @SerializedName("pin_type")
     private int pinType = -1;
 
-    public ExportedPin(
-            boolean archived,
-            int pinId,
-            boolean isError,
-            int loadableId,
-            int order,
-            int quoteLastCount,
-            int quoteNewCount,
-            @NonNull
-                    String thumbnailUrl,
-            int watchLastCount,
-            int watchNewCount,
-            boolean watching,
-            @NonNull
-                    ExportedLoadable exportedLoadable,
-            int pinType
+    public ExportedPin(boolean archived,
+                       int pinId,
+                       boolean isError,
+                       int loadableId,
+                       int order,
+                       int quoteLastCount,
+                       int quoteNewCount,
+                       @NonNull String thumbnailUrl,
+                       int watchLastCount,
+                       int watchNewCount,
+                       boolean watching,
+                       @NonNull ExportedLoadable exportedLoadable,
+                       int pinType
     ) {
         this.archived = archived;
         this.pinId = pinId;

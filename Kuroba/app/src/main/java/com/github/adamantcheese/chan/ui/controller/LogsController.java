@@ -37,7 +37,8 @@ import java.io.InputStream;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
-public class LogsController extends Controller {
+public class LogsController
+        extends Controller {
     private static final String TAG = "LogsController";
 
     private TextView logTextView;
@@ -54,14 +55,20 @@ public class LogsController extends Controller {
 
         navigation.setTitle(R.string.settings_logs_screen);
 
-        navigation.buildMenu().withOverflow()
-                .withSubItem(R.string.settings_logs_copy, this::copyLogsClicked)
-                .build().build();
+        navigation.buildMenu()
+                  .withOverflow()
+                  .withSubItem(R.string.settings_logs_copy, this::copyLogsClicked)
+                  .build()
+                  .build();
 
         ScrollView container = new ScrollView(context);
         container.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
         logTextView = new TextView(context);
-        container.addView(logTextView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        container.addView(logTextView,
+                          new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                                     ViewGroup.LayoutParams.MATCH_PARENT
+                          )
+        );
 
         view = container;
 
@@ -69,7 +76,8 @@ public class LogsController extends Controller {
     }
 
     private void copyLogsClicked(ToolbarMenuSubItem item) {
-        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext()
+                                                                    .getSystemService(Context.CLIPBOARD_SERVICE);
         assert clipboard != null;
         ClipData clip = ClipData.newPlainText("Logs", logText);
         clipboard.setPrimaryClip(clip);
@@ -79,9 +87,7 @@ public class LogsController extends Controller {
     private void loadLogs() {
         Process process;
         try {
-            process = new ProcessBuilder()
-                    .command("logcat", "-v", "tag", "-t", "250", "StrictMode:S")
-                    .start();
+            process = new ProcessBuilder().command("logcat", "-v", "tag", "-t", "250", "StrictMode:S").start();
         } catch (IOException e) {
             Logger.e(TAG, "Error starting logcat", e);
             return;
@@ -91,7 +97,8 @@ public class LogsController extends Controller {
         //This filters our log output to just stuff we care about in-app (and if a crash happens, the uncaught handler gets it and this will still allow it through)
         String filtered = "";
         for (String line : IOUtils.readString(outputStream).split("\n")) {
-            if (line.contains(getApplicationLabel())) filtered = filtered.concat(line).concat("\n");
+            if (line.contains(getApplicationLabel()))
+                filtered = filtered.concat(line).concat("\n");
         }
         logText = filtered;
         logTextView.setText(logText);

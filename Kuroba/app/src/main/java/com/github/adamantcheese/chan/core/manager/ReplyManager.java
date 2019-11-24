@@ -66,7 +66,8 @@ public class ReplyManager {
     public File getPickFile() {
         File cacheFile = new File(context.getCacheDir(), "picked_file");
         try {
-            if (!cacheFile.exists()) cacheFile.createNewFile(); //ensure the file exists for writing to
+            if (!cacheFile.exists())
+                cacheFile.createNewFile(); //ensure the file exists for writing to
         } catch (Exception ignored) {
         }
         return cacheFile;

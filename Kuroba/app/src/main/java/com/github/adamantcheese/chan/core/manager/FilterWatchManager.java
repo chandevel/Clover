@@ -48,7 +48,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-public class FilterWatchManager implements WakeManager.Wakeable {
+public class FilterWatchManager
+        implements WakeManager.Wakeable {
     private static final String TAG = "FilterWatchManager";
 
     private final WakeManager wakeManager;
@@ -78,7 +79,8 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                               WatchManager watchManager,
                               ChanLoaderFactory chanLoaderFactory,
                               BoardRepository boardRepository,
-                              DatabaseManager databaseManager) {
+                              DatabaseManager databaseManager
+    ) {
         this.wakeManager = wakeManager;
         this.filterEngine = filterEngine;
         this.watchManager = watchManager;
@@ -90,9 +92,11 @@ public class FilterWatchManager implements WakeManager.Wakeable {
             wakeManager.registerWakeable(this);
         }
 
-        Set<Integer> previousIgnore = serializer.fromJson(ChanSettings.filterWatchIgnored.get(), new TypeToken<Set<Integer>>() {
-        }.getType());
-        if (previousIgnore != null) ignoredPosts.addAll(previousIgnore);
+        Set<Integer> previousIgnore = serializer.fromJson(ChanSettings.filterWatchIgnored.get(),
+                                                          new TypeToken<Set<Integer>>() {}.getType()
+        );
+        if (previousIgnore != null)
+            ignoredPosts.addAll(previousIgnore);
 
         EventBus.getDefault().register(this);
     }
@@ -148,25 +152,28 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         //create background loaders for each thing in the board set
         for (BoardRepository.SiteBoards siteBoard : boardRepository.getSaved().get()) {
             for (Board b : siteBoard.boards) {
-                for (String code : boardCodes)
+                for (String code : boardCodes) {
                     if (b.code.equals(code)) {
                         BackgroundLoader backgroundLoader = new BackgroundLoader();
                         Loadable boardLoadable = Loadable.forCatalog(b);
                         boardLoadable = databaseLoadableManager.get(boardLoadable);
-                        ChanThreadLoader catalogLoader = chanLoaderFactory.obtain(
-                                boardLoadable,
-                                watchManager,
-                                backgroundLoader);
+                        ChanThreadLoader catalogLoader = chanLoaderFactory.obtain(boardLoadable,
+                                                                                  watchManager,
+                                                                                  backgroundLoader
+                        );
                         filterLoaders.put(catalogLoader, backgroundLoader);
                     }
+                }
             }
         }
     }
 
     public void onCatalogLoad(ChanThread catalog) {
         Logger.d(TAG, "onCatalogLoad() for /" + catalog.getLoadable().board.code + "/");
-        if (catalog.getLoadable().isThreadMode()) return; //not a catalog
-        if (processing) return; //filter watch manager is currently processing, ignore
+        if (catalog.getLoadable().isThreadMode())
+            return; //not a catalog
+        if (processing)
+            return; //filter watch manager is currently processing, ignore
 
         Set<Integer> toAdd = new HashSet<>();
         //Match filters and ignores
@@ -174,7 +181,11 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         for (Filter f : filters) {
             for (Post p : catalog.getPostsUnsafe()) {
                 if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
-                    Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site, p.board, p.no, PostHelper.getTitle(p, catalog.getLoadable()));
+                    Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site,
+                                                              p.board,
+                                                              p.no,
+                                                              PostHelper.getTitle(p, catalog.getLoadable())
+                    );
                     pinLoadable = databaseLoadableManager.get(pinLoadable);
                     watchManager.createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
                     toAdd.add(p.no);
@@ -188,7 +199,8 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
     }
 
-    private class BackgroundLoader implements ChanThreadLoader.ChanLoaderCallback {
+    private class BackgroundLoader
+            implements ChanThreadLoader.ChanLoaderCallback {
         @Override
         public void onChanLoaderData(ChanThread result) {
             Logger.d(TAG, "onChanLoaderData() for /" + result.getLoadable().board.code + "/");
@@ -197,7 +209,11 @@ public class FilterWatchManager implements WakeManager.Wakeable {
             for (Filter f : filters) {
                 for (Post p : result.getPostsUnsafe()) {
                     if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
-                        Loadable pinLoadable = Loadable.forThread(result.getLoadable().site, p.board, p.no, PostHelper.getTitle(p, result.getLoadable()));
+                        Loadable pinLoadable = Loadable.forThread(result.getLoadable().site,
+                                                                  p.board,
+                                                                  p.no,
+                                                                  PostHelper.getTitle(p, result.getLoadable())
+                        );
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
                         watchManager.createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
                         toAdd.add(p.no);
@@ -220,7 +236,10 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                     ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
                     lastCheckedPosts.clear();
                     processing = false;
-                    Logger.i(TAG, "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance().format(new Date()));
+                    Logger.i(TAG,
+                             "Finished processing filter loaders, ended at "
+                                     + DateFormat.getTimeInstance().format(new Date())
+                    );
                     wakeManager.manageLock(false, FilterWatchManager.this);
                 }
             }

@@ -90,8 +90,24 @@ public class AndroidUtils {
         return getRes().getString(res);
     }
 
+    public static String getString(int res, Object... formatArgs) {
+        return getRes().getString(res, formatArgs);
+    }
+
+    public static String getQuantityString(int res, int quantity) {
+        return getRes().getQuantityString(res, quantity);
+    }
+
+    public static String getQuantityString(int res, int quantity, Object... formatArgs) {
+        return getRes().getQuantityString(res, quantity, formatArgs);
+    }
+
     public static CharSequence getApplicationLabel() {
         return application.getPackageManager().getApplicationLabel(application.getApplicationInfo());
+    }
+
+    public static String getAppFileProvider() {
+        return application.getPackageName() + ".fileprovider";
     }
 
     public static SharedPreferences getPreferences() {
@@ -100,8 +116,9 @@ public class AndroidUtils {
 
     public static boolean getIsOfficial() {
         try {
-            @SuppressLint("PackageManagerGetSignatures")
-            Signature sig = application.getPackageManager().getPackageInfo(application.getPackageName(), PackageManager.GET_SIGNATURES).signatures[0];
+            @SuppressLint("PackageManagerGetSignatures") Signature sig = application
+                    .getPackageManager()
+                    .getPackageInfo(application.getPackageName(), PackageManager.GET_SIGNATURES).signatures[0];
             return BuildConfig.SIGNATURE.equals(Integer.toHexString(sig.toCharsString().hashCode()));
         } catch (Exception ignored) {
             return false;
@@ -252,13 +269,17 @@ public class AndroidUtils {
     }
 
     public static void requestKeyboardFocus(final View view) {
-        InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager inputManager = (InputMethodManager) view
+                .getContext()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
     }
 
     public static void hideKeyboard(View view) {
         if (view != null) {
-            InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager inputManager = (InputMethodManager) view
+                    .getContext()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
@@ -267,8 +288,9 @@ public class AndroidUtils {
         view.setFocusable(false);
         view.setFocusableInTouchMode(true);
         if (view.requestFocus()) {
-            InputMethodManager inputManager =
-                    (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager inputManager = (InputMethodManager) view
+                    .getContext()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
         }
     }
@@ -301,7 +323,8 @@ public class AndroidUtils {
         if (view.getWindowToken() == null) {
             // If you call getViewTreeObserver on a view when it's not attached to a window will result in the creation of a temporarily viewtreeobserver.
             // This is almost always not what you want.
-            throw new IllegalArgumentException("The view given to waitForMeasure is not attached to the window and does not have a ViewTreeObserver.");
+            throw new IllegalArgumentException(
+                    "The view given to waitForMeasure is not attached to the window and does not have a ViewTreeObserver.");
         }
 
         waitForLayoutInternal(true, view.getViewTreeObserver(), view, callback);
@@ -314,7 +337,8 @@ public class AndroidUtils {
     public static void waitForLayout(final View view, final OnMeasuredCallback callback) {
         if (view.getWindowToken() == null) {
             // See comment above
-            throw new IllegalArgumentException("The view given to waitForLayout is not attached to the window and does not have a ViewTreeObserver.");
+            throw new IllegalArgumentException(
+                    "The view given to waitForLayout is not attached to the window and does not have a ViewTreeObserver.");
         }
 
         waitForLayoutInternal(false, view.getViewTreeObserver(), view, callback);
@@ -323,11 +347,18 @@ public class AndroidUtils {
     /**
      * Always registers an onpredrawlistener. The given ViewTreeObserver will be used.
      */
-    public static void waitForLayout(final ViewTreeObserver viewTreeObserver, final View view, final OnMeasuredCallback callback) {
+    public static void waitForLayout(final ViewTreeObserver viewTreeObserver,
+                                     final View view,
+                                     final OnMeasuredCallback callback
+    ) {
         waitForLayoutInternal(false, viewTreeObserver, view, callback);
     }
 
-    private static void waitForLayoutInternal(boolean returnIfNotZero, final ViewTreeObserver viewTreeObserver, final View view, final OnMeasuredCallback callback) {
+    private static void waitForLayoutInternal(boolean returnIfNotZero,
+                                              final ViewTreeObserver viewTreeObserver,
+                                              final View view,
+                                              final OnMeasuredCallback callback
+    ) {
         int width = view.getWidth();
         int height = view.getHeight();
 
@@ -339,14 +370,18 @@ public class AndroidUtils {
                 public boolean onPreDraw() {
                     ViewTreeObserver usingViewTreeObserver = viewTreeObserver;
                     if (viewTreeObserver != view.getViewTreeObserver()) {
-                        Logger.e(TAG, "view.getViewTreeObserver() is another viewtreeobserver! replacing with the new one");
+                        Logger.e(TAG,
+                                 "view.getViewTreeObserver() is another viewtreeobserver! replacing with the new one"
+                        );
                         usingViewTreeObserver = view.getViewTreeObserver();
                     }
 
                     if (usingViewTreeObserver.isAlive()) {
                         usingViewTreeObserver.removeOnPreDrawListener(this);
                     } else {
-                        Logger.e(TAG, "ViewTreeObserver not alive, could not remove onPreDrawListener! This will probably not end well");
+                        Logger.e(TAG,
+                                 "ViewTreeObserver not alive, could not remove onPreDrawListener! This will probably not end well"
+                        );
                     }
 
                     boolean ret;
@@ -403,8 +438,8 @@ public class AndroidUtils {
     }
 
     public static boolean isConnected(int type) {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                application.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getNetworkInfo(type);
         return networkInfo != null && networkInfo.isConnected();
     }
@@ -432,25 +467,25 @@ public class AndroidUtils {
         final float zoomOutScale = 0.8f;
 
         if (zoomOut) {
-            scaleAnimation = new ScaleAnimation(
-                    normalScale,
-                    zoomOutScale,
-                    normalScale,
-                    zoomOutScale,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f);
+            scaleAnimation = new ScaleAnimation(normalScale,
+                                                zoomOutScale,
+                                                normalScale,
+                                                zoomOutScale,
+                                                ScaleAnimation.RELATIVE_TO_SELF,
+                                                0.5f,
+                                                ScaleAnimation.RELATIVE_TO_SELF,
+                                                0.5f
+            );
         } else {
-            scaleAnimation = new ScaleAnimation(
-                    zoomOutScale,
-                    normalScale,
-                    zoomOutScale,
-                    normalScale,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f);
+            scaleAnimation = new ScaleAnimation(zoomOutScale,
+                                                normalScale,
+                                                zoomOutScale,
+                                                normalScale,
+                                                ScaleAnimation.RELATIVE_TO_SELF,
+                                                0.5f,
+                                                ScaleAnimation.RELATIVE_TO_SELF,
+                                                0.5f
+            );
         }
 
         scaleAnimation.setDuration(duration);

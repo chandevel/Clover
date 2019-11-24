@@ -40,7 +40,9 @@ import com.github.adamantcheese.chan.utils.IOUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationLayoutInterface, View.OnClickListener {
+public class LegacyCaptchaLayout
+        extends LinearLayout
+        implements AuthenticationLayoutInterface, View.OnClickListener {
     private FixedRatioThumbnailView image;
     private EditText input;
     private ImageView submit;

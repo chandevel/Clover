@@ -62,7 +62,8 @@ import okhttp3.Response;
 
 import static android.text.TextUtils.isEmpty;
 
-public abstract class CommonSite extends SiteBase {
+public abstract class CommonSite
+        extends SiteBase {
     private final Random secureRandom = new SecureRandom();
 
     private String name;
@@ -122,8 +123,7 @@ public abstract class CommonSite extends SiteBase {
 
         if (requestModifier == null) {
             // No-op implementation.
-            requestModifier = new CommonRequestModifier() {
-            };
+            requestModifier = new CommonRequestModifier() {};
         }
     }
 
@@ -234,7 +234,8 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonSiteUrlHandler implements SiteUrlHandler {
+    public static abstract class CommonSiteUrlHandler
+            implements SiteUrlHandler {
         public abstract HttpUrl getUrl();
 
         public abstract String[] getNames();
@@ -260,8 +261,10 @@ public abstract class CommonSite extends SiteBase {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl().newBuilder()
-                        .addPathSegment(loadable.boardCode).addPathSegment("res")
+                return getUrl()
+                        .newBuilder()
+                        .addPathSegment(loadable.boardCode)
+                        .addPathSegment("res")
                         .addPathSegment(String.valueOf(loadable.no))
                         .toString();
             } else {
@@ -280,7 +283,11 @@ public abstract class CommonSite extends SiteBase {
                     if (b == null) {
                         return null;
                     }
-                    Loadable l = Loadable.forThread(site, b, Integer.parseInt(thread.group(3)), PostHelper.getTitle(null, null));
+                    Loadable l = Loadable.forThread(site,
+                                                    b,
+                                                    Integer.parseInt(thread.group(3)),
+                                                    PostHelper.getTitle(null, null)
+                    );
 
                     if (isEmpty(url.fragment())) {
                         l.markedNo = Integer.parseInt(url.fragment());
@@ -310,7 +317,8 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonEndpoints implements SiteEndpoints {
+    public static abstract class CommonEndpoints
+            implements SiteEndpoints {
         protected CommonSite site;
 
         public CommonEndpoints(CommonSite site) {
@@ -408,7 +416,8 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonActions implements SiteActions {
+    public static abstract class CommonActions
+            implements SiteActions {
         protected CommonSite site;
 
         public CommonActions(CommonSite site) {
@@ -555,7 +564,8 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonApi implements ChanReader {
+    public static abstract class CommonApi
+            implements ChanReader {
         protected CommonSite site;
 
         public CommonApi(CommonSite site) {
@@ -568,7 +578,8 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public abstract class CommonRequestModifier implements SiteRequestModifier {
+    public abstract class CommonRequestModifier
+            implements SiteRequestModifier {
         @Override
         public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
         }

@@ -57,11 +57,10 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class BrowseController extends ThreadController implements
-        ThreadLayout.ThreadLayoutCallback,
-        BrowsePresenter.Callback,
-        BrowseBoardsFloatingMenu.ClickCallback,
-        ThreadSlideController.SlideChangeListener {
+public class BrowseController
+        extends ThreadController
+        implements ThreadLayout.ThreadLayoutCallback, BrowsePresenter.Callback, BrowseBoardsFloatingMenu.ClickCallback,
+                   ThreadSlideController.SlideChangeListener {
     private static final int VIEW_MODE_ID = 1;
     private static final int ARCHIVE_ID = 2;
 
@@ -123,7 +122,8 @@ public class BrowseController extends ThreadController implements
         // Toolbar menu
         navigation.hasBack = false;
 
-        NavigationItem.MenuOverflowBuilder overflowBuilder = navigation.buildMenu()
+        NavigationItem.MenuOverflowBuilder overflowBuilder = navigation
+                .buildMenu()
                 .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
                 .withItem(R.drawable.ic_refresh_white_24dp, this::reloadClicked)
                 .withOverflow();
@@ -133,9 +133,11 @@ public class BrowseController extends ThreadController implements
         }
 
         overflowBuilder.withSubItem(VIEW_MODE_ID,
-                ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST ?
-                        R.string.action_switch_catalog : R.string.action_switch_board,
-                this::viewModeClicked);
+                                    ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST
+                                            ? R.string.action_switch_catalog
+                                            : R.string.action_switch_board,
+                                    this::viewModeClicked
+        );
 
         overflowBuilder
                 .withSubItem(ARCHIVE_ID, R.string.thread_view_archive, this::archiveClicked)
@@ -158,17 +160,17 @@ public class BrowseController extends ThreadController implements
             refreshView.setScaleX(1f);
             refreshView.setScaleY(1f);
             refreshView.animate()
-                    .scaleX(10f)
-                    .scaleY(10f)
-                    .setDuration(500)
-                    .setInterpolator(new AccelerateInterpolator(2f))
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            refreshView.setScaleX(1f);
-                            refreshView.setScaleY(1f);
-                        }
-                    });
+                       .scaleX(10f)
+                       .scaleY(10f)
+                       .setDuration(500)
+                       .setInterpolator(new AccelerateInterpolator(2f))
+                       .setListener(new AnimatorListenerAdapter() {
+                           @Override
+                           public void onAnimationEnd(Animator animation) {
+                               refreshView.setScaleX(1f);
+                               refreshView.setScaleY(1f);
+                           }
+                       });
 
             ((ToolbarNavigationController) navigationController).showSearch();
         }
@@ -183,7 +185,13 @@ public class BrowseController extends ThreadController implements
             View refreshView = item.getView();
             //Disable the ripple effect until the animation ends, but turn it back on so tap/hold ripple works
             refreshView.setBackgroundResource(0);
-            Animation animation = new RotateAnimation(0, 360, RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+            Animation animation = new RotateAnimation(0,
+                                                      360,
+                                                      RotateAnimation.RELATIVE_TO_SELF,
+                                                      0.5f,
+                                                      RotateAnimation.RELATIVE_TO_SELF,
+                                                      0.5f
+            );
             animation.setDuration(500L);
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
@@ -238,8 +246,7 @@ public class BrowseController extends ThreadController implements
     private void setupMiddleNavigation() {
         navigation.setMiddleMenu(anchor -> {
             BrowseBoardsFloatingMenu boardsFloatingMenu = new BrowseBoardsFloatingMenu(context);
-            boardsFloatingMenu.show(view, anchor, BrowseController.this,
-                    presenter.currentBoard());
+            boardsFloatingMenu.show(view, anchor, BrowseController.this, presenter.currentBoard());
         });
     }
 
@@ -282,17 +289,12 @@ public class BrowseController extends ThreadController implements
     private void handleShareAndOpenInBrowser(ThreadPresenter presenter, boolean share) {
         if (presenter.isBound()) {
             if (presenter.getChanThread() == null) {
-                Toast.makeText(
-                        context,
-                        R.string.cannot_open_thread_in_browser_already_deleted,
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.cannot_open_in_browser_already_deleted, Toast.LENGTH_SHORT).show();
                 return;
             }
 
             Loadable loadable = presenter.getLoadable();
-            String link = loadable.site.resolvable().desktopUrl(
-                    loadable,
-                    presenter.getChanThread().getOp());
+            String link = loadable.site.resolvable().desktopUrl(loadable, presenter.getChanThread().getOp());
 
             if (share) {
                 AndroidUtils.shareLink(link);
@@ -312,9 +314,10 @@ public class BrowseController extends ThreadController implements
 
         ChanSettings.boardViewMode.set(postViewMode);
 
-        int viewModeText = postViewMode == ChanSettings.PostViewMode.LIST ?
-                R.string.action_switch_catalog : R.string.action_switch_board;
-        item.text = context.getString(viewModeText);
+        int viewModeText = postViewMode == ChanSettings.PostViewMode.LIST
+                ? R.string.action_switch_catalog
+                : R.string.action_switch_board;
+        item.text = getString(viewModeText);
 
         threadLayout.setPostViewMode(postViewMode);
     }
@@ -452,7 +455,8 @@ public class BrowseController extends ThreadController implements
         if (splitNav != null) {
             // Create a threadview inside a toolbarnav in the right part of the split layout
             if (splitNav.getRightController() instanceof StyledToolbarNavigationController) {
-                StyledToolbarNavigationController navigationController = (StyledToolbarNavigationController) splitNav.getRightController();
+                StyledToolbarNavigationController navigationController
+                        = (StyledToolbarNavigationController) splitNav.getRightController();
 
                 if (navigationController.getTop() instanceof ViewThreadController) {
                     ((ViewThreadController) navigationController.getTop()).loadThread(threadLoadable);

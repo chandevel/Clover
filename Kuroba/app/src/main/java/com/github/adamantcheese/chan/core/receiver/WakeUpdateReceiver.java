@@ -27,7 +27,8 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
-public class WakeUpdateReceiver extends BroadcastReceiver {
+public class WakeUpdateReceiver
+        extends BroadcastReceiver {
     private static final String TAG = "WakeUpdateReceiver";
 
     @Inject

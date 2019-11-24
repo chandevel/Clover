@@ -21,19 +21,23 @@ import android.text.style.AbsoluteSizeSpan;
 /**
  * A version of AbsoluteSizeSpan that has proper equals and hashCode implementations. Used to fix the hashcode result from SpannableStringBuilder.
  */
-public class AbsoluteSizeSpanHashed extends AbsoluteSizeSpan {
+public class AbsoluteSizeSpanHashed
+        extends AbsoluteSizeSpan {
     public AbsoluteSizeSpanHashed(int size) {
         super(size);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         AbsoluteSizeSpanHashed that = (AbsoluteSizeSpanHashed) o;
 
-        if (getSize() != that.getSize()) return false;
+        if (getSize() != that.getSize())
+            return false;
         return getDip() == that.getDip();
     }
 

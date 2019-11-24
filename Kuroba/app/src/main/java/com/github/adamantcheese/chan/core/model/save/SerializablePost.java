@@ -74,39 +74,39 @@ public class SerializablePost {
     @SerializedName("title")
     private String title;
 
-    public SerializablePost(
-            String boardId,
-            SerializableBoard board,
-            int no,
-            boolean isOP,
-            String name,
-            SerializableSpannableString comment,
-            SerializableSpannableString subject,
-            long time,
-            List<SerializablePostImage> images,
-            String tripcode,
-            String id,
-            int opId,
-            String capcode,
-            boolean isSavedReply,
-            int filterHighlightedColor,
-            boolean filterStub,
-            boolean filterRemove,
-            boolean filterReplies,
-            boolean filterOnlyOP,
-            boolean filterSaved,
-            Set<Integer> repliesTo,
-            SerializableSpannableString nameTripcodeIdCapcodeSpan,
-            Boolean deleted,
-            List<Integer> repliesFrom,
-            boolean sticky,
-            boolean closed,
-            boolean archived,
-            int replies,
-            int imagesCount,
-            int uniqueIps,
-            long lastModified,
-            String title) {
+    public SerializablePost(String boardId,
+                            SerializableBoard board,
+                            int no,
+                            boolean isOP,
+                            String name,
+                            SerializableSpannableString comment,
+                            SerializableSpannableString subject,
+                            long time,
+                            List<SerializablePostImage> images,
+                            String tripcode,
+                            String id,
+                            int opId,
+                            String capcode,
+                            boolean isSavedReply,
+                            int filterHighlightedColor,
+                            boolean filterStub,
+                            boolean filterRemove,
+                            boolean filterReplies,
+                            boolean filterOnlyOP,
+                            boolean filterSaved,
+                            Set<Integer> repliesTo,
+                            SerializableSpannableString nameTripcodeIdCapcodeSpan,
+                            Boolean deleted,
+                            List<Integer> repliesFrom,
+                            boolean sticky,
+                            boolean closed,
+                            boolean archived,
+                            int replies,
+                            int imagesCount,
+                            int uniqueIps,
+                            long lastModified,
+                            String title
+    ) {
         this.boardId = boardId;
         this.board = board;
         this.no = no;
@@ -267,9 +267,7 @@ public class SerializablePost {
 
     @Override
     public int hashCode() {
-        return 31 * no +
-                31 * board.code.hashCode() +
-                31 * board.siteId;
+        return 31 * no + 31 * board.code.hashCode() + 31 * board.siteId;
     }
 
     @Override
@@ -288,8 +286,7 @@ public class SerializablePost {
 
         SerializablePost otherPost = (SerializablePost) other;
 
-        return this.no == otherPost.no
-                && this.board.code.equals(otherPost.board.code)
+        return this.no == otherPost.no && this.board.code.equals(otherPost.board.code)
                 && this.board.siteId == otherPost.board.siteId;
     }
 }

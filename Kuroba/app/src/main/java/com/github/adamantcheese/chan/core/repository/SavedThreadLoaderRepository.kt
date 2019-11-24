@@ -33,12 +33,9 @@ constructor(
     fun loadOldThreadFromJsonFile(
             threadSaveDir: AbstractFile
     ): SerializableThread? {
-        if (BackgroundUtils.isMainThread()) {
-            throw RuntimeException("Cannot be executed on the main thread!")
-        }
+        BackgroundUtils.ensureBackgroundThread()
 
-        val threadFile = threadSaveDir
-                .clone(FileSegment(THREAD_FILE_NAME))
+        val threadFile = threadSaveDir.clone(FileSegment(THREAD_FILE_NAME))
 
         if (!fileManager.exists(threadFile)) {
             Logger.d(TAG, "threadFile does not exist, threadFilePath = " + threadFile.getFullPath())
@@ -65,12 +62,9 @@ constructor(
             posts: List<Post>,
             threadSaveDir: AbstractFile
     ) {
-        if (BackgroundUtils.isMainThread()) {
-            throw RuntimeException("Cannot be executed on the main thread!")
-        }
+        BackgroundUtils.ensureBackgroundThread()
 
-        val threadFile = threadSaveDir
-                .clone(FileSegment(THREAD_FILE_NAME))
+        val threadFile = threadSaveDir.clone(FileSegment(THREAD_FILE_NAME))
 
         val createdThreadFile = fileManager.create(threadFile)
 
@@ -89,8 +83,7 @@ constructor(
                     ThreadMapper.toSerializableThread(posts)
                 }
 
-                val bytes = gson.toJson(serializableThread)
-                        .toByteArray(StandardCharsets.UTF_8)
+                val bytes = gson.toJson(serializableThread).toByteArray(StandardCharsets.UTF_8)
 
                 dos.write(bytes)
                 dos.flush()

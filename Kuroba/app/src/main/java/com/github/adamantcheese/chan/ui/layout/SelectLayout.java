@@ -39,7 +39,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class SelectLayout<T> extends LinearLayout implements SearchLayout.SearchLayoutCallback, View.OnClickListener {
+public class SelectLayout<T>
+        extends LinearLayout
+        implements SearchLayout.SearchLayoutCallback, View.OnClickListener {
     private RecyclerView recyclerView;
     private Button checkAllButton;
 
@@ -122,7 +124,8 @@ public class SelectLayout<T> extends LinearLayout implements SearchLayout.Search
         checkAllButton.setText(allChecked ? R.string.board_select_none : R.string.board_select_all);
     }
 
-    private class SelectAdapter extends RecyclerView.Adapter<BoardSelectViewHolder> {
+    private class SelectAdapter
+            extends RecyclerView.Adapter<BoardSelectViewHolder> {
         private List<SelectItem> sourceList = new ArrayList<>();
         private List<SelectItem> displayList = new ArrayList<>();
         private String searchQuery;
@@ -133,7 +136,8 @@ public class SelectLayout<T> extends LinearLayout implements SearchLayout.Search
 
         @Override
         public BoardSelectViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new BoardSelectViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_select, parent, false));
+            return new BoardSelectViewHolder(
+                    LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_select, parent, false));
         }
 
         @Override
@@ -188,7 +192,9 @@ public class SelectLayout<T> extends LinearLayout implements SearchLayout.Search
         }
     }
 
-    private class BoardSelectViewHolder extends RecyclerView.ViewHolder implements CompoundButton.OnCheckedChangeListener, OnClickListener {
+    private class BoardSelectViewHolder
+            extends RecyclerView.ViewHolder
+            implements CompoundButton.OnCheckedChangeListener, OnClickListener {
         private CheckBox checkBox;
         private TextView text;
         private TextView description;

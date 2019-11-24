@@ -42,7 +42,8 @@ import okhttp3.Response;
 
 import static android.text.TextUtils.isEmpty;
 
-public class Wired7 extends CommonSite {
+public class Wired7
+        extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
@@ -64,8 +65,10 @@ public class Wired7 extends CommonSite {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl().newBuilder()
-                        .addPathSegment(loadable.boardCode).addPathSegment("res")
+                return getUrl()
+                        .newBuilder()
+                        .addPathSegment(loadable.boardCode)
+                        .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
                         .toString();
             } else {
@@ -79,22 +82,21 @@ public class Wired7 extends CommonSite {
         setName("Wired-7");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://wired-7.org/favicon.ico")));
 
-        setBoards(
-                Board.fromSiteNameCode(this, "Lewds & +18", "18"),
-                Board.fromSiteNameCode(this, "Random", "b"),
-                Board.fromSiteNameCode(this, "Hentai", "h"),
-                Board.fromSiteNameCode(this, "Humanidad", "hum"),
-                Board.fromSiteNameCode(this, "Internacional/Random", "i"),
-                Board.fromSiteNameCode(this, "Política", "pol"),
-                Board.fromSiteNameCode(this, "Wired-7 Metaboard", "meta"),
-                Board.fromSiteNameCode(this, "Anime", "a"),
-                Board.fromSiteNameCode(this, "Cultura Japonesa", "jp"),
-                Board.fromSiteNameCode(this, "Musica & Audio", "mu"),
-                Board.fromSiteNameCode(this, "Tecnología", "tech"),
-                Board.fromSiteNameCode(this, "Videojuegos y Gaming", "v"),
-                Board.fromSiteNameCode(this, "Medios Visuales", "vis"),
-                Board.fromSiteNameCode(this, "Paranormal", "x"),
-                Board.fromSiteNameCode(this, "Lain", "lain")
+        setBoards(Board.fromSiteNameCode(this, "Lewds & +18", "18"),
+                  Board.fromSiteNameCode(this, "Random", "b"),
+                  Board.fromSiteNameCode(this, "Hentai", "h"),
+                  Board.fromSiteNameCode(this, "Humanidad", "hum"),
+                  Board.fromSiteNameCode(this, "Internacional/Random", "i"),
+                  Board.fromSiteNameCode(this, "Política", "pol"),
+                  Board.fromSiteNameCode(this, "Wired-7 Metaboard", "meta"),
+                  Board.fromSiteNameCode(this, "Anime", "a"),
+                  Board.fromSiteNameCode(this, "Cultura Japonesa", "jp"),
+                  Board.fromSiteNameCode(this, "Musica & Audio", "mu"),
+                  Board.fromSiteNameCode(this, "Tecnología", "tech"),
+                  Board.fromSiteNameCode(this, "Videojuegos y Gaming", "v"),
+                  Board.fromSiteNameCode(this, "Medios Visuales", "vis"),
+                  Board.fromSiteNameCode(this, "Paranormal", "x"),
+                  Board.fromSiteNameCode(this, "Lain", "lain")
         );
 
         setResolvable(URL_HANDLER);
@@ -106,15 +108,14 @@ public class Wired7 extends CommonSite {
             }
         });
 
-        setEndpoints(new VichanEndpoints(this,
-                "https://wired-7.org",
-                "https://wired-7.org"));
+        setEndpoints(new VichanEndpoints(this, "https://wired-7.org", "https://wired-7.org"));
         setActions(new Wired7Actions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());
     }
 
-    private static class Wired7Actions extends VichanActions {
+    private static class Wired7Actions
+            extends VichanActions {
         Wired7Actions(CommonSite commonSite) {
             super(commonSite);
         }

@@ -121,7 +121,8 @@ import java.util.Map;
  *       .registerSubtype(Diamond.class);
  * }</pre>
  */
-public class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
+public class RuntimeTypeAdapterFactory<T>
+        implements TypeAdapterFactory {
     private final Class<?> baseType;
     private final String typeFieldName;
     private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<>();
@@ -186,10 +187,8 @@ public class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
             return null;
         }
 
-        final Map<String, TypeAdapter<?>> labelToDelegate
-                = new LinkedHashMap<>();
-        final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate
-                = new LinkedHashMap<>();
+        final Map<String, TypeAdapter<?>> labelToDelegate = new LinkedHashMap<>();
+        final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate = new LinkedHashMap<>();
         for (Map.Entry<String, Class<?>> entry : labelToSubtype.entrySet()) {
             TypeAdapter<?> delegate = gson.getDelegateAdapter(this, TypeToken.get(entry.getValue()));
             labelToDelegate.put(entry.getKey(), delegate);
@@ -202,33 +201,36 @@ public class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
                 JsonElement jsonElement = Streams.parse(in);
                 JsonElement labelJsonElement = jsonElement.getAsJsonObject().remove(typeFieldName);
                 if (labelJsonElement == null) {
-                    throw new JsonParseException("cannot deserialize " + baseType
-                            + " because it does not define a field named " + typeFieldName);
+                    throw new JsonParseException(
+                            "cannot deserialize " + baseType + " because it does not define a field named "
+                                    + typeFieldName);
                 }
                 String label = labelJsonElement.getAsString();
                 @SuppressWarnings("unchecked") // registration requires that subtype extends T
                         TypeAdapter<R> delegate = (TypeAdapter<R>) labelToDelegate.get(label);
                 if (delegate == null) {
-                    throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
-                            + label + "; did you forget to register a subtype?");
+                    throw new JsonParseException("cannot deserialize " + baseType + " subtype named " + label
+                                                         + "; did you forget to register a subtype?");
                 }
                 return delegate.fromJsonTree(jsonElement);
             }
 
             @Override
-            public void write(JsonWriter out, R value) throws IOException {
+            public void write(JsonWriter out, R value)
+                    throws IOException {
                 Class<?> srcType = value.getClass();
                 String label = subtypeToLabel.get(srcType);
                 @SuppressWarnings("unchecked") // registration requires that subtype extends T
                         TypeAdapter<R> delegate = (TypeAdapter<R>) subtypeToDelegate.get(srcType);
                 if (delegate == null) {
-                    throw new JsonParseException("cannot serialize " + srcType.getName()
-                            + "; did you forget to register a subtype?");
+                    throw new JsonParseException(
+                            "cannot serialize " + srcType.getName() + "; did you forget to register a subtype?");
                 }
                 JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
                 if (jsonObject.has(typeFieldName)) {
-                    throw new JsonParseException("cannot serialize " + srcType.getName()
-                            + " because it already defines a field named " + typeFieldName);
+                    throw new JsonParseException(
+                            "cannot serialize " + srcType.getName() + " because it already defines a field named "
+                                    + typeFieldName);
                 }
                 JsonObject clone = new JsonObject();
                 clone.add(typeFieldName, new JsonPrimitive(label));

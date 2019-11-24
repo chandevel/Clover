@@ -47,11 +47,13 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class ImageOptionsController extends Controller implements
-        View.OnClickListener,
-        CompoundButton.OnCheckedChangeListener,
-        ImageReencodingPresenter.ImageReencodingPresenterCallback {
+public class ImageOptionsController
+        extends Controller
+        implements View.OnClickListener, CompoundButton.OnCheckedChangeListener,
+                   ImageReencodingPresenter.ImageReencodingPresenterCallback {
     private final static String TAG = "ImageOptionsController";
     private static final int TRANSITION_DURATION = 200;
 
@@ -76,13 +78,12 @@ public class ImageOptionsController extends Controller implements
     private boolean ignoreSetup;
     private boolean reencodeEnabled;
 
-    public ImageOptionsController(
-            Context context,
-            ImageOptionsHelper imageReencodingHelper,
-            ImageOptionsControllerCallbacks callbacks,
-            Loadable loadable,
-            ImageReencodingPresenter.ImageOptions lastOptions,
-            boolean supportsReencode
+    public ImageOptionsController(Context context,
+                                  ImageOptionsHelper imageReencodingHelper,
+                                  ImageOptionsControllerCallbacks callbacks,
+                                  Loadable loadable,
+                                  ImageReencodingPresenter.ImageOptions lastOptions,
+                                  boolean supportsReencode
     ) {
         super(context);
         this.imageReencodingHelper = imageReencodingHelper;
@@ -165,8 +166,7 @@ public class ImageOptionsController extends Controller implements
         preview.setOnClickListener(v -> {
             boolean isCurrentlyVisible = optionsHolder.getVisibility() == View.VISIBLE;
             optionsHolder.setVisibility(isCurrentlyVisible ? View.GONE : View.VISIBLE);
-            Point p = new Point();
-            getWindow().getWindowManager().getDefaultDisplay().getSize(p);
+            Point p = getDisplaySize();
             int dimX1 = isCurrentlyVisible ? p.x : ViewGroup.LayoutParams.MATCH_PARENT;
             int dimY1 = isCurrentlyVisible ? p.y : dp(300);
             preview.setLayoutParams(new LinearLayout.LayoutParams(dimX1, dimY1, 0));
@@ -241,7 +241,7 @@ public class ImageOptionsController extends Controller implements
         removeMetadata.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
         reencode.setChecked(false);
 
-        reencode.setText(context.getString(R.string.image_options_re_encode));
+        reencode.setText(getString(R.string.image_options_re_encode));
 
         presenter.setReencode(null);
     }
@@ -277,7 +277,7 @@ public class ImageOptionsController extends Controller implements
         //called on the background thread!
 
         AndroidUtils.runOnUiThread(() -> {
-            String text = String.format(context.getString(R.string.could_not_apply_image_options), error.getMessage());
+            String text = getString(R.string.could_not_apply_image_options, error.getMessage());
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
         });
     }
@@ -303,7 +303,9 @@ public class ImageOptionsController extends Controller implements
     }
 
     public interface ImageOptionsControllerCallbacks {
-        void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat, @Nullable Pair<Integer, Integer> dims);
+        void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat,
+                                     @Nullable Pair<Integer, Integer> dims
+        );
 
         void onImageOptionsApplied(Reply reply, boolean filenameRemoved);
     }

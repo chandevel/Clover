@@ -21,7 +21,8 @@ import android.view.ViewGroup;
 
 import androidx.viewpager.widget.PagerAdapter;
 
-public abstract class ViewPagerAdapter extends PagerAdapter {
+public abstract class ViewPagerAdapter
+        extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View view = getView(position, container);

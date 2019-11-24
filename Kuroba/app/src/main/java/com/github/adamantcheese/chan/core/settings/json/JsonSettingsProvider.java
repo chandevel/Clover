@@ -18,7 +18,8 @@ package com.github.adamantcheese.chan.core.settings.json;
 
 import com.github.adamantcheese.chan.core.settings.SettingProvider;
 
-public class JsonSettingsProvider implements SettingProvider {
+public class JsonSettingsProvider
+        implements SettingProvider {
     public final JsonSettings jsonSettings;
     private Callback callback;
 

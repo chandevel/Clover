@@ -16,7 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.settings;
 
-public class OptionsSetting<T extends Enum & OptionSettingItem> extends Setting<T> {
+public class OptionsSetting<T extends Enum & OptionSettingItem>
+        extends Setting<T> {
     private boolean hasCached = false;
 
     private T cached;

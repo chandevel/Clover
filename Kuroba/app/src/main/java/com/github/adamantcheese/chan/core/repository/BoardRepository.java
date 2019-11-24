@@ -31,7 +31,8 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
-public class BoardRepository implements Observer {
+public class BoardRepository
+        implements Observer {
     private static final String TAG = "BoardRepository";
 
     private final DatabaseManager databaseManager;
@@ -78,7 +79,6 @@ public class BoardRepository implements Observer {
                     if (board.code.equals(code)) {
                         return board;
                     }
-
                 }
                 return null;
             }
@@ -114,14 +114,14 @@ public class BoardRepository implements Observer {
     }
 
     public void updateBoardOrders(List<Board> boards) {
-        databaseManager.runTaskAsync(databaseBoardManager.updateOrders(boards),
-                (e) -> updateObservablesAsync());
+        databaseManager.runTaskAsync(databaseBoardManager.updateOrders(boards), (e) -> updateObservablesAsync());
     }
 
     public void setSaved(Board board, boolean saved) {
         board.saved = saved;
         databaseManager.runTaskAsync(databaseBoardManager.updateIncludingUserFields(board),
-                (e) -> updateObservablesAsync());
+                                     (e) -> updateObservablesAsync()
+        );
     }
 
     public void setAllSaved(List<Board> boards, boolean saved) {
@@ -129,18 +129,18 @@ public class BoardRepository implements Observer {
             board.saved = saved;
         }
         databaseManager.runTaskAsync(databaseBoardManager.updateIncludingUserFields(boards),
-                (e) -> updateObservablesAsync());
+                                     (e) -> updateObservablesAsync()
+        );
     }
 
     private void updateObservablesSync() {
-        updateWith(databaseManager.runTask(
-                databaseBoardManager.getBoardsForAllSitesOrdered(allSites.getAll())));
+        updateWith(databaseManager.runTask(databaseBoardManager.getBoardsForAllSitesOrdered(allSites.getAll())));
     }
 
     private void updateObservablesAsync() {
-        databaseManager.runTaskAsync(
-                databaseBoardManager.getBoardsForAllSitesOrdered(allSites.getAll()),
-                this::updateWith);
+        databaseManager.runTaskAsync(databaseBoardManager.getBoardsForAllSitesOrdered(allSites.getAll()),
+                                     this::updateWith
+        );
     }
 
     private void updateWith(List<Pair<Site, List<Board>>> databaseData) {
@@ -151,7 +151,8 @@ public class BoardRepository implements Observer {
 
             List<Board> savedBoards = new ArrayList<>();
             for (Board board : item.second) {
-                if (board.saved) savedBoards.add(board);
+                if (board.saved)
+                    savedBoards.add(board);
             }
             saved.add(new SiteBoards(item.first, savedBoards));
         }
@@ -163,7 +164,8 @@ public class BoardRepository implements Observer {
         savedBoards.notifyObservers();
     }
 
-    public class SitesBoards extends Observable {
+    public class SitesBoards
+            extends Observable {
         private List<SiteBoards> siteBoards = new ArrayList<>();
 
         public void set(List<SiteBoards> siteBoards) {

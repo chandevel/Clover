@@ -90,8 +90,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class ImageViewerController extends Controller implements ImageViewerPresenter.Callback,
-        ToolbarMenuItem.ToobarThreedotMenuCallback {
+public class ImageViewerController
+        extends Controller
+        implements ImageViewerPresenter.Callback, ToolbarMenuItem.ToobarThreedotMenuCallback {
     private static final String TAG = "ImageViewerController";
     private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
@@ -252,14 +253,14 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         Integer[] rotateInts = {90, 180, -90};
         ListView rotateImageList = new ListView(context);
 
-        AlertDialog dialog = new AlertDialog.Builder(context)
-                .setView(rotateImageList)
-                .create();
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(rotateImageList).create();
         dialog.setCanceledOnTouchOutside(true);
 
         rotateImageList.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, rotateOptions));
         rotateImageList.setOnItemClickListener((parent, view, position, id) -> {
-            ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(), rotateInts[position]);
+            ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(),
+                                                                  rotateInts[position]
+            );
             dialog.dismiss();
         });
 
@@ -287,8 +288,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 if (ChanSettings.saveThreadFolder.get()) {
                     subFolderName = appendAdditionalSubDirectories(postImage);
                 } else {
-                    subFolderName = presenter.getLoadable().site.name()
-                            + File.separator
+                    subFolderName = presenter.getLoadable().site.name() + File.separator
                             + presenter.getLoadable().boardCode;
                 }
 
@@ -296,11 +296,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             }
 
             imageSaver.startDownloadTask(context, task, message -> {
-                String errorMessage = String.format(
-                        Locale.US,
-                        "%s, error message = %s",
-                        "Couldn't start download task",
-                        message);
+                String errorMessage = String.format(Locale.US,
+                                                    "%s, error message = %s",
+                                                    "Couldn't start download task",
+                                                    message
+                );
 
                 Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
             });
@@ -322,22 +322,17 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 ? imageViewerCallback.getPostForPostImage(postImage).no
                 : presenter.getLoadable().no;
 
-        String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(siteName)
-                + File.separator
-                + StringUtils.dirNameRemoveBadCharacters(presenter.getLoadable().boardCode)
-                + File.separator
-                + postNoString
-                + "_";
+        String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(siteName) + File.separator
+                + StringUtils.dirNameRemoveBadCharacters(presenter.getLoadable().boardCode) + File.separator
+                + postNoString + "_";
 
-        String tempTitle = (presenter.getLoadable().no == 0
-                ? PostHelper.getTitle(imageViewerCallback.getPostForPostImage(postImage), null)
-                : presenter.getLoadable().title);
+        String tempTitle = (
+                presenter.getLoadable().no == 0
+                        ? PostHelper.getTitle(imageViewerCallback.getPostForPostImage(postImage), null)
+                        : presenter.getLoadable().title);
 
         String sanitizedFileName = StringUtils.dirNameRemoveBadCharacters(tempTitle);
-        String truncatedFileName = sanitizedFileName.substring(
-                0,
-                Math.min(sanitizedFileName.length(), 50)
-        );
+        String truncatedFileName = sanitizedFileName.substring(0, Math.min(sanitizedFileName.length(), 50));
 
         return sanitizedSubFolderName + truncatedFileName;
     }
@@ -392,7 +387,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     public void setTitle(PostImage postImage, int index, int count, boolean spoiler) {
         if (spoiler) {
-            navigation.title = getString(R.string.image_spoiler_filename) + " (" + postImage.extension.toUpperCase() + ")";
+            navigation.title = getString(R.string.image_spoiler_filename) + " (" + postImage.extension.toUpperCase()
+                    + ")";
         } else {
             navigation.title = postImage.filename + "." + postImage.extension;
         }
@@ -416,8 +412,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     public void showVolumeMenuItem(boolean show, boolean muted) {
         ToolbarMenuItem volumeMenuItem = navigation.findItem(VOLUME_ID);
         volumeMenuItem.setVisible(show);
-        volumeMenuItem.setImage(
-                muted ? R.drawable.ic_volume_off_white_24dp : R.drawable.ic_volume_up_white_24dp);
+        volumeMenuItem.setImage(muted ? R.drawable.ic_volume_off_white_24dp : R.drawable.ic_volume_up_white_24dp);
     }
 
     @Override
@@ -460,7 +455,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 for (ImageSearch imageSearch : ImageSearch.engines) {
                     if (((Integer) item.getId()) == imageSearch.getId()) {
                         final HttpUrl searchImageUrl = getSearchImageUrl(presenter.getCurrentPostImage());
-                        AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageUrl.toString()));
+                        AndroidUtils.openLinkInBrowser((Activity) context,
+                                                       imageSearch.getUrl(searchImageUrl.toString())
+                        );
                         break;
                     }
                 }
@@ -504,27 +501,29 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             }
         });
 
-        imageLoaderV2.getImage(
-                true,
-                loadable,
-                postImage,
-                previewImage.getWidth(),
-                previewImage.getHeight(),
-                new ImageListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
-                        startAnimation.start();
-                    }
+        imageLoaderV2.getImage(true,
+                               loadable,
+                               postImage,
+                               previewImage.getWidth(),
+                               previewImage.getHeight(),
+                               new ImageListener() {
+                                   @Override
+                                   public void onErrorResponse(VolleyError error) {
+                                       Log.e(TAG,
+                                             "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap"
+                                       );
+                                       startAnimation.start();
+                                   }
 
-                    @Override
-                    public void onResponse(ImageContainer response, boolean isImmediate) {
-                        if (response.getBitmap() != null) {
-                            previewImage.setBitmap(response.getBitmap());
-                            startAnimation.start();
-                        }
-                    }
-                });
+                                   @Override
+                                   public void onResponse(ImageContainer response, boolean isImmediate) {
+                                       if (response.getBitmap() != null) {
+                                           previewImage.setBitmap(response.getBitmap());
+                                           startAnimation.start();
+                                       }
+                                   }
+                               }
+        );
     }
 
     public void startPreviewOutTransition(Loadable loadable, final PostImage postImage) {
@@ -532,27 +531,27 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             return;
         }
 
+        imageLoaderV2.getImage(true,
+                               loadable,
+                               postImage,
+                               previewImage.getWidth(),
+                               previewImage.getHeight(),
+                               new ImageListener() {
+                                   @Override
+                                   public void onErrorResponse(VolleyError error) {
+                                       Log.e(TAG,
+                                             "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap"
+                                       );
+                                       doPreviewOutAnimation(postImage, null);
+                                   }
 
-        imageLoaderV2.getImage(
-                true,
-                loadable,
-                postImage,
-                previewImage.getWidth(),
-                previewImage.getHeight(),
-                new ImageListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");
-                        doPreviewOutAnimation(postImage, null);
-                    }
-
-                    @Override
-                    public void onResponse(ImageContainer response, boolean isImmediate) {
-                        if (response.getBitmap() != null) {
-                            doPreviewOutAnimation(postImage, response.getBitmap());
-                        }
-                    }
-                }
+                                   @Override
+                                   public void onResponse(ImageContainer response, boolean isImmediate) {
+                                       if (response.getBitmap() != null) {
+                                           doPreviewOutAnimation(postImage, response.getBitmap());
+                                       }
+                                   }
+                               }
         );
     }
 
@@ -580,10 +579,13 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             backgroundAlpha.addUpdateListener(animation -> setBackgroundAlpha((float) animation.getAnimatedValue()));
 
             endAnimation
-                    .play(ObjectAnimator.ofFloat(previewImage, View.Y, previewImage.getTop(), previewImage.getTop() + dp(20)))
+                    .play(ObjectAnimator.ofFloat(previewImage,
+                                                 View.Y,
+                                                 previewImage.getTop(),
+                                                 previewImage.getTop() + dp(20)
+                    ))
                     .with(ObjectAnimator.ofFloat(previewImage, View.ALPHA, 1f, 0f))
                     .with(backgroundAlpha);
-
         } else {
             ValueAnimator progress = ValueAnimator.ofFloat(1f, 0f);
             progress.addUpdateListener(animation -> {
@@ -628,7 +630,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     private void setBackgroundAlpha(float alpha) {
-        navigationController.view.setBackgroundColor(Color.argb((int) (alpha * TRANSITION_FINAL_ALPHA * 255f), 0, 0, 0));
+        navigationController.view.setBackgroundColor(Color.argb((int) (alpha * TRANSITION_FINAL_ALPHA * 255f),
+                                                                0,
+                                                                0,
+                                                                0
+        ));
 
         if (alpha == 0f) {
             getWindow().setStatusBarColor(statusBarColorPrevious);
@@ -659,13 +665,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         isInImmersiveMode = true;
 
         View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
 
         decorView.setOnSystemUiVisibilityChangeListener(visibility -> {
             if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0 && isInImmersiveMode) {

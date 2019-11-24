@@ -16,7 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.settings;
 
-public class IntegerSetting extends Setting<Integer> {
+public class IntegerSetting
+        extends Setting<Integer> {
     private boolean hasCached = false;
     private Integer cached;
 

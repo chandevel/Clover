@@ -43,7 +43,6 @@ import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
-import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -62,7 +61,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getReadableFileSi
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteActions.PostListener {
+public class ReplyPresenter
+        implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteActions.PostListener {
 
     public enum Page {
         INPUT,
@@ -96,7 +96,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public ReplyPresenter(ReplyManager replyManager,
                           WatchManager watchManager,
                           DatabaseManager databaseManager,
-                          LastReplyRepository lastReplyRepository) {
+                          LastReplyRepository lastReplyRepository
+    ) {
         this.replyManager = replyManager;
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
@@ -124,7 +125,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         callback.loadDraftIntoViews(draft);
         callback.updateCommentCount(0, board.maxCommentChars, false);
-        callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread : R.string.reply_comment_board));
+        callback.setCommentHint(getString(loadable.isThreadMode()
+                                                  ? R.string.reply_comment_thread
+                                                  : R.string.reply_comment_board));
         callback.showCommentCounter(board.maxCommentChars > 0);
 
         if (draft.file != null) {
@@ -220,15 +223,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         //only 4chan seems to have the post delay, this is a hack for that
         if (draft.loadable.site.name().equals("4chan")) {
             if (loadable.isThreadMode()) {
-                if (lastReplyRepository.canPostReply(
-                        draft.loadable.site,
-                        draft.loadable.board,
-                        draft.file != null)) {
+                if (lastReplyRepository.canPostReply(draft.loadable.site, draft.loadable.board, draft.file != null)) {
                     submitOrAuthenticate();
                 } else {
-                    long lastPostTime = lastReplyRepository.getLastReply(
-                            draft.loadable.site,
-                            draft.loadable.board);
+                    long lastPostTime = lastReplyRepository.getLastReply(draft.loadable.site, draft.loadable.board);
 
                     long waitTime = draft.file != null
                             ? draft.loadable.board.cooldownImages
@@ -244,14 +242,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                     callback.openMessage(true, false, errorMessage, true);
                 }
             } else if (loadable.isCatalogMode()) {
-                if (lastReplyRepository.canPostThread(
-                        draft.loadable.site,
-                        draft.loadable.board)) {
+                if (lastReplyRepository.canPostThread(draft.loadable.site, draft.loadable.board)) {
                     submitOrAuthenticate();
                 } else {
-                    long lastThreadTime = lastReplyRepository.getLastThread(
-                            draft.loadable.site,
-                            draft.loadable.board);
+                    long lastThreadTime = lastReplyRepository.getLastThread(draft.loadable.site, draft.loadable.board);
 
                     long waitTime = draft.loadable.board.cooldownThreads;
                     if (draft.loadable.site.actions().isLoggedIn()) {
@@ -259,7 +253,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                     }
 
                     long timeLeft = waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
-                    String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_thread, timeLeft);
+                    String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_thread,
+                                                                    timeLeft
+                    );
                     switchPage(Page.INPUT);
 
                     callback.openMessage(true, false, errorMessage, true);
@@ -292,8 +288,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
         draft.captchaResponse = null;
         if (ChanSettings.enableEmoji.get()) {
-            draft.comment = EmojiParser.parseFromUnicode(draft.comment, e -> ":" + e.getEmoji().getAliases().get(0) +
-                    (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "") + ": ");
+            draft.comment = EmojiParser.parseFromUnicode(draft.comment, e -> ":" + e.getEmoji().getAliases().get(0) + (
+                    e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "") + ": ");
         }
 
         return true;
@@ -305,13 +301,16 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             //if the thread being presented has changed in the time waiting for this call to complete, the loadable field in
             //ReplyPresenter will be incorrect; reconstruct the loadable (local to this method) from the reply response
             Site localSite = Chan.injector().instance(SiteRepository.class).forId(replyResponse.siteId);
-            Board localBoard = Chan.injector().instance(BoardRepository.class).getFromCode(localSite, replyResponse.boardCode);
-            Loadable localLoadable = databaseManager.getDatabaseLoadableManager().get(
-                    Loadable.forThread(localSite, localBoard, //this loadable is for the reply response's site and board
-                            replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo, //if the replyresponse's threadno is 0, then it's a new thread so use the post number
-                            PostHelper.getTitle(null, //get a title for the time being, will be updated later when the watchmanager updates
-                                    Loadable.forThread(localSite, localBoard,
-                                            replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo, ""))));
+            Board localBoard = Chan.injector().instance(BoardRepository.class)
+                                   .getFromCode(localSite, replyResponse.boardCode);
+            Loadable localLoadable = databaseManager
+                    .getDatabaseLoadableManager()
+                    .get(Loadable.forThread(localSite, localBoard,
+                                            //this loadable is for the reply response's site and board
+                                            replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo,
+                                            //for the time being, will be updated later when the watchmanager updates
+                                            "/" + localBoard.code + "/"
+                    ));
 
             if (localLoadable.isThreadMode()) {
                 lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
@@ -334,10 +333,12 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 }
             }
 
-            SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(
-                    localLoadable.site, localLoadable.board, replyResponse.postNo, replyResponse.password);
-            databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager()
-                    .saveReply(savedReply));
+            SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(localLoadable.site,
+                                                                       localLoadable.board,
+                                                                       replyResponse.postNo,
+                                                                       replyResponse.password
+            );
+            databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
 
             switchPage(Page.INPUT);
             closeAll();
@@ -349,7 +350,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             callback.loadDraftIntoViews(draft);
             callback.onPosted();
 
-            if (bound && loadable.isCatalogMode()) { //special case for new threads, check if we were on the catalog with the nonlocal loadable
+            if (bound
+                    && loadable.isCatalogMode())
+            { //special case for new threads, check if we were on the catalog with the nonlocal loadable
                 callback.showThread(localLoadable);
             }
         } else if (replyResponse.requireAuthentication) {
@@ -357,8 +360,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         } else {
             String errorMessage = getString(R.string.reply_error);
             if (replyResponse.errorMessage != null) {
-                errorMessage = getAppContext().getString(
-                        R.string.reply_error_message, replyResponse.errorMessage);
+                errorMessage = getAppContext().getString(R.string.reply_error_message, replyResponse.errorMessage);
             }
 
             Logger.e(TAG, "onPostComplete error", errorMessage);
@@ -392,11 +394,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     @Override
-    public void onAuthenticationComplete(
-            AuthenticationLayoutInterface authenticationLayout,
-            String challenge,
-            String response,
-            boolean autoReply) {
+    public void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout,
+                                         String challenge,
+                                         String response,
+                                         boolean autoReply
+    ) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
 
@@ -453,8 +455,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.loadViewsIntoDraft(draft);
 
         String extraNewline = "";
-        if (draft.selectionStart - 1 >= 0 && draft.selectionStart - 1 < draft.comment.length() &&
-                draft.comment.charAt(draft.selectionStart - 1) != '\n') {
+        if (draft.selectionStart - 1 >= 0 && draft.selectionStart - 1 < draft.comment.length()
+                && draft.comment.charAt(draft.selectionStart - 1) != '\n')
+        {
             extraNewline = "\n";
         }
 
@@ -479,9 +482,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         }
 
         String insert = extraNewline + postQuote + textQuoteResult.toString();
-        draft.comment = new StringBuilder(draft.comment)
-                .insert(draft.selectionStart, insert)
-                .toString();
+        draft.comment = new StringBuilder(draft.comment).insert(draft.selectionStart, insert).toString();
         // Set the selection start to the new end
         draft.selectionEnd += insert.length();
         draft.selectionStart = draft.selectionEnd;
@@ -593,9 +594,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             String fileSize = getReadableFileSize(file.length(), false);
             String maxSizeString = getReadableFileSize(maxSize, false);
 
-            int stringResId = probablyWebm
-                    ? R.string.reply_webm_too_big
-                    : R.string.reply_file_too_big;
+            int stringResId = probablyWebm ? R.string.reply_webm_too_big : R.string.reply_file_too_big;
 
             String text = getRes().getString(stringResId, fileSize, maxSizeString);
             callback.openPreviewMessage(true, text);
@@ -633,7 +632,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                                       SiteAuthentication authentication,
                                       AuthenticationLayoutCallback callback,
                                       boolean useV2NoJsCaptcha,
-                                      boolean autoReply);
+                                      boolean autoReply
+        );
 
         void resetAuthentication();
 

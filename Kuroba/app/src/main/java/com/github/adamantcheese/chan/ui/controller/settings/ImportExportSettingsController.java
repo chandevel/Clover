@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.controller;
+package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -29,8 +29,8 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.controller.LoadingViewController;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -46,9 +46,11 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class ImportExportSettingsController extends SettingsController implements
-        ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
+public class ImportExportSettingsController
+        extends SettingsController
+        implements ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
     private static final String TAG = "ImportExportSettingsController";
     public static final String EXPORT_FILE_NAME = getApplicationLabel() + "_exported_settings.json";
 
@@ -105,17 +107,19 @@ public class ImportExportSettingsController extends SettingsController implement
     private void populatePreferences() {
         // Import/export settings group
         {
-            SettingsGroup group = new SettingsGroup(context.getString(R.string.import_or_export_settings));
+            SettingsGroup group = new SettingsGroup(getString(R.string.import_or_export_settings));
 
             group.add(new LinkSettingView(this,
-                    context.getString(R.string.export_settings),
-                    context.getString(R.string.export_settings_to_a_file),
-                    v -> onExportClicked()));
+                                          getString(R.string.export_settings),
+                                          getString(R.string.export_settings_to_a_file),
+                                          v -> onExportClicked()
+            ));
 
             group.add(new LinkSettingView(this,
-                    context.getString(R.string.import_settings),
-                    context.getString(R.string.import_settings_from_a_file),
-                    v -> onImportClicked()));
+                                          getString(R.string.import_settings),
+                                          getString(R.string.import_settings_from_a_file),
+                                          v -> onImportClicked()
+            ));
 
             groups.add(group);
         }
@@ -126,43 +130,38 @@ public class ImportExportSettingsController extends SettingsController implement
         boolean savedFilesLocationIsSAFBacked = !ChanSettings.saveLocationUri.get().isEmpty();
 
         if (localThreadsLocationIsSAFBacked || savedFilesLocationIsSAFBacked) {
-            showSomeBaseDirectoriesWillBeResetToDefaultDialog(
-                    localThreadsLocationIsSAFBacked,
-                    savedFilesLocationIsSAFBacked
-            );
+            showDirectoriesWillBeResetToDefaultDialog(localThreadsLocationIsSAFBacked, savedFilesLocationIsSAFBacked);
             return;
         }
 
         showCreateNewOrOverwriteDialog();
     }
 
-    private void showSomeBaseDirectoriesWillBeResetToDefaultDialog(
-            boolean localThreadsLocationIsSAFBacked,
-            boolean savedFilesLocationIsSAFBacked
+    private void showDirectoriesWillBeResetToDefaultDialog(boolean localThreadsLocationIsSAFBacked,
+                                                           boolean savedFilesLocationIsSAFBacked
     ) {
         if (!localThreadsLocationIsSAFBacked && !savedFilesLocationIsSAFBacked) {
             throw new IllegalStateException("Both variables are false, wtf?");
         }
 
         String localThreadsString = localThreadsLocationIsSAFBacked
-                ? context.getString(R.string.import_or_export_warning_local_threads_base_dir)
+                ? getString(R.string.import_or_export_warning_local_threads_base_dir)
                 : "";
         String andString = localThreadsLocationIsSAFBacked && savedFilesLocationIsSAFBacked
-                ? context.getString(R.string.import_or_export_warning_and)
+                ? getString(R.string.import_or_export_warning_and)
                 : "";
         String savedFilesString = savedFilesLocationIsSAFBacked
-                ? context.getString(R.string.import_or_export_warning_saved_files_base_dir)
+                ? getString(R.string.import_or_export_warning_saved_files_base_dir)
                 : "";
 
-        String message = context.getString(
-                R.string.import_or_export_warning_super_long_message,
-                localThreadsString,
-                andString,
-                savedFilesString
+        String message = getString(R.string.import_or_export_warning_super_long_message,
+                                   localThreadsString,
+                                   andString,
+                                   savedFilesString
         );
 
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.import_or_export_warning))
+                .setTitle(getString(R.string.import_or_export_warning))
                 .setMessage(message)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     dialog.dismiss();
@@ -281,7 +280,7 @@ public class ImportExportSettingsController extends SettingsController implement
                     ((StartActivity) context).restartApp();
                 } else {
                     clearAllChildControllers();
-                    showMessage(context.getString(R.string.successfully_exported_text));
+                    showMessage(getString(R.string.successfully_exported_text));
 
                     if (callbacks != null) {
                         callbacks.finish();
@@ -290,7 +289,6 @@ public class ImportExportSettingsController extends SettingsController implement
             });
         }
     }
-
 
     @Override
     public void onError(String message) {

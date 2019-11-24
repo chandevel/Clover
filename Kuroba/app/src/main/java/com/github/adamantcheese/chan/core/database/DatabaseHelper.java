@@ -49,12 +49,12 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
+public class DatabaseHelper
+        extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
     private static final int DATABASE_VERSION = 40;
-
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -99,7 +99,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
-    public void createTables(ConnectionSource connectionSource) throws SQLException {
+    public void createTables(ConnectionSource connectionSource)
+            throws SQLException {
         TableUtils.createTable(connectionSource, Pin.class);
         TableUtils.createTable(connectionSource, Loadable.class);
         TableUtils.createTable(connectionSource, SavedReply.class);
@@ -111,7 +112,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         TableUtils.createTable(connectionSource, SavedThread.class);
     }
 
-    public void dropTables(ConnectionSource connectionSource) throws SQLException {
+    public void dropTables(ConnectionSource connectionSource)
+            throws SQLException {
         TableUtils.dropTable(connectionSource, Pin.class, true);
         TableUtils.dropTable(connectionSource, Loadable.class, true);
         TableUtils.dropTable(connectionSource, SavedReply.class, true);
@@ -164,7 +166,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         if (oldVersion < 28) {
             try {
                 postHideDao.executeRawNoArgs("ALTER TABLE posthide ADD COLUMN hide INTEGER default 0");
-                postHideDao.executeRawNoArgs("ALTER TABLE posthide ADD COLUMN hide_replies_to_this_post INTEGER default 0");
+                postHideDao.executeRawNoArgs(
+                        "ALTER TABLE posthide ADD COLUMN hide_replies_to_this_post INTEGER default 0");
                 filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN apply_to_replies INTEGER default 0");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 28", e);
@@ -181,14 +184,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
         if (oldVersion < 30) {
             try {
-                boardsDao.executeRawNoArgs("BEGIN TRANSACTION;\n" +
-                        "CREATE TEMPORARY TABLE board_backup(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n" +
-                        "INSERT INTO board_backup SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board;\n" +
-                        "DROP TABLE board;\n" +
-                        "CREATE TABLE board(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n" +
-                        "INSERT INTO board SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board_backup;\n" +
-                        "DROP TABLE board_backup;\n" +
-                        "COMMIT;");
+                boardsDao.executeRawNoArgs("BEGIN TRANSACTION;\n"
+                                                   + "CREATE TEMPORARY TABLE board_backup(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n"
+                                                   + "INSERT INTO board_backup SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board;\n"
+                                                   + "DROP TABLE board;\n"
+                                                   + "CREATE TABLE board(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n"
+                                                   + "INSERT INTO board SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board_backup;\n"
+                                                   + "DROP TABLE board_backup;\n" + "COMMIT;");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 30");
             }
@@ -230,7 +232,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
         if (oldVersion < 36) {
             try {
-                filterDao.executeRawNoArgs("CREATE TABLE `saved_thread` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `loadable_id` INTEGER NOT NULL , `last_saved_post_no` INTEGER NOT NULL DEFAULT 0, `is_fully_downloaded` INTEGER NOT NULL DEFAULT 0 , `is_stopped` INTEGER NOT NULL DEFAULT 0);");
+                filterDao.executeRawNoArgs(
+                        "CREATE TABLE `saved_thread` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `loadable_id` INTEGER NOT NULL , `last_saved_post_no` INTEGER NOT NULL DEFAULT 0, `is_fully_downloaded` INTEGER NOT NULL DEFAULT 0 , `is_stopped` INTEGER NOT NULL DEFAULT 0);");
                 filterDao.executeRawNoArgs("CREATE INDEX loadable_id_idx ON saved_thread(loadable_id);");
 
                 // Because pins now has different type (the ones that watch threads and ones that
@@ -278,11 +281,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
                 //remove arisuchan boards that don't exist anymore
                 Where where = boardsDao.queryBuilder().where();
-                where.and(where.eq("site", 3), where.or(
-                        where.eq("value", "cyb"),
-                        where.eq("value", "feels"),
-                        where.eq("value", "x"),
-                        where.eq("value", "z")));
+                where.and(where.eq("site", 3),
+                          where.or(where.eq("value", "cyb"),
+                                   where.eq("value", "feels"),
+                                   where.eq("value", "x"),
+                                   where.eq("value", "z")
+                          )
+                );
                 List<Board> toRemove = where.query();
                 for (Board b : toRemove) {
                     deleteBoard(b);
@@ -346,7 +351,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
      *
      * @param id The ID given in SiteRegistry before this site's class was removed
      */
-    public void deleteSiteByRegistryID(int id) throws SQLException {
+    public void deleteSiteByRegistryID(int id)
+            throws SQLException {
         //NOTE: most of this is a copy of the methods used by the runtime version, but condensed down into one method
         //convert the SiteRegistry id to the actual database id
         List<SiteModel> allSites = siteDao.queryForAll();
@@ -359,7 +365,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             }
         }
         //if we can't find it then it doesn't exist so we don't need to delete anything
-        if (toDelete == null) return;
+        if (toDelete == null)
+            return;
 
         //filters
         List<Filter> filtersToDelete = new ArrayList<>();
@@ -388,8 +395,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
         int deletedCountFilters = filterDelete.delete();
         if (deletedCountFilters != filterIdSet.size()) {
-            throw new IllegalStateException("Deleted count didn't equal filterIdList.size(). (deletedCount = "
-                    + deletedCountFilters + "), " + "(filterIdSet = " + filterIdSet.size() + ")");
+            throw new IllegalStateException(
+                    "Deleted count didn't equal filterIdList.size(). (deletedCount = " + deletedCountFilters + "), "
+                            + "(filterIdSet = " + filterIdSet.size() + ")");
         }
 
         //boards
@@ -425,8 +433,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
             int deletedCountLoadables = loadableDelete.delete();
             if (loadableIdSet.size() != deletedCountLoadables) {
-                throw new IllegalStateException("Deleted count didn't equal loadableIdSet.size(). (deletedCount = "
-                        + deletedCountLoadables + "), " + "(loadableIdSet = " + loadableIdSet.size() + ")");
+                throw new IllegalStateException(
+                        "Deleted count didn't equal loadableIdSet.size(). (deletedCount = " + deletedCountLoadables
+                                + "), (loadableIdSet = " + loadableIdSet.size() + ")");
             }
         }
 
@@ -449,7 +458,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     /**
      * Deletes a board on a given site when the site no longer supports the given board
      */
-    public void deleteBoard(Board board) throws SQLException {
+    public void deleteBoard(Board board)
+            throws SQLException {
         //filters
         for (Filter filter : filterDao.queryForAll()) {
             if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
@@ -459,8 +469,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             List<String> keep = new ArrayList<>();
             for (String uniqueId : filter.boards.split(",")) {
                 String[] split = uniqueId.split(":");
-                if (!(split.length == 2 && Integer.parseInt(split[0]) == board.siteId
-                        && split[1].equals(board.code))) {
+                if (!(split.length == 2 && Integer.parseInt(split[0]) == board.siteId && split[1].equals(board.code))) {
                     keep.add(uniqueId);
                 }
             }
@@ -504,33 +513,25 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
             int deletedCountLoadables = loadableDelete.delete();
             if (loadableIdSet.size() != deletedCountLoadables) {
-                throw new IllegalStateException("Deleted count didn't equal loadableIdSet.size(). (deletedCount = "
-                        + deletedCountLoadables + "), " + "(loadableIdSet = " + loadableIdSet.size() + ")");
+                throw new IllegalStateException(
+                        "Deleted count didn't equal loadableIdSet.size(). (deletedCount = " + deletedCountLoadables
+                                + "), (loadableIdSet = " + loadableIdSet.size() + ")");
             }
         }
 
         //saved replies
         DeleteBuilder<SavedReply, Integer> savedReplyDelete = savedDao.deleteBuilder();
-        savedReplyDelete.where()
-                .eq("site", board.siteId)
-                .and()
-                .eq("board", board.code);
+        savedReplyDelete.where().eq("site", board.siteId).and().eq("board", board.code);
         savedReplyDelete.delete();
 
         //thread hides
         DeleteBuilder<PostHide, Integer> threadHideDelete = postHideDao.deleteBuilder();
-        threadHideDelete.where()
-                .eq("site", board.siteId)
-                .and()
-                .eq("board", board.code);
+        threadHideDelete.where().eq("site", board.siteId).and().eq("board", board.code);
         threadHideDelete.delete();
 
         //board itself
         DeleteBuilder boardDelete = boardsDao.deleteBuilder();
-        boardDelete.where()
-                .eq("site", board.siteId)
-                .and()
-                .eq("value", board.code);
+        boardDelete.where().eq("site", board.siteId).and().eq("value", board.code);
         boardDelete.delete();
     }
 }

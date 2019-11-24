@@ -7,7 +7,8 @@ import android.view.Window;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-public abstract class BaseFloatingController extends Controller {
+public abstract class BaseFloatingController
+        extends Controller {
     private static final int TRANSITION_DURATION = 200;
     private int statusBarColorPrevious;
 
@@ -41,5 +42,4 @@ public abstract class BaseFloatingController extends Controller {
     }
 
     protected abstract int getLayoutId();
-
 }

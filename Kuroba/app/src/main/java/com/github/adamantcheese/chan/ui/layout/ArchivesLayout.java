@@ -17,7 +17,8 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
-public class ArchivesLayout extends LinearLayout {
+public class ArchivesLayout
+        extends LinearLayout {
     private Callback callback;
     private ArrayAdapter<PairForAdapter> adapter;
 
@@ -42,8 +43,8 @@ public class ArchivesLayout extends LinearLayout {
         super.onFinishInflate();
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
         ((ListView) findViewById(R.id.archives_list)).setAdapter(adapter);
-        ((ListView) findViewById(R.id.archives_list)).setOnItemClickListener(
-                (parent, view, position, id) -> callback.openArchive((PairForAdapter) parent.getItemAtPosition(position)));
+        ((ListView) findViewById(R.id.archives_list)).setOnItemClickListener((parent, view, position, id) -> callback.openArchive(
+                (PairForAdapter) parent.getItemAtPosition(position)));
     }
 
     public void setBoard(Board b) {
@@ -54,7 +55,8 @@ public class ArchivesLayout extends LinearLayout {
         callback = c;
     }
 
-    public static class PairForAdapter extends Pair<String, String> {
+    public static class PairForAdapter
+            extends Pair<String, String> {
         public PairForAdapter(@Nullable String first, @Nullable String second) {
             super(first, second);
         }

@@ -39,7 +39,8 @@ public class ChanThread {
     public synchronized int getImagesCount() {
         int total = 0;
         for (Post p : posts) {
-            if (p.images == null) continue;
+            if (p.images == null)
+                continue;
             total += p.images.size();
         }
         return total;

@@ -27,7 +27,8 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class TransitionImageView extends View {
+public class TransitionImageView
+        extends View {
     private static final String TAG = "TransitionImageView";
 
     private Bitmap bitmap;
@@ -67,13 +68,13 @@ public class TransitionImageView extends View {
         float selfWidth = getWidth();
         float selfHeight = getHeight();
 
-        float destScale = Math.min(
-                selfWidth / (float) bitmap.getWidth(),
-                selfHeight / (float) bitmap.getHeight());
+        float destScale = Math.min(selfWidth / (float) bitmap.getWidth(), selfHeight / (float) bitmap.getHeight());
 
-        RectF output = new RectF(
-                (selfWidth - bitmap.getWidth() * destScale) * 0.5f,
-                (selfHeight - bitmap.getHeight() * destScale) * 0.5f, 0, 0);
+        RectF output = new RectF((selfWidth - bitmap.getWidth() * destScale) * 0.5f,
+                                 (selfHeight - bitmap.getHeight() * destScale) * 0.5f,
+                                 0,
+                                 0
+        );
 
         output.right = bitmap.getWidth() * destScale + output.left;
         output.bottom = bitmap.getHeight() * destScale + output.top;
@@ -97,9 +98,9 @@ public class TransitionImageView extends View {
         float globalOffsetY = windowLocation.y - myLoc[1];
 
         // Get the coords in the image view with the center crop method
-        float scale = Math.max(
-                (float) viewSize.x / (float) bitmap.getWidth(),
-                (float) viewSize.y / (float) bitmap.getHeight());
+        float scale = Math.max((float) viewSize.x / (float) bitmap.getWidth(),
+                               (float) viewSize.y / (float) bitmap.getHeight()
+        );
         float scaledX = bitmap.getWidth() * scale;
         float scaledY = bitmap.getHeight() * scale;
         float offsetX = (scaledX - viewSize.x) * 0.5f;
@@ -107,11 +108,11 @@ public class TransitionImageView extends View {
 
         sourceOverlap.set(offsetX, offsetY);
 
-        sourceImageRect.set(
-                -offsetX + globalOffsetX,
-                -offsetY + globalOffsetY,
-                scaledX - offsetX + globalOffsetX,
-                scaledY - offsetY + globalOffsetY);
+        sourceImageRect.set(-offsetX + globalOffsetX,
+                            -offsetY + globalOffsetY,
+                            scaledX - offsetX + globalOffsetX,
+                            scaledY - offsetY + globalOffsetY
+        );
     }
 
     public void setState(float stateScale, PointF statePos, PointF stateBitmapSize) {
@@ -134,13 +135,13 @@ public class TransitionImageView extends View {
             float selfWidth = getWidth();
             float selfHeight = getHeight();
 
-            float destScale = Math.min(
-                    selfWidth / (float) bitmap.getWidth(),
-                    selfHeight / (float) bitmap.getHeight());
+            float destScale = Math.min(selfWidth / (float) bitmap.getWidth(), selfHeight / (float) bitmap.getHeight());
 
-            output = new RectF(
-                    (selfWidth - bitmap.getWidth() * destScale) * 0.5f,
-                    (selfHeight - bitmap.getHeight() * destScale) * 0.5f, 0, 0);
+            output = new RectF((selfWidth - bitmap.getWidth() * destScale) * 0.5f,
+                               (selfHeight - bitmap.getHeight() * destScale) * 0.5f,
+                               0,
+                               0
+            );
 
             output.right = bitmap.getWidth() * destScale + output.left;
             output.bottom = bitmap.getHeight() * destScale + output.top;
@@ -156,11 +157,10 @@ public class TransitionImageView extends View {
 
         matrix.setRectToRect(bitmapRect, destRect, Matrix.ScaleToFit.FILL);
 
-        destClip.set(
-                output.left + sourceOverlap.x * (1f - progress),
-                output.top + sourceOverlap.y * (1f - progress),
-                output.right - sourceOverlap.x * (1f - progress),
-                output.bottom - sourceOverlap.y * (1f - progress)
+        destClip.set(output.left + sourceOverlap.x * (1f - progress),
+                     output.top + sourceOverlap.y * (1f - progress),
+                     output.right - sourceOverlap.x * (1f - progress),
+                     output.bottom - sourceOverlap.y * (1f - progress)
         );
 
         invalidate();
