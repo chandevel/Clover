@@ -39,6 +39,9 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Deals with background alarms specifically. No foreground stuff here.
@@ -69,7 +72,7 @@ public class WakeManager {
     }
 
     public void onBroadcastReceived() {
-        if (System.currentTimeMillis() - lastBackgroundUpdateTime < 90 * 1000) { //wait 90 seconds between background updates
+        if (System.currentTimeMillis() - lastBackgroundUpdateTime < SECONDS.toMillis(90)) {
             Logger.w(TAG, "Background update broadcast ignored because it was requested too soon");
         } else {
             lastBackgroundUpdateTime = System.currentTimeMillis();
@@ -105,7 +108,7 @@ public class WakeManager {
 
     private void startAlarm() {
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, ChanSettings.watchBackgroundInterval.get(), pendingIntent);
-        Logger.i(TAG, "Started background alarm with an interval of " + (ChanSettings.watchBackgroundInterval.get() / 1000 / 60) + " minutes");
+        Logger.i(TAG, "Started background alarm with an interval of " + MILLISECONDS.toMinutes(ChanSettings.watchBackgroundInterval.get()) + " minutes");
     }
 
     private void stopAlarm() {
@@ -131,7 +134,7 @@ public class WakeManager {
 
             wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getApplicationLabel() + ":WakeManagerUpdateLock:" + Object.class.getSimpleName());
             wakeLock.setReferenceCounted(false);
-            wakeLock.acquire(60 * 1000); //60 seconds max
+            wakeLock.acquire(MINUTES.toMillis(1));
             wakeLocks.put(locker, wakeLock);
         } else {
             if (wakeLock == null) {

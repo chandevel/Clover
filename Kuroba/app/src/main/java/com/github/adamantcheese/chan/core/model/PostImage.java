@@ -22,7 +22,7 @@ import okhttp3.HttpUrl;
 
 public class PostImage {
     public enum Type {
-        STATIC, GIF, MOVIE
+        STATIC, GIF, MOVIE, PDF
     }
 
     public final String serverFilename;
@@ -57,6 +57,9 @@ public class PostImage {
             case "webm":
             case "mp4":
                 type = Type.MOVIE;
+                break;
+            case "pdf":
+                type = Type.PDF;
                 break;
             default:
                 type = Type.STATIC;

@@ -149,7 +149,18 @@ public class ReplyLayout extends LoadView implements
 
     public ReplyLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
         EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -573,6 +584,9 @@ public class ReplyLayout extends LoadView implements
     }
 
     public void focusComment() {
+        //this is a hack to make sure text is selectable
+        comment.setEnabled(false);
+        comment.setEnabled(true);
         comment.post(() -> AndroidUtils.requestViewAndKeyboardFocus(comment));
     }
 
@@ -672,10 +686,12 @@ public class ReplyLayout extends LoadView implements
         return callback.getThread();
     }
 
-    public void onImageOptionsApplied(Reply reply) {
-        // Update the filename EditText. Otherwise it will change back the image name upon changing
-        // the message comment (because of the textwatcher)
-        fileName.setText(reply.fileName);
+    public void onImageOptionsApplied(Reply reply, boolean filenameRemoved) {
+        if (filenameRemoved) {
+            fileName.setText(reply.fileName); //update edit field with new filename
+        } else {
+            reply.fileName = fileName.getText().toString(); //update reply with existing filename (may have been changed by user)
+        }
 
         presenter.onImageOptionsApplied(reply);
     }

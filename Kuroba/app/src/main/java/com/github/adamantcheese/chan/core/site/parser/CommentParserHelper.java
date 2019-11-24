@@ -37,6 +37,9 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import org.json.JSONObject;
 import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
@@ -65,8 +68,19 @@ public class CommentParserHelper {
     private static final String API_KEY = "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE";
     private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
     private static LruCache<String, String> youtubeTitleCache = new LruCache<>(250); // a cache for titles to prevent extra network activity if not necessary
+    private static LruCache<String, String> youtubeDurCache = new LruCache<>(250);
 
     private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf)", Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern dubsPattern = Pattern.compile("(\\d)\\1$");
+    private static final Pattern tripsPattern = Pattern.compile("(\\d)\\1{2}$");
+    private static final Pattern quadsPattern = Pattern.compile("(\\d)\\1{3}$");
+    private static final Pattern quintsPattern = Pattern.compile("(\\d)\\1{4}$");
+    private static final Pattern hexesPattern = Pattern.compile("(\\d)\\1{5}$");
+    private static final Pattern septsPattern = Pattern.compile("(\\d)\\1{6}$");
+    private static final Pattern octsPattern = Pattern.compile("(\\d)\\1{7}$");
+    private static final Pattern nonsPattern = Pattern.compile("(\\d)\\1{8}$");
+    private static final Pattern decsPattern = Pattern.compile("(\\d)\\1{9}$");
 
     /**
      * Detect links in the given spannable, and create PostLinkables with Type.LINK for the
@@ -101,15 +115,19 @@ public class CommentParserHelper {
             RequestFuture<JSONObject> future = RequestFuture.newFuture();
             //this must be a GET request, so the jsonRequest object is null per documentation
             JsonObjectRequest request = new JsonObjectRequest(
-                    "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" +
-                            videoID +
-                            "&fields=items%28id%2Csnippet%28title%29%29&key=" + API_KEY,
+                    "https://www.googleapis.com/youtube/v3/videos?part=snippet" +
+                            (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "") +
+                            "&id=" + videoID +
+                            "&fields=items%28id%2Csnippet%28title%29" +
+                            (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails%28duration%29" : "") +
+                            "%29&key=" + API_KEY,
                     null, future, future);
             Chan.injector().instance(RequestQueue.class).add(request);
 
             String URL = linkMatcher.group(0);
             String title = youtubeTitleCache.get(URL);
-            if (title == null) {
+            String duration = youtubeDurCache.get(URL);
+            if (title == null || duration == null) {
                 try {
                     // this will block so we get the title immediately
                     JSONObject response = future.get(2500, TimeUnit.MILLISECONDS);
@@ -119,13 +137,29 @@ public class CommentParserHelper {
                             .getJSONObject("snippet")
                             .getString("title"); //the response is well formatted so this will always work
                     youtubeTitleCache.put(URL, title);
+                    if (ChanSettings.parseYoutubeDuration.get()) {
+                        duration = response
+                                .getJSONArray("items")
+                                .getJSONObject(0)
+                                .getJSONObject("contentDetails")
+                                .getString("duration"); //the response is well formatted so this will always work
+                        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                                .minimumPrintedDigits(0)
+                                .appendHours().appendSuffix(":")
+                                .appendMinutes().appendSuffix(":")
+                                .appendSeconds().toFormatter();
+                        duration = formatter.print(Period.parse(duration));
+                        youtubeDurCache.put(URL, duration);
+                    }
                 } catch (Exception e) {
                     title = URL; //fall back to just showing the URL, otherwise it will display "null" which is pretty useless
+                    duration = null;
                 }
             }
             //prepend two spaces for the youtube icon later
-            titleURLMap.put("  " + title, URL);
-            linkMatcher.appendReplacement(newString, "  " + title);
+            String extraDur = ChanSettings.parseYoutubeDuration.get() ? (duration != null ? " [" + duration + "]" : "") : "";
+            titleURLMap.put("  " + title + extraDur, URL);
+            linkMatcher.appendReplacement(newString, "  " + title + extraDur);
         }
         linkMatcher.appendTail(newString);
 
@@ -172,5 +206,37 @@ public class CommentParserHelper {
                 }
             }
         }
+    }
+
+    public static String getRepeatDigits(int no) {
+        String number = String.valueOf(no);
+        if (dubsPattern.matcher(number).find()) {
+            return "Dubs";
+        }
+        if (tripsPattern.matcher(number).find()) {
+            return "Trips";
+        }
+        if (quadsPattern.matcher(number).find()) {
+            return "Quads";
+        }
+        if (quintsPattern.matcher(number).find()) {
+            return "Quints";
+        }
+        if (hexesPattern.matcher(number).find()) {
+            return "Sexes";
+        }
+        if (septsPattern.matcher(number).find()) {
+            return "Septs";
+        }
+        if (octsPattern.matcher(number).find()) {
+            return "Octs";
+        }
+        if (nonsPattern.matcher(number).find()) {
+            return "Nons";
+        }
+        if (decsPattern.matcher(number).find()) {
+            return "Decs";
+        }
+        return null;
     }
 }

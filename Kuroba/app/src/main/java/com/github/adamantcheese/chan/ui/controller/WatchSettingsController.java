@@ -30,6 +30,10 @@ import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 
+import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 public class WatchSettingsController extends SettingsController implements CompoundButton.OnCheckedChangeListener {
     private CrossfadeView crossfadeView;
 
@@ -110,20 +114,20 @@ public class WatchSettingsController extends SettingsController implements Compo
 //        settings.add(new BooleanSettingView(this, ChanSettings.watchCountdown, string(R.string.setting_watch_countdown), string(R.string.setting_watch_countdown_description)));
         enableBackground = settings.add(new BooleanSettingView(this, ChanSettings.watchBackground, R.string.setting_watch_enable_background, R.string.setting_watch_enable_background_description));
 
-        int[] timeouts = new int[]{
-                2 * 60 * 1000,
-                5 * 60 * 1000,
-                10 * 60 * 1000,
-                15 * 60 * 1000,
-                30 * 60 * 1000,
-                45 * 60 * 1000,
-                60 * 60 * 1000,
-                2 * 60 * 60 * 1000
+        long[] timeouts = new long[]{
+                MINUTES.toMillis(2),
+                MINUTES.toMillis(5),
+                MINUTES.toMillis(10),
+                MINUTES.toMillis(15),
+                MINUTES.toMillis(30),
+                MINUTES.toMillis(45),
+                HOURS.toMillis(1),
+                HOURS.toMillis(2)
         };
         ListSettingView.Item[] timeoutsItems = new ListSettingView.Item[timeouts.length];
         for (int i = 0; i < timeouts.length; i++) {
-            String name = content.getResources().getString(R.string.minutes, timeouts[i] / 1000 / 60);
-            timeoutsItems[i] = new ListSettingView.Item<>(name, timeouts[i]);
+            String name = content.getResources().getString(R.string.minutes, (int) MILLISECONDS.toMinutes(timeouts[i]));
+            timeoutsItems[i] = new ListSettingView.Item<>(name, (int) timeouts[i]);
         }
         backgroundTimeout = settings.add(new ListSettingView<Integer>(this, ChanSettings.watchBackgroundInterval, R.string.setting_watch_background_timeout, timeoutsItems) {
             @Override

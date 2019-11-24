@@ -39,6 +39,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.concurrent.TimeUnit.HOURS;
+
 public class CacheHandler {
     private static final String TAG = "CacheHandler";
     //1GB for prefetching, so that entire threads can be loaded at once more easily, otherwise 100MB is plenty
@@ -184,7 +186,7 @@ public class CacheHandler {
         //Pre-trim based on time, trash anything older than 6 hours
         List<Pair<AbstractFile, Long>> removed = new ArrayList<>();
         for (Pair<AbstractFile, Long> fileLongPair : files) {
-            if (fileLongPair.second + 6 * 60 * 60 * 1000 < System.currentTimeMillis()) {
+            if (fileLongPair.second + HOURS.toMillis(6) < System.currentTimeMillis()) {
                 Logger.d(TAG, "Delete for trim " + fileLongPair.first.getFullPath());
                 if (!fileManager.delete(fileLongPair.first)) {
                     Logger.e(TAG, "Failed to delete cache file for trim");

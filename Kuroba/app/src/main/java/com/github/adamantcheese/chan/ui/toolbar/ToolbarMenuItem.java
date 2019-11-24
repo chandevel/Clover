@@ -83,16 +83,13 @@ public class ToolbarMenuItem {
     }
 
     public void attach(ImageView view) {
-        if (this.view != null) {
-            throw new IllegalStateException("Already attached");
-        }
-
         this.view = view;
     }
 
     public void detach() {
         if (view == null) {
-            throw new IllegalStateException("Not attached");
+            Logger.d(TAG, "Already detached");
+            return;
         }
 
         removeFromParentView(this.view);

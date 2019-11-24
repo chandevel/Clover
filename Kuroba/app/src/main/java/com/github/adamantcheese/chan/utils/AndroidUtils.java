@@ -32,6 +32,7 @@ import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -43,6 +44,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
@@ -114,7 +116,7 @@ public class AndroidUtils {
      * @param link url to open
      */
     public static void openLink(String link) {
-        PackageManager pm = getAppContext().getPackageManager();
+        PackageManager pm = application.getPackageManager();
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
 
@@ -122,7 +124,7 @@ public class AndroidUtils {
         if (resolvedActivity == null) {
             openIntentFailed();
         } else {
-            boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(getAppContext().getPackageName());
+            boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(application.getPackageName());
             if (!thisAppIsDefault) {
                 openIntent(intent);
             } else {
@@ -130,7 +132,7 @@ public class AndroidUtils {
                 List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
                 List<Intent> filteredIntents = new ArrayList<>(resolveInfos.size());
                 for (ResolveInfo info : resolveInfos) {
-                    if (!info.activityInfo.packageName.equals(getAppContext().getPackageName())) {
+                    if (!info.activityInfo.packageName.equals(application.getPackageName())) {
                         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
                         i.setPackage(info.activityInfo.packageName);
                         filteredIntents.add(i);
@@ -156,10 +158,10 @@ public class AndroidUtils {
         // openLink to avoid that and show a chooser instead.
         boolean openWithCustomTabs = true;
         Intent urlIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-        PackageManager pm = getAppContext().getPackageManager();
+        PackageManager pm = application.getPackageManager();
         ComponentName resolvedActivity = urlIntent.resolveActivity(pm);
         if (resolvedActivity != null) {
-            openWithCustomTabs = !resolvedActivity.getPackageName().equals(getAppContext().getPackageName());
+            openWithCustomTabs = !resolvedActivity.getPackageName().equals(application.getPackageName());
         }
 
         if (openWithCustomTabs) {
@@ -187,15 +189,15 @@ public class AndroidUtils {
 
     public static void openIntent(Intent intent) {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (intent.resolveActivity(getAppContext().getPackageManager()) != null) {
-            getAppContext().startActivity(intent);
+        if (intent.resolveActivity(application.getPackageManager()) != null) {
+            application.startActivity(intent);
         } else {
             openIntentFailed();
         }
     }
 
     private static void openIntentFailed() {
-        Toast.makeText(getAppContext(), R.string.open_link_failed, Toast.LENGTH_LONG).show();
+        Toast.makeText(application, R.string.open_link_failed, Toast.LENGTH_LONG).show();
     }
 
     public static int getAttrColor(Context context, int attr) {
@@ -221,7 +223,7 @@ public class AndroidUtils {
     }
 
     public static File getAppDir() {
-        return getAppContext().getFilesDir().getParentFile();
+        return application.getFilesDir().getParentFile();
     }
 
     public static int dp(float dp) {
@@ -458,4 +460,10 @@ public class AndroidUtils {
         view.startAnimation(scaleAnimation);
     }
 
+    public static Point getDisplaySize() {
+        Point displaySize = new Point();
+        WindowManager windowManager = (WindowManager) application.getSystemService(Activity.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getSize(displaySize);
+        return displaySize;
+    }
 }

@@ -42,6 +42,7 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderRequest;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -265,6 +266,8 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     }
 
     public void quickLoad() {
+        BackgroundUtils.ensureMainThread();
+
         if (thread == null) {
             throw new IllegalStateException("Cannot quick load without already loaded thread");
         }
@@ -537,7 +540,6 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             // Replace some op parameters to the real op (index 0).
             // This is done on the main thread to avoid race conditions.
             Post realOp = thread.getOp();
-            thread.setOp(realOp);
             if (fakeOp != null) {
                 realOp.setClosed(fakeOp.closed);
                 realOp.setArchived(fakeOp.archived);

@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
 
 android {
     // !!! IMPORTANT !!!
@@ -10,6 +9,15 @@ android {
     // !!! IMPORTANT !!!
 
     compileSdkVersion 28
+
+    def getCommitHash = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
 
     defaultConfig {
         minSdkVersion 21
@@ -42,10 +50,14 @@ android {
          */
         //if you change this, also change the AndroidManifest package
         applicationId "com.github.adamantcheese.chan"
+        //ALL ENDPOINTS SHOULD BE HTTPS
         //these are your update and github repo endpoints, change it to your repository
         //the repo endpoint is also used to calculate the issues endpoint
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
         buildConfigField "String", "GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba\""
+        //this is for your development server endpoint
+        //you WILL need to change the code in UpdateManager if your endpoint changes or you use a different API structure
+        buildConfigField "String", "DEV_API_ENDPOINT", "\"http://94.140.116.243:8080\""
         //this is for checking who's built what in debug logs
         buildConfigField "String", "SIGNATURE", "\"8952c098\""
 
@@ -60,13 +72,15 @@ android {
          * ------------------------------------------------------------
          */
         versionCode major * 10000 + minor * 100 + patch
-        versionName "v" + major + "." + minor + "." + patch + "-dev"
+        versionName "v" + major + "." + minor + "." + patch
 
         applicationVariants.all { variant ->
             variant.outputs.all {
                 outputFileName = manifestPlaceholders.get("appName").toString() + ".apk"
             }
         }
+
+        buildConfigField "String", "COMMIT_HASH", "\"" + getCommitHash() + "\""
     }
 
     compileOptions {
@@ -99,14 +113,16 @@ android {
             versionNameSuffix ""
 
             buildConfigField "boolean", "DEV_BUILD", "false"
+            buildConfigField "int", "UPDATE_DELAY", "5"
 
             // These are manifest placeholders for the application name, icon location and file
             // provider authority (the file provider authority should differ for different flavors
             // otherwise the app will not work)
             manifestPlaceholders = [
-                    appName              : "Kuroba${versionNameSuffix}",
+                    appName              : "Kuroba",
                     iconLoc              : "@mipmap/ic_launcher",
-                    fileProviderAuthority: "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider"
+                    fileProviderAuthority: "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider",
+                    devBuild             : false
             ]
         }
         dev {
@@ -114,16 +130,18 @@ android {
             // Different app ids for different flavors so that the users are able to install both
             // of them without deleting anything
             applicationIdSuffix ".dev"
-            versionNameSuffix "-dev"
+            versionNameSuffix "-${getCommitHash().substring(0, 7)}"
 
             // To easily figure out whether the app uses development flavors or not
             buildConfigField "boolean", "DEV_BUILD", "true"
+            buildConfigField "int", "UPDATE_DELAY", "1"
 
             // The same as in stable flavor
             manifestPlaceholders = [
-                    appName              : "Kuroba${versionNameSuffix}",
+                    appName              : "Kuroba-dev",
                     iconLoc              : "@mipmap/ic_launcher",
-                    fileProviderAuthority: "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider"
+                    fileProviderAuthority: "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider",
+                    devBuild             : true
             ]
         }
     }
@@ -178,6 +196,25 @@ android {
             debuggable = false
         }
         debug {
+            File f = file('debug.properties')
+            if (f.exists()) {
+                Properties props = new Properties()
+                InputStream is = new FileInputStream(f)
+                props.load(is)
+
+                signingConfigs {
+                    debug {
+                        storeFile file(props['keystoreFile'])
+                        storePassword props['keystorePass']
+                        keyAlias props['keyAlias']
+                        keyPassword props['keyPass']
+                    }
+                }
+
+                is.close()
+                signingConfig signingConfigs.debug
+            }
+
             minifyEnabled false
             debuggable = true
         }
@@ -202,12 +239,9 @@ dependencies {
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'androidx.viewpager:viewpager:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
-
     implementation 'com.google.android.exoplayer:exoplayer:2.10.4'
-
     implementation 'com.android.volley:volley:1.1.1'
-    implementation 'com.squareup.okhttp3:okhttp:4.1.0'
-
+    implementation 'com.squareup.okhttp3:okhttp:4.2.2'
     implementation 'com.j256.ormlite:ormlite-core:5.1'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
     implementation 'org.jsoup:jsoup:1.12.1'
@@ -215,17 +249,19 @@ dependencies {
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
     implementation 'org.greenrobot:eventbus:3.1.1'
     implementation 'org.nibor.autolink:autolink:0.10.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'me.xdrop:fuzzywuzzy:1.2.0'
     implementation 'org.codejargon.feather:feather:1.0'
-    implementation 'com.vladsch.flexmark:flexmark:0.50.28'
-    implementation 'com.vdurmont:emoji-java:5.1.0'
+    implementation 'com.vladsch.flexmark:flexmark:0.50.44'
+    implementation 'com.vdurmont:emoji-java:5.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha'
+    implementation 'joda-time:joda-time:2.10.5'
 
     testImplementation 'junit:junit:4.12'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 }
 
 //========================================================

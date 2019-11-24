@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.utils;
 import android.content.Context;
 import android.os.Looper;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 
 import java.util.concurrent.Callable;
@@ -37,27 +38,37 @@ public class BackgroundUtils {
 
     public static void ensureMainThread() {
         if (!isMainThread()) {
-            throw new IllegalStateException("Cannot be executed on a background thread!");
+            if (BuildConfig.DEV_BUILD) {
+                throw new IllegalStateException("Cannot be executed on a background thread!");
+            } else {
+                Logger.e("BackgroundUtils", "ensureMainThread() expected main thread but got "
+                        + Thread.currentThread().getName());
+            }
         }
     }
 
     public static void ensureBackgroundThread() {
         if (isMainThread()) {
-            throw new IllegalStateException("Cannot be executed on the main thread!");
+            if (BuildConfig.DEV_BUILD) {
+                throw new IllegalStateException("Cannot be executed on the main thread!");
+            } else {
+                Logger.e("BackgroundUtils", "ensureBackgroundThread() expected background " +
+                        "thread but got main");
+            }
         }
     }
 
     public static <T> Cancelable runWithExecutor(Executor executor, final Callable<T> background,
                                                  final BackgroundResult<T> result) {
-        final AtomicBoolean cancelled = new AtomicBoolean(false);
-        Cancelable cancelable = () -> cancelled.set(true);
+        final AtomicBoolean canceled = new AtomicBoolean(false);
+        Cancelable cancelable = () -> canceled.set(true);
 
         executor.execute(() -> {
-            if (!cancelled.get()) {
+            if (!canceled.get()) {
                 try {
                     final T res = background.call();
                     AndroidUtils.runOnUiThread(() -> {
-                        if (!cancelled.get()) {
+                        if (!canceled.get()) {
                             result.onResult(res);
                         }
                     });
@@ -73,11 +84,11 @@ public class BackgroundUtils {
     }
 
     public static Cancelable runWithExecutor(Executor executor, final Runnable background) {
-        final AtomicBoolean cancelled = new AtomicBoolean(false);
-        Cancelable cancelable = () -> cancelled.set(true);
+        final AtomicBoolean canceled = new AtomicBoolean(false);
+        Cancelable cancelable = () -> canceled.set(true);
 
         executor.execute(() -> {
-            if (!cancelled.get()) {
+            if (!canceled.get()) {
                 try {
                     background.run();
                 } catch (final Exception e) {

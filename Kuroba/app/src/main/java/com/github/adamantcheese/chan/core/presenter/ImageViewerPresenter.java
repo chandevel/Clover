@@ -28,6 +28,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -108,7 +109,6 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         PostImage postImage = images.get(selectedPosition);
         if (postImage.type == PostImage.Type.MOVIE) {
-            // VideoView doesn't work with invisible visibility
             callback.setImageMode(postImage, MultiImageView.Mode.LOWRES, true);
         }
 
@@ -118,7 +118,10 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.startPreviewOutTransition(loadable, postImage);
         callback.showProgress(false);
 
-        cancelPreloadingImages();
+        for (FileCacheDownloader preloadingImage : preloadingImages) {
+            preloadingImage.cancel();
+        }
+        preloadingImages.clear();
     }
 
     public void onVolumeClicked() {
@@ -214,13 +217,13 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         if (callback.getImageMode(postImage) == MultiImageView.Mode.LOWRES) {
             onLowResInCenter();
         }
-        // Else let onModeChange handle it
+        // Else let onModeLoaded handle it
 
         callback.showProgress(progress.get(selectedPosition) >= 0f);
         callback.onLoadProgress(progress.get(selectedPosition));
     }
 
-    // Called from either a page swipe caused a lowres image to the center or an
+    // Called from either a page swipe caused a lowres image to be in the center or an
     // onModeLoaded when a unloaded image was swiped to the center earlier
     private void onLowResInCenter() {
         PostImage postImage = images.get(selectedPosition);
@@ -232,6 +235,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 callback.setImageMode(postImage, MultiImageView.Mode.GIF, true);
             } else if (postImage.type == PostImage.Type.MOVIE && videoAutoLoad(loadable, postImage)) {
                 callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
+            } else if (postImage.type == PostImage.Type.PDF) {
+                callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
             }
         }
 
@@ -241,6 +246,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     // This won't actually change any modes, but it will preload the image so that it's
     // available immediately when the user swipes right.
     private void preloadNext() {
+        BackgroundUtils.ensureMainThread();
+
         if (selectedPosition + 1 < images.size()) {
             PostImage next = images.get(selectedPosition + 1);
 
@@ -260,6 +267,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                         new FileCacheListener() {
                             @Override
                             public void onEnd() {
+                                BackgroundUtils.ensureMainThread();
+
                                 if (preloadDownload[0] != null) {
                                     preloadingImages.remove(preloadDownload[0]);
                                 }
@@ -274,26 +283,17 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         }
     }
 
-    private void cancelPreloadingImages() {
-        for (FileCacheDownloader preloadingImage : preloadingImages) {
-            preloadingImage.cancel();
-        }
-        preloadingImages.clear();
-    }
-
     private void cancelPreviousImageDownload(int position) {
-        Set<FileCacheDownloader> toRemove = new HashSet<>();
         for (FileCacheDownloader downloader : preloadingImages) {
             if (position - 1 >= 0) {
-                if (downloader.getUrl().equals(images.get(position - 1).imageUrl.toString())) {
-                    toRemove.add(downloader);
+                PostImage previousImage = images.get(position - 1);
+                if (downloader.getUrl().equals(previousImage.imageUrl.toString())) {
+                    downloader.cancel();
+                    preloadingImages.remove(downloader);
+                    return;
                 }
             }
         }
-        for (FileCacheDownloader downloader : toRemove) {
-            downloader.cancel();
-        }
-        preloadingImages.removeAll(toRemove);
     }
 
     @Override
@@ -319,6 +319,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                     callback.setImageMode(postImage, MultiImageView.Mode.GIF, true);
                 } else if (postImage.type == PostImage.Type.MOVIE && currentMode != MultiImageView.Mode.MOVIE) {
                     callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
+                } else if (postImage.type == PostImage.Type.PDF && currentMode != MultiImageView.Mode.OTHER) {
+                    callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
                 } else {
                     if (callback.isImmersive()) {
                         callback.showSystemUI(true);
@@ -436,8 +438,6 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         void setTitle(PostImage postImage, int index, int count, boolean spoiler);
 
         void scrollToImage(PostImage postImage);
-
-        void saveImage();
 
         MultiImageView.Mode getImageMode(PostImage postImage);
 

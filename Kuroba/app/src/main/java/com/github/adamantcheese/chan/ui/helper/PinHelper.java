@@ -30,7 +30,7 @@ public class PinHelper {
             } else if (k < 100) {
                 count = k + "k";
             } else {
-                count = ":D";
+                count = "XD";
             }
         }
         return count;

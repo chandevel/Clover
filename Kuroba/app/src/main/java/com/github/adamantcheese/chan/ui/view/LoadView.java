@@ -96,7 +96,7 @@ public class LoadView extends FrameLayout {
             animatorSet = new AnimatorSet();
 
             // Fade all attached views out.
-            // If the animation is cancelled, the views are not removed. If the animation ends,
+            // If the animation is canceled, the views are not removed. If the animation ends,
             // the views are removed.
             List<Animator> animators = new ArrayList<>();
             for (int i = 0; i < getChildCount(); i++) {
@@ -109,7 +109,7 @@ public class LoadView extends FrameLayout {
                 objectAnimator.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationCancel(Animator animation) {
-                        // If cancelled, don't remove the view, but re-run the animation.
+                        // If canceled, don't remove the view, but re-run the animation.
                         animation.removeListener(this);
                     }
 
