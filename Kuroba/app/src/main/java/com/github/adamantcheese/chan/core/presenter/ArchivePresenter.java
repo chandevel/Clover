@@ -79,8 +79,9 @@ public class ArchivePresenter
     }
 
     public void onItemClicked(Archive.ArchiveItem item) {
-        Loadable loadable = databaseManager.getDatabaseLoadableManager()
-                .get(Loadable.forThread(board.site, board, item.id, PostHelper.getTitle(null, null)));
+        Loadable loadable =
+                databaseManager.getDatabaseLoadableManager()
+                               .get(Loadable.forThread(board.site, board, item.id, PostHelper.getTitle(null, null)));
 
         callback.openThread(loadable);
     }
