@@ -63,7 +63,6 @@ class FileCacheDownloader(
     // The reason is actually SocketTimeoutException is the server forcefully drops
     // the connection if it detects that we are downloading files?
     private val retryAttempts = AtomicInteger(3)
-    private val retryTimeoutsSeconds = arrayOf(5L, 2L, 1L)
 
     @MainThread
     fun addListener(callback: FileCacheListener) {
@@ -77,6 +76,7 @@ class FileCacheDownloader(
      */
     @MainThread
     fun cancel() {
+        log("cancel")
         BackgroundUtils.ensureMainThread()
 
         if (cancel.compareAndSet(false, true)) {
@@ -120,18 +120,6 @@ class FileCacheDownloader(
 
         try {
             BackgroundUtils.ensureBackgroundThread()
-            checkCancel()
-
-            val timeout = retryTimeoutsSeconds.getOrElse(retryAttempts.get()) { 0 }
-            if (timeout > 0) {
-                try {
-                    log("Sleeping for $timeout seconds")
-                    Thread.sleep(timeout * 1000L)
-                } catch (error: InterruptedException) {
-                    Thread.currentThread().interrupt()
-                }
-            }
-
             checkCancel()
 
             val startTime = System.currentTimeMillis()
