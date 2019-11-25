@@ -376,13 +376,6 @@ public class ThreadSaveManager {
         return Single.fromCallable(() -> {
             BackgroundUtils.ensureBackgroundThread();
 
-            if (ChanSettings.localThreadLocation.get().isEmpty() &&
-                    ChanSettings.localThreadsLocationUri.get().isEmpty())
-            {
-                // wtf???
-                throw new IllegalStateException("Both localThreadLocation and localThreadLocationUri are empty!");
-            }
-
             if (!isCurrentDownloadRunning(loadable)) {
                 // This download was canceled or stopped while waiting in the queue.
                 Logger.d(TAG,

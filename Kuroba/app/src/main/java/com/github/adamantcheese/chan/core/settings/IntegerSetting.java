@@ -44,4 +44,12 @@ public class IntegerSetting
             onValueChanged();
         }
     }
+
+    public void setSync(Integer value) {
+        if (!value.equals(get())) {
+            settingProvider.putIntSync(key, value);
+            cached = value;
+            onValueChanged();
+        }
+    }
 }

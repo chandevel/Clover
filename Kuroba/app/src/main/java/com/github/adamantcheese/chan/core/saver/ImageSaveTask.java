@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.saver;
 
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 
 import com.github.adamantcheese.chan.core.cache.FileCache;
@@ -28,6 +29,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.ExternalFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
@@ -35,7 +37,10 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
+import kotlin.NotImplementedError;
+
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class ImageSaveTask
         extends FileCacheListener
@@ -147,12 +152,19 @@ public class ImageSaveTask
 
     private void onDestination() {
         success = true;
-        //        String[] paths = {destination.getFullPath()};
-        //        FIXME: does not work
-        //        MediaScannerConnection.scanFile(getAppContext(), paths, null, (path, uri) -> {
-        //            // Runs on a binder thread
-        //            AndroidUtils.runOnUiThread(() -> afterScan(uri));
-        //        });
+        if (destination instanceof RawFile) {
+            String[] paths = {destination.getFullPath()};
+
+            MediaScannerConnection.scanFile(
+                    getAppContext(), paths, null, (path, uri) -> {
+                        AndroidUtils.runOnUiThread(() -> afterScan(uri));
+                    });
+        } else if (destination instanceof ExternalFile) {
+            Uri uri = Uri.parse(destination.getFullPath());
+            AndroidUtils.runOnUiThread(() -> afterScan(uri));
+        } else {
+            throw new NotImplementedError("Not implemented for " + destination.getClass().getName());
+        }
     }
 
     private boolean copyToDestination(File source) {

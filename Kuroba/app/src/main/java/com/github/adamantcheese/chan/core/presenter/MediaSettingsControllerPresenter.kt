@@ -11,6 +11,7 @@ import com.github.adamantcheese.chan.utils.AndroidUtils.*
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileChooser
 import com.github.k1rakishou.fsaf.FileManager
+import com.github.k1rakishou.fsaf.TraverseMode
 import com.github.k1rakishou.fsaf.callback.DirectoryChooserCallback
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import java.util.concurrent.Executors
@@ -44,11 +45,17 @@ class MediaSettingsControllerPresenter(
                     return
                 }
 
+                if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(uri)) {
+                    withCallbacks {
+                        showToast(getString(R.string.media_settings_base_directory_is_already_registered))
+                    }
+
+                    return
+                }
+
                 Logger.d(TAG, "onLocalThreadsLocationUseSAFClicked dir = $uri")
-                ChanSettings.localThreadsLocationUri.set(uri.toString())
-                ChanSettings.localThreadLocation.setNoUpdate(
-                        ChanSettings.getDefaultLocalThreadsLocation()
-                )
+                ChanSettings.localThreadLocation.setSafBaseDir(uri)
+                ChanSettings.localThreadLocation.resetFileDir()
 
                 withCallbacks {
                     updateLocalThreadsLocation(uri.toString())
@@ -93,8 +100,16 @@ class MediaSettingsControllerPresenter(
             return
         }
 
+        if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(dirPath)) {
+            withCallbacks {
+                showToast(getString(R.string.media_settings_base_directory_is_already_registered))
+            }
+
+            return
+        }
+
         Logger.d(TAG, "onLocalThreadsLocationChosen dir = $dirPath")
-        ChanSettings.localThreadLocation.setSyncNoCheck(dirPath)
+        ChanSettings.localThreadLocation.setFileBaseDir(dirPath)
 
         val newLocalThreadsDirectory =
                 fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
@@ -133,9 +148,17 @@ class MediaSettingsControllerPresenter(
                     return
                 }
 
+                if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(uri)) {
+                    withCallbacks {
+                        showToast(getString(R.string.media_settings_base_directory_is_already_registered))
+                    }
+
+                    return
+                }
+
                 Logger.d(TAG, "onSaveLocationUseSAFClicked dir = $uri")
-                ChanSettings.saveLocationUri.set(uri.toString())
-                ChanSettings.saveLocation.setNoUpdate(ChanSettings.getDefaultSaveLocationDir())
+                ChanSettings.saveLocation.setSafBaseDir(uri)
+                ChanSettings.saveLocation.resetFileDir()
 
                 withCallbacks {
                     updateSaveLocationViewText(uri.toString())
@@ -146,8 +169,7 @@ class MediaSettingsControllerPresenter(
 
                 if (newSavedFilesBaseDirectory == null) {
                     withCallbacks {
-                        showToast(getString(
-                                R.string.media_settings_new_saved_files_base_dir_not_registered))
+                        showToast(getString(R.string.media_settings_new_saved_files_base_dir_not_registered))
                     }
 
                     return
@@ -174,18 +196,24 @@ class MediaSettingsControllerPresenter(
 
         if (oldSaveFilesDirectory == null) {
             withCallbacks {
-                showToast(getString(
-                        R.string.media_settings_old_saved_files_base_dir_not_registered))
+                showToast(getString(R.string.media_settings_old_saved_files_base_dir_not_registered))
+            }
+
+            return
+        }
+
+        if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(dirPath)) {
+            withCallbacks {
+                showToast(getString(R.string.media_settings_base_directory_is_already_registered))
             }
 
             return
         }
 
         Logger.d(TAG, "onSaveLocationChosen dir = $dirPath")
-        ChanSettings.saveLocation.setSyncNoCheck(dirPath)
+        ChanSettings.saveLocation.setFileBaseDir(dirPath)
 
         val newSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
-
         if (newSaveFilesDirectory == null) {
             withCallbacks {
                 showToast(getString(
@@ -214,20 +242,6 @@ class MediaSettingsControllerPresenter(
             return
         }
 
-        // FIXME: this does not work when oldBaseDirectory was backed by the Java File and the new
-        //  one by SAF the paths will be different. I should probably remove the base dir prefixes
-        //  from both files split them into segments and compare segments.
-        if (oldBaseDirectory.getFullPath() == newBaseDirectory.getFullPath()) {
-            val message = getString(
-                    R.string.media_settings_you_are_trying_to_move_files_in_the_same_directory)
-
-            withCallbacks {
-                showToast(message, Toast.LENGTH_LONG)
-            }
-
-            return
-        }
-
         Logger.d(TAG,
                 "oldLocalThreadsDirectory = " + oldBaseDirectory.getFullPath()
                         + ", newLocalThreadsDirectory = " + newBaseDirectory.getFullPath()
@@ -235,11 +249,7 @@ class MediaSettingsControllerPresenter(
 
         var filesCount = 0
 
-        fileManager.traverseDirectory(
-                oldBaseDirectory,
-                true,
-                FileManager.TraverseMode.OnlyFiles
-        ) {
+        fileManager.traverseDirectory(oldBaseDirectory, true, TraverseMode.OnlyFiles) {
             ++filesCount
         }
 
@@ -272,13 +282,11 @@ class MediaSettingsControllerPresenter(
                 }
 
                 withCallbacks {
-                    val text = getString(
+                    updateLoadingViewText(getString(
                             R.string.media_settings_copying_file,
                             fileIndex,
                             totalFilesCount
-                    )
-
-                    updateLoadingViewText(text)
+                    ))
                 }
 
                 return@copyDirectoryWithContent false
@@ -302,9 +310,7 @@ class MediaSettingsControllerPresenter(
             // any activity as soon as it goes into the "Paused" state.
 
             runOnUiThread {
-                val string = getString(
-                        R.string.media_settings_dont_keep_activities_setting_is_probably_turned_on
-                )
+                val string = getString(R.string.media_settings_dont_keep_activities_setting_is_probably_turned_on)
 
                 Toast.makeText(getAppContext(), string, Toast.LENGTH_LONG).show()
             }

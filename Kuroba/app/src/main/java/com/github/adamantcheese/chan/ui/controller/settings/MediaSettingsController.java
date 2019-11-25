@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
@@ -24,12 +25,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.LoadingViewController;
 import com.github.adamantcheese.chan.ui.controller.SaveLocationController;
+import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
@@ -73,6 +76,7 @@ public class MediaSettingsController
 
     private LoadingViewController loadingViewController;
     private MediaSettingsControllerPresenter presenter;
+    private RuntimePermissionsHelper runtimePermissionsHelper;
 
     @Inject
     FileManager fileManager;
@@ -92,6 +96,7 @@ public class MediaSettingsController
         super.onCreate();
         inject(this);
 
+        runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
         EventBus.getDefault().register(this);
         navigation.setTitle(R.string.settings_screen_media);
 
@@ -104,7 +109,6 @@ public class MediaSettingsController
         onPreferenceChange(imageAutoLoadView);
 
         threadFolderSetting.setEnabled(ChanSettings.saveBoardFolder.get());
-
         headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
     }
 
@@ -131,26 +135,20 @@ public class MediaSettingsController
 
     @Subscribe
     public void onEvent(ChanSettings.SettingChanged<?> setting) {
-        if (setting.setting == ChanSettings.saveLocationUri) {
+        if (setting.setting == ChanSettings.saveLocation.getSafBaseDir()) {
             // Image save location (SAF) was chosen
-            String defaultDir = ChanSettings.getDefaultSaveLocationDir();
-
-            ChanSettings.saveLocation.setNoUpdate(defaultDir);
-            saveLocation.setDescription(ChanSettings.saveLocationUri.get());
-        } else if (setting.setting == ChanSettings.localThreadsLocationUri) {
+            ChanSettings.saveLocation.resetFileDir();
+            saveLocation.setDescription(ChanSettings.saveLocation.getSafBaseDir().get());
+        } else if (setting.setting == ChanSettings.localThreadLocation.getSafBaseDir()) {
             // Local threads location (SAF) was chosen
-            String defaultDir = ChanSettings.getDefaultLocalThreadsLocation();
-
-            ChanSettings.localThreadLocation.setNoUpdate(defaultDir);
-            localThreadsLocation.setDescription(ChanSettings.localThreadsLocationUri.get());
-        } else if (setting.setting == ChanSettings.saveLocation) {
+            ChanSettings.localThreadLocation.resetFileDir();
+            localThreadsLocation.setDescription(ChanSettings.localThreadLocation.getSafBaseDir().get());
+        } else if (setting.setting == ChanSettings.saveLocation.getFileApiBaseDir()) {
             // Image save location (Java File API) was chosen
-            ChanSettings.saveLocationUri.setNoUpdate("");
-            saveLocation.setDescription(ChanSettings.saveLocation.get());
-        } else if (setting.setting == ChanSettings.localThreadLocation) {
+            saveLocation.setDescription(ChanSettings.saveLocation.getFileApiBaseDir().get());
+        } else if (setting.setting == ChanSettings.localThreadLocation.getFileApiBaseDir()) {
             // Local threads location (Java File API) was chosen
-            ChanSettings.localThreadsLocationUri.setNoUpdate("");
-            localThreadsLocation.setDescription(ChanSettings.localThreadLocation.get());
+            localThreadsLocation.setDescription(ChanSettings.localThreadLocation.getFileApiBaseDir().get());
         }
     }
 
@@ -284,23 +282,42 @@ public class MediaSettingsController
         new AlertDialog.Builder(context)
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton(getString(R.string.ok), ((dialog, which) -> dialog.dismiss()))
+                .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
                 .create()
                 .show();
     }
 
     private String getLocalThreadsLocation() {
-        if (!ChanSettings.localThreadsLocationUri.get().isEmpty()) {
-            return ChanSettings.localThreadsLocationUri.get();
+        if (ChanSettings.localThreadLocation.isSafDirActive()) {
+            return ChanSettings.localThreadLocation.getSafBaseDir().get();
         }
 
-        return ChanSettings.localThreadLocation.get();
+        return ChanSettings.localThreadLocation.getFileApiBaseDir().get();
     }
 
     private void showUseSAFOrOldAPIForLocalThreadsLocationDialog() {
-        long downloadingThreadsCount = databaseManager.runTask(() -> {
-            return databaseManager.getDatabaseSavedThreadManager().countDownloadingThreads().call();
-        });
+        if (!runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            String message = getString(R.string.media_settings_cannot_continue_write_permission);
+
+            runtimePermissionsHelper.requestPermission(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    granted -> {
+                        if (!granted) {
+                            showToast(message, Toast.LENGTH_LONG);
+                        } else {
+                            showUseSAFOrOldAPIForLocalThreadsLocationDialog();
+                        }
+                    }
+            );
+
+            return;
+        }
+
+        long downloadingThreadsCount = databaseManager.runTask(
+                () -> databaseManager
+                        .getDatabaseSavedThreadManager()
+                        .countDownloadingThreads()
+                        .call());
 
         if (downloadingThreadsCount > 0) {
             showStopAllDownloadingThreadsDialog(downloadingThreadsCount);
@@ -313,39 +330,40 @@ public class MediaSettingsController
             return;
         }
 
-        int positiveButtonTextId = R.string.media_settings_use_saf_dialog_positive_button_text;
-
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.media_settings_use_saf_for_local_threads_location_dialog_title)
                 .setMessage(R.string.media_settings_use_saf_for_local_threads_location_dialog_message)
-                .setPositiveButton(positiveButtonTextId, (dialog, which) -> {
-                    presenter.onLocalThreadsLocationUseSAFClicked();
-                })
-                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text, (dialog, which) -> {
-                    onLocalThreadsLocationUseOldApiClicked();
-                    dialog.dismiss();
-                })
+                .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text,
+                                   (dialog, which) -> {
+                                       presenter.onLocalThreadsLocationUseSAFClicked();
+                                   }
+                )
+                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text,
+                                   (dialog, which) -> {
+                                       onLocalThreadsLocationUseOldApiClicked();
+                                       dialog.dismiss();
+                                   }
+                )
                 .create();
 
         alertDialog.show();
     }
 
     private void showSomeDownloadsAreStillBeingProcessed() {
-        String title = getString(R.string.media_settings_some_thread_downloads_are_still_processed);
-        String message = getString(R.string.media_settings_do_not_terminate_the_app_manually);
-        int positiveButtonTextId = R.string.media_settings_use_saf_dialog_positive_button_text;
-        int negativeButtonTextId = R.string.media_settings_use_saf_dialog_negative_button_text;
-
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(positiveButtonTextId, (dialog, which) -> {
-                    presenter.onLocalThreadsLocationUseSAFClicked();
-                })
-                .setNegativeButton(negativeButtonTextId, (dialog, which) -> {
-                    onLocalThreadsLocationUseOldApiClicked();
-                    dialog.dismiss();
-                })
+                .setTitle(R.string.media_settings_some_thread_downloads_are_still_processed)
+                .setMessage(R.string.media_settings_do_not_terminate_the_app_manually)
+                .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text,
+                                   (dialog, which) -> {
+                                       presenter.onLocalThreadsLocationUseSAFClicked();
+                                   }
+                )
+                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text,
+                                   (dialog, which) -> {
+                                       onLocalThreadsLocationUseOldApiClicked();
+                                       dialog.dismiss();
+                                   }
+                )
                 .create();
 
         alertDialog.show();
@@ -358,10 +376,7 @@ public class MediaSettingsController
         SaveLocationController saveLocationController =
                 new SaveLocationController(context,
                                            SaveLocationController.SaveLocationControllerMode.LocalThreadsSaveLocation,
-                                           dirPath -> {
-                                               presenter.onLocalThreadsLocationChosen(
-                                                       dirPath);
-                                           }
+                                           dirPath -> presenter.onLocalThreadsLocationChosen(dirPath)
                 );
 
         navigationController.pushController(saveLocationController);
@@ -386,24 +401,43 @@ public class MediaSettingsController
     }
 
     private String getSaveLocation() {
-        if (!ChanSettings.saveLocationUri.get().isEmpty()) {
-            return ChanSettings.saveLocationUri.get();
+        if (ChanSettings.saveLocation.isSafDirActive()) {
+            return ChanSettings.saveLocation.getSafBaseDir().get();
         }
 
-        return ChanSettings.saveLocation.get();
+        return ChanSettings.saveLocation.getFileApiBaseDir().get();
     }
 
     private void showUseSAFOrOldAPIForSaveLocationDialog() {
+        if (!runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            String message = getString(R.string.media_settings_cannot_continue_write_permission);
+
+            runtimePermissionsHelper.requestPermission(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    granted -> {
+                        if (!granted) {
+                            showToast(message, Toast.LENGTH_LONG);
+                        } else {
+                            showUseSAFOrOldAPIForSaveLocationDialog();
+                        }
+                    }
+            );
+
+            return;
+        }
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.media_settings_use_saf_for_save_location_dialog_title)
                 .setMessage(R.string.media_settings_use_saf_for_save_location_dialog_message)
-                .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text, (dialog, which) -> {
-                    presenter.onSaveLocationUseSAFClicked();
-                })
-                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text, (dialog, which) -> {
-                    onSaveLocationUseOldApiClicked();
-                    dialog.dismiss();
-                })
+                .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text,
+                                   (dialog, which) -> presenter.onSaveLocationUseSAFClicked()
+                )
+                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text,
+                                   (dialog, which) -> {
+                                       onSaveLocationUseOldApiClicked();
+                                       dialog.dismiss();
+                                   }
+                )
                 .create();
 
         alertDialog.show();
@@ -416,10 +450,7 @@ public class MediaSettingsController
         SaveLocationController saveLocationController =
                 new SaveLocationController(context,
                                            SaveLocationController.SaveLocationControllerMode.ImageSaveLocation,
-                                           dirPath -> {
-                                               presenter.onSaveLocationChosen(
-                                                       dirPath);
-                                           }
+                                           dirPath -> presenter.onSaveLocationChosen(dirPath)
                 );
 
         navigationController.pushController(saveLocationController);
@@ -435,13 +466,20 @@ public class MediaSettingsController
     public void askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(@NonNull AbstractFile oldBaseDirectory,
                                                                    @NonNull AbstractFile newBaseDirectory
     ) {
+        if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
+            forgetOldSAFBaseDirectory(oldBaseDirectory);
+
+            showToast(getString(R.string.done), Toast.LENGTH_LONG);
+            return;
+        }
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(getString(R.string.media_settings_move_threads_to_new_dir))
                 .setMessage(getString(R.string.media_settings_operation_may_take_some_time))
-                .setPositiveButton(getString(R.string.move), (dialog, which) -> {
+                .setPositiveButton(R.string.move, (dialog, which) -> {
                     presenter.moveOldFilesToTheNewDirectory(oldBaseDirectory, newBaseDirectory);
                 })
-                .setNegativeButton(getString(R.string.do_not), (dialog, which) -> {
+                .setNegativeButton(R.string.do_not, (dialog, which) -> {
                     dialog.dismiss();
                 })
                 .create();
@@ -449,17 +487,30 @@ public class MediaSettingsController
         alertDialog.show();
     }
 
+    private void forgetOldSAFBaseDirectory(@NonNull AbstractFile oldBaseDirectory) {
+        if (oldBaseDirectory instanceof ExternalFile) {
+            forgetPreviousExternalBaseDirectory(oldBaseDirectory);
+        }
+    }
+
     @Override
     public void askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(@NotNull AbstractFile oldBaseDirectory,
                                                                       @NotNull AbstractFile newBaseDirectory
     ) {
+        if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
+            forgetOldSAFBaseDirectory(oldBaseDirectory);
+
+            showToast(getString(R.string.done), Toast.LENGTH_LONG);
+            return;
+        }
+
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(getString(R.string.media_settings_move_saved_file_to_new_dir))
                 .setMessage(getString(R.string.media_settings_operation_may_take_some_time))
-                .setPositiveButton(getString(R.string.move), (dialog, which) -> {
+                .setPositiveButton(R.string.move, (dialog, which) -> {
                     presenter.moveOldFilesToTheNewDirectory(oldBaseDirectory, newBaseDirectory);
                 })
-                .setNegativeButton(getString(R.string.do_not), (dialog, which) -> {
+                .setNegativeButton(R.string.do_not, (dialog, which) -> {
                     dialog.dismiss();
                 })
                 .create();
@@ -484,6 +535,13 @@ public class MediaSettingsController
         if (!result) {
             showToast(getString(R.string.media_settings_could_not_copy_files), Toast.LENGTH_LONG);
         } else {
+            if (fileManager.isChildOfDirectory(oldBaseDirectory, newBaseDirectory)) {
+                forgetOldSAFBaseDirectory(oldBaseDirectory);
+
+                showToast(getString(R.string.done), Toast.LENGTH_LONG);
+                return;
+            }
+
             showDeleteOldFilesDialog(oldBaseDirectory);
             showToast(getString(R.string.media_settings_files_copied), Toast.LENGTH_LONG);
         }
@@ -494,16 +552,14 @@ public class MediaSettingsController
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(getString(R.string.media_settings_would_you_like_to_delete_file_in_old_dir))
                 .setMessage(getString(R.string.media_settings_file_have_been_copied))
-                .setPositiveButton(getString(R.string.delete),
+                .setPositiveButton(R.string.delete,
                                    (dialog, which) -> onDeleteOldFilesClicked(oldBaseDirectory)
                 )
-                .setNegativeButton(getString(R.string.do_not), (dialog, which) -> {
-                    if (oldBaseDirectory instanceof ExternalFile) {
-                        forgetPreviousExternalBaseDirectory(oldBaseDirectory);
-                    }
-
-                    dialog.dismiss();
-                })
+                .setNegativeButton(R.string.do_not, (dialog, which) -> {
+                                       forgetOldSAFBaseDirectory(oldBaseDirectory);
+                                       dialog.dismiss();
+                                   }
+                )
                 .create();
 
         alertDialog.show();
@@ -517,11 +573,9 @@ public class MediaSettingsController
             return;
         }
 
-        if (oldBaseDirectory instanceof ExternalFile) {
-            forgetPreviousExternalBaseDirectory(oldBaseDirectory);
-        }
+        forgetOldSAFBaseDirectory(oldBaseDirectory);
 
-        showToast(getString(R.string.media_settings_old_dir_deleted), Toast.LENGTH_LONG);
+        showToast(getString(R.string.media_settings_old_files_deleted), Toast.LENGTH_LONG);
     }
 
     @Override
@@ -571,16 +625,14 @@ public class MediaSettingsController
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(getString(R.string.media_settings_copy_files))
                 .setMessage(getString(R.string.media_settings_do_you_want_to_copy_files, filesCount))
-                .setPositiveButton(getString(R.string.media_settings_copy_files), (dialog, which) -> {
+                .setPositiveButton(R.string.media_settings_copy_files, (dialog, which) -> {
                     loadingViewController = new LoadingViewController(context, false);
 
                     navigationController.presentController(loadingViewController);
 
                     presenter.moveFilesInternal(oldBaseDirectory, newBaseDirectory);
                 })
-                .setNegativeButton(getString(R.string.do_not), (dialog, which) -> {
-                    dialog.dismiss();
-                })
+                .setNegativeButton(R.string.do_not, (dialog, which) -> dialog.dismiss())
                 .create();
 
         alertDialog.show();
@@ -598,9 +650,7 @@ public class MediaSettingsController
             Uri safTreeUri = oldLocalThreadsDirectory.<CachingDocumentFile>getFileRoot().getHolder().uri();
 
             if (!fileChooser.forgetSAFTree(safTreeUri)) {
-                showToast(getString(R.string.media_settings_could_not_release_uri_permissions),
-                          Toast.LENGTH_SHORT
-                );
+                showToast(getString(R.string.media_settings_could_not_release_uri_permissions), Toast.LENGTH_SHORT);
             }
         }
     }

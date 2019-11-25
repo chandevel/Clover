@@ -1,30 +1,26 @@
 package com.github.adamantcheese.chan.ui.settings.base_directory
 
 import android.net.Uri
-import com.github.adamantcheese.chan.BuildConfig
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.k1rakishou.fsaf.manager.base_directory.BaseDirectory
 import java.io.File
 
 class SavedFilesBaseDirectory(
-) : BaseDirectory(BuildConfig.DEBUG) {
+) : BaseDirectory() {
 
     override fun getDirFile(): File? {
-        val saveLocationPath = ChanSettings.saveLocation.get()
-        if (saveLocationPath.isEmpty()) {
-            return null
-        }
-
-        return File(saveLocationPath)
+        return File(ChanSettings.saveLocation.fileApiBaseDir.get())
     }
 
     override fun getDirUri(): Uri? {
-        val saveLocationSafPath = ChanSettings.saveLocationUri.get()
-        if (saveLocationSafPath.isEmpty()) {
-            return null
-        }
-
-        return Uri.parse(saveLocationSafPath)
+        return Uri.parse(ChanSettings.saveLocation.safBaseDir.get())
     }
 
+    override fun currentActiveBaseDirType(): ActiveBaseDirType {
+        return when {
+            ChanSettings.saveLocation.isSafDirActive() -> ActiveBaseDirType.SafBaseDir
+            ChanSettings.saveLocation.isFileDirActive() -> ActiveBaseDirType.JavaFileBaseDir
+            else -> throw IllegalStateException("SavedFilesBaseDirectory: No active base directory!!!")
+        }
+    }
 }

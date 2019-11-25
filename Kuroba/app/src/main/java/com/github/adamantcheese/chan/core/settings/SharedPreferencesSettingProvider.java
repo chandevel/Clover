@@ -87,4 +87,9 @@ public class SharedPreferencesSettingProvider
     public void removeSync(String key) {
         prefs.edit().remove(key).commit();
     }
+
+    @Override
+    public void putIntSync(String key, Integer value) {
+        prefs.edit().putInt(key, value).commit();
+    }
 }

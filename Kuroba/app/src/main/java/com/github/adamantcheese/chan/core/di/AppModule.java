@@ -21,6 +21,7 @@ import android.content.Context;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
@@ -29,6 +30,7 @@ import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBase
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.manager.base_directory.DirectoryManager;
@@ -38,6 +40,8 @@ import org.codejargon.feather.Provides;
 import javax.inject.Singleton;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ReplaceBadSymbols;
+import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ThrowAnException;
 
 public class AppModule {
     private Context applicationContext;
@@ -105,7 +109,13 @@ public class AppModule {
         LocalThreadsBaseDirectory localThreadsBaseDirectory = new LocalThreadsBaseDirectory();
         SavedFilesBaseDirectory savedFilesBaseDirectory = new SavedFilesBaseDirectory();
 
-        FileManager fileManager = new FileManager(applicationContext, directoryManager);
+        BadPathSymbolResolutionStrategy resolutionStrategy = ReplaceBadSymbols;
+
+        if (BuildConfig.DEV_BUILD) {
+            resolutionStrategy = ThrowAnException;
+        }
+
+        FileManager fileManager = new FileManager(applicationContext, resolutionStrategy, directoryManager);
 
         fileManager.registerBaseDir(LocalThreadsBaseDirectory.class, localThreadsBaseDirectory);
         fileManager.registerBaseDir(SavedFilesBaseDirectory.class, savedFilesBaseDirectory);

@@ -375,6 +375,19 @@ constructor(
                     loadable.title
             )
 
+            // When exporting a localThreadLocation that points to a directory located at places like
+            // sd-card we want to export pins without "download thread" flag because when
+            // importing settings back after app uninstall or when importing the on another
+            // phone all of the SAF base directories will become unavailable due to how SAF works.
+            // So the user will have to choose the base directories again and then resume threads
+            // downloading manually. We also need to set the "isStopped" flag to true for
+            // ExportedSavedThread.
+            val pinType = if (ChanSettings.localThreadLocation.isSafDirActive()) {
+                PinType.removeDownloadNewPostsFlag(pin.pinType)
+            } else {
+                pin.pinType
+            }
+
             val exportedPin = ExportedPin(
                     pin.archived,
                     pin.id,
@@ -388,7 +401,7 @@ constructor(
                     pin.watchNewCount,
                     pin.watching,
                     exportedLoadable,
-                    pin.pinType
+                    pinType
             )
 
             toExportMap[siteModel]!!.add(exportedPin)
@@ -475,11 +488,19 @@ constructor(
         val exportedSavedThreads = ArrayList<ExportedSavedThread>()
 
         for (savedThread in databaseHelper.savedThreadDao.queryForAll()) {
+            // Set the isStopped flag to true for ExportedSavedThread when localThreadLocation
+            // points to a directory that uses SAF
+            val isDownloadingStopped = if (ChanSettings.localThreadLocation.isSafDirActive()) {
+                true
+            } else {
+                savedThread.isStopped
+            }
+
             exportedSavedThreads.add(ExportedSavedThread(
                     savedThread.loadableId,
                     savedThread.lastSavedPostNo,
                     savedThread.isFullyDownloaded,
-                    savedThread.isStopped
+                    isDownloadingStopped
             ))
         }
 

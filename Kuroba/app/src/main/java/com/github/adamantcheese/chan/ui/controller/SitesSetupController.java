@@ -223,7 +223,7 @@ public class SitesSetupController
                 .setTitle(getString(R.string.delete_site_dialog_title))
                 .setMessage(getString(R.string.delete_site_dialog_message, site.name()))
                 .setPositiveButton(R.string.delete, (dialog, which) -> presenter.removeSite(site))
-                .setNegativeButton(R.string.cancel, ((dialog, which) -> dialog.dismiss()))
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .create()
                 .show();
     }
