@@ -49,6 +49,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageOptionsController
         extends Controller
@@ -269,16 +270,6 @@ public class ImageOptionsController
         AndroidUtils.runOnUiThread(() -> {
             imageReencodingHelper.pop();
             callbacks.onImageOptionsApplied(reply, filenameRemoved);
-        });
-    }
-
-    @Override
-    public void showFailedToReencodeImage(Throwable error) {
-        //called on the background thread!
-
-        AndroidUtils.runOnUiThread(() -> {
-            String text = getString(R.string.could_not_apply_image_options, error.getMessage());
-            Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
         });
     }
 

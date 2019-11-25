@@ -45,6 +45,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class DeveloperSettingsController
         extends Controller {
@@ -84,7 +85,7 @@ public class DeveloperSettingsController
         FileCache cache = Chan.injector().instance(FileCache.class);
         clearCacheButton.setOnClickListener(v -> {
             cache.clearCache();
-            Toast.makeText(context, "Cleared image cache", Toast.LENGTH_SHORT).show();
+            showToast("Cleared image cache");
             clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize() / 1024 / 1024 + "MB)");
         });
         clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize() / 1024 / 1024 + "MB)");

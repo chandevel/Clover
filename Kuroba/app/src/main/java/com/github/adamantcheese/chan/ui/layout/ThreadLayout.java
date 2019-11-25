@@ -77,6 +77,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between a loading state
@@ -333,7 +334,7 @@ public class ThreadLayout
                                                                     .getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Post text", post.comment.toString());
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(getContext(), R.string.post_text_copied, Toast.LENGTH_SHORT).show();
+        showToast(R.string.post_text_copied);
     }
 
     @Override
@@ -598,14 +599,6 @@ public class ThreadLayout
 
         snackbar.show();
         fixSnackbarText(getContext(), snackbar);
-    }
-
-    @Override
-    public void showBackgroundWatcherIsDisabledToast() {
-        Toast.makeText(getContext(),
-                       R.string.thread_layout_background_watcher_is_disabled_message,
-                       Toast.LENGTH_LONG
-        ).show();
     }
 
     @Override

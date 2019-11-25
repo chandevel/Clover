@@ -38,18 +38,12 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
                 if (oldLocalThreadsDirectory == null) {
-                    withCallbacks {
-                        showToast(getString(R.string.media_settings_old_threads_base_dir_not_registered))
-                    }
-
+                    showToast(R.string.media_settings_old_threads_base_dir_not_registered)
                     return
                 }
 
                 if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(uri)) {
-                    withCallbacks {
-                        showToast(getString(R.string.media_settings_base_directory_is_already_registered))
-                    }
-
+                    showToast(R.string.media_settings_base_directory_is_already_registered)
                     return
                 }
 
@@ -65,10 +59,7 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
                 if (newLocalThreadsDirectory == null) {
-                    withCallbacks {
-                        showToast(getString(R.string.media_settings_new_threads_base_dir_not_registered))
-                    }
-
+                    showToast(R.string.media_settings_new_threads_base_dir_not_registered)
                     return
                 }
 
@@ -81,9 +72,7 @@ class MediaSettingsControllerPresenter(
             }
 
             override fun onCancel(reason: String) {
-                withCallbacks {
-                    showToast(reason, Toast.LENGTH_LONG)
-                }
+                showToast(reason, Toast.LENGTH_LONG)
             }
         })
     }
@@ -93,18 +82,12 @@ class MediaSettingsControllerPresenter(
                 fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
         if (oldLocalThreadsDirectory == null) {
-            withCallbacks {
-                showToast(getString(R.string.media_settings_old_threads_base_dir_not_registered))
-            }
-
+            showToast(R.string.media_settings_old_threads_base_dir_not_registered)
             return
         }
 
         if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(dirPath)) {
-            withCallbacks {
-                showToast(getString(R.string.media_settings_base_directory_is_already_registered))
-            }
-
+            showToast(R.string.media_settings_base_directory_is_already_registered)
             return
         }
 
@@ -115,10 +98,7 @@ class MediaSettingsControllerPresenter(
                 fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
         if (newLocalThreadsDirectory == null) {
-            withCallbacks {
-                showToast(getString(R.string.media_settings_new_threads_base_dir_not_registered))
-            }
-
+            showToast(R.string.media_settings_new_threads_base_dir_not_registered)
             return
         }
 
@@ -140,19 +120,12 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
                 if (oldSavedFileBaseDirectory == null) {
-                    withCallbacks {
-                        showToast(getString(
-                                R.string.media_settings_old_saved_files_base_dir_not_registered))
-                    }
-
+                    showToast(R.string.media_settings_old_saved_files_base_dir_not_registered)
                     return
                 }
 
                 if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(uri)) {
-                    withCallbacks {
-                        showToast(getString(R.string.media_settings_base_directory_is_already_registered))
-                    }
-
+                    showToast(R.string.media_settings_base_directory_is_already_registered)
                     return
                 }
 
@@ -168,10 +141,7 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
                 if (newSavedFilesBaseDirectory == null) {
-                    withCallbacks {
-                        showToast(getString(R.string.media_settings_new_saved_files_base_dir_not_registered))
-                    }
-
+                    showToast(R.string.media_settings_new_saved_files_base_dir_not_registered)
                     return
                 }
 
@@ -184,9 +154,7 @@ class MediaSettingsControllerPresenter(
             }
 
             override fun onCancel(reason: String) {
-                withCallbacks {
-                    showToast(reason, Toast.LENGTH_LONG)
-                }
+                showToast(reason, Toast.LENGTH_LONG)
             }
         })
     }
@@ -195,18 +163,12 @@ class MediaSettingsControllerPresenter(
         val oldSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
         if (oldSaveFilesDirectory == null) {
-            withCallbacks {
-                showToast(getString(R.string.media_settings_old_saved_files_base_dir_not_registered))
-            }
-
+            showToast(R.string.media_settings_old_saved_files_base_dir_not_registered)
             return
         }
 
         if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(dirPath)) {
-            withCallbacks {
-                showToast(getString(R.string.media_settings_base_directory_is_already_registered))
-            }
-
+            showToast(R.string.media_settings_base_directory_is_already_registered)
             return
         }
 
@@ -215,11 +177,7 @@ class MediaSettingsControllerPresenter(
 
         val newSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
         if (newSaveFilesDirectory == null) {
-            withCallbacks {
-                showToast(getString(
-                        R.string.media_settings_new_saved_files_base_dir_not_registered))
-            }
-
+            showToast(R.string.media_settings_new_saved_files_base_dir_not_registered)
             return
         }
 
@@ -254,10 +212,7 @@ class MediaSettingsControllerPresenter(
         }
 
         if (filesCount == 0) {
-            withCallbacks {
-                showToast(getString(R.string.media_settings_no_files_to_copy))
-            }
-
+            showToast(R.string.media_settings_no_files_to_copy)
             return
         }
 
@@ -308,12 +263,7 @@ class MediaSettingsControllerPresenter(
             // turned on! In such case we want to notify the user that the setting is PROBABLY on
             // so they should disable it if it's really turned on because that setting will kill
             // any activity as soon as it goes into the "Paused" state.
-
-            runOnUiThread {
-                val string = getString(R.string.media_settings_dont_keep_activities_setting_is_probably_turned_on)
-
-                Toast.makeText(getAppContext(), string, Toast.LENGTH_LONG).show()
-            }
+            showToast(R.string.media_settings_dont_keep_activities_setting_is_probably_turned_on, Toast.LENGTH_LONG)
         } else {
             runOnUiThread {
                 func(callbacks!!)

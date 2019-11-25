@@ -50,6 +50,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public abstract class ThreadController
         extends Controller
@@ -147,7 +148,7 @@ public abstract class ThreadController
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            Toast.makeText(context, R.string.cannot_send_thread_via_nfc_already_deleted, Toast.LENGTH_SHORT).show();
+            showToast(R.string.cannot_send_thread_via_nfc_already_deleted);
             return null;
         }
 

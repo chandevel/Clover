@@ -34,6 +34,8 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+
 public class PostImageThumbnailView
         extends ThumbnailView
         implements View.OnLongClickListener {
@@ -149,7 +151,7 @@ public class PostImageThumbnailView
         assert clipboard != null;
         ClipData clip = ClipData.newPlainText("Image URL", postImage.imageUrl.toString());
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(getContext(), R.string.image_url_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+        showToast(R.string.image_url_copied_to_clipboard);
 
         return true;
     }

@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
@@ -60,6 +61,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getReadableFileSize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ReplyPresenter
         implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteActions.PostListener {
@@ -503,7 +505,7 @@ public class ReplyPresenter
     public void onFilePickError(boolean canceled) {
         pickingFile = false;
         if (!canceled) {
-            callback.onFilePickError();
+            showToast(R.string.reply_file_open_failed, Toast.LENGTH_LONG);
         }
     }
 
@@ -662,8 +664,6 @@ public class ReplyPresenter
         void openPreviewMessage(boolean show, String message);
 
         void openSpoiler(boolean show, boolean checked);
-
-        void onFilePickError();
 
         void highlightPostNo(int no);
 

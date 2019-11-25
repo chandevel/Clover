@@ -21,7 +21,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -55,6 +54,7 @@ import static com.github.adamantcheese.chan.ui.adapter.DrawerAdapter.TYPE_PIN;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class DrawerController
         extends Controller
@@ -281,11 +281,8 @@ public class DrawerController
             ChanSettings.drawerAutoOpenCount.set(curCount + 1 > 5 ? 5 : curCount + 1);
             if (ChanSettings.drawerAutoOpenCount.get() < 5 && !ChanSettings.alwaysOpenDrawer.get()) {
                 int countLeft = 5 - ChanSettings.drawerAutoOpenCount.get();
-                Toast.makeText(context,
-                               "Drawer will auto-show " + countLeft + " more time" + (countLeft == 1 ? "" : "s")
-                                       + " as a reminder.",
-                               Toast.LENGTH_SHORT
-                ).show();
+                showToast("Drawer will auto-show " + countLeft
+                                  + " more time" + (countLeft == 1 ? "" : "s") + " as a reminder.");
             }
         }
         updateBadge();

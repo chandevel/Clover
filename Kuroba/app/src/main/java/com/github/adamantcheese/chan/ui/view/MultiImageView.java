@@ -77,6 +77,7 @@ import pl.droidsonroids.gif.GifImageView;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class MultiImageView
         extends FrameLayout
@@ -530,7 +531,7 @@ public class MultiImageView
 
     private void setOther(Loadable loadable, PostImage image) {
         if (image.type == PostImage.Type.PDF) {
-            Toast.makeText(context, R.string.pdf_not_viewable, Toast.LENGTH_LONG).show();
+            showToast(R.string.pdf_not_viewable);
         }
     }
 
@@ -606,23 +607,23 @@ public class MultiImageView
     }
 
     private void onError() {
-        Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_SHORT).show();
+        showToast(R.string.image_preview_failed);
         callback.showProgress(this, false);
     }
 
     private void onNotFoundError() {
+        showToast(R.string.image_not_found);
         callback.showProgress(this, false);
-        Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_SHORT).show();
     }
 
     private void onOutOfMemoryError() {
-        Toast.makeText(getContext(), R.string.image_preview_failed_oom, Toast.LENGTH_SHORT).show();
+        showToast(R.string.image_preview_failed_oom);
         callback.showProgress(this, false);
     }
 
     private void onBigImageError(boolean wasInitial) {
         if (wasInitial) {
-            Toast.makeText(getContext(), R.string.image_failed_big_image, Toast.LENGTH_SHORT).show();
+            showToast(R.string.image_failed_big_image);
             callback.showProgress(this, false);
         }
     }

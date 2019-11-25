@@ -18,6 +18,7 @@ import com.github.adamantcheese.chan.ui.controller.ImageReencodeOptionsControlle
 import com.google.gson.Gson;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageOptionsHelper
         implements ImageOptionsController.ImageOptionsControllerCallbacks,
@@ -84,7 +85,7 @@ public class ImageOptionsHelper
             );
             callbacks.presentReencodeOptionsController(imageReencodeOptionsController);
         } else {
-            Toast.makeText(context, getString(R.string.image_reencode_format_error), Toast.LENGTH_LONG).show();
+            showToast(R.string.image_reencode_format_error, Toast.LENGTH_LONG);
         }
     }
 

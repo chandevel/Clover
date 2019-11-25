@@ -48,6 +48,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImportExportSettingsController
         extends SettingsController
@@ -228,7 +229,7 @@ public class ImportExportSettingsController
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showMessage(reason);
+                showToast(reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -247,7 +248,7 @@ public class ImportExportSettingsController
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showMessage(reason);
+                showToast(reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -260,7 +261,7 @@ public class ImportExportSettingsController
             String message = "onFileChosen() fileManager.fromUri() returned null, uri = " + uri;
 
             Logger.d(TAG, message);
-            showMessage(message);
+            showToast(message, Toast.LENGTH_LONG);
             return;
         }
 
@@ -277,7 +278,7 @@ public class ImportExportSettingsController
                     String message = "onImportClicked() fileManager.fromUri() returned null, uri = " + uri;
 
                     Logger.d(TAG, message);
-                    showMessage(message);
+                    showToast(message, Toast.LENGTH_LONG);
                     return;
                 }
 
@@ -287,7 +288,7 @@ public class ImportExportSettingsController
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showMessage(reason);
+                showToast(reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -301,7 +302,7 @@ public class ImportExportSettingsController
                     ((StartActivity) context).restartApp();
                 } else {
                     clearAllChildControllers();
-                    showMessage(getString(R.string.successfully_exported_text));
+                    showToast(R.string.successfully_exported_text, Toast.LENGTH_LONG);
 
                     if (callbacks != null) {
                         callbacks.finish();
@@ -316,12 +317,8 @@ public class ImportExportSettingsController
         // may be called on background thread
         AndroidUtils.runOnUiThread(() -> {
             clearAllChildControllers();
-            showMessage(message);
+            showToast(message, Toast.LENGTH_LONG);
         });
-    }
-
-    private void showMessage(String message) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
 
     private void clearAllChildControllers() {

@@ -72,6 +72,7 @@ import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ViewThreadController
         extends ThreadController
@@ -219,10 +220,9 @@ public class ViewThreadController
             if (granted) {
                 saveClickedInternal();
             } else {
-                Toast.makeText(context,
-                               getString(R.string.view_thread_controller_thread_downloading_requires_write_permission),
-                               Toast.LENGTH_LONG
-                ).show();
+                showToast(R.string.view_thread_controller_thread_downloading_requires_write_permission,
+                          Toast.LENGTH_LONG
+                );
             }
         });
     }
@@ -232,19 +232,19 @@ public class ViewThreadController
 
         if (baseLocalThreadsDir == null) {
             Logger.e(TAG, "saveClickedInternal() fileManager.newLocalThreadFile() returned null");
-            Toast.makeText(context, R.string.base_local_threads_dir_not_exists, Toast.LENGTH_LONG).show();
+            showToast(R.string.base_local_threads_dir_not_exists, Toast.LENGTH_LONG);
             return;
         }
 
         if (!fileManager.exists(baseLocalThreadsDir) && fileManager.create(baseLocalThreadsDir) == null) {
             Logger.e(TAG, "saveClickedInternal() Couldn't create baseLocalThreadsDir");
-            Toast.makeText(context, R.string.could_not_create_base_local_threads_dir, Toast.LENGTH_LONG).show();
+            showToast(R.string.could_not_create_base_local_threads_dir, Toast.LENGTH_LONG);
             return;
         }
 
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
             Logger.e(TAG, "Base local threads directory does not exist");
-            Toast.makeText(context, R.string.base_local_threads_dir_not_exists, Toast.LENGTH_LONG).show();
+            showToast(R.string.base_local_threads_dir_not_exists, Toast.LENGTH_LONG);
             return;
         }
 
@@ -289,7 +289,7 @@ public class ViewThreadController
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            Toast.makeText(context, R.string.cannot_open_in_browser_already_deleted, Toast.LENGTH_SHORT).show();
+            showToast(R.string.cannot_open_in_browser_already_deleted);
             return;
         }
 
@@ -301,7 +301,7 @@ public class ViewThreadController
 
     private void shareClicked(ToolbarMenuSubItem item) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            Toast.makeText(context, R.string.cannot_shared_thread_already_deleted, Toast.LENGTH_SHORT).show();
+            showToast(R.string.cannot_shared_thread_already_deleted);
             return;
         }
 

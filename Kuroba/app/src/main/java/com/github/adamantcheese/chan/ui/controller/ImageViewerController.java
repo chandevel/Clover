@@ -89,6 +89,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageViewerController
         extends Controller
@@ -302,7 +303,7 @@ public class ImageViewerController
                                                     message
                 );
 
-                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
+                showToast(errorMessage, Toast.LENGTH_LONG);
             });
         }
     }

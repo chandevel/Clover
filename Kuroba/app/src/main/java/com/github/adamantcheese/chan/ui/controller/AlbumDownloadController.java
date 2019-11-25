@@ -53,6 +53,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class AlbumDownloadController
         extends Controller
@@ -102,7 +103,7 @@ public class AlbumDownloadController
         if (v == download) {
             int checkCount = getCheckCount();
             if (checkCount == 0) {
-                Toast.makeText(context, R.string.album_download_none_checked, Toast.LENGTH_SHORT).show();
+                showToast(R.string.album_download_none_checked);
             } else {
                 final String folderForAlbum = imageSaver.getSubFolder(loadable.title);
 
@@ -127,10 +128,7 @@ public class AlbumDownloadController
                                 return;
                             }
 
-                            Toast.makeText(context,
-                                           R.string.album_download_could_not_save_one_or_more_images,
-                                           Toast.LENGTH_SHORT
-                            ).show();
+                            showToast(R.string.album_download_could_not_save_one_or_more_images);
                         }).show();
             }
         }

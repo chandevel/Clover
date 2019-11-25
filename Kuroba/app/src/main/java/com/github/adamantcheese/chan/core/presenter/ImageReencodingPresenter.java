@@ -44,6 +44,8 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageReencodingPresenter {
     private final static String TAG = "ImageReencodingPresenter";
@@ -91,10 +93,7 @@ public class ImageReencodingPresenter {
                 0,
                 bitmap -> {
                     if (bitmap == null) {
-                        Toast.makeText(getAppContext(),
-                                       getAppContext().getString(R.string.could_not_decode_image_bitmap),
-                                       Toast.LENGTH_SHORT
-                        ).show();
+                        showToast(R.string.could_not_decode_image_bitmap);
                         return;
                     }
 
@@ -202,7 +201,7 @@ public class ImageReencodingPresenter {
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to re-encode bitmap file", error);
                 callback.disableOrEnableButtons(true);
-                callback.showFailedToReencodeImage(error);
+                showToast(getString(R.string.could_not_apply_image_options, error.getMessage()));
                 cancelable = null;
                 return;
             } finally {
@@ -396,7 +395,5 @@ public class ImageReencodingPresenter {
         void disableOrEnableButtons(boolean enabled);
 
         void onImageOptionsApplied(Reply reply, boolean filenameRemoved);
-
-        void showFailedToReencodeImage(Throwable error);
     }
 }

@@ -501,4 +501,20 @@ public class AndroidUtils {
         windowManager.getDefaultDisplay().getSize(displaySize);
         return displaySize;
     }
+
+    public static void showToast(String message, int duration) {
+        runOnUiThread(() -> Toast.makeText(application, message, duration).show());
+    }
+
+    public static void showToast(String message) {
+        runOnUiThread(() -> Toast.makeText(application, message, Toast.LENGTH_SHORT).show());
+    }
+
+    public static void showToast(int resId, int duration) {
+        runOnUiThread(() -> Toast.makeText(application, getString(resId), duration).show());
+    }
+
+    public static void showToast(int resId) {
+        runOnUiThread(() -> Toast.makeText(application, getString(resId), Toast.LENGTH_SHORT).show());
+    }
 }

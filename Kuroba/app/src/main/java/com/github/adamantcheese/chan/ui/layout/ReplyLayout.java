@@ -82,6 +82,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ReplyLayout
         extends LoadView
@@ -481,7 +482,7 @@ public class ReplyLayout
 
     @Override
     public void onPosted() {
-        Toast.makeText(getContext(), R.string.reply_success, Toast.LENGTH_SHORT).show();
+        showToast(R.string.reply_success);
         callback.openReply(false);
         callback.requestNewPostLoad();
     }
@@ -614,11 +615,6 @@ public class ReplyLayout
         } else {
             openPreviewMessage(true, getString(R.string.reply_no_preview));
         }
-    }
-
-    @Override
-    public void onFilePickError() {
-        Toast.makeText(getContext(), R.string.reply_file_open_failed, Toast.LENGTH_LONG).show();
     }
 
     @Override

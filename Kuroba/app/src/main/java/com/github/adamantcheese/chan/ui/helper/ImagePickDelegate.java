@@ -51,6 +51,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImagePickDelegate
         implements Runnable {
@@ -85,14 +86,14 @@ public class ImagePickDelegate
             this.callback = callback;
 
             if (longPressed) {
-                Toast.makeText(activity, activity.getString(R.string.image_url_get_attempt), Toast.LENGTH_SHORT).show();
+                showToast(R.string.image_url_get_attempt);
                 HttpUrl clipboardURL = null;
                 try {
                     ClipboardManager manager
                             = (ClipboardManager) getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
                     clipboardURL = HttpUrl.get(manager.getPrimaryClip().getItemAt(0).getText().toString());
                 } catch (Exception ignored) {
-                    Toast.makeText(activity, getString(R.string.image_url_get_failed), Toast.LENGTH_SHORT).show();
+                    showToast(R.string.image_url_get_failed);
                     callback.onFilePickError(true);
                     reset();
                 }
@@ -105,10 +106,7 @@ public class ImagePickDelegate
                             public void onSuccess(RawFile file) {
                                 BackgroundUtils.ensureMainThread();
 
-                                Toast.makeText(activity,
-                                               activity.getString(R.string.image_url_get_success),
-                                               Toast.LENGTH_SHORT
-                                ).show();
+                                showToast(R.string.image_url_get_success);
                                 Uri imageURL = Uri.parse(finalClipboardURL.toString());
                                 callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
                                 reset();
@@ -118,10 +116,7 @@ public class ImagePickDelegate
                             public void onFail(boolean notFound) {
                                 BackgroundUtils.ensureMainThread();
 
-                                Toast.makeText(activity,
-                                               activity.getString(R.string.image_url_get_failed),
-                                               Toast.LENGTH_SHORT
-                                ).show();
+                                showToast(R.string.image_url_get_failed);
                                 callback.onFilePickError(true);
                                 reset();
                             }

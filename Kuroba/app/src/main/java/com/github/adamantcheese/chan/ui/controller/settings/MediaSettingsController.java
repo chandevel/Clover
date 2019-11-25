@@ -58,6 +58,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class MediaSettingsController
         extends SettingsController
@@ -297,13 +298,11 @@ public class MediaSettingsController
 
     private void showUseSAFOrOldAPIForLocalThreadsLocationDialog() {
         if (!runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            String message = getString(R.string.media_settings_cannot_continue_write_permission);
-
             runtimePermissionsHelper.requestPermission(
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     granted -> {
                         if (!granted) {
-                            showToast(message, Toast.LENGTH_LONG);
+                            showToast(R.string.media_settings_cannot_continue_write_permission, Toast.LENGTH_LONG);
                         } else {
                             showUseSAFOrOldAPIForLocalThreadsLocationDialog();
                         }
@@ -410,13 +409,11 @@ public class MediaSettingsController
 
     private void showUseSAFOrOldAPIForSaveLocationDialog() {
         if (!runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            String message = getString(R.string.media_settings_cannot_continue_write_permission);
-
             runtimePermissionsHelper.requestPermission(
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     granted -> {
                         if (!granted) {
-                            showToast(message, Toast.LENGTH_LONG);
+                            showToast(R.string.media_settings_cannot_continue_write_permission, Toast.LENGTH_LONG);
                         } else {
                             showUseSAFOrOldAPIForSaveLocationDialog();
                         }
@@ -469,7 +466,7 @@ public class MediaSettingsController
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
             forgetOldSAFBaseDirectory(oldBaseDirectory);
 
-            showToast(getString(R.string.done), Toast.LENGTH_LONG);
+            showToast(R.string.done, Toast.LENGTH_LONG);
             return;
         }
 
@@ -500,7 +497,7 @@ public class MediaSettingsController
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
             forgetOldSAFBaseDirectory(oldBaseDirectory);
 
-            showToast(getString(R.string.done), Toast.LENGTH_LONG);
+            showToast(R.string.done, Toast.LENGTH_LONG);
             return;
         }
 
@@ -533,17 +530,17 @@ public class MediaSettingsController
         loadingViewController = null;
 
         if (!result) {
-            showToast(getString(R.string.media_settings_could_not_copy_files), Toast.LENGTH_LONG);
+            showToast(R.string.media_settings_could_not_copy_files, Toast.LENGTH_LONG);
         } else {
             if (fileManager.isChildOfDirectory(oldBaseDirectory, newBaseDirectory)) {
                 forgetOldSAFBaseDirectory(oldBaseDirectory);
 
-                showToast(getString(R.string.done), Toast.LENGTH_LONG);
+                showToast(R.string.done, Toast.LENGTH_LONG);
                 return;
             }
 
             showDeleteOldFilesDialog(oldBaseDirectory);
-            showToast(getString(R.string.media_settings_files_copied), Toast.LENGTH_LONG);
+            showToast(R.string.media_settings_files_copied, Toast.LENGTH_LONG);
         }
     }
 
@@ -567,15 +564,13 @@ public class MediaSettingsController
 
     private void onDeleteOldFilesClicked(@NonNull AbstractFile oldBaseDirectory) {
         if (!fileManager.deleteContent(oldBaseDirectory)) {
-            String message = getString(R.string.media_settings_could_not_delete_files_in_old_dir);
-
-            showToast(message, Toast.LENGTH_LONG);
+            showToast(R.string.media_settings_could_not_delete_files_in_old_dir, Toast.LENGTH_LONG);
             return;
         }
 
         forgetOldSAFBaseDirectory(oldBaseDirectory);
 
-        showToast(getString(R.string.media_settings_old_files_deleted), Toast.LENGTH_LONG);
+        showToast(R.string.media_settings_old_files_deleted, Toast.LENGTH_LONG);
     }
 
     @Override
@@ -591,18 +586,6 @@ public class MediaSettingsController
     public void updateSaveLocationViewText(@NotNull String newLocation) {
         BackgroundUtils.ensureMainThread();
         saveLocation.setDescription(newLocation);
-    }
-
-    @Override
-    public void showToast(@NotNull String message, int length) {
-        BackgroundUtils.ensureMainThread();
-        Toast.makeText(context, message, length).show();
-    }
-
-    @Override
-    public void showToast(String message) {
-        BackgroundUtils.ensureMainThread();
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -650,7 +633,7 @@ public class MediaSettingsController
             Uri safTreeUri = oldLocalThreadsDirectory.<CachingDocumentFile>getFileRoot().getHolder().uri();
 
             if (!fileChooser.forgetSAFTree(safTreeUri)) {
-                showToast(getString(R.string.media_settings_could_not_release_uri_permissions), Toast.LENGTH_SHORT);
+                showToast(R.string.media_settings_could_not_release_uri_permissions, Toast.LENGTH_SHORT);
             }
         }
     }

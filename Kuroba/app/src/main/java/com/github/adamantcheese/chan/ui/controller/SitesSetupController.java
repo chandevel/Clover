@@ -205,15 +205,6 @@ public class SitesSetupController
         ((StartActivity) context).restartApp();
     }
 
-    @Override
-    public void onErrorWhileTryingToDeleteSite(Site site, Throwable error) {
-        String message = getString(R.string.could_not_remove_site_error_message,
-                                   site.name(),
-                                   error.getMessage()
-        );
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-    }
-
     private void onSiteCellSettingsClicked(Site site) {
         presenter.onSiteCellSettingsClicked(site);
     }

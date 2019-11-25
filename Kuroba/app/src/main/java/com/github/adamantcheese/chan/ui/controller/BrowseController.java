@@ -56,6 +56,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class BrowseController
         extends ThreadController
@@ -289,7 +290,7 @@ public class BrowseController
     private void handleShareAndOpenInBrowser(ThreadPresenter presenter, boolean share) {
         if (presenter.isBound()) {
             if (presenter.getChanThread() == null) {
-                Toast.makeText(context, R.string.cannot_open_in_browser_already_deleted, Toast.LENGTH_SHORT).show();
+                showToast(R.string.cannot_open_in_browser_already_deleted);
                 return;
             }
 

@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 import org.greenrobot.eventbus.EventBus;
 
 import static com.github.adamantcheese.chan.Chan.injector;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class BehaviourSettingsController
         extends SettingsController {
@@ -216,7 +217,7 @@ public class BehaviourSettingsController
             // TODO: don't do this here.
             DatabaseManager databaseManager = injector().instance(DatabaseManager.class);
             databaseManager.runTask(databaseManager.getDatabaseHideManager().clearAllThreadHides());
-            Toast.makeText(context, R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG).show();
+            showToast(R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG);
             EventBus.getDefault().post(new RefreshUIMessage("clearhides"));
         }));
     }

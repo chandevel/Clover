@@ -36,6 +36,7 @@ import java.io.InputStream;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class LogsController
         extends Controller {
@@ -81,7 +82,7 @@ public class LogsController
         assert clipboard != null;
         ClipData clip = ClipData.newPlainText("Logs", logText);
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(context, R.string.settings_logs_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+        showToast(R.string.settings_logs_copied_to_clipboard);
     }
 
     private void loadLogs() {

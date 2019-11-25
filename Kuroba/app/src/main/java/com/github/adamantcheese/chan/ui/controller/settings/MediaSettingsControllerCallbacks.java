@@ -3,11 +3,6 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
 
 public interface MediaSettingsControllerCallbacks {
-
-    void showToast(String message, int length);
-
-    void showToast(String message);
-
     void updateLocalThreadsLocation(String newLocation);
 
     void askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(AbstractFile oldBaseDirectory,

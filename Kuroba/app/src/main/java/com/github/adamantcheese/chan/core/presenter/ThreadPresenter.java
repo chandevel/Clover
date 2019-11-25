@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -84,6 +85,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ThreadPresenter
         implements ChanThreadLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback,
@@ -401,7 +403,7 @@ public class ThreadPresenter
         }
 
         if (!ChanSettings.watchEnabled.get() || !ChanSettings.watchBackground.get()) {
-            threadPresenterCallback.showBackgroundWatcherIsDisabledToast();
+            showToast(R.string.thread_layout_background_watcher_is_disabled_message, Toast.LENGTH_LONG);
         }
 
         return true;
@@ -1392,7 +1394,5 @@ public class ThreadPresenter
         void viewRemovedPostsForTheThread(List<Post> threadPosts, int threadNo);
 
         void onRestoreRemovedPostsClicked(int threadNo, Site site, String boardCode, List<Integer> selectedPosts);
-
-        void showBackgroundWatcherIsDisabledToast();
     }
 }
