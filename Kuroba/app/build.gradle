@@ -37,8 +37,8 @@ android {
         //or if there are big application level changes like tearing out/adding major features
         //bump the PATCH (ZZ) version otherwise, for anything small
         int major = 4
-        int minor = 9
-        int patch = 3
+        int minor = 10
+        int patch = 0
 
         /**
          * ------------------------------------------------------------
