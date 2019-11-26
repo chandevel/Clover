@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.injector;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 public class SiteIcon {

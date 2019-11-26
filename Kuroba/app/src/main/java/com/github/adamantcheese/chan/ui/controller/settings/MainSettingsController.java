@@ -27,7 +27,6 @@ import com.github.adamantcheese.chan.ui.controller.LicensesController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import javax.inject.Inject;
 

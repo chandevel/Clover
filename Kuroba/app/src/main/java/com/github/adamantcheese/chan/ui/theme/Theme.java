@@ -27,7 +27,6 @@ import android.widget.ImageView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;

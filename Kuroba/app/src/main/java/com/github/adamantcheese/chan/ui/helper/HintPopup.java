@@ -28,11 +28,10 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class HintPopup {
     public static HintPopup show(Context context, View anchor, int text) {

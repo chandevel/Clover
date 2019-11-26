@@ -25,7 +25,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.base_dir.LocalThreadsBaseDirSetting;
 import com.github.adamantcheese.chan.core.settings.base_dir.SavedFilesBaseDirSetting;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;

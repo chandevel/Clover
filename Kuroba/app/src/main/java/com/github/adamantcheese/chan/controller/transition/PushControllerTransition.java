@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
 import com.github.adamantcheese.chan.controller.ControllerTransition;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
 

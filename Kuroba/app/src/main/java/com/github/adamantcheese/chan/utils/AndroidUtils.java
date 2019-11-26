@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.utils;
 
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
@@ -38,17 +37,11 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.ScaleAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,19 +56,17 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
 
     @SuppressLint("StaticFieldLeak")
     private static Application application;
-
-    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public static void init(Application application) {
         if (AndroidUtils.application == null) {
@@ -256,18 +247,6 @@ public class AndroidUtils {
         return (int) (sp * getRes().getDisplayMetrics().scaledDensity);
     }
 
-    /**
-     * Causes the runnable to be added to the message queue. The runnable will
-     * be run on the ui thread.
-     */
-    public static void runOnUiThread(Runnable runnable) {
-        mainHandler.post(runnable);
-    }
-
-    public static void runOnUiThread(Runnable runnable, long delay) {
-        mainHandler.postDelayed(runnable, delay);
-    }
-
     public static void requestKeyboardFocus(Dialog dialog, final View view) {
         view.requestFocus();
         dialog.setOnShowListener(dialog1 -> requestKeyboardFocus(view));
@@ -289,15 +268,6 @@ public class AndroidUtils {
         if (view.requestFocus()) {
             getInputManager().showSoftInput(view, SHOW_IMPLICIT);
         }
-    }
-
-    public static String getReadableFileSize(long bytes, boolean si) {
-        long unit = si ? 1000 : 1024;
-        if (bytes < unit)
-            return bytes + " B";
-        int exp = (int) (Math.log(bytes) / Math.log(unit));
-        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
-        return String.format(Locale.US, "%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
     public interface OnMeasuredCallback {
@@ -438,57 +408,6 @@ public class AndroidUtils {
                 = (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getNetworkInfo(type);
         return networkInfo != null && networkInfo.isConnected();
-    }
-
-    public static void animateStatusBar(Window window, boolean in, final int originalColor, int duration) {
-        ValueAnimator statusBar = ValueAnimator.ofFloat(in ? 0f : 0.5f, in ? 0.5f : 0f);
-        statusBar.addUpdateListener(animation -> {
-            float progress = (float) animation.getAnimatedValue();
-            if (progress == 0f) {
-                window.setStatusBarColor(originalColor);
-            } else {
-                int r = (int) ((1f - progress) * Color.red(originalColor));
-                int g = (int) ((1f - progress) * Color.green(originalColor));
-                int b = (int) ((1f - progress) * Color.blue(originalColor));
-                window.setStatusBarColor(Color.argb(255, r, g, b));
-            }
-        });
-        statusBar.setDuration(duration).setInterpolator(new LinearInterpolator());
-        statusBar.start();
-    }
-
-    public static void animateViewScale(View view, boolean zoomOut, int duration) {
-        ScaleAnimation scaleAnimation;
-        final float normalScale = 1.0f;
-        final float zoomOutScale = 0.8f;
-
-        if (zoomOut) {
-            scaleAnimation = new ScaleAnimation(normalScale,
-                                                zoomOutScale,
-                                                normalScale,
-                                                zoomOutScale,
-                                                ScaleAnimation.RELATIVE_TO_SELF,
-                                                0.5f,
-                                                ScaleAnimation.RELATIVE_TO_SELF,
-                                                0.5f
-            );
-        } else {
-            scaleAnimation = new ScaleAnimation(zoomOutScale,
-                                                normalScale,
-                                                zoomOutScale,
-                                                normalScale,
-                                                ScaleAnimation.RELATIVE_TO_SELF,
-                                                0.5f,
-                                                ScaleAnimation.RELATIVE_TO_SELF,
-                                                0.5f
-            );
-        }
-
-        scaleAnimation.setDuration(duration);
-        scaleAnimation.setFillAfter(true);
-        scaleAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        view.startAnimation(scaleAnimation);
     }
 
     public static Point getDisplaySize() {

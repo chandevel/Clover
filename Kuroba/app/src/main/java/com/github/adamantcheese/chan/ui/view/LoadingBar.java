@@ -23,7 +23,6 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 

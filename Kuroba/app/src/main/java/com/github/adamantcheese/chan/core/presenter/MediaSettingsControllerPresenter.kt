@@ -8,6 +8,7 @@ import com.github.adamantcheese.chan.ui.controller.settings.MediaSettingsControl
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory
 import com.github.adamantcheese.chan.utils.AndroidUtils.*
+import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileChooser
 import com.github.k1rakishou.fsaf.FileManager

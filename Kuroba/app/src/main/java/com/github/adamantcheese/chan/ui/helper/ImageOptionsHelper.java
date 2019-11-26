@@ -17,7 +17,6 @@ import com.github.adamantcheese.chan.ui.controller.ImageOptionsController;
 import com.github.adamantcheese.chan.ui.controller.ImageReencodeOptionsController;
 import com.google.gson.Gson;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageOptionsHelper

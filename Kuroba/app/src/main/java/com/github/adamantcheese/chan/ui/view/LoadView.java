@@ -27,8 +27,6 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.utils.AndroidUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 

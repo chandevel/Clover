@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.utils;
 
 import android.content.Context;
+import android.os.Handler;
 import android.os.Looper;
 
 import com.github.adamantcheese.chan.BuildConfig;
@@ -26,12 +27,24 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
-
 public class BackgroundUtils {
+
+    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public static boolean isInForeground() {
         return ((Chan) Chan.injector().instance(Context.class)).getApplicationInForeground();
+    }
+
+    /**
+     * Causes the runnable to be added to the message queue. The runnable will
+     * be run on the ui thread.
+     */
+    public static void runOnUiThread(Runnable runnable) {
+        mainHandler.post(runnable);
+    }
+
+    public static void runOnUiThread(Runnable runnable, long delay) {
+        mainHandler.postDelayed(runnable, delay);
     }
 
     private static boolean isMainThread() {

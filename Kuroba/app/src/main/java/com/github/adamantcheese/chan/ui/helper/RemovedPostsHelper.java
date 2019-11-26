@@ -12,7 +12,6 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.ui.controller.RemovedPostsController;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,8 +23,8 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class RemovedPostsHelper {
     private final String TAG = "RemovedPostsHelper";

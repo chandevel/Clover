@@ -26,9 +26,8 @@ import android.webkit.WebView;
 
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class GenericWebViewAuthenticationLayout
         extends WebView

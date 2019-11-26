@@ -12,12 +12,11 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.animateViewScale;
+import static com.github.adamantcheese.chan.utils.AnimationUtils.animateViewScale;
 
 public class CaptchaNoJsV2Adapter
         extends BaseAdapter {
