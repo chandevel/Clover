@@ -26,6 +26,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
+
 public class BackgroundUtils {
 
     public static boolean isInForeground() {
@@ -69,13 +71,13 @@ public class BackgroundUtils {
             if (!canceled.get()) {
                 try {
                     final T res = background.call();
-                    AndroidUtils.runOnUiThread(() -> {
+                    runOnUiThread(() -> {
                         if (!canceled.get()) {
                             result.onResult(res);
                         }
                     });
                 } catch (final Exception e) {
-                    AndroidUtils.runOnUiThread(() -> {
+                    runOnUiThread(() -> {
                         throw new RuntimeException(e);
                     });
                 }
@@ -94,7 +96,7 @@ public class BackgroundUtils {
                 try {
                     background.run();
                 } catch (final Exception e) {
-                    AndroidUtils.runOnUiThread(() -> {
+                    runOnUiThread(() -> {
                         throw new RuntimeException(e);
                     });
                 }

@@ -69,6 +69,8 @@ import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.I
 import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SITE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
@@ -225,7 +227,7 @@ public class BrowseBoardsFloatingMenu
         items.deleteObserver(this);
         presenter.destroy();
 
-        AndroidUtils.hideKeyboard(this);
+        hideKeyboard(this);
 
         anchor.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
 
@@ -237,7 +239,7 @@ public class BrowseBoardsFloatingMenu
         recyclerView = new RecyclerView(getContext());
 
         // View setup
-        recyclerView.setBackgroundColor(AndroidUtils.getAttrColor(getContext(), R.attr.backcolor));
+        recyclerView.setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
         recyclerView.setElevation(dp(4));
 
         // View attaching
@@ -408,7 +410,7 @@ public class BrowseBoardsFloatingMenu
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if (!hasFocus) {
-                AndroidUtils.hideKeyboard(v);
+                hideKeyboard(v);
             }
         }
 

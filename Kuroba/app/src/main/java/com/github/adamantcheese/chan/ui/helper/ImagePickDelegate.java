@@ -49,6 +49,7 @@ import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -89,9 +90,7 @@ public class ImagePickDelegate
                 showToast(R.string.image_url_get_attempt);
                 HttpUrl clipboardURL = null;
                 try {
-                    ClipboardManager manager
-                            = (ClipboardManager) getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                    clipboardURL = HttpUrl.get(manager.getPrimaryClip().getItemAt(0).getText().toString());
+                    clipboardURL = HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
                 } catch (Exception ignored) {
                     showToast(R.string.image_url_get_failed);
                     callback.onFilePickError(true);

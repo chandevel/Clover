@@ -72,7 +72,6 @@ import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.ui.view.OptionalSwipeViewPager;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.ui.view.TransitionImageView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -89,7 +88,11 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class ImageViewerController
         extends Controller
@@ -184,7 +187,7 @@ public class ImageViewerController
             throw new IllegalArgumentException("parentController.view not attached");
         }
 
-        AndroidUtils.waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
+        waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
             presenter.onViewMeasured();
             return true;
         });
@@ -197,7 +200,7 @@ public class ImageViewerController
             // hax: we need to wait for the recyclerview to do a layout before we know
             // where the new thumbnails are to get the bounds from to animate to
             this.imageViewerCallback = imageViewerCallback;
-            AndroidUtils.waitForLayout(view, view -> {
+            waitForLayout(view, view -> {
                 showSystemUI();
                 mainHandler.removeCallbacks(uiHideCall);
                 presenter.onExit();
@@ -223,9 +226,9 @@ public class ImageViewerController
     private void openBrowserClicked(ToolbarMenuSubItem item) {
         PostImage postImage = presenter.getCurrentPostImage();
         if (ChanSettings.openLinkBrowser.get()) {
-            AndroidUtils.openLink(postImage.imageUrl.toString());
+            openLink(postImage.imageUrl.toString());
         } else {
-            AndroidUtils.openLinkInBrowser((Activity) context, postImage.imageUrl.toString());
+            openLinkInBrowser((Activity) context, postImage.imageUrl.toString());
         }
     }
 
@@ -279,7 +282,7 @@ public class ImageViewerController
 
     private void saveShare(boolean share, PostImage postImage) {
         if (share && ChanSettings.shareUrl.get()) {
-            AndroidUtils.shareLink(postImage.imageUrl.toString());
+            shareLink(postImage.imageUrl.toString());
         } else {
             ImageSaveTask task = new ImageSaveTask(loadable, postImage);
             task.setShare(share);
@@ -456,9 +459,7 @@ public class ImageViewerController
                 for (ImageSearch imageSearch : ImageSearch.engines) {
                     if (((Integer) item.getId()) == imageSearch.getId()) {
                         final HttpUrl searchImageUrl = getSearchImageUrl(presenter.getCurrentPostImage());
-                        AndroidUtils.openLinkInBrowser((Activity) context,
-                                                       imageSearch.getUrl(searchImageUrl.toString())
-                        );
+                        openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageUrl.toString()));
                         break;
                     }
                 }
@@ -707,7 +708,7 @@ public class ImageViewerController
 
         //setting this to the toolbar height because View.VISIBLE doesn't seem to work?
         ViewGroup.LayoutParams params = navigationController.getToolbar().getLayoutParams();
-        params.height = getDimen(context, R.dimen.toolbar_height);
+        params.height = getDimen(R.dimen.toolbar_height);
         navigationController.getToolbar().setLayoutParams(params);
     }
 

@@ -33,8 +33,10 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getIsOfficial;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 public class MainSettingsController
         extends SettingsController
@@ -165,7 +167,7 @@ public class MainSettingsController
 
         about.add(new LinkSettingView(this,
                                       getApplicationLabel() + " " + BuildConfig.VERSION_NAME + " "
-                                              + (AndroidUtils.getIsOfficial() ? "✓" : "✗"),
+                                              + (getIsOfficial() ? "✓" : "✗"),
                                       "Tap to check for updates",
                                       v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
         ));
@@ -173,7 +175,7 @@ public class MainSettingsController
         about.add(new LinkSettingView(this,
                                       "Find " + getApplicationLabel() + " on GitHub",
                                       "View the source code, give feedback, submit bug reports",
-                                      v -> AndroidUtils.openLink(BuildConfig.GITHUB_ENDPOINT)
+                                      v -> openLink(BuildConfig.GITHUB_ENDPOINT)
         ));
 
         about.add(new LinkSettingView(this,

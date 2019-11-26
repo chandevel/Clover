@@ -61,6 +61,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getReadableFileSize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ReplyPresenter
@@ -239,7 +240,7 @@ public class ReplyPresenter
                     }
 
                     long timeLeft = waitTime - ((System.currentTimeMillis() - lastPostTime) / 1000L);
-                    String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_reply, timeLeft);
+                    String errorMessage = getString(R.string.reply_error_message_timer_reply, timeLeft);
                     switchPage(Page.INPUT);
                     callback.openMessage(true, false, errorMessage, true);
                 }
@@ -255,9 +256,7 @@ public class ReplyPresenter
                     }
 
                     long timeLeft = waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
-                    String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_thread,
-                                                                    timeLeft
-                    );
+                    String errorMessage = getString(R.string.reply_error_message_timer_thread, timeLeft);
                     switchPage(Page.INPUT);
 
                     callback.openMessage(true, false, errorMessage, true);
@@ -282,7 +281,7 @@ public class ReplyPresenter
         callback.loadViewsIntoDraft(draft);
 
         if (!isAuthenticateOnly && (draft.comment.trim().isEmpty() && draft.file == null)) {
-            callback.openMessage(true, false, getAppContext().getString(R.string.reply_comment_empty), true);
+            callback.openMessage(true, false, getString(R.string.reply_comment_empty), true);
             return false;
         }
 
@@ -362,7 +361,7 @@ public class ReplyPresenter
         } else {
             String errorMessage = getString(R.string.reply_error);
             if (replyResponse.errorMessage != null) {
-                errorMessage = getAppContext().getString(R.string.reply_error_message, replyResponse.errorMessage);
+                errorMessage = getString(R.string.reply_error_message, replyResponse.errorMessage);
             }
 
             Logger.e(TAG, "onPostComplete error", errorMessage);
@@ -374,8 +373,7 @@ public class ReplyPresenter
     @Override
     public void onUploadingProgress(int percent) {
         //called on a background thread!
-
-        AndroidUtils.runOnUiThread(() -> callback.onUploadingProgress(percent));
+        runOnUiThread(() -> callback.onUploadingProgress(percent));
     }
 
     @Override
@@ -388,7 +386,7 @@ public class ReplyPresenter
         if (exception != null) {
             String message = exception.getMessage();
             if (message != null) {
-                errorMessage = getAppContext().getString(R.string.reply_error_message, message);
+                errorMessage = getString(R.string.reply_error_message, message);
             }
         }
 

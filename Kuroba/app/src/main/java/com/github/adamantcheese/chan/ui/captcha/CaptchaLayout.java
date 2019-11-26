@@ -36,6 +36,10 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
+
 public class CaptchaLayout
         extends WebView
         implements AuthenticationLayoutInterface {
@@ -74,7 +78,7 @@ public class CaptchaLayout
 
         requestDisallowInterceptTouchEvent(true);
 
-        AndroidUtils.hideKeyboard(this);
+        hideKeyboard(this);
 
         getSettings().setJavaScriptEnabled(true);
 
@@ -94,7 +98,7 @@ public class CaptchaLayout
                 if (Uri.parse(url).getHost().equals(Uri.parse(CaptchaLayout.this.baseUrl).getHost())) {
                     return false;
                 } else {
-                    AndroidUtils.openLink(url);
+                    openLink(url);
                     return true;
                 }
             }
@@ -140,12 +144,12 @@ public class CaptchaLayout
 
         @JavascriptInterface
         public void onCaptchaEntered(final String response) {
-            AndroidUtils.runOnUiThread(() -> layout.onCaptchaEntered(null, response));
+            runOnUiThread(() -> layout.onCaptchaEntered(null, response));
         }
 
         @JavascriptInterface
         public void onCaptchaEnteredv1(final String challenge, final String response) {
-            AndroidUtils.runOnUiThread(() -> layout.onCaptchaEntered(challenge, response));
+            runOnUiThread(() -> layout.onCaptchaEntered(challenge, response));
         }
     }
 }

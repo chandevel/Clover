@@ -23,7 +23,6 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.widget.Toast;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -41,7 +40,6 @@ import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
@@ -50,6 +48,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public abstract class ThreadController
@@ -240,7 +239,7 @@ public abstract class ThreadController
 
     @Override
     public boolean shouldToolbarCollapse() {
-        return !AndroidUtils.isTablet(context) && !ChanSettings.neverHideToolbar.get();
+        return !isTablet() && !ChanSettings.neverHideToolbar.get();
     }
 
     @Override

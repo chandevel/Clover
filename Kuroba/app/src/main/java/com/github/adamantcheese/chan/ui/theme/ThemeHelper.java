@@ -41,14 +41,14 @@ public class ThemeHelper {
     private List<Theme> themes = new ArrayList<>();
 
     private Theme theme;
-    private static final Typeface ROBOTO_MEDIUM = Typeface.create("sans-serif-medium", Typeface.NORMAL);
-    private static final Typeface ROBOTO_CONDENSED = Typeface.create("sans-serif-condensed", Typeface.NORMAL);
-    private static final Typeface TALLEYRAND = Typeface.createFromAsset(getAppContext().getAssets(),
-                                                                        "font/Talleyrand.ttf"
-    );
-    private static final Typeface OPTI_CUBA_LIBRE_TWO = Typeface.createFromAsset(getAppContext().getAssets(),
-                                                                                 "font/OPTICubaLibreTwo.otf"
-    );
+    private static final Typeface ROBOTO_MEDIUM =
+            Typeface.create("sans-serif-medium", Typeface.NORMAL);
+    private static final Typeface ROBOTO_CONDENSED =
+            Typeface.create("sans-serif-condensed", Typeface.NORMAL);
+    private static final Typeface TALLEYRAND =
+            Typeface.createFromAsset(getAppContext().getAssets(), "font/Talleyrand.ttf");
+    private static final Typeface OPTI_CUBA_LIBRE_TWO =
+            Typeface.createFromAsset(getAppContext().getAssets(), "font/OPTICubaLibreTwo.otf");
 
     public ThemeHelper() {
         themes.add(new Theme("Light",

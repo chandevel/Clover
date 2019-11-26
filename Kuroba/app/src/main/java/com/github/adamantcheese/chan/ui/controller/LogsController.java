@@ -34,8 +34,10 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class LogsController
@@ -77,11 +79,8 @@ public class LogsController
     }
 
     private void copyLogsClicked(ToolbarMenuSubItem item) {
-        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext()
-                                                                    .getSystemService(Context.CLIPBOARD_SERVICE);
-        assert clipboard != null;
         ClipData clip = ClipData.newPlainText("Logs", logText);
-        clipboard.setPrimaryClip(clip);
+        getClipboardManager().setPrimaryClip(clip);
         showToast(R.string.settings_logs_copied_to_clipboard);
     }
 

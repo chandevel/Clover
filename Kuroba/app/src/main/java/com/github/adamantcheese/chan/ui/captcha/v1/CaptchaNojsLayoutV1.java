@@ -52,6 +52,8 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
 /**
  * It directly loads the captcha2 fallback url into a webview, and on each requests it executes
@@ -140,7 +142,7 @@ public class CaptchaNojsLayoutV1
                 if (host.equals(Uri.parse(CaptchaNojsLayoutV1.this.baseUrl).getHost())) {
                     return false;
                 } else {
-                    AndroidUtils.openLink(url);
+                    openLink(url);
                     return true;
                 }
             }
@@ -217,7 +219,7 @@ public class CaptchaNojsLayoutV1
 
         @JavascriptInterface
         public void onCaptchaEntered(final String response) {
-            AndroidUtils.runOnUiThread(() -> layout.onCaptchaEntered(response));
+            runOnUiThread(() -> layout.onCaptchaEntered(response));
         }
     }
 }

@@ -63,6 +63,7 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 
 import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2NOJS;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class Chan4
         extends SiteBase {
@@ -507,7 +508,7 @@ public class Chan4
 
     public Chan4() {
         // we used these before multisite, and lets keep using them.
-        SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
+        SettingProvider p = new SharedPreferencesSettingProvider(getPreferences());
         passUser = new StringSetting(p, "preference_pass_token", "");
         passPass = new StringSetting(p, "preference_pass_pin", "");
         // token was renamed, before it meant the username, now it means the token returned

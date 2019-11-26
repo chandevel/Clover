@@ -34,6 +34,8 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class PostImageThumbnailView
@@ -146,11 +148,8 @@ public class PostImageThumbnailView
             return false;
         }
 
-        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext()
-                                                                    .getSystemService(Context.CLIPBOARD_SERVICE);
-        assert clipboard != null;
         ClipData clip = ClipData.newPlainText("Image URL", postImage.imageUrl.toString());
-        clipboard.setPrimaryClip(clip);
+        getClipboardManager().setPrimaryClip(clip);
         showToast(R.string.image_url_copied_to_clipboard);
 
         return true;

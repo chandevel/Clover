@@ -44,6 +44,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_IS;
 import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_JPEG;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -85,7 +86,7 @@ public class ImageReencodingPresenter {
 
     public void loadImagePreview() {
         Reply reply = replyManager.getReply(loadable);
-        Point displaySize = AndroidUtils.getDisplaySize();
+        Point displaySize = getDisplaySize();
         ImageDecoder.decodeFileOnBackgroundThread(
                 reply.file,
                 //decode to the device width/height, whatever is smaller

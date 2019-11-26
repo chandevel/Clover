@@ -84,7 +84,11 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getReadableFileSize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ThreadPresenter
@@ -931,10 +935,10 @@ public class ThreadPresenter
                 watchManager.createPin(pinLoadable, post, PinType.WATCH_NEW_POSTS);
                 break;
             case POST_OPTION_OPEN_BROWSER:
-                AndroidUtils.openLink(loadable.site.resolvable().desktopUrl(loadable, post));
+                openLink(loadable.site.resolvable().desktopUrl(loadable, post));
                 break;
             case POST_OPTION_SHARE:
-                AndroidUtils.shareLink(loadable.site.resolvable().desktopUrl(loadable, post));
+                shareLink(loadable.site.resolvable().desktopUrl(loadable, post));
                 break;
             case POST_OPTION_REMOVE:
             case POST_OPTION_HIDE:
@@ -1159,7 +1163,7 @@ public class ThreadPresenter
                 .append("x")
                 .append(image.imageHeight)
                 .append("\nSize: ")
-                .append(AndroidUtils.getReadableFileSize(image.size, false));
+                .append(getReadableFileSize(image.size, false));
 
             if (image.spoiler) {
                 text.append("\nSpoilered");
@@ -1286,7 +1290,7 @@ public class ThreadPresenter
                 .build();
         String link = loadable.site.resolvable().desktopUrl(loadable, tempOP);
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
-        AndroidUtils.openLinkInBrowser((Activity) context, link);
+        openLinkInBrowser((Activity) context, link);
     }
 
     public void setContext(Context context) {

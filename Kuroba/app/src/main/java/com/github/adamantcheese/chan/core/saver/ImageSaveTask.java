@@ -41,6 +41,8 @@ import kotlin.NotImplementedError;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
 public class ImageSaveTask
         extends FileCacheListener
@@ -107,7 +109,7 @@ public class ImageSaveTask
                 // Manually call postFinished()
                 postFinished(success);
             } else {
-                AndroidUtils.runOnUiThread(() -> {
+                runOnUiThread(() -> {
                     fileCache.downloadFile(loadable, postImage, this);
                 });
             }
@@ -157,11 +159,11 @@ public class ImageSaveTask
 
             MediaScannerConnection.scanFile(
                     getAppContext(), paths, null, (path, uri) -> {
-                        AndroidUtils.runOnUiThread(() -> afterScan(uri));
+                        runOnUiThread(() -> afterScan(uri));
                     });
         } else if (destination instanceof ExternalFile) {
             Uri uri = Uri.parse(destination.getFullPath());
-            AndroidUtils.runOnUiThread(() -> afterScan(uri));
+            runOnUiThread(() -> afterScan(uri));
         } else {
             throw new NotImplementedError("Not implemented for " + destination.getClass().getName());
         }
@@ -199,18 +201,18 @@ public class ImageSaveTask
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("image/*");
             intent.putExtra(Intent.EXTRA_STREAM, uri);
-            AndroidUtils.openIntent(intent);
+            openIntent(intent);
         }
     }
 
     private void postError(Throwable error) {
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             callback.imageSaveTaskFailed(error);
         });
     }
 
     private void postFinished(final boolean success) {
-        AndroidUtils.runOnUiThread(() -> callback.imageSaveTaskFinished(ImageSaveTask.this, success));
+        runOnUiThread(() -> callback.imageSaveTaskFinished(ImageSaveTask.this, success));
     }
 
     public interface ImageSaveTaskCallback {

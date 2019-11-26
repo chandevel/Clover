@@ -46,9 +46,11 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.animateStatusBar;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageOptionsController
@@ -183,7 +185,7 @@ public class ImageOptionsController
 
         statusBarColorPrevious = getWindow().getStatusBarColor();
         if (statusBarColorPrevious != 0) {
-            AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -192,7 +194,7 @@ public class ImageOptionsController
         super.stopPresenting();
 
         if (statusBarColorPrevious != 0) {
-            AndroidUtils.animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -267,7 +269,7 @@ public class ImageOptionsController
     public void onImageOptionsApplied(Reply reply, boolean filenameRemoved) {
         //called on the background thread!
 
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             imageReencodingHelper.pop();
             callbacks.onImageOptionsApplied(reply, filenameRemoved);
         });
@@ -277,7 +279,7 @@ public class ImageOptionsController
     public void disableOrEnableButtons(boolean enabled) {
         //called on the background thread!
 
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             fixExif.setEnabled(enabled);
             removeMetadata.setEnabled(enabled);
             removeFilename.setEnabled(enabled);

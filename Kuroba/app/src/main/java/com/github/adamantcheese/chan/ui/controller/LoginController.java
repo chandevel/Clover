@@ -35,6 +35,8 @@ import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class LoginController
         extends Controller
@@ -90,7 +92,7 @@ public class LoginController
         }
 
         // TODO: remove
-        AndroidUtils.waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
+        waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
             crossfadeView.getLayoutParams().height = crossfadeView.getHeight();
             crossfadeView.requestLayout();
             crossfadeView.toggle(!loggedIn, false);
@@ -152,7 +154,7 @@ public class LoginController
     }
 
     private void auth() {
-        AndroidUtils.hideKeyboard(view);
+        hideKeyboard(view);
         inputToken.setEnabled(false);
         inputPin.setEnabled(false);
         button.setEnabled(false);

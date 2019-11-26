@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
 public class HintPopup {
     public static HintPopup show(Context context, View anchor, int text) {
@@ -98,7 +99,7 @@ public class HintPopup {
     }
 
     public void show() {
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             if (!dismissed) {
                 popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
                 // TODO: cleanup

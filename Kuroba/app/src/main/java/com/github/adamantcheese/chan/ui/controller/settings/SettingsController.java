@@ -44,6 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.findViewsById;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class SettingsController
         extends Controller
@@ -66,7 +69,7 @@ public class SettingsController
     public void onShow() {
         super.onShow();
 
-        AndroidUtils.waitForLayout(view, this);
+        waitForLayout(view, this);
     }
 
     @Override
@@ -81,7 +84,7 @@ public class SettingsController
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        AndroidUtils.waitForLayout(view, this);
+        waitForLayout(view, this);
     }
 
     @Override
@@ -105,19 +108,17 @@ public class SettingsController
     }
 
     private void setMargins() {
-        boolean tablet = AndroidUtils.isTablet(context);
-
         int margin = 0;
-        if (tablet) {
+        if (isTablet()) {
             margin = (int) (view.getWidth() * 0.1);
         }
 
         int itemMargin = 0;
-        if (tablet) {
+        if (isTablet()) {
             itemMargin = dp(16);
         }
 
-        List<View> groups = AndroidUtils.findViewsById(content, R.id.group);
+        List<View> groups = findViewsById(content, R.id.group);
         for (View group : groups) {
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) group.getLayoutParams();
             params.leftMargin = margin;
@@ -125,7 +126,7 @@ public class SettingsController
             group.setLayoutParams(params);
         }
 
-        List<View> items = AndroidUtils.findViewsById(content, R.id.preference_item);
+        List<View> items = findViewsById(content, R.id.preference_item);
         for (View item : items) {
             item.setPadding(itemMargin, item.getPaddingTop(), itemMargin, item.getPaddingBottom());
         }

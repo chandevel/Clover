@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getReadableFileSize;
 
 public class AlbumViewCell
         extends FrameLayout {
@@ -60,7 +61,7 @@ public class AlbumViewCell
     public void setPostImage(Loadable loadable, PostImage postImage) {
         this.postImage = postImage;
 
-        int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
+        int thumbnailSize = getDimen(R.dimen.cell_post_thumbnail_size);
         thumbnailView.setPostImage(loadable,
                                    postImage,
                                    true,
@@ -69,7 +70,7 @@ public class AlbumViewCell
         );
 
         String details = postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight
-                + " " + AndroidUtils.getReadableFileSize(postImage.size, false);
+                + " " + getReadableFileSize(postImage.size, false);
         text.setText(postImage.size == -1 ? postImage.extension.toUpperCase() : details); //if -1, linked image, no info
     }
 

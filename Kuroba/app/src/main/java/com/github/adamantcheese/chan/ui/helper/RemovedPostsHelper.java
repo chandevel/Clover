@@ -5,6 +5,7 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -23,6 +24,8 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class RemovedPostsHelper {
     private final String TAG = "RemovedPostsHelper";
@@ -49,13 +52,13 @@ public class RemovedPostsHelper {
             List<Post> removedPosts = getRemovedPosts(threadPosts, threadNo);
 
             if (removedPosts.isEmpty()) {
-                callbacks.noRemovedPostsFoundForThisThread();
+                showToast(R.string.no_removed_posts_for_current_thread);
                 return null;
             }
 
             Collections.sort(removedPosts, (o1, o2) -> Integer.compare(o1.no, o2.no));
 
-            AndroidUtils.runOnUiThread(() -> {
+            runOnUiThread(() -> {
                 present();
 
                 // controller should not be null here, thus no null check
@@ -112,7 +115,5 @@ public class RemovedPostsHelper {
 
     public interface RemovedPostsCallbacks {
         void presentRemovedPostsController(Controller controller);
-
-        void noRemovedPostsFoundForThisThread();
     }
 }

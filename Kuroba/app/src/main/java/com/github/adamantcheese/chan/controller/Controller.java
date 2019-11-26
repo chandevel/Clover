@@ -36,6 +36,8 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
+
 public abstract class Controller {
     private static final boolean LOG_STATES = false;
 
@@ -118,7 +120,7 @@ public abstract class Controller {
             removeChildController(childControllers.get(0));
         }
 
-        if (AndroidUtils.removeFromParentView(view)) {
+        if (removeFromParentView(view)) {
             if (LOG_STATES) {
                 Logger.test(getClass().getSimpleName() + " view removed onDestroy");
             }
@@ -147,7 +149,7 @@ public abstract class Controller {
             if (LOG_STATES) {
                 Logger.test(getClass().getSimpleName() + " view removed");
             }
-            AndroidUtils.removeFromParentView(view);
+            removeFromParentView(view);
         }
 
         if (parentView != null) {

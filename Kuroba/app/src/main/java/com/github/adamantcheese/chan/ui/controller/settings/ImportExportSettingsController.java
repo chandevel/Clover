@@ -48,6 +48,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImportExportSettingsController
@@ -297,7 +298,7 @@ public class ImportExportSettingsController
     public void onSuccess(ImportExportRepository.ImportExport importExport) {
         // called on background thread
         if (context instanceof StartActivity) {
-            AndroidUtils.runOnUiThread(() -> {
+            runOnUiThread(() -> {
                 if (importExport == ImportExportRepository.ImportExport.Import) {
                     ((StartActivity) context).restartApp();
                 } else {
@@ -315,7 +316,7 @@ public class ImportExportSettingsController
     @Override
     public void onError(String message) {
         // may be called on background thread
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             clearAllChildControllers();
             showToast(message, Toast.LENGTH_LONG);
         });

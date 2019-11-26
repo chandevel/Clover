@@ -61,6 +61,8 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 /**
@@ -101,7 +103,7 @@ public class UpdateManager {
 
             final Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             button.setEnabled(false);
-            AndroidUtils.runOnUiThread(() -> {
+            runOnUiThread(() -> {
                 dialog.setCanceledOnTouchOutside(true);
                 button.setEnabled(true);
             }, 1500);
@@ -335,7 +337,7 @@ public class UpdateManager {
         StrictMode.VmPolicy vmPolicy = StrictMode.getVmPolicy();
         StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
 
-        AndroidUtils.openIntent(intent);
+        openIntent(intent);
 
         StrictMode.setVmPolicy(vmPolicy);
     }

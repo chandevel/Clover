@@ -59,7 +59,6 @@ import com.github.adamantcheese.chan.ui.controller.ViewThreadController;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.callback.FSAFActivityCallbacks;
@@ -76,6 +75,9 @@ import javax.inject.Inject;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getIsOfficial;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 public class StartActivity
         extends AppCompatActivity
@@ -160,8 +162,8 @@ public class StartActivity
                      ".\n----------------------------------------\nEND OF CURRENT RUNTIME MESSAGES\n----------------------------------------\n."
             );
             Logger.e("UNCAUGHT", "Android API Level: " + Build.VERSION.SDK_INT);
-            Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME + " " + (
-                    AndroidUtils.getIsOfficial() ? "Release" : "Development"));
+            Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME
+                    + " " + (getIsOfficial() ? "Release" : "Development"));
             Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
             System.exit(999);
         });
@@ -214,7 +216,7 @@ public class StartActivity
             } else {
                 new AlertDialog.Builder(this)
                         .setMessage(getString(R.string.open_link_not_matched, getApplicationLabel()))
-                        .setPositiveButton(R.string.ok, (dialog, which) -> AndroidUtils.openLink(data.toString()))
+                        .setPositiveButton(R.string.ok, (dialog, which) -> openLink(data.toString()))
                         .show();
             }
         }
@@ -289,7 +291,7 @@ public class StartActivity
 
         ChanSettings.LayoutMode layoutMode = ChanSettings.layoutMode.get();
         if (layoutMode == ChanSettings.LayoutMode.AUTO) {
-            if (AndroidUtils.isTablet(this)) {
+            if (isTablet()) {
                 layoutMode = ChanSettings.LayoutMode.SPLIT;
             } else {
                 layoutMode = ChanSettings.LayoutMode.SLIDE;

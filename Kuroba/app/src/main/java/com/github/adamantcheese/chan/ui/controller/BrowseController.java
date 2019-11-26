@@ -56,6 +56,8 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class BrowseController
@@ -298,9 +300,9 @@ public class BrowseController
             String link = loadable.site.resolvable().desktopUrl(loadable, presenter.getChanThread().getOp());
 
             if (share) {
-                AndroidUtils.shareLink(link);
+                shareLink(link);
             } else {
-                AndroidUtils.openLinkInBrowser((Activity) context, link);
+                openLinkInBrowser((Activity) context, link);
             }
         }
     }

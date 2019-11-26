@@ -63,6 +63,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
 public class FiltersController
         extends Controller
@@ -168,13 +170,13 @@ public class FiltersController
             List<Filter> enabledFilters = filterEngine.getEnabledFilters();
             List<Filter> allFilters = filterEngine.getAllFilters();
             if (enabledFilters.isEmpty()) {
-                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, true));
+                runOnUiThread(() -> setFilters(allFilters, true));
                 enableButton.setImageResource(R.drawable.ic_clear_white_24dp);
             } else if (enabledFilters.size() == allFilters.size()) {
-                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, false));
+                runOnUiThread(() -> setFilters(allFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             } else {
-                AndroidUtils.runOnUiThread(() -> setFilters(enabledFilters, false));
+                runOnUiThread(() -> setFilters(enabledFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
             ThemeHelper.getTheme().applyFabColor(enable);
@@ -221,7 +223,7 @@ public class FiltersController
                                         + "9) Country Code<br>"
                                         + "10) Filename"))
                 .setPositiveButton("Close", null)
-                .setNegativeButton("Open Regex101", (dialog1, which) -> AndroidUtils.openLink("https://regex101.com/"))
+                .setNegativeButton("Open Regex101", (dialog1, which) -> openLink("https://regex101.com/"))
                 .show();
         dialog.setCanceledOnTouchOutside(true);
     }

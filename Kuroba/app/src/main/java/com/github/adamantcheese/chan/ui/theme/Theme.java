@@ -30,6 +30,8 @@ import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+
 /**
  * A Theme<br>
  * Used for setting the toolbar color, and passed around {@link PostParser} to give the spans the correct color.<br>
@@ -115,7 +117,7 @@ public class Theme {
 
     @SuppressWarnings("ResourceType")
     private void resolveSpanColors() {
-        Resources.Theme theme = AndroidUtils.getAppContext().getResources().newTheme();
+        Resources.Theme theme = getRes().newTheme();
         theme.applyStyle(R.style.Chan_Theme, true);
         theme.applyStyle(resValue, true);
 

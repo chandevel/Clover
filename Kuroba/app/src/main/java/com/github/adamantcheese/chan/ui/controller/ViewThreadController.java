@@ -72,6 +72,8 @@ import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ViewThreadController
@@ -296,7 +298,7 @@ public class ViewThreadController
         Loadable loadable = threadLayout.getPresenter().getLoadable();
         String link = loadable.site.resolvable()
                                    .desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
-        AndroidUtils.openLinkInBrowser((Activity) context, link);
+        openLinkInBrowser((Activity) context, link);
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
@@ -308,7 +310,7 @@ public class ViewThreadController
         Loadable loadable = threadLayout.getPresenter().getLoadable();
         String link = loadable.site.resolvable()
                                    .desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
-        AndroidUtils.shareLink(link);
+        shareLink(link);
     }
 
     private void upClicked(ToolbarMenuSubItem item) {
@@ -751,7 +753,7 @@ public class ViewThreadController
                 .build();
         String link = loadable.site.resolvable().desktopUrl(loadable, tempOP);
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
-        AndroidUtils.openLinkInBrowser((Activity) context, link);
+        openLinkInBrowser((Activity) context, link);
     }
 
     @Override

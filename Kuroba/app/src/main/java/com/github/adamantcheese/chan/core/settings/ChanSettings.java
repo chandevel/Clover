@@ -37,6 +37,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppDir;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -210,11 +213,11 @@ public class ChanSettings {
 
     static {
         try {
-            SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
+            SettingProvider p = new SharedPreferencesSettingProvider(getPreferences());
 
             theme = new StringSetting(p, "preference_theme", "yotsuba");
             layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.class, LayoutMode.AUTO);
-            boolean tablet = AndroidUtils.getRes().getBoolean(R.bool.is_tablet);
+            boolean tablet = getRes().getBoolean(R.bool.is_tablet);
 
             fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
             fontAlternate = new BooleanSetting(p, "preference_font_alternate", false);
@@ -437,7 +440,7 @@ public class ChanSettings {
             localThreadLocation.resetActiveDir();
         }
 
-        File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
+        File file = new File(getAppDir(), sharedPrefsFile);
 
         if (!file.exists()) {
             throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
@@ -478,7 +481,7 @@ public class ChanSettings {
      */
     public static void deserializeFromString(String settings)
             throws IOException {
-        File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
+        File file = new File(getAppDir(), sharedPrefsFile);
 
         if (!file.exists()) {
             // Hack to create the shared_prefs file when it does not exist so that we don't cancel

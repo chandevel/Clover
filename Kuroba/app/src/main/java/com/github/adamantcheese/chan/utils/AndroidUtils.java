@@ -22,6 +22,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -63,6 +64,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
@@ -231,12 +236,12 @@ public class AndroidUtils {
         return drawable;
     }
 
-    public static boolean isTablet(Context context) {
-        return context.getResources().getBoolean(R.bool.is_tablet);
+    public static boolean isTablet() {
+        return getRes().getBoolean(R.bool.is_tablet);
     }
 
-    public static int getDimen(Context context, int dimen) {
-        return context.getResources().getDimensionPixelSize(dimen);
+    public static int getDimen(int dimen) {
+        return getRes().getDimensionPixelSize(dimen);
     }
 
     public static File getAppDir() {
@@ -269,18 +274,12 @@ public class AndroidUtils {
     }
 
     public static void requestKeyboardFocus(final View view) {
-        InputMethodManager inputManager = (InputMethodManager) view
-                .getContext()
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        getInputManager().showSoftInput(view, SHOW_IMPLICIT);
     }
 
     public static void hideKeyboard(View view) {
         if (view != null) {
-            InputMethodManager inputManager = (InputMethodManager) view
-                    .getContext()
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            getInputManager().hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
@@ -288,10 +287,7 @@ public class AndroidUtils {
         view.setFocusable(false);
         view.setFocusableInTouchMode(true);
         if (view.requestFocus()) {
-            InputMethodManager inputManager = (InputMethodManager) view
-                    .getContext()
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+            getInputManager().showSoftInput(view, SHOW_IMPLICIT);
         }
     }
 
@@ -516,5 +512,13 @@ public class AndroidUtils {
 
     public static void showToast(int resId) {
         runOnUiThread(() -> Toast.makeText(application, getString(resId), Toast.LENGTH_SHORT).show());
+    }
+
+    private static InputMethodManager getInputManager() {
+        return (InputMethodManager) application.getSystemService(INPUT_METHOD_SERVICE);
+    }
+
+    public static ClipboardManager getClipboardManager() {
+        return (ClipboardManager) application.getSystemService(CLIPBOARD_SERVICE);
     }
 }

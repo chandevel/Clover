@@ -38,6 +38,8 @@ import com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class LegacyCaptchaLayout
@@ -82,7 +84,7 @@ public class LegacyCaptchaLayout
         input = findViewById(R.id.input);
         input.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                AndroidUtils.hideKeyboard(input);
+                hideKeyboard(input);
                 submitCaptcha();
                 return true;
             }
@@ -143,7 +145,7 @@ public class LegacyCaptchaLayout
     }
 
     private void submitCaptcha() {
-        AndroidUtils.hideKeyboard(this);
+        hideKeyboard(this);
         callback.onAuthenticationComplete(this, challenge, input.getText().toString(), true);
     }
 
@@ -161,7 +163,7 @@ public class LegacyCaptchaLayout
 
         @JavascriptInterface
         public void onCaptchaLoaded(final String imageUrl, final String challenge) {
-            AndroidUtils.runOnUiThread(() -> layout.onCaptchaLoaded(imageUrl, challenge));
+            runOnUiThread(() -> layout.onCaptchaLoaded(imageUrl, challenge));
         }
     }
 }

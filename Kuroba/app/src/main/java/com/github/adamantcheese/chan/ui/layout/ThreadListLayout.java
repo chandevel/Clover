@@ -75,6 +75,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 /**
  * A layout that wraps around a {@link RecyclerView} and a {@link ReplyLayout} to manage showing and replying to posts.
@@ -189,7 +191,7 @@ public class ThreadListLayout
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        int cardWidth = getResources().getDimensionPixelSize(R.dimen.grid_card_width);
+        int cardWidth = getDimen(R.dimen.grid_card_width);
         int gridCountSetting = ChanSettings.boardGridSpanCount.get();
         boolean compactMode;
         if (gridCountSetting > 0) {
@@ -399,7 +401,7 @@ public class ThreadListLayout
             reply.onOpen(open);
             setRecyclerViewPadding();
             if (!open) {
-                AndroidUtils.hideKeyboard(reply);
+                hideKeyboard(reply);
             }
             threadListLayoutCallback.replyLayoutOpen(open);
 
@@ -460,7 +462,7 @@ public class ThreadListLayout
     //android studio doesn't like the nested getQuantityString and messes up, but nothing is wrong
     public void setSearchStatus(String query, boolean setEmptyText, boolean hideKeyboard) {
         if (hideKeyboard) {
-            AndroidUtils.hideKeyboard(this);
+            hideKeyboard(this);
         }
 
         if (setEmptyText) {
@@ -496,8 +498,7 @@ public class ThreadListLayout
                         // PostStubCell does not have grid_card_margin
                         return top.getTop() != toolbarHeight() + dp(1);
                     } else {
-                        return top.getTop()
-                                != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
+                        return top.getTop() != getDimen(R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
                     }
                 }
                 break;
@@ -571,7 +572,7 @@ public class ThreadListLayout
                 recyclerView.scrollToPosition(bottom);
                 // No animation means no animation, wait for the layout to finish and skip all animations
                 final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
-                AndroidUtils.waitForLayout(recyclerView, view -> {
+                waitForLayout(recyclerView, view -> {
                     itemAnimator.endAnimations();
                     return true;
                 });
@@ -590,7 +591,7 @@ public class ThreadListLayout
                 recyclerView.scrollToPosition(scrollPosition);
                 // No animation means no animation, wait for the layout to finish and skip all animations
                 final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
-                AndroidUtils.waitForLayout(recyclerView, view -> {
+                waitForLayout(recyclerView, view -> {
                     itemAnimator.endAnimations();
                     return true;
                 });

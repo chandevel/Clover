@@ -46,7 +46,6 @@ import com.github.adamantcheese.chan.ui.helper.PinHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.AnimationUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -55,6 +54,8 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -95,7 +96,7 @@ public class DrawerAdapter
         downloadIconFilled = context.getDrawable(R.drawable.ic_download_anim1).mutate();
         downloadIconFilled.setTint(Color.GRAY);
 
-        archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
+        archivedIcon = BitmapFactory.decodeResource(getRes(), R.drawable.archived_icon);
     }
 
     public void setPinHighlighted(Pin highlighted) {
@@ -332,8 +333,8 @@ public class DrawerAdapter
             holder.itemView.setBackgroundColor(0x22000000);
             holder.highlighted = true;
         } else if (!highlighted && holder.highlighted) {
-            Drawable attrDrawable = AndroidUtils.getAttrDrawable(holder.itemView.getContext(),
-                                                                 android.R.attr.selectableItemBackground
+            Drawable attrDrawable = getAttrDrawable(holder.itemView.getContext(),
+                                                    android.R.attr.selectableItemBackground
             );
 
             holder.itemView.setBackground(attrDrawable);

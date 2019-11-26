@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
@@ -110,11 +111,12 @@ public class Toolbar
 
         setRoundItemBackground(arrowMenuView);
 
-        int toolbarSize = getResources().getDimensionPixelSize(R.dimen.toolbar_height);
-        FrameLayout.LayoutParams leftButtonContainerLp = new FrameLayout.LayoutParams(toolbarSize,
-                                                                                      FrameLayout.LayoutParams.MATCH_PARENT,
-                                                                                      Gravity.CENTER_VERTICAL
-        );
+        int toolbarSize = getDimen(R.dimen.toolbar_height);
+        FrameLayout.LayoutParams leftButtonContainerLp =
+                new FrameLayout.LayoutParams(toolbarSize,
+                                             FrameLayout.LayoutParams.MATCH_PARENT,
+                                             Gravity.CENTER_VERTICAL
+                );
         leftButtonContainer.addView(arrowMenuView, leftButtonContainerLp);
 
         navigationItemContainer = new ToolbarContainer(getContext());

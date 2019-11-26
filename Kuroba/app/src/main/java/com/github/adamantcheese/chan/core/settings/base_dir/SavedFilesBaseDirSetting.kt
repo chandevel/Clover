@@ -7,6 +7,7 @@ import com.github.adamantcheese.chan.core.settings.IntegerSetting
 import com.github.adamantcheese.chan.core.settings.SettingProvider
 import com.github.adamantcheese.chan.core.settings.StringSetting
 import com.github.adamantcheese.chan.utils.AndroidUtils
+import com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel
 import org.greenrobot.eventbus.EventBus
 import java.io.File
 
@@ -68,7 +69,7 @@ class SavedFilesBaseDirSetting(
         fun getDefaultSaveLocationDir(): String {
             return (Environment.getExternalStorageDirectory().toString()
                     + File.separator
-                    + AndroidUtils.getApplicationLabel()
+                    + getApplicationLabel()
                     + File.separator
                     + FILES_DIR)
         }

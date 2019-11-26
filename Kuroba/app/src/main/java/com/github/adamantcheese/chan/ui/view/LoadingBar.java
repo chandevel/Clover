@@ -25,6 +25,8 @@ import android.view.View;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+
 public class LoadingBar
         extends View {
     private static final float MINIMUM_PROGRESS = 0.1f;
@@ -74,6 +76,6 @@ public class LoadingBar
 
     private void init() {
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(AndroidUtils.getAttrColor(getContext(), R.attr.colorAccent));
+        paint.setColor(getAttrColor(getContext(), R.attr.colorAccent));
     }
 }

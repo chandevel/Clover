@@ -49,6 +49,7 @@ import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.GIFIMAGE
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.OTHER;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class ImageViewerPresenter
         implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
@@ -78,7 +79,7 @@ public class ImageViewerPresenter
         this.callback = callback;
         inject(this);
 
-        AudioManager audioManager = (AudioManager) AndroidUtils.getAppContext().getSystemService(AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) getAppContext().getSystemService(AUDIO_SERVICE);
         muted = ChanSettings.videoDefaultMuted.get() && (
                 ChanSettings.headsetDefaultMuted.get() || !audioManager.isWiredHeadsetOn());
     }

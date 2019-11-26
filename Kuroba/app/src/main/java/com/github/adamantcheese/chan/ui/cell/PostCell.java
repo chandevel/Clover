@@ -86,7 +86,11 @@ import okhttp3.HttpUrl;
 import static android.text.TextUtils.isEmpty;
 import static com.github.adamantcheese.chan.Chan.injector;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getReadableFileSize;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -415,7 +419,7 @@ public class PostCell
                     fileInfo.append(postFileName ? " " : "\n");
                     fileInfo.append(image.extension.toUpperCase());
                     //if -1, linked image, no info
-                    fileInfo.append(image.size == -1 ? "" : " " + AndroidUtils.getReadableFileSize(image.size, false));
+                    fileInfo.append(image.size == -1 ? "" : " " + getReadableFileSize(image.size, false));
                     fileInfo.append(image.size == -1 ? "" : " " + image.imageWidth + "x" + image.imageHeight);
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
@@ -561,10 +565,10 @@ public class PostCell
 
         if (ChanSettings.shiftPostFormat.get() && post.images.size() == 1 && !ChanSettings.textOnly.get()) {
             //display width, we don't care about height here
-            Point displaySize = AndroidUtils.getDisplaySize();
+            Point displaySize = getDisplaySize();
 
             //thumbnail size
-            int thumbnailSize = getResources().getDimensionPixelSize(R.dimen.cell_post_thumbnail_size);
+            int thumbnailSize = getDimen(R.dimen.cell_post_thumbnail_size);
 
             //get the width of the cell for calculations, height we don't need but measure it anyways
             this.measure(MeasureSpec.makeMeasureSpec(
@@ -635,7 +639,7 @@ public class PostCell
                 // The first thumbnail uses thumbnail_view so that the layout can offset to that.
                 final int idToSet = first ? R.id.thumbnail_view : generatedId++;
                 v.setId(idToSet);
-                final int size = getResources().getDimensionPixelSize(R.dimen.cell_post_thumbnail_size);
+                final int size = getDimen(R.dimen.cell_post_thumbnail_size);
 
                 RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(size, size);
                 p.alignWithParent = true;
@@ -850,10 +854,10 @@ public class PostCell
         }
     }
 
-    private static Bitmap stickyIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.sticky_icon);
-    private static Bitmap closedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.closed_icon);
-    private static Bitmap trashIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.trash_icon);
-    private static Bitmap archivedIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.archived_icon);
+    private static Bitmap stickyIcon = BitmapFactory.decodeResource(getRes(), R.drawable.sticky_icon);
+    private static Bitmap closedIcon = BitmapFactory.decodeResource(getRes(), R.drawable.closed_icon);
+    private static Bitmap trashIcon = BitmapFactory.decodeResource(getRes(), R.drawable.trash_icon);
+    private static Bitmap archivedIcon = BitmapFactory.decodeResource(getRes(), R.drawable.archived_icon);
 
     public static class PostIcons
             extends View {

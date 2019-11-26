@@ -75,8 +75,14 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 /**
@@ -168,7 +174,7 @@ public class ThreadLayout
         // Setup
         replyButtonEnabled = ChanSettings.enableReplyFab.get();
         if (!replyButtonEnabled) {
-            AndroidUtils.removeFromParentView(replyButton);
+            removeFromParentView(replyButton);
         } else {
             replyButton.setOnClickListener(this);
             replyButton.setToolbar(callback.getToolbar());
@@ -330,10 +336,8 @@ public class ThreadLayout
     }
 
     public void clipboardPost(Post post) {
-        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext()
-                                                                    .getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Post text", post.comment.toString());
-        clipboard.setPrimaryClip(clip);
+        getClipboardManager().setPrimaryClip(clip);
         showToast(R.string.post_text_copied);
     }
 
@@ -355,7 +359,7 @@ public class ThreadLayout
         if (ChanSettings.openLinkBrowser.get()) {
             AndroidUtils.openLink(link);
         } else {
-            AndroidUtils.openLinkInBrowser((Activity) getContext(), link);
+            openLinkInBrowser((Activity) getContext(), link);
         }
     }
 
@@ -382,7 +386,7 @@ public class ThreadLayout
     public void showPostsPopup(Post forPost, List<Post> posts) {
         if (this.getFocusedChild() != null) {
             View currentFocus = this.getFocusedChild();
-            AndroidUtils.hideKeyboard(currentFocus);
+            hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
         postPopupHelper.showPosts(forPost, posts);
@@ -411,7 +415,7 @@ public class ThreadLayout
     public void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail) {
         if (this.getFocusedChild() != null) {
             View currentFocus = this.getFocusedChild();
-            AndroidUtils.hideKeyboard(currentFocus);
+            hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
         callback.showImages(images, index, loadable, thumbnail);
@@ -633,7 +637,7 @@ public class ThreadLayout
     public void showImageReencodingWindow(Loadable loadable, boolean supportsReencode) {
         if (this.getFocusedChild() != null) {
             View currentFocus = this.getFocusedChild();
-            AndroidUtils.hideKeyboard(currentFocus);
+            hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
         imageReencodingHelper.showController(loadable, supportsReencode);
@@ -756,15 +760,6 @@ public class ThreadLayout
 
     public void presentRemovedPostsController(Controller controller) {
         callback.presentController(controller);
-    }
-
-    @Override
-    public void noRemovedPostsFoundForThisThread() {
-        // called on background thread
-
-        AndroidUtils.runOnUiThread(() -> Toast
-                .makeText(getContext(), getString(R.string.no_removed_posts_for_current_thread), Toast.LENGTH_SHORT)
-                .show());
     }
 
     @Override

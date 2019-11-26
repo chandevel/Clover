@@ -64,6 +64,7 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -344,9 +345,7 @@ public class ThemeSettingsController
 
             linearLayout.addView(toolbar,
                                  new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                                                               themeContext
-                                                                       .getResources()
-                                                                       .getDimensionPixelSize(R.dimen.toolbar_height)
+                                                               getDimen(R.dimen.toolbar_height)
                                  )
             );
 

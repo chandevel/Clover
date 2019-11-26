@@ -76,7 +76,9 @@ import pl.droidsonroids.gif.GifImageView;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
 
 public class MultiImageView
         extends FrameLayout
@@ -188,7 +190,7 @@ public class MultiImageView
 
     public void setMode(Loadable loadable, final Mode newMode, boolean center) {
         this.mode = newMode;
-        AndroidUtils.waitForMeasure(this, view -> {
+        waitForMeasure(this, view -> {
             switch (newMode) {
                 case LOWRES:
                     setThumbnail(loadable, postImage, center);
@@ -496,7 +498,7 @@ public class MultiImageView
 
             intent.setDataAndType(uriForFile, "video/*");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            AndroidUtils.openIntent(intent);
+            openIntent(intent);
 
             onModeLoaded(Mode.VIDEO, null);
         } else {

@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 
 public class RuntimePermissionsHelper {
     private static final int RUNTIME_PERMISSION_RESULT_ID = 3;
@@ -98,7 +99,7 @@ public class RuntimePermissionsHelper {
                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                                Uri.parse("package:" + context.getPackageName())
                     );
-                    AndroidUtils.openIntent(intent);
+                    openIntent(intent);
                 })
                 .setPositiveButton(R.string.permission_grant, (dialog, which) -> callback.retryPermissionRequest())
                 .show();

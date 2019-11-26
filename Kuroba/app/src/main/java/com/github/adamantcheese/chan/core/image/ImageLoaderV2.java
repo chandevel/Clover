@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
+
 public class ImageLoaderV2 {
     private static final String TAG = "ImageLoaderV2";
 
@@ -142,7 +144,7 @@ public class ImageLoaderV2 {
                     Logger.w(TAG, "Base saved files directory does not exist");
 
                     if (imageListener != null && callback != null) {
-                        AndroidUtils.runOnUiThread(() -> {
+                        runOnUiThread(() -> {
                             imageListener.onResponse(callback.onLocalImageDoesNotExist(), true);
                         });
                     }
@@ -170,7 +172,7 @@ public class ImageLoaderV2 {
                     Logger.d(TAG, "Local image does not exist (or is inaccessible)");
 
                     if (imageListener != null && callback != null) {
-                        AndroidUtils.runOnUiThread(() -> {
+                        runOnUiThread(() -> {
                             imageListener.onResponse(callback.onLocalImageDoesNotExist(), true);
                         });
                     }
@@ -213,7 +215,7 @@ public class ImageLoaderV2 {
                 Logger.e(TAG, "Error while trying to load a local image", e);
 
                 if (imageListener != null && callback != null) {
-                    AndroidUtils.runOnUiThread(() -> {
+                    runOnUiThread(() -> {
                         imageListener.onResponse(callback.onLocalImageDoesNotExist(), true);
                     });
                 }

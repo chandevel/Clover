@@ -81,6 +81,8 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.requestViewAndKeyboardFocus;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -202,7 +204,7 @@ public class ReplyLayout
         comment.setSelectionChangedListener(this);
         comment.setOnFocusChangeListener((view, focused) -> {
             if (!focused)
-                AndroidUtils.hideKeyboard(comment);
+                hideKeyboard(comment);
         });
         setupCommentContextMenu();
 
@@ -389,7 +391,7 @@ public class ReplyLayout
         }
 
         if (!(authenticationLayout instanceof LegacyCaptchaLayout)) {
-            AndroidUtils.hideKeyboard(this);
+            hideKeyboard(this);
         }
 
         authenticationLayout.initialize(site, callback, autoReply);
@@ -565,7 +567,7 @@ public class ReplyLayout
         //this is a hack to make sure text is selectable
         comment.setEnabled(false);
         comment.setEnabled(true);
-        comment.post(() -> AndroidUtils.requestViewAndKeyboardFocus(comment));
+        comment.post(() -> requestViewAndKeyboardFocus(comment));
     }
 
     @Override

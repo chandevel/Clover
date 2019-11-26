@@ -265,9 +265,9 @@ public class ImageSaver
                     location = locationFile.getFullPath();
                 }
 
-                text = getAppContext().getString(R.string.album_download_success, location);
+                text = getString(R.string.album_download_success, location);
             } else {
-                text = getAppContext().getString(R.string.image_save_as, fileManager.getName(task.getDestination()));
+                text = getString(R.string.image_save_as, fileManager.getName(task.getDestination()));
             }
         } else {
             text = getString(R.string.image_save_failed);

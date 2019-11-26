@@ -28,6 +28,8 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
+
 public class GenericWebViewAuthenticationLayout
         extends WebView
         implements AuthenticationLayoutInterface {
@@ -151,7 +153,7 @@ public class GenericWebViewAuthenticationLayout
 
         @JavascriptInterface
         public void onAllText(String text) {
-            AndroidUtils.runOnUiThread(() -> layout.onAllText(text));
+            runOnUiThread(() -> layout.onAllText(text));
         }
     }
 }

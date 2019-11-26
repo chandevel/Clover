@@ -54,6 +54,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2_NOJS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class CaptchaNoJsLayoutV2
@@ -159,7 +160,7 @@ public class CaptchaNoJsLayoutV2
 
     @Override
     public void onCaptchaInfoParsed(CaptchaInfo captchaInfo) {
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             captchaVerifyButton.setEnabled(true);
             renderCaptchaWindow(captchaInfo);
         });
@@ -167,7 +168,7 @@ public class CaptchaNoJsLayoutV2
 
     @Override
     public void onVerificationDone(String verificationToken) {
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             captchaHolder.addNewToken(verificationToken, RECAPTCHA_TOKEN_LIVE_TIME);
 
             String token;
@@ -186,7 +187,7 @@ public class CaptchaNoJsLayoutV2
     // Called when we got response from re-captcha but could not parse some part of it
     @Override
     public void onCaptchaInfoParseError(Throwable error) {
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             Logger.e(TAG, "CaptchaV2 error", error);
             showToast(error.getMessage(), Toast.LENGTH_LONG);
             captchaVerifyButton.setEnabled(true);

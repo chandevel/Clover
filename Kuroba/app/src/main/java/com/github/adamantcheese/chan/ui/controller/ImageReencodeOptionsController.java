@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.animateStatusBar;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ImageReencodeOptionsController
@@ -139,7 +140,7 @@ public class ImageReencodeOptionsController
 
         statusBarColorPrevious = getWindow().getStatusBarColor();
         if (statusBarColorPrevious != 0) {
-            AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
 
         currentImageReduce.setText(getString(R.string.scale_reduce,
@@ -189,7 +190,7 @@ public class ImageReencodeOptionsController
         super.stopPresenting();
 
         if (statusBarColorPrevious != 0) {
-            AndroidUtils.animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 

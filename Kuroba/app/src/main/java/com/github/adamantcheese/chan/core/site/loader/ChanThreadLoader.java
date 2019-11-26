@@ -62,6 +62,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
 
 /**
  * A ChanThreadLoader is the loader for Loadables.
@@ -302,7 +303,7 @@ public class ChanThreadLoader
         int watchTimeout = WATCH_TIMEOUTS[currentTimeout];
         Logger.d(TAG, "Scheduled reload in " + watchTimeout + "s");
 
-        pendingFuture = executor.schedule(() -> AndroidUtils.runOnUiThread(() -> {
+        pendingFuture = executor.schedule(() -> runOnUiThread(() -> {
             pendingFuture = null;
             requestMoreData();
         }), watchTimeout, TimeUnit.SECONDS);
@@ -412,7 +413,7 @@ public class ChanThreadLoader
             // Update SavedThread info in the database and in the watchManager.
             // Set isFullyDownloaded and isStopped to true so we can stop downloading it and stop
             // showing the download thread animated icon.
-            AndroidUtils.runOnUiThread(() -> {
+            runOnUiThread(() -> {
                 if (savedThread != null && !savedThread.isFullyDownloaded) {
                     updateThreadAsDownloaded(archived, chanThread, savedThread);
                 }
@@ -517,7 +518,7 @@ public class ChanThreadLoader
             currentTimeout = Math.min(currentTimeout + 1, WATCH_TIMEOUTS.length - 1);
         }
 
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             for (ChanLoaderCallback l : listeners) {
                 l.onChanLoaderData(thread);
             }

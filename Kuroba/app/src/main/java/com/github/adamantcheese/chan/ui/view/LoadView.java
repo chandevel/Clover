@@ -32,6 +32,8 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
+
 /**
  * Container for a view with an ProgressBar. Toggles between the view and a
  * ProgressBar.
@@ -125,7 +127,7 @@ public class LoadView
 
             if (newView.getParent() != this) {
                 if (newView.getParent() != null) {
-                    AndroidUtils.removeFromParentView(newView);
+                    removeFromParentView(newView);
                 }
                 addView(newView);
             }

@@ -17,6 +17,8 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.animateViewScale;
+
 public class CaptchaNoJsV2Adapter
         extends BaseAdapter {
     private static final int ANIMATION_DURATION = 50;
@@ -73,7 +75,7 @@ public class CaptchaNoJsV2Adapter
                 imageList.get(position).toggleChecked();
                 boolean isChecked = imageList.get(position).isChecked;
 
-                AndroidUtils.animateViewScale(imageView, isChecked, ANIMATION_DURATION);
+                animateViewScale(imageView, isChecked, ANIMATION_DURATION);
                 blueCheckmarkHolder.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             });
 
