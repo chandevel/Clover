@@ -238,33 +238,25 @@ public class CommentParserHelper {
 
     public static String getRepeatDigits(int no) {
         String number = String.valueOf(no);
-        if (dubsPattern.matcher(number).find()) {
-            return "Dubs";
-        }
-        if (tripsPattern.matcher(number).find()) {
-            return "Trips";
-        }
-        if (quadsPattern.matcher(number).find()) {
-            return "Quads";
-        }
-        if (quintsPattern.matcher(number).find()) {
-            return "Quints";
-        }
-        if (hexesPattern.matcher(number).find()) {
-            return "Sexes";
-        }
-        if (septsPattern.matcher(number).find()) {
-            return "Septs";
-        }
-        if (octsPattern.matcher(number).find()) {
-            return "Octs";
-        }
-        if (nonsPattern.matcher(number).find()) {
-            return "Nons";
-        }
-        if (decsPattern.matcher(number).find()) {
+        //inverted order to match largest to smallest, otherwise will always match smallest
+        if (decsPattern.matcher(number).find())
             return "Decs";
-        }
+        if (nonsPattern.matcher(number).find())
+            return "Nons";
+        if (octsPattern.matcher(number).find())
+            return "Octs";
+        if (septsPattern.matcher(number).find())
+            return "Septs";
+        if (hexesPattern.matcher(number).find())
+            return "Sexes";
+        if (quintsPattern.matcher(number).find())
+            return "Quints";
+        if (quadsPattern.matcher(number).find())
+            return "Quads";
+        if (tripsPattern.matcher(number).find())
+            return "Trips";
+        if (dubsPattern.matcher(number).find())
+            return "Dubs";
         return null;
     }
 }
