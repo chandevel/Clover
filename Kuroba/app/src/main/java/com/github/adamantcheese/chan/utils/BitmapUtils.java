@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -23,6 +24,11 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Random;
 
+import static android.graphics.Bitmap.CompressFormat.JPEG;
+import static android.graphics.Bitmap.CompressFormat.PNG;
+import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_IS;
+import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_JPEG;
+import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_PNG;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class BitmapUtils {
@@ -50,7 +56,7 @@ public class BitmapUtils {
             throws IOException {
         int quality = MAX_QUALITY;
         int reduce = MIN_REDUCE;
-        ImageReencodingPresenter.ReencodeType reencodeType = ImageReencodingPresenter.ReencodeType.AS_IS;
+        ImageReencodingPresenter.ReencodeType reencodeType = AS_IS;
 
         if (reencodeSettings != null) {
             quality = reencodeSettings.getReencodeQuality();
@@ -76,19 +82,19 @@ public class BitmapUtils {
 
         //all parameters are default - do nothing
         if (quality == MAX_QUALITY && reduce == MIN_REDUCE
-                && reencodeType == ImageReencodingPresenter.ReencodeType.AS_IS && !fixExif && !removeMetadata
+                && reencodeType == AS_IS && !fixExif && !removeMetadata
                 && !changeImageChecksum)
         {
             return inputBitmapFile;
         }
 
         Bitmap bitmap = null;
-        Bitmap.CompressFormat compressFormat = getImageFormat(inputBitmapFile);
+        CompressFormat compressFormat = getImageFormat(inputBitmapFile);
 
-        if (reencodeType == ImageReencodingPresenter.ReencodeType.AS_JPEG) {
-            compressFormat = Bitmap.CompressFormat.JPEG;
-        } else if (reencodeType == ImageReencodingPresenter.ReencodeType.AS_PNG) {
-            compressFormat = Bitmap.CompressFormat.PNG;
+        if (reencodeType == AS_JPEG) {
+            compressFormat = JPEG;
+        } else if (reencodeType == AS_PNG) {
+            compressFormat = PNG;
         }
 
         try {
@@ -110,7 +116,7 @@ public class BitmapUtils {
             }
 
             //fix exif
-            if (compressFormat == Bitmap.CompressFormat.JPEG && fixExif) {
+            if (compressFormat == JPEG && fixExif) {
                 ExifInterface exif = new ExifInterface(inputBitmapFile.getAbsolutePath());
                 int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                                                        ExifInterface.ORIENTATION_UNDEFINED
@@ -206,15 +212,15 @@ public class BitmapUtils {
 
     public static boolean isFileSupportedForReencoding(File file) {
         try {
-            Bitmap.CompressFormat imageFormat = getImageFormat(file);
-            return imageFormat == Bitmap.CompressFormat.JPEG || imageFormat == Bitmap.CompressFormat.PNG;
+            CompressFormat imageFormat = getImageFormat(file);
+            return imageFormat == JPEG || imageFormat == PNG;
         } catch (IOException e) {
             // ignore
             return false;
         }
     }
 
-    public static Bitmap.CompressFormat getImageFormat(File file)
+    public static CompressFormat getImageFormat(File file)
             throws IOException {
         if (!file.exists() || !file.isFile() || !file.canRead()) {
             throw new IOException(
@@ -238,7 +244,7 @@ public class BitmapUtils {
                 }
 
                 if (isPngHeader) {
-                    return Bitmap.CompressFormat.PNG;
+                    return PNG;
                 }
             }
 
@@ -254,7 +260,7 @@ public class BitmapUtils {
                 }
 
                 if (isJpegHeader) {
-                    return Bitmap.CompressFormat.JPEG;
+                    return JPEG;
                 }
             }
 

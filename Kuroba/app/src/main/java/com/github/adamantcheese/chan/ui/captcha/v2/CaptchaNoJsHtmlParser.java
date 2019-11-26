@@ -44,6 +44,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static com.github.adamantcheese.chan.ui.captcha.v2.CaptchaInfo.CaptchaType.UNKNOWN;
+
 public class CaptchaNoJsHtmlParser {
     private static final String TAG = "CaptchaNoJsHtmlParser";
     private static final String googleBaseUrl = "https://www.google.com";
@@ -281,7 +283,7 @@ public class CaptchaNoJsHtmlParser {
             throw error;
         }
 
-        if (captchaType == CaptchaInfo.CaptchaType.UNKNOWN) {
+        if (captchaType == UNKNOWN) {
             throw new CaptchaNoJsV2ParsingError("Unknown captcha type");
         }
 

@@ -29,7 +29,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Lifecycle;
@@ -86,8 +85,8 @@ public class MultiImageView
         UNLOADED,
         LOWRES,
         BIGIMAGE,
-        GIF,
-        MOVIE,
+        GIFIMAGE,
+        VIDEO,
         OTHER
     }
 
@@ -197,10 +196,10 @@ public class MultiImageView
                 case BIGIMAGE:
                     setBigImage(loadable, postImage);
                     break;
-                case GIF:
+                case GIFIMAGE:
                     setGif(loadable, postImage);
                     break;
-                case MOVIE:
+                case VIDEO:
                     setVideo(loadable, postImage);
                     break;
                 case OTHER:
@@ -386,7 +385,7 @@ public class MultiImageView
             public void onSuccess(RawFile file) {
                 BackgroundUtils.ensureMainThread();
 
-                if (!hasContent || mode == Mode.GIF) {
+                if (!hasContent || mode == Mode.GIFIMAGE) {
                     setGifFile(new File(file.getFullPath()));
                 }
             }
@@ -422,7 +421,7 @@ public class MultiImageView
             // have to use the more memory intensive non tiling mode.
             if (drawable.getNumberOfFrames() == 1) {
                 drawable.recycle();
-                setBitImageFileInternal(file, false, Mode.GIF);
+                setBitImageFileInternal(file, false, Mode.GIFIMAGE);
                 return;
             }
         } catch (IOException e) {
@@ -440,7 +439,7 @@ public class MultiImageView
         view.setImageDrawable(drawable);
         view.setOnClickListener(null);
         view.setOnTouchListener((view1, motionEvent) -> gifDoubleTapDetector.onTouchEvent(motionEvent));
-        onModeLoaded(Mode.GIF, view);
+        onModeLoaded(Mode.GIFIMAGE, view);
     }
 
     private void setVideo(Loadable loadable, PostImage postImage) {
@@ -463,7 +462,7 @@ public class MultiImageView
             public void onSuccess(RawFile file) {
                 BackgroundUtils.ensureMainThread();
 
-                if (!hasContent || mode == Mode.MOVIE) {
+                if (!hasContent || mode == Mode.VIDEO) {
                     setVideoFile(new File(file.getFullPath()));
                 }
             }
@@ -499,7 +498,7 @@ public class MultiImageView
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             AndroidUtils.openIntent(intent);
 
-            onModeLoaded(Mode.MOVIE, null);
+            onModeLoaded(Mode.VIDEO, null);
         } else {
             PlayerView exoVideoView = new PlayerView(getContext());
             exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
@@ -517,7 +516,7 @@ public class MultiImageView
 
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
-            onModeLoaded(Mode.MOVIE, exoVideoView);
+            onModeLoaded(Mode.VIDEO, exoVideoView);
             callback.onVideoLoaded(this);
         }
     }

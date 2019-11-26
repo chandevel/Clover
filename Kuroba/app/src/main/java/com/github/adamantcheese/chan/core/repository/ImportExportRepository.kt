@@ -23,6 +23,8 @@ import com.github.adamantcheese.chan.core.database.DatabaseManager
 import com.github.adamantcheese.chan.core.model.export.*
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig
 import com.github.adamantcheese.chan.core.model.orm.*
+import com.github.adamantcheese.chan.core.repository.ImportExportRepository.ImportExport.Export
+import com.github.adamantcheese.chan.core.repository.ImportExportRepository.ImportExport.Import
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileManager
@@ -50,7 +52,7 @@ constructor(
             try {
                 val appSettings = readSettingsFromDatabase()
                 if (appSettings.isEmpty) {
-                    callbacks.onNothingToImportExport(ImportExport.Export)
+                    callbacks.onNothingToImportExport(Export)
                     return@runTask
                 }
 
@@ -78,14 +80,14 @@ constructor(
                     }
 
                     Logger.d(TAG, "Exporting done!")
-                    callbacks.onSuccess(ImportExport.Export)
+                    callbacks.onSuccess(Export)
                 }
 
             } catch (error: Throwable) {
                 Logger.e(TAG, "Error while trying to export settings", error)
 
                 deleteExportFile(settingsFile)
-                callbacks.onError(error, ImportExport.Export)
+                callbacks.onError(error, Export)
             }
         }
     }
@@ -96,7 +98,7 @@ constructor(
                 if (!fileManager.exists(settingsFile)) {
                     Logger.i(TAG, "There is nothing to import, importFile does not exist "
                             + settingsFile.getFullPath())
-                    callbacks.onNothingToImportExport(ImportExport.Import)
+                    callbacks.onNothingToImportExport(Import)
                     return@runTask
                 }
 
@@ -116,20 +118,20 @@ constructor(
 
                         if (appSettings.isEmpty) {
                             Logger.i(TAG, "There is nothing to import, appSettings is empty")
-                            callbacks.onNothingToImportExport(ImportExport.Import)
+                            callbacks.onNothingToImportExport(Import)
                             return@use
                         }
 
                         writeSettingsToDatabase(appSettings)
 
                         Logger.d(TAG, "Importing done!")
-                        callbacks.onSuccess(ImportExport.Import)
+                        callbacks.onSuccess(Import)
                     }
                 }
 
             } catch (error: Throwable) {
                 Logger.e(TAG, "Error while trying to import settings", error)
-                callbacks.onError(error, ImportExport.Import)
+                callbacks.onError(error, Import)
             }
         }
     }

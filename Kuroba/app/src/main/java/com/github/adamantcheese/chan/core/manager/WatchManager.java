@@ -61,6 +61,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.BACKGROUND;
+import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.FOREGROUND;
+import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.NONE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.isInForeground;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -130,7 +133,7 @@ public class WatchManager
     private final PageRequestManager pageRequestManager;
     private final ThreadSaveManager threadSaveManager;
 
-    private IntervalType currentInterval = IntervalType.NONE;
+    private IntervalType currentInterval = NONE;
 
     private final List<Pin> pins;
     private final List<SavedThread> savedThreads;
@@ -728,15 +731,15 @@ public class WatchManager
         //determine expected interval type for current settings
         IntervalType newInterval;
         if (!watchEnabled) {
-            newInterval = IntervalType.NONE;
+            newInterval = NONE;
         } else {
             if (isInForeground()) {
-                newInterval = IntervalType.FOREGROUND;
+                newInterval = FOREGROUND;
             } else {
                 if (backgroundEnabled) {
-                    newInterval = IntervalType.BACKGROUND;
+                    newInterval = BACKGROUND;
                 } else {
-                    newInterval = IntervalType.NONE;
+                    newInterval = NONE;
                 }
             }
         }
@@ -896,7 +899,7 @@ public class WatchManager
     private void update(boolean fromBackground) {
         Logger.d(TAG, "update() from " + (fromBackground ? "background" : "foreground"));
 
-        if (currentInterval == IntervalType.FOREGROUND) {
+        if (currentInterval == FOREGROUND) {
             // reschedule handler message
             handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), getInterval());
         }

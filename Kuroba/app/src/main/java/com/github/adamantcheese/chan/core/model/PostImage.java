@@ -20,6 +20,11 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.PDF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
+
 public class PostImage {
     public enum Type {
         STATIC,
@@ -55,17 +60,17 @@ public class PostImage {
 
         switch (extension) {
             case "gif":
-                type = Type.GIF;
+                type = GIF;
                 break;
             case "webm":
             case "mp4":
-                type = Type.MOVIE;
+                type = MOVIE;
                 break;
             case "pdf":
-                type = Type.PDF;
+                type = PDF;
                 break;
             default:
-                type = Type.STATIC;
+                type = STATIC;
                 break;
         }
     }

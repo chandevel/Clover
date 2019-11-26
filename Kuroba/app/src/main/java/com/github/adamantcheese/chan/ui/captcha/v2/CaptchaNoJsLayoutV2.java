@@ -52,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2_NOJS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -121,7 +122,7 @@ public class CaptchaNoJsLayoutV2
         this.isAutoReply = autoReply;
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
-        if (authentication.type != SiteAuthentication.Type.CAPTCHA2_NOJS) {
+        if (authentication.type != CAPTCHA2_NOJS) {
             callback.onFallbackToV1CaptchaView(isAutoReply);
             return;
         }

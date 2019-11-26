@@ -62,6 +62,8 @@ import java.util.Random;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
+import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2NOJS;
+
 public class Chan4
         extends SiteBase {
     public static final SiteUrlHandler URL_HANDLER = new SiteUrlHandler() {
@@ -520,7 +522,7 @@ public class Chan4
         captchaType = new OptionsSetting<>(settingsProvider,
                                            "preference_captcha_type",
                                            CaptchaType.class,
-                                           CaptchaType.V2NOJS
+                                           V2NOJS
         );
     }
 

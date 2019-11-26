@@ -30,6 +30,8 @@ import java.util.Map;
 
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2JS;
+
 public class Dvach
         extends CommonSite {
     private static final String TAG = "Dvach";
@@ -77,7 +79,7 @@ public class Dvach
         captchaType = new OptionsSetting<>(settingsProvider,
                                            "preference_captcha_type",
                                            Chan4.CaptchaType.class,
-                                           Chan4.CaptchaType.V2JS
+                                           V2JS
         );
     }
 

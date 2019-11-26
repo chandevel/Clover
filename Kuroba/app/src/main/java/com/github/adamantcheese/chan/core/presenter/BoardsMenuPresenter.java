@@ -31,6 +31,10 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.BOARD;
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SEARCH;
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SITE;
+
 public class BoardsMenuPresenter
         implements Observer {
     private BoardRepository.SitesBoards allBoards;
@@ -91,7 +95,7 @@ public class BoardsMenuPresenter
         public void update(List<BoardRepository.SiteBoards> allBoards, String filter) {
             items.clear();
 
-            items.add(new Item(0, Item.Type.SEARCH));
+            items.add(new Item(0, SEARCH));
 
             for (BoardRepository.SiteBoards siteAndBoards : allBoards) {
                 Site site = siteAndBoards.site;
@@ -165,13 +169,13 @@ public class BoardsMenuPresenter
 
         public Item(int id, Board board) {
             this.id = id;
-            type = Type.BOARD;
+            type = BOARD;
             this.board = board;
         }
 
         public Item(int id, Site site) {
             this.id = id;
-            type = Type.SITE;
+            type = SITE;
             this.site = site;
         }
     }

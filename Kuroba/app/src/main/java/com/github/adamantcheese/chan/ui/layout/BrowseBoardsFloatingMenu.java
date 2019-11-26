@@ -64,6 +64,9 @@ import javax.inject.Inject;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.BOARD;
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SEARCH;
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SITE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
@@ -346,11 +349,11 @@ public class BrowseBoardsFloatingMenu
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            if (viewType == Item.Type.SEARCH.typeId) {
+            if (viewType == SEARCH.typeId) {
                 return new InputViewHolder(inflater.inflate(R.layout.cell_browse_input, parent, false));
-            } else if (viewType == Item.Type.SITE.typeId) {
+            } else if (viewType == SITE.typeId) {
                 return new SiteViewHolder(inflater.inflate(R.layout.cell_browse_site, parent, false));
-            } else if (viewType == Item.Type.BOARD.typeId) {
+            } else if (viewType == BOARD.typeId) {
                 return new BoardViewHolder(inflater.inflate(R.layout.cell_browse_board, parent, false));
             } else {
                 throw new IllegalArgumentException();

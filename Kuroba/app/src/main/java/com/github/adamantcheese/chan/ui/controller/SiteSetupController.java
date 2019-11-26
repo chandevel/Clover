@@ -36,6 +36,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -105,7 +106,7 @@ public class SiteSetupController
         SettingsGroup group = new SettingsGroup("Additional settings");
 
         for (SiteSetting setting : settings) {
-            if (setting.type == SiteSetting.Type.OPTIONS) {
+            if (setting.type == OPTIONS) {
 
                 // Turn the SiteSetting for a list of options into a proper setting with a
                 // name and a list of options, both given in the SiteSetting.

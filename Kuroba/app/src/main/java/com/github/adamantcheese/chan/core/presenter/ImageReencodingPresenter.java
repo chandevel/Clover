@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.presenter;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Pair;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -42,8 +41,9 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_IS;
+import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_JPEG;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -174,7 +174,7 @@ public class ImageReencodingPresenter {
         if (imageOptions.getRemoveFilename() && !imageOptions.getFixExif() && !imageOptions.getRemoveMetadata()
                 && !imageOptions.getChangeImageChecksum() && imageOptions.getReencodeSettings() == null)
         {
-            reply.fileName = getNewImageName(reply.fileName, ReencodeType.AS_IS);
+            reply.fileName = getNewImageName(reply.fileName, AS_IS);
             callback.onImageOptionsApplied(reply, true);
             return;
         }
@@ -188,7 +188,7 @@ public class ImageReencodingPresenter {
                     reply.fileName = getNewImageName(reply.fileName,
                                                      imageOptions.reencodeSettings != null
                                                              ? imageOptions.reencodeSettings.reencodeType
-                                                             : ReencodeType.AS_IS
+                                                             : AS_IS
                     );
                 }
 
@@ -341,7 +341,7 @@ public class ImageReencodingPresenter {
         }
 
         public boolean isDefault() {
-            return reencodeType == ReencodeType.AS_IS && reencodeQuality == 100 && reducePercent == 0;
+            return reencodeType == AS_IS && reencodeQuality == 100 && reducePercent == 0;
         }
 
         @Override
@@ -364,10 +364,8 @@ public class ImageReencodingPresenter {
                     break;
             }
             return "(" + type + ", " + (
-                    reencodeType == ReencodeType.AS_JPEG || (
-                            reencodeType == ReencodeType.AS_IS && currentFormat == Bitmap.CompressFormat.JPEG) ?
-                            reencodeQuality + ", " : "") + (
-                    100 - reducePercent) + "%)";
+                    reencodeType == AS_JPEG || (reencodeType == AS_IS && currentFormat == Bitmap.CompressFormat.JPEG) ?
+                            reencodeQuality + ", " : "") + (100 - reducePercent) + "%)";
         }
     }
 
