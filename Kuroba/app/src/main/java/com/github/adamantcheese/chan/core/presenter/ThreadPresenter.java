@@ -920,8 +920,20 @@ public class ThreadPresenter
                 SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(post.board.site, post.board, post.no, "");
                 if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
                     databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().unsaveReply(savedReply));
+                    Pin watchedPin = watchManager.getPinByLoadable(loadable);
+                    if (watchedPin != null) {
+                        synchronized (this) {
+                            watchedPin.quoteLastCount -= post.repliesFrom.size();
+                        }
+                    }
                 } else {
                     databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
+                    Pin watchedPin = watchManager.getPinByLoadable(loadable);
+                    if (watchedPin != null) {
+                        synchronized (this) {
+                            watchedPin.quoteLastCount += post.repliesFrom.size();
+                        }
+                    }
                 }
                 //force reload for reply highlighting
                 requestData();
