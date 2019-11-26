@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.net;
 
+import android.os.Build;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.JsonReader;
@@ -86,8 +87,16 @@ public class UpdateApiRequest
                     reader.endArray();
                     break;
                 case "body":
-                    Node updateLog = Parser.builder().build().parse(reader.nextString());
-                    response.body = Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        Node updateLog = Parser.builder().build().parse(reader.nextString());
+                        response.body = Html.fromHtml(
+                                "Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog));
+                    } else {
+                        response.body = Html.fromHtml("Changelog:\r\nSee the release on Github for details!\r\n"
+                                                              + " Your Android API is too low to properly render"
+                                                              + " the changelog from the site, as a result of "
+                                                              + "libraries used on the project.");
+                    }
                     break;
                 default:
                     reader.skipValue();
