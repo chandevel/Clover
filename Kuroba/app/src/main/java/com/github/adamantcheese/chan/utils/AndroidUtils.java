@@ -135,7 +135,7 @@ public class AndroidUtils {
 
         ComponentName resolvedActivity = intent.resolveActivity(pm);
         if (resolvedActivity == null) {
-            openIntentFailed();
+            showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
         } else {
             boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(application.getPackageName());
             if (!thisAppIsDefault) {
@@ -158,7 +158,7 @@ public class AndroidUtils {
                     chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, filteredIntents.toArray(new Intent[0]));
                     openIntent(chooser);
                 } else {
-                    openIntentFailed();
+                    showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
                 }
             }
         }
@@ -185,7 +185,7 @@ public class AndroidUtils {
                 tabsIntent.launchUrl(activity, Uri.parse(link));
             } catch (ActivityNotFoundException e) {
                 // Can't check it beforehand so catch the exception
-                openIntentFailed();
+                showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
             }
         } else {
             openLink(link);
@@ -205,12 +205,8 @@ public class AndroidUtils {
         if (intent.resolveActivity(application.getPackageManager()) != null) {
             application.startActivity(intent);
         } else {
-            openIntentFailed();
+            showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
         }
-    }
-
-    private static void openIntentFailed() {
-        Toast.makeText(application, R.string.open_link_failed, Toast.LENGTH_LONG).show();
     }
 
     public static int getAttrColor(Context context, int attr) {

@@ -78,6 +78,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getIsOfficial;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class StartActivity
         extends AppCompatActivity
@@ -520,7 +521,7 @@ public class StartActivity
     public void onBackPressed() {
         if (!stackTop().onBack()) {
             if (!exitFlag) {
-                Toast.makeText(this, R.string.action_confirm_exit_title, Toast.LENGTH_LONG).show();
+                showToast(R.string.action_confirm_exit_title, Toast.LENGTH_LONG);
                 exitFlag = true;
             } else {
                 exitFlag = false;
