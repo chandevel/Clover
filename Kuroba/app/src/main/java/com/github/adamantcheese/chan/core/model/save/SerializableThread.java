@@ -48,5 +48,7 @@ public class SerializableThread {
         return this;
     }
 
-    private final Comparator<SerializablePost> postComparator = (o1, o2) -> Integer.compare(o1.getNo(), o2.getNo());
+    // Must be static
+    private static final Comparator<SerializablePost> postComparator
+            = (o1, o2) -> Integer.compare(o1.getNo(), o2.getNo());
 }
