@@ -159,8 +159,10 @@ public class CommentParserHelper {
                                 .minimumPrintedDigits(0)
                                 .appendHours()
                                 .appendSuffix(":")
+                                .printZeroAlways()
                                 .appendMinutes()
                                 .appendSuffix(":")
+                                .minimumPrintedDigits(2)
                                 .appendSeconds()
                                 .toFormatter();
                         duration = formatter.print(Period.parse(duration));
