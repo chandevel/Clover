@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -195,6 +196,20 @@ public class DrawerAdapter
                 break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        if (holder.getItemViewType() == TYPE_PIN) {
+            PinViewHolder pinViewHolder = (PinViewHolder) holder;
+            if (pinViewHolder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
+                AnimatedVectorDrawableCompat downloadIcon
+                        = (AnimatedVectorDrawableCompat) pinViewHolder.threadDownloadIcon.getDrawable();
+                downloadIcon.stop();
+                downloadIcon.clearAnimationCallbacks();
+            }
         }
     }
 
