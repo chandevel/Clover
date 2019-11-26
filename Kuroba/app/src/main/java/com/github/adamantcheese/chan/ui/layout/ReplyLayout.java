@@ -31,6 +31,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
@@ -644,7 +645,6 @@ public class ReplyLayout
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     menu.removeItem(android.R.id.shareText);
                 }
-                menu.removeItem(android.R.id.copy);
                 //setup standard items
                 // >greentext
                 quoteMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_quote, 1, R.string.post_quote);
@@ -657,14 +657,15 @@ public class ReplyLayout
                     );
                 }
 
-                //setup specific items
+                //setup specific items in a submenu
+                SubMenu otherMods = menu.addSubMenu("Modify");
                 // g [code]
                 if (callback.getThread() != null && callback.getThread().getLoadable().board.site.name().equals("4chan")
                         && callback.getThread().getLoadable().board.code.equals("g"))
                 {
-                    codeMenuItem = menu.add(Menu.NONE,
+                    codeMenuItem = otherMods.add(Menu.NONE,
                                             R.id.reply_selection_action_code,
-                                            3,
+                                            1,
                                             R.string.reply_comment_button_code
                     );
                 }
@@ -672,14 +673,14 @@ public class ReplyLayout
                 if (callback.getThread() != null && callback.getThread().getLoadable().board.site.name().equals("4chan")
                         && callback.getThread().getLoadable().board.code.equals("sci"))
                 {
-                    eqnMenuItem = menu.add(Menu.NONE,
+                    eqnMenuItem = otherMods.add(Menu.NONE,
                                            R.id.reply_selection_action_eqn,
-                                           4,
+                                           2,
                                            R.string.reply_comment_button_eqn
                     );
-                    mathMenuItem = menu.add(Menu.NONE,
+                    mathMenuItem = otherMods.add(Menu.NONE,
                                             R.id.reply_selection_action_math,
-                                            5,
+                                            3,
                                             R.string.reply_comment_button_math
                     );
                 }
