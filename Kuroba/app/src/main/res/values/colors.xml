@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="pin_posts_not_watching_color">#898989</color>
+    <color name="pin_posts_has_replies_color">#ff4444</color>
+    <color name="pin_posts_normal_color">#33B5E5</color>
+    <color name="highlighted_pin_view_holder_color">#22000000</color>
+</resources>

@@ -56,6 +56,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -286,19 +287,31 @@ public class DrawerAdapter
                 WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
                 String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
                 //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
-                String totalCount = PinHelper.getShortUnreadCount(
-                        pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1);
+
+                int postsCount = pinWatcher.lastReplyCount > 0
+                        ? pinWatcher.lastReplyCount
+                        : pin.watchNewCount - 1;
+                String totalCount = PinHelper.getShortUnreadCount(postsCount);
+
+                String watchCountText = ChanSettings.shortPinInfo.get()
+                        ? newCount
+                        : totalCount + " / " + newCount;
+
+                watchCount.setText(watchCountText);
                 watchCount.setVisibility(View.VISIBLE);
 
-                String watchCountText = ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount;
-                watchCount.setText(watchCountText);
-
-                if (!pin.watching) {
-                    watchCount.setTextColor(0xff898989); // TODO material colors
-                } else if (pin.getNewQuoteCount() > 0) {
-                    watchCount.setTextColor(0xffFF4444);
+                if (pin.getNewQuoteCount() > 0) {
+                    watchCount.setTextColor(
+                            getColor(context, R.color.pin_posts_has_replies_color)
+                    );
+                } else if (!pin.watching) {
+                    watchCount.setTextColor(
+                            getColor(context, R.color.pin_posts_not_watching_color)
+                    ); // TODO material colors
                 } else {
-                    watchCount.setTextColor(0xff33B5E5);
+                    watchCount.setTextColor(
+                            getColor(context, R.color.pin_posts_normal_color)
+                    );
                 }
 
                 watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
@@ -345,7 +358,9 @@ public class DrawerAdapter
 
         boolean highlighted = pin == this.highlighted;
         if (highlighted && !holder.highlighted) {
-            holder.itemView.setBackgroundColor(0x22000000);
+            holder.itemView.setBackgroundColor(
+                    getColor(context, R.color.highlighted_pin_view_holder_color)
+            );
             holder.highlighted = true;
         } else if (!highlighted && holder.highlighted) {
             Drawable attrDrawable = getAttrDrawable(holder.itemView.getContext(),

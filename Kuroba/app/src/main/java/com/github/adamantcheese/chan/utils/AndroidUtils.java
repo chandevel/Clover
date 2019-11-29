@@ -46,7 +46,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.content.ContextCompat;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
@@ -214,6 +217,11 @@ public class AndroidUtils {
         int color = typedArray.getColor(0, 0);
         typedArray.recycle();
         return color;
+    }
+
+    @ColorInt
+    public static int getColor(Context context, @ColorRes int colorId) {
+        return ContextCompat.getColor(context, colorId);
     }
 
     public static Drawable getAttrDrawable(Context context, int attr) {
