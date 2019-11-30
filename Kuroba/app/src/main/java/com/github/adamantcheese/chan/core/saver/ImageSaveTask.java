@@ -20,8 +20,8 @@ import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 
-import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -49,7 +49,7 @@ public class ImageSaveTask
     private static final String TAG = "ImageSaveTask";
 
     @Inject
-    FileCache fileCache;
+    FileCacheV2 fileCacheV2;
     @Inject
     FileManager fileManager;
 
@@ -108,9 +108,7 @@ public class ImageSaveTask
                 // Manually call postFinished()
                 postFinished(success);
             } else {
-                runOnUiThread(() -> {
-                    fileCache.downloadFile(loadable, postImage, this);
-                });
+                fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, this);
             }
         } catch (Exception e) {
             Logger.e(TAG, "Uncaught exception", e);
@@ -129,11 +127,11 @@ public class ImageSaveTask
     }
 
     @Override
-    public void onNetworkError(IOException error) {
-        super.onNetworkError(error);
+    public void onFail(Exception exception) {
+        super.onFail(exception);
         BackgroundUtils.ensureMainThread();
 
-        postError(error);
+        postError(exception);
     }
 
     @Override

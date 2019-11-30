@@ -38,8 +38,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
@@ -76,7 +76,7 @@ public class UpdateManager {
     RequestQueue volleyRequestQueue;
 
     @Inject
-    FileCache fileCache;
+    FileCacheV2 fileCacheV2;
 
     private ProgressDialog updateDownloadDialog;
     private Context context;
@@ -261,7 +261,7 @@ public class UpdateManager {
     public void doUpdate(UpdateApiRequest.UpdateApiResponse response) {
         BackgroundUtils.ensureMainThread();
 
-        fileCache.downloadFile(response.apkURL.toString(), new FileCacheListener() {
+        fileCacheV2.enqueueDownloadFileRequest(response.apkURL.toString(), new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
                 BackgroundUtils.ensureMainThread();
@@ -290,7 +290,7 @@ public class UpdateManager {
             }
 
             @Override
-            public void onFail(boolean notFound) {
+            public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
                 updateDownloadDialog.dismiss();

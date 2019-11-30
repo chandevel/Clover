@@ -27,7 +27,8 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.cache.FileCache;
+import com.github.adamantcheese.chan.core.cache.CacheHandler;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
@@ -51,6 +52,10 @@ public class DeveloperSettingsController
     private static final String TAG = "DEV";
     @Inject
     DatabaseManager databaseManager;
+    @Inject
+    FileCacheV2 fileCacheV2;
+    @Inject
+    CacheHandler cacheHandler;
 
     public DeveloperSettingsController(Context context) {
         super(context);
@@ -81,13 +86,14 @@ public class DeveloperSettingsController
         wrapper.addView(crashButton);
 
         Button clearCacheButton = new Button(context);
-        FileCache cache = Chan.injector().instance(FileCache.class);
+        Long cacheSize = cacheHandler.getSize().get();
+
         clearCacheButton.setOnClickListener(v -> {
-            cache.clearCache();
+            fileCacheV2.clearCache();
             showToast("Cleared image cache");
-            clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize() / 1024 / 1024 + "MB)");
+            clearCacheButton.setText("Clear image cache (currently " + cacheSize / 1024 / 1024 + "MB)");
         });
-        clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize() / 1024 / 1024 + "MB)");
+        clearCacheButton.setText("Clear image cache (currently " + cacheSize / 1024 / 1024 + "MB)");
         wrapper.addView(clearCacheButton);
 
         TextView summaryText = new TextView(context);

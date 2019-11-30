@@ -56,9 +56,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static com.github.adamantcheese.chan.utils.ChanUtils.loadableToString;
+
 public class ThreadSaveManager {
     private static final String TAG = "ThreadSaveManager";
-    private static final int OKHTTP_TIMEOUT_SECONDS = 30;
     private static final int REQUEST_BUFFERING_TIME_SECONDS = 30;
     private static final int MAX_RETRY_ATTEMPTS = 3;
     private static final boolean VERBOSE_LOG = false;
@@ -80,13 +81,7 @@ public class ThreadSaveManager {
     @GuardedBy("activeDownloads")
     private final Map<Loadable, AdditionalThreadParameters> additionalThreadParameter = new HashMap<>();
 
-    private OkHttpClient okHttpClient = new OkHttpClient()
-            .newBuilder()
-            .writeTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .readTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .connectTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .callTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .build();
+    private OkHttpClient okHttpClient;
     private ExecutorService executorService = Executors.newFixedThreadPool(getThreadsCountForDownloaderExecutor());
 
     private PublishProcessor<Loadable> workerQueue = PublishProcessor.create();
@@ -105,9 +100,11 @@ public class ThreadSaveManager {
 
     @Inject
     public ThreadSaveManager(DatabaseManager databaseManager,
+                             OkHttpClient okHttpClient,
                              SavedThreadLoaderRepository savedThreadLoaderRepository,
                              FileManager fileManager
     ) {
+        this.okHttpClient = okHttpClient;
         this.databaseManager = databaseManager;
         this.savedThreadLoaderRepository = savedThreadLoaderRepository;
         this.databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadManager();
@@ -132,11 +129,15 @@ public class ThreadSaveManager {
                    .buffer(REQUEST_BUFFERING_TIME_SECONDS, TimeUnit.SECONDS)
                    .concatMap(this::processCollectedRequests)
                    .subscribe(res -> {}, // OK
-                              error -> Logger.e(TAG,
-                                                "Uncaught exception!!! workerQueue is in error state now!!! "
-                                                        + "This should not happen!!!",
-                                                error
-                              ), () -> Logger.e(TAG, "workerQueue stream has completed!!! This should not happen!!!")
+                              error -> {
+                                throw new RuntimeException("Uncaught exception!!! " +
+                                          "workerQueue is in error state now!!! " +
+                                          "This should not happen!!!, original error = " + error.getMessage());
+                              }, () -> {
+                                throw new RuntimeException(
+                                        "workerQueue stream has completed!!! This should not happen!!!"
+                                );
+                           }
                    );
     }
 
@@ -1142,13 +1143,6 @@ public class ThreadSaveManager {
         }
 
         fileManager.delete(threadSaveDir);
-    }
-
-    /**
-     * Extracts and converts to a string only the info that we are interested in from this loadable
-     */
-    private String loadableToString(Loadable loadable) {
-        return "[" + loadable.site.name() + ", " + loadable.boardCode + ", " + loadable.no + "]";
     }
 
     public static String formatThumbnailImageName(String originalName, String extension) {

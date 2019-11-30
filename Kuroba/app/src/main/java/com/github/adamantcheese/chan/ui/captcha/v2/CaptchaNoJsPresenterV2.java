@@ -21,6 +21,7 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -34,7 +35,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -62,6 +62,7 @@ public class CaptchaNoJsPresenterV2 {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final CaptchaNoJsHtmlParser parser;
+    private final NetModule.ProxiedOkHttpClient okHttpClient;
 
     @Nullable
     private AuthenticationCallbacks callbacks;
@@ -77,6 +78,8 @@ public class CaptchaNoJsPresenterV2 {
     public CaptchaNoJsPresenterV2(@Nullable AuthenticationCallbacks callbacks, Context context) {
         this.callbacks = callbacks;
         this.parser = new CaptchaNoJsHtmlParser(context);
+        this.okHttpClient =  Chan.injector()
+                .instance(NetModule.ProxiedOkHttpClient.class);
     }
 
     public void init(String siteKey, String baseUrl) {
@@ -132,7 +135,7 @@ public class CaptchaNoJsPresenterV2 {
                             .header("Cookie", defaultGoogleCookies)
                             .build();
 
-                    try (Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute()) {
+                    try (Response response = okHttpClient.newCall(request).execute()) {
                         prevCaptchaInfo = handleGetRecaptchaResponse(response);
                     } finally {
                         verificationInProgress.set(false);
@@ -231,7 +234,7 @@ public class CaptchaNoJsPresenterV2 {
                 .header("Cookie", defaultGoogleCookies)
                 .build();
 
-        try (Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute()) {
+        try (Response response = okHttpClient.newCall(request).execute()) {
             return handleGetRecaptchaResponse(response);
         }
     }

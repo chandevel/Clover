@@ -19,20 +19,26 @@ package com.github.adamantcheese.chan.core.di;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.core.cache.FileCache;
+import com.github.adamantcheese.chan.core.cache.CacheHandler;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 import org.codejargon.feather.Provides;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
+import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -40,6 +46,12 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 
 public class NetModule {
     public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
+    public static final long NORMAL_OKHTTP_TIMEOUT_SECONDS = 10L;
+    public static final long PROXIED_OKHTTP_TIMEOUT_SECONDS = 20L;
+    public static final long THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS = 30L;
+    public static final String THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME = "thread_save_manager_okhttp_client";
+    public static final String OKHTTP_CLIENT_NAME = "okhttp_client";
+    private static final String FILE_CACHE_DIR = "filecache";
 
     @Provides
     @Singleton
@@ -50,9 +62,22 @@ public class NetModule {
 
     @Provides
     @Singleton
-    public FileCache provideFileCache(FileManager fileManager) {
-        Logger.d(AppModule.DI_TAG, "File cache");
-        return new FileCache(getCacheDir(), fileManager);
+    public CacheHandler provideCacheHandler(FileManager fileManager) {
+        Logger.d(AppModule.DI_TAG, "Cache handler");
+
+        RawFile cacheDirFile = fileManager.fromRawFile(new File(getCacheDir(), FILE_CACHE_DIR));
+        return new CacheHandler(fileManager, cacheDirFile);
+    }
+
+    @Provides
+    @Singleton
+    public FileCacheV2 provideFileCacheV2(
+            FileManager fileManager,
+            CacheHandler cacheHandler,
+            @Named(OKHTTP_CLIENT_NAME) OkHttpClient okHttpClient
+    ) {
+        Logger.d(AppModule.DI_TAG, "File cache V2");
+        return new FileCacheV2(fileManager, cacheHandler, okHttpClient);
     }
 
     private File getCacheDir() {
@@ -66,16 +91,62 @@ public class NetModule {
 
     @Provides
     @Singleton
-    public HttpCallManager provideHttpCallManager() {
+    public HttpCallManager provideHttpCallManager(ProxiedOkHttpClient okHttpClient) {
         Logger.d(AppModule.DI_TAG, "Http call manager");
-        return new HttpCallManager();
+        return new HttpCallManager(okHttpClient);
+    }
+
+    // TODO: make this @Named as well instead of using hacks
+    @Provides
+    @Singleton
+    public ProxiedOkHttpClient provideProxiedOkHttpClient() {
+        Logger.d(AppModule.DI_TAG, "ProxiedOkHTTP client");
+        return new ProxiedOkHttpClient();
     }
 
     @Provides
     @Singleton
-    public OkHttpClient provideBasicOkHttpClient() {
-        Logger.d(AppModule.DI_TAG, "OkHTTP client");
-        return new ProxiedOkHttpClient();
+    @Named(OKHTTP_CLIENT_NAME)
+    public OkHttpClient provideOkHttpClient() {
+        Logger.d(AppModule.DI_TAG, "OkHttpDownloader client");
+        Dispatcher dispatcher = new Dispatcher(
+                createExecutorServiceForOkHttpClient(4)
+        );
+
+        return new OkHttpClient.Builder()
+                // The same as the defaults but set explicitly
+                .connectTimeout(NORMAL_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .readTimeout(NORMAL_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .writeTimeout(NORMAL_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .dispatcher(dispatcher)
+                .build();
+    }
+
+    @Provides
+    @Singleton
+    @Named(THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME)
+    public OkHttpClient provideOkHttpClientForThreadSaveManager() {
+        Logger.d(AppModule.DI_TAG, "OkHttpThreadSaver client");
+
+        Dispatcher dispatcher = new Dispatcher(
+                createExecutorServiceForOkHttpClient(4)
+        );
+
+        return new OkHttpClient().newBuilder()
+                .connectTimeout(THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .writeTimeout(THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .readTimeout(THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .dispatcher(dispatcher)
+                .build();
+    }
+
+    private ExecutorService createExecutorServiceForOkHttpClient(int minThreadsCount) {
+        int threadsCount = Runtime.getRuntime().availableProcessors();
+        if (threadsCount < minThreadsCount) {
+            threadsCount = minThreadsCount;
+        }
+
+        return Executors.newFixedThreadPool(threadsCount);
     }
 
     //this is basically the same as OkHttpClient, but with a singleton for a proxy instance
@@ -85,12 +156,15 @@ public class NetModule {
 
         public OkHttpClient getProxiedClient() {
             if (proxiedClient == null) {
+                Dispatcher dispatcher = new Dispatcher(createExecutorServiceForOkHttpClient(4));
+
                 proxiedClient = newBuilder()
                         .proxy(ChanSettings.getProxy())
-                        .connectTimeout(20, TimeUnit.SECONDS)
-                        .readTimeout(20, TimeUnit.SECONDS)
-                        .writeTimeout(20, TimeUnit.SECONDS)
-                        .callTimeout(20, TimeUnit.SECONDS)
+                        // Proxies are usually slow, so they have increased timeouts
+                        .connectTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .readTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .writeTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .dispatcher(dispatcher)
                         .build();
             }
             return proxiedClient;

@@ -29,7 +29,8 @@ import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.cache.FileCache;
+import com.github.adamantcheese.chan.core.cache.CacheHandler;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
@@ -120,6 +121,8 @@ public class ThreadPresenter
     private final PageRequestManager pageRequestManager;
     private final ThreadSaveManager threadSaveManager;
     private final FileManager fileManager;
+    private final FileCacheV2 fileCacheV2;
+    private final CacheHandler cacheHandler;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
@@ -133,12 +136,15 @@ public class ThreadPresenter
     private Context context;
 
     @Inject
-    public ThreadPresenter(WatchManager watchManager,
-                           DatabaseManager databaseManager,
-                           ChanLoaderFactory chanLoaderFactory,
-                           PageRequestManager pageRequestManager,
-                           ThreadSaveManager threadSaveManager,
-                           FileManager fileManager
+    public ThreadPresenter(
+            WatchManager watchManager,
+            DatabaseManager databaseManager,
+            ChanLoaderFactory chanLoaderFactory,
+            PageRequestManager pageRequestManager,
+            ThreadSaveManager threadSaveManager,
+            FileManager fileManager,
+            FileCacheV2 fileCacheV2,
+            CacheHandler cacheHandler
     ) {
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
@@ -146,6 +152,8 @@ public class ThreadPresenter
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
         this.fileManager = fileManager;
+        this.fileCacheV2 = fileCacheV2;
+        this.cacheHandler = cacheHandler;
     }
 
     public void create(ThreadPresenterCallback threadPresenterCallback) {
@@ -534,22 +542,21 @@ public class ThreadPresenter
             }
 
             if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal()) {
-                FileCache cache = Chan.injector().instance(FileCache.class);
                 for (Post p : result.getPostsUnsafe()) {
                     if (p.images != null) {
                         for (PostImage postImage : p.images) {
-                            if (cache.exists(postImage.imageUrl.toString())) {
+                            if (cacheHandler.exists(postImage.imageUrl.toString())) {
                                 continue;
                             }
 
                             if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
                                     && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get()))
                             {
-                                cache.downloadFile(loadable, postImage, null);
+                                fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, null);
                             } else if (postImage.type == PostImage.Type.MOVIE
                                     && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get()))
                             {
-                                cache.downloadFile(loadable, postImage, null);
+                                fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, null);
                             }
                         }
                     }

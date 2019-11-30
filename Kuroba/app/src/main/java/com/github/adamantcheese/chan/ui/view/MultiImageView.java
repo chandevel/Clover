@@ -42,9 +42,8 @@ import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.cache.FileCache;
-import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -94,7 +93,7 @@ public class MultiImageView
     private static final String TAG = "MultiImageView";
 
     @Inject
-    FileCache fileCache;
+    FileCacheV2 fileCacheV2;
 
     @Inject
     ImageLoaderV2 imageLoaderV2;
@@ -134,9 +133,9 @@ public class MultiImageView
 
     private boolean hasContent = false;
     private ImageContainer thumbnailRequest;
-    private FileCacheDownloader bigImageRequest;
-    private FileCacheDownloader gifRequest;
-    private FileCacheDownloader videoRequest;
+    private FileCacheV2.CancelableDownload bigImageRequest;
+    private FileCacheV2.CancelableDownload gifRequest;
+    private FileCacheV2.CancelableDownload videoRequest;
 
     private SimpleExoPlayer exoPlayer;
 
@@ -325,7 +324,7 @@ public class MultiImageView
         }
 
         callback.showProgress(this, true);
-        bigImageRequest = fileCache.downloadFile(loadable, postImage, new FileCacheListener() {
+        bigImageRequest = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
                 BackgroundUtils.ensureMainThread();
@@ -341,10 +340,10 @@ public class MultiImageView
             }
 
             @Override
-            public void onFail(boolean notFound) {
+            public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
-                if (notFound) {
+                if (exception instanceof FileCacheV2.NotFoundException) {
                     onNotFoundError();
                 } else {
                     onError();
@@ -374,7 +373,7 @@ public class MultiImageView
         }
 
         callback.showProgress(this, true);
-        gifRequest = fileCache.downloadFile(loadable, postImage, new FileCacheListener() {
+        gifRequest = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
                 BackgroundUtils.ensureMainThread();
@@ -392,10 +391,10 @@ public class MultiImageView
             }
 
             @Override
-            public void onFail(boolean notFound) {
+            public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
-                if (notFound) {
+                if (exception instanceof FileCacheV2.NotFoundException) {
                     onNotFoundError();
                 } else {
                     onError();
@@ -451,7 +450,7 @@ public class MultiImageView
         }
 
         callback.showProgress(this, true);
-        videoRequest = fileCache.downloadFile(loadable, postImage, new FileCacheListener() {
+        videoRequest = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
                 BackgroundUtils.ensureMainThread();
@@ -469,10 +468,10 @@ public class MultiImageView
             }
 
             @Override
-            public void onFail(boolean notFound) {
+            public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
-                if (notFound) {
+                if (exception instanceof FileCacheV2.NotFoundException) {
                     onNotFoundError();
                 } else {
                     onError();

@@ -18,8 +18,6 @@ package com.github.adamantcheese.chan.core.cache;
 
 import com.github.k1rakishou.fsaf.file.RawFile;
 
-import java.io.IOException;
-
 public abstract class FileCacheListener {
     public void onProgress(long downloaded, long total) {
     }
@@ -31,19 +29,10 @@ public abstract class FileCacheListener {
     }
 
     /**
-     * @param error is an exception that terminated the downloading process
-     */
-    public void onNetworkError(IOException error) {
-
-    }
-
-    /**
      * Called when there was an error downloading the file.
      * <b>This is not called when the download was canceled.</b>
-     *
-     * @param notFound when it was a http 404 error.
      */
-    public void onFail(boolean notFound) {
+    public void onFail(Exception exception) {
     }
 
     /**

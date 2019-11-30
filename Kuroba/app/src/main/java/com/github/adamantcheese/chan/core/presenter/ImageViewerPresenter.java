@@ -20,9 +20,9 @@ import android.media.AudioManager;
 
 import androidx.viewpager.widget.ViewPager;
 
-import com.github.adamantcheese.chan.core.cache.FileCache;
-import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
+import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -57,7 +57,9 @@ public class ImageViewerPresenter
     private final Callback callback;
 
     @Inject
-    FileCache fileCache;
+    FileCacheV2 fileCacheV2;
+    @Inject
+    CacheHandler cacheHandler;
 
     private boolean entering = true;
     private boolean exiting = false;
@@ -66,7 +68,7 @@ public class ImageViewerPresenter
     private int selectedPosition;
     private Loadable loadable;
 
-    private Set<FileCacheDownloader> preloadingImages = new HashSet<>();
+    private Set<FileCacheV2.CancelableDownload> preloadingImages = new HashSet<>();
 
     // Disables swiping until the view pager is visible
     private boolean viewPagerVisible = false;
@@ -130,7 +132,7 @@ public class ImageViewerPresenter
         callback.startPreviewOutTransition(loadable, postImage);
         callback.showProgress(false);
 
-        for (FileCacheDownloader preloadingImage : preloadingImages) {
+        for (FileCacheV2.CancelableDownload preloadingImage : preloadingImages) {
             preloadingImage.cancel();
         }
         preloadingImages.clear();
@@ -275,8 +277,8 @@ public class ImageViewerPresenter
                 // If downloading, remove from preloadingImages if it finished.
                 // Array to allow access from within the callback (the callback should really
                 // pass the filecachedownloader itself).
-                final FileCacheDownloader[] preloadDownload = new FileCacheDownloader[1];
-                preloadDownload[0] = fileCache.downloadFile(loadable, next, new FileCacheListener() {
+                final FileCacheV2.CancelableDownload[] preloadDownload = new FileCacheV2.CancelableDownload[1];
+                preloadDownload[0] = fileCacheV2.enqueueDownloadFileRequest(loadable, next, new FileCacheListener() {
                     @Override
                     public void onEnd() {
                         BackgroundUtils.ensureMainThread();
@@ -295,7 +297,7 @@ public class ImageViewerPresenter
     }
 
     private void cancelPreviousImageDownload(int position) {
-        for (FileCacheDownloader downloader : preloadingImages) {
+        for (FileCacheV2.CancelableDownload downloader : preloadingImages) {
             if (position - 1 >= 0) {
                 PostImage previousImage = images.get(position - 1);
                 if (downloader.getUrl().equals(previousImage.imageUrl.toString())) {
@@ -402,7 +404,7 @@ public class ImageViewerPresenter
         }
 
         // Auto load the image when it is cached
-        return fileCache.exists(postImage.imageUrl.toString())
+        return cacheHandler.exists(postImage.imageUrl.toString())
                 || shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get());
     }
 

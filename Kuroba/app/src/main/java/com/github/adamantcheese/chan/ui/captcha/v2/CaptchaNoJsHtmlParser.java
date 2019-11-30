@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -40,7 +41,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -66,10 +66,13 @@ public class CaptchaNoJsHtmlParser {
     private static final String CHALLENGE_IMAGE_FILE_NAME = "challenge_image_file";
     private static final int SUCCESS_STATUS_CODE = 200;
 
+    private NetModule.ProxiedOkHttpClient okHttpClient;
     private Context context;
 
     public CaptchaNoJsHtmlParser(Context context) {
         this.context = context;
+        this.okHttpClient = Chan.injector()
+                .instance(NetModule.ProxiedOkHttpClient.class);
     }
 
     @NonNull
@@ -296,7 +299,7 @@ public class CaptchaNoJsHtmlParser {
             throws IOException, CaptchaNoJsV2ParsingError {
         Request request = new Request.Builder().url(fullUrl).build();
 
-        try (Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute()) {
+        try (Response response = okHttpClient.newCall(request).execute()) {
             if (response.code() != SUCCESS_STATUS_CODE) {
                 throw new CaptchaNoJsV2ParsingError(
                         "Could not download challenge image, status code = " + response.code());

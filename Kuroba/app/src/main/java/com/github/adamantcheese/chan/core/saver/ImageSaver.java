@@ -113,7 +113,6 @@ public class ImageSaver
             showToast(null, false, false);
         });
 
-        // TODO: uhh not sure about this one
         return true;
     }
 

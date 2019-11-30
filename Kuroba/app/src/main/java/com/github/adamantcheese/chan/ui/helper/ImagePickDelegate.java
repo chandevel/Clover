@@ -23,10 +23,9 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
@@ -61,6 +60,8 @@ public class ImagePickDelegate
     ReplyManager replyManager;
     @Inject
     FileManager fileManager;
+    @Inject
+    FileCacheV2 fileCacheV2;
 
     private Activity activity;
 
@@ -93,9 +94,7 @@ public class ImagePickDelegate
                 }
                 if (clipboardURL != null) {
                     HttpUrl finalClipboardURL = clipboardURL;
-                    Chan.injector()
-                        .instance(FileCache.class)
-                        .downloadFile(clipboardURL.toString(), new FileCacheListener() {
+                    fileCacheV2.enqueueDownloadFileRequest(clipboardURL.toString(), new FileCacheListener() {
                             @Override
                             public void onSuccess(RawFile file) {
                                 BackgroundUtils.ensureMainThread();
@@ -107,7 +106,7 @@ public class ImagePickDelegate
                             }
 
                             @Override
-                            public void onFail(boolean notFound) {
+                            public void onFail(Exception exception) {
                                 BackgroundUtils.ensureMainThread();
 
                                 showToast(R.string.image_url_get_failed);
