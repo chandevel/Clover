@@ -53,6 +53,13 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 public class ImageViewerPresenter
         implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewerPresenter";
+    private static final int PRELOAD_IMAGE_INDEX = 1;
+    /**
+     * We don't want to cancel an image right after we have started preloading it because it
+     * sometimes causes weird bugs where you swipe to an already canceled image/webm and nothing
+     * happens so you need to swipe back and forth for it to start loading.
+     * */
+    private static final int CANCEL_IMAGE_INDEX = 2;
 
     private final Callback callback;
 
@@ -65,7 +72,8 @@ public class ImageViewerPresenter
     private boolean exiting = false;
     private List<PostImage> images;
     private List<Float> progress;
-    private int selectedPosition;
+    private int selectedPosition = 0;
+    private boolean swipingForward = false;
     private Loadable loadable;
 
     private Set<FileCacheV2.CancelableDownload> preloadingImages = new HashSet<>();
@@ -162,6 +170,7 @@ public class ImageViewerPresenter
             return;
         }
 
+        swipingForward = position >= selectedPosition;
         selectedPosition = position;
 
         onPageSwipedTo(position);
@@ -226,7 +235,11 @@ public class ImageViewerPresenter
             callback.setImageMode(other, LOWRES, false);
         }
 
-        cancelPreviousImageDownload(position);
+        if (swipingForward) {
+            cancelPreviousFromStartImageDownload(position);
+        } else {
+            cancelPreviousFromEndImageDownload(position);
+        }
 
         // Already in LOWRES mode
         if (callback.getImageMode(postImage) == LOWRES) {
@@ -255,58 +268,94 @@ public class ImageViewerPresenter
             }
         }
 
-        preloadNext();
+        if (swipingForward) {
+            preloadNext();
+        } else {
+            preloadPrevious();
+        }
+    }
+
+    private void preloadPrevious() {
+        BackgroundUtils.ensureMainThread();
+        int index = selectedPosition - PRELOAD_IMAGE_INDEX;
+
+        if (index >= 0 && index < images.size()) {
+            doPreloading(images.get(index));
+        }
     }
 
     // This won't actually change any modes, but it will preload the image so that it's
     // available immediately when the user swipes right.
     private void preloadNext() {
         BackgroundUtils.ensureMainThread();
+        int index = selectedPosition + PRELOAD_IMAGE_INDEX;
 
-        if (selectedPosition + 1 < images.size()) {
-            PostImage next = images.get(selectedPosition + 1);
+        if (index >= 0 && index < images.size()) {
+            doPreloading(images.get(index));
+        }
+    }
 
-            boolean load = false;
-            if (next.type == STATIC || next.type == GIF) {
-                load = imageAutoLoad(loadable, next);
-            } else if (next.type == MOVIE) {
-                load = videoAutoLoad(loadable, next);
-            }
+    private void doPreloading(PostImage postImage) {
+        boolean load = false;
+        if (postImage.type == STATIC || postImage.type == GIF) {
+            load = imageAutoLoad(loadable, postImage);
+        } else if (postImage.type == MOVIE) {
+            load = videoAutoLoad(loadable, postImage);
+        }
 
-            if (load) {
-                // If downloading, remove from preloadingImages if it finished.
-                // Array to allow access from within the callback (the callback should really
-                // pass the filecachedownloader itself).
-                final FileCacheV2.CancelableDownload[] preloadDownload = new FileCacheV2.CancelableDownload[1];
-                preloadDownload[0] = fileCacheV2.enqueueDownloadFileRequest(loadable, next, new FileCacheListener() {
-                    @Override
-                    public void onEnd() {
-                        BackgroundUtils.ensureMainThread();
+        if (load) {
+            // If downloading, remove from preloadingImages if it finished.
+            // Array to allow access from within the callback (the callback should really
+            // pass the filecachedownloader itself).
+            final FileCacheV2.CancelableDownload[] preloadDownload = new FileCacheV2.CancelableDownload[1];
+            preloadDownload[0] = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
+                @Override
+                public void onEnd() {
+                    BackgroundUtils.ensureMainThread();
 
-                        if (preloadDownload[0] != null) {
-                            preloadingImages.remove(preloadDownload[0]);
-                        }
+                    if (preloadDownload[0] != null) {
+                        preloadingImages.remove(preloadDownload[0]);
                     }
-                });
+                }
+            });
 
-                if (preloadDownload[0] != null) {
-                    preloadingImages.add(preloadDownload[0]);
+            if (preloadDownload[0] != null) {
+                preloadingImages.add(preloadDownload[0]);
+            }
+        }
+    }
+
+    private void cancelPreviousFromEndImageDownload(int position) {
+        for (FileCacheV2.CancelableDownload downloader : preloadingImages) {
+            int index = position + CANCEL_IMAGE_INDEX;
+            if (index < images.size()) {
+                if (cancelImageDownload(index, downloader)) {
+                    return;
                 }
             }
         }
     }
 
-    private void cancelPreviousImageDownload(int position) {
+    private void cancelPreviousFromStartImageDownload(int position) {
         for (FileCacheV2.CancelableDownload downloader : preloadingImages) {
-            if (position - 1 >= 0) {
-                PostImage previousImage = images.get(position - 1);
-                if (downloader.getUrl().equals(previousImage.imageUrl.toString())) {
-                    downloader.cancel();
-                    preloadingImages.remove(downloader);
+            int index = position - CANCEL_IMAGE_INDEX;
+            if (index >= 0) {
+                if (cancelImageDownload(index, downloader)) {
                     return;
                 }
             }
         }
+    }
+
+    private boolean cancelImageDownload(int position, FileCacheV2.CancelableDownload downloader) {
+        PostImage previousImage = images.get(position);
+        if (downloader.getUrl().equals(previousImage.imageUrl.toString())) {
+            downloader.cancel();
+            preloadingImages.remove(downloader);
+            return true;
+        }
+
+        return false;
     }
 
     @Override

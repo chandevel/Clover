@@ -23,9 +23,11 @@ import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
 import okhttp3.*
 import okhttp3.internal.closeQuietly
+import okhttp3.internal.http2.StreamResetException
 import okio.*
 import java.io.File
 import java.io.IOException
+import java.net.SocketException
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -79,10 +81,10 @@ class FileCacheV2(
                             .subscribeOn(workerScheduler)
                             .onErrorReturn { throwable ->
                                 if (throwable is CancellationException) {
-                                    return@onErrorReturn FileDownloadResult.Canceled(threadName())
+                                    return@onErrorReturn FileDownloadResult.Canceled
                                 }
 
-                                return@onErrorReturn FileDownloadResult.Exception(throwable, threadName())
+                                return@onErrorReturn FileDownloadResult.Exception(throwable)
                             }
                             .map { result -> Pair(requestId, result) }
                             .doOnNext { (requestId, result) -> handleResults(requestId, result) }
@@ -108,10 +110,10 @@ class FileCacheV2(
         val url = postImage.imageUrl.toString()
 
         if (loadable.isLocal) {
-            Logger.d(TAG, "Handling local thread file, url = $url")
+            log("Handling local thread file, url = $url")
 
             if (callback == null) {
-                Logger.e(TAG, "Callback is null for a local thread")
+                logError("Callback is null for a local thread")
                 return null
             }
 
@@ -134,7 +136,7 @@ class FileCacheV2(
                             "Apparently it's not thread-safe anymore"
                 }
 
-                Logger.d(TAG, "Request ${url} is already active, subscribing to it")
+                log("Request ${url} is already active, subscribing to it")
 
                 val prevCancelableDownload = prevRequest.cancelableDownload
                 if (callback != null) {
@@ -161,7 +163,7 @@ class FileCacheV2(
         }
 
         if (fileManager.exists(file)) {
-            Logger.d(TAG, "File already downloaded, url = $url")
+            log("File already downloaded, url = $url")
 
             try {
                 handleFileImmediatelyAvailable(file, url)
@@ -178,7 +180,7 @@ class FileCacheV2(
             return null
         }
 
-        Logger.d(TAG, "Downloading a file, url = $url")
+        log("Downloading a file, url = $url")
         requestQueue.onNext(url)
 
         return cancelableDownload
@@ -199,10 +201,7 @@ class FileCacheV2(
 
     private fun handleFileImmediatelyAvailable(file: AbstractFile, requestId: String) {
         val request = synchronized(activeDownloads) { activeDownloads[requestId] }
-        if (request == null) {
-            // ???
-            return
-        }
+                ?: return
 
         if (file is RawFile) {
             request.cancelableDownload.forEachCallback {
@@ -227,7 +226,7 @@ class FileCacheV2(
                     }
                 }
             } catch (e: IOException) {
-                Logger.e(TAG, "Error while trying to create a new random cache file", e)
+                logError("Error while trying to create a new random cache file", e)
                 request.cancelableDownload.forEachCallback {
                     BackgroundUtils.runOnUiThread {
                         onFail(e)
@@ -258,7 +257,7 @@ class FileCacheV2(
                     callback?.onEnd()
                 }
             } catch (e: IOException) {
-                Logger.e(TAG, "Error while trying to create a new random cache file", e)
+                logError("Error while trying to create a new random cache file", e)
 
                 BackgroundUtils.runOnUiThread {
                     callback?.onFail(e)
@@ -284,7 +283,7 @@ class FileCacheV2(
         }
 
         if (result is FileDownloadResult.Canceled) {
-            Logger.d(TAG, "[${result.threadName}]: Request ${request} canceled")
+            log("Request ${request} canceled")
 
             request.cancelableDownload.forEachCallback {
                 BackgroundUtils.runOnUiThread {
@@ -302,14 +301,13 @@ class FileCacheV2(
         when (result) {
             is FileDownloadResult.Success -> {
                 val (downloaded, total) = synchronized(activeDownloads) {
-                    val downloaded = activeDownloads.get(requestId)?.downloaded?.get()
-                    val total = activeDownloads.get(requestId)?.total?.get()
+                    val downloaded = activeDownloads[requestId]?.downloaded?.get()
+                    val total = activeDownloads[requestId]?.total?.get()
 
                     Pair(downloaded, total)
                 }
 
-                Logger.d(TAG, "[${result.threadName}]: Success " +
-                        "(downloaded = $downloaded, total = $total) for request ${request}")
+                log("Success (downloaded = $downloaded, total = $total) for request ${request}")
                 cacheHandler.fileWasAdded(fileManager.getLength(result.file))
 
                 request.cancelableDownload.forEachCallback {
@@ -332,10 +330,7 @@ class FileCacheV2(
                 }
 
                 val percents = (result.downloaded.toFloat() / total.toFloat()) * 100f
-
-                Logger.d(TAG, "[${result.threadName}]: Progress " +
-                        "(${result.downloaded}B / ${total}B, $percents%) " +
-                        "for request ${request}")
+                log("Progress (${result.downloaded}B / ${total}B, $percents%) for request ${request}")
 
                 request.cancelableDownload.forEachCallback {
                     BackgroundUtils.runOnUiThread {
@@ -352,7 +347,7 @@ class FileCacheV2(
                 Unit
             }
             is FileDownloadResult.NotFound -> {
-                Logger.e(TAG, "[${result.threadName}]: File not found for request ${request}")
+                logError("File not found for request ${request}")
 
                 request.cancelableDownload.forEachCallback {
                     BackgroundUtils.runOnUiThread {
@@ -367,8 +362,7 @@ class FileCacheV2(
                 Unit
             }
             is FileDownloadResult.Exception -> {
-                Logger.e(TAG, "[${result.threadName}]: " +
-                        "Exception for request ${request}", result.throwable)
+                logError("Exception for request ${request}", result.throwable)
 
                 request.cancelableDownload.forEachCallback {
                     BackgroundUtils.runOnUiThread {
@@ -389,8 +383,7 @@ class FileCacheV2(
                         "canWrite = ${result.canWrite}"
                 )
 
-                Logger.e(TAG, "[${result.threadName}]: " +
-                        "Bad output file error for request ${request}", exception)
+                logError("Bad output file error for request ${request}", exception)
 
                 request.cancelableDownload.forEachCallback {
                     BackgroundUtils.runOnUiThread {
@@ -411,9 +404,7 @@ class FileCacheV2(
                     NotFoundException()
                 }
 
-                Logger.e(TAG, "[${result.threadName}]: " +
-                        "Http code error for request ${request}, " +
-                        "status code = ${result.statusCode}")
+                logError("Http code error for request ${request}, status code = ${result.statusCode}")
 
                 request.cancelableDownload.forEachCallback {
                     BackgroundUtils.runOnUiThread {
@@ -429,8 +420,7 @@ class FileCacheV2(
             }
             is FileDownloadResult.NoResponseBodyError -> {
                 val exception = IOException("No response body returned for request ${request}")
-                Logger.e(TAG, "[${result.threadName}]: " +
-                        "No response body returned for request ${request}")
+                logError("No response body returned for request ${request}")
 
                 request.cancelableDownload.forEachCallback {
                     BackgroundUtils.runOnUiThread {
@@ -445,7 +435,7 @@ class FileCacheV2(
                 Unit
             }
             is FileDownloadResult.CouldNotGetOutputStreamError -> {
-                Logger.e(TAG, "[${result.threadName}]: CouldNotGetOutputStreamError(" +
+                logError("CouldNotGetOutputStreamError(" +
                         "exists = ${result.exists}, " +
                         "isFile = ${result.isFile}, " +
                         "canWrite = ${result.canWrite}) for request ${request}")
@@ -463,8 +453,7 @@ class FileCacheV2(
                 Unit
             }
             is FileDownloadResult.CouldNotCreateOutputFile -> {
-                Logger.e(TAG, "[${result.threadName}]: " +
-                        "CouldNotCreateOutputFile for request ${request}, " +
+                logError("CouldNotCreateOutputFile for request ${request}, " +
                         "output file path = ${result.filePath}")
 
                 request.cancelableDownload.forEachCallback {
@@ -501,7 +490,7 @@ class FileCacheV2(
 
         if (outputFile == null) {
             return Flowable.just(
-                    FileDownloadResult.CouldNotCreateOutputFile(request.output.getFullPath(), threadName())
+                    FileDownloadResult.CouldNotCreateOutputFile(request.output.getFullPath())
             )
         }
 
@@ -510,7 +499,7 @@ class FileCacheV2(
 
         if (!isFile || !canWrite) {
             return Flowable.just(
-                    FileDownloadResult.BadOutputFileError(exists, isFile, canWrite, threadName())
+                    FileDownloadResult.BadOutputFileError(exists, isFile, canWrite)
             )
         }
 
@@ -534,7 +523,7 @@ class FileCacheV2(
 
         val cleanupResourcesFunc = {
             if (isBodyClosed.compareAndSet(false, true)) {
-                Logger.d(TAG, "cleanupResourcesFunc called for requestId ${requestId}")
+                log("cleanupResourcesFunc called for requestId ${requestId}")
 
                 response.closeQuietly()
                 cachedResponseBody?.closeQuietly()
@@ -554,7 +543,7 @@ class FileCacheV2(
             try {
                 if (!response.isSuccessful) {
                     serializedEmitter.onNext(
-                            FileDownloadResult.HttpCodeIOError(response.code, threadName())
+                            FileDownloadResult.HttpCodeIOError(response.code)
                     )
                     return@create
                 }
@@ -565,7 +554,7 @@ class FileCacheV2(
 
                 val responseBody = response.body.also { cachedResponseBody = it }
                 if (responseBody == null) {
-                    serializedEmitter.onNext(FileDownloadResult.NoResponseBodyError(threadName()))
+                    serializedEmitter.onNext(FileDownloadResult.NoResponseBodyError)
                     return@create
                 }
 
@@ -579,7 +568,7 @@ class FileCacheV2(
                             ?.buffer()
                             ?.also { cachedSink = it }
                 } catch (error: Throwable) {
-                    Logger.e(TAG, "Unknown error while trying to get an OutputStream", error)
+                    logError("Unknown error while trying to get an OutputStream", error)
                     null
                 }
 
@@ -595,8 +584,7 @@ class FileCacheV2(
                     val result = FileDownloadResult.CouldNotGetOutputStreamError(
                             fileExists,
                             isFile,
-                            canWrite,
-                            threadName()
+                            canWrite
                     )
 
                     serializedEmitter.onNext(result)
@@ -617,14 +605,23 @@ class FileCacheV2(
                         sink
                 )
 
-                serializedEmitter.onNext(FileDownloadResult.Success(output, threadName()))
+                serializedEmitter.onNext(FileDownloadResult.Success(output))
             } catch (error: Throwable) {
-                if (error is CancellationException) {
-                    exception.set(true)
-                    Logger.e(TAG, "CancellationException, requestId = ${error.requestId}")
+                if (isCancellationError(error)) {
+                    if (!exception.compareAndSet(false, true)) {
+                        throw RuntimeException(
+                                "serializedEmitter.onError() is called more than once!!!"
+                        )
+                    }
+
+                    logError("CancellationException, " +
+                            "exception = ${error.javaClass.name}, " +
+                            "requestId = $requestId"
+                    )
+
                     serializedEmitter.onError(CancellationException(requestId))
                 } else {
-                    serializedEmitter.onNext(FileDownloadResult.Exception(error, threadName()))
+                    serializedEmitter.onNext(FileDownloadResult.Exception(error))
                 }
             } finally {
                 if (!exception.get()) {
@@ -636,13 +633,31 @@ class FileCacheV2(
         }, BackpressureStrategy.DROP)
     }
 
+    private fun isCancellationError(error: Throwable): Boolean {
+        if (error !is IOException) {
+            return false
+        }
+
+        if (error is CancellationException
+                || error is StreamResetException
+                || error is SocketException) {
+            return true
+        }
+
+        if (error.message?.contains("Canceled") == true) {
+            return true
+        }
+
+        return false
+    }
+
     private fun isRequestCanceled(requestId: String): Boolean {
         return synchronized(activeDownloads) {
             if (!activeDownloads.containsKey(requestId)) {
                 return@synchronized true
             }
 
-            val request = checkNotNull(activeDownloads.get(requestId)) {
+            val request = checkNotNull(activeDownloads[requestId]) {
                 "Request was removed inside a synchronized block. " +
                         "Apparently it's not thread-safe anymore"
             }
@@ -669,11 +684,11 @@ class FileCacheV2(
         }
 
         if (fileManager.exists(output)) {
-            Logger.d(TAG, "Purging $requestId, file = ${output.getFullPath()}")
+            log("Purging $requestId, file = ${output.getFullPath()}")
             val deleteResult = fileManager.delete(output)
 
             if (!deleteResult) {
-                Logger.e(TAG, "Could not delete the file in purgeOutput")
+                log("Could not delete the file in purgeOutput")
             }
         }
     }
@@ -715,7 +730,7 @@ class FileCacheV2(
                     contentLength
                 }
 
-                emitter.onNext(FileDownloadResult.Progress(downloaded, total, threadName()))
+                emitter.onNext(FileDownloadResult.Progress(downloaded, total))
             }
         }
 
@@ -728,7 +743,7 @@ class FileCacheV2(
             activeDownloads[requestId]?.total?.set(contentLength)
         }
 
-        emitter.onNext(FileDownloadResult.Progress(downloaded, contentLength, threadName()))
+        emitter.onNext(FileDownloadResult.Progress(downloaded, contentLength))
     }
 
     private fun sendRequest(requestId: String): Flowable<Response> {
@@ -756,7 +771,11 @@ class FileCacheV2(
 
             call.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    emitter.onError(e)
+                    if (!isCancellationError(e)) {
+                        emitter.onError(e)
+                    } else {
+                        emitter.onError(CancellationException(requestId))
+                    }
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -764,6 +783,22 @@ class FileCacheV2(
                     emitter.onComplete()
                 }
             })
+
+            if (isRequestCanceled(requestId)) {
+                emitter.onError(CancellationException(requestId))
+                return@create
+            }
+
+            val disposeFunc = {
+                if (!call.isCanceled()) {
+                    log("Disposing OkHttp Call for request ${request} via manual canceling")
+                    call.cancel()
+                }
+            }
+
+            synchronized(activeDownloads) {
+                activeDownloads[requestId]?.cancelableDownload?.disposeFunc = disposeFunc
+            }
 
             emitter.setDisposable(object : Disposable {
                 override fun isDisposed(): Boolean = call.isCanceled()
@@ -773,7 +808,7 @@ class FileCacheV2(
                         return
                     }
 
-                    Logger.d(TAG, "Disposing OkHttp Call for request ${request}")
+                    log("Disposing OkHttp Call for request ${request} via emitter dispose")
                     call.cancel()
                 }
             })
@@ -791,7 +826,7 @@ class FileCacheV2(
         )
 
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory::class.java)) {
-            Logger.e(TAG, "Base local threads directory does not exist")
+            logError("handleLoadThreadFile() Base local threads directory does not exist")
 
             callback.onFail(IOException("Base local threads directory does not exist"))
             callback.onEnd()
@@ -804,7 +839,7 @@ class FileCacheV2(
         )
 
         if (baseDirFile == null) {
-            Logger.e(TAG, "downloadFile() fileManager.newLocalThreadFile() returned null")
+            logError("handleLoadThreadFile() fileManager.newLocalThreadFile() returned null")
 
             callback.onFail(IOException("Couldn't create a file inside local threads base directory"))
             callback.onEnd()
@@ -825,7 +860,7 @@ class FileCacheV2(
         if (isLocalFileOk) {
             handleFileImmediatelyAvailable(localImgFile, callback)
         } else {
-            Logger.e(TAG, "Cannot load saved image from the disk, path: " + localImgFile.getFullPath())
+            logError("Cannot load saved image from the disk, path: " + localImgFile.getFullPath())
 
             callback.onFail(
                     IOException("Couldn't load saved image from the disk, path: "
@@ -838,8 +873,6 @@ class FileCacheV2(
         return null
     }
 
-    private fun threadName() = Thread.currentThread().name
-
     class FileDownloadRequest(
             val url: String,
             val output: RawFile,
@@ -848,64 +881,30 @@ class FileCacheV2(
             val cancelableDownload: CancelableDownload
     ) {
         override fun toString(): String {
-            return "FileDownloadRequest: " +
+            return "[FileDownloadRequest: " +
                     "url = ${url}, " +
-                    "outputName = ${File(output.getFullPath()).name}"
+                    "outputFileName = ${File(output.getFullPath()).name}]"
         }
     }
 
-    class CancellationException(val requestId: String)
+    class CancellationException(requestId: String)
         : IOException("CancellationException for request with id ${requestId}")
 
     class NotFoundException : Exception()
 
-    sealed class FileDownloadResult(val threadName: String) {
-        class Progress(
-                val downloaded: Long,
-                val total: Long,
-                threadName: String
-        ) : FileDownloadResult(threadName)
-
-        class Success(
-                val file: RawFile,
-                threadName: String
-        ) : FileDownloadResult(threadName)
+    sealed class FileDownloadResult {
+        class Success(val file: RawFile) : FileDownloadResult()
+        class Progress(val downloaded: Long, val total: Long) : FileDownloadResult()
 
         // Errors
-        class NotFound(threadName: String) : FileDownloadResult(threadName)
-
-        class Canceled(threadName: String) : FileDownloadResult(threadName)
-
-        class Exception(
-                val throwable: Throwable,
-                threadName: String
-        ) : FileDownloadResult(threadName)
-
-        class CouldNotCreateOutputFile(
-                val filePath: String,
-                threadName: String
-        ) : FileDownloadResult(threadName)
-
-        class BadOutputFileError(
-                val exists: Boolean,
-                val isFile: Boolean,
-                val canWrite: Boolean,
-                threadName: String
-        ) : FileDownloadResult(threadName)
-
-        class CouldNotGetOutputStreamError(
-                val exists: Boolean,
-                val isFile: Boolean,
-                val canWrite: Boolean,
-                threadName: String
-        ) : FileDownloadResult(threadName)
-
-        class HttpCodeIOError(
-                val statusCode: Int,
-                threadName: String
-        ) : FileDownloadResult(threadName)
-
-        class NoResponseBodyError(threadName: String) : FileDownloadResult(threadName)
+        object NotFound : FileDownloadResult()
+        object Canceled : FileDownloadResult()
+        class Exception(val throwable: Throwable) : FileDownloadResult()
+        class CouldNotCreateOutputFile(val filePath: String) : FileDownloadResult()
+        class BadOutputFileError(val exists: Boolean, val isFile: Boolean, val canWrite: Boolean) : FileDownloadResult()
+        class CouldNotGetOutputStreamError(val exists: Boolean, val isFile: Boolean, val canWrite: Boolean) : FileDownloadResult()
+        class HttpCodeIOError(val statusCode: Int) : FileDownloadResult()
+        object NoResponseBodyError : FileDownloadResult()
 
         fun isErrorOfAnyKind(): Boolean {
             return this !is Success && this !is Progress
@@ -913,9 +912,10 @@ class FileCacheV2(
     }
 
     class CancelableDownload(
+            val url: String,
             private val canceled: AtomicBoolean = AtomicBoolean(false),
             private var callbacks: MutableSet<FileCacheListener> = mutableSetOf(),
-            val url: String
+            var disposeFunc: (() -> Unit)? = null
     ) {
         fun isCanceled() = canceled.get()
 
@@ -944,7 +944,10 @@ class FileCacheV2(
                 return
             }
 
-            Logger.d(TAG, "Cancelling file download request, requestId = $url")
+            disposeFunc?.invoke()
+            disposeFunc = null
+
+            log("Cancelling file download request, requestId = $url")
         }
     }
 
@@ -952,5 +955,17 @@ class FileCacheV2(
         private const val TAG = "FileCacheV2"
         private const val THREAD_NAME_FORMAT = "FileCacheV2Thread-%d"
         private const val BUFFER_SIZE: Long = 8192
+
+        private fun log(message: String) {
+            Logger.d(TAG, String.format("[%s]: %s", Thread.currentThread().name, message))
+        }
+
+        private fun logError(message: String, error: Throwable? = null) {
+            if (error == null) {
+                Logger.e(TAG, String.format("[%s]: %s", Thread.currentThread().name, message))
+            } else {
+                Logger.e(TAG, String.format("[%s]: %s", Thread.currentThread().name, message), error)
+            }
+        }
     }
 }

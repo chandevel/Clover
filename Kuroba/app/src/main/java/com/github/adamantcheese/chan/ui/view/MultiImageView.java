@@ -271,35 +271,36 @@ public class MultiImageView
             return;
         }
 
-        thumbnailRequest = imageLoaderV2.getImage(true,
-                                                  loadable,
-                                                  postImage,
-                                                  getWidth(),
-                                                  getHeight(),
-                                                  new ImageListener() {
-                                                      @Override
-                                                      public void onErrorResponse(VolleyError error) {
-                                                          thumbnailRequest = null;
-                                                          if (center) {
-                                                              onError();
-                                                          }
-                                                      }
+        thumbnailRequest = imageLoaderV2.getImage(
+                true,
+                loadable,
+                postImage,
+                getWidth(),
+                getHeight(),
+                new ImageListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        thumbnailRequest = null;
+                        if (center) {
+                            onError(error);
+                        }
+                    }
 
-                                                      @Override
-                                                      public void onResponse(ImageContainer response,
-                                                                             boolean isImmediate
-                                                      ) {
-                                                          thumbnailRequest = null;
+                    @Override
+                    public void onResponse(ImageContainer response,
+                                           boolean isImmediate
+                    ) {
+                        thumbnailRequest = null;
 
-                                                          if (response.getBitmap() != null && (
-                                                                  !hasContent || mode == Mode.LOWRES))
-                                                          {
-                                                              ImageView thumbnail = new ImageView(getContext());
-                                                              thumbnail.setImageBitmap(response.getBitmap());
+                        if (response.getBitmap() != null && (
+                                !hasContent || mode == Mode.LOWRES))
+                        {
+                            ImageView thumbnail = new ImageView(getContext());
+                            thumbnail.setImageBitmap(response.getBitmap());
 
-                                                              onModeLoaded(Mode.LOWRES, thumbnail);
-                                                          }
-                                                      }
+                            onModeLoaded(Mode.LOWRES, thumbnail);
+                        }
+                    }
                                                   }
         );
 
@@ -346,7 +347,7 @@ public class MultiImageView
                 if (exception instanceof FileCacheV2.NotFoundException) {
                     onNotFoundError();
                 } else {
-                    onError();
+                    onError(exception);
                 }
             }
 
@@ -397,7 +398,7 @@ public class MultiImageView
                 if (exception instanceof FileCacheV2.NotFoundException) {
                     onNotFoundError();
                 } else {
-                    onError();
+                    onError(exception);
                 }
             }
 
@@ -425,12 +426,12 @@ public class MultiImageView
                 return;
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            onError();
+            Logger.e(TAG, "Error while trying to set a get file", e);
+            onError(e);
             return;
         } catch (OutOfMemoryError e) {
             Runtime.getRuntime().gc();
-            e.printStackTrace();
+            Logger.e(TAG, "OOM while trying to set a get file", e);
             onOutOfMemoryError();
             return;
         }
@@ -474,7 +475,7 @@ public class MultiImageView
                 if (exception instanceof FileCacheV2.NotFoundException) {
                     onNotFoundError();
                 } else {
-                    onError();
+                    onError(exception);
                 }
             }
 
@@ -605,8 +606,19 @@ public class MultiImageView
         });
     }
 
-    private void onError() {
-        showToast(R.string.image_preview_failed);
+    private void onError(Exception exception) {
+        String reason = exception.getMessage();
+        if (reason == null) {
+            reason = "Unknown reason";
+        }
+
+        String message = String.format(
+                "%s, reason: %s",
+                context.getString(R.string.image_preview_failed),
+                reason
+        );
+
+        showToast(message);
         callback.showProgress(this, false);
     }
 

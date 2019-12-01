@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 
@@ -46,11 +47,11 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 
 public class NetModule {
     public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
-    public static final long NORMAL_OKHTTP_TIMEOUT_SECONDS = 10L;
+    public static final long DOWNLOADER_OKHTTP_TIMEOUT_SECONDS = 30L;
     public static final long PROXIED_OKHTTP_TIMEOUT_SECONDS = 20L;
     public static final long THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS = 30L;
     public static final String THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME = "thread_save_manager_okhttp_client";
-    public static final String OKHTTP_CLIENT_NAME = "okhttp_client";
+    public static final String DOWNLOADER_OKHTTP_CLIENT_NAME = "downloader_okhttp_client";
     private static final String FILE_CACHE_DIR = "filecache";
 
     @Provides
@@ -74,7 +75,7 @@ public class NetModule {
     public FileCacheV2 provideFileCacheV2(
             FileManager fileManager,
             CacheHandler cacheHandler,
-            @Named(OKHTTP_CLIENT_NAME) OkHttpClient okHttpClient
+            @Named(DOWNLOADER_OKHTTP_CLIENT_NAME) OkHttpClient okHttpClient
     ) {
         Logger.d(AppModule.DI_TAG, "File cache V2");
         return new FileCacheV2(fileManager, cacheHandler, okHttpClient);
@@ -106,19 +107,24 @@ public class NetModule {
 
     @Provides
     @Singleton
-    @Named(OKHTTP_CLIENT_NAME)
+    @Named(DOWNLOADER_OKHTTP_CLIENT_NAME)
     public OkHttpClient provideOkHttpClient() {
-        Logger.d(AppModule.DI_TAG, "OkHttpDownloader client");
+        Logger.d(AppModule.DI_TAG, "DownloaderOkHttp client");
         Dispatcher dispatcher = new Dispatcher(
                 createExecutorServiceForOkHttpClient(4)
         );
 
         return new OkHttpClient.Builder()
-                // The same as the defaults but set explicitly
-                .connectTimeout(NORMAL_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .readTimeout(NORMAL_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .writeTimeout(NORMAL_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                // So that people can still download files with a really bad connection we need to
+                // set the timeouts relatively high
+                .connectTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .readTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .writeTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .dispatcher(dispatcher)
+                // This seems to help with the random OkHttpClient hangups. Maybe the same thing
+                // should be used for other OkHttpClients as well.
+                // https://github.com/square/okhttp/issues/3146#issuecomment-311158567
+                .connectionPool(new ConnectionPool(0, 1, TimeUnit.NANOSECONDS))
                 .build();
     }
 
@@ -126,7 +132,7 @@ public class NetModule {
     @Singleton
     @Named(THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME)
     public OkHttpClient provideOkHttpClientForThreadSaveManager() {
-        Logger.d(AppModule.DI_TAG, "OkHttpThreadSaver client");
+        Logger.d(AppModule.DI_TAG, "ThreadSaverOkHttp client");
 
         Dispatcher dispatcher = new Dispatcher(
                 createExecutorServiceForOkHttpClient(4)
