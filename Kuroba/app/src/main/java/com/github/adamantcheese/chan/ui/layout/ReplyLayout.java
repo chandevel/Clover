@@ -205,6 +205,7 @@ public class ReplyLayout
             if (!focused)
                 hideKeyboard(comment);
         });
+        comment.setPlainTextPaste(true);
         setupCommentContextMenu();
 
         previewHolder.setOnClickListener(this);

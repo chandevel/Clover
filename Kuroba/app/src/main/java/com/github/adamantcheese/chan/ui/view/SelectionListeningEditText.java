@@ -24,6 +24,7 @@ import androidx.appcompat.widget.AppCompatEditText;
 public class SelectionListeningEditText
         extends AppCompatEditText {
     private SelectionChangedListener listener;
+    private boolean plainTextPaste = false;
 
     public SelectionListeningEditText(Context context) {
         super(context);
@@ -48,6 +49,23 @@ public class SelectionListeningEditText
         if (listener != null) {
             listener.onSelectionChanged();
         }
+    }
+
+    @Override
+    public boolean onTextContextMenuItem(int id) {
+        //do the paste
+        boolean consumed = super.onTextContextMenuItem(id);
+        if(id == android.R.id.paste && plainTextPaste) {
+            //make it plaintext if set
+            if(getText() != null) {
+                setText(getText().toString());
+            }
+        }
+        return consumed;
+    }
+
+    public void setPlainTextPaste(boolean plainTextPaste) {
+        this.plainTextPaste = plainTextPaste;
     }
 
     public interface SelectionChangedListener {
