@@ -696,7 +696,18 @@ public class ReplyLayout
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 if (item == quoteMenuItem) {
-                    insertTags(">", "");
+                    int selectionStart = comment.getSelectionStart();
+                    int selectionEnd = comment.getSelectionEnd();
+                    String[] textLines = comment.getText().subSequence(selectionStart, selectionEnd).toString().split("\n");
+                    StringBuilder rebuilder = new StringBuilder();
+                    for(int i = 0; i < textLines.length; i++) {
+                        rebuilder.append(">").append(textLines[i]);
+                        if(i != textLines.length - 1) {
+                            rebuilder.append("\n");
+                        }
+                    }
+                    comment.getText().replace(selectionStart, selectionEnd, rebuilder.toString());
+                    processed = true;
                 } else if (item == spoilerMenuItem) {
                     insertTags("[spoiler]", "[/spoiler]");
                 } else if (item == codeMenuItem) {
