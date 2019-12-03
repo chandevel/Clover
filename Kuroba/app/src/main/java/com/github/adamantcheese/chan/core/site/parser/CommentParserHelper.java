@@ -155,17 +155,21 @@ public class CommentParserHelper {
                                 .getJSONObject(0)
                                 .getJSONObject("contentDetails")
                                 .getString("duration"); //the response is well formatted so this will always work
+                        Period time = Period.parse(duration);
+                        //format m?m:ss; ? is optional
+                        //alternate h?h:mm:ss if hours
                         PeriodFormatter formatter = new PeriodFormatterBuilder()
-                                .minimumPrintedDigits(0)
+                                .minimumPrintedDigits(0) //don't print hours if none
                                 .appendHours()
                                 .appendSuffix(":")
-                                .printZeroAlways()
+                                .minimumPrintedDigits(time.getHours() > 0 ? 2 : 1) //two digit minutes if hours
+                                .printZeroAlways() //always print 0 for minutes, if seconds only
                                 .appendMinutes()
                                 .appendSuffix(":")
-                                .minimumPrintedDigits(2)
+                                .minimumPrintedDigits(2) //always print two digit seconds
                                 .appendSeconds()
                                 .toFormatter();
-                        duration = formatter.print(Period.parse(duration));
+                        duration = formatter.print(time);
                         youtubeDurCache.put(URL, duration);
                     }
                 } catch (Exception e) {
