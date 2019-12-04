@@ -1147,18 +1147,19 @@ public class ThreadPresenter
         StringBuilder text = new StringBuilder();
 
         for (PostImage image : post.images) {
-            text.append("Filename: ")
-                    .append(image.filename)
-                    .append(".")
-                    .append(image.extension)
-                    .append(" \nDimensions: ")
-                    .append(image.imageWidth)
-                    .append("x")
-                    .append(image.imageHeight)
-                    .append("\nSize: ")
-                    .append(getReadableFileSize(image.size, false));
+            text.append("Filename: ").append(image.filename).append(".").append(image.extension);
+            if (image.size == -1) {
+                text.append("\nLinked file");
+            } else {
+                text.append(" \nDimensions: ")
+                        .append(image.imageWidth)
+                        .append("x")
+                        .append(image.imageHeight)
+                        .append("\nSize: ")
+                        .append(getReadableFileSize(image.size, false));
+            }
 
-            if (image.spoiler) {
+            if (image.spoiler && image.size != -1) { //all linked files are spoilered, don't say that
                 text.append("\nSpoilered");
             }
 
