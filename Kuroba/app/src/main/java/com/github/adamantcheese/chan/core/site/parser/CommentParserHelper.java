@@ -154,7 +154,7 @@ public class CommentParserHelper {
                         Period time = Period.parse(duration);
                         //format m?m:ss; ? is optional
                         //alternate h?h:mm:ss if hours
-                        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                        PeriodFormatter formatter = new PeriodFormatterBuilder().appendLiteral("[")
                                 .minimumPrintedDigits(0) //don't print hours if none
                                 .appendHours()
                                 .appendSuffix(":")
@@ -164,6 +164,7 @@ public class CommentParserHelper {
                                 .appendSuffix(":")
                                 .minimumPrintedDigits(2) //always print two digit seconds
                                 .appendSeconds()
+                                .appendLiteral("]")
                                 .toFormatter();
                         duration = formatter.print(time);
                         youtubeDurCache.put(URL, duration);
@@ -175,9 +176,7 @@ public class CommentParserHelper {
                 }
             }
             //prepend two spaces for the youtube icon later
-            String extraDur = ChanSettings.parseYoutubeDuration.get()
-                    ? (duration != null ? " [" + duration + "]" : "")
-                    : "";
+            String extraDur = ChanSettings.parseYoutubeDuration.get() ? (duration != null ? " " + duration : "") : "";
             titleURLMap.put("  " + title + extraDur, URL);
             linkMatcher.appendReplacement(newString, "  " + title + extraDur);
         }
