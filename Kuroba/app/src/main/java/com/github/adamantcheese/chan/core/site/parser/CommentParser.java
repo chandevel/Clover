@@ -253,7 +253,9 @@ public class CommentParser {
             String link =
                     site.resolvable().desktopUrl(Loadable.forThread(site, builder.board, postNo, ""), builder.build());
             link = link.replace("https://boards.4chan.org/", "https://" + boards.get(0).second + "/");
-            text = span(text, new PostLinkable(theme, text, link, PostLinkable.Type.LINK));
+            PostLinkable newLinkable = new PostLinkable(theme, link, link, PostLinkable.Type.LINK);
+            text = span(text, newLinkable);
+            builder.addLinkable(newLinkable);
         }
         return text;
     }

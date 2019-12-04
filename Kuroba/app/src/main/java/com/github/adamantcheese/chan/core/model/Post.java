@@ -168,7 +168,7 @@ public class Post
         subjectSpan = builder.subjectSpan;
         nameTripcodeIdCapcodeSpan = builder.nameTripcodeIdCapcodeSpan;
 
-        linkables = Collections.unmodifiableList(builder.linkables);
+        linkables = Collections.unmodifiableList(new ArrayList<>(builder.linkables));
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
     }
 
@@ -341,7 +341,7 @@ public class Post
         public CharSequence subjectSpan;
         public CharSequence nameTripcodeIdCapcodeSpan;
 
-        private List<PostLinkable> linkables = new ArrayList<>();
+        private Set<PostLinkable> linkables = new HashSet<>();
         private Set<Integer> repliesToIds = new HashSet<>();
 
         public Builder() {
@@ -508,12 +508,16 @@ public class Post
         }
 
         public Builder linkables(List<PostLinkable> linkables) {
-            this.linkables = linkables;
+            this.linkables = new HashSet<>(linkables);
             return this;
         }
 
         public List<PostLinkable> getLinkables() {
-            return linkables == null ? new ArrayList<>() : linkables;
+            List<PostLinkable> result = new ArrayList<>();
+            if (linkables != null) {
+                result.addAll(linkables);
+            }
+            return result;
         }
 
         public Builder addReplyTo(int postId) {
