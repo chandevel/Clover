@@ -86,8 +86,8 @@ public class MainSettingsController
     @Override
     public void setWatchEnabled(boolean enabled) {
         watchLink.setDescription(enabled
-                                         ? R.string.setting_watch_summary_enabled
-                                         : R.string.setting_watch_summary_disabled);
+                ? R.string.setting_watch_summary_enabled
+                : R.string.setting_watch_summary_disabled);
     }
 
     private void populatePreferences() {
@@ -95,64 +95,54 @@ public class MainSettingsController
         {
             SettingsGroup general = new SettingsGroup(R.string.settings_group_settings);
 
-            watchLink = (LinkSettingView) general.add(
-                    new LinkSettingView(this,
-                                        R.string.settings_watch,
-                                        0,
-                                        v -> navigationController.pushController(new WatchSettingsController(
-                                                context))
-                    ));
+            watchLink = (LinkSettingView) general.add(new LinkSettingView(this,
+                    R.string.settings_watch,
+                    0,
+                    v -> navigationController.pushController(new WatchSettingsController(context))
+            ));
 
-            sitesSetting = (LinkSettingView) general.add(
-                    new LinkSettingView(this,
-                                        R.string.settings_sites,
-                                        0,
-                                        v -> navigationController.pushController(
-                                                new SitesSetupController(context))
-                    ));
-
-            general.add(new LinkSettingView(this,
-                                            R.string.settings_appearance,
-                                            R.string.settings_appearance_description,
-                                            v -> navigationController.pushController(new AppearanceSettingsController(
-                                                    context))
+            sitesSetting = (LinkSettingView) general.add(new LinkSettingView(this,
+                    R.string.settings_sites,
+                    0,
+                    v -> navigationController.pushController(new SitesSetupController(context))
             ));
 
             general.add(new LinkSettingView(this,
-                                            R.string.settings_behavior,
-                                            R.string.settings_behavior_description,
-                                            v -> navigationController.pushController(new BehaviourSettingsController(
-                                                    context))
+                    R.string.settings_appearance,
+                    R.string.settings_appearance_description,
+                    v -> navigationController.pushController(new AppearanceSettingsController(context))
             ));
 
             general.add(new LinkSettingView(this,
-                                            R.string.settings_media,
-                                            R.string.settings_media_description,
-                                            v -> navigationController.pushController(new MediaSettingsController(context))
+                    R.string.settings_behavior,
+                    R.string.settings_behavior_description,
+                    v -> navigationController.pushController(new BehaviourSettingsController(context))
             ));
 
             general.add(new LinkSettingView(this,
-                                            R.string.settings_import_export,
-                                            R.string.settings_import_export_description,
-                                            v -> navigationController.pushController(new ImportExportSettingsController(
-                                                    context,
-                                                    () -> navigationController.popController()
-                                            ))
+                    R.string.settings_media,
+                    R.string.settings_media_description,
+                    v -> navigationController.pushController(new MediaSettingsController(context))
             ));
 
-            filtersSetting = (LinkSettingView) general.add(
-                    new LinkSettingView(this,
-                                        R.string.settings_filters,
-                                        0,
-                                        v -> navigationController.pushController(
-                                                new FiltersController(context))
-                    ));
+            general.add(new LinkSettingView(this,
+                    R.string.settings_import_export,
+                    R.string.settings_import_export_description,
+                    v -> navigationController.pushController(new ImportExportSettingsController(context,
+                            () -> navigationController.popController()
+                    ))
+            ));
+
+            filtersSetting = (LinkSettingView) general.add(new LinkSettingView(this,
+                    R.string.settings_filters,
+                    0,
+                    v -> navigationController.pushController(new FiltersController(context))
+            ));
 
             general.add(new LinkSettingView(this,
-                                            R.string.settings_experimental_settings_title,
-                                            R.string.settings_experimental_settings_description,
-                                            v -> navigationController.pushController(new ExperimentalSettingsController(
-                                                    context))
+                    R.string.settings_experimental_settings_title,
+                    R.string.settings_experimental_settings_description,
+                    v -> navigationController.pushController(new ExperimentalSettingsController(context))
             ));
 
             groups.add(general);
@@ -165,42 +155,39 @@ public class MainSettingsController
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
         about.add(new LinkSettingView(this,
-                                      getApplicationLabel() + " " + BuildConfig.VERSION_NAME + " "
-                                              + (getIsOfficial() ? "✓" : "✗"),
-                                      "Tap to check for updates",
-                                      v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
+                getApplicationLabel() + " " + BuildConfig.VERSION_NAME + " " + (getIsOfficial() ? "✓" : "✗"),
+                "Tap to check for updates",
+                v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
         ));
 
         about.add(new LinkSettingView(this,
-                                      "Find " + getApplicationLabel() + " on GitHub",
-                                      "View the source code, give feedback, submit bug reports",
-                                      v -> openLink(BuildConfig.GITHUB_ENDPOINT)
+                "Find " + getApplicationLabel() + " on GitHub",
+                "View the source code, give feedback, submit bug reports",
+                v -> openLink(BuildConfig.GITHUB_ENDPOINT)
         ));
 
         about.add(new LinkSettingView(this,
-                                      R.string.settings_about_license,
-                                      R.string.settings_about_license_description,
-                                      v -> navigationController.pushController(
-                                              new LicensesController(context,
-                                                                     getString(R.string.settings_about_license),
-                                                                     "file:///android_asset/html/license.html"
-                                              ))
+                R.string.settings_about_license,
+                R.string.settings_about_license_description,
+                v -> navigationController.pushController(new LicensesController(context,
+                        getString(R.string.settings_about_license),
+                        "file:///android_asset/html/license.html"
+                ))
         ));
 
         about.add(new LinkSettingView(this,
-                                      R.string.settings_about_licenses,
-                                      R.string.settings_about_licenses_description,
-                                      v -> navigationController.pushController(
-                                              new LicensesController(context,
-                                                                     getString(R.string.settings_about_licenses),
-                                                                     "file:///android_asset/html/licenses.html"
-                                              ))
+                R.string.settings_about_licenses,
+                R.string.settings_about_licenses_description,
+                v -> navigationController.pushController(new LicensesController(context,
+                        getString(R.string.settings_about_licenses),
+                        "file:///android_asset/html/licenses.html"
+                ))
         ));
 
         about.add(new LinkSettingView(this,
-                                      R.string.settings_developer,
-                                      0,
-                                      v -> navigationController.pushController(new DeveloperSettingsController(context))
+                R.string.settings_developer,
+                0,
+                v -> navigationController.pushController(new DeveloperSettingsController(context))
         ));
 
         groups.add(about);

@@ -65,6 +65,7 @@ import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalTy
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.FOREGROUND;
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.NONE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.isInForeground;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -143,11 +144,12 @@ public class WatchManager
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
 
     @Inject
-    public WatchManager(DatabaseManager databaseManager,
-                        ChanLoaderFactory chanLoaderFactory,
-                        WakeManager wakeManager,
-                        PageRequestManager pageRequestManager,
-                        ThreadSaveManager threadSaveManager
+    public WatchManager(
+            DatabaseManager databaseManager,
+            ChanLoaderFactory chanLoaderFactory,
+            WakeManager wakeManager,
+            PageRequestManager pageRequestManager,
+            ThreadSaveManager threadSaveManager
     ) {
         //retain local references to needed managers/factories/pins
         this.databaseManager = databaseManager;
@@ -231,7 +233,7 @@ public class WatchManager
         updateState();
 
         if (sendBroadcast) {
-            EventBus.getDefault().post(new PinMessages.PinAddedMessage(pin));
+            postToEventBus(new PinMessages.PinAddedMessage(pin));
         }
 
         return true;
@@ -313,8 +315,8 @@ public class WatchManager
             }
         }
 
-        SavedThread savedThread = databaseManager.runTask(databaseSavedThreadManager.getSavedThreadByLoadableId(
-                loadableId));
+        SavedThread savedThread =
+                databaseManager.runTask(databaseSavedThreadManager.getSavedThreadByLoadableId(loadableId));
 
         if (savedThread != null) {
             savedThreads.add(savedThread);
@@ -355,7 +357,7 @@ public class WatchManager
         reorder();
         updateState();
 
-        EventBus.getDefault().post(new PinMessages.PinRemovedMessage(index));
+        postToEventBus(new PinMessages.PinRemovedMessage(index));
     }
 
     private void deleteSavedThread(int loadableId) {
@@ -400,7 +402,7 @@ public class WatchManager
         updatePinsInDatabase();
 
         updateState();
-        EventBus.getDefault().post(new PinMessages.PinsChangedMessage(pins));
+        postToEventBus(new PinMessages.PinsChangedMessage(pins));
     }
 
     public void updatePin(Pin pin) {
@@ -418,7 +420,7 @@ public class WatchManager
             updateState();
         }
 
-        EventBus.getDefault().post(new PinMessages.PinChangedMessage(pin));
+        postToEventBus(new PinMessages.PinChangedMessage(pin));
     }
 
     public void updatePins(List<Pin> updatedPins, boolean updateState) {
@@ -433,7 +435,7 @@ public class WatchManager
         }
 
         for (Pin updatedPin : updatedPins) {
-            EventBus.getDefault().post(new PinMessages.PinChangedMessage(updatedPin));
+            postToEventBus(new PinMessages.PinChangedMessage(updatedPin));
         }
     }
 
@@ -509,7 +511,7 @@ public class WatchManager
         pin.watching = !pin.watching;
 
         updateState();
-        EventBus.getDefault().post(new PinMessages.PinChangedMessage(pin));
+        postToEventBus(new PinMessages.PinChangedMessage(pin));
     }
 
     public void onBottomPostViewed(Pin pin) {
@@ -553,13 +555,13 @@ public class WatchManager
     // Called when the user changes the watch enabled preference
     private void onWatchEnabledChanged(boolean watchEnabled) {
         updateState(watchEnabled, ChanSettings.watchBackground.get());
-        EventBus.getDefault().post(new PinMessages.PinsChangedMessage(pins));
+        postToEventBus(new PinMessages.PinsChangedMessage(pins));
     }
 
     // Called when the user changes the watch background enabled preference
     private void onBackgroundWatchingChanged(boolean backgroundEnabled) {
         updateState(isTimerEnabled(), backgroundEnabled);
-        EventBus.getDefault().post(new PinMessages.PinsChangedMessage(pins));
+        postToEventBus(new PinMessages.PinsChangedMessage(pins));
     }
 
     // Called when the broadcast scheduled by the alarm manager was received
@@ -576,7 +578,7 @@ public class WatchManager
         updateState();
         updatePinsInDatabase();
 
-        EventBus.getDefault().post(new PinMessages.PinsChangedMessage(pins));
+        postToEventBus(new PinMessages.PinsChangedMessage(pins));
     }
 
     public boolean hasAtLeastOnePinWithDownloadFlag() {
@@ -600,8 +602,7 @@ public class WatchManager
                 //if we're watching and a pin isn't being watched and has no flags, it's a candidate for clearing
                 //if the pin is archived or errored out, it's a candidate for clearing
                 if ((ChanSettings.watchEnabled.get() && !pin.watching && PinType.hasNoFlags(pin.pinType)) || (
-                        pin.archived || pin.isError))
-                {
+                        pin.archived || pin.isError)) {
                     toRemove.add(pin);
                 }
             }
@@ -662,9 +663,10 @@ public class WatchManager
     // Update the interval type according to the current settings,
     // create and destroy PinWatchers where needed and update the notification
     private void updateState(boolean watchEnabled, boolean backgroundEnabled) {
-        Logger.d(TAG,
-                 "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground="
-                         + isInForeground()
+        Logger.d(
+                TAG,
+                "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground="
+                        + isInForeground()
         );
 
         updateDeletedOrArchivedPins();
@@ -838,15 +840,15 @@ public class WatchManager
                     // Update thread in the DB
                     if (savedThread.isStopped) {
                         databaseManager.getDatabaseSavedThreadManager()
-                                       .updateThreadStoppedFlagByLoadableId(pin.loadable.id, true)
-                                       .call();
+                                .updateThreadStoppedFlagByLoadableId(pin.loadable.id, true)
+                                .call();
                     }
 
                     // Update thread in the DB
                     if (savedThread.isFullyDownloaded) {
                         databaseManager.getDatabaseSavedThreadManager()
-                                       .updateThreadFullyDownloadedByLoadableId(pin.loadable.id)
-                                       .call();
+                                .updateThreadFullyDownloadedByLoadableId(pin.loadable.id)
+                                .call();
                     }
 
                     return null;
@@ -871,8 +873,7 @@ public class WatchManager
         List<Pin> pinsWithDownloadFlag = new ArrayList<>();
 
         for (Pin pin : pins) {
-            if (pin.isError || pin.archived)
-                continue;
+            if (pin.isError || pin.archived) continue;
 
             if ((PinType.hasDownloadFlag(pin.pinType))) {
                 pinsWithDownloadFlag.add(pin);
@@ -915,7 +916,7 @@ public class WatchManager
         for (Pin pin : watchingPins) {
             PinWatcher pinWatcher = getPinWatcher(pin);
             if (pinWatcher != null && pinWatcher.update(fromBackground)) {
-                EventBus.getDefault().post(new PinMessages.PinChangedMessage(pin));
+                postToEventBus(new PinMessages.PinChangedMessage(pin));
 
                 if (fromBackground) {
                     waitingForPinWatchersForBackgroundUpdate.add(pinWatcher);
@@ -924,9 +925,10 @@ public class WatchManager
         }
 
         if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-            Logger.i(TAG,
-                     waitingForPinWatchersForBackgroundUpdate.size() + " pin watchers beginning updates, started at "
-                             + DateFormat.getTimeInstance().format(new Date())
+            Logger.i(
+                    TAG,
+                    waitingForPinWatchersForBackgroundUpdate.size() + " pin watchers beginning updates, started at "
+                            + DateFormat.getTimeInstance().format(new Date())
             );
             wakeManager.manageLock(true, WatchManager.this);
         }
@@ -968,7 +970,7 @@ public class WatchManager
 
     private void pinWatcherUpdated(PinWatcher pinWatcher) {
         updateState();
-        EventBus.getDefault().post(new PinMessages.PinChangedMessage(pinWatcher.pin));
+        postToEventBus(new PinMessages.PinChangedMessage(pinWatcher.pin));
 
         if (waitingForPinWatchersForBackgroundUpdate != null) {
             waitingForPinWatchersForBackgroundUpdate.remove(pinWatcher);
@@ -1043,11 +1045,9 @@ public class WatchManager
             if (chanLoader != null && chanLoader.getThread() != null) {
                 int total = 0;
                 List<Post> posts = chanLoader.getThread().getPostsUnsafe();
-                if (posts == null)
-                    return 0;
+                if (posts == null) return 0;
                 for (Post p : posts) {
-                    if (!p.isOP)
-                        total += p.images.size();
+                    if (!p.isOP) total += p.images.size();
                 }
                 return total;
             }
@@ -1090,8 +1090,9 @@ public class WatchManager
 
         private void destroy() {
             if (chanLoader != null) {
-                Logger.d(TAG,
-                         "PinWatcher: destroyed for pin with id " + pin.id + " and loadable" + pin.loadable.toString()
+                Logger.d(
+                        TAG,
+                        "PinWatcher: destroyed for pin with id " + pin.id + " and loadable" + pin.loadable.toString()
                 );
                 chanLoaderFactory.release(chanLoader, this);
                 chanLoader = null;
@@ -1148,13 +1149,9 @@ public class WatchManager
                     // Only check for this flag here, since we won't get here when loadableDownloadingState
                     // is AlreadyDownloaded
                     && pin.loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndViewable
-                    && (thread.isArchived() || thread.isClosed()))
-            {
-                NetworkResponse networkResponse = new NetworkResponse(503,
-                                                                      EMPTY_BYTE_ARRAY,
-                                                                      Collections.emptyMap(),
-                                                                      true
-                );
+                    && (thread.isArchived() || thread.isClosed())) {
+                NetworkResponse networkResponse =
+                        new NetworkResponse(503, EMPTY_BYTE_ARRAY, Collections.emptyMap(), true);
                 ServerError serverError = new ServerError(networkResponse);
 
                 pin.isError = true;
@@ -1236,18 +1233,17 @@ public class WatchManager
             }
 
             if (BuildConfig.DEBUG) {
-                Logger.d(TAG,
-                         String.format(Locale.ENGLISH,
-                                       "postlast=%d postnew=%d werenewposts=%b quotelast=%d quotenew=%d werenewquotes=%b nextload=%ds",
-                                       pin.watchLastCount,
-                                       pin.watchNewCount,
-                                       wereNewPosts,
-                                       pin.quoteLastCount,
-                                       pin.quoteNewCount,
-                                       wereNewQuotes,
-                                       chanLoader.getTimeUntilLoadMore() / 1000
-                         )
-                );
+                Logger.d(TAG, String.format(
+                        Locale.ENGLISH,
+                        "postlast=%d postnew=%d werenewposts=%b quotelast=%d quotenew=%d werenewquotes=%b nextload=%ds",
+                        pin.watchLastCount,
+                        pin.watchNewCount,
+                        wereNewPosts,
+                        pin.quoteLastCount,
+                        pin.quoteNewCount,
+                        wereNewQuotes,
+                        chanLoader.getTimeUntilLoadMore() / 1000
+                ));
             }
 
             if (!pin.loadable.isLocal() && (thread.isArchived() || thread.isClosed())) {
@@ -1270,8 +1266,7 @@ public class WatchManager
 
         private void doPageNotification(Chan4PagesRequest.Page page) {
             if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get()
-                    && ChanSettings.watchBackground.get())
-            {
+                    && ChanSettings.watchBackground.get()) {
                 if (page != null && page.page >= pin.loadable.board.pages && !notified) {
                     Intent pageNotifyIntent = new Intent(getAppContext(), LastPageNotification.class);
                     pageNotifyIntent.putExtra("pin_id", pin.id);

@@ -65,8 +65,7 @@ public class PageRequestManager
 
     private Chan4PagesRequest.Page findPage(Board board, int opNo) {
         Chan4PagesRequest.Pages pages = getPages(board);
-        if (pages == null)
-            return null;
+        if (pages == null) return null;
         for (Chan4PagesRequest.Page page : pages.pages) {
             for (Chan4PagesRequest.ThreadNoTimeModPair threadNoTimeModPair : page.threads) {
                 if (opNo == threadNoTimeModPair.no) {
@@ -92,8 +91,7 @@ public class PageRequestManager
     }
 
     private void shouldUpdate(Board b) {
-        if (b == null)
-            return; //if for any reason the board is null, don't do anything
+        if (b == null) return; //if for any reason the board is null, don't do anything
         Long lastUpdate = boardTimeMap.get(b.code); //had some null issues for some reason? arisuchan in particular?
         long lastUpdateTime = lastUpdate != null ? lastUpdate : 0L;
         if (lastUpdateTime + MINUTES.toMillis(3) <= System.currentTimeMillis()) {

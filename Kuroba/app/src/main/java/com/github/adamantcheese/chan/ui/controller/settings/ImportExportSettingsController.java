@@ -47,6 +47,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
@@ -104,7 +105,7 @@ public class ImportExportSettingsController
     }
 
     protected void setupLayout() {
-        view = inflateRes(R.layout.settings_layout);
+        view = inflate(context, R.layout.settings_layout);
         content = view.findViewById(R.id.scrollview_content);
     }
 
@@ -113,16 +114,18 @@ public class ImportExportSettingsController
         {
             SettingsGroup group = new SettingsGroup(getString(R.string.import_or_export_settings));
 
-            group.add(new LinkSettingView(this,
-                                          getString(R.string.export_settings),
-                                          getString(R.string.export_settings_to_a_file),
-                                          v -> onExportClicked()
+            group.add(new LinkSettingView(
+                    this,
+                    getString(R.string.export_settings),
+                    getString(R.string.export_settings_to_a_file),
+                    v -> onExportClicked()
             ));
 
-            group.add(new LinkSettingView(this,
-                                          getString(R.string.import_settings),
-                                          getString(R.string.import_settings_from_a_file),
-                                          v -> onImportClicked()
+            group.add(new LinkSettingView(
+                    this,
+                    getString(R.string.import_settings),
+                    getString(R.string.import_settings_from_a_file),
+                    v -> onImportClicked()
             ));
 
             groups.add(group);
@@ -141,8 +144,8 @@ public class ImportExportSettingsController
         showCreateNewOrOverwriteDialog();
     }
 
-    private void showDirectoriesWillBeResetToDefaultDialog(boolean localThreadsLocationIsSAFBacked,
-                                                           boolean savedFilesLocationIsSAFBacked
+    private void showDirectoriesWillBeResetToDefaultDialog(
+            boolean localThreadsLocationIsSAFBacked, boolean savedFilesLocationIsSAFBacked
     ) {
         if (!localThreadsLocationIsSAFBacked && !savedFilesLocationIsSAFBacked) {
             throw new IllegalStateException("Both variables are false, wtf?");
@@ -154,9 +157,8 @@ public class ImportExportSettingsController
         String andString = localThreadsLocationIsSAFBacked && savedFilesLocationIsSAFBacked
                 ? getString(R.string.import_or_export_warning_and)
                 : "";
-        String savedFilesString = savedFilesLocationIsSAFBacked
-                ? getString(R.string.import_or_export_warning_saved_files_base_dir)
-                : "";
+        String savedFilesString =
+                savedFilesLocationIsSAFBacked ? getString(R.string.import_or_export_warning_saved_files_base_dir) : "";
 
         String messagePartOne = getString(
                 R.string.import_or_export_warning_super_long_message_part_one,
@@ -168,12 +170,9 @@ public class ImportExportSettingsController
         String messagePartTwo = "";
 
         if (localThreadsLocationIsSAFBacked) {
-            long downloadingThreadsCount = databaseManager.runTask(
-                    () -> databaseManager
-                            .getDatabaseSavedThreadManager()
-                            .countDownloadingThreads()
-                            .call()
-            );
+            long downloadingThreadsCount = databaseManager.runTask(() -> databaseManager.getDatabaseSavedThreadManager()
+                    .countDownloadingThreads()
+                    .call());
 
             if (downloadingThreadsCount > 0) {
                 messagePartTwo = getString(R.string.import_or_export_warning_super_long_message_part_two);
@@ -182,14 +181,14 @@ public class ImportExportSettingsController
 
         String fullMessage = String.format("%s %s", messagePartOne, messagePartTwo);
 
-        AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(getString(R.string.import_or_export_warning))
-                .setMessage(fullMessage)
-                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    dialog.dismiss();
-                    showCreateNewOrOverwriteDialog();
-                })
-                .create();
+        AlertDialog alertDialog =
+                new AlertDialog.Builder(context).setTitle(getString(R.string.import_or_export_warning))
+                        .setMessage(fullMessage)
+                        .setPositiveButton(R.string.ok, (dialog, which) -> {
+                            dialog.dismiss();
+                            showCreateNewOrOverwriteDialog();
+                        })
+                        .create();
 
         alertDialog.show();
     }
@@ -204,8 +203,7 @@ public class ImportExportSettingsController
         int positiveButtonId = R.string.import_or_export_dialog_positive_button_text;
         int negativeButtonId = R.string.import_or_export_dialog_negative_button_text;
 
-        AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.import_or_export_dialog_title)
+        AlertDialog alertDialog = new AlertDialog.Builder(context).setTitle(R.string.import_or_export_dialog_title)
                 .setPositiveButton(positiveButtonId, (dialog, which) -> {
                     overwriteExisting();
                 })

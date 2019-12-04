@@ -30,7 +30,6 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -51,6 +50,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
@@ -113,8 +113,9 @@ public class CaptchaNojsLayoutV1
         setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(@NonNull ConsoleMessage consoleMessage) {
-                Logger.i(TAG,
-                         consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId()
+                Logger.i(
+                        TAG,
+                        consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId()
                 );
                 return true;
             }
@@ -168,12 +169,11 @@ public class CaptchaNojsLayoutV1
     private void loadRecaptchaAndSetWebViewData() {
         final String recaptchaUrl = "https://www.google.com/recaptcha/api/fallback?k=" + siteKey;
 
-        Request request = new Request.Builder()
-                .url(recaptchaUrl)
+        Request request = new Request.Builder().url(recaptchaUrl)
                 .header("User-Agent", webviewUserAgent)
                 .header("Referer", baseUrl)
                 .build();
-        Chan.injector().instance(OkHttpClient.class).newCall(request).enqueue(new Callback() {
+        instance(OkHttpClient.class).newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
             }
@@ -182,8 +182,7 @@ public class CaptchaNojsLayoutV1
             public void onResponse(Call call, Response response)
                     throws IOException {
                 ResponseBody body = response.body();
-                if (body == null)
-                    throw new IOException();
+                if (body == null) throw new IOException();
                 String responseHtml = body.string();
 
                 post(() -> loadDataWithBaseURL(recaptchaUrl, responseHtml, "text/html", "UTF-8", null));

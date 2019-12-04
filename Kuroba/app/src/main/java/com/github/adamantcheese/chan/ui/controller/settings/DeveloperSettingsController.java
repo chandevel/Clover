@@ -23,7 +23,6 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -42,6 +41,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -81,7 +81,7 @@ public class DeveloperSettingsController
         wrapper.addView(crashButton);
 
         Button clearCacheButton = new Button(context);
-        FileCache cache = Chan.injector().instance(FileCache.class);
+        FileCache cache = instance(FileCache.class);
         clearCacheButton.setOnClickListener(v -> {
             cache.clearCache();
             showToast("Cleared image cache");
@@ -106,7 +106,7 @@ public class DeveloperSettingsController
         Button clearFilterWatchIgnores = new Button(context);
         clearFilterWatchIgnores.setOnClickListener(v -> {
             try {
-                FilterWatchManager filterWatchManager = Chan.injector().instance(FilterWatchManager.class);
+                FilterWatchManager filterWatchManager = instance(FilterWatchManager.class);
                 Field ignoredField = filterWatchManager.getClass().getDeclaredField("ignoredPosts");
                 ignoredField.setAccessible(true);
                 ignoredField.set(filterWatchManager, Collections.synchronizedSet(new HashSet<Integer>()));
@@ -124,6 +124,7 @@ public class DeveloperSettingsController
             Logger.i("STACKDUMP-COUNT", String.valueOf(activeThreads.size()));
             for (Thread t : activeThreads) {
                 //ignore these threads as they aren't relevant (main will always be this button press)
+                //@formatter:off
                 if (t.getName().equalsIgnoreCase("main")
                         || t.getName().contains("Daemon")
                         || t.getName().equalsIgnoreCase("Signal Catcher")
@@ -135,6 +136,7 @@ public class DeveloperSettingsController
                         || t.getName().equalsIgnoreCase("Profile Saver")
                         || t.getName().contains("Okio")
                         || t.getName().contains("AsyncTask"))
+                //@formatter:on
                     continue;
                 StackTraceElement[] elements = t.getStackTrace();
                 Logger.i("STACKDUMP-HEADER", "Thread: " + t.getName());
@@ -150,7 +152,7 @@ public class DeveloperSettingsController
         Button forceFilterWatch = new Button(context);
         forceFilterWatch.setOnClickListener(v -> {
             try {
-                WakeManager wakeManager = Chan.injector().instance(WakeManager.class);
+                WakeManager wakeManager = instance(WakeManager.class);
                 Field wakeables = wakeManager.getClass().getDeclaredField("wakeableSet");
                 wakeables.setAccessible(true);
                 for (WakeManager.Wakeable wakeable : (Set<WakeManager.Wakeable>) wakeables.get(wakeManager)) {

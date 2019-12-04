@@ -85,8 +85,7 @@ public class NetModule {
 
         public OkHttpClient getProxiedClient() {
             if (proxiedClient == null) {
-                proxiedClient = newBuilder()
-                        .proxy(ChanSettings.getProxy())
+                proxiedClient = newBuilder().proxy(ChanSettings.getProxy())
                         .connectTimeout(20, TimeUnit.SECONDS)
                         .readTimeout(20, TimeUnit.SECONDS)
                         .writeTimeout(20, TimeUnit.SECONDS)

@@ -48,8 +48,8 @@ public abstract class HtmlReaderRequest<T>
     protected Response<T> parseNetworkResponse(NetworkResponse response) {
         try {
             Document document = Jsoup.parse(new ByteArrayInputStream(response.data),
-                                            HttpHeaderParser.parseCharset(response.headers),
-                                            getUrl()
+                    HttpHeaderParser.parseCharset(response.headers),
+                    getUrl()
             );
 
             T result = readDocument(document);

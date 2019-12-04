@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.toolbar;
 
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
-import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
@@ -30,6 +29,8 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
@@ -68,10 +69,8 @@ public class ToolbarMenuItem {
         this.clicked = clicked;
     }
 
-    public ToolbarMenuItem(int id,
-                           int drawable,
-                           ClickCallback clicked,
-                           @Nullable ToobarThreedotMenuCallback threedotMenuCallback
+    public ToolbarMenuItem(
+            int id, int drawable, ClickCallback clicked, @Nullable ToobarThreedotMenuCallback threedotMenuCallback
     ) {
         this.id = id;
         this.drawable = getAppContext().getDrawable(drawable);
@@ -109,7 +108,7 @@ public class ToolbarMenuItem {
         this.visible = visible;
 
         if (view != null) {
-            view.setVisibility(visible ? View.VISIBLE : View.GONE);
+            view.setVisibility(visible ? VISIBLE : GONE);
         }
     }
 
@@ -130,9 +129,8 @@ public class ToolbarMenuItem {
         if (!animated) {
             view.setImageDrawable(drawable);
         } else {
-            TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{
-                    this.drawable.mutate(), drawable.mutate()
-            });
+            TransitionDrawable transitionDrawable =
+                    new TransitionDrawable(new Drawable[]{this.drawable.mutate(), drawable.mutate()});
 
             view.setImageDrawable(transitionDrawable);
 

@@ -59,9 +59,8 @@ public class ImageReencodingPresenter {
     private ImageOptions imageOptions;
     private BackgroundUtils.Cancelable cancelable;
 
-    public ImageReencodingPresenter(ImageReencodingPresenterCallback callback,
-                                    Loadable loadable,
-                                    ImageOptions lastOptions
+    public ImageReencodingPresenter(
+            ImageReencodingPresenterCallback callback, Loadable loadable, ImageOptions lastOptions
     ) {
         inject(this);
 
@@ -86,12 +85,9 @@ public class ImageReencodingPresenter {
     public void loadImagePreview() {
         Reply reply = replyManager.getReply(loadable);
         Point displaySize = getDisplaySize();
-        ImageDecoder.decodeFileOnBackgroundThread(
-                reply.file,
+        ImageDecoder.decodeFileOnBackgroundThread(reply.file,
                 //decode to the device width/height, whatever is smaller
-                dp(displaySize.x > displaySize.y ? displaySize.y : displaySize.x),
-                0,
-                bitmap -> {
+                dp(displaySize.x > displaySize.y ? displaySize.y : displaySize.x), 0, bitmap -> {
                     if (bitmap == null) {
                         showToast(R.string.could_not_decode_image_bitmap);
                         return;
@@ -164,16 +160,14 @@ public class ImageReencodingPresenter {
 
         //all options are default - do nothing
         if (!imageOptions.getRemoveFilename() && !imageOptions.getFixExif() && !imageOptions.getRemoveMetadata()
-                && !imageOptions.getChangeImageChecksum() && imageOptions.getReencodeSettings() == null)
-        {
+                && !imageOptions.getChangeImageChecksum() && imageOptions.getReencodeSettings() == null) {
             callback.onImageOptionsApplied(reply, false);
             return;
         }
 
         //only the "remove filename" option is selected
         if (imageOptions.getRemoveFilename() && !imageOptions.getFixExif() && !imageOptions.getRemoveMetadata()
-                && !imageOptions.getChangeImageChecksum() && imageOptions.getReencodeSettings() == null)
-        {
+                && !imageOptions.getChangeImageChecksum() && imageOptions.getReencodeSettings() == null) {
             reply.fileName = getNewImageName(reply.fileName, AS_IS);
             callback.onImageOptionsApplied(reply, true);
             return;
@@ -186,17 +180,15 @@ public class ImageReencodingPresenter {
 
                 if (imageOptions.getRemoveFilename()) {
                     reply.fileName = getNewImageName(reply.fileName,
-                                                     imageOptions.reencodeSettings != null
-                                                             ? imageOptions.reencodeSettings.reencodeType
-                                                             : AS_IS
+                            imageOptions.reencodeSettings != null ? imageOptions.reencodeSettings.reencodeType : AS_IS
                     );
                 }
 
                 reply.file = BitmapUtils.reencodeBitmapFile(reply.file,
-                                                            imageOptions.getFixExif(),
-                                                            imageOptions.getRemoveMetadata(),
-                                                            imageOptions.getChangeImageChecksum(),
-                                                            imageOptions.getReencodeSettings()
+                        imageOptions.getFixExif(),
+                        imageOptions.getRemoveMetadata(),
+                        imageOptions.getChangeImageChecksum(),
+                        imageOptions.getReencodeSettings()
                 );
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to re-encode bitmap file", error);
@@ -363,9 +355,10 @@ public class ImageReencodingPresenter {
                     type = "JPEG";
                     break;
             }
-            return "(" + type + ", " + (
-                    reencodeType == AS_JPEG || (reencodeType == AS_IS && currentFormat == Bitmap.CompressFormat.JPEG) ?
-                            reencodeQuality + ", " : "") + (100 - reducePercent) + "%)";
+            boolean isJpeg =
+                    reencodeType == AS_JPEG || (reencodeType == AS_IS && currentFormat == Bitmap.CompressFormat.JPEG);
+            String quality = isJpeg ? reencodeQuality + ", " : "";
+            return "(" + type + ", " + quality + (100 - reducePercent) + "%)";
         }
     }
 

@@ -69,8 +69,8 @@ public class PostImageThumbnailView
                     String fileName;
 
                     if (postImage.spoiler) {
-                        String extension
-                                = StringUtils.extractFileNameExtension(postImage.spoilerThumbnailUrl.toString());
+                        String extension =
+                                StringUtils.extractFileNameExtension(postImage.spoilerThumbnailUrl.toString());
 
                         fileName = ThreadSaveManager.formatSpoilerImageName(extension);
                     } else {
@@ -124,13 +124,12 @@ public class PostImageThumbnailView
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         } else {
             int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-            if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (
-                    heightMode == MeasureSpec.UNSPECIFIED || heightMode == MeasureSpec.AT_MOST))
-            {
+            if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED
+                    || heightMode == MeasureSpec.AT_MOST)) {
                 int width = MeasureSpec.getSize(widthMeasureSpec);
 
                 super.onMeasure(widthMeasureSpec,
-                                MeasureSpec.makeMeasureSpec((int) (width / ratio), MeasureSpec.EXACTLY)
+                        MeasureSpec.makeMeasureSpec((int) (width / ratio), MeasureSpec.EXACTLY)
                 );
             } else {
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);

@@ -23,7 +23,6 @@ import android.graphics.BitmapFactory;
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -44,6 +43,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.ui.captcha.v2.CaptchaInfo.CaptchaType.UNKNOWN;
 
 public class CaptchaNoJsHtmlParser {
@@ -54,12 +54,12 @@ public class CaptchaNoJsHtmlParser {
 
     // FIXME: this pattern captures the C parameter as many times as it is in the HTML.
     // Should match only the first occurrence instead.
-    private static final Pattern cParameterPattern = Pattern.compile(
-            "<input type=\"hidden\" name=\"c\" value=\"(.*?)\"/>");
-    private static final Pattern challengeTitlePattern = Pattern.compile(
-            "<div class=\"(rc-imageselect-desc-no-canonical|rc-imageselect-desc)\">(.*?)</div>");
-    private static final Pattern challengeImageUrlPattern = Pattern.compile(
-            "<img class=\"fbc-imageselect-payload\" src=\"(.*?)&");
+    private static final Pattern cParameterPattern =
+            Pattern.compile("<input type=\"hidden\" name=\"c\" value=\"(.*?)\"/>");
+    private static final Pattern challengeTitlePattern =
+            Pattern.compile("<div class=\"(rc-imageselect-desc-no-canonical|rc-imageselect-desc)\">(.*?)</div>");
+    private static final Pattern challengeImageUrlPattern =
+            Pattern.compile("<img class=\"fbc-imageselect-payload\" src=\"(.*?)&");
     private static final Pattern challengeTitleBoldPartPattern = Pattern.compile("<strong>(.*?)</strong>");
     private static final Pattern verificationTokenPattern = Pattern.compile(
             "<div class=\"fbc-verification-token\"><textarea dir=\"ltr\" readonly>(.*?)</textarea></div>");
@@ -142,8 +142,8 @@ public class CaptchaNoJsHtmlParser {
                 String resultTitle = firstPart + boldPart;
 
                 captchaTitle = new CaptchaInfo.CaptchaTitle(resultTitle,
-                                                            firstPart.length(),
-                                                            firstPart.length() + boldPart.length()
+                        firstPart.length(),
+                        firstPart.length() + boldPart.length()
                 );
             } else {
                 // could not find it
@@ -296,7 +296,7 @@ public class CaptchaNoJsHtmlParser {
             throws IOException, CaptchaNoJsV2ParsingError {
         Request request = new Request.Builder().url(fullUrl).build();
 
-        try (Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute()) {
+        try (Response response = instance(OkHttpClient.class).newCall(request).execute()) {
             if (response.code() != SUCCESS_STATUS_CODE) {
                 throw new CaptchaNoJsV2ParsingError(
                         "Could not download challenge image, status code = " + response.code());
@@ -353,10 +353,10 @@ public class CaptchaNoJsHtmlParser {
             for (int column = 0; column < columns; ++column) {
                 for (int row = 0; row < rows; ++row) {
                     Bitmap imagePiece = Bitmap.createBitmap(originalBitmap,
-                                                            row * imageWidth,
-                                                            column * imageHeight,
-                                                            imageWidth,
-                                                            imageHeight
+                            row * imageWidth,
+                            column * imageHeight,
+                            imageWidth,
+                            imageHeight
                     );
 
                     resultImages.add(imagePiece);

@@ -72,6 +72,8 @@ import javax.inject.Inject;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
@@ -121,8 +123,7 @@ public class MultiImageView
         }
 
         @Override
-        public boolean onSingleTapConfirmed(MotionEvent e
-        ) {
+        public boolean onSingleTapConfirmed(MotionEvent e) {
             callback.onTap();
             return true;
         }
@@ -158,11 +159,9 @@ public class MultiImageView
         setOnClickListener(this);
 
         playView = new ImageView(getContext());
-        playView.setVisibility(View.GONE);
+        playView.setVisibility(GONE);
         playView.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
-        addView(playView,
-                new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER)
-        );
+        addView(playView, new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER));
 
         if (context instanceof StartActivity) {
             ((StartActivity) context).getLifecycle().addObserver(this);
@@ -180,7 +179,7 @@ public class MultiImageView
         this.postImage = postImage;
         this.callback = callback;
 
-        playView.setVisibility(postImage.type == PostImage.Type.MOVIE ? View.VISIBLE : View.GONE);
+        playView.setVisibility(postImage.type == PostImage.Type.MOVIE ? VISIBLE : GONE);
     }
 
     public PostImage getPostImage() {
@@ -272,37 +271,28 @@ public class MultiImageView
             return;
         }
 
-        thumbnailRequest = imageLoaderV2.getImage(true,
-                                                  loadable,
-                                                  postImage,
-                                                  getWidth(),
-                                                  getHeight(),
-                                                  new ImageListener() {
-                                                      @Override
-                                                      public void onErrorResponse(VolleyError error) {
-                                                          thumbnailRequest = null;
-                                                          if (center) {
-                                                              onError();
-                                                          }
-                                                      }
+        thumbnailRequest =
+                imageLoaderV2.getImage(true, loadable, postImage, getWidth(), getHeight(), new ImageListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        thumbnailRequest = null;
+                        if (center) {
+                            onError();
+                        }
+                    }
 
-                                                      @Override
-                                                      public void onResponse(ImageContainer response,
-                                                                             boolean isImmediate
-                                                      ) {
-                                                          thumbnailRequest = null;
+                    @Override
+                    public void onResponse(ImageContainer response, boolean isImmediate) {
+                        thumbnailRequest = null;
 
-                                                          if (response.getBitmap() != null && (
-                                                                  !hasContent || mode == Mode.LOWRES))
-                                                          {
-                                                              ImageView thumbnail = new ImageView(getContext());
-                                                              thumbnail.setImageBitmap(response.getBitmap());
+                        if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
+                            ImageView thumbnail = new ImageView(getContext());
+                            thumbnail.setImageBitmap(response.getBitmap());
 
-                                                              onModeLoaded(Mode.LOWRES, thumbnail);
-                                                          }
-                                                      }
-                                                  }
-        );
+                            onModeLoaded(Mode.LOWRES, thumbnail);
+                        }
+                    }
+                });
 
         if (thumbnailRequest != null && thumbnailRequest.getBitmap() != null) {
             // Request was immediate and thumbnailRequest was first set to null in onResponse, and then set to the container
@@ -539,8 +529,7 @@ public class MultiImageView
         final int BACKGROUND_COLOR = Color.argb(255, 211, 217, 241);
         CustomScaleImageView imageView = findScaleImageView();
         GifImageView gifView = findGifImageView();
-        if (imageView == null && gifView == null)
-            return;
+        if (imageView == null && gifView == null) return;
         boolean isImage = imageView != null && gifView == null;
         int backgroundColor = backgroundToggle ? Color.TRANSPARENT : BACKGROUND_COLOR;
         if (isImage) {
@@ -553,8 +542,7 @@ public class MultiImageView
 
     public void rotateImage(int degrees) {
         CustomScaleImageView imageView = findScaleImageView();
-        if (imageView == null)
-            return;
+        if (imageView == null) return;
         if (degrees % 90 != 0 && degrees >= -90 && degrees <= 180)
             throw new IllegalArgumentException("Degrees must be a multiple of 90 and in the range -90 < deg < 180");
         //swap the current scale to the opposite one every 90 degree increment
@@ -589,7 +577,7 @@ public class MultiImageView
         final CustomScaleImageView image = new CustomScaleImageView(getContext());
         image.setImage(ImageSource.uri(file.getAbsolutePath()).tiling(tiling));
         image.setOnClickListener(MultiImageView.this);
-        addView(image, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        addView(image, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
         image.setCallback(new CustomScaleImageView.Callback() {
             @Override
             public void onReady() {
@@ -666,7 +654,7 @@ public class MultiImageView
             }
 
             if (!alreadyAttached) {
-                addView(view, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                addView(view, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
             }
         }
 

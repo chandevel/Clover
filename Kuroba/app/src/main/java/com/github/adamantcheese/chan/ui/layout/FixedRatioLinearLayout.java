@@ -43,9 +43,8 @@ public class FixedRatioLinearLayout
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (
-                heightMode == MeasureSpec.UNSPECIFIED || heightMode == MeasureSpec.AT_MOST))
-        {
+        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED
+                || heightMode == MeasureSpec.AT_MOST)) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
 
             super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec((int) (width / ratio), MeasureSpec.EXACTLY));

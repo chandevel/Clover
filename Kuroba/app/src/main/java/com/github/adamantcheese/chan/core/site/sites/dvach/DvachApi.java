@@ -226,8 +226,7 @@ public class DvachApi
 
         if (path != null && fileName != null) {
             Map<String, String> args = makeArgument("path", path, "thumbnail", thumbnail);
-            return new PostImage.Builder()
-                    .serverFilename(fileName)
+            return new PostImage.Builder().serverFilename(fileName)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))

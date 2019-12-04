@@ -103,10 +103,8 @@ public class CardPostCell
         });
     }
 
-    private void showOptions(View anchor,
-                             List<FloatingMenuItem> items,
-                             List<FloatingMenuItem> extraItems,
-                             Object extraOption
+    private void showOptions(
+            View anchor, List<FloatingMenuItem> items, List<FloatingMenuItem> extraItems, Object extraOption
     ) {
         FloatingMenu menu = new FloatingMenu(getContext(), anchor, items);
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
@@ -153,17 +151,18 @@ public class CardPostCell
         }
     }
 
-    public void setPost(Loadable loadable,
-                        final Post post,
-                        PostCellInterface.PostCellCallback callback,
-                        boolean selectable,
-                        boolean highlighted,
-                        boolean selected,
-                        int markedNo,
-                        boolean showDivider,
-                        ChanSettings.PostViewMode postViewMode,
-                        boolean compact,
-                        Theme theme
+    public void setPost(
+            Loadable loadable,
+            final Post post,
+            PostCellInterface.PostCellCallback callback,
+            boolean selectable,
+            boolean highlighted,
+            boolean selected,
+            int markedNo,
+            boolean showDivider,
+            ChanSettings.PostViewMode postViewMode,
+            boolean compact,
+            Theme theme
     ) {
         if (this.post == post) {
             return;
@@ -203,34 +202,35 @@ public class CardPostCell
         bound = true;
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
-            thumbView.setVisibility(View.VISIBLE);
-            thumbView.setPostImage(loadable,
-                                   post.image(),
-                                   true,
-                                   ChanSettings.autoLoadThreadImages.get()
-                                           ? Math.max(500, thumbView.getWidth())
-                                           : thumbView.getWidth(),
-                                   ChanSettings.autoLoadThreadImages.get()
-                                           ? Math.max(500, thumbView.getHeight())
-                                           : thumbView.getHeight()
+            thumbView.setVisibility(VISIBLE);
+            thumbView.setPostImage(
+                    loadable,
+                    post.image(),
+                    true,
+                    ChanSettings.autoLoadThreadImages.get()
+                            ? Math.max(500, thumbView.getWidth())
+                            : thumbView.getWidth(),
+                    ChanSettings.autoLoadThreadImages.get()
+                            ? Math.max(500, thumbView.getHeight())
+                            : thumbView.getHeight()
             );
         } else {
-            thumbView.setVisibility(View.GONE);
+            thumbView.setVisibility(GONE);
             thumbView.setPostImage(loadable, null, false, 0, 0);
         }
 
         if (post.filterHighlightedColor != 0) {
-            filterMatchColor.setVisibility(View.VISIBLE);
+            filterMatchColor.setVisibility(VISIBLE);
             filterMatchColor.setBackgroundColor(post.filterHighlightedColor);
         } else {
-            filterMatchColor.setVisibility(View.GONE);
+            filterMatchColor.setVisibility(GONE);
         }
 
         if (!TextUtils.isEmpty(post.subjectSpan)) {
-            title.setVisibility(View.VISIBLE);
+            title.setVisibility(VISIBLE);
             title.setText(post.subjectSpan);
         } else {
-            title.setVisibility(View.GONE);
+            title.setVisibility(GONE);
             title.setText(null);
         }
 

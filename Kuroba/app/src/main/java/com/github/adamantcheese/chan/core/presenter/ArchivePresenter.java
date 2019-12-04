@@ -21,7 +21,6 @@ import com.github.adamantcheese.chan.core.model.Archive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteActions;
-import com.github.adamantcheese.chan.ui.helper.PostHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,8 +79,7 @@ public class ArchivePresenter
 
     public void onItemClicked(Archive.ArchiveItem item) {
         Loadable loadable =
-                databaseManager.getDatabaseLoadableManager()
-                               .get(Loadable.forThread(board.site, board, item.id, PostHelper.getTitle(null, null)));
+                databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(board.site, board, item.id, ""));
 
         callback.openThread(loadable);
     }

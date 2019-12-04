@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -38,14 +37,16 @@ import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 import com.github.adamantcheese.chan.ui.settings.TextSettingView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.findViewsById;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class SettingsController
@@ -95,13 +96,12 @@ public class SettingsController
 
     public void onPreferenceChange(SettingView item) {
         if ((item instanceof ListSettingView) || (item instanceof StringSettingView)
-                || (item instanceof IntegerSettingView) || (item instanceof LinkSettingView))
-        {
+                || (item instanceof IntegerSettingView) || (item instanceof LinkSettingView)) {
             setDescriptionText(item.view, item.getTopDescription(), item.getBottomDescription());
         }
 
         if (requiresUiRefresh.contains(item)) {
-            EventBus.getDefault().post(new RefreshUIMessage("SettingsController refresh"));
+            postToEventBus(new RefreshUIMessage("SettingsController refresh"));
         } else if (requiresRestart.contains(item)) {
             needRestart = true;
         }
@@ -133,25 +133,24 @@ public class SettingsController
     }
 
     protected void setSettingViewVisibility(SettingView settingView, boolean visible) {
-        settingView.view.setVisibility(visible ? View.VISIBLE : View.GONE);
+        settingView.view.setVisibility(visible ? VISIBLE : GONE);
 
         if (settingView.divider != null) {
-            settingView.divider.setVisibility(visible ? View.VISIBLE : View.GONE);
+            settingView.divider.setVisibility(visible ? VISIBLE : GONE);
         }
     }
 
     protected void setupLayout() {
-        view = inflateRes(R.layout.settings_layout);
+        view = inflate(context, R.layout.settings_layout);
         content = view.findViewById(R.id.scrollview_content);
     }
 
     protected void buildPreferences() {
-        LayoutInflater inf = LayoutInflater.from(context);
         boolean firstGroup = true;
         content.removeAllViews();
 
         for (SettingsGroup group : groups) {
-            LinearLayout groupLayout = (LinearLayout) inf.inflate(R.layout.setting_group, content, false);
+            LinearLayout groupLayout = (LinearLayout) inflate(context, R.layout.setting_group, content, false);
             ((TextView) groupLayout.findViewById(R.id.header)).setText(group.name);
 
             if (firstGroup) {
@@ -170,13 +169,12 @@ public class SettingsController
                 boolean noDivider = false;
 
                 if ((settingView instanceof ListSettingView) || (settingView instanceof LinkSettingView)
-                        || (settingView instanceof StringSettingView) || (settingView instanceof IntegerSettingView))
-                {
-                    preferenceView = (ViewGroup) inf.inflate(R.layout.setting_link, groupLayout, false);
+                        || (settingView instanceof StringSettingView) || (settingView instanceof IntegerSettingView)) {
+                    preferenceView = (ViewGroup) inflate(context, R.layout.setting_link, groupLayout, false);
                 } else if (settingView instanceof BooleanSettingView) {
-                    preferenceView = (ViewGroup) inf.inflate(R.layout.setting_boolean, groupLayout, false);
+                    preferenceView = (ViewGroup) inflate(context, R.layout.setting_boolean, groupLayout, false);
                 } else if (settingView instanceof TextSettingView) {
-                    preferenceView = (ViewGroup) inf.inflate(R.layout.setting_text, groupLayout, false);
+                    preferenceView = (ViewGroup) inflate(context, R.layout.setting_text, groupLayout, false);
                     noDivider = true;
                 }
 
@@ -187,7 +185,7 @@ public class SettingsController
                 settingView.setView(preferenceView);
 
                 if (i < group.settingViews.size() - 1 && !noDivider) {
-                    settingView.divider = inf.inflate(R.layout.setting_divider, groupLayout, false);
+                    settingView.divider = inflate(context, R.layout.setting_divider, groupLayout, false);
                     groupLayout.addView(settingView.divider);
                 }
             }
@@ -200,7 +198,7 @@ public class SettingsController
         final TextView bottom = view.findViewById(R.id.bottom);
         if (bottom != null) {
             bottom.setText(bottomText);
-            bottom.setVisibility(bottomText == null ? View.GONE : View.VISIBLE);
+            bottom.setVisibility(bottomText == null ? GONE : VISIBLE);
         }
     }
 }

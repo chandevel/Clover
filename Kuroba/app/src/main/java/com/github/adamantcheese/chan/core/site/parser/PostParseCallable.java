@@ -38,12 +38,13 @@ class PostParseCallable
     private ChanReader reader;
     private final Set<Integer> internalIds;
 
-    public PostParseCallable(FilterEngine filterEngine,
-                             List<Filter> filters,
-                             DatabaseSavedReplyManager savedReplyManager,
-                             Post.Builder post,
-                             ChanReader reader,
-                             Set<Integer> internalIds
+    public PostParseCallable(
+            FilterEngine filterEngine,
+            List<Filter> filters,
+            DatabaseSavedReplyManager savedReplyManager,
+            Post.Builder post,
+            ChanReader reader,
+            Set<Integer> internalIds
     ) {
         this.filterEngine = filterEngine;
         this.filters = filters;

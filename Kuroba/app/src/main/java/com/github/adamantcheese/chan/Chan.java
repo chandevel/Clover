@@ -37,7 +37,6 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.codejargon.feather.Feather;
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 
@@ -45,6 +44,9 @@ import javax.inject.Inject;
 
 import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static java.lang.Thread.currentThread;
 
 public class Chan
         extends Application
@@ -62,8 +64,8 @@ public class Chan
 
     private static Feather feather;
 
-    public static Feather injector() {
-        return feather;
+    public static <T> T instance(Class<T> tClass) {
+        return feather.instance(tClass);
     }
 
     public static <T> T inject(T instance) {
@@ -82,13 +84,14 @@ public class Chan
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
 
-        feather = Feather.with(new AppModule(this),
-                               new DatabaseModule(),
-                               new NetModule(),
-                               new GsonModule(),
-                               new RepositoryModule(),
-                               new SiteModule(),
-                               new ManagerModule()
+        feather = Feather.with(
+                new AppModule(this),
+                new DatabaseModule(),
+                new NetModule(),
+                new GsonModule(),
+                new RepositoryModule(),
+                new SiteModule(),
+                new ManagerModule()
         );
         feather.injectFields(this);
 
@@ -115,12 +118,12 @@ public class Chan
             }
             if ((e instanceof NullPointerException) || (e instanceof IllegalArgumentException)) {
                 // that's likely a bug in the application
-                Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
+                currentThread().getUncaughtExceptionHandler().uncaughtException(currentThread(), e);
                 return;
             }
             if (e instanceof IllegalStateException) {
                 // that's a bug in RxJava or in a custom operator
-                Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
+                currentThread().getUncaughtExceptionHandler().uncaughtException(currentThread(), e);
                 return;
             }
 
@@ -134,7 +137,7 @@ public class Chan
         activityForegroundCounter++;
 
         if (getApplicationInForeground() != lastForeground) {
-            EventBus.getDefault().post(new ForegroundChangedMessage(getApplicationInForeground()));
+            postToEventBus(new ForegroundChangedMessage(getApplicationInForeground()));
         }
     }
 
@@ -147,7 +150,7 @@ public class Chan
         }
 
         if (getApplicationInForeground() != lastForeground) {
-            EventBus.getDefault().post(new ForegroundChangedMessage(getApplicationInForeground()));
+            postToEventBus(new ForegroundChangedMessage(getApplicationInForeground()));
         }
     }
 

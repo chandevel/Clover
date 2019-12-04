@@ -27,7 +27,6 @@ import android.content.res.ColorStateList;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
@@ -145,18 +144,17 @@ public class ThreadLayout
         loadView = findViewById(R.id.loadview);
         replyButton = findViewById(R.id.reply_button);
 
-        LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-
         // Inflate ThreadListLayout
-        threadListLayout = (ThreadListLayout) layoutInflater.inflate(R.layout.layout_thread_list, this, false);
+        threadListLayout =
+                (ThreadListLayout) AndroidUtils.inflate(getContext(), R.layout.layout_thread_list, this, false);
 
         // Inflate error layout
-        errorLayout = (LinearLayout) layoutInflater.inflate(R.layout.layout_thread_error, this, false);
+        errorLayout = (LinearLayout) AndroidUtils.inflate(getContext(), R.layout.layout_thread_error, this, false);
         errorText = errorLayout.findViewById(R.id.text);
         errorRetryButton = errorLayout.findViewById(R.id.button);
 
         // Inflate thread loading layout
-        progressLayout = layoutInflater.inflate(R.layout.layout_thread_progress, this, false);
+        progressLayout = AndroidUtils.inflate(getContext(), R.layout.layout_thread_progress, this, false);
 
         // View setup
         presenter.setContext(getContext());
@@ -260,11 +258,11 @@ public class ThreadLayout
     @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
         if (thread.getLoadable().isLocal()) {
-            if (replyButton.getVisibility() == View.VISIBLE) {
+            if (replyButton.getVisibility() == VISIBLE) {
                 replyButton.hide();
             }
         } else {
-            if (replyButton.getVisibility() != View.VISIBLE) {
+            if (replyButton.getVisibility() != VISIBLE) {
                 replyButton.show();
             }
         }
@@ -312,8 +310,7 @@ public class ThreadLayout
     }
 
     public void showPostInfo(String info) {
-        new AlertDialog.Builder(getContext())
-                .setTitle(R.string.post_info_title)
+        new AlertDialog.Builder(getContext()).setTitle(R.string.post_info_title)
                 .setMessage(info)
                 .setPositiveButton(R.string.ok, null)
                 .show();
@@ -326,9 +323,9 @@ public class ThreadLayout
             keys[i] = linkables.get(i).key.toString();
         }
 
-        new AlertDialog.Builder(getContext())
-                .setItems(keys, (dialog, which) -> presenter.onPostLinkableClicked(post, linkables.get(which)))
-                .show();
+        new AlertDialog.Builder(getContext()).setItems(keys,
+                (dialog, which) -> presenter.onPostLinkableClicked(post, linkables.get(which))
+        ).show();
     }
 
     public void clipboardPost(Post post) {
@@ -340,8 +337,7 @@ public class ThreadLayout
     @Override
     public void openLink(final String link) {
         if (ChanSettings.openLinkConfirmation.get()) {
-            new AlertDialog.Builder(getContext())
-                    .setNegativeButton(R.string.cancel, null)
+            new AlertDialog.Builder(getContext()).setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog, which) -> openLinkConfirmed(link))
                     .setTitle(R.string.open_link_confirmation)
                     .setMessage(link)
@@ -484,13 +480,12 @@ public class ThreadLayout
 
     @Override
     public void confirmPostDelete(final Post post) {
-        @SuppressLint("InflateParams") final View view =
-                LayoutInflater.from(getContext()).inflate(R.layout.dialog_post_delete, null);
+        @SuppressLint("InflateParams")
+        final View view = AndroidUtils.inflate(getContext(), R.layout.dialog_post_delete, null);
         CheckBox checkBox = view.findViewById(R.id.image_only);
         checkBox.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
         checkBox.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-        new AlertDialog.Builder(getContext())
-                .setTitle(R.string.delete_confirm)
+        new AlertDialog.Builder(getContext()).setTitle(R.string.delete_confirm)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete, (dialog, which) -> {
@@ -592,10 +587,8 @@ public class ThreadLayout
 
         presenter.refreshUI();
 
-        Snackbar snackbar = Snackbar.make(this,
-                                          getString(R.string.restored_n_posts, postsToRestore.size()),
-                                          Snackbar.LENGTH_LONG
-        );
+        Snackbar snackbar =
+                Snackbar.make(this, getString(R.string.restored_n_posts, postsToRestore.size()), Snackbar.LENGTH_LONG);
 
         snackbar.show();
         fixSnackbarText(getContext(), snackbar);
@@ -656,27 +649,27 @@ public class ThreadLayout
             showingReplyButton = show;
 
             replyButton.animate()
-                       .setInterpolator(new DecelerateInterpolator(2f))
-                       .setStartDelay(show ? 100 : 0)
-                       .setDuration(200)
-                       .alpha(show ? 1f : 0f)
-                       .scaleX(show ? 1f : 0f)
-                       .scaleY(show ? 1f : 0f)
-                       .setListener(new AnimatorListenerAdapter() {
-                           @Override
-                           public void onAnimationCancel(Animator animation) {
-                               replyButton.setAlpha(show ? 1f : 0f);
-                               replyButton.setScaleX(show ? 1f : 0f);
-                               replyButton.setScaleY(show ? 1f : 0f);
-                               replyButton.setClickable(show);
-                           }
+                    .setInterpolator(new DecelerateInterpolator(2f))
+                    .setStartDelay(show ? 100 : 0)
+                    .setDuration(200)
+                    .alpha(show ? 1f : 0f)
+                    .scaleX(show ? 1f : 0f)
+                    .scaleY(show ? 1f : 0f)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                            replyButton.setAlpha(show ? 1f : 0f);
+                            replyButton.setScaleX(show ? 1f : 0f);
+                            replyButton.setScaleY(show ? 1f : 0f);
+                            replyButton.setClickable(show);
+                        }
 
-                           @Override
-                           public void onAnimationEnd(Animator animation) {
-                               replyButton.setClickable(show);
-                           }
-                       })
-                       .start();
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            replyButton.setClickable(show);
+                        }
+                    })
+                    .start();
         }
     }
 
@@ -707,7 +700,7 @@ public class ThreadLayout
                     // TODO: cleanup
                     if (refreshedFromSwipe) {
                         refreshedFromSwipe = false;
-                        view.setVisibility(View.GONE);
+                        view.setVisibility(GONE);
                     }
 
                     showReplyButton(false);
@@ -728,7 +721,7 @@ public class ThreadLayout
 
     @SuppressLint("InflateParams")
     private View inflateEmptyView() {
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.layout_empty_setup, null);
+        View view = AndroidUtils.inflate(getContext(), R.layout.layout_empty_setup, null);
         TextView tv = view.findViewById(R.id.feature);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -763,20 +756,18 @@ public class ThreadLayout
         String positiveButtonText = hide
                 ? getString(R.string.thread_layout_hide_whole_chain)
                 : getString(R.string.thread_layout_remove_whole_chain);
-        String negativeButtonText = hide
-                ? getString(R.string.thread_layout_hide_post)
-                : getString(R.string.thread_layout_remove_post);
+        String negativeButtonText =
+                hide ? getString(R.string.thread_layout_hide_post) : getString(R.string.thread_layout_remove_post);
         String message = hide
                 ? getString(R.string.thread_layout_hide_whole_chain_as_well)
                 : getString(R.string.thread_layout_remove_whole_chain_as_well);
 
-        AlertDialog alertDialog = new AlertDialog.Builder(getContext())
-                .setMessage(message)
+        AlertDialog alertDialog = new AlertDialog.Builder(getContext()).setMessage(message)
                 .setPositiveButton(positiveButtonText,
-                                   (dialog, which) -> presenter.hideOrRemovePosts(hide, true, post, threadNo)
+                        (dialog, which) -> presenter.hideOrRemovePosts(hide, true, post, threadNo)
                 )
                 .setNegativeButton(negativeButtonText,
-                                   (dialog, which) -> presenter.hideOrRemovePosts(hide, false, post, threadNo)
+                        (dialog, which) -> presenter.hideOrRemovePosts(hide, false, post, threadNo)
                 )
                 .create();
 

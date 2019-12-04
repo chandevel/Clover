@@ -33,9 +33,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 public class ColorPickerView
         extends View {
-    private static final int[] COLORS = new int[]{
-            Color.RED, Color.MAGENTA, Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW, Color.RED
-    };
+    private static final int[] COLORS =
+            new int[]{Color.RED, Color.MAGENTA, Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW, Color.RED};
 
     private Paint paint;
     private Paint centerPaint;

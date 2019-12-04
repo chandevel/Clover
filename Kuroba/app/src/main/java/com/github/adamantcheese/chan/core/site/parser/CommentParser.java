@@ -25,7 +25,6 @@ import android.text.style.UnderlineSpan;
 
 import androidx.annotation.AnyThread;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
@@ -49,6 +48,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -79,33 +79,29 @@ public class CommentParser {
         rule(tagRule("a").action(this::handleAnchor));
 
         rule(tagRule("span").cssClass("deadlink")
-                            .foregroundColor(StyleRule.ForegroundColor.QUOTE)
-                            .strikeThrough()
-                            .action(this::handleDead));
-        rule(tagRule("span").cssClass("spoiler")
-                            .link(PostLinkable.Type.SPOILER));
-        rule(tagRule("span").cssClass("fortune")
-                            .action(this::handleFortune));
+                .foregroundColor(StyleRule.ForegroundColor.QUOTE)
+                .strikeThrough()
+                .action(this::handleDead));
+        rule(tagRule("span").cssClass("spoiler").link(PostLinkable.Type.SPOILER));
+        rule(tagRule("span").cssClass("fortune").action(this::handleFortune));
         rule(tagRule("span").cssClass("abbr").nullify());
-        rule(tagRule("span").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE)
-                            .linkify());
+        rule(tagRule("span").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE).linkify());
 
         rule(tagRule("table").action(this::handleTable));
 
         rule(tagRule("s").link(PostLinkable.Type.SPOILER));
 
         rule(tagRule("strong").bold());
-        rule(tagRule("strong-red;").bold()
-                                   .foregroundColor(StyleRule.ForegroundColor.RED));
+        rule(tagRule("strong-red;").bold().foregroundColor(StyleRule.ForegroundColor.RED));
         rule(tagRule("b").bold());
 
         rule(tagRule("i").italic());
         rule(tagRule("em").italic());
 
         rule(tagRule("pre").cssClass("prettyprint")
-                           .monospace()
-                           .size(sp(12f))
-                           .backgroundColor(StyleRule.BackgroundColor.CODE));
+                .monospace()
+                .size(sp(12f))
+                .backgroundColor(StyleRule.BackgroundColor.CODE));
     }
 
     public void rule(StyleRule rule) {
@@ -126,12 +122,8 @@ public class CommentParser {
         this.fullQuotePattern = fullQuotePattern;
     }
 
-    public CharSequence handleTag(PostParser.Callback callback,
-                                  Theme theme,
-                                  Post.Builder post,
-                                  String tag,
-                                  CharSequence text,
-                                  Element element
+    public CharSequence handleTag(
+            PostParser.Callback callback, Theme theme, Post.Builder post, String tag, CharSequence text, Element element
     ) {
 
         List<StyleRule> rules = this.rules.get(tag);
@@ -150,11 +142,8 @@ public class CommentParser {
         return text;
     }
 
-    private CharSequence handleAnchor(Theme theme,
-                                      PostParser.Callback callback,
-                                      Post.Builder post,
-                                      CharSequence text,
-                                      Element anchor
+    private CharSequence handleAnchor(
+            Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element anchor
     ) {
         CommentParser.Link handlerLink = matchAnchor(post, text, anchor, callback);
 
@@ -193,11 +182,8 @@ public class CommentParser {
         }
     }
 
-    private CharSequence handleFortune(Theme theme,
-                                       PostParser.Callback callback,
-                                       Post.Builder builder,
-                                       CharSequence text,
-                                       Element span
+    private CharSequence handleFortune(
+            Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element span
     ) {
         // html looks like <span class="fortune" style="color:#0893e1"><br><br><b>Your fortune:</b>
         String style = span.attr("style");
@@ -209,8 +195,8 @@ public class CommentParser {
                 int hexColor = Integer.parseInt(matcher.group(1), 16);
                 if (hexColor >= 0 && hexColor <= 0xffffff) {
                     text = span(text,
-                                new ForegroundColorSpanHashed(0xff000000 + hexColor),
-                                new StyleSpan(Typeface.BOLD)
+                            new ForegroundColorSpanHashed(0xff000000 + hexColor),
+                            new StyleSpan(Typeface.BOLD)
                     );
                 }
             }
@@ -219,11 +205,8 @@ public class CommentParser {
         return text;
     }
 
-    public CharSequence handleTable(Theme theme,
-                                    PostParser.Callback callback,
-                                    Post.Builder builder,
-                                    CharSequence text,
-                                    Element table
+    public CharSequence handleTable(
+            Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element table
     ) {
         List<CharSequence> parts = new ArrayList<>();
         Elements tableRows = table.getElementsByTag("tr");
@@ -242,40 +225,33 @@ public class CommentParser {
 
                     parts.add(tableDataPart);
 
-                    if (j < tableDatas.size() - 1)
-                        parts.add(": ");
+                    if (j < tableDatas.size() - 1) parts.add(": ");
                 }
 
-                if (i < tableRows.size() - 1)
-                    parts.add("\n");
+                if (i < tableRows.size() - 1) parts.add("\n");
             }
         }
 
         // Overrides the text (possibly) parsed by child nodes.
         return span(TextUtils.concat(parts.toArray(new CharSequence[0])),
-                    new ForegroundColorSpanHashed(theme.inlineQuoteColor),
-                    new AbsoluteSizeSpanHashed(sp(12f))
+                new ForegroundColorSpanHashed(theme.inlineQuoteColor),
+                new AbsoluteSizeSpanHashed(sp(12f))
         );
     }
 
-    public CharSequence handleDead(Theme theme,
-                                   PostParser.Callback callback,
-                                   Post.Builder builder,
-                                   CharSequence text,
-                                   Element deadlink
+    public CharSequence handleDead(
+            Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element deadlink
     ) {
         // html looks like <span class="deadlink">&gt;&gt;number</span>
         int postNo = Integer.parseInt(Parser.unescapeEntities(deadlink.text(), true).substring(2));
-        List<ArchivesLayout.PairForAdapter> boards = Chan.injector().instance(ArchivesManager.class)
-                                                         .domainsForBoard(builder.board);
+        List<ArchivesLayout.PairForAdapter> boards = instance(ArchivesManager.class).domainsForBoard(builder.board);
         if (!boards.isEmpty() && builder.op) {
             //only allow deadlinks to be parsed in the OP, as they are likely previous thread links
             //if a deadlink appears in a regular post that is likely to be a dead post link, we are unable to link to an archive
             //as there are no URLs that directly will allow you to link to a post and be redirected to the right thread
             Site site = builder.board.site;
-            String link = site
-                    .resolvable()
-                    .desktopUrl(Loadable.forThread(site, builder.board, postNo, ""), builder.build());
+            String link =
+                    site.resolvable().desktopUrl(Loadable.forThread(site, builder.board, postNo, ""), builder.build());
             link = link.replace("https://boards.4chan.org/", "https://" + boards.get(0).second + "/");
             text = span(text, new PostLinkable(theme, text, link, PostLinkable.Type.LINK));
         }

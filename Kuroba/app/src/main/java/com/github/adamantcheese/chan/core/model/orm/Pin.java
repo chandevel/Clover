@@ -67,17 +67,18 @@ public class Pin
     public Pin() {
     }
 
-    public Pin(Loadable loadable,
-               boolean watching,
-               int watchLastCount,
-               int watchNewCount,
-               int quoteLastCount,
-               int quoteNewCount,
-               boolean isError,
-               String thumbnailUrl,
-               int order,
-               boolean archived,
-               int pinType
+    public Pin(
+            Loadable loadable,
+            boolean watching,
+            int watchLastCount,
+            int watchNewCount,
+            int quoteLastCount,
+            int quoteNewCount,
+            boolean isError,
+            String thumbnailUrl,
+            int order,
+            boolean archived,
+            int pinType
     ) {
         this.loadable = loadable;
         this.watching = watching;

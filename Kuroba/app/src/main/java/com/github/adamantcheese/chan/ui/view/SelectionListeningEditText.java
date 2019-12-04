@@ -55,9 +55,9 @@ public class SelectionListeningEditText
     public boolean onTextContextMenuItem(int id) {
         //do the paste
         boolean consumed = super.onTextContextMenuItem(id);
-        if(id == android.R.id.paste && plainTextPaste) {
+        if (id == android.R.id.paste && plainTextPaste) {
             //make it plaintext if set
-            if(getText() != null) {
+            if (getText() != null) {
                 setText(getText().toString());
             }
         }

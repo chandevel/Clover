@@ -21,38 +21,39 @@ public class PostMapper {
             repliesFrom = new ArrayList<>(post.repliesFrom);
         }
 
-        return new SerializablePost(post.boardId,
-                                    BoardMapper.toSerializableBoard(post.board),
-                                    post.no,
-                                    post.isOP,
-                                    post.name,
-                                    SpannableStringMapper.serializeSpannableString(post.comment),
-                                    SpannableStringMapper.serializeSpannableString(post.subject),
-                                    post.time,
-                                    PostImageMapper.toSerializablePostImageList(post.images),
-                                    post.tripcode,
-                                    post.id,
-                                    post.opId,
-                                    post.capcode,
-                                    post.isSavedReply,
-                                    post.filterHighlightedColor,
-                                    post.filterStub,
-                                    post.filterRemove,
-                                    post.filterReplies,
-                                    post.filterOnlyOP,
-                                    post.filterSaved,
-                                    post.repliesTo,
-                                    SpannableStringMapper.serializeSpannableString(post.nameTripcodeIdCapcodeSpan),
-                                    post.deleted.get(),
-                                    repliesFrom,
-                                    post.isSticky(),
-                                    post.isClosed(),
-                                    post.isArchived(),
-                                    post.getReplies(),
-                                    post.getImagesCount(),
-                                    post.getUniqueIps(),
-                                    post.getLastModified(),
-                                    post.getTitle()
+        return new SerializablePost(
+                post.boardId,
+                BoardMapper.toSerializableBoard(post.board),
+                post.no,
+                post.isOP,
+                post.name,
+                SpannableStringMapper.serializeSpannableString(post.comment),
+                SpannableStringMapper.serializeSpannableString(post.subject),
+                post.time,
+                PostImageMapper.toSerializablePostImageList(post.images),
+                post.tripcode,
+                post.id,
+                post.opId,
+                post.capcode,
+                post.isSavedReply,
+                post.filterHighlightedColor,
+                post.filterStub,
+                post.filterRemove,
+                post.filterReplies,
+                post.filterOnlyOP,
+                post.filterSaved,
+                post.repliesTo,
+                SpannableStringMapper.serializeSpannableString(post.nameTripcodeIdCapcodeSpan),
+                post.deleted.get(),
+                repliesFrom,
+                post.isSticky(),
+                post.isClosed(),
+                post.isArchived(),
+                post.getReplies(),
+                post.getImagesCount(),
+                post.getUniqueIps(),
+                post.getLastModified(),
+                post.getTitle()
         );
     }
 
@@ -70,8 +71,7 @@ public class PostMapper {
         CharSequence subject = SpannableStringMapper.deserializeSpannableString(serializablePost.getSubject());
         CharSequence subjectSpans = subject.length() == 0 ? null : subject;
 
-        Post.Builder postBuilder = new Post.Builder()
-                .board(loadable.board)
+        Post.Builder postBuilder = new Post.Builder().board(loadable.board)
                 .id(serializablePost.getNo())
                 .op(serializablePost.isOP())
                 .name(serializablePost.getName())
@@ -83,7 +83,8 @@ public class PostMapper {
                 .opId(serializablePost.getOpId())
                 .moderatorCapcode(serializablePost.getCapcode())
                 .isSavedReply(serializablePost.isSavedReply())
-                .filter(serializablePost.getFilterHighlightedColor(),
+                .filter(
+                        serializablePost.getFilterHighlightedColor(),
                         serializablePost.isFilterStub(),
                         serializablePost.isFilterRemove(),
                         // always false, doesn't make sense and may break everything otherwise
@@ -94,8 +95,9 @@ public class PostMapper {
                         serializablePost.isFilterSaved()
                 )
                 .repliesTo(serializablePost.getRepliesTo())
-                .spans(subjectSpans,
-                       SpannableStringMapper.deserializeSpannableString(serializablePost.getNameTripcodeIdCapcodeSpan())
+                .spans(
+                        subjectSpans,
+                        SpannableStringMapper.deserializeSpannableString(serializablePost.getNameTripcodeIdCapcodeSpan())
                 )
                 .sticky(serializablePost.isSticky())
                 .archived(serializablePost.isArchived())

@@ -20,8 +20,7 @@ public class PostUtils {
 
     public static String getReadableFileSize(long bytes, boolean si) {
         long unit = si ? 1000 : 1024;
-        if (bytes < unit)
-            return bytes + " B";
+        if (bytes < unit) return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(unit));
         String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
         return String.format(Locale.US, "%.1f %sB", bytes / Math.pow(unit, exp), pre);
@@ -70,10 +69,11 @@ public class PostUtils {
      * Collects all hidden posts with their replies.
      * This function is slow so it must be executed on the background thread
      */
-    public static List<PostHide> findHiddenPostsWithReplies(List<PostHide> hiddenPostsFirstIteration,
-                                                            Map<Integer, Post> postsFastLookupMap
+    public static List<PostHide> findHiddenPostsWithReplies(
+            List<PostHide> hiddenPostsFirstIteration, Map<Integer, Post> postsFastLookupMap
     ) {
-        @SuppressLint("UseSparseArrays") Map<Integer, PostHide> hiddenPostsFastLookupMap = new HashMap<>();
+        @SuppressLint("UseSparseArrays")
+        Map<Integer, PostHide> hiddenPostsFastLookupMap = new HashMap<>();
 
         for (PostHide postHide : hiddenPostsFirstIteration) {
             hiddenPostsFastLookupMap.put(postHide.no, postHide);
@@ -96,8 +96,8 @@ public class PostUtils {
      * For every post checks whether it has a reply to already hidden post and adds that post to the
      * hidden posts list if it has. Checks for some flags to decide whether that post should be hidden or not.
      */
-    private static List<PostHide> search(Map<Integer, PostHide> hiddenPostsFastLookupMap,
-                                         Map<Integer, Post> postsFastLookupMap
+    private static List<PostHide> search(
+            Map<Integer, PostHide> hiddenPostsFastLookupMap, Map<Integer, Post> postsFastLookupMap
     ) {
         Set<PostHide> newHiddenPosts = new HashSet<>();
 
@@ -117,8 +117,7 @@ public class PostUtils {
 
                 PostHide toInheritBaseInfoFrom = hiddenPostsFastLookupMap.get(replyTo);
                 if (repliedToPost.isOP || toInheritBaseInfoFrom == null
-                        || !toInheritBaseInfoFrom.hideRepliesToThisPost)
-                {
+                        || !toInheritBaseInfoFrom.hideRepliesToThisPost) {
                     // skip if OP or if has a flag to not hide replies to this post
                     continue;
                 }

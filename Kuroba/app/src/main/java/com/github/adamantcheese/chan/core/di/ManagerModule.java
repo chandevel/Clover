@@ -47,8 +47,7 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public BoardManager provideBoardManager(BoardRepository boardRepository
-    ) {
+    public BoardManager provideBoardManager(BoardRepository boardRepository) {
         Logger.d(AppModule.DI_TAG, "Board manager");
         return new BoardManager(boardRepository);
     }
@@ -76,11 +75,12 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public WatchManager provideWatchManager(DatabaseManager databaseManager,
-                                            ChanLoaderFactory chanLoaderFactory,
-                                            WakeManager wakeManager,
-                                            PageRequestManager pageRequestManager,
-                                            ThreadSaveManager threadSaveManager
+    public WatchManager provideWatchManager(
+            DatabaseManager databaseManager,
+            ChanLoaderFactory chanLoaderFactory,
+            WakeManager wakeManager,
+            PageRequestManager pageRequestManager,
+            ThreadSaveManager threadSaveManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
         return new WatchManager(databaseManager, chanLoaderFactory, wakeManager, pageRequestManager, threadSaveManager);
@@ -95,20 +95,21 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public FilterWatchManager provideFilterWatchManager(WakeManager wakeManager,
-                                                        FilterEngine filterEngine,
-                                                        WatchManager watchManager,
-                                                        ChanLoaderFactory chanLoaderFactory,
-                                                        BoardRepository boardRepository,
-                                                        DatabaseManager databaseManager
+    public FilterWatchManager provideFilterWatchManager(
+            WakeManager wakeManager,
+            FilterEngine filterEngine,
+            WatchManager watchManager,
+            ChanLoaderFactory chanLoaderFactory,
+            BoardRepository boardRepository,
+            DatabaseManager databaseManager
     ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
         return new FilterWatchManager(wakeManager,
-                                      filterEngine,
-                                      watchManager,
-                                      chanLoaderFactory,
-                                      boardRepository,
-                                      databaseManager
+                filterEngine,
+                watchManager,
+                chanLoaderFactory,
+                boardRepository,
+                databaseManager
         );
     }
 
@@ -133,9 +134,10 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public ThreadSaveManager provideSaveThreadManager(DatabaseManager databaseManager,
-                                                      SavedThreadLoaderRepository savedThreadLoaderRepository,
-                                                      FileManager fileManager
+    public ThreadSaveManager provideSaveThreadManager(
+            DatabaseManager databaseManager,
+            SavedThreadLoaderRepository savedThreadLoaderRepository,
+            FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Thread save manager");
         return new ThreadSaveManager(databaseManager, savedThreadLoaderRepository, fileManager);
@@ -143,8 +145,8 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public SavedThreadLoaderManager provideSavedThreadLoaderManager(SavedThreadLoaderRepository savedThreadLoaderRepository,
-                                                                    FileManager fileManager
+    public SavedThreadLoaderManager provideSavedThreadLoaderManager(
+            SavedThreadLoaderRepository savedThreadLoaderRepository, FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Saved thread loader manager");
         return new SavedThreadLoaderManager(savedThreadLoaderRepository, fileManager);

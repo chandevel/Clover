@@ -65,7 +65,8 @@ public class FileCache
         cacheHandler.clearCache();
     }
 
-    public FileCacheDownloader downloadFile(Loadable loadable, @NonNull PostImage postImage, FileCacheListener listener
+    public FileCacheDownloader downloadFile(
+            Loadable loadable, @NonNull PostImage postImage, FileCacheListener listener
     ) {
         if (loadable.isLocal()) {
             String filename = ThreadSaveManager.formatOriginalImageName(postImage.serverFilename, postImage.extension);
@@ -89,8 +90,7 @@ public class FileCache
             AbstractFile localImgFile = baseDirFile.clone(segments);
 
             if (fileManager.exists(localImgFile) && fileManager.isFile(localImgFile)
-                    && fileManager.canRead(localImgFile))
-            {
+                    && fileManager.canRead(localImgFile)) {
                 handleFileImmediatelyAvailable(listener, localImgFile);
             } else {
                 Logger.e(TAG, "Cannot load saved image from the disk, path: " + localImgFile.getFullPath());

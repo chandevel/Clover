@@ -38,10 +38,8 @@ import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
  */
 public class ImageDecoder {
 
-    public static void decodeFileOnBackgroundThread(final File file,
-                                                    final int maxWidth,
-                                                    final int maxHeight,
-                                                    ImageDecoderCallback callback
+    public static void decodeFileOnBackgroundThread(
+            final File file, final int maxWidth, final int maxHeight, ImageDecoderCallback callback
     ) {
         Thread thread = new Thread(() -> {
             final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
@@ -52,22 +50,22 @@ public class ImageDecoder {
                 Bitmap frameBitmap = video.getFrameAtTime();
                 Bitmap audioIconBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.ic_volume_up_white_24dp);
                 Bitmap audioBitmap = Bitmap.createScaledBitmap(audioIconBitmap,
-                                                               audioIconBitmap.getWidth() * 3,
-                                                               audioIconBitmap.getHeight() * 3,
-                                                               true
+                        audioIconBitmap.getWidth() * 3,
+                        audioIconBitmap.getHeight() * 3,
+                        true
                 );
                 boolean hasAudio = "yes".equals(video.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO));
                 if (hasAudio && frameBitmap != null) {
                     videoBitmap = Bitmap.createBitmap(frameBitmap.getWidth(),
-                                                      frameBitmap.getHeight(),
-                                                      frameBitmap.getConfig()
+                            frameBitmap.getHeight(),
+                            frameBitmap.getConfig()
                     );
                     Canvas temp = new Canvas(videoBitmap);
                     temp.drawBitmap(frameBitmap, new Matrix(), null);
                     temp.drawBitmap(audioBitmap,
-                                    frameBitmap.getWidth() - audioBitmap.getWidth(),
-                                    frameBitmap.getHeight() - audioBitmap.getHeight(),
-                                    null
+                            frameBitmap.getWidth() - audioBitmap.getWidth(),
+                            frameBitmap.getHeight() - audioBitmap.getHeight(),
+                            null
                     );
                 } else {
                     videoBitmap = frameBitmap;
@@ -86,8 +84,7 @@ public class ImageDecoder {
     }
 
     public static Bitmap decodeFile(File file, int maxWidth, int maxHeight) {
-        if (!file.exists())
-            return null;
+        if (!file.exists()) return null;
 
         FileInputStream fis;
 

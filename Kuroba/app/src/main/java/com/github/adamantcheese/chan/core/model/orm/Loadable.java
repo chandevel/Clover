@@ -94,15 +94,16 @@ public class Loadable
     protected Loadable() {
     }
 
-    public static Loadable importLoadable(int siteId,
-                                          int mode,
-                                          String boardCode,
-                                          int no,
-                                          String title,
-                                          int listViewIndex,
-                                          int listViewTop,
-                                          int lastViewed,
-                                          int lastLoaded
+    public static Loadable importLoadable(
+            int siteId,
+            int mode,
+            String boardCode,
+            int no,
+            String title,
+            int listViewIndex,
+            int listViewTop,
+            int lastViewed,
+            int lastLoaded
     ) {
         Loadable loadable = new Loadable();
         loadable.siteId = siteId;
@@ -192,8 +193,7 @@ public class Loadable
      */
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof Loadable))
-            return false;
+        if (!(object instanceof Loadable)) return false;
 
         Loadable other = (Loadable) object;
 
@@ -261,7 +261,7 @@ public class Loadable
 
     /**
      * Thread is being downloaded but we are not currently viewing the local copy
-     * */
+     */
     public boolean isDownloading() {
         return loadableDownloadingState == LoadableDownloadingState.DownloadingAndNotViewable;
     }
@@ -301,8 +301,7 @@ public class Loadable
         copy.site = site;
         copy.mode = mode;
         // TODO: for empty loadables
-        if (board != null)
-            copy.board = board.clone();
+        if (board != null) copy.board = board.clone();
         copy.boardCode = boardCode;
         copy.no = no;
         copy.title = title;

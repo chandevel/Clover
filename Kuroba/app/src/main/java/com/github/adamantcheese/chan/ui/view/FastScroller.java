@@ -65,9 +65,7 @@ public class FastScroller
     private static final int DRAG_X = 1;
     private static final int DRAG_Y = 2;
 
-    @IntDef({
-            ANIMATION_STATE_OUT, ANIMATION_STATE_FADING_IN, ANIMATION_STATE_IN, ANIMATION_STATE_FADING_OUT
-    })
+    @IntDef({ANIMATION_STATE_OUT, ANIMATION_STATE_FADING_IN, ANIMATION_STATE_IN, ANIMATION_STATE_FADING_OUT})
     @Retention(RetentionPolicy.SOURCE)
     private @interface AnimationState {}
 
@@ -144,21 +142,22 @@ public class FastScroller
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             updateScrollPosition(recyclerView.computeHorizontalScrollOffset(),
-                                 recyclerView.computeVerticalScrollOffset()
+                    recyclerView.computeVerticalScrollOffset()
             );
         }
     };
 
-    public FastScroller(RecyclerView recyclerView,
-                        StateListDrawable verticalThumbDrawable,
-                        Drawable verticalTrackDrawable,
-                        StateListDrawable horizontalThumbDrawable,
-                        Drawable horizontalTrackDrawable,
-                        int defaultWidth,
-                        int scrollbarMinimumRange,
-                        int margin,
-                        int thumbMinLength,
-                        int targetWidth
+    public FastScroller(
+            RecyclerView recyclerView,
+            StateListDrawable verticalThumbDrawable,
+            Drawable verticalTrackDrawable,
+            StateListDrawable horizontalThumbDrawable,
+            Drawable horizontalTrackDrawable,
+            int defaultWidth,
+            int scrollbarMinimumRange,
+            int margin,
+            int thumbMinLength,
+            int targetWidth
     ) {
         mVerticalThumbDrawable = verticalThumbDrawable;
         mVerticalTrackDrawable = verticalTrackDrawable;
@@ -410,13 +409,13 @@ public class FastScroller
     void updateScrollPosition(int offsetX, int offsetY) {
         int verticalContentLength = mRecyclerView.computeVerticalScrollRange();
         int verticalVisibleLength = mRecyclerViewHeight;
-        mNeedVerticalScrollbar = verticalContentLength - verticalVisibleLength > 0
-                && mRecyclerViewHeight >= mScrollbarMinimumRange;
+        mNeedVerticalScrollbar =
+                verticalContentLength - verticalVisibleLength > 0 && mRecyclerViewHeight >= mScrollbarMinimumRange;
 
         int horizontalContentLength = mRecyclerView.computeHorizontalScrollRange();
         int horizontalVisibleLength = mRecyclerViewWidth;
-        mNeedHorizontalScrollbar = horizontalContentLength - horizontalVisibleLength > 0
-                && mRecyclerViewWidth >= mScrollbarMinimumRange;
+        mNeedHorizontalScrollbar =
+                horizontalContentLength - horizontalVisibleLength > 0 && mRecyclerViewWidth >= mScrollbarMinimumRange;
 
         if (!mNeedVerticalScrollbar && !mNeedHorizontalScrollbar) {
             if (mState != STATE_HIDDEN) {
@@ -427,20 +426,20 @@ public class FastScroller
 
         if (mNeedVerticalScrollbar) {
             float middleScreenPos = offsetY + verticalVisibleLength / 2.0f;
-            mVerticalThumbCenterY = mRecyclerViewTopPadding + (int) (
-                    (verticalVisibleLength * middleScreenPos) / verticalContentLength);
+            mVerticalThumbCenterY =
+                    mRecyclerViewTopPadding + (int) ((verticalVisibleLength * middleScreenPos) / verticalContentLength);
             int length = Math.min(verticalVisibleLength,
-                                  (verticalVisibleLength * verticalVisibleLength) / verticalContentLength
+                    (verticalVisibleLength * verticalVisibleLength) / verticalContentLength
             );
             mVerticalThumbHeight = Math.max(mThumbMinLength, length);
         }
 
         if (mNeedHorizontalScrollbar) {
             float middleScreenPos = offsetX + horizontalVisibleLength / 2.0f;
-            mHorizontalThumbCenterX = mRecyclerViewLeftPadding + (int) (
-                    (horizontalVisibleLength * middleScreenPos) / horizontalContentLength);
+            mHorizontalThumbCenterX = mRecyclerViewLeftPadding + (int) ((horizontalVisibleLength * middleScreenPos)
+                    / horizontalContentLength);
             int length = Math.min(horizontalVisibleLength,
-                                  (horizontalVisibleLength * horizontalVisibleLength) / horizontalContentLength
+                    (horizontalVisibleLength * horizontalVisibleLength) / horizontalContentLength
             );
             mHorizontalThumbWidth = Math.max(mThumbMinLength, length);
         }
@@ -527,12 +526,12 @@ public class FastScroller
             return;
         }
         int scrollingBy = scrollTo(mVerticalDragY,
-                                   y,
-                                   scrollbarRange,
-                                   mRecyclerView.computeVerticalScrollRange(),
-                                   mRecyclerView.computeVerticalScrollOffset(),
-                                   mRecyclerViewHeight,
-                                   mVerticalDragThumbHeight
+                y,
+                scrollbarRange,
+                mRecyclerView.computeVerticalScrollRange(),
+                mRecyclerView.computeVerticalScrollOffset(),
+                mRecyclerViewHeight,
+                mVerticalDragThumbHeight
         );
         if (scrollingBy != 0) {
             mRecyclerView.scrollBy(0, scrollingBy);
@@ -548,12 +547,12 @@ public class FastScroller
         }
 
         int scrollingBy = scrollTo(mHorizontalDragX,
-                                   x,
-                                   scrollbarRange,
-                                   mRecyclerView.computeHorizontalScrollRange(),
-                                   mRecyclerView.computeHorizontalScrollOffset(),
-                                   mRecyclerViewWidth,
-                                   mHorizontalDragThumbWidth
+                x,
+                scrollbarRange,
+                mRecyclerView.computeHorizontalScrollRange(),
+                mRecyclerView.computeHorizontalScrollOffset(),
+                mRecyclerViewWidth,
+                mHorizontalDragThumbWidth
         );
         if (scrollingBy != 0) {
             mRecyclerView.scrollBy(scrollingBy, 0);
@@ -562,13 +561,14 @@ public class FastScroller
         mHorizontalDragX = x;
     }
 
-    private int scrollTo(float oldDragPos,
-                         float newDragPos,
-                         int[] scrollbarRange,
-                         int scrollRange,
-                         int scrollOffset,
-                         int viewLength,
-                         int dragThumbLength
+    private int scrollTo(
+            float oldDragPos,
+            float newDragPos,
+            int[] scrollbarRange,
+            int scrollRange,
+            int scrollOffset,
+            int viewLength,
+            int dragThumbLength
     ) {
         int scrollbarLength = scrollbarRange[1] - scrollbarRange[0] - dragThumbLength;
         if (scrollbarLength == 0) {

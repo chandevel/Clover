@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -53,6 +52,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
 public class HistoryController
         extends Controller
@@ -82,19 +82,19 @@ public class HistoryController
         navigation.setTitle(R.string.history_screen);
 
         navigation.buildMenu()
-                  .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
-                  .withOverflow()
-                  .withSubItem(R.string.history_clear, this::clearHistoryClicked)
-                  .withSubItem(R.string.saved_reply_clear, this::clearSavedReplyClicked)
-                  .build()
-                  .build();
+                .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
+                .withOverflow()
+                .withSubItem(R.string.history_clear, this::clearHistoryClicked)
+                .withSubItem(R.string.saved_reply_clear, this::clearSavedReplyClicked)
+                .build()
+                .build();
 
         SwitchCompat historyEnabledSwitch = new SwitchCompat(context);
         historyEnabledSwitch.setChecked(ChanSettings.historyEnabled.get());
         historyEnabledSwitch.setOnCheckedChangeListener(this);
         navigation.setRightView(historyEnabledSwitch);
 
-        view = inflateRes(R.layout.controller_history);
+        view = inflate(context, R.layout.controller_history);
         crossfade = view.findViewById(R.id.crossfade);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -114,8 +114,7 @@ public class HistoryController
     }
 
     private void clearHistoryClicked(ToolbarMenuSubItem item) {
-        new AlertDialog.Builder(context)
-                .setTitle(R.string.history_clear_confirm)
+        new AlertDialog.Builder(context).setTitle(R.string.history_clear_confirm)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.history_clear_confirm_button, (dialog, which) -> {
                     databaseManager.runTaskAsync(databaseHistoryManager.clearHistory());
@@ -125,11 +124,11 @@ public class HistoryController
     }
 
     private void clearSavedReplyClicked(ToolbarMenuSubItem item) {
-        new AlertDialog.Builder(context)
-                .setTitle(R.string.saved_reply_clear_confirm)
+        new AlertDialog.Builder(context).setTitle(R.string.saved_reply_clear_confirm)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.saved_reply_clear_confirm_button,
-                                   (dialog, which) -> databaseManager.runTaskAsync(databaseSavedReplyManager.clearSavedReplies())
+                .setPositiveButton(
+                        R.string.saved_reply_clear_confirm_button,
+                        (dialog, which) -> databaseManager.runTaskAsync(databaseSavedReplyManager.clearSavedReplies())
                 )
                 .show();
     }
@@ -177,9 +176,7 @@ public class HistoryController
 
         @Override
         public HistoryCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new HistoryCell(
-                    LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_history, parent, false)
-            );
+            return new HistoryCell(inflate(parent.getContext(), R.layout.cell_history, parent, false));
         }
 
         @Override

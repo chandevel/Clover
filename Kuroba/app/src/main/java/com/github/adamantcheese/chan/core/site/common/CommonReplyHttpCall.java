@@ -54,8 +54,8 @@ public abstract class CommonReplyHttpCall
     }
 
     @Override
-    public void setup(Request.Builder requestBuilder,
-                      @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    public void setup(
+            Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         replyResponse.password = Long.toHexString(RANDOM.nextLong());
 
@@ -86,15 +86,14 @@ public abstract class CommonReplyHttpCall
                 }
 
                 if (replyResponse.threadNo >= 0
-                        && replyResponse.postNo > 0)
-                { //threadNo can be 0 iff this is a new thread
+                        && replyResponse.postNo > 0) { //threadNo can be 0 iff this is a new thread
                     replyResponse.posted = true;
                 }
             }
         }
     }
 
-    public abstract void addParameters(MultipartBody.Builder builder,
-                                       @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    public abstract void addParameters(
+            MultipartBody.Builder builder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     );
 }

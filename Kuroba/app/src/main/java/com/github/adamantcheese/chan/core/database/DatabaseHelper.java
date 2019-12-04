@@ -185,12 +185,12 @@ public class DatabaseHelper
         if (oldVersion < 30) {
             try {
                 boardsDao.executeRawNoArgs("BEGIN TRANSACTION;\n"
-                                                   + "CREATE TEMPORARY TABLE board_backup(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n"
-                                                   + "INSERT INTO board_backup SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board;\n"
-                                                   + "DROP TABLE board;\n"
-                                                   + "CREATE TABLE board(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n"
-                                                   + "INSERT INTO board SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board_backup;\n"
-                                                   + "DROP TABLE board_backup;\n" + "COMMIT;");
+                        + "CREATE TEMPORARY TABLE board_backup(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n"
+                        + "INSERT INTO board_backup SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board;\n"
+                        + "DROP TABLE board;\n"
+                        + "CREATE TABLE board(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n"
+                        + "INSERT INTO board SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board_backup;\n"
+                        + "DROP TABLE board_backup;\n" + "COMMIT;");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 30");
             }
@@ -281,13 +281,12 @@ public class DatabaseHelper
 
                 //remove arisuchan boards that don't exist anymore
                 Where where = boardsDao.queryBuilder().where();
-                where.and(where.eq("site", 3),
-                          where.or(where.eq("value", "cyb"),
-                                   where.eq("value", "feels"),
-                                   where.eq("value", "x"),
-                                   where.eq("value", "z")
-                          )
-                );
+                where.and(where.eq("site", 3), where.or(
+                        where.eq("value", "cyb"),
+                        where.eq("value", "feels"),
+                        where.eq("value", "x"),
+                        where.eq("value", "z")
+                ));
                 List<Board> toRemove = where.query();
                 for (Board b : toRemove) {
                     deleteBoard(b);
@@ -365,8 +364,7 @@ public class DatabaseHelper
             }
         }
         //if we can't find it then it doesn't exist so we don't need to delete anything
-        if (toDelete == null)
-            return;
+        if (toDelete == null) return;
 
         //filters
         List<Filter> filtersToDelete = new ArrayList<>();

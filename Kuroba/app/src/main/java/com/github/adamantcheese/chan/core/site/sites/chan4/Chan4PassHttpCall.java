@@ -42,8 +42,8 @@ public class Chan4PassHttpCall
     }
 
     @Override
-    public void setup(Request.Builder requestBuilder,
-                      @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    public void setup(
+            Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         FormBody.Builder formBuilder = new FormBody.Builder();
 

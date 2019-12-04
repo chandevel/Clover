@@ -47,11 +47,12 @@ public class BitmapUtils {
 
     private static final Random random = new Random();
 
-    public static File reencodeBitmapFile(@NonNull File inputBitmapFile,
-                                          boolean fixExif,
-                                          boolean removeMetadata,
-                                          boolean changeImageChecksum,
-                                          @Nullable ImageReencodingPresenter.ReencodeSettings reencodeSettings
+    public static File reencodeBitmapFile(
+            @NonNull File inputBitmapFile,
+            boolean fixExif,
+            boolean removeMetadata,
+            boolean changeImageChecksum,
+            @Nullable ImageReencodingPresenter.ReencodeSettings reencodeSettings
     )
             throws IOException {
         int quality = MAX_QUALITY;
@@ -81,10 +82,8 @@ public class BitmapUtils {
         }
 
         //all parameters are default - do nothing
-        if (quality == MAX_QUALITY && reduce == MIN_REDUCE
-                && reencodeType == AS_IS && !fixExif && !removeMetadata
-                && !changeImageChecksum)
-        {
+        if (quality == MAX_QUALITY && reduce == MIN_REDUCE && reencodeType == AS_IS && !fixExif && !removeMetadata
+                && !changeImageChecksum) {
             return inputBitmapFile;
         }
 
@@ -118,9 +117,8 @@ public class BitmapUtils {
             //fix exif
             if (compressFormat == JPEG && fixExif) {
                 ExifInterface exif = new ExifInterface(inputBitmapFile.getAbsolutePath());
-                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                                                       ExifInterface.ORIENTATION_UNDEFINED
-                );
+                int orientation =
+                        exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
                 switch (orientation) {
                     case ExifInterface.ORIENTATION_ROTATE_270:
                         matrix.postRotate(270);
@@ -278,14 +276,14 @@ public class BitmapUtils {
      */
     public static Pair<Integer, Integer> getImageDims(File file)
             throws IOException {
-        if (file == null)
-            throw new IOException();
+        if (file == null) throw new IOException();
         Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
         return new Pair<>(bitmap.getWidth(), bitmap.getHeight());
     }
 
     @Nullable
-    public static Bitmap getBitmapFromVectorDrawable(Context context, int width, int height, @DrawableRes int drawableId
+    public static Bitmap getBitmapFromVectorDrawable(
+            Context context, int width, int height, @DrawableRes int drawableId
     ) {
         Drawable originalDrawable = ContextCompat.getDrawable(context, drawableId);
         if (originalDrawable == null) {

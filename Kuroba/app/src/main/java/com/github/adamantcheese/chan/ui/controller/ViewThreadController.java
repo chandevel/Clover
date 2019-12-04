@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
@@ -71,6 +70,7 @@ import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -124,8 +124,8 @@ public class ViewThreadController
         super.onCreate();
         inject(this);
 
-        downloadAnimation = (AnimatedVectorDrawableCompat)
-                AnimationUtils.createAnimatedDownloadIcon(context, Color.WHITE).mutate();
+        downloadAnimation =
+                (AnimatedVectorDrawableCompat) AnimationUtils.createAnimatedDownloadIcon(context, Color.WHITE).mutate();
 
         downloadIconOutline = context.getDrawable(R.drawable.ic_download_anim0);
         downloadIconOutline.setTint(Color.WHITE);
@@ -145,10 +145,9 @@ public class ViewThreadController
     protected void buildMenu() {
         prevState = DownloadThreadState.Default;
 
-        NavigationItem.MenuBuilder menuBuilder =
-                navigation.buildMenu()
-                          .withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
-                          .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked);
+        NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu()
+                .withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
+                .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked);
 
         if (ChanSettings.incrementalThreadDownloadingEnabled.get()) {
             // This method recreates the menu (and if there was the download animation running it
@@ -164,28 +163,27 @@ public class ViewThreadController
         }
 
         menuOverflowBuilder.withSubItem(R.string.action_search, this::searchClicked)
-                           .withSubItem(R.string.action_reload, this::reloadClicked)
-                           .withSubItem(R.string.thread_show_archives, this::showArchives)
-                           .withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
-                           .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
-                           .withSubItem(R.string.action_share, this::shareClicked)
-                           .withSubItem(R.string.action_scroll_to_top, this::upClicked)
-                           .withSubItem(R.string.action_scroll_to_bottom, this::downClicked);
+                .withSubItem(R.string.action_reload, this::reloadClicked)
+                .withSubItem(R.string.thread_show_archives, this::showArchives)
+                .withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
+                .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
+                .withSubItem(R.string.action_share, this::shareClicked)
+                .withSubItem(R.string.action_scroll_to_top, this::upClicked)
+                .withSubItem(R.string.action_scroll_to_bottom, this::downClicked);
 
         // These items are dynamic; create them here by default if settings permit
         if (ChanSettings.incrementalThreadDownloadingEnabled.get()
-                && getThreadDownloadState() != DownloadThreadState.Default)
-        {
+                && getThreadDownloadState() != DownloadThreadState.Default) {
             menuOverflowBuilder.withSubItem(VIEW_LOCAL_COPY_SUBMENU_ID,
-                                            R.string.view_local_version,
-                                            false,
-                                            this::handleClickViewLocalVersion
+                    R.string.view_local_version,
+                    false,
+                    this::handleClickViewLocalVersion
             );
 
             menuOverflowBuilder.withSubItem(VIEW_LIVE_COPY_SUBMENU_ID,
-                                            R.string.view_view_version,
-                                            false,
-                                            this::handleClickViewLiveVersion
+                    R.string.view_view_version,
+                    false,
+                    this::handleClickViewLiveVersion
             );
         }
 
@@ -222,7 +220,7 @@ public class ViewThreadController
                 saveClickedInternal();
             } else {
                 showToast(R.string.view_thread_controller_thread_downloading_requires_write_permission,
-                          Toast.LENGTH_LONG
+                        Toast.LENGTH_LONG
                 );
             }
         });
@@ -271,15 +269,13 @@ public class ViewThreadController
     }
 
     public void showArchives(ToolbarMenuSubItem item) {
-        @SuppressLint("InflateParams") final ArchivesLayout dialogView = (ArchivesLayout)
-                LayoutInflater.from(context).inflate(R.layout.layout_archives, null);
+        @SuppressLint("InflateParams")
+        final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
         dialogView.setBoard(threadLayout.getPresenter().getLoadable().board);
         dialogView.setCallback(this);
 
-        AlertDialog dialog = new AlertDialog.Builder(context)
-                .setView(dialogView)
-                .setTitle(R.string.thread_show_archives)
-                .create();
+        AlertDialog dialog =
+                new AlertDialog.Builder(context).setView(dialogView).setTitle(R.string.thread_show_archives).create();
         dialog.setCanceledOnTouchOutside(true);
         dialog.show();
     }
@@ -295,8 +291,8 @@ public class ViewThreadController
         }
 
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.site.resolvable()
-                                   .desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
+        String link =
+                loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
         openLinkInBrowser((Activity) context, link);
     }
 
@@ -307,8 +303,8 @@ public class ViewThreadController
         }
 
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.site.resolvable()
-                                   .desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
+        String link =
+                loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
         shareLink(link);
     }
 
@@ -420,8 +416,7 @@ public class ViewThreadController
 
     @Override
     public void showThread(final Loadable threadLoadable) {
-        new AlertDialog.Builder(context)
-                .setNegativeButton(R.string.cancel, null)
+        new AlertDialog.Builder(context).setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     threadFollowerpool.addFirst(new Pair<>(loadable, threadLoadable.hashCode()));
                     loadThread(threadLoadable);
@@ -443,8 +438,7 @@ public class ViewThreadController
 
     private void showBoardInternal(Loadable catalogLoadable, String searchQuery) {
         if (doubleNavigationController != null
-                && doubleNavigationController.getLeftController() instanceof BrowseController)
-        {
+                && doubleNavigationController.getLeftController() instanceof BrowseController) {
             //slide layout
             doubleNavigationController.switchToController(true);
             ((BrowseController) doubleNavigationController.getLeftController()).setBoard(catalogLoadable.board);
@@ -452,8 +446,7 @@ public class ViewThreadController
                 ((BrowseController) doubleNavigationController.getLeftController()).searchQuery = searchQuery;
             }
         } else if (doubleNavigationController != null
-                && doubleNavigationController.getLeftController() instanceof StyledToolbarNavigationController)
-        {
+                && doubleNavigationController.getLeftController() instanceof StyledToolbarNavigationController) {
             //split layout
             ((BrowseController) doubleNavigationController.getLeftController().childControllers.get(0)).setBoard(
                     catalogLoadable.board);
@@ -522,21 +515,19 @@ public class ViewThreadController
     private void populateLocalOrLiveVersionMenu() {
         //setup the extra items if they're needed, or remove as necessary
         if (ChanSettings.incrementalThreadDownloadingEnabled.get()
-                && getThreadDownloadState() != DownloadThreadState.Default)
-        {
+                && getThreadDownloadState() != DownloadThreadState.Default) {
             ToolbarMenuItem overflowMenu = navigation.findItem(OVERFLOW_ID);
             if (navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID) == null
-                    && navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID) == null)
-            {
+                    && navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID) == null) {
                 overflowMenu.addSubItem(new ToolbarMenuSubItem(VIEW_LOCAL_COPY_SUBMENU_ID,
-                                                               R.string.view_local_version,
-                                                               true,
-                                                               this::handleClickViewLocalVersion
+                        R.string.view_local_version,
+                        true,
+                        this::handleClickViewLocalVersion
                 ));
                 overflowMenu.addSubItem(new ToolbarMenuSubItem(VIEW_LIVE_COPY_SUBMENU_ID,
-                                                               R.string.view_view_version,
-                                                               true,
-                                                               this::handleClickViewLiveVersion
+                        R.string.view_view_version,
+                        true,
+                        this::handleClickViewLiveVersion
                 ));
             }
         } else {
@@ -559,8 +550,7 @@ public class ViewThreadController
             SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
             if (savedThread == null || savedThread.isFullyDownloaded
                     || loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded
-                    || loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.NotDownloading)
-            {
+                    || loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.NotDownloading) {
                 // No saved thread.
                 // Saved thread fully downloaded.
                 // Not downloading thread currently.
@@ -684,7 +674,8 @@ public class ViewThreadController
         return DownloadThreadState.DownloadInProgress;
     }
 
-    private void setSaveIconStateDrawable(DownloadThreadState downloadThreadState, boolean animated
+    private void setSaveIconStateDrawable(
+            DownloadThreadState downloadThreadState, boolean animated
     ) {
         if (downloadThreadState == prevState) {
             return;
@@ -743,8 +734,7 @@ public class ViewThreadController
     @Override
     public void openArchive(Pair<String, String> domainNamePair) {
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        Post tempOP = new Post.Builder()
-                .board(loadable.board)
+        Post tempOP = new Post.Builder().board(loadable.board)
                 .id(loadable.no)
                 .opId(loadable.no)
                 .setUnixTimestampSeconds(1)

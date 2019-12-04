@@ -42,19 +42,19 @@ public class PostsFilter {
 
     private static final Comparator<Post> OLDEST_COMPARATOR = (lhs, rhs) -> (int) (lhs.time - rhs.time);
 
-    private static final Comparator<Post> MODIFIED_COMPARATOR = (lhs, rhs) -> (int) (
-            rhs.getLastModified() - lhs.getLastModified());
+    private static final Comparator<Post> MODIFIED_COMPARATOR =
+            (lhs, rhs) -> (int) (rhs.getLastModified() - lhs.getLastModified());
 
     private static final Comparator<Post> THREAD_ACTIVITY_COMPARATOR = (lhs, rhs) -> {
         long currentTimeSeconds = System.currentTimeMillis() / 1000;
 
         //we can't divide by zero, but we can divide by the smallest thing that's closest to 0 instead
-        long score1 = (long) (
-                (currentTimeSeconds - lhs.time) / (
-                        lhs.getReplies() != 0 ? lhs.getReplies() : Float.MIN_NORMAL));
-        long score2 = (long) (
-                (currentTimeSeconds - rhs.time) / (
-                        rhs.getReplies() != 0 ? rhs.getReplies() : Float.MIN_NORMAL));
+        long score1 = (long) ((currentTimeSeconds - lhs.time) / (lhs.getReplies() != 0
+                ? lhs.getReplies()
+                : Float.MIN_NORMAL));
+        long score2 = (long) ((currentTimeSeconds - rhs.time) / (rhs.getReplies() != 0
+                ? rhs.getReplies()
+                : Float.MIN_NORMAL));
 
         return Long.compare(score1, score2);
     };

@@ -6,9 +6,8 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.settings.IntegerSetting
 import com.github.adamantcheese.chan.core.settings.SettingProvider
 import com.github.adamantcheese.chan.core.settings.StringSetting
-import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel
-import org.greenrobot.eventbus.EventBus
+import com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus
 import java.io.File
 
 class SavedFilesBaseDirSetting(
@@ -37,11 +36,11 @@ class SavedFilesBaseDirSetting(
 
     init {
         fileApiBaseDir.addCallback { _, _ ->
-            EventBus.getDefault().post(ChanSettings.SettingChanged(fileApiBaseDir))
+            postToEventBus(ChanSettings.SettingChanged(fileApiBaseDir))
         }
 
         safBaseDir.addCallback { _, _ ->
-            EventBus.getDefault().post(ChanSettings.SettingChanged(safBaseDir))
+            postToEventBus(ChanSettings.SettingChanged(safBaseDir))
         }
     }
 

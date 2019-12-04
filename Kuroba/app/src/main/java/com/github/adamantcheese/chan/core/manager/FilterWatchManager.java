@@ -74,12 +74,13 @@ public class FilterWatchManager
     private final Gson serializer = new Gson();
 
     @Inject
-    public FilterWatchManager(WakeManager wakeManager,
-                              FilterEngine filterEngine,
-                              WatchManager watchManager,
-                              ChanLoaderFactory chanLoaderFactory,
-                              BoardRepository boardRepository,
-                              DatabaseManager databaseManager
+    public FilterWatchManager(
+            WakeManager wakeManager,
+            FilterEngine filterEngine,
+            WatchManager watchManager,
+            ChanLoaderFactory chanLoaderFactory,
+            BoardRepository boardRepository,
+            DatabaseManager databaseManager
     ) {
         this.wakeManager = wakeManager;
         this.filterEngine = filterEngine;
@@ -92,11 +93,9 @@ public class FilterWatchManager
             wakeManager.registerWakeable(this);
         }
 
-        Set<Integer> previousIgnore = serializer.fromJson(ChanSettings.filterWatchIgnored.get(),
-                                                          new TypeToken<Set<Integer>>() {}.getType()
-        );
-        if (previousIgnore != null)
-            ignoredPosts.addAll(previousIgnore);
+        Set<Integer> previousIgnore =
+                serializer.fromJson(ChanSettings.filterWatchIgnored.get(), new TypeToken<Set<Integer>>() {}.getType());
+        if (previousIgnore != null) ignoredPosts.addAll(previousIgnore);
 
         EventBus.getDefault().register(this);
     }
@@ -157,10 +156,8 @@ public class FilterWatchManager
                         BackgroundLoader backgroundLoader = new BackgroundLoader();
                         Loadable boardLoadable = Loadable.forCatalog(b);
                         boardLoadable = databaseLoadableManager.get(boardLoadable);
-                        ChanThreadLoader catalogLoader = chanLoaderFactory.obtain(boardLoadable,
-                                                                                  watchManager,
-                                                                                  backgroundLoader
-                        );
+                        ChanThreadLoader catalogLoader =
+                                chanLoaderFactory.obtain(boardLoadable, watchManager, backgroundLoader);
                         filterLoaders.put(catalogLoader, backgroundLoader);
                     }
                 }
@@ -170,10 +167,8 @@ public class FilterWatchManager
 
     public void onCatalogLoad(ChanThread catalog) {
         Logger.d(TAG, "onCatalogLoad() for /" + catalog.getLoadable().board.code + "/");
-        if (catalog.getLoadable().isThreadMode())
-            return; //not a catalog
-        if (processing)
-            return; //filter watch manager is currently processing, ignore
+        if (catalog.getLoadable().isThreadMode()) return; //not a catalog
+        if (processing) return; //filter watch manager is currently processing, ignore
 
         Set<Integer> toAdd = new HashSet<>();
         //Match filters and ignores
@@ -182,9 +177,9 @@ public class FilterWatchManager
             for (Post p : catalog.getPostsUnsafe()) {
                 if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
                     Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site,
-                                                              p.board,
-                                                              p.no,
-                                                              PostHelper.getTitle(p, catalog.getLoadable())
+                            p.board,
+                            p.no,
+                            PostHelper.getTitle(p, catalog.getLoadable())
                     );
                     pinLoadable = databaseLoadableManager.get(pinLoadable);
                     watchManager.createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
@@ -193,8 +188,7 @@ public class FilterWatchManager
             }
         }
         //clear the ignored posts set if it gets too large; don't have the same sync stuff as background and it's a hassle to keep track of recently loaded catalogs
-        if (ignoredPosts.size() + toAdd.size() > 650)
-            ignoredPosts.clear(); //like 11 4chan catalogs? should be plenty
+        if (ignoredPosts.size() + toAdd.size() > 650) ignoredPosts.clear(); //like 11 4chan catalogs? should be plenty
         ignoredPosts.addAll(toAdd);
         ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
     }
@@ -210,9 +204,9 @@ public class FilterWatchManager
                 for (Post p : result.getPostsUnsafe()) {
                     if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
                         Loadable pinLoadable = Loadable.forThread(result.getLoadable().site,
-                                                                  p.board,
-                                                                  p.no,
-                                                                  PostHelper.getTitle(p, result.getLoadable())
+                                p.board,
+                                p.no,
+                                PostHelper.getTitle(p, result.getLoadable())
                         );
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
                         watchManager.createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
@@ -237,8 +231,8 @@ public class FilterWatchManager
                     lastCheckedPosts.clear();
                     processing = false;
                     Logger.i(TAG,
-                             "Finished processing filter loaders, ended at "
-                                     + DateFormat.getTimeInstance().format(new Date())
+                            "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance()
+                                    .format(new Date())
                     );
                     wakeManager.manageLock(false, FilterWatchManager.this);
                 }

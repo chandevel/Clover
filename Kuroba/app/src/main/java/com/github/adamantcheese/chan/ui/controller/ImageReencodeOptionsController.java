@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
 
 public class ImageReencodeOptionsController
@@ -62,11 +63,13 @@ public class ImageReencodeOptionsController
                     }
                     currentImageQuality.setText(getString(R.string.image_quality, progress));
                 } else if (seekBar == reduce) {
-                    currentImageReduce.setText(getString(R.string.scale_reduce, dims.first, dims.second, (int) (
-                            dims.first * (
-                                    (100f - (float) progress) / 100f)), (int) (
-                            dims.second * (
-                                    (100f - (float) progress) / 100f)), 100 - progress));
+                    currentImageReduce.setText(getString(R.string.scale_reduce,
+                            dims.first,
+                            dims.second,
+                            (int) (dims.first * ((100f - (float) progress) / 100f)),
+                            (int) (dims.second * ((100f - (float) progress) / 100f)),
+                            100 - progress
+                    ));
                 }
             }
         }
@@ -82,12 +85,13 @@ public class ImageReencodeOptionsController
         }
     };
 
-    public ImageReencodeOptionsController(Context context,
-                                          ImageOptionsHelper imageReencodingHelper,
-                                          ImageReencodeOptionsCallbacks callbacks,
-                                          Bitmap.CompressFormat imageFormat,
-                                          Pair<Integer, Integer> dims,
-                                          ImageReencodingPresenter.ReencodeSettings lastOptions
+    public ImageReencodeOptionsController(
+            Context context,
+            ImageOptionsHelper imageReencodingHelper,
+            ImageReencodeOptionsCallbacks callbacks,
+            Bitmap.CompressFormat imageFormat,
+            Pair<Integer, Integer> dims,
+            ImageReencodingPresenter.ReencodeSettings lastOptions
     ) {
         super(context);
 
@@ -102,7 +106,7 @@ public class ImageReencodeOptionsController
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.layout_image_reencoding);
+        view = inflate(context, R.layout.layout_image_reencoding);
 
         viewHolder = view.findViewById(R.id.reencode_image_view_holder);
         radioGroup = view.findViewById(R.id.reencode_image_radio_group);
@@ -143,11 +147,11 @@ public class ImageReencodeOptionsController
         }
 
         currentImageReduce.setText(getString(R.string.scale_reduce,
-                                             dims.first,
-                                             dims.second,
-                                             dims.first,
-                                             dims.second,
-                                             100 - reduce.getProgress()
+                dims.first,
+                dims.second,
+                dims.first,
+                dims.second,
+                100 - reduce.getProgress()
         ));
 
         if (lastSettings != null) {

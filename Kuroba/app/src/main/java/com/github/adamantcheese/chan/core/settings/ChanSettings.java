@@ -27,8 +27,6 @@ import com.github.adamantcheese.chan.core.settings.base_dir.SavedFilesBaseDirSet
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -40,6 +38,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppDir;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ChanSettings {
@@ -224,22 +223,19 @@ public class ChanSettings {
             openLinkBrowser = new BooleanSetting(p, "preference_open_link_browser", false);
             autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
             imageAutoLoadNetwork = new OptionsSetting<>(p,
-                                                        "preference_image_auto_load_network",
-                                                        MediaAutoLoadMode.class,
-                                                        MediaAutoLoadMode.WIFI
+                    "preference_image_auto_load_network",
+                    MediaAutoLoadMode.class,
+                    MediaAutoLoadMode.WIFI
             );
             videoAutoLoadNetwork = new OptionsSetting<>(p,
-                                                        "preference_video_auto_load_network",
-                                                        MediaAutoLoadMode.class,
-                                                        MediaAutoLoadMode.WIFI
+                    "preference_video_auto_load_network",
+                    MediaAutoLoadMode.class,
+                    MediaAutoLoadMode.WIFI
             );
             videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
             textOnly = new BooleanSetting(p, "preference_text_only", false);
-            boardViewMode = new OptionsSetting<>(p,
-                                                 "preference_board_view_mode",
-                                                 PostViewMode.class,
-                                                 PostViewMode.LIST
-            );
+            boardViewMode =
+                    new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);
             boardGridSpanCount = new IntegerSetting(p, "preference_board_grid_span_count", 0);
             boardOrder = new StringSetting(p, "preference_board_order", PostsFilter.Order.BUMP.name);
 
@@ -274,32 +270,20 @@ public class ChanSettings {
             headsetDefaultMuted = new BooleanSetting(p, "preference_headset_default_muted", true);
             videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
             autoLoadThreadImages = new BooleanSetting(p, "preference_auto_load_thread", false);
-            allowMediaScannerToScanLocalThreads = new BooleanSetting(p,
-                                                                     "allow_media_scanner_to_scan_local_threads",
-                                                                     false
-            );
+            allowMediaScannerToScanLocalThreads =
+                    new BooleanSetting(p, "allow_media_scanner_to_scan_local_threads", false);
 
             watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
-            watchEnabled.addCallback((setting, value) ->
-                                             EventBus.getDefault().post(new SettingChanged<>(watchEnabled)));
+            watchEnabled.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(watchEnabled)));
             watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
-            watchBackground.addCallback((setting, value) ->
-                                                EventBus.getDefault().post(new SettingChanged<>(watchBackground)));
+            watchBackground.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(watchBackground)));
             watchLastPageNotify = new BooleanSetting(p, "preference_watch_last_page_notify", false);
             watchFilterWatch = new BooleanSetting(p, "preference_watch_filter_watch", false);
-            watchFilterWatch.addCallback((
-                                                 (setting, value) ->
-                                                         EventBus
-                                                                 .getDefault()
-                                                                 .post(new SettingChanged<>(watchFilterWatch))));
-            watchBackgroundInterval = new IntegerSetting(p,
-                                                         "preference_watch_background_interval",
-                                                         (int) MINUTES.toMillis(15)
-            );
-            watchBackgroundInterval.addCallback((setting, value) ->
-                                                        EventBus
-                                                                .getDefault()
-                                                                .post(new SettingChanged<>(watchBackgroundInterval)));
+            watchFilterWatch.addCallback(((setting, value) -> postToEventBus(new SettingChanged<>(watchFilterWatch))));
+            watchBackgroundInterval =
+                    new IntegerSetting(p, "preference_watch_background_interval", (int) MINUTES.toMillis(15));
+            watchBackgroundInterval.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(
+                    watchBackgroundInterval)));
             watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
             watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
             watchPeek = new BooleanSetting(p, "preference_watch_peek", true);
@@ -456,7 +440,7 @@ public class ChanSettings {
 
             if (readAmount != file.length()) {
                 throw new IOException("Could not read shared prefs file readAmount != fileLength " + readAmount + ", "
-                                              + file.length());
+                        + file.length());
             }
         }
 

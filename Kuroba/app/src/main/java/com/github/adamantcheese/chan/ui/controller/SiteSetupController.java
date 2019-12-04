@@ -39,6 +39,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
 public class SiteSetupController
         extends SettingsController
@@ -64,7 +65,7 @@ public class SiteSetupController
         navigation.title = getString(R.string.setup_site_title, site.name());
 
         // View binding
-        view = inflateRes(R.layout.settings_layout);
+        view = inflate(context, R.layout.settings_layout);
         content = view.findViewById(R.id.scrollview_content);
 
         // Preferences
@@ -96,8 +97,8 @@ public class SiteSetupController
     @Override
     public void setIsLoggedIn(boolean isLoggedIn) {
         String text = getString(isLoggedIn
-                                        ? R.string.setup_site_login_description_enabled
-                                        : R.string.setup_site_login_description_disabled);
+                ? R.string.setup_site_login_description_enabled
+                : R.string.setup_site_login_description_disabled);
         loginLink.setDescription(text);
     }
 
@@ -131,9 +132,8 @@ public class SiteSetupController
 
     @SuppressWarnings("unchecked")
     @NonNull
-    private ListSettingView<?> getListSettingView(SiteSetting setting,
-                                                  OptionsSetting optionsSetting,
-                                                  List<ListSettingView.Item<Enum>> items
+    private ListSettingView<?> getListSettingView(
+            SiteSetting setting, OptionsSetting optionsSetting, List<ListSettingView.Item<Enum>> items
     ) {
         // we know it's an enum
         return (ListSettingView<?>) new ListSettingView(this, optionsSetting, setting.name, items);

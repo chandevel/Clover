@@ -27,18 +27,14 @@ public class LinkSettingView
     private String description;
     private boolean built = false;
 
-    public LinkSettingView(SettingsController settingsController,
-                           int name,
-                           int description,
-                           View.OnClickListener clickListener
+    public LinkSettingView(
+            SettingsController settingsController, int name, int description, View.OnClickListener clickListener
     ) {
         this(settingsController, getString(name), getString(description), clickListener);
     }
 
-    public LinkSettingView(SettingsController settingsController,
-                           String name,
-                           String description,
-                           View.OnClickListener clickListener
+    public LinkSettingView(
+            SettingsController settingsController, String name, String description, View.OnClickListener clickListener
     ) {
         super(settingsController, name);
         this.description = description;

@@ -30,6 +30,7 @@ import android.widget.LinearLayout;
 
 import com.github.adamantcheese.chan.R;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -108,7 +109,7 @@ public class SearchLayout
             searchView.setText("");
             requestKeyboardFocus(searchView);
         });
-        addView(clearButton, dp(48), LayoutParams.MATCH_PARENT);
+        addView(clearButton, dp(48), MATCH_PARENT);
     }
 
     public void setText(String text) {

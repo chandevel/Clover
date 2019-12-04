@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.site.http;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
@@ -27,6 +26,8 @@ import javax.inject.Inject;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+
+import static com.github.adamantcheese.chan.Chan.instance;
 
 /**
  * Manages the {@link HttpCall} executions.
@@ -37,14 +38,16 @@ public class HttpCallManager {
     public HttpCallManager() {
     }
 
-    public void makeHttpCall(HttpCall httpCall, HttpCall.HttpCallback<? extends HttpCall> callback
+    public void makeHttpCall(
+            HttpCall httpCall, HttpCall.HttpCallback<? extends HttpCall> callback
     ) {
         makeHttpCall(httpCall, callback, null);
     }
 
-    public void makeHttpCall(HttpCall httpCall,
-                             HttpCall.HttpCallback<? extends HttpCall> callback,
-                             @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    public void makeHttpCall(
+            HttpCall httpCall,
+            HttpCall.HttpCallback<? extends HttpCall> callback,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         httpCall.setCallback(callback);
 
@@ -63,6 +66,6 @@ public class HttpCallManager {
         requestBuilder.header("User-Agent", NetModule.USER_AGENT);
         Request request = requestBuilder.build();
 
-        Chan.injector().instance(OkHttpClient.class).newCall(request).enqueue(httpCall);
+        instance(OkHttpClient.class).newCall(request).enqueue(httpCall);
     }
 }

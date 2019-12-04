@@ -120,8 +120,7 @@ public class NavigationControllerContainerLayout
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         if (!swipeEnabled || tracking || navigationController.isBlockingInput()
-                || !navigationController.getTop().navigation.swipeable || getBelowTop() == null)
-        {
+                || !navigationController.getTop().navigation.swipeable || getBelowTop() == null) {
             return false;
         }
 
@@ -203,8 +202,7 @@ public class NavigationControllerContainerLayout
                     boolean doFlingAway = false;
 
                     if ((velocity > 0 && Math.abs(velocity) > dp(800) && Math.abs(velocity) < maxFlingPixels)
-                            || translationX >= getWidth() * 3 / 4)
-                    {
+                            || translationX >= getWidth() * 3 / 4) {
                         velocity = Math.max(dp(2000), velocity);
 
                         scroller.fling(translationX, 0, velocity, 0, 0, Integer.MAX_VALUE, 0, 0);

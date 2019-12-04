@@ -38,18 +38,13 @@ public class ImageOptionsHelper
         if (imageOptionsController == null) {
             try { //load up the last image options every time this controller is created
                 lastImageOptions = new Gson().fromJson(ChanSettings.lastImageOptions.get(),
-                                                       ImageReencodingPresenter.ImageOptions.class
+                        ImageReencodingPresenter.ImageOptions.class
                 );
             } catch (Exception ignored) {
                 lastImageOptions = null;
             }
-            imageOptionsController = new ImageOptionsController(context,
-                                                                this,
-                                                                this,
-                                                                loadable,
-                                                                lastImageOptions,
-                                                                supportsReencode
-            );
+            imageOptionsController =
+                    new ImageOptionsController(context, this, this, loadable, lastImageOptions, supportsReencode);
             callbacks.presentReencodeOptionsController(imageOptionsController);
         }
     }
@@ -69,18 +64,16 @@ public class ImageOptionsHelper
     }
 
     @Override
-    public void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat,
-                                        @Nullable Pair<Integer, Integer> dims
+    public void onReencodeOptionClicked(
+            @Nullable Bitmap.CompressFormat imageFormat, @Nullable Pair<Integer, Integer> dims
     ) {
         if (imageReencodeOptionsController == null && imageFormat != null && dims != null) {
             imageReencodeOptionsController = new ImageReencodeOptionsController(context,
-                                                                                this,
-                                                                                this,
-                                                                                imageFormat,
-                                                                                dims,
-                                                                                lastImageOptions != null
-                                                                                        ? lastImageOptions.getReencodeSettings()
-                                                                                        : null
+                    this,
+                    this,
+                    imageFormat,
+                    dims,
+                    lastImageOptions != null ? lastImageOptions.getReencodeSettings() : null
             );
             callbacks.presentReencodeOptionsController(imageReencodeOptionsController);
         } else {

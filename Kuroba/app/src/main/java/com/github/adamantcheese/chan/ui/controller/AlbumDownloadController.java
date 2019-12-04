@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -52,6 +51,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class AlbumDownloadController
@@ -78,7 +78,7 @@ public class AlbumDownloadController
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.controller_album_download);
+        view = inflate(context, R.layout.controller_album_download);
 
         updateTitle();
 
@@ -106,13 +106,13 @@ public class AlbumDownloadController
             } else {
                 final String folderForAlbum = imageSaver.getSubFolder(loadable.title);
 
-                String message = getString(R.string.album_download_confirm,
-                                           getQuantityString(R.plurals.image, checkCount, checkCount),
-                                           folderForAlbum
+                String message = getString(
+                        R.string.album_download_confirm,
+                        getQuantityString(R.plurals.image, checkCount, checkCount),
+                        folderForAlbum
                 );
 
-                new AlertDialog.Builder(context)
-                        .setMessage(message)
+                new AlertDialog.Builder(context).setMessage(message)
                         .setNegativeButton(R.string.cancel, null)
                         .setPositiveButton(R.string.ok, (dialog, which) -> {
                             List<ImageSaveTask> tasks = new ArrayList<>(items.size());
@@ -128,7 +128,8 @@ public class AlbumDownloadController
                             }
 
                             showToast(R.string.album_download_could_not_save_one_or_more_images);
-                        }).show();
+                        })
+                        .show();
             }
         }
     }
@@ -197,7 +198,7 @@ public class AlbumDownloadController
 
         @Override
         public AlbumDownloadCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_album_download, parent, false);
+            View view = inflate(parent.getContext(), R.layout.cell_album_download, parent, false);
 
             return new AlbumDownloadCell(view);
         }
@@ -257,8 +258,8 @@ public class AlbumDownloadController
         }
 
         Drawable drawable = context.getDrawable(checked
-                                                        ? R.drawable.ic_check_circle_white_24dp
-                                                        : R.drawable.ic_radio_button_unchecked_white_24dp);
+                ? R.drawable.ic_check_circle_white_24dp
+                : R.drawable.ic_radio_button_unchecked_white_24dp);
         assert drawable != null;
 
         if (checked) {

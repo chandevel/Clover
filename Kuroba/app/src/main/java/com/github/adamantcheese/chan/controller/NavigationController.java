@@ -43,8 +43,7 @@ public abstract class NavigationController
     }
 
     public boolean pushController(final Controller to, ControllerTransition controllerTransition) {
-        if (blockingInput)
-            return false;
+        if (blockingInput) return false;
 
         final Controller from = getTop();
 
@@ -66,8 +65,7 @@ public abstract class NavigationController
     }
 
     public boolean popController(ControllerTransition controllerTransition) {
-        if (blockingInput)
-            return false;
+        if (blockingInput) return false;
 
         final Controller from = getTop();
         final Controller to = childControllers.size() > 1 ? childControllers.get(childControllers.size() - 2) : null;
@@ -82,8 +80,7 @@ public abstract class NavigationController
     }
 
     public boolean beginSwipeTransition(final Controller from, final Controller to) {
-        if (blockingInput)
-            return false;
+        if (blockingInput) return false;
 
         if (this.controllerTransition != null) {
             throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
@@ -111,10 +108,8 @@ public abstract class NavigationController
         blockingInput = false;
     }
 
-    public void transition(final Controller from,
-                           final Controller to,
-                           final boolean pushing,
-                           ControllerTransition controllerTransition
+    public void transition(
+            final Controller from, final Controller to, final boolean pushing, ControllerTransition controllerTransition
     ) {
         if (this.controllerTransition != null || blockingInput) {
             throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
@@ -164,8 +159,7 @@ public abstract class NavigationController
     }
 
     public boolean onBack() {
-        if (blockingInput)
-            return true;
+        if (blockingInput) return true;
 
         if (childControllers.size() > 0) {
             Controller top = getTop();

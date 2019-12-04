@@ -39,24 +39,26 @@ public class AnimationUtils {
         final float zoomOutScale = 0.8f;
 
         if (zoomOut) {
-            scaleAnimation = new ScaleAnimation(normalScale,
-                                                zoomOutScale,
-                                                normalScale,
-                                                zoomOutScale,
-                                                ScaleAnimation.RELATIVE_TO_SELF,
-                                                0.5f,
-                                                ScaleAnimation.RELATIVE_TO_SELF,
-                                                0.5f
+            scaleAnimation = new ScaleAnimation(
+                    normalScale,
+                    zoomOutScale,
+                    normalScale,
+                    zoomOutScale,
+                    ScaleAnimation.RELATIVE_TO_SELF,
+                    0.5f,
+                    ScaleAnimation.RELATIVE_TO_SELF,
+                    0.5f
             );
         } else {
-            scaleAnimation = new ScaleAnimation(zoomOutScale,
-                                                normalScale,
-                                                zoomOutScale,
-                                                normalScale,
-                                                ScaleAnimation.RELATIVE_TO_SELF,
-                                                0.5f,
-                                                ScaleAnimation.RELATIVE_TO_SELF,
-                                                0.5f
+            scaleAnimation = new ScaleAnimation(
+                    zoomOutScale,
+                    normalScale,
+                    zoomOutScale,
+                    normalScale,
+                    ScaleAnimation.RELATIVE_TO_SELF,
+                    0.5f,
+                    ScaleAnimation.RELATIVE_TO_SELF,
+                    0.5f
             );
         }
 

@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -39,6 +38,7 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
 public class AlbumViewController
         extends Controller
@@ -59,7 +59,7 @@ public class AlbumViewController
         super.onCreate();
 
         // View setup
-        view = inflateRes(R.layout.controller_album_view);
+        view = inflate(context, R.layout.controller_album_view);
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);
@@ -78,8 +78,7 @@ public class AlbumViewController
 
         if (!loadable.isLocal()) {
             // Navigation
-            navigation
-                    .buildMenu()
+            navigation.buildMenu()
                     .withOverflow()
                     .withSubItem(R.string.action_download_album, this::downloadAlbumClicked)
                     .build()
@@ -132,8 +131,8 @@ public class AlbumViewController
             }
         } else if (previousSiblingController == null) {
             //split nav has no "sibling" to look at, so we go WAY back to find the view thread controller
-            SplitNavigationController splitNav
-                    = (SplitNavigationController) this.parentController.parentController.presentedByController;
+            SplitNavigationController splitNav =
+                    (SplitNavigationController) this.parentController.parentController.presentedByController;
             threadController = (ThreadController) splitNav.rightController.childControllers.get(0);
             threadController.selectPostImage(postImage);
             //clear the popup here because split nav is weirdly laid out in the stack
@@ -177,7 +176,7 @@ public class AlbumViewController
 
         @Override
         public AlbumItemCellHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_album_view, parent, false);
+            View view = inflate(parent.getContext(), R.layout.cell_album_view, parent, false);
 
             return new AlbumItemCellHolder(view);
         }

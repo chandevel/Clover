@@ -62,36 +62,36 @@ public class CrossfadeView
         if (animated) {
             int fadeDuration = 200;
             if (viewOneSelected) {
-                viewOne.setVisibility(View.VISIBLE);
+                viewOne.setVisibility(VISIBLE);
                 viewOne.animate().alpha(1f).setDuration(fadeDuration).setListener(null);
                 viewTwo.animate().alpha(0f).setDuration(fadeDuration).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        viewOne.setVisibility(View.VISIBLE);
-                        viewTwo.setVisibility(View.GONE);
+                        viewOne.setVisibility(VISIBLE);
+                        viewTwo.setVisibility(GONE);
                     }
                 });
             } else {
-                viewTwo.setVisibility(View.VISIBLE);
+                viewTwo.setVisibility(VISIBLE);
                 viewTwo.animate().alpha(1f).setDuration(fadeDuration).setListener(null);
                 viewOne.animate().alpha(0f).setDuration(fadeDuration).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        viewOne.setVisibility(View.GONE);
-                        viewTwo.setVisibility(View.VISIBLE);
+                        viewOne.setVisibility(GONE);
+                        viewTwo.setVisibility(VISIBLE);
                     }
                 });
             }
         } else {
             if (viewOneSelected) {
-                viewOne.setVisibility(View.VISIBLE);
+                viewOne.setVisibility(VISIBLE);
                 viewOne.setAlpha(1f);
-                viewTwo.setVisibility(View.GONE);
+                viewTwo.setVisibility(GONE);
                 viewTwo.setAlpha(0f);
             } else {
-                viewOne.setVisibility(View.GONE);
+                viewOne.setVisibility(GONE);
                 viewOne.setAlpha(0f);
-                viewTwo.setVisibility(View.VISIBLE);
+                viewTwo.setVisibility(VISIBLE);
                 viewTwo.setAlpha(1f);
             }
         }

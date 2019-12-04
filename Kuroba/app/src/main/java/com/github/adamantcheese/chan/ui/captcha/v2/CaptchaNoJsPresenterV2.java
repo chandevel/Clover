@@ -20,7 +20,6 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -40,12 +39,14 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+
 public class CaptchaNoJsPresenterV2 {
     private static final String TAG = "CaptchaNoJsPresenterV2";
-    private static final String userAgentHeader
-            = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36";
-    private static final String acceptHeader
-            = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
+    private static final String userAgentHeader =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36";
+    private static final String acceptHeader =
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
     private static final String acceptEncodingHeader = "deflate, br";
     private static final String acceptLanguageHeader = "en-US";
     private static final String recaptchaUrlBase = "https://www.google.com/recaptcha/api/fallback?k=";
@@ -57,8 +58,8 @@ public class CaptchaNoJsPresenterV2 {
     private static final long CAPTCHA_REQUEST_THROTTLE_MS = 3000L;
 
     // this cookie is taken from dashchan
-    private static final String defaultGoogleCookies
-            = "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
+    private static final String defaultGoogleCookies =
+            "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final CaptchaNoJsHtmlParser parser;
@@ -121,8 +122,7 @@ public class CaptchaNoJsPresenterV2 {
 
                     Logger.d(TAG, "Verify called");
 
-                    Request request = new Request.Builder()
-                            .url(recaptchaUrl)
+                    Request request = new Request.Builder().url(recaptchaUrl)
                             .post(body)
                             .header("Referer", recaptchaUrl)
                             .header("User-Agent", userAgentHeader)
@@ -132,7 +132,7 @@ public class CaptchaNoJsPresenterV2 {
                             .header("Cookie", defaultGoogleCookies)
                             .build();
 
-                    try (Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute()) {
+                    try (Response response = instance(OkHttpClient.class).newCall(request).execute()) {
                         prevCaptchaInfo = handleGetRecaptchaResponse(response);
                     } finally {
                         verificationInProgress.set(false);
@@ -221,8 +221,7 @@ public class CaptchaNoJsPresenterV2 {
 
         String recaptchaUrl = recaptchaUrlBase + siteKey;
 
-        Request request = new Request.Builder()
-                .url(recaptchaUrl)
+        Request request = new Request.Builder().url(recaptchaUrl)
                 .header("Referer", baseUrl)
                 .header("User-Agent", userAgentHeader)
                 .header("Accept", acceptHeader)
@@ -231,7 +230,7 @@ public class CaptchaNoJsPresenterV2 {
                 .header("Cookie", defaultGoogleCookies)
                 .build();
 
-        try (Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute()) {
+        try (Response response = instance(OkHttpClient.class).newCall(request).execute()) {
             return handleGetRecaptchaResponse(response);
         }
     }

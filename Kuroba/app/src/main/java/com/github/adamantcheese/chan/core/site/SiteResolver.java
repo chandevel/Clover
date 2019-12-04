@@ -78,8 +78,8 @@ public class SiteResolver {
             for (SiteUrlHandler siteUrlHandler : siteUrlHandlers) {
                 if (siteUrlHandler.matchesName(url)) {
                     return new SiteResolverResult(SiteResolverResult.Match.BUILTIN,
-                                                  siteUrlHandler.getSiteClass(),
-                                                  null
+                            siteUrlHandler.getSiteClass(),
+                            null
                     );
                 }
             }

@@ -39,8 +39,8 @@ public class DvachReplyCall
         extends CommonReplyHttpCall {
     private static final Pattern ERROR_MESSAGE = Pattern.compile("^\\{\"Error\":-\\d+,\"Reason\":\"(.*)\"");
     private static final Pattern POST_MESSAGE = Pattern.compile("^\\{\"Error\":null,\"Status\":\"OK\",\"Num\":(\\d+)");
-    private static final Pattern THREAD_MESSAGE = Pattern.compile(
-            "^\\{\"Error\":null,\"Status\":\"Redirect\",\"Target\":(\\d+)");
+    private static final Pattern THREAD_MESSAGE =
+            Pattern.compile("^\\{\"Error\":null,\"Status\":\"Redirect\",\"Target\":(\\d+)");
     private static final String PROBABLY_BANNED_TEXT = "banned";
 
     DvachReplyCall(Site site, Reply reply) {
@@ -48,8 +48,8 @@ public class DvachReplyCall
     }
 
     @Override
-    public void addParameters(MultipartBody.Builder formBuilder,
-                              @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    public void addParameters(
+            MultipartBody.Builder formBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         formBuilder.addFormDataPart("task", "post");
         formBuilder.addFormDataPart("board", reply.loadable.boardCode);
@@ -80,17 +80,18 @@ public class DvachReplyCall
         }
     }
 
-    private void attachFile(MultipartBody.Builder formBuilder,
-                            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    private void attachFile(
+            MultipartBody.Builder formBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         RequestBody requestBody;
 
         if (progressListener == null) {
             requestBody = RequestBody.create(MediaType.parse("application/octet-stream"), reply.file);
         } else {
-            requestBody = new ProgressRequestBody(RequestBody.create(MediaType.parse("application/octet-stream"),
-                                                                     reply.file
-            ), progressListener);
+            requestBody =
+                    new ProgressRequestBody(RequestBody.create(MediaType.parse("application/octet-stream"), reply.file),
+                            progressListener
+                    );
         }
 
         formBuilder.addFormDataPart("image", reply.fileName, requestBody);

@@ -46,7 +46,6 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
-import com.github.adamantcheese.chan.ui.helper.PostHelper;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -262,8 +261,7 @@ public abstract class CommonSite
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl()
-                        .newBuilder()
+                return getUrl().newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("res")
                         .addPathSegment(String.valueOf(loadable.no))
@@ -284,11 +282,7 @@ public abstract class CommonSite
                     if (b == null) {
                         return null;
                     }
-                    Loadable l = Loadable.forThread(site,
-                                                    b,
-                                                    Integer.parseInt(thread.group(3)),
-                                                    PostHelper.getTitle(null, null)
-                    );
+                    Loadable l = Loadable.forThread(site, b, Integer.parseInt(thread.group(3)), "");
 
                     if (isEmpty(url.fragment())) {
                         l.markedNo = Integer.parseInt(url.fragment());

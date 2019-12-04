@@ -55,8 +55,8 @@ public class RuntimePermissionsHelper {
             pendingCallback.permission = permission;
 
             ActivityCompat.requestPermissions((Activity) callbackActvity,
-                                              new String[]{permission},
-                                              RUNTIME_PERMISSION_RESULT_ID
+                    new String[]{permission},
+                    RUNTIME_PERMISSION_RESULT_ID
             );
 
             return true;
@@ -72,8 +72,7 @@ public class RuntimePermissionsHelper {
             for (int i = 0; i < permissions.length; i++) {
                 String permission = permissions[i];
                 if (permission.equals(pendingCallback.permission)
-                        && grantResults[i] == PackageManager.PERMISSION_GRANTED)
-                {
+                        && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                     granted = true;
                     break;
                 }
@@ -84,19 +83,16 @@ public class RuntimePermissionsHelper {
         }
     }
 
-    public void showPermissionRequiredDialog(final Context context,
-                                             String title,
-                                             String message,
-                                             final PermissionRequiredDialogCallback callback
+    public void showPermissionRequiredDialog(
+            final Context context, String title, String message, final PermissionRequiredDialogCallback callback
     ) {
-        new AlertDialog.Builder(context)
-                .setTitle(title)
+        new AlertDialog.Builder(context).setTitle(title)
                 .setMessage(message)
                 .setCancelable(false)
                 .setNeutralButton(R.string.permission_app_settings, (dialog, which) -> {
                     callback.retryPermissionRequest();
                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                               Uri.parse("package:" + context.getPackageName())
+                            Uri.parse("package:" + context.getPackageName())
                     );
                     openIntent(intent);
                 })

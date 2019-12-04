@@ -183,23 +183,15 @@ public class FilterEngine {
     // This method must be a duplicate of the one below
     @AnyThread
     public boolean matches(Filter filter, Post.Builder post) {
-        if (!post.moderatorCapcode.equals("") || post.sticky)
-            return false;
-        if (filter.onlyOnOP && !post.op)
-            return false;
-        if (filter.applyToSaved && !post.isSavedReply)
-            return false;
+        if (!post.moderatorCapcode.equals("") || post.sticky) return false;
+        if (filter.onlyOnOP && !post.op) return false;
+        if (filter.applyToSaved && !post.isSavedReply) return false;
 
-        if (typeMatches(filter, TRIPCODE) && matches(filter, post.tripcode, false))
-            return true;
-        if (typeMatches(filter, NAME) && matches(filter, post.name, false))
-            return true;
-        if (typeMatches(filter, COMMENT) && matches(filter, post.comment.toString(), false))
-            return true;
-        if (typeMatches(filter, ID) && matches(filter, post.posterId, false))
-            return true;
-        if (typeMatches(filter, SUBJECT) && matches(filter, post.subject, false))
-            return true;
+        if (typeMatches(filter, TRIPCODE) && matches(filter, post.tripcode, false)) return true;
+        if (typeMatches(filter, NAME) && matches(filter, post.name, false)) return true;
+        if (typeMatches(filter, COMMENT) && matches(filter, post.comment.toString(), false)) return true;
+        if (typeMatches(filter, ID) && matches(filter, post.posterId, false)) return true;
+        if (typeMatches(filter, SUBJECT) && matches(filter, post.subject, false)) return true;
 
         //figure out if the post has a country code, if so check the filter
         String countryCode = "";
@@ -229,23 +221,15 @@ public class FilterEngine {
 
     @AnyThread
     public boolean matches(Filter filter, Post post) {
-        if (!post.capcode.equals("") || post.isSticky())
-            return false;
-        if (filter.onlyOnOP && !post.isOP)
-            return false;
-        if (filter.applyToSaved && !post.isSavedReply)
-            return false;
+        if (!post.capcode.equals("") || post.isSticky()) return false;
+        if (filter.onlyOnOP && !post.isOP) return false;
+        if (filter.applyToSaved && !post.isSavedReply) return false;
 
-        if (typeMatches(filter, TRIPCODE) && matches(filter, post.tripcode, false))
-            return true;
-        if (typeMatches(filter, NAME) && matches(filter, post.name, false))
-            return true;
-        if (typeMatches(filter, COMMENT) && matches(filter, post.comment.toString(), false))
-            return true;
-        if (typeMatches(filter, ID) && matches(filter, post.id, false))
-            return true;
-        if (typeMatches(filter, SUBJECT) && matches(filter, post.subject, false))
-            return true;
+        if (typeMatches(filter, TRIPCODE) && matches(filter, post.tripcode, false)) return true;
+        if (typeMatches(filter, NAME) && matches(filter, post.name, false)) return true;
+        if (typeMatches(filter, COMMENT) && matches(filter, post.comment.toString(), false)) return true;
+        if (typeMatches(filter, ID) && matches(filter, post.id, false)) return true;
+        if (typeMatches(filter, SUBJECT) && matches(filter, post.subject, false)) return true;
 
         //figure out if the post has a country code, if so check the filter
         String countryCode = "";
@@ -347,8 +331,7 @@ public class FilterEngine {
                 return null;
             }
         } else if (rawPattern.length() >= 2 && rawPattern.charAt(0) == '"'
-                && rawPattern.charAt(rawPattern.length() - 1) == '"')
-        {
+                && rawPattern.charAt(rawPattern.length() - 1) == '"') {
             // "matches an exact sentence"
             String text = escapeRegex(rawPattern.substring(1, rawPattern.length() - 1));
             pattern = Pattern.compile(text, Pattern.CASE_INSENSITIVE);
@@ -359,8 +342,8 @@ public class FilterEngine {
                 String word = words[i];
                 // Find a word (bounded by \b), replacing any * with \S*
                 text.append("(\\b")
-                    .append(wildcardPattern.matcher(escapeRegex(word)).replaceAll("\\\\S*"))
-                    .append("\\b)");
+                        .append(wildcardPattern.matcher(escapeRegex(word)).replaceAll("\\\\S*"))
+                        .append("\\b)");
                 // Allow multiple words by joining them with |
                 if (i < words.length - 1) {
                     text.append("|");

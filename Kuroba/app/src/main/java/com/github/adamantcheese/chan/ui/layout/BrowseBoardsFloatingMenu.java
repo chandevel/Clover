@@ -27,7 +27,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +53,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -62,6 +62,8 @@ import javax.inject.Inject;
 
 import okhttp3.HttpUrl;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.BOARD;
 import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SEARCH;
@@ -129,11 +131,7 @@ public class BrowseBoardsFloatingMenu
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(null);
 
-        rootView.addView(this,
-                         new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                                    ViewGroup.LayoutParams.MATCH_PARENT
-                         )
-        );
+        rootView.addView(this, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
         requestFocus();
 
@@ -199,8 +197,7 @@ public class BrowseBoardsFloatingMenu
     }
 
     private void itemClicked(Site site, Board board) {
-        if (!isInteractive())
-            return;
+        if (!isInteractive()) return;
 
         if (board != null) {
             clickCallback.onBoardClicked(board);
@@ -219,8 +216,7 @@ public class BrowseBoardsFloatingMenu
     }
 
     private void dismiss() {
-        if (dismissed)
-            return;
+        if (dismissed) return;
         dismissed = true;
 
         items.deleteObserver(this);
@@ -243,7 +239,7 @@ public class BrowseBoardsFloatingMenu
 
         // View attaching
         int recyclerWidth = Math.max(anchor.getWidth(), dp(4 * 56));
-        LayoutParams params = new LayoutParams(recyclerWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LayoutParams params = new LayoutParams(recyclerWidth, WRAP_CONTENT);
         params.setMargins(dp(5), dp(5), dp(5), dp(5));
         addView(recyclerView, params);
     }
@@ -295,8 +291,7 @@ public class BrowseBoardsFloatingMenu
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!isInteractive())
-            return super.onTouchEvent(event);
+        if (!isInteractive()) return super.onTouchEvent(event);
 
         dismiss();
         return true;
@@ -349,13 +344,20 @@ public class BrowseBoardsFloatingMenu
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             if (viewType == SEARCH.typeId) {
-                return new InputViewHolder(inflater.inflate(R.layout.cell_browse_input, parent, false));
+                return new InputViewHolder(AndroidUtils.inflate(getContext(),
+                        R.layout.cell_browse_input,
+                        parent,
+                        false
+                ));
             } else if (viewType == SITE.typeId) {
-                return new SiteViewHolder(inflater.inflate(R.layout.cell_browse_site, parent, false));
+                return new SiteViewHolder(AndroidUtils.inflate(getContext(), R.layout.cell_browse_site, parent, false));
             } else if (viewType == BOARD.typeId) {
-                return new BoardViewHolder(inflater.inflate(R.layout.cell_browse_board, parent, false));
+                return new BoardViewHolder(AndroidUtils.inflate(getContext(),
+                        R.layout.cell_browse_board,
+                        parent,
+                        false
+                ));
             } else {
                 throw new IllegalArgumentException();
             }
@@ -453,7 +455,7 @@ public class BrowseBoardsFloatingMenu
         public void bind(Site site) {
             this.site = site;
 
-            divider.setVisibility(getAdapterPosition() == 0 ? View.GONE : View.VISIBLE);
+            divider.setVisibility(getAdapterPosition() == 0 ? GONE : VISIBLE);
 
             icon = site.icon();
 

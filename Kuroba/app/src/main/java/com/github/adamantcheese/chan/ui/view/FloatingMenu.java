@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
@@ -40,6 +39,7 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
 public class FloatingMenu {
     private final Context context;
@@ -66,8 +66,7 @@ public class FloatingMenu {
         anchorOffsetY = dp(5);
         anchorGravity = Gravity.RIGHT;
         for (FloatingMenuItem item : items) {
-            if (item.isEnabled())
-                this.items.add(item);
+            if (item.isEnabled()) this.items.add(item);
         }
     }
 
@@ -90,24 +89,20 @@ public class FloatingMenu {
     }
 
     public void setItems(List<FloatingMenuItem> items) {
-        if (!manageItems)
-            throw new IllegalArgumentException();
+        if (!manageItems) throw new IllegalArgumentException();
         this.items.clear();
         for (FloatingMenuItem item : items) {
-            if (item.isEnabled())
-                this.items.add(item);
+            if (item.isEnabled()) this.items.add(item);
         }
     }
 
     public void setSelectedItem(FloatingMenuItem item) {
-        if (!manageItems)
-            throw new IllegalArgumentException();
+        if (!manageItems) throw new IllegalArgumentException();
         this.selectedItem = item;
     }
 
     public void setSelectedPosition(int selectedPosition) {
-        if (manageItems)
-            throw new IllegalArgumentException();
+        if (manageItems) throw new IllegalArgumentException();
         this.selectedPosition = selectedPosition;
     }
 
@@ -160,10 +155,8 @@ public class FloatingMenu {
             popupWindow.setAdapter(adapter);
             popupWindow.setWidth(measureContentWidth(adapter));
         } else {
-            FloatingMenuArrayAdapter arrayAdapter = new FloatingMenuArrayAdapter(context,
-                                                                                 R.layout.toolbar_menu_item,
-                                                                                 items
-            );
+            FloatingMenuArrayAdapter arrayAdapter =
+                    new FloatingMenuArrayAdapter(context, R.layout.toolbar_menu_item, items);
             popupWindow.setAdapter(arrayAdapter);
             popupWindow.setWidth(measureContentWidth(arrayAdapter));
         }
@@ -275,7 +268,7 @@ public class FloatingMenu {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu_item, parent, false);
+                convertView = inflate(parent.getContext(), R.layout.toolbar_menu_item, parent, false);
             }
 
             FloatingMenuItem item = getItem(position);
@@ -283,7 +276,7 @@ public class FloatingMenu {
             TextView textView = (TextView) convertView;
             textView.setText(item.getText());
             textView.setTextColor(getAttrColor(getContext(),
-                                               item.isEnabled() ? R.attr.text_color_primary : R.attr.text_color_hint
+                    item.isEnabled() ? R.attr.text_color_primary : R.attr.text_color_hint
             ));
             textView.setTypeface(ThemeHelper.getTheme().mainFont);
 

@@ -208,8 +208,7 @@ public class VichanApi
         // The file from between the other values.
         if (fileId != null && fileName != null && fileExt != null) {
             Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
-            PostImage image = new PostImage.Builder()
-                    .serverFilename(fileId)
+            PostImage image = new PostImage.Builder().serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
@@ -316,8 +315,7 @@ public class VichanApi
 
         if (fileId != null && fileName != null && fileExt != null) {
             Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
-            return new PostImage.Builder()
-                    .serverFilename(fileId)
+            return new PostImage.Builder().serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))

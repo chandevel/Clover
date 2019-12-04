@@ -67,8 +67,7 @@ public class SiteService {
 
     public void updateUserSettings(Site site, JsonSettings jsonSettings) {
         SiteModel siteModel = siteRepository.byId(site.id());
-        if (siteModel == null)
-            throw new NullPointerException("siteModel == null");
+        if (siteModel == null) throw new NullPointerException("siteModel == null");
         siteRepository.updateSiteUserSettingsAsync(siteModel, jsonSettings);
     }
 

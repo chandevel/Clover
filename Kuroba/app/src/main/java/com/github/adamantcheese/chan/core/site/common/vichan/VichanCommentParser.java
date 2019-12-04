@@ -28,8 +28,8 @@ public class VichanCommentParser
         setQuotePattern(Pattern.compile(".*#(\\d+)"));
         setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\d+)\\.html#(\\d+)"));
         rule(StyleRule.tagRule("p")
-                      .cssClass("quote")
-                      .foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE)
-                      .linkify());
+                .cssClass("quote")
+                .foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE)
+                .linkify());
     }
 }

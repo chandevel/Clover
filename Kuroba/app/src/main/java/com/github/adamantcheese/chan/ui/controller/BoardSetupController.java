@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,12 +52,15 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static android.text.TextUtils.isEmpty;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
 public class BoardSetupController
         extends Controller
@@ -75,32 +77,33 @@ public class BoardSetupController
 
     private Site site;
 
-    private ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
-        @Override
-        public boolean onMove(RecyclerView recyclerView,
-                              RecyclerView.ViewHolder viewHolder,
-                              RecyclerView.ViewHolder target
-        ) {
-            int from = viewHolder.getAdapterPosition();
-            int to = target.getAdapterPosition();
+    private ItemTouchHelper.SimpleCallback touchHelperCallback =
+            new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                    ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
+            ) {
+                @Override
+                public boolean onMove(
+                        RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
+                ) {
+                    int from = viewHolder.getAdapterPosition();
+                    int to = target.getAdapterPosition();
 
-            if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) {
-                return false;
-            }
+                    if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) {
+                        return false;
+                    }
 
-            presenter.move(from, to);
+                    presenter.move(from, to);
 
-            return true;
-        }
+                    return true;
+                }
 
-        @Override
-        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            int position = viewHolder.getAdapterPosition();
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                    int position = viewHolder.getAdapterPosition();
 
-            presenter.remove(position);
-        }
-    };
+                    presenter.remove(position);
+                }
+            };
 
     public BoardSetupController(Context context) {
         super(context);
@@ -113,7 +116,7 @@ public class BoardSetupController
         inject(this);
 
         // Inflate
-        view = inflateRes(R.layout.controller_board_setup);
+        view = inflate(context, R.layout.controller_board_setup);
 
         // Navigation
         navigation.title = getString(R.string.setup_board_title, site.name());
@@ -162,16 +165,15 @@ public class BoardSetupController
 
     @Override
     public void showAddDialog() {
-        @SuppressLint("InflateParams") final BoardAddLayout boardAddLayout = (BoardAddLayout)
-                LayoutInflater.from(context).inflate(R.layout.layout_board_add, null);
+        @SuppressLint("InflateParams")
+        final BoardAddLayout boardAddLayout = (BoardAddLayout) inflate(context, R.layout.layout_board_add, null);
 
         boardAddLayout.setPresenter(presenter);
 
-        AlertDialog dialog = new AlertDialog.Builder(context)
-                .setView(boardAddLayout)
-                .setPositiveButton(R.string.add,
-                                   (dialog1, which) -> boardAddLayout.onPositiveClicked()
-                ).setNegativeButton(R.string.cancel, null).create();
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(boardAddLayout)
+                .setPositiveButton(R.string.add, (dialog1, which) -> boardAddLayout.onPositiveClicked())
+                .setNegativeButton(R.string.cancel, null)
+                .create();
 
         Window window = dialog.getWindow();
         assert window != null;
@@ -188,8 +190,8 @@ public class BoardSetupController
     @Override
     public void showRemovedSnackbar(final Board board) {
         Snackbar snackbar = Snackbar.make(view,
-                                          getString(R.string.setup_board_removed, BoardHelper.getName(board)),
-                                          Snackbar.LENGTH_LONG
+                getString(R.string.setup_board_removed, BoardHelper.getName(board)),
+                Snackbar.LENGTH_LONG
         );
         fixSnackbarText(context, snackbar);
 
@@ -202,10 +204,8 @@ public class BoardSetupController
         savedBoardsRecycler.smoothScrollToPosition(savedAdapter.getItemCount());
 
         Snackbar snackbar = Snackbar.make(view,
-                                          getString(R.string.setup_board_added,
-                                                    getQuantityString(R.plurals.board, count, count)
-                                          ),
-                                          Snackbar.LENGTH_LONG
+                getString(R.string.setup_board_added, getQuantityString(R.plurals.board, count, count)),
+                Snackbar.LENGTH_LONG
         );
         fixSnackbarText(context, snackbar);
         snackbar.show();
@@ -231,7 +231,7 @@ public class BoardSetupController
 
         @Override
         public SavedBoardCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new SavedBoardCell(LayoutInflater.from(context).inflate(R.layout.cell_board, parent, false));
+            return new SavedBoardCell(inflate(parent.getContext(), R.layout.cell_board, parent, false));
         }
 
         @Override
@@ -241,10 +241,10 @@ public class BoardSetupController
             String description = BoardHelper.getDescription(savedBoard);
             boolean enableDescription = !isEmpty(description);
             if (enableDescription) {
-                holder.description.setVisibility(View.VISIBLE);
+                holder.description.setVisibility(VISIBLE);
                 holder.description.setText(description);
             } else {
-                holder.description.setVisibility(View.GONE);
+                holder.description.setVisibility(GONE);
             }
 
             // Fill the height for the title if there is no description, otherwise make room

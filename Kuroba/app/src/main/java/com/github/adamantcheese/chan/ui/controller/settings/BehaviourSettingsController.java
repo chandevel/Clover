@@ -29,9 +29,8 @@ import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 
-import org.greenrobot.eventbus.EventBus;
-
-import static com.github.adamantcheese.chan.Chan.injector;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class BehaviourSettingsController
@@ -63,33 +62,29 @@ public class BehaviourSettingsController
         {
             SettingsGroup general = new SettingsGroup(R.string.settings_group_general);
 
-            general.add(
-                    new BooleanSettingView(this,
-                                           ChanSettings.autoRefreshThread,
-                                           R.string.setting_auto_refresh_thread,
-                                           0
-                    ));
+            general.add(new BooleanSettingView(this,
+                    ChanSettings.autoRefreshThread,
+                    R.string.setting_auto_refresh_thread,
+                    0
+            ));
 
-            requiresRestart.add(general.add(
-                    new BooleanSettingView(this,
-                                           ChanSettings.controllerSwipeable,
-                                           R.string.setting_controller_swipeable,
-                                           0
-                    )));
+            requiresRestart.add(general.add(new BooleanSettingView(this,
+                    ChanSettings.controllerSwipeable,
+                    R.string.setting_controller_swipeable,
+                    0
+            )));
 
-            requiresRestart.add(general.add(
-                    new BooleanSettingView(this,
-                                           ChanSettings.fullUserRotationEnable,
-                                           R.string.setting_full_screen_rotation,
-                                           0
-                    )));
+            requiresRestart.add(general.add(new BooleanSettingView(this,
+                    ChanSettings.fullUserRotationEnable,
+                    R.string.setting_full_screen_rotation,
+                    0
+            )));
 
-            general.add(
-                    new BooleanSettingView(this,
-                                           ChanSettings.alwaysOpenDrawer,
-                                           R.string.settings_always_open_drawer,
-                                           0
-                    ));
+            general.add(new BooleanSettingView(this,
+                    ChanSettings.alwaysOpenDrawer,
+                    R.string.settings_always_open_drawer,
+                    0
+            ));
 
             setupClearThreadHidesSetting(general);
 
@@ -103,9 +98,9 @@ public class BehaviourSettingsController
             reply.add(new BooleanSettingView(this, ChanSettings.postPinThread, R.string.setting_post_pin, 0));
 
             reply.add(new StringSettingView(this,
-                                            ChanSettings.postDefaultName,
-                                            R.string.setting_post_default_name,
-                                            R.string.setting_post_default_name
+                    ChanSettings.postDefaultName,
+                    R.string.setting_post_default_name,
+                    R.string.setting_post_default_name
             ));
 
             groups.add(reply);
@@ -115,65 +110,60 @@ public class BehaviourSettingsController
         {
             SettingsGroup post = new SettingsGroup(R.string.settings_group_post);
 
-            requiresUiRefresh.add(post.add(
-                    new BooleanSettingView(this,
-                                           ChanSettings.textOnly,
-                                           R.string.setting_text_only,
-                                           R.string.setting_text_only_description
-                    )));
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.textOnly,
+                    R.string.setting_text_only,
+                    R.string.setting_text_only_description
+            )));
 
-            requiresUiRefresh.add(post.add(
-                    new BooleanSettingView(this,
-                                           ChanSettings.revealTextSpoilers,
-                                           R.string.settings_reveal_text_spoilers,
-                                           R.string.settings_reveal_text_spoilers_description
-                    )));
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.revealTextSpoilers,
+                    R.string.settings_reveal_text_spoilers,
+                    R.string.settings_reveal_text_spoilers_description
+            )));
 
-            requiresUiRefresh.add(post.add(
-                    new BooleanSettingView(this,
-                                           ChanSettings.anonymize,
-                                           R.string.setting_anonymize,
-                                           0
-                    )));
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.anonymize,
+                    R.string.setting_anonymize,
+                    0
+            )));
 
-            requiresUiRefresh.add(post.add(
-                    new BooleanSettingView(this,
-                                           ChanSettings.anonymizeIds,
-                                           R.string.setting_anonymize_ids,
-                                           0
-                    )));
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.anonymizeIds,
+                    R.string.setting_anonymize_ids,
+                    0
+            )));
 
-            requiresUiRefresh.add(post.add(
-                    new BooleanSettingView(this,
-                                           ChanSettings.showAnonymousName,
-                                           R.string.setting_show_anonymous_name,
-                                           0
-                    )));
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.showAnonymousName,
+                    R.string.setting_show_anonymous_name,
+                    0
+            )));
 
             post.add(new BooleanSettingView(this,
-                                            ChanSettings.repliesButtonsBottom,
-                                            R.string.setting_buttons_bottom,
-                                            0
+                    ChanSettings.repliesButtonsBottom,
+                    R.string.setting_buttons_bottom,
+                    0
             ));
 
             post.add(new BooleanSettingView(this,
-                                            ChanSettings.volumeKeysScrolling,
-                                            R.string.setting_volume_key_scrolling,
-                                            0
+                    ChanSettings.volumeKeysScrolling,
+                    R.string.setting_volume_key_scrolling,
+                    0
             ));
 
             post.add(new BooleanSettingView(this, ChanSettings.tapNoReply, R.string.setting_tap_no_rely, 0));
 
             post.add(new BooleanSettingView(this,
-                                            ChanSettings.enableLongPressURLCopy,
-                                            R.string.settings_image_long_url,
-                                            R.string.settings_image_long_url_description
+                    ChanSettings.enableLongPressURLCopy,
+                    R.string.settings_image_long_url,
+                    R.string.settings_image_long_url_description
             ));
 
             post.add(new BooleanSettingView(this,
-                                            ChanSettings.openLinkConfirmation,
-                                            R.string.setting_open_link_confirmation,
-                                            0
+                    ChanSettings.openLinkConfirmation,
+                    R.string.setting_open_link_confirmation,
+                    0
             ));
             post.add(new BooleanSettingView(this, ChanSettings.openLinkBrowser, R.string.setting_open_link_browser, 0));
 
@@ -187,26 +177,23 @@ public class BehaviourSettingsController
         {
             SettingsGroup proxy = new SettingsGroup(R.string.settings_group_proxy);
 
-            requiresRestart.add(proxy.add(
-                    new BooleanSettingView(this,
-                                           ChanSettings.proxyEnabled,
-                                           R.string.setting_proxy_enabled,
-                                           0
-                    )));
+            requiresRestart.add(proxy.add(new BooleanSettingView(this,
+                    ChanSettings.proxyEnabled,
+                    R.string.setting_proxy_enabled,
+                    0
+            )));
 
-            requiresRestart.add(proxy.add(
-                    new StringSettingView(this,
-                                          ChanSettings.proxyAddress,
-                                          R.string.setting_proxy_address,
-                                          R.string.setting_proxy_address
-                    )));
+            requiresRestart.add(proxy.add(new StringSettingView(this,
+                    ChanSettings.proxyAddress,
+                    R.string.setting_proxy_address,
+                    R.string.setting_proxy_address
+            )));
 
-            requiresRestart.add(proxy.add(
-                    new IntegerSettingView(this,
-                                           ChanSettings.proxyPort,
-                                           R.string.setting_proxy_port,
-                                           R.string.setting_proxy_port
-                    )));
+            requiresRestart.add(proxy.add(new IntegerSettingView(this,
+                    ChanSettings.proxyPort,
+                    R.string.setting_proxy_port,
+                    R.string.setting_proxy_port
+            )));
 
             groups.add(proxy);
         }
@@ -215,10 +202,10 @@ public class BehaviourSettingsController
     private void setupClearThreadHidesSetting(SettingsGroup post) {
         post.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, v -> {
             // TODO: don't do this here.
-            DatabaseManager databaseManager = injector().instance(DatabaseManager.class);
+            DatabaseManager databaseManager = instance(DatabaseManager.class);
             databaseManager.runTask(databaseManager.getDatabaseHideManager().clearAllThreadHides());
             showToast(R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG);
-            EventBus.getDefault().post(new RefreshUIMessage("clearhides"));
+            postToEventBus(new RefreshUIMessage("clearhides"));
         }));
     }
 }

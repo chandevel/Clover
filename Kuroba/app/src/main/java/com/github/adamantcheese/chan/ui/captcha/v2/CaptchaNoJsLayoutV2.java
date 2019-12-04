@@ -90,7 +90,7 @@ public class CaptchaNoJsLayoutV2
 
         this.context = context;
         this.presenter = new CaptchaNoJsPresenterV2(this, context);
-        this.adapter = new CaptchaNoJsV2Adapter(context);
+        this.adapter = new CaptchaNoJsV2Adapter();
 
         View view = inflate(context, R.layout.layout_captcha_nojs_v2, this);
 
@@ -236,10 +236,11 @@ public class CaptchaNoJsLayoutV2
         if (captchaInfo.getCaptchaTitle() != null) {
             if (captchaInfo.getCaptchaTitle().hasBold()) {
                 SpannableString spannableString = new SpannableString(captchaInfo.getCaptchaTitle().getTitle());
-                spannableString.setSpan(new StyleSpan(Typeface.BOLD),
-                                        captchaInfo.getCaptchaTitle().getBoldStart(),
-                                        captchaInfo.getCaptchaTitle().getBoldEnd(),
-                                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                spannableString.setSpan(
+                        new StyleSpan(Typeface.BOLD),
+                        captchaInfo.getCaptchaTitle().getBoldStart(),
+                        captchaInfo.getCaptchaTitle().getBoldEnd(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 );
 
                 captchaChallengeTitle.setText(spannableString);

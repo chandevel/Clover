@@ -104,8 +104,7 @@ public class LoadView
                 final View child = getChildAt(i);
 
                 // We don't add a listener to remove the view we also animate in.
-                if (child == newView)
-                    continue;
+                if (child == newView) continue;
 
                 ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(child, View.ALPHA, 0f);
                 objectAnimator.addListener(new AnimatorListenerAdapter() {

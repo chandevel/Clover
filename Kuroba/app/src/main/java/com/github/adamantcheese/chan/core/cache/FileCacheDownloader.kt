@@ -21,7 +21,7 @@ import android.os.Looper
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
-import com.github.adamantcheese.chan.Chan
+import com.github.adamantcheese.chan.Chan.instance
 import com.github.adamantcheese.chan.core.di.NetModule
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
@@ -268,7 +268,7 @@ class FileCacheDownloader(
         val request = Request.Builder().url(url).header("User-Agent", NetModule.USER_AGENT).build()
 
         //we want to use the proxy instance here
-        val call = (Chan.injector().instance(OkHttpClient::class.java)
+        val call = (instance(OkHttpClient::class.java)
                 as NetModule.ProxiedOkHttpClient).proxiedClient.newCall(request)
 
         val response = call.execute()

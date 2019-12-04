@@ -40,20 +40,14 @@ public class ListSettingView<T>
 
     private Setting<T> setting;
 
-    public ListSettingView(SettingsController settingsController,
-                           Setting<T> setting,
-                           int name,
-                           String[] itemNames,
-                           String[] keys
+    public ListSettingView(
+            SettingsController settingsController, Setting<T> setting, int name, String[] itemNames, String[] keys
     ) {
         this(settingsController, setting, getString(name), itemNames, keys);
     }
 
-    public ListSettingView(SettingsController settingsController,
-                           Setting<T> setting,
-                           String name,
-                           String[] itemNames,
-                           String[] keys
+    public ListSettingView(
+            SettingsController settingsController, Setting<T> setting, String name, String[] itemNames, String[] keys
     ) {
         super(settingsController, name);
 

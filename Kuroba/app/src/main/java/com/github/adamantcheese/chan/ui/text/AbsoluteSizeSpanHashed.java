@@ -29,15 +29,12 @@ public class AbsoluteSizeSpanHashed
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         AbsoluteSizeSpanHashed that = (AbsoluteSizeSpanHashed) o;
 
-        if (getSize() != that.getSize())
-            return false;
+        if (getSize() != that.getSize()) return false;
         return getDip() == that.getDip();
     }
 

@@ -50,8 +50,8 @@ public abstract class HttpCall
     private HttpCallback callback;
     private Exception exception;
 
-    public abstract void setup(Request.Builder requestBuilder,
-                               @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    public abstract void setup(
+            Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     );
 
     public abstract void process(Response response, String result);

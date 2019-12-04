@@ -23,7 +23,6 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
@@ -45,6 +44,7 @@ import javax.inject.Inject;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
@@ -85,7 +85,8 @@ public class ImagePickDelegate
                 showToast(R.string.image_url_get_attempt);
                 HttpUrl clipboardURL = null;
                 try {
-                    clipboardURL = HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
+                    clipboardURL =
+                            HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
                 } catch (Exception ignored) {
                     showToast(R.string.image_url_get_failed);
                     callback.onFilePickError(true);
@@ -93,28 +94,26 @@ public class ImagePickDelegate
                 }
                 if (clipboardURL != null) {
                     HttpUrl finalClipboardURL = clipboardURL;
-                    Chan.injector()
-                        .instance(FileCache.class)
-                        .downloadFile(clipboardURL.toString(), new FileCacheListener() {
-                            @Override
-                            public void onSuccess(RawFile file) {
-                                BackgroundUtils.ensureMainThread();
+                    instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
+                        @Override
+                        public void onSuccess(RawFile file) {
+                            BackgroundUtils.ensureMainThread();
 
-                                showToast(R.string.image_url_get_success);
-                                Uri imageURL = Uri.parse(finalClipboardURL.toString());
-                                callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
-                                reset();
-                            }
+                            showToast(R.string.image_url_get_success);
+                            Uri imageURL = Uri.parse(finalClipboardURL.toString());
+                            callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
+                            reset();
+                        }
 
-                            @Override
-                            public void onFail(boolean notFound) {
-                                BackgroundUtils.ensureMainThread();
+                        @Override
+                        public void onFail(boolean notFound) {
+                            BackgroundUtils.ensureMainThread();
 
-                                showToast(R.string.image_url_get_failed);
-                                callback.onFilePickError(true);
-                                reset();
-                            }
-                        });
+                            showToast(R.string.image_url_get_failed);
+                            callback.onFilePickError(true);
+                            reset();
+                        }
+                    });
                 }
             } else {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);

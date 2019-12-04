@@ -472,13 +472,14 @@ public class Post
             return this;
         }
 
-        public Builder filter(int highlightedColor,
-                              boolean stub,
-                              boolean remove,
-                              boolean watch,
-                              boolean filterReplies,
-                              boolean onlyOnOp,
-                              boolean filterSaved
+        public Builder filter(
+                int highlightedColor,
+                boolean stub,
+                boolean remove,
+                boolean watch,
+                boolean filterReplies,
+                boolean onlyOnOp,
+                boolean filterSaved
         ) {
             filterHighlightedColor = highlightedColor;
             filterStub = stub;

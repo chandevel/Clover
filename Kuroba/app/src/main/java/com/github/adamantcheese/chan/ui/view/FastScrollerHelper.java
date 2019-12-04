@@ -25,16 +25,17 @@ public class FastScrollerHelper {
         final int margin = dp(0);
         final int thumbMinLength = dp(23);
 
-        return new FastScroller(recyclerView,
-                                thumb,
-                                track,
-                                thumb,
-                                track,
-                                defaultThickness,
-                                minimumRange,
-                                margin,
-                                thumbMinLength,
-                                targetWidth
+        return new FastScroller(
+                recyclerView,
+                thumb,
+                track,
+                thumb,
+                track,
+                defaultThickness,
+                minimumRange,
+                margin,
+                thumbMinLength,
+                targetWidth
         );
     }
 

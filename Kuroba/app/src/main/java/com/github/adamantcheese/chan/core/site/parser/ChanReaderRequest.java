@@ -174,11 +174,11 @@ public class ChanReaderRequest
         List<Callable<Post>> tasks = new ArrayList<>(toParse.size());
         for (Post.Builder post : toParse) {
             tasks.add(new PostParseCallable(filterEngine,
-                                            filters,
-                                            databaseSavedReplyManager,
-                                            post,
-                                            reader,
-                                            internalIds
+                    filters,
+                    databaseSavedReplyManager,
+                    post,
+                    reader,
+                    internalIds
             ));
         }
 

@@ -47,7 +47,6 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
-import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -79,12 +78,9 @@ public class Chan4
 
         @Override
         public boolean respondsTo(HttpUrl url) {
-            return url.host().equals("4chan.org") ||
-                    url.host().equals("www.4chan.org") ||
-                    url.host().equals("boards.4chan.org") ||
-                    url.host().equals("4channel.org") ||
-                    url.host().equals("www.4channel.org") ||
-                    url.host().equals("boards.4channel.org");
+            return url.host().equals("4chan.org") || url.host().equals("www.4chan.org") || url.host()
+                    .equals("boards.4chan.org") || url.host().equals("4channel.org") || url.host()
+                    .equals("www.4channel.org") || url.host().equals("boards.4channel.org");
         }
 
         @Override
@@ -138,7 +134,7 @@ public class Chan4
                         }
 
                         if (no >= 0) {
-                            Loadable loadable = Loadable.forThread(site, board, no, PostHelper.getTitle(null, null));
+                            Loadable loadable = Loadable.forThread(site, board, no, "");
                             if (post >= 0) {
                                 loadable.markedNo = post;
                             }
@@ -258,11 +254,11 @@ public class Chan4
         @Override
         public HttpUrl report(Post post) {
             return sys.newBuilder()
-                      .addPathSegment(post.board.code)
-                      .addPathSegment("imgboard.php")
-                      .addQueryParameter("mode", "report")
-                      .addQueryParameter("no", String.valueOf(post.no))
-                      .build();
+                    .addPathSegment(post.board.code)
+                    .addPathSegment("imgboard.php")
+                    .addQueryParameter("mode", "report")
+                    .addQueryParameter("no", String.valueOf(post.no))
+                    .build();
         }
 
         @Override
@@ -286,9 +282,7 @@ public class Chan4
             CookieManager cookieManager = CookieManager.getInstance();
             cookieManager.removeAllCookies(null);
             if (actions.isLoggedIn()) {
-                String[] passCookies = {
-                        "pass_enabled=1;", "pass_id=" + passToken.get() + ";"
-                };
+                String[] passCookies = {"pass_enabled=1;", "pass_id=" + passToken.get() + ";"};
                 String domain = sys.scheme() + "://" + sys.host() + "/";
                 for (String cookie : passCookies) {
                     cookieManager.setCookie(domain, cookie);
@@ -301,27 +295,24 @@ public class Chan4
         @Override
         public void boards(final BoardsListener listener) {
             requestQueue.add(new Chan4BoardsRequest(Chan4.this,
-                                                    response -> listener.onBoardsReceived(new Boards(response)),
-                                                    error -> {
-                                                        Logger.e(TAG, "Failed to get boards from server", error);
-                                                        listener.onBoardsReceived(new Boards(new ArrayList<>()));
-                                                    }
+                    response -> listener.onBoardsReceived(new Boards(response)),
+                    error -> {
+                        Logger.e(TAG, "Failed to get boards from server", error);
+                        listener.onBoardsReceived(new Boards(new ArrayList<>()));
+                    }
             ));
         }
 
         @Override
         public void pages(Board board, PagesListener listener) {
-            requestQueue.add(
-                    new Chan4PagesRequest(
-                            Chan4.this,
-                            board,
-                            response ->
-                                    listener.onPagesReceived(board, new Chan4PagesRequest.Pages(response)),
-                            error -> {
-                                Logger.e(TAG, "Failed to get pages for board " + board.code);
-                                listener.onPagesReceived(board, new Chan4PagesRequest.Pages(new ArrayList<>()));
-                            }
-                    ));
+            requestQueue.add(new Chan4PagesRequest(Chan4.this,
+                    board,
+                    response -> listener.onPagesReceived(board, new Chan4PagesRequest.Pages(response)),
+                    error -> {
+                        Logger.e(TAG, "Failed to get pages for board " + board.code);
+                        listener.onPagesReceived(board, new Chan4PagesRequest.Pages(new ArrayList<>()));
+                    }
+            ));
         }
 
         @Override
@@ -379,27 +370,27 @@ public class Chan4
         @Override
         public void archive(Board board, ArchiveListener archiveListener) {
             requestQueue.add(new Chan4ArchiveRequest(Chan4.this,
-                                                     board,
-                                                     archiveListener::onArchive,
-                                                     error -> archiveListener.onArchiveError()
+                    board,
+                    archiveListener::onArchive,
+                    error -> archiveListener.onArchiveError()
             ));
         }
 
         @Override
         public void post(Reply reply, final PostListener postListener) {
             httpCallManager.makeHttpCall(new Chan4ReplyCall(Chan4.this, reply),
-                                         new HttpCall.HttpCallback<CommonReplyHttpCall>() {
-                                             @Override
-                                             public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                                                 postListener.onPostComplete(httpPost, httpPost.replyResponse);
-                                             }
+                    new HttpCall.HttpCallback<CommonReplyHttpCall>() {
+                        @Override
+                        public void onHttpSuccess(CommonReplyHttpCall httpPost) {
+                            postListener.onPostComplete(httpPost, httpPost.replyResponse);
+                        }
 
-                                             @Override
-                                             public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                                                 postListener.onPostError(httpPost, e);
-                                             }
-                                         },
-                                         postListener::onUploadingProgress
+                        @Override
+                        public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
+                            postListener.onPostError(httpPost, e);
+                        }
+                    },
+                    postListener::onUploadingProgress
             );
         }
 
@@ -427,17 +418,17 @@ public class Chan4
         @Override
         public void delete(DeleteRequest deleteRequest, final DeleteListener deleteListener) {
             httpCallManager.makeHttpCall(new Chan4DeleteHttpCall(Chan4.this, deleteRequest),
-                                         new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
-                                             @Override
-                                             public void onHttpSuccess(Chan4DeleteHttpCall httpPost) {
-                                                 deleteListener.onDeleteComplete(httpPost, httpPost.deleteResponse);
-                                             }
+                    new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
+                        @Override
+                        public void onHttpSuccess(Chan4DeleteHttpCall httpPost) {
+                            deleteListener.onDeleteComplete(httpPost, httpPost.deleteResponse);
+                        }
 
-                                             @Override
-                                             public void onHttpFail(Chan4DeleteHttpCall httpPost, Exception e) {
-                                                 deleteListener.onDeleteError(httpPost);
-                                             }
-                                         }
+                        @Override
+                        public void onHttpFail(Chan4DeleteHttpCall httpPost, Exception e) {
+                            deleteListener.onDeleteError(httpPost);
+                        }
+                    }
             );
         }
 
@@ -447,21 +438,21 @@ public class Chan4
             passPass.set(loginRequest.pass);
 
             httpCallManager.makeHttpCall(new Chan4PassHttpCall(Chan4.this, loginRequest),
-                                         new HttpCall.HttpCallback<Chan4PassHttpCall>() {
-                                             @Override
-                                             public void onHttpSuccess(Chan4PassHttpCall httpCall) {
-                                                 LoginResponse loginResponse = httpCall.loginResponse;
-                                                 if (loginResponse.success) {
-                                                     passToken.set(loginResponse.token);
-                                                 }
-                                                 loginListener.onLoginComplete(httpCall, loginResponse);
-                                             }
+                    new HttpCall.HttpCallback<Chan4PassHttpCall>() {
+                        @Override
+                        public void onHttpSuccess(Chan4PassHttpCall httpCall) {
+                            LoginResponse loginResponse = httpCall.loginResponse;
+                            if (loginResponse.success) {
+                                passToken.set(loginResponse.token);
+                            }
+                            loginListener.onLoginComplete(httpCall, loginResponse);
+                        }
 
-                                             @Override
-                                             public void onHttpFail(Chan4PassHttpCall httpCall, Exception e) {
-                                                 loginListener.onLoginError(httpCall);
-                                             }
-                                         }
+                        @Override
+                        public void onHttpFail(Chan4PassHttpCall httpCall, Exception e) {
+                            loginListener.onLoginError(httpCall);
+                        }
+                    }
             );
         }
 
@@ -519,18 +510,14 @@ public class Chan4
     public void initializeSettings() {
         super.initializeSettings();
 
-        captchaType = new OptionsSetting<>(settingsProvider,
-                                           "preference_captcha_type",
-                                           CaptchaType.class,
-                                           V2NOJS
-        );
+        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type", CaptchaType.class, V2NOJS);
     }
 
     @Override
     public List<SiteSetting> settings() {
         return Collections.singletonList(SiteSetting.forOption(captchaType,
-                                                               "Captcha type",
-                                                               Arrays.asList("Javascript", "Noscript")
+                "Captcha type",
+                Arrays.asList("Javascript", "Noscript")
         ));
     }
 

@@ -237,8 +237,7 @@ public class ImageSaver
     }
 
     private void showToast(ImageSaveTask task, boolean success, boolean wasAlbumSave) {
-        if (task == null && success)
-            throw new IllegalArgumentException("Task succeeded but is null");
+        if (task == null && success) throw new IllegalArgumentException("Task succeeded but is null");
 
         if (toast != null) {
             toast.cancel();
@@ -348,14 +347,12 @@ public class ImageSaver
     }
 
     private boolean hasPermission(Context context) {
-        return ((StartActivity) context)
-                .getRuntimePermissionsHelper()
+        return ((StartActivity) context).getRuntimePermissionsHelper()
                 .hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     private void requestPermission(Context context, RuntimePermissionsHelper.Callback callback) {
-        ((StartActivity) context)
-                .getRuntimePermissionsHelper()
+        ((StartActivity) context).getRuntimePermissionsHelper()
                 .requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
     }
 

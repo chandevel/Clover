@@ -120,9 +120,8 @@ public class DefaultPostParser
             }
         }
 
-        if (!TextUtils.isEmpty(builder.name) && (
-                !builder.name.equals(defaultName) || ChanSettings.showAnonymousName.get()))
-        {
+        if (!TextUtils.isEmpty(builder.name) && (!builder.name.equals(defaultName)
+                || ChanSettings.showAnonymousName.get())) {
             nameSpan = new SpannableString(builder.name);
             nameSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, nameSpan.length(), 0);
         }
@@ -236,13 +235,8 @@ public class DefaultPostParser
 
             CharSequence allInnerText = TextUtils.concat(texts.toArray(new CharSequence[0]));
 
-            CharSequence result = commentParser.handleTag(callback,
-                                                          theme,
-                                                          post,
-                                                          nodeName,
-                                                          allInnerText,
-                                                          (Element) node
-            );
+            CharSequence result =
+                    commentParser.handleTag(callback, theme, post, nodeName, allInnerText, (Element) node);
             if (result != null) {
                 return result;
             } else {

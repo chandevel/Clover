@@ -68,7 +68,8 @@ public class PostHide {
         this.no = no;
     }
 
-    public static PostHide hidePost(Post post, Boolean wholeThread, Boolean hide, Boolean hideRepliesToThisPost
+    public static PostHide hidePost(
+            Post post, Boolean wholeThread, Boolean hide, Boolean hideRepliesToThisPost
     ) {
         PostHide postHide = new PostHide();
         postHide.board = post.board.code;
@@ -103,10 +104,8 @@ public class PostHide {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         PostHide that = (PostHide) o;
 

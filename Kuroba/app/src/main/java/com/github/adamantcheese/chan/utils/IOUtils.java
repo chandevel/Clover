@@ -115,8 +115,9 @@ public class IOUtils {
         InputStream is = null;
         OutputStream os = null;
         try {
-            copy(is = new BufferedInputStream(new FileInputStream(in)),
-                 os = new BufferedOutputStream(new FileOutputStream(out))
+            copy(
+                    is = new BufferedInputStream(new FileInputStream(in)),
+                    os = new BufferedOutputStream(new FileOutputStream(out))
             );
         } finally {
             IOUtils.closeQuietly(is);
