@@ -647,7 +647,10 @@ public class PostCell
 
                 v.setPostImage(loadable, image, false, size, size);
                 v.setClickable(true);
-                v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
+                //don't set a callback if the post is deleted, but if the file already exists in cache let it through
+                if (!post.deleted.get() || instance(FileCache.class).exists(image.imageUrl.toString())) {
+                    v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
+                }
                 v.setRounding(dp(2));
                 p.setMargins(dp(4), first ? dp(4) : 0, 0,
                         //1 extra for bottom divider

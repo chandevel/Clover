@@ -796,11 +796,14 @@ public class ThreadPresenter
         int index = -1;
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (Post item : posts) {
-            if (!item.images.isEmpty() && !item.deleted.get()) { //deleted posts always have 404'd images
+            if (!item.images.isEmpty()) {
                 for (PostImage image : item.images) {
-                    images.add(image);
-                    if (image.equalUrl(postImage)) {
-                        index = images.size() - 1;
+                    if (!item.deleted.get() || instance(FileCache.class).exists(image.imageUrl.toString())) {
+                        //deleted posts always have 404'd images, but let it through if the file exists in cache
+                        images.add(image);
+                        if (image.equalUrl(postImage)) {
+                            index = images.size() - 1;
+                        }
                     }
                 }
             }
