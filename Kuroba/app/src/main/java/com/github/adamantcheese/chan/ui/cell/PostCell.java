@@ -416,7 +416,7 @@ public class PostCell
                     fileInfo.append(postFileName ? " " : "\n");
                     fileInfo.append(image.extension.toUpperCase());
                     //if -1, linked image, no info
-                    fileInfo.append(image.size == -1 ? "" : " " + getReadableFileSize(image.size, false));
+                    fileInfo.append(image.size == -1 ? "" : " " + getReadableFileSize(image.size));
                     fileInfo.append(image.size == -1 ? "" : " " + image.imageWidth + "x" + image.imageHeight);
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);

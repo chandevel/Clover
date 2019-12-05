@@ -587,8 +587,8 @@ public class ReplyPresenter
         int maxSize = probablyWebm ? board.maxWebmSize : board.maxFileSize;
         //if the max size is undefined for the board, ignore this message
         if (file.length() > maxSize && maxSize != -1) {
-            String fileSize = getReadableFileSize(file.length(), false);
-            String maxSizeString = getReadableFileSize(maxSize, false);
+            String fileSize = getReadableFileSize(file.length());
+            String maxSizeString = getReadableFileSize(maxSize);
 
             int stringResId = probablyWebm ? R.string.reply_webm_too_big : R.string.reply_file_too_big;
 

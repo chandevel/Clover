@@ -1159,7 +1159,7 @@ public class ThreadPresenter
                         .append("x")
                         .append(image.imageHeight)
                         .append("\nSize: ")
-                        .append(getReadableFileSize(image.size, false));
+                        .append(getReadableFileSize(image.size));
             }
 
             if (image.spoiler && image.size != -1) { //all linked files are spoilered, don't say that
