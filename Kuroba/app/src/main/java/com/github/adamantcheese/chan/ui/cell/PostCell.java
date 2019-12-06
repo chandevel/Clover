@@ -16,7 +16,11 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
+import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -75,6 +79,7 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -458,6 +463,7 @@ public class PostCell
         if (ChanSettings.shiftPostFormat.get()) {
             comment.setVisibility(isEmpty(commentText) ? GONE : VISIBLE);
         } else {
+            //noinspection ConstantConditions
             comment.setVisibility(isEmpty(commentText) && post.images == null ? GONE : VISIBLE);
         }
 
@@ -473,10 +479,14 @@ public class PostCell
 
                 comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
                     private MenuItem quoteMenuItem;
+                    private MenuItem webSearchItem;
+                    private boolean processed;
 
                     @Override
                     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                         quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote, 0, R.string.post_quote);
+                        webSearchItem =
+                                menu.add(Menu.NONE, R.id.post_selection_action_search, 1, R.string.post_web_search);
                         return true;
                     }
 
@@ -487,15 +497,25 @@ public class PostCell
 
                     @Override
                     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                        CharSequence selection =
+                                comment.getText().subSequence(comment.getSelectionStart(), comment.getSelectionEnd());
                         if (item == quoteMenuItem) {
-                            CharSequence selection = comment.getText()
-                                    .subSequence(comment.getSelectionStart(), comment.getSelectionEnd());
                             callback.onPostSelectionQuoted(post, selection);
-                            mode.finish();
-                            return true;
+                            processed = true;
+                        } else if (item == webSearchItem) {
+                            Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                            searchIntent.putExtra(SearchManager.QUERY, selection.toString());
+                            AndroidUtils.openIntent(searchIntent);
+                            processed = true;
                         }
 
-                        return false;
+                        if (processed) {
+                            mode.finish();
+                            processed = false;
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
 
                     @Override
