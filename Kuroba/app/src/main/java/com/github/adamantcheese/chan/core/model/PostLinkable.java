@@ -123,8 +123,6 @@ public class PostLinkable
         if (obj == null) return false;
         if (!(obj instanceof PostLinkable)) return false;
         PostLinkable linkable = (PostLinkable) obj;
-        return linkable.key.equals(this.key)
-                && linkable.value.equals(this.value)
-                && linkable.type.equals(this.type);
+        return linkable.key.equals(this.key) && linkable.value.equals(this.value) && linkable.type.equals(this.type);
     }
 }
