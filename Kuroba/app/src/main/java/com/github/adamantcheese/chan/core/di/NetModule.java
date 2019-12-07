@@ -63,7 +63,9 @@ public class NetModule {
 
     @Provides
     @Singleton
-    public CacheHandler provideCacheHandler(FileManager fileManager) {
+    public CacheHandler provideCacheHandler(
+            FileManager fileManager
+    ) {
         Logger.d(AppModule.DI_TAG, "Cache handler");
 
         RawFile cacheDirFile = fileManager.fromRawFile(new File(getCacheDir(), FILE_CACHE_DIR));

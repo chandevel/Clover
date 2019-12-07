@@ -86,14 +86,13 @@ public class DeveloperSettingsController
         wrapper.addView(crashButton);
 
         Button clearCacheButton = new Button(context);
-        Long cacheSize = cacheHandler.getSize().get();
 
         clearCacheButton.setOnClickListener(v -> {
             fileCacheV2.clearCache();
             showToast("Cleared image cache");
-            clearCacheButton.setText("Clear image cache (currently " + cacheSize / 1024 / 1024 + "MB)");
+            clearCacheButton.setText("Clear image cache (currently " + cacheHandler.getSize() / 1024 / 1024 + "MB)");
         });
-        clearCacheButton.setText("Clear image cache (currently " + cacheSize / 1024 / 1024 + "MB)");
+        clearCacheButton.setText("Clear image cache (currently " + cacheHandler.getSize() / 1024 / 1024 + "MB)");
         wrapper.addView(clearCacheButton);
 
         TextView summaryText = new TextView(context);

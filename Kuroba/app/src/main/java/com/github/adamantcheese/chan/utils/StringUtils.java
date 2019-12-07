@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.utils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.regex.Matcher;
@@ -37,6 +38,16 @@ public class StringUtils {
         }
 
         return filename.substring(index + 1);
+    }
+
+    @NonNull
+    public static String removeExtensionFromFileName(String filename) {
+        int index = filename.lastIndexOf('.');
+        if (index == -1) {
+            return filename;
+        }
+
+        return filename.substring(0, index);
     }
 
     public static String dirNameRemoveBadCharacters(String dirName) {
