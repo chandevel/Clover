@@ -76,17 +76,18 @@ public class Filter
     public Filter() {
     }
 
-    public Filter(boolean enabled,
-                  int type,
-                  String pattern,
-                  boolean allBoards,
-                  String boards,
-                  int action,
-                  int color,
-                  boolean applyToReplies,
-                  int order,
-                  boolean onlyOnOP,
-                  boolean applyToSaved
+    public Filter(
+            boolean enabled,
+            int type,
+            String pattern,
+            boolean allBoards,
+            String boards,
+            int action,
+            int color,
+            boolean applyToReplies,
+            int order,
+            boolean onlyOnOP,
+            boolean applyToSaved
     ) {
         this.enabled = enabled;
         this.type = type;
@@ -116,17 +117,18 @@ public class Filter
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Filter clone() {
-        return new Filter(enabled,
-                          type,
-                          pattern,
-                          allBoards,
-                          boards,
-                          action,
-                          color,
-                          applyToReplies,
-                          order,
-                          onlyOnOP,
-                          applyToSaved
+        return new Filter(
+                enabled,
+                type,
+                pattern,
+                allBoards,
+                boards,
+                action,
+                color,
+                applyToReplies,
+                order,
+                onlyOnOP,
+                applyToSaved
         );
     }
 }

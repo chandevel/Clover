@@ -307,6 +307,7 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="post_report">Report</string>
     <string name="post_hide">Hide</string>
     <string name="post_remove">Remove</string>
+    <string name="post_web_search">Web search</string>
 
     <string name="thread_hidden">Thread hidden</string>
     <string name="thread_removed">Thread removed</string>

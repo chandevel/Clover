@@ -120,7 +120,7 @@ public class BoardRepository
     public void setSaved(Board board, boolean saved) {
         board.saved = saved;
         databaseManager.runTaskAsync(databaseBoardManager.updateIncludingUserFields(board),
-                                     (e) -> updateObservablesAsync()
+                (e) -> updateObservablesAsync()
         );
     }
 
@@ -129,7 +129,7 @@ public class BoardRepository
             board.saved = saved;
         }
         databaseManager.runTaskAsync(databaseBoardManager.updateIncludingUserFields(boards),
-                                     (e) -> updateObservablesAsync()
+                (e) -> updateObservablesAsync()
         );
     }
 
@@ -139,7 +139,7 @@ public class BoardRepository
 
     private void updateObservablesAsync() {
         databaseManager.runTaskAsync(databaseBoardManager.getBoardsForAllSitesOrdered(allSites.getAll()),
-                                     this::updateWith
+                this::updateWith
         );
     }
 
@@ -151,8 +151,7 @@ public class BoardRepository
 
             List<Board> savedBoards = new ArrayList<>();
             for (Board board : item.second) {
-                if (board.saved)
-                    savedBoards.add(board);
+                if (board.saved) savedBoards.add(board);
             }
             saved.add(new SiteBoards(item.first, savedBoards));
         }

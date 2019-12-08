@@ -54,12 +54,12 @@ public class CaptchaNoJsHtmlParser {
 
     // FIXME: this pattern captures the C parameter as many times as it is in the HTML.
     // Should match only the first occurrence instead.
-    private static final Pattern cParameterPattern = Pattern.compile(
-            "<input type=\"hidden\" name=\"c\" value=\"(.*?)\"/>");
-    private static final Pattern challengeTitlePattern = Pattern.compile(
-            "<div class=\"(rc-imageselect-desc-no-canonical|rc-imageselect-desc)\">(.*?)</div>");
-    private static final Pattern challengeImageUrlPattern = Pattern.compile(
-            "<img class=\"fbc-imageselect-payload\" src=\"(.*?)&");
+    private static final Pattern cParameterPattern =
+            Pattern.compile("<input type=\"hidden\" name=\"c\" value=\"(.*?)\"/>");
+    private static final Pattern challengeTitlePattern =
+            Pattern.compile("<div class=\"(rc-imageselect-desc-no-canonical|rc-imageselect-desc)\">(.*?)</div>");
+    private static final Pattern challengeImageUrlPattern =
+            Pattern.compile("<img class=\"fbc-imageselect-payload\" src=\"(.*?)&");
     private static final Pattern challengeTitleBoldPartPattern = Pattern.compile("<strong>(.*?)</strong>");
     private static final Pattern verificationTokenPattern = Pattern.compile(
             "<div class=\"fbc-verification-token\"><textarea dir=\"ltr\" readonly>(.*?)</textarea></div>");
@@ -71,8 +71,7 @@ public class CaptchaNoJsHtmlParser {
 
     public CaptchaNoJsHtmlParser(Context context) {
         this.context = context;
-        this.okHttpClient = Chan.injector()
-                .instance(NetModule.ProxiedOkHttpClient.class);
+        this.okHttpClient = Chan.instance(NetModule.ProxiedOkHttpClient.class);
     }
 
     @NonNull
@@ -145,8 +144,8 @@ public class CaptchaNoJsHtmlParser {
                 String resultTitle = firstPart + boldPart;
 
                 captchaTitle = new CaptchaInfo.CaptchaTitle(resultTitle,
-                                                            firstPart.length(),
-                                                            firstPart.length() + boldPart.length()
+                        firstPart.length(),
+                        firstPart.length() + boldPart.length()
                 );
             } else {
                 // could not find it
@@ -356,10 +355,10 @@ public class CaptchaNoJsHtmlParser {
             for (int column = 0; column < columns; ++column) {
                 for (int row = 0; row < rows; ++row) {
                     Bitmap imagePiece = Bitmap.createBitmap(originalBitmap,
-                                                            row * imageWidth,
-                                                            column * imageHeight,
-                                                            imageWidth,
-                                                            imageHeight
+                            row * imageWidth,
+                            column * imageHeight,
+                            imageWidth,
+                            imageHeight
                     );
 
                     resultImages.add(imagePiece);

@@ -162,8 +162,7 @@ public class FastTextView
         if (widthMode == MeasureSpec.EXACTLY) {
             width = widthSize;
         } else if ((widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED)
-                && !TextUtils.isEmpty(text))
-        {
+                && !TextUtils.isEmpty(text)) {
             width = Math.round(Layout.getDesiredWidth(text, paint) + getPaddingLeft() + getPaddingRight());
             if (widthMode == MeasureSpec.AT_MOST) {
                 width = Math.min(width, widthSize);
@@ -243,19 +242,14 @@ public class FastTextView
 
         @Override
         public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
 
             FastTextViewItem that = (FastTextViewItem) o;
 
-            if (color != that.color)
-                return false;
-            if (Float.compare(that.textSize, textSize) != 0)
-                return false;
-            if (layoutWidth != that.layoutWidth)
-                return false;
+            if (color != that.color) return false;
+            if (Float.compare(that.textSize, textSize) != 0) return false;
+            if (layoutWidth != that.layoutWidth) return false;
             return text.equals(that.text);
         }
 

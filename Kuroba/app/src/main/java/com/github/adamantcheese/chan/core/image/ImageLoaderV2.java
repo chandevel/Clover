@@ -47,12 +47,13 @@ public class ImageLoaderV2 {
         this.fileManager = fileManager;
     }
 
-    public ImageLoader.ImageContainer getImage(boolean isThumbnail,
-                                               Loadable loadable,
-                                               PostImage postImage,
-                                               int width,
-                                               int height,
-                                               ImageListener imageListener
+    public ImageLoader.ImageContainer getImage(
+            boolean isThumbnail,
+            Loadable loadable,
+            PostImage postImage,
+            int width,
+            int height,
+            ImageListener imageListener
     ) {
         BackgroundUtils.ensureMainThread();
 
@@ -82,16 +83,11 @@ public class ImageLoaderV2 {
                 }
             }
 
-            return getFromDisk(
-                    loadable, formattedName, postImage.spoiler, imageListener, width, height,
-                    () -> {
-                        Logger.d(TAG,
-                                 "Falling back to imageLoaderV1 load the image " + postImage.imageUrl.toString()
-                        );
+            return getFromDisk(loadable, formattedName, postImage.spoiler, imageListener, width, height, () -> {
+                Logger.d(TAG, "Falling back to imageLoaderV1 load the image " + postImage.imageUrl.toString());
 
-                        return imageLoader.get(postImage.getThumbnailUrl().toString(), imageListener, width, height);
-                    }
-            );
+                return imageLoader.get(postImage.getThumbnailUrl().toString(), imageListener, width, height);
+            });
         } else {
             Logger.d(TAG, "Loading image " + postImage.imageUrl.toString() + " via the imageLoaderV1");
 
@@ -100,25 +96,26 @@ public class ImageLoaderV2 {
     }
 
     @SuppressWarnings("DuplicateExpressions")
-    public ImageLoader.ImageContainer getFromDisk(Loadable loadable,
-                                                  String filename,
-                                                  boolean isSpoiler,
-                                                  ImageLoader.ImageListener imageListener,
-                                                  int width,
-                                                  int height,
-                                                  @Nullable ImageLoaderFallbackCallback callback
+    public ImageLoader.ImageContainer getFromDisk(
+            Loadable loadable,
+            String filename,
+            boolean isSpoiler,
+            ImageLoader.ImageListener imageListener,
+            int width,
+            int height,
+            @Nullable ImageLoaderFallbackCallback callback
     ) {
         BackgroundUtils.ensureMainThread();
 
         ImageLoader.ImageContainer container = null;
 
         try {
-            @SuppressWarnings("JavaReflectionMemberAccess") Constructor c
-                    = ImageLoader.ImageContainer.class.getConstructor(ImageLoader.class,
-                                                                      Bitmap.class,
-                                                                      String.class,
-                                                                      String.class,
-                                                                      ImageListener.class
+            @SuppressWarnings("JavaReflectionMemberAccess")
+            Constructor c = ImageLoader.ImageContainer.class.getConstructor(ImageLoader.class,
+                    Bitmap.class,
+                    String.class,
+                    String.class,
+                    ImageListener.class
             );
 
             c.setAccessible(true);

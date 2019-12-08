@@ -16,7 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
+import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -55,6 +57,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
@@ -83,13 +86,14 @@ import java.util.List;
 import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
-import static com.github.adamantcheese.chan.Chan.injector;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
@@ -224,10 +228,8 @@ public class PostCell
         gestureDetector = new GestureDetector(getContext(), new DoubleTapGestureListener());
     }
 
-    private void showOptions(View anchor,
-                             List<FloatingMenuItem> items,
-                             List<FloatingMenuItem> extraItems,
-                             Object extraOption
+    private void showOptions(
+            View anchor, List<FloatingMenuItem> items, List<FloatingMenuItem> extraItems, Object extraOption
     ) {
         if (ThemeHelper.getTheme().isLightTheme) {
             options.setImageResource(R.drawable.ic_overflow_black);
@@ -270,21 +272,21 @@ public class PostCell
         }
     }
 
-    public void setPost(Loadable loadable,
-                        final Post post,
-                        PostCellInterface.PostCellCallback callback,
-                        boolean selectable,
-                        boolean highlighted,
-                        boolean selected,
-                        int markedNo,
-                        boolean showDivider,
-                        ChanSettings.PostViewMode postViewMode,
-                        boolean compact,
-                        Theme theme
+    public void setPost(
+            Loadable loadable,
+            final Post post,
+            PostCellInterface.PostCellCallback callback,
+            boolean selectable,
+            boolean highlighted,
+            boolean selected,
+            int markedNo,
+            boolean showDivider,
+            ChanSettings.PostViewMode postViewMode,
+            boolean compact,
+            Theme theme
     ) {
         if (this.post == post && this.selectable == selectable && this.highlighted == highlighted
-                && this.selected == selected && this.markedNo == markedNo && this.showDivider == showDivider)
-        {
+                && this.selected == selected && this.markedNo == markedNo && this.showDivider == showDivider) {
             return;
         }
 
@@ -352,10 +354,10 @@ public class PostCell
         }
 
         if (post.filterHighlightedColor != 0) {
-            filterMatchColor.setVisibility(View.VISIBLE);
+            filterMatchColor.setVisibility(VISIBLE);
             filterMatchColor.setBackgroundColor(post.filterHighlightedColor);
         } else {
-            filterMatchColor.setVisibility(View.GONE);
+            filterMatchColor.setVisibility(GONE);
         }
 
         buildThumbnails();
@@ -374,9 +376,9 @@ public class PostCell
             time = PostHelper.getLocalDate(post);
         } else {
             time = DateUtils.getRelativeTimeSpanString(post.time * 1000L,
-                                                       System.currentTimeMillis(),
-                                                       DateUtils.SECOND_IN_MILLIS,
-                                                       0
+                    System.currentTimeMillis(),
+                    DateUtils.SECOND_IN_MILLIS,
+                    0
             );
         }
 
@@ -402,10 +404,9 @@ public class PostCell
                 boolean postFileName = ChanSettings.postFilename.get();
                 if (postFileName) {
                     //that special character forces it to be left-to-right, as textDirection didn't want to be obeyed
-                    String filename = '\u200E' + (
-                            image.spoiler
-                                    ? getString(R.string.image_spoiler_filename)
-                                    : image.filename + "." + image.extension);
+                    String filename = '\u200E' + (image.spoiler
+                            ? getString(R.string.image_spoiler_filename)
+                            : image.filename + "." + image.extension);
                     SpannableString fileInfo = new SpannableString("\n" + filename);
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
@@ -418,7 +419,7 @@ public class PostCell
                     fileInfo.append(postFileName ? " " : "\n");
                     fileInfo.append(image.extension.toUpperCase());
                     //if -1, linked image, no info
-                    fileInfo.append(image.size == -1 ? "" : " " + getReadableFileSize(image.size, false));
+                    fileInfo.append(image.size == -1 ? "" : " " + getReadableFileSize(image.size));
                     fileInfo.append(image.size == -1 ? "" : " " + image.imageWidth + "x" + image.imageHeight);
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
@@ -460,6 +461,7 @@ public class PostCell
         if (ChanSettings.shiftPostFormat.get()) {
             comment.setVisibility(isEmpty(commentText) ? GONE : VISIBLE);
         } else {
+            //noinspection ConstantConditions
             comment.setVisibility(isEmpty(commentText) && post.images == null ? GONE : VISIBLE);
         }
 
@@ -475,10 +477,14 @@ public class PostCell
 
                 comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
                     private MenuItem quoteMenuItem;
+                    private MenuItem webSearchItem;
+                    private boolean processed;
 
                     @Override
                     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                         quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote, 0, R.string.post_quote);
+                        webSearchItem =
+                                menu.add(Menu.NONE, R.id.post_selection_action_search, 1, R.string.post_web_search);
                         return true;
                     }
 
@@ -489,17 +495,25 @@ public class PostCell
 
                     @Override
                     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                        CharSequence selection =
+                                comment.getText().subSequence(comment.getSelectionStart(), comment.getSelectionEnd());
                         if (item == quoteMenuItem) {
-                            CharSequence selection = comment.getText()
-                                                            .subSequence(comment.getSelectionStart(),
-                                                                         comment.getSelectionEnd()
-                                                            );
                             callback.onPostSelectionQuoted(post, selection);
-                            mode.finish();
-                            return true;
+                            processed = true;
+                        } else if (item == webSearchItem) {
+                            Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                            searchIntent.putExtra(SearchManager.QUERY, selection.toString());
+                            openIntent(searchIntent);
+                            processed = true;
                         }
 
-                        return false;
+                        if (processed) {
+                            mode.finish();
+                            processed = false;
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
 
                     @Override
@@ -538,7 +552,7 @@ public class PostCell
         }
 
         if ((!threadMode && post.getReplies() > 0) || (repliesFromSize > 0)) {
-            replies.setVisibility(View.VISIBLE);
+            replies.setVisibility(VISIBLE);
 
             int replyCount = threadMode ? repliesFromSize : post.getReplies();
             String text = getQuantityString(R.plurals.reply, replyCount, replyCount);
@@ -550,12 +564,12 @@ public class PostCell
             replies.setText(text);
             comment.setPadding(comment.getPaddingLeft(), comment.getPaddingTop(), comment.getPaddingRight(), 0);
             replies.setPadding(replies.getPaddingLeft(),
-                               paddingPx,
-                               replies.getPaddingRight(),
-                               replies.getPaddingBottom()
+                    paddingPx,
+                    replies.getPaddingRight(),
+                    replies.getPaddingBottom()
             );
         } else {
-            replies.setVisibility(View.GONE);
+            replies.setVisibility(GONE);
             comment.setPadding(comment.getPaddingLeft(), comment.getPaddingTop(), comment.getPaddingRight(), paddingPx);
             replies.setPadding(replies.getPaddingLeft(), 0, replies.getPaddingRight(), replies.getPaddingBottom());
         }
@@ -576,14 +590,17 @@ public class PostCell
             ), MeasureSpec.makeMeasureSpec(displaySize.y, MeasureSpec.AT_MOST));
 
             //we want the heights here, but the widths must be the exact size between the thumbnail and view edge so that we calculate offsets right
-            title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
-                          MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            title.measure(
+                    MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
-            icons.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
-                          MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            icons.measure(
+                    MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
-            comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
-                            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            comment.measure(
+                    MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
             int wrapHeight = title.getMeasuredHeight() + icons.getMeasuredHeight();
             int extraWrapHeight = wrapHeight + comment.getMeasuredHeight();
@@ -592,12 +609,11 @@ public class PostCell
                 RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
                 commentParams.removeRule(RelativeLayout.RIGHT_OF);
                 if (title.getMeasuredHeight() + (icons.getVisibility() == VISIBLE ? icons.getMeasuredHeight() : 0)
-                        < thumbnailSize)
-                {
+                        < thumbnailSize) {
                     commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_view);
                 } else {
                     commentParams.addRule(RelativeLayout.BELOW,
-                                          (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title)
+                            (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title)
                     );
                 }
                 comment.setLayoutParams(commentParams);
@@ -610,8 +626,8 @@ public class PostCell
                 replyParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
                 replies.setLayoutParams(replyParams);
 
-                RelativeLayout.LayoutParams replyExtraParams
-                        = (RelativeLayout.LayoutParams) repliesAdditionalArea.getLayoutParams();
+                RelativeLayout.LayoutParams replyExtraParams =
+                        (RelativeLayout.LayoutParams) repliesAdditionalArea.getLayoutParams();
                 replyExtraParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
                 repliesAdditionalArea.setLayoutParams(replyExtraParams);
             }
@@ -649,11 +665,14 @@ public class PostCell
 
                 v.setPostImage(loadable, image, false, size, size);
                 v.setClickable(true);
-                v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
+                //don't set a callback if the post is deleted, but if the file already exists in cache let it through
+                if (!post.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl.toString())) {
+                    v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
+                }
                 v.setRounding(dp(2));
                 p.setMargins(dp(4), first ? dp(4) : 0, 0,
-                             //1 extra for bottom divider
-                             i + 1 == post.images.size() ? dp(1) + dp(4) : 0
+                        //1 extra for bottom divider
+                        i + 1 == post.images.size() ? dp(1) + dp(4) : 0
                 );
 
                 relativeLayoutContainer.addView(v, p);
@@ -717,8 +736,7 @@ public class PostCell
             int action = event.getActionMasked();
 
             if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL
-                    || action == MotionEvent.ACTION_DOWN)
-            {
+                    || action == MotionEvent.ACTION_DOWN) {
                 int x = (int) event.getX();
                 int y = (int) event.getY();
 
@@ -739,12 +757,10 @@ public class PostCell
                 if (link.size() > 0) {
                     ClickableSpan clickableSpan1 = link.get(0);
                     ClickableSpan clickableSpan2 = link.size() > 1 ? link.get(1) : null;
-                    PostLinkable linkable1 = clickableSpan1 instanceof PostLinkable
-                            ? (PostLinkable) clickableSpan1
-                            : null;
-                    PostLinkable linkable2 = clickableSpan2 instanceof PostLinkable
-                            ? (PostLinkable) clickableSpan2
-                            : null;
+                    PostLinkable linkable1 =
+                            clickableSpan1 instanceof PostLinkable ? (PostLinkable) clickableSpan1 : null;
+                    PostLinkable linkable2 =
+                            clickableSpan2 instanceof PostLinkable ? (PostLinkable) clickableSpan2 : null;
                     if (action == MotionEvent.ACTION_UP) {
                         ignoreNextOnClick = true;
 
@@ -785,9 +801,9 @@ public class PostCell
                         buffer.removeSpan(BACKGROUND_SPAN);
                     } else if (action == MotionEvent.ACTION_DOWN && clickableSpan1 instanceof PostLinkable) {
                         buffer.setSpan(BACKGROUND_SPAN,
-                                       buffer.getSpanStart(clickableSpan1),
-                                       buffer.getSpanEnd(clickableSpan1),
-                                       0
+                                buffer.getSpanStart(clickableSpan1),
+                                buffer.getSpanEnd(clickableSpan1),
+                                0
                         );
                     } else if (action == MotionEvent.ACTION_CANCEL) {
                         buffer.removeSpan(BACKGROUND_SPAN);
@@ -892,7 +908,7 @@ public class PostCell
             super(context, attrs, defStyleAttr);
 
             textPaint.setTypeface(Typeface.create((String) null, Typeface.ITALIC));
-            setVisibility(View.GONE);
+            setVisibility(GONE);
         }
 
         public void setHeight(int height) {
@@ -912,7 +928,7 @@ public class PostCell
             if (previousIcons != icons) {
                 // Require a layout only if the height changed
                 if (previousIcons == 0 || icons == 0) {
-                    setVisibility(icons == 0 ? View.GONE : View.VISIBLE);
+                    setVisibility(icons == 0 ? GONE : VISIBLE);
                     requestLayout();
                 }
 
@@ -1024,7 +1040,7 @@ public class PostCell
             this.postIcons = postIcons;
             this.name = name;
             this.url = url;
-            this.imageLoaderV2 = injector().instance(ImageLoaderV2.class);
+            this.imageLoaderV2 = instance(ImageLoaderV2.class);
         }
 
         private void request() {

@@ -22,7 +22,6 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -48,6 +47,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -73,7 +73,7 @@ public abstract class ThreadController
 
         navigation.handlesToolbarInset = true;
 
-        threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
+        threadLayout = (ThreadLayout) inflate(context, R.layout.layout_thread, null);
         threadLayout.create(this);
 
         swipeRefreshLayout = new SwipeRefreshLayout(context) {

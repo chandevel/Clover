@@ -118,11 +118,9 @@ public class ThreadStatusCell
             }
 
             if (!chanThread.isArchived() && !chanThread.isClosed()
-                    && chanThread.getLoadable().loadableDownloadingState != AlreadyDownloaded)
-            {
+                    && chanThread.getLoadable().loadableDownloadingState != AlreadyDownloaded) {
                 if (chanThread.getLoadable().isLocal()
-                        && chanThread.getLoadable().loadableDownloadingState != AlreadyDownloaded)
-                {
+                        && chanThread.getLoadable().loadableDownloadingState != AlreadyDownloaded) {
                     // To split Local Thread and (Loading Time | Loading) rows
                     builder.append('\n');
                 }

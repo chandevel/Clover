@@ -37,14 +37,16 @@ public class HttpCallManager {
         this.okHttpClient = okHttpClient;
     }
 
-    public void makeHttpCall(HttpCall httpCall, HttpCall.HttpCallback<? extends HttpCall> callback
+    public void makeHttpCall(
+            HttpCall httpCall, HttpCall.HttpCallback<? extends HttpCall> callback
     ) {
         makeHttpCall(httpCall, callback, null);
     }
 
-    public void makeHttpCall(HttpCall httpCall,
-                             HttpCall.HttpCallback<? extends HttpCall> callback,
-                             @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    public void makeHttpCall(
+            HttpCall httpCall,
+            HttpCall.HttpCallback<? extends HttpCall> callback,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         httpCall.setCallback(callback);
 

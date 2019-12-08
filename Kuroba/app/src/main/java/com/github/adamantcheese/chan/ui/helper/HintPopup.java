@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
@@ -29,8 +28,10 @@ import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
 
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class HintPopup {
@@ -42,11 +43,8 @@ public class HintPopup {
         return show(context, anchor, text, 0, 0);
     }
 
-    public static HintPopup show(final Context context,
-                                 final View anchor,
-                                 final String text,
-                                 final int offsetX,
-                                 final int offsetY
+    public static HintPopup show(
+            final Context context, final View anchor, final String text, final int offsetX, final int offsetY
     ) {
         HintPopup hintPopup = new HintPopup(context, anchor, text, offsetX, offsetY, false);
         hintPopup.show();
@@ -65,12 +63,13 @@ public class HintPopup {
     private boolean centered = false;
     private boolean wiggle = false;
 
-    public HintPopup(Context context,
-                     final View anchor,
-                     final String text,
-                     final int offsetX,
-                     final int offsetY,
-                     final boolean top
+    public HintPopup(
+            Context context,
+            final View anchor,
+            final String text,
+            final int offsetX,
+            final int offsetY,
+            final boolean top
     ) {
         this.anchor = anchor;
         this.text = text;
@@ -83,16 +82,12 @@ public class HintPopup {
 
     @SuppressLint("InflateParams")
     private void createView(Context context) {
-        popupView = (ViewGroup)
-                LayoutInflater.from(context).inflate(top ? R.layout.popup_hint_top : R.layout.popup_hint, null);
+        popupView = inflate(context, top ? R.layout.popup_hint_top : R.layout.popup_hint);
 
         TextView textView = popupView.findViewById(R.id.text);
         textView.setText(text);
 
-        popupWindow = new PopupWindow(popupView,
-                                      ViewGroup.LayoutParams.WRAP_CONTENT,
-                                      ViewGroup.LayoutParams.WRAP_CONTENT
-        );
+        popupWindow = new PopupWindow(popupView, WRAP_CONTENT, WRAP_CONTENT);
         popupWindow.setOutsideTouchable(true);
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
     }

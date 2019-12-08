@@ -210,7 +210,7 @@ public class RuntimeTypeAdapterFactory<T>
                         TypeAdapter<R> delegate = (TypeAdapter<R>) labelToDelegate.get(label);
                 if (delegate == null) {
                     throw new JsonParseException("cannot deserialize " + baseType + " subtype named " + label
-                                                         + "; did you forget to register a subtype?");
+                            + "; did you forget to register a subtype?");
                 }
                 return delegate.fromJsonTree(jsonElement);
             }

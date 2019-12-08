@@ -93,10 +93,8 @@ public class UpdateManager {
         if (ChanSettings.previousVersion.get() < BuildConfig.VERSION_CODE && ChanSettings.previousVersion.get() != 0) {
             Spanned text = Html.fromHtml(
                     "<h3>" + getApplicationLabel() + " was updated to " + BuildConfig.VERSION_NAME + "</h3>");
-            final AlertDialog dialog = new AlertDialog.Builder(context)
-                    .setMessage(text)
-                    .setPositiveButton(R.string.ok, null)
-                    .create();
+            final AlertDialog dialog =
+                    new AlertDialog.Builder(context).setMessage(text).setPositiveButton(R.string.ok, null).create();
             dialog.setCanceledOnTouchOutside(false);
             dialog.show();
 
@@ -115,8 +113,8 @@ public class UpdateManager {
         }
 
         if (BuildConfig.DEV_BUILD && !ChanSettings.previousDevHash.get().equals(BuildConfig.COMMIT_HASH)) {
-            final AlertDialog dialog = new AlertDialog.Builder(context)
-                    .setMessage(getApplicationLabel() + " was updated to the latest commit.")
+            final AlertDialog dialog = new AlertDialog.Builder(context).setMessage(
+                    getApplicationLabel() + " was updated to the latest commit.")
                     .setPositiveButton(R.string.ok, null)
                     .create();
             dialog.setCanceledOnTouchOutside(true);
@@ -150,8 +148,7 @@ public class UpdateManager {
             //region Release build
             volleyRequestQueue.add(new UpdateApiRequest(response -> {
                 if (!processUpdateApiResponse(response) && manual) {
-                    new AlertDialog.Builder(context)
-                            .setTitle(getString(R.string.update_none, getApplicationLabel()))
+                    new AlertDialog.Builder(context).setTitle(getString(R.string.update_none, getApplicationLabel()))
                             .setPositiveButton(R.string.ok, null)
                             .show();
                 }
@@ -159,8 +156,7 @@ public class UpdateManager {
                 Logger.e(TAG, "Failed to process stable API call for updating", error);
 
                 if (manual) {
-                    new AlertDialog.Builder(context)
-                            .setTitle(R.string.update_check_failed)
+                    new AlertDialog.Builder(context).setTitle(R.string.update_check_failed)
                             .setPositiveButton(R.string.ok, null)
                             .show();
                 }
@@ -237,11 +233,10 @@ public class UpdateManager {
     private boolean processUpdateApiResponse(UpdateApiRequest.UpdateApiResponse response) {
         if (response.versionCode > BuildConfig.VERSION_CODE || BuildConfig.DEV_BUILD) {
             boolean concat = !response.updateTitle.isEmpty();
-            CharSequence updateMessage = concat
-                    ? TextUtils.concat(response.updateTitle, "; ", response.body)
-                    : response.body;
-            AlertDialog dialog = new AlertDialog.Builder(context)
-                    .setTitle(getApplicationLabel() + " " + response.versionCodeString + " available")
+            CharSequence updateMessage =
+                    concat ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body;
+            AlertDialog dialog = new AlertDialog.Builder(context).setTitle(
+                    getApplicationLabel() + " " + response.versionCodeString + " available")
                     .setMessage(updateMessage)
                     .setNegativeButton(R.string.update_later, null)
                     .setPositiveButton(R.string.update_install, (dialog1, which) -> updateInstallRequested(response))
@@ -276,9 +271,9 @@ public class UpdateManager {
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
                 //put a copy into the Downloads folder, for archive/rollback purposes
-                File downloadAPKcopy
-                        = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                                   getApplicationLabel() + "_" + response.versionCodeString + ".apk"
+                File downloadAPKcopy = new File(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                        getApplicationLabel() + "_" + response.versionCodeString + ".apk"
                 );
                 File updateAPK = new File(file.getFullPath());
                 try {
@@ -295,8 +290,7 @@ public class UpdateManager {
 
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
-                new AlertDialog.Builder(context)
-                        .setTitle(R.string.update_install_download_failed)
+                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
                         .setPositiveButton(R.string.ok, null)
                         .show();
             }
@@ -307,8 +301,7 @@ public class UpdateManager {
 
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
-                new AlertDialog.Builder(context)
-                        .setTitle(R.string.update_install_download_failed)
+                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
                         .setPositiveButton(R.string.ok, null)
                         .show();
             }
@@ -317,8 +310,7 @@ public class UpdateManager {
 
     private void installApk(File apk) {
         // First open the dialog that asks to retry and calls this method again.
-        new AlertDialog.Builder(context)
-                .setTitle(R.string.update_retry_title)
+        new AlertDialog.Builder(context).setTitle(R.string.update_retry_title)
                 .setMessage(getString(R.string.update_retry, getApplicationLabel()))
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.update_retry_button, (dialog, which) -> installApk(apk))
@@ -354,10 +346,11 @@ public class UpdateManager {
                 updateDownloadDialog.show();
                 doUpdate(response);
             } else {
-                runtimePermissionsHelper.showPermissionRequiredDialog(context,
-                                                                      getString(R.string.update_storage_permission_required_title),
-                                                                      getString(R.string.update_storage_permission_required),
-                                                                      () -> updateInstallRequested(response)
+                runtimePermissionsHelper.showPermissionRequiredDialog(
+                        context,
+                        getString(R.string.update_storage_permission_required_title),
+                        getString(R.string.update_storage_permission_required),
+                        () -> updateInstallRequested(response)
                 );
             }
         });

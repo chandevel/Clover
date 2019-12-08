@@ -35,10 +35,8 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    public ImportExportRepository provideImportExportRepository(DatabaseManager databaseManager,
-                                                                DatabaseHelper databaseHelper,
-                                                                Gson gson,
-                                                                FileManager fileManager
+    public ImportExportRepository provideImportExportRepository(
+            DatabaseManager databaseManager, DatabaseHelper databaseHelper, Gson gson, FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Import export repository");
         return new ImportExportRepository(databaseManager, databaseHelper, gson, fileManager);

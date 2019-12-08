@@ -27,7 +27,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -50,6 +49,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.text.TextUtils.isEmpty;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
@@ -123,7 +124,7 @@ public class ToolbarContainer
         previousView = currentView;
         currentView = itemView;
 
-        addView(itemView.view, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        addView(itemView.view, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
         if (getChildCount() > 2) {
             throw new IllegalArgumentException("More than 2 child views attached");
@@ -195,7 +196,7 @@ public class ToolbarContainer
 
         transitionView = itemView;
         transitionAnimationStyle = style;
-        addView(itemView.view, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        addView(itemView.view, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
         if (getChildCount() > 2) {
             throw new IllegalArgumentException("More than 2 child views attached");
@@ -253,8 +254,7 @@ public class ToolbarContainer
 
     private void setAnimation(ItemView view, ItemView previousView, ToolbarPresenter.AnimationStyle animationStyle) {
         if (animationStyle == ToolbarPresenter.AnimationStyle.PUSH
-                || animationStyle == ToolbarPresenter.AnimationStyle.POP)
-        {
+                || animationStyle == ToolbarPresenter.AnimationStyle.POP) {
             final boolean pushing = animationStyle == ToolbarPresenter.AnimationStyle.PUSH;
 
             // Previous animation
@@ -271,8 +271,7 @@ public class ToolbarContainer
                     ToolbarContainer.this.previousView = null;
                 }
             });
-            if (!pushing)
-                previousAnimation.setStartDelay(100);
+            if (!pushing) previousAnimation.setStartDelay(100);
             animatorSet.put(previousView.view, previousAnimation);
 
             post(previousAnimation::start);
@@ -294,8 +293,7 @@ public class ToolbarContainer
                     animatorSet.remove(view.view);
                 }
             });
-            if (!pushing)
-                animation.setStartDelay(100);
+            if (!pushing) animation.setStartDelay(100);
             animatorSet.put(view.view, animation);
 
             post(animation::start);
@@ -439,8 +437,8 @@ public class ToolbarContainer
 
         @NonNull
         private LinearLayout createNavigationLayout(NavigationItem item, Theme theme) {
-            @SuppressLint("InflateParams") LinearLayout menu = (LinearLayout)
-                    LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
+            @SuppressLint("InflateParams")
+            LinearLayout menu = (LinearLayout) inflate(getContext(), R.layout.toolbar_menu, null);
             menu.setGravity(Gravity.CENTER_VERTICAL);
 
             FrameLayout titleContainer = menu.findViewById(R.id.title_container);
@@ -455,12 +453,8 @@ public class ToolbarContainer
             if (item.middleMenu != null) {
                 int arrowColor = getAttrColor(getContext(), R.attr.dropdown_light_color);
                 int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
-                final Drawable arrowDrawable = new DropdownArrowDrawable(dp(12),
-                                                                         dp(12),
-                                                                         true,
-                                                                         arrowColor,
-                                                                         arrowPressedColor
-                );
+                final Drawable arrowDrawable =
+                        new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
                 titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowDrawable, null);
                 titleView.setOnClickListener(v -> item.middleMenu.show(titleView));
                 //Default stuff for nothing there
@@ -473,14 +467,14 @@ public class ToolbarContainer
             TextView subtitleView = menu.findViewById(R.id.subtitle);
             if (!isEmpty(item.subtitle)) {
                 ViewGroup.LayoutParams titleParams = titleView.getLayoutParams();
-                titleParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                titleParams.height = WRAP_CONTENT;
                 titleView.setLayoutParams(titleParams);
                 subtitleView.setText(item.subtitle);
                 subtitleView.setTextColor(Color.WHITE);
                 titleView.setPadding(titleView.getPaddingLeft(),
-                                     dp(5f),
-                                     titleView.getPaddingRight(),
-                                     titleView.getPaddingBottom()
+                        dp(5f),
+                        titleView.getPaddingRight(),
+                        titleView.getPaddingBottom()
                 );
             } else {
                 titleContainer.removeView(subtitleView);
@@ -490,9 +484,7 @@ public class ToolbarContainer
             if (item.rightView != null) {
                 removeFromParentView(item.rightView);
                 item.rightView.setPadding(0, 0, dp(16), 0);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                                                             LinearLayout.LayoutParams.MATCH_PARENT
-                );
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT);
                 menu.addView(item.rightView, lp);
             }
 
@@ -500,9 +492,7 @@ public class ToolbarContainer
             if (item.menu != null) {
                 menuView = new ToolbarMenuView(getContext());
 
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                                                             LinearLayout.LayoutParams.MATCH_PARENT
-                );
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT);
                 menu.addView(this.menuView, lp);
             }
 
@@ -521,9 +511,9 @@ public class ToolbarContainer
 
             searchLayout.setCatalogSearchColors();
             searchLayout.setPadding(dp(16),
-                                    searchLayout.getPaddingTop(),
-                                    searchLayout.getPaddingRight(),
-                                    searchLayout.getPaddingBottom()
+                    searchLayout.getPaddingTop(),
+                    searchLayout.getPaddingRight(),
+                    searchLayout.getPaddingBottom()
             );
 
             return searchLayout;

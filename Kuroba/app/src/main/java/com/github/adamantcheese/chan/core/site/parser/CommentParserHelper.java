@@ -28,7 +28,6 @@ import androidx.annotation.AnyThread;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.RequestFuture;
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -55,15 +54,14 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParserHelper {
-    private static final LinkExtractor LINK_EXTRACTOR = LinkExtractor
-            .builder()
-            .linkTypes(EnumSet.of(LinkType.URL))
-            .build();
+    private static final LinkExtractor LINK_EXTRACTOR =
+            LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
     private static Pattern youtubeLinkPattern = Pattern.compile(
             "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
@@ -106,17 +104,17 @@ public class CommentParserHelper {
             //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
             //we use 500 here for to go below post linkables, but above everything else basically
             spannable.setSpan(pl,
-                              link.getBeginIndex(),
-                              link.getEndIndex(),
-                              (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+                    link.getBeginIndex(),
+                    link.getEndIndex(),
+                    (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
             );
             post.addLinkable(pl);
         }
     }
 
     public static SpannableString replaceYoutubeLinks(Theme theme, Post.Builder post, String text) {
-        Map<String, String> titleURLMap
-                = new HashMap<>(); //this map is inverted i.e. the title maps to the URL rather than the other way around
+        Map<String, String> titleURLMap =
+                new HashMap<>(); //this map is inverted i.e. the title maps to the URL rather than the other way around
         StringBuffer newString = new StringBuffer();
         //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
         Matcher linkMatcher = youtubeLinkPattern.matcher(text);
@@ -127,14 +125,14 @@ public class CommentParserHelper {
             JsonObjectRequest request = new JsonObjectRequest(
                     "https://www.googleapis.com/youtube/v3/videos?part=snippet"
                             + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "") + "&id=" + videoID
-                            + "&fields=items%28id%2Csnippet%28title%29" + (
-                            ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails%28duration%29" : "")
-                            + "%29&key=" + API_KEY,
+                            + "&fields=items%28id%2Csnippet%28title%29" + (ChanSettings.parseYoutubeDuration.get()
+                            ? "%2CcontentDetails%28duration%29"
+                            : "") + "%29&key=" + API_KEY,
                     null,
                     future,
                     future
             );
-            Chan.injector().instance(RequestQueue.class).add(request);
+            instance(RequestQueue.class).add(request);
 
             String URL = linkMatcher.group(0);
             String title = youtubeTitleCache.get(URL);
@@ -143,29 +141,32 @@ public class CommentParserHelper {
                 try {
                     // this will block so we get the title immediately
                     JSONObject response = future.get(2500, TimeUnit.MILLISECONDS);
-                    title = response
-                            .getJSONArray("items")
+                    title = response.getJSONArray("items")
                             .getJSONObject(0)
                             .getJSONObject("snippet")
                             .getString("title"); //the response is well formatted so this will always work
                     youtubeTitleCache.put(URL, title);
                     if (ChanSettings.parseYoutubeDuration.get()) {
-                        duration = response
-                                .getJSONArray("items")
+                        duration = response.getJSONArray("items")
                                 .getJSONObject(0)
                                 .getJSONObject("contentDetails")
                                 .getString("duration"); //the response is well formatted so this will always work
-                        PeriodFormatter formatter = new PeriodFormatterBuilder()
-                                .minimumPrintedDigits(0)
+                        Period time = Period.parse(duration);
+                        //format m?m:ss; ? is optional
+                        //alternate h?h:mm:ss if hours
+                        PeriodFormatter formatter = new PeriodFormatterBuilder().appendLiteral("[")
+                                .minimumPrintedDigits(0) //don't print hours if none
                                 .appendHours()
                                 .appendSuffix(":")
-                                .printZeroAlways()
+                                .minimumPrintedDigits(time.getHours() > 0 ? 2 : 1) //two digit minutes if hours
+                                .printZeroAlways() //always print 0 for minutes, if seconds only
                                 .appendMinutes()
                                 .appendSuffix(":")
-                                .minimumPrintedDigits(2)
+                                .minimumPrintedDigits(2) //always print two digit seconds
                                 .appendSeconds()
+                                .appendLiteral("]")
                                 .toFormatter();
-                        duration = formatter.print(Period.parse(duration));
+                        duration = formatter.print(time);
                         youtubeDurCache.put(URL, duration);
                     }
                 } catch (Exception e) {
@@ -175,9 +176,7 @@ public class CommentParserHelper {
                 }
             }
             //prepend two spaces for the youtube icon later
-            String extraDur = ChanSettings.parseYoutubeDuration.get()
-                    ? (duration != null ? " [" + duration + "]" : "")
-                    : "";
+            String extraDur = ChanSettings.parseYoutubeDuration.get() ? (duration != null ? " " + duration : "") : "";
             titleURLMap.put("  " + title + extraDur, URL);
             linkMatcher.appendReplacement(newString, "  " + title + extraDur);
         }
@@ -190,9 +189,9 @@ public class CommentParserHelper {
             //set the linkable to be the entire length, including the icon
             PostLinkable pl = new PostLinkable(theme, key, titleURLMap.get(key), PostLinkable.Type.LINK);
             finalizedString.setSpan(pl,
-                                    newString.indexOf(key),
-                                    newString.indexOf(key) + key.length(),
-                                    (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+                    newString.indexOf(key),
+                    newString.indexOf(key) + key.length(),
+                    (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
             );
             post.addLinkable(pl);
 
@@ -202,9 +201,9 @@ public class CommentParserHelper {
             int width = (int) (sp(height) / (youtubeIcon.getHeight() / (float) youtubeIcon.getWidth()));
             ytIcon.getDrawable().setBounds(0, 0, width, sp(height));
             finalizedString.setSpan(ytIcon,
-                                    newString.indexOf(key),
-                                    newString.indexOf(key) + 1,
-                                    (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+                    newString.indexOf(key),
+                    newString.indexOf(key) + 1,
+                    (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
             );
         }
 
@@ -214,24 +213,20 @@ public class CommentParserHelper {
     public static void addPostImages(Post.Builder post) {
         if (ChanSettings.parsePostImageLinks.get()) {
             for (PostLinkable linkable : post.getLinkables()) {
-                if (post.images != null && post.images.size() >= 5)
-                    return; //max 5 images hotlinked
+                if (post.images != null && post.images.size() >= 5) return; //max 5 images hotlinked
                 if (linkable.type == PostLinkable.Type.LINK) {
                     Matcher matcher = imageUrlPattern.matcher(((String) linkable.value));
                     if (matcher.matches()) {
-                        post.images(
-                                Collections.singletonList(
-                                        new PostImage.Builder()
-                                                .serverFilename(matcher.group(1))
-                                                .thumbnailUrl(HttpUrl.parse((String) linkable.value)) //just have the thumbnail for when spoilers are removed be the image itself; probably not a great idea
-                                                .spoilerThumbnailUrl(HttpUrl.parse(
-                                                        "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png"))
-                                                .imageUrl(HttpUrl.parse((String) linkable.value))
-                                                .filename(matcher.group(1))
-                                                .extension(matcher.group(2))
-                                                .spoiler(true)
-                                                .size(-1)
-                                                .build()));
+                        post.images(Collections.singletonList(new PostImage.Builder().serverFilename(matcher.group(1))
+                                .thumbnailUrl(HttpUrl.parse((String) linkable.value)) //just have the thumbnail for when spoilers are removed be the image itself; probably not a great idea
+                                .spoilerThumbnailUrl(HttpUrl.parse(
+                                        "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png"))
+                                .imageUrl(HttpUrl.parse((String) linkable.value))
+                                .filename(matcher.group(1))
+                                .extension(matcher.group(2))
+                                .spoiler(true)
+                                .size(-1)
+                                .build()));
                     }
                 }
             }
@@ -241,24 +236,15 @@ public class CommentParserHelper {
     public static String getRepeatDigits(int no) {
         String number = String.valueOf(no);
         //inverted order to match largest to smallest, otherwise will always match smallest
-        if (decsPattern.matcher(number).find())
-            return "Decs";
-        if (nonsPattern.matcher(number).find())
-            return "Nons";
-        if (octsPattern.matcher(number).find())
-            return "Octs";
-        if (septsPattern.matcher(number).find())
-            return "Septs";
-        if (hexesPattern.matcher(number).find())
-            return "Sexes";
-        if (quintsPattern.matcher(number).find())
-            return "Quints";
-        if (quadsPattern.matcher(number).find())
-            return "Quads";
-        if (tripsPattern.matcher(number).find())
-            return "Trips";
-        if (dubsPattern.matcher(number).find())
-            return "Dubs";
+        if (decsPattern.matcher(number).find()) return "Decs";
+        if (nonsPattern.matcher(number).find()) return "Nons";
+        if (octsPattern.matcher(number).find()) return "Octs";
+        if (septsPattern.matcher(number).find()) return "Septs";
+        if (hexesPattern.matcher(number).find()) return "Sexes";
+        if (quintsPattern.matcher(number).find()) return "Quints";
+        if (quadsPattern.matcher(number).find()) return "Quads";
+        if (tripsPattern.matcher(number).find()) return "Trips";
+        if (dubsPattern.matcher(number).find()) return "Dubs";
         return null;
     }
 }

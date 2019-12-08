@@ -23,7 +23,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -52,11 +51,15 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 
 import javax.inject.Inject;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -116,9 +119,8 @@ public class DrawerAdapter
             }
 
             @Override
-            public boolean onMove(RecyclerView recyclerView,
-                                  RecyclerView.ViewHolder viewHolder,
-                                  RecyclerView.ViewHolder target
+            public boolean onMove(
+                    RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
             ) {
                 int from = viewHolder.getAdapterPosition();
                 int to = target.getAdapterPosition();
@@ -145,20 +147,15 @@ public class DrawerAdapter
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case TYPE_HEADER:
-                return new HeaderHolder(
-                        LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_header, parent, false));
+                return new HeaderHolder(inflate(context, R.layout.cell_header, parent, false));
             case TYPE_PIN:
-                return new PinViewHolder(
-                        LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_pin, parent, false));
+                return new PinViewHolder(inflate(context, R.layout.cell_pin, parent, false));
             case TYPE_LINK:
-                return new LinkHolder(
-                        LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_link, parent, false));
+                return new LinkHolder(inflate(context, R.layout.cell_link, parent, false));
             case TYPE_BOARD_INPUT:
-                return new RecyclerView.ViewHolder(
-                        LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_browse_input, parent, false)) {};
+                return new RecyclerView.ViewHolder(inflate(context, R.layout.cell_browse_input, parent, false)) {};
             case TYPE_DIVIDER:
-                return new DividerHolder(
-                        LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_divider, parent, false));
+                return new DividerHolder(inflate(context, R.layout.cell_divider, parent, false));
         }
         throw new IllegalArgumentException();
     }
@@ -205,8 +202,8 @@ public class DrawerAdapter
         if (holder.getItemViewType() == TYPE_PIN) {
             PinViewHolder pinViewHolder = (PinViewHolder) holder;
             if (pinViewHolder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
-                AnimatedVectorDrawableCompat downloadIcon
-                        = (AnimatedVectorDrawableCompat) pinViewHolder.threadDownloadIcon.getDrawable();
+                AnimatedVectorDrawableCompat downloadIcon =
+                        (AnimatedVectorDrawableCompat) pinViewHolder.threadDownloadIcon.getDrawable();
                 downloadIcon.stop();
                 downloadIcon.clearAnimationCallbacks();
             }
@@ -286,19 +283,20 @@ public class DrawerAdapter
                 WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
                 String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
                 //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
-                String totalCount = PinHelper.getShortUnreadCount(
-                        pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1);
-                watchCount.setVisibility(View.VISIBLE);
+                int postsCount = pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1;
+                String totalCount = PinHelper.getShortUnreadCount(postsCount);
 
                 String watchCountText = ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount;
-                watchCount.setText(watchCountText);
 
-                if (!pin.watching) {
-                    watchCount.setTextColor(0xff898989); // TODO material colors
-                } else if (pin.getNewQuoteCount() > 0) {
-                    watchCount.setTextColor(0xffFF4444);
+                watchCount.setText(watchCountText);
+                watchCount.setVisibility(View.VISIBLE);
+
+                if (pin.getNewQuoteCount() > 0) {
+                    watchCount.setTextColor(getColor(context, R.color.pin_posts_has_replies));
+                } else if (!pin.watching) {
+                    watchCount.setTextColor(getColor(context, R.color.pin_posts_not_watching)); // TODO material colors
                 } else {
-                    watchCount.setTextColor(0xff33B5E5);
+                    watchCount.setTextColor(getColor(context, R.color.pin_posts_normal));
                 }
 
                 watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
@@ -307,8 +305,7 @@ public class DrawerAdapter
                 boolean italicize = false, bold = false;
                 //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
                 if ((pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1)
-                        >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0)
-                {
+                        >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) {
                     //italics for bump limit
                     italicize = true;
                 }
@@ -334,23 +331,22 @@ public class DrawerAdapter
                 watchCount.setPaintFlags(watchCount.getPaintFlags());
             } else {
                 // FIXME: apparently we don't need to set the visibility to GONE here. Needs research.
-                watchCount.setVisibility(View.GONE);
+                watchCount.setVisibility(GONE);
             }
         } else {
-            watchCount.setVisibility(View.GONE);
-            holder.threadDownloadIcon.setVisibility(View.GONE);
+            watchCount.setVisibility(GONE);
+            holder.threadDownloadIcon.setVisibility(GONE);
         }
 
         setPinDownloadIcon(holder, pin);
 
         boolean highlighted = pin == this.highlighted;
         if (highlighted && !holder.highlighted) {
-            holder.itemView.setBackgroundColor(0x22000000);
+            holder.itemView.setBackgroundColor(getColor(context, R.color.highlighted_pin_view_holder));
             holder.highlighted = true;
         } else if (!highlighted && holder.highlighted) {
-            Drawable attrDrawable = getAttrDrawable(holder.itemView.getContext(),
-                                                    android.R.attr.selectableItemBackground
-            );
+            Drawable attrDrawable =
+                    getAttrDrawable(holder.itemView.getContext(), android.R.attr.selectableItemBackground);
 
             holder.itemView.setBackground(attrDrawable);
             holder.highlighted = false;
@@ -386,16 +382,16 @@ public class DrawerAdapter
         }
 
         if (savedThread == null) {
-            holder.threadDownloadIcon.setVisibility(View.GONE);
+            holder.threadDownloadIcon.setVisibility(GONE);
             return;
         }
 
-        holder.threadDownloadIcon.setVisibility(View.VISIBLE);
+        holder.threadDownloadIcon.setVisibility(VISIBLE);
 
         if (savedThread.isFullyDownloaded) {
             if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
-                AnimatedVectorDrawableCompat drawable
-                        = (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
+                AnimatedVectorDrawableCompat drawable =
+                        (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
                 drawable.stop();
                 drawable.clearAnimationCallbacks();
             }
@@ -406,8 +402,8 @@ public class DrawerAdapter
 
         if (savedThread.isStopped) {
             if (holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
-                AnimatedVectorDrawableCompat drawable
-                        = (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
+                AnimatedVectorDrawableCompat drawable =
+                        (AnimatedVectorDrawableCompat) holder.threadDownloadIcon.getDrawable();
                 drawable.stop();
                 drawable.clearAnimationCallbacks();
             }
@@ -417,9 +413,8 @@ public class DrawerAdapter
         }
 
         if (!(holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat)) {
-            AnimatedVectorDrawableCompat downloadAnimation = AnimationUtils.createAnimatedDownloadIcon(context,
-                                                                                                       ThemeHelper.getTheme().textPrimary
-            );
+            AnimatedVectorDrawableCompat downloadAnimation =
+                    AnimationUtils.createAnimatedDownloadIcon(context, ThemeHelper.getTheme().textPrimary);
             holder.threadDownloadIcon.setImageDrawable(downloadAnimation);
 
             downloadAnimation.start();

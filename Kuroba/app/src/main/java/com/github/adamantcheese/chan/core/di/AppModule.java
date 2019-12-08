@@ -60,10 +60,8 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public ImageLoaderV2 provideImageLoaderV2(RequestQueue requestQueue,
-                                              Context applicationContext,
-                                              ThemeHelper themeHelper,
-                                              FileManager fileManager
+    public ImageLoaderV2 provideImageLoaderV2(
+            RequestQueue requestQueue, Context applicationContext, ThemeHelper themeHelper, FileManager fileManager
     ) {
         final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         final int lruImageCacheSize = runtimeMemory / 8;

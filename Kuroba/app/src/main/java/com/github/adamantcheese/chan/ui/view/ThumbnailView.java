@@ -44,7 +44,6 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -53,6 +52,7 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -121,7 +121,7 @@ public class ThumbnailView
         }
 
         if (!TextUtils.isEmpty(url)) {
-            container = Chan.injector().instance(ImageLoaderV2.class).get(url, this, maxWidth, maxHeight);
+            container = instance(ImageLoaderV2.class).get(url, this, maxWidth, maxHeight);
         }
     }
 
@@ -153,8 +153,8 @@ public class ThumbnailView
                 TypedValue rippleAttrForThemeValue = new TypedValue();
                 getContext().getTheme().resolveAttribute(R.attr.colorControlHighlight, rippleAttrForThemeValue, true);
                 foreground = new RippleDrawable(ColorStateList.valueOf(rippleAttrForThemeValue.data),
-                                                null,
-                                                new ColorDrawable(Color.WHITE)
+                        null,
+                        new ColorDrawable(Color.WHITE)
                 );
                 foreground.setCallback(this);
                 if (foreground.isStateful()) {
@@ -186,8 +186,7 @@ public class ThumbnailView
         error = true;
 
         if (e instanceof NetworkError || e instanceof TimeoutError || e instanceof ParseError
-                || e instanceof AuthFailureError)
-        {
+                || e instanceof AuthFailureError) {
             errorText = getString(R.string.thumbnail_load_failed_network);
         } else {
             errorText = getString(R.string.thumbnail_load_failed_server);
@@ -248,9 +247,7 @@ public class ThumbnailView
             if (calculate) {
                 calculate = false;
                 bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
-                float scale = Math.max((float) width / (float) bitmap.getWidth(),
-                                       (float) height / (float) bitmap.getHeight()
-                );
+                float scale = Math.max(width / (float) bitmap.getWidth(), height / (float) bitmap.getHeight());
                 float scaledX = bitmap.getWidth() * scale;
                 float scaledY = bitmap.getHeight() * scale;
                 float offsetX = (scaledX - width) * 0.5f;
@@ -260,9 +257,9 @@ public class ThumbnailView
                 drawRect.offset(getPaddingLeft(), getPaddingTop());
 
                 outputRect.set(getPaddingLeft(),
-                               getPaddingTop(),
-                               getWidth() - getPaddingRight(),
-                               getHeight() - getPaddingBottom()
+                        getPaddingTop(),
+                        getWidth() - getPaddingRight(),
+                        getHeight() - getPaddingBottom()
                 );
 
                 matrix.setRectToRect(bitmapRect, drawRect, Matrix.ScaleToFit.FILL);

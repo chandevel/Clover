@@ -54,8 +54,7 @@ public class Sushichan
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl()
-                        .newBuilder()
+                return getUrl().newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
@@ -71,17 +70,18 @@ public class Sushichan
         setName("Sushichan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://sushigirl.us/favicon.ico")));
 
-        setBoards(Board.fromSiteNameCode(this, "artsy", "wildcard"),
-                  Board.fromSiteNameCode(this, "sushi social", "lounge"),
-                  Board.fromSiteNameCode(this, "vidya gaems", "arcade"),
-                  Board.fromSiteNameCode(this, "cute things", "kawaii"),
-                  Board.fromSiteNameCode(this, "tasty morsels & delights", "kitchen"),
-                  Board.fromSiteNameCode(this, "enjoyable sounds", "tunes"),
-                  Board.fromSiteNameCode(this, "arts & literature", "culture"),
-                  Board.fromSiteNameCode(this, "technology", "silicon"),
-                  Board.fromSiteNameCode(this, "site meta-discussion", "yakuza"),
-                  Board.fromSiteNameCode(this, "internet death cult", "hell"),
-                  Board.fromSiteNameCode(this, "dat ecchi & hentai goodness", "lewd")
+        setBoards(
+                Board.fromSiteNameCode(this, "artsy", "wildcard"),
+                Board.fromSiteNameCode(this, "sushi social", "lounge"),
+                Board.fromSiteNameCode(this, "vidya gaems", "arcade"),
+                Board.fromSiteNameCode(this, "cute things", "kawaii"),
+                Board.fromSiteNameCode(this, "tasty morsels & delights", "kitchen"),
+                Board.fromSiteNameCode(this, "enjoyable sounds", "tunes"),
+                Board.fromSiteNameCode(this, "arts & literature", "culture"),
+                Board.fromSiteNameCode(this, "technology", "silicon"),
+                Board.fromSiteNameCode(this, "site meta-discussion", "yakuza"),
+                Board.fromSiteNameCode(this, "internet death cult", "hell"),
+                Board.fromSiteNameCode(this, "dat ecchi & hentai goodness", "lewd")
         );
 
         setResolvable(URL_HANDLER);

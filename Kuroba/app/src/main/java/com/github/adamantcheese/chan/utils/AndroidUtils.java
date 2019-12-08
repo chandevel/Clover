@@ -38,6 +38,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -46,12 +47,17 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.content.ContextCompat;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.google.android.material.snackbar.Snackbar;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -112,8 +118,8 @@ public class AndroidUtils {
 
     public static boolean getIsOfficial() {
         try {
-            @SuppressLint("PackageManagerGetSignatures") Signature sig = application
-                    .getPackageManager()
+            @SuppressLint("PackageManagerGetSignatures")
+            Signature sig = application.getPackageManager()
                     .getPackageInfo(application.getPackageName(), PackageManager.GET_SIGNATURES).signatures[0];
             return BuildConfig.SIGNATURE.equals(Integer.toHexString(sig.toCharsString().hashCode()));
         } catch (Exception ignored) {
@@ -178,9 +184,8 @@ public class AndroidUtils {
         }
 
         if (openWithCustomTabs) {
-            CustomTabsIntent tabsIntent = new CustomTabsIntent.Builder()
-                    .setToolbarColor(ThemeHelper.getTheme().primaryColor.color)
-                    .build();
+            CustomTabsIntent tabsIntent =
+                    new CustomTabsIntent.Builder().setToolbarColor(ThemeHelper.getTheme().primaryColor.color).build();
             try {
                 tabsIntent.launchUrl(activity, Uri.parse(link));
             } catch (ActivityNotFoundException e) {
@@ -214,6 +219,11 @@ public class AndroidUtils {
         int color = typedArray.getColor(0, 0);
         typedArray.recycle();
         return color;
+    }
+
+    @ColorInt
+    public static int getColor(Context context, @ColorRes int colorId) {
+        return ContextCompat.getColor(context, colorId);
     }
 
     public static Drawable getAttrDrawable(Context context, int attr) {
@@ -309,17 +319,17 @@ public class AndroidUtils {
     /**
      * Always registers an onpredrawlistener. The given ViewTreeObserver will be used.
      */
-    public static void waitForLayout(final ViewTreeObserver viewTreeObserver,
-                                     final View view,
-                                     final OnMeasuredCallback callback
+    public static void waitForLayout(
+            final ViewTreeObserver viewTreeObserver, final View view, final OnMeasuredCallback callback
     ) {
         waitForLayoutInternal(false, viewTreeObserver, view, callback);
     }
 
-    private static void waitForLayoutInternal(boolean returnIfNotZero,
-                                              final ViewTreeObserver viewTreeObserver,
-                                              final View view,
-                                              final OnMeasuredCallback callback
+    private static void waitForLayoutInternal(
+            boolean returnIfNotZero,
+            final ViewTreeObserver viewTreeObserver,
+            final View view,
+            final OnMeasuredCallback callback
     ) {
         int width = view.getWidth();
         int height = view.getHeight();
@@ -332,8 +342,9 @@ public class AndroidUtils {
                 public boolean onPreDraw() {
                     ViewTreeObserver usingViewTreeObserver = viewTreeObserver;
                     if (viewTreeObserver != view.getViewTreeObserver()) {
-                        Logger.e(TAG,
-                                 "view.getViewTreeObserver() is another viewtreeobserver! replacing with the new one"
+                        Logger.e(
+                                TAG,
+                                "view.getViewTreeObserver() is another viewtreeobserver! replacing with the new one"
                         );
                         usingViewTreeObserver = view.getViewTreeObserver();
                     }
@@ -341,8 +352,9 @@ public class AndroidUtils {
                     if (usingViewTreeObserver.isAlive()) {
                         usingViewTreeObserver.removeOnPreDrawListener(this);
                     } else {
-                        Logger.e(TAG,
-                                 "ViewTreeObserver not alive, could not remove onPreDrawListener! This will probably not end well"
+                        Logger.e(
+                                TAG,
+                                "ViewTreeObserver not alive, could not remove onPreDrawListener! This will probably not end well"
                         );
                     }
 
@@ -400,8 +412,8 @@ public class AndroidUtils {
     }
 
     public static boolean isConnected(int type) {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getNetworkInfo(type);
         return networkInfo != null && networkInfo.isConnected();
     }
@@ -435,5 +447,21 @@ public class AndroidUtils {
 
     public static ClipboardManager getClipboardManager() {
         return (ClipboardManager) application.getSystemService(CLIPBOARD_SERVICE);
+    }
+
+    public static View inflate(Context context, int resId, ViewGroup root) {
+        return LayoutInflater.from(context).inflate(resId, root);
+    }
+
+    public static View inflate(Context context, int resId, ViewGroup root, boolean attachToRoot) {
+        return LayoutInflater.from(context).inflate(resId, root, attachToRoot);
+    }
+
+    public static ViewGroup inflate(Context context, int resId) {
+        return (ViewGroup) LayoutInflater.from(context).inflate(resId, null);
+    }
+
+    public static void postToEventBus(Object message) {
+        EventBus.getDefault().post(message);
     }
 }

@@ -89,8 +89,8 @@ public class ImageViewerPresenter
         inject(this);
 
         AudioManager audioManager = (AudioManager) getAppContext().getSystemService(AUDIO_SERVICE);
-        muted = ChanSettings.videoDefaultMuted.get() && (
-                ChanSettings.headsetDefaultMuted.get() || !audioManager.isWiredHeadsetOn());
+        muted = ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get()
+                || !audioManager.isWiredHeadsetOn());
     }
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
@@ -125,8 +125,7 @@ public class ImageViewerPresenter
     }
 
     public void onExit() {
-        if (entering || exiting)
-            return;
+        if (entering || exiting) return;
         exiting = true;
 
         PostImage postImage = images.get(selectedPosition);
@@ -186,8 +185,7 @@ public class ImageViewerPresenter
 
     @Override
     public void onModeLoaded(MultiImageView multiImageView, MultiImageView.Mode mode) {
-        if (exiting)
-            return;
+        if (exiting) return;
 
         if (mode == LOWRES) {
             // lowres is requested at the beginning of the transition,
@@ -468,9 +466,9 @@ public class ImageViewerPresenter
 
     private void setTitle(PostImage postImage, int position) {
         callback.setTitle(postImage,
-                          position,
-                          images.size(),
-                          postImage.spoiler && callback.getImageMode(postImage) == LOWRES
+                position,
+                images.size(),
+                postImage.spoiler && callback.getImageMode(postImage) == LOWRES
         );
     }
 

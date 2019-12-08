@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -34,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,8 +136,11 @@ public class SelectLayout<T>
 
         @Override
         public BoardSelectViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new BoardSelectViewHolder(
-                    LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_select, parent, false));
+            return new BoardSelectViewHolder(AndroidUtils.inflate(parent.getContext(),
+                    R.layout.cell_select,
+                    parent,
+                    false
+            ));
         }
 
         @Override
@@ -146,10 +149,10 @@ public class SelectLayout<T>
             holder.checkBox.setChecked(item.checked);
             holder.text.setText(item.name);
             if (item.description != null) {
-                holder.description.setVisibility(View.VISIBLE);
+                holder.description.setVisibility(VISIBLE);
                 holder.description.setText(item.description);
             } else {
-                holder.description.setVisibility(View.GONE);
+                holder.description.setVisibility(GONE);
             }
         }
 

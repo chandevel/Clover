@@ -26,16 +26,17 @@ public class SerializablePostImage {
     @SerializedName("size")
     private long size;
 
-    public SerializablePostImage(String originalName,
-                                 String filename,
-                                 String extension,
-                                 String imageUrl,
-                                 String thumbnailUrlString,
-                                 String spoilerUrlString,
-                                 int imageWidth,
-                                 int imageHeight,
-                                 boolean spoiler,
-                                 long size
+    public SerializablePostImage(
+            String originalName,
+            String filename,
+            String extension,
+            String imageUrl,
+            String thumbnailUrlString,
+            String spoilerUrlString,
+            int imageWidth,
+            int imageHeight,
+            boolean spoiler,
+            long size
     ) {
         this.originalName = originalName;
         this.filename = filename;

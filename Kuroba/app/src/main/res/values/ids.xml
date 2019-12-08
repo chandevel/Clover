@@ -16,6 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
     <item name="post_selection_action_quote" type="id" />
+    <item name="post_selection_action_search" type="id" />
+
     <item name="reply_selection_action_quote" type="id" />
     <item name="reply_selection_action_spoiler" type="id" />
     <item name="reply_selection_action_code" type="id" />

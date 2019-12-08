@@ -27,12 +27,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+
 public class BackgroundUtils {
 
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public static boolean isInForeground() {
-        return ((Chan) Chan.injector().instance(Context.class)).getApplicationInForeground();
+        return ((Chan) instance(Context.class)).getApplicationInForeground();
     }
 
     /**
@@ -56,8 +58,9 @@ public class BackgroundUtils {
             if (BuildConfig.DEV_BUILD) {
                 throw new IllegalStateException("Cannot be executed on a background thread!");
             } else {
-                Logger.e("BackgroundUtils",
-                         "ensureMainThread() expected main thread but got " + Thread.currentThread().getName()
+                Logger.e(
+                        "BackgroundUtils",
+                        "ensureMainThread() expected main thread but got " + Thread.currentThread().getName()
                 );
             }
         }
@@ -73,9 +76,8 @@ public class BackgroundUtils {
         }
     }
 
-    public static <T> Cancelable runWithExecutor(Executor executor,
-                                                 final Callable<T> background,
-                                                 final BackgroundResult<T> result
+    public static <T> Cancelable runWithExecutor(
+            Executor executor, final Callable<T> background, final BackgroundResult<T> result
     ) {
         final AtomicBoolean canceled = new AtomicBoolean(false);
         Cancelable cancelable = () -> canceled.set(true);

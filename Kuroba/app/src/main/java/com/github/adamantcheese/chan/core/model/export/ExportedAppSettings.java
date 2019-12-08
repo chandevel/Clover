@@ -43,12 +43,13 @@ public class ExportedAppSettings {
     @Nullable
     private String settings;
 
-    public ExportedAppSettings(List<ExportedSite> exportedSites,
-                               List<ExportedBoard> exportedBoards,
-                               List<ExportedFilter> exportedFilters,
-                               List<ExportedPostHide> exportedPostHides,
-                               List<ExportedSavedThread> exportedSavedThreads,
-                               @NonNull String settings
+    public ExportedAppSettings(
+            List<ExportedSite> exportedSites,
+            List<ExportedBoard> exportedBoards,
+            List<ExportedFilter> exportedFilters,
+            List<ExportedPostHide> exportedPostHides,
+            List<ExportedSavedThread> exportedSavedThreads,
+            @NonNull String settings
     ) {
         this.exportedSites = exportedSites;
         this.exportedBoards = exportedBoards;
@@ -60,11 +61,11 @@ public class ExportedAppSettings {
 
     public static ExportedAppSettings empty() {
         return new ExportedAppSettings(new ArrayList<>(),
-                                       new ArrayList<>(),
-                                       new ArrayList<>(),
-                                       new ArrayList<>(),
-                                       new ArrayList<>(),
-                                       ""
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                ""
         );
     }
 
@@ -127,6 +128,6 @@ public class ExportedAppSettings {
 
     public void setSettings(String settings) {
         throw new UnsupportedOperationException("Settings are only allowed to be set with the "
-                                                        + "constructor, and must be from ChanSettings.serializeToString().");
+                + "constructor, and must be from ChanSettings.serializeToString().");
     }
 }

@@ -412,8 +412,8 @@ class FileCacheV2(
                 }
 
                 val percents = (result.downloaded.toFloat() / total.toFloat()) * 100f
-                val downloadedString = PostUtils.getReadableFileSize(result.downloaded, false)
-                val totalString = PostUtils.getReadableFileSize(total, false)
+                val downloadedString = PostUtils.getReadableFileSize(result.downloaded)
+                val totalString = PostUtils.getReadableFileSize(total)
 
                 log("Progress (" +
                         "${downloadedString} (${result.downloaded} B) / ${totalString} (${total} B)," +
@@ -462,8 +462,8 @@ class FileCacheV2(
                     return
                 }
 
-                val downloadedString = PostUtils.getReadableFileSize(downloaded, false)
-                val totalString = PostUtils.getReadableFileSize(total, false)
+                val downloadedString = PostUtils.getReadableFileSize(downloaded)
+                val totalString = PostUtils.getReadableFileSize(total)
 
                 log("Success (" +
                         "downloaded = ${downloadedString} ($downloaded B), " +

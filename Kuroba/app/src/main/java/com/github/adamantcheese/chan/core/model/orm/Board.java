@@ -126,31 +126,32 @@ public class Board
     public Board() {
     }
 
-    public Board(int siteId,
-                 boolean saved,
-                 int order,
-                 String name,
-                 String code,
-                 boolean workSafe,
-                 int perPage,
-                 int pages,
-                 int maxFileSize,
-                 int maxWebmSize,
-                 int maxCommentChars,
-                 int bumpLimit,
-                 int imageLimit,
-                 int cooldownThreads,
-                 int cooldownReplies,
-                 int cooldownImages,
-                 boolean spoilers,
-                 int customSpoilers,
-                 boolean userIds,
-                 boolean codeTags,
-                 boolean preuploadCaptcha,
-                 boolean countryFlags,
-                 boolean mathTags,
-                 @NonNull String description,
-                 boolean archive
+    public Board(
+            int siteId,
+            boolean saved,
+            int order,
+            String name,
+            String code,
+            boolean workSafe,
+            int perPage,
+            int pages,
+            int maxFileSize,
+            int maxWebmSize,
+            int maxCommentChars,
+            int bumpLimit,
+            int imageLimit,
+            int cooldownThreads,
+            int cooldownReplies,
+            int cooldownImages,
+            boolean spoilers,
+            int customSpoilers,
+            boolean userIds,
+            boolean codeTags,
+            boolean preuploadCaptcha,
+            boolean countryFlags,
+            boolean mathTags,
+            @NonNull String description,
+            boolean archive
     ) {
         this.siteId = siteId;
         this.saved = saved;
@@ -284,6 +285,7 @@ public class Board
     public boolean equals(Object board) {
         if (board != null && board.getClass() == Board.class) {
             Board b = (Board) board;
+            //@formatter:off
             return name.equals(b.name)
                     && code.equals(b.code)
                     && workSafe == b.workSafe
@@ -305,6 +307,7 @@ public class Board
                     && mathTags == b.mathTags
                     && description.equals(b.description)
                     && archive == b.archive;
+            //@formatter:on
         }
         return false;
     }

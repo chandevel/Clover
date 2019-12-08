@@ -43,8 +43,8 @@ public class DatabaseHideManager {
 
     public Callable<Void> load() {
         return () -> {
-            Chan.injector().instance(DatabaseManager.class)
-                .trimTable(helper.postHideDao, "posthide", POST_HIDE_TRIM_TRIGGER, POST_HIDE_TRIM_COUNT);
+            Chan.instance(DatabaseManager.class)
+                    .trimTable(helper.postHideDao, "posthide", POST_HIDE_TRIM_TRIGGER, POST_HIDE_TRIM_COUNT);
 
             return null;
         };
@@ -55,13 +55,14 @@ public class DatabaseHideManager {
      * to already hidden posts and if there are hides them as well.
      */
     public List<Post> filterHiddenPosts(List<Post> posts, int siteId, String board) {
-        return Chan.injector().provider(DatabaseManager.class).get().runTask(() -> {
+        return Chan.instance(DatabaseManager.class).runTask(() -> {
             List<Integer> postNoList = new ArrayList<>(posts.size());
             for (Post post : posts) {
                 postNoList.add(post.no);
             }
 
-            @SuppressLint("UseSparseArrays") Map<Integer, Post> postsFastLookupMap = new LinkedHashMap<>();
+            @SuppressLint("UseSparseArrays")
+            Map<Integer, Post> postsFastLookupMap = new LinkedHashMap<>();
             for (Post post : posts) {
                 postsFastLookupMap.put(post.no, post);
             }
@@ -88,12 +89,12 @@ public class DatabaseHideManager {
                     if (hiddenPost.hide) {
                         // hide post
                         Post newPost = rebuildPostWithCustomFilter(post,
-                                                                   0,
-                                                                   true,
-                                                                   false,
-                                                                   false,
-                                                                   hiddenPost.hideRepliesToThisPost,
-                                                                   false
+                                0,
+                                true,
+                                false,
+                                false,
+                                hiddenPost.hideRepliesToThisPost,
+                                false
                         );
 
                         resultList.add(newPost);
@@ -116,8 +117,8 @@ public class DatabaseHideManager {
         });
     }
 
-    private void hideRepliesToAlreadyHiddenPosts(Map<Integer, Post> postsFastLookupMap,
-                                                 Map<Integer, PostHide> hiddenPostsLookupMap
+    private void hideRepliesToAlreadyHiddenPosts(
+            Map<Integer, Post> postsFastLookupMap, Map<Integer, PostHide> hiddenPostsLookupMap
     )
             throws SQLException {
 
@@ -138,9 +139,9 @@ public class DatabaseHideManager {
                     }
 
                     PostHide newHiddenPost = PostHide.hidePost(post,
-                                                               false,
-                                                               parentHiddenPost.hide,
-                                                               parentHiddenPost.hideRepliesToThisPost
+                            false,
+                            parentHiddenPost.hide,
+                            parentHiddenPost.hideRepliesToThisPost
                     );
                     hiddenPostsLookupMap.put(newHiddenPost.no, newHiddenPost);
                     newHiddenPosts.add(newHiddenPost);
@@ -162,8 +163,7 @@ public class DatabaseHideManager {
 
     private void applyFiltersToReplies(List<Post> posts, Map<Integer, Post> postsFastLookupMap) {
         for (Post post : posts) {
-            if (post.isOP)
-                continue; //skip the OP
+            if (post.isOP) continue; //skip the OP
 
             if (post.hasFilterParameters()) {
                 if (post.filterRemove && post.filterStub) {
@@ -180,19 +180,17 @@ public class DatabaseHideManager {
     private Map<Integer, PostHide> getHiddenPosts(int siteId, String board, List<Integer> postNoList)
             throws SQLException {
 
-        Set<PostHide> hiddenInDatabase =
-                new HashSet<>(
-                        helper.postHideDao
-                                .queryBuilder()
-                                .where()
-                                .in("no", postNoList)
-                                .and()
-                                .eq("site", siteId)
-                                .and()
-                                .eq("board", board)
-                                .query());
+        Set<PostHide> hiddenInDatabase = new HashSet<>(helper.postHideDao.queryBuilder()
+                .where()
+                .in("no", postNoList)
+                .and()
+                .eq("site", siteId)
+                .and()
+                .eq("board", board)
+                .query());
 
-        @SuppressLint("UseSparseArrays") Map<Integer, PostHide> hiddenMap = new HashMap<>();
+        @SuppressLint("UseSparseArrays")
+        Map<Integer, PostHide> hiddenMap = new HashMap<>();
 
         for (PostHide postHide : hiddenInDatabase) {
             hiddenMap.put(postHide.no, postHide);
@@ -213,9 +211,8 @@ public class DatabaseHideManager {
         }
 
         // find all replies to the post recursively
-        Set<Post> postWithAllReplies = PostUtils.findPostWithReplies(parentPost.no,
-                                                                     new ArrayList<>(postsFastLookupMap.values())
-        );
+        Set<Post> postWithAllReplies =
+                PostUtils.findPostWithReplies(parentPost.no, new ArrayList<>(postsFastLookupMap.values()));
 
         Set<Integer> postNoWithAllReplies = new HashSet<>(postWithAllReplies.size());
 
@@ -238,12 +235,12 @@ public class DatabaseHideManager {
             // do not overwrite filter parameters from another filter
             if (!childPost.hasFilterParameters()) {
                 Post newPost = rebuildPostWithCustomFilter(childPost,
-                                                           parentPost.filterHighlightedColor,
-                                                           parentPost.filterStub,
-                                                           parentPost.filterRemove,
-                                                           parentPost.filterWatch,
-                                                           true,
-                                                           parentPost.filterSaved
+                        parentPost.filterHighlightedColor,
+                        parentPost.filterStub,
+                        parentPost.filterRemove,
+                        parentPost.filterWatch,
+                        true,
+                        parentPost.filterSaved
                 );
 
                 // assign the filter parameters to the child post
@@ -258,16 +255,16 @@ public class DatabaseHideManager {
     /**
      * Rebuilds a child post with custom filter parameters
      */
-    private Post rebuildPostWithCustomFilter(Post childPost,
-                                             int filterHighlightedColor,
-                                             boolean filterStub,
-                                             boolean filterRemove,
-                                             boolean filterWatch,
-                                             boolean filterReplies,
-                                             boolean filterSaved
+    private Post rebuildPostWithCustomFilter(
+            Post childPost,
+            int filterHighlightedColor,
+            boolean filterStub,
+            boolean filterRemove,
+            boolean filterWatch,
+            boolean filterReplies,
+            boolean filterSaved
     ) {
-        return new Post.Builder()
-                .board(childPost.board)
+        return new Post.Builder().board(childPost.board)
                 .posterId(childPost.id)
                 .opId(childPost.opId)
                 .id(childPost.no)
@@ -331,8 +328,7 @@ public class DatabaseHideManager {
     public Callable<Void> addPostsHide(List<PostHide> hideList) {
         return () -> {
             for (PostHide postHide : hideList) {
-                if (contains(postHide))
-                    continue;
+                if (contains(postHide)) continue;
                 helper.postHideDao.createIfNotExists(postHide);
             }
 
@@ -349,8 +345,7 @@ public class DatabaseHideManager {
             for (PostHide postHide : hideList) {
                 DeleteBuilder<PostHide, Integer> deleteBuilder = helper.postHideDao.deleteBuilder();
 
-                deleteBuilder
-                        .where()
+                deleteBuilder.where()
                         .eq("no", postHide.no)
                         .and()
                         .eq("site", postHide.site)
@@ -366,8 +361,7 @@ public class DatabaseHideManager {
 
     private boolean contains(PostHide hide)
             throws SQLException {
-        PostHide inDb = helper.postHideDao
-                .queryBuilder()
+        PostHide inDb = helper.postHideDao.queryBuilder()
                 .where()
                 .eq("no", hide.no)
                 .and()

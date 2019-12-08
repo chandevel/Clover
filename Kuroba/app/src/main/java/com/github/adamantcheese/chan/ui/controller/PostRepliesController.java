@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -39,6 +38,8 @@ import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.List;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
 public class PostRepliesController
         extends BaseFloatingController {
@@ -113,9 +114,9 @@ public class PostRepliesController
 
         View dataView;
         if (ChanSettings.repliesButtonsBottom.get()) {
-            dataView = inflateRes(R.layout.layout_post_replies_bottombuttons);
+            dataView = inflate(context, R.layout.layout_post_replies_bottombuttons);
         } else {
-            dataView = inflateRes(R.layout.layout_post_replies);
+            dataView = inflate(context, R.layout.layout_post_replies);
         }
 
         listView = dataView.findViewById(R.id.post_list);
@@ -143,23 +144,23 @@ public class PostRepliesController
                 if (convertView instanceof PostCellInterface && !ChanSettings.shiftPostFormat.get()) {
                     postCell = (PostCellInterface) convertView;
                 } else {
-                    postCell = (PostCellInterface)
-                            LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
+                    postCell = (PostCellInterface) inflate(context, R.layout.cell_post, parent, false);
                 }
 
                 final Post p = getItem(position);
                 boolean showDivider = position < getCount() - 1;
-                postCell.setPost(loadable,
-                                 p,
-                                 presenter,
-                                 false,
-                                 false,
-                                 false,
-                                 data.forPost.no,
-                                 showDivider,
-                                 ChanSettings.PostViewMode.LIST,
-                                 false,
-                                 ThemeHelper.getTheme()
+                postCell.setPost(
+                        loadable,
+                        p,
+                        presenter,
+                        false,
+                        false,
+                        false,
+                        data.forPost.no,
+                        showDivider,
+                        ChanSettings.PostViewMode.LIST,
+                        false,
+                        ThemeHelper.getTheme()
                 );
 
                 return (View) postCell;

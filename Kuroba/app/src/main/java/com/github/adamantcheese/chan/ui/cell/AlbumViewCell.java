@@ -61,15 +61,17 @@ public class AlbumViewCell
         this.postImage = postImage;
 
         int thumbnailSize = getDimen(R.dimen.cell_post_thumbnail_size);
-        thumbnailView.setPostImage(loadable,
-                                   postImage,
-                                   true,
-                                   ChanSettings.autoLoadThreadImages.get() ? 500 : thumbnailSize,
-                                   ChanSettings.autoLoadThreadImages.get() ? 500 : thumbnailSize
+        thumbnailView.setPostImage(
+                loadable,
+                postImage,
+                true,
+                ChanSettings.autoLoadThreadImages.get() ? 500 : thumbnailSize,
+                ChanSettings.autoLoadThreadImages.get() ? 500 : thumbnailSize
         );
 
-        String details = postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight
-                + " " + getReadableFileSize(postImage.size, false);
+        String details =
+                postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight + " "
+                        + getReadableFileSize(postImage.size);
         text.setText(postImage.size == -1 ? postImage.extension.toUpperCase() : details); //if -1, linked image, no info
     }
 
@@ -84,9 +86,8 @@ public class AlbumViewCell
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (
-                heightMode == MeasureSpec.UNSPECIFIED || heightMode == MeasureSpec.AT_MOST))
-        {
+        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED
+                || heightMode == MeasureSpec.AT_MOST)) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
 
             int height = width + dp(32);

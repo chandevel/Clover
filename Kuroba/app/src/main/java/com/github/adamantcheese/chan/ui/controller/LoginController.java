@@ -33,8 +33,11 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class LoginController
@@ -63,7 +66,7 @@ public class LoginController
 
         navigation.setTitle(R.string.settings_screen_pass);
 
-        view = inflateRes(R.layout.controller_pass);
+        view = inflate(context, R.layout.controller_pass);
         crossfadeView = view.findViewById(R.id.crossfade);
         errors = view.findViewById(R.id.errors);
         button = view.findViewById(R.id.button);
@@ -72,7 +75,7 @@ public class LoginController
         inputPin = view.findViewById(R.id.input_pin);
         authenticated = view.findViewById(R.id.authenticated);
 
-        errors.setVisibility(View.GONE);
+        errors.setVisibility(GONE);
 
         final boolean loggedIn = loggedIn();
         button.setText(loggedIn ? R.string.setting_pass_logout : R.string.setting_pass_login);
@@ -171,12 +174,12 @@ public class LoginController
 
     private void showError(String error) {
         errors.setText(error);
-        errors.setVisibility(View.VISIBLE);
+        errors.setVisibility(VISIBLE);
     }
 
     private void hideError() {
         errors.setText(null);
-        errors.setVisibility(View.GONE);
+        errors.setVisibility(GONE);
     }
 
     private boolean loggedIn() {

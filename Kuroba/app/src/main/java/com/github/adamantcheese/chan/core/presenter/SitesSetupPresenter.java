@@ -155,10 +155,7 @@ public class SitesSetupPresenter
             callback.onSiteDeleted(site);
         } catch (Throwable error) {
             Logger.e(TAG, "Could not delete site: " + site.name(), error);
-            String message = getString(R.string.could_not_remove_site_error_message,
-                                       site.name(),
-                                       error.getMessage()
-            );
+            String message = getString(R.string.could_not_remove_site_error_message, site.name(), error.getMessage());
             showToast(message, Toast.LENGTH_LONG);
         }
     }

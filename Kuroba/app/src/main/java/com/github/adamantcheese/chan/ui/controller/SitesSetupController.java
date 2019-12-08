@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +56,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class SitesSetupController
@@ -75,25 +75,24 @@ public class SitesSetupController
     private ItemTouchHelper itemTouchHelper;
     private List<SiteBoardCount> sites = new ArrayList<>();
 
-    private ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
-        @Override
-        public boolean onMove(RecyclerView recyclerView,
-                              RecyclerView.ViewHolder viewHolder,
-                              RecyclerView.ViewHolder target
-        ) {
-            int from = viewHolder.getAdapterPosition();
-            int to = target.getAdapterPosition();
+    private ItemTouchHelper.SimpleCallback touchHelperCallback =
+            new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+                @Override
+                public boolean onMove(
+                        RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
+                ) {
+                    int from = viewHolder.getAdapterPosition();
+                    int to = target.getAdapterPosition();
 
-            presenter.move(from, to);
+                    presenter.move(from, to);
 
-            return true;
-        }
+                    return true;
+                }
 
-        @Override
-        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        }
-    };
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                }
+            };
 
     public SitesSetupController(Context context) {
         super(context);
@@ -105,7 +104,7 @@ public class SitesSetupController
         inject(this);
 
         // Inflate
-        view = inflateRes(R.layout.controller_sites_setup);
+        view = inflate(context, R.layout.controller_sites_setup);
 
         // Navigation
         navigation.setTitle(R.string.setup_sites_title);
@@ -163,13 +162,12 @@ public class SitesSetupController
 
     @Override
     public void showAddDialog() {
-        @SuppressLint("InflateParams") final SiteAddLayout dialogView = (SiteAddLayout)
-                LayoutInflater.from(context).inflate(R.layout.layout_site_add, null);
+        @SuppressLint("InflateParams")
+        final SiteAddLayout dialogView = (SiteAddLayout) inflate(context, R.layout.layout_site_add, null);
 
         dialogView.setPresenter(presenter);
 
-        final AlertDialog dialog = new AlertDialog.Builder(context)
-                .setView(dialogView)
+        final AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
                 .setTitle(R.string.setup_sites_add_title)
                 .setPositiveButton(R.string.add, null)
                 .setNegativeButton(R.string.cancel, null)
@@ -209,8 +207,7 @@ public class SitesSetupController
     }
 
     private void onRemoveSiteSettingClicked(Site site) {
-        new AlertDialog.Builder(context)
-                .setTitle(getString(R.string.delete_site_dialog_title))
+        new AlertDialog.Builder(context).setTitle(getString(R.string.delete_site_dialog_title))
                 .setMessage(getString(R.string.delete_site_dialog_message, site.name()))
                 .setPositiveButton(R.string.delete, (dialog, which) -> presenter.removeSite(site))
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
@@ -232,7 +229,7 @@ public class SitesSetupController
         @NonNull
         @Override
         public SiteCell onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new SiteCell(LayoutInflater.from(context).inflate(R.layout.cell_site, parent, false));
+            return new SiteCell(inflate(parent.getContext(), R.layout.cell_site, parent, false));
         }
 
         @Override

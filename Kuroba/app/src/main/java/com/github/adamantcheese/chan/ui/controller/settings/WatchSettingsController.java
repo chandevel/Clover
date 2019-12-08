@@ -29,6 +29,7 @@ import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -60,7 +61,7 @@ public class WatchSettingsController
 
         navigation.setTitle(R.string.settings_screen_watch);
 
-        view = inflateRes(R.layout.controller_watch);
+        view = inflate(context, R.layout.controller_watch);
         content = view.findViewById(R.id.scrollview_content);
         crossfadeView = view.findViewById(R.id.crossfade);
 
@@ -110,86 +111,83 @@ public class WatchSettingsController
         SettingsGroup settings = new SettingsGroup(R.string.settings_group_watch);
 
         settings.add(new BooleanSettingView(this,
-                                            ChanSettings.shortPinInfo,
-                                            R.string.setting_bookmark_short_info,
-                                            R.string.setting_bookmark_short_info_description
+                ChanSettings.shortPinInfo,
+                R.string.setting_bookmark_short_info,
+                R.string.setting_bookmark_short_info_description
         ));
 
-        enableBackground = settings.add(
-                new BooleanSettingView(this,
-                                       ChanSettings.watchBackground,
-                                       R.string.setting_watch_enable_background,
-                                       R.string.setting_watch_enable_background_description
-                ));
+        enableBackground = settings.add(new BooleanSettingView(this,
+                ChanSettings.watchBackground,
+                R.string.setting_watch_enable_background,
+                R.string.setting_watch_enable_background_description
+        ));
 
+        //@formatter:off
         long[] timeouts = new long[]{
-                MINUTES.toMillis(2), MINUTES.toMillis(5), MINUTES.toMillis(10), MINUTES.toMillis(15),
-                MINUTES.toMillis(30), MINUTES.toMillis(45), HOURS.toMillis(1), HOURS.toMillis(2)
-        };
+                MINUTES.toMillis(2),
+                MINUTES.toMillis(5),
+                MINUTES.toMillis(10),
+                MINUTES.toMillis(15),
+                MINUTES.toMillis(30),
+                MINUTES.toMillis(45),
+                HOURS.toMillis(1),
+                HOURS.toMillis(2)};
+        //@formatter:on
+
         ListSettingView.Item[] timeoutsItems = new ListSettingView.Item[timeouts.length];
         for (int i = 0; i < timeouts.length; i++) {
             String name = content.getResources().getString(R.string.minutes, (int) MILLISECONDS.toMinutes(timeouts[i]));
             timeoutsItems[i] = new ListSettingView.Item<>(name, (int) timeouts[i]);
         }
-        backgroundTimeout = settings.add(
-                new ListSettingView<Integer>(this,
-                                             ChanSettings.watchBackgroundInterval,
-                                             R.string.setting_watch_background_timeout,
-                                             timeoutsItems
-                ) {
-                    @Override
-                    public String getBottomDescription() {
-                        return getString(R.string.setting_watch_background_timeout_description) + "\n\n"
-                                + items.get(selected).name;
-                    }
-                });
+        backgroundTimeout = settings.add(new ListSettingView<Integer>(this,
+                ChanSettings.watchBackgroundInterval,
+                R.string.setting_watch_background_timeout,
+                timeoutsItems
+        ) {
+            @Override
+            public String getBottomDescription() {
+                return getString(R.string.setting_watch_background_timeout_description) + "\n\n"
+                        + items.get(selected).name;
+            }
+        });
 
-        removeWatched = settings.add(
-                new BooleanSettingView(this,
-                                       ChanSettings.removeWatchedFromCatalog,
-                                       R.string.setting_remove_watched,
-                                       R.string.empty
-                ));
+        removeWatched = settings.add(new BooleanSettingView(this,
+                ChanSettings.removeWatchedFromCatalog,
+                R.string.setting_remove_watched,
+                R.string.empty
+        ));
 
-        lastPageNotifyMode = settings.add(
-                new BooleanSettingView(this,
-                                       ChanSettings.watchLastPageNotify,
-                                       R.string.setting_thread_page_limit_notify,
-                                       R.string.setting_thread_page_limit_notify_description
-                ));
+        lastPageNotifyMode = settings.add(new BooleanSettingView(this,
+                ChanSettings.watchLastPageNotify,
+                R.string.setting_thread_page_limit_notify,
+                R.string.setting_thread_page_limit_notify_description
+        ));
 
-        notifyMode = settings.add(
-                new ListSettingView<>(this,
-                                      ChanSettings.watchNotifyMode,
-                                      R.string.setting_watch_notify_mode,
-                                      context.getResources()
-                                             .getStringArray(R.array.setting_watch_notify_modes),
-                                      new String[]{"all", "quotes"}
-                ));
+        notifyMode = settings.add(new ListSettingView<>(this,
+                ChanSettings.watchNotifyMode,
+                R.string.setting_watch_notify_mode,
+                context.getResources().getStringArray(R.array.setting_watch_notify_modes),
+                new String[]{"all", "quotes"}
+        ));
 
-        soundMode = settings.add(
-                new ListSettingView<>(this,
-                                      ChanSettings.watchSound,
-                                      R.string.setting_watch_sound,
-                                      context
-                                              .getResources()
-                                              .getStringArray(R.array.setting_watch_sounds),
-                                      new String[]{"all", "quotes"}
-                ));
+        soundMode = settings.add(new ListSettingView<>(this,
+                ChanSettings.watchSound,
+                R.string.setting_watch_sound,
+                context.getResources().getStringArray(R.array.setting_watch_sounds),
+                new String[]{"all", "quotes"}
+        ));
 
-        peekMode = settings.add(
-                new BooleanSettingView(this,
-                                       ChanSettings.watchPeek,
-                                       R.string.setting_watch_peek,
-                                       R.string.setting_watch_peek_description
-                ));
+        peekMode = settings.add(new BooleanSettingView(this,
+                ChanSettings.watchPeek,
+                R.string.setting_watch_peek,
+                R.string.setting_watch_peek_description
+        ));
 
-        enableFilterWatch = settings.add(
-                new BooleanSettingView(this,
-                                       ChanSettings.watchFilterWatch,
-                                       R.string.setting_watch_enable_filter_watch,
-                                       R.string.setting_watch_enable_filter_watch_description
-                ));
+        enableFilterWatch = settings.add(new BooleanSettingView(this,
+                ChanSettings.watchFilterWatch,
+                R.string.setting_watch_enable_filter_watch,
+                R.string.setting_watch_enable_filter_watch_description
+        ));
 
         groups.add(settings);
     }

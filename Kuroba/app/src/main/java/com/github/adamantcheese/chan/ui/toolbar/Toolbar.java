@@ -40,6 +40,8 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
@@ -93,14 +95,13 @@ public class Toolbar
         super(context, attrs, defStyle);
 
         setOrientation(HORIZONTAL);
-        if (isInEditMode())
-            return;
+        if (isInEditMode()) return;
 
         presenter = new ToolbarPresenter(this);
 
         //initView
         FrameLayout leftButtonContainer = new FrameLayout(getContext());
-        addView(leftButtonContainer, LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+        addView(leftButtonContainer, WRAP_CONTENT, MATCH_PARENT);
 
         arrowMenuView = new ImageView(getContext());
         arrowMenuView.setOnClickListener(this);
@@ -113,14 +114,11 @@ public class Toolbar
 
         int toolbarSize = getDimen(R.dimen.toolbar_height);
         FrameLayout.LayoutParams leftButtonContainerLp =
-                new FrameLayout.LayoutParams(toolbarSize,
-                                             FrameLayout.LayoutParams.MATCH_PARENT,
-                                             Gravity.CENTER_VERTICAL
-                );
+                new FrameLayout.LayoutParams(toolbarSize, MATCH_PARENT, Gravity.CENTER_VERTICAL);
         leftButtonContainer.addView(arrowMenuView, leftButtonContainerLp);
 
         navigationItemContainer = new ToolbarContainer(getContext());
-        addView(navigationItemContainer, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f));
+        addView(navigationItemContainer, new LayoutParams(0, MATCH_PARENT, 1f));
 
         navigationItemContainer.setCallback(this);
         navigationItemContainer.setArrowMenu(arrowMenuDrawable);
@@ -226,7 +224,8 @@ public class Toolbar
         return navigationItemContainer.isTransitioning();
     }
 
-    public void setNavigationItem(final boolean animate, final boolean pushing, final NavigationItem item, Theme theme
+    public void setNavigationItem(
+            final boolean animate, final boolean pushing, final NavigationItem item, Theme theme
     ) {
         ToolbarPresenter.AnimationStyle animationStyle;
         if (!animate) {

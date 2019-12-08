@@ -46,8 +46,8 @@ public class Chan4DeleteHttpCall
     }
 
     @Override
-    public void setup(Request.Builder requestBuilder,
-                      @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    public void setup(
+            Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         FormBody.Builder formBuilder = new FormBody.Builder();
         formBuilder.add(Integer.toString(deleteRequest.post.no), "delete");

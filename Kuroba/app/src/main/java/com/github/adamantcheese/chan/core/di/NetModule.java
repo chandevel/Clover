@@ -164,8 +164,7 @@ public class NetModule {
             if (proxiedClient == null) {
                 Dispatcher dispatcher = new Dispatcher(createExecutorServiceForOkHttpClient(4));
 
-                proxiedClient = newBuilder()
-                        .proxy(ChanSettings.getProxy())
+                proxiedClient = newBuilder().proxy(ChanSettings.getProxy())
                         // Proxies are usually slow, so they have increased timeouts
                         .connectTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                         .readTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)

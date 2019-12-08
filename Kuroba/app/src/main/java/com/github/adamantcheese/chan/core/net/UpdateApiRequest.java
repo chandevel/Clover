@@ -89,13 +89,11 @@ public class UpdateApiRequest
                 case "body":
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         Node updateLog = Parser.builder().build().parse(reader.nextString());
-                        response.body = Html.fromHtml(
-                                "Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog));
+                        response.body =
+                                Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog));
                     } else {
                         response.body = Html.fromHtml("Changelog:\r\nSee the release on Github for details!\r\n"
-                                                              + " Your Android API is too low to properly render"
-                                                              + " the changelog from the site, as a result of "
-                                                              + "libraries used on the project.");
+                                + " Your Android API is too low to properly render the changelog from the site, as a result of libraries used on the project.");
                     }
                     break;
                 default:

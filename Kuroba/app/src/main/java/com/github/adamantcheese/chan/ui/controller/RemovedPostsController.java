@@ -2,7 +2,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -36,7 +35,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
 public class RemovedPostsController
         extends BaseFloatingController
@@ -191,7 +193,7 @@ public class RemovedPostsController
             }
 
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.layout_removed_post, parent, false);
+                convertView = inflate(getContext(), R.layout.layout_removed_post, parent, false);
             }
 
             LinearLayout viewHolder = convertView.findViewById(R.id.removed_post_view_holder);
@@ -209,7 +211,7 @@ public class RemovedPostsController
             if (removedPost.images.size() > 0) {
                 // load only the first image
                 PostImage image = removedPost.getImages().get(0);
-                postImage.setVisibility(View.VISIBLE);
+                postImage.setVisibility(VISIBLE);
 
                 imageLoaderV2.get(image.getThumbnailUrl().toString(), new ImageListener() {
                     @Override
@@ -220,11 +222,11 @@ public class RemovedPostsController
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Logger.e(TAG, "Error while trying to download post image", error);
-                        postImage.setVisibility(View.GONE);
+                        postImage.setVisibility(GONE);
                     }
                 }, postImage.getWidth(), postImage.getHeight());
             } else {
-                postImage.setVisibility(View.GONE);
+                postImage.setVisibility(GONE);
             }
 
             checkbox.setOnClickListener(v -> onItemClick(position));
@@ -258,8 +260,7 @@ public class RemovedPostsController
             List<Integer> selectedPosts = new ArrayList<>();
 
             for (RemovedPost removedPost : removedPostsCopy) {
-                if (removedPost == null)
-                    continue;
+                if (removedPost == null) continue;
 
                 if (removedPost.isChecked()) {
                     selectedPosts.add(removedPost.getPostNo());

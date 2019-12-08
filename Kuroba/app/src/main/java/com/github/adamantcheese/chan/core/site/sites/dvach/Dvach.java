@@ -57,8 +57,7 @@ public class Dvach
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl()
-                        .newBuilder()
+                return getUrl().newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
@@ -76,18 +75,14 @@ public class Dvach
     @Override
     public void initializeSettings() {
         super.initializeSettings();
-        captchaType = new OptionsSetting<>(settingsProvider,
-                                           "preference_captcha_type",
-                                           Chan4.CaptchaType.class,
-                                           V2JS
-        );
+        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type", Chan4.CaptchaType.class, V2JS);
     }
 
     @Override
     public List<SiteSetting> settings() {
         return Collections.singletonList(SiteSetting.forOption(captchaType,
-                                                               "Captcha type",
-                                                               Arrays.asList("Javascript", "Noscript")
+                "Captcha type",
+                Arrays.asList("Javascript", "Noscript")
         ));
     }
 
@@ -129,8 +124,7 @@ public class Dvach
 
             @Override
             public HttpUrl reply(Loadable loadable) {
-                return new HttpUrl.Builder()
-                        .scheme("https")
+                return new HttpUrl.Builder().scheme("https")
                         .host("2ch.hk")
                         .addPathSegment("makaba")
                         .addPathSegment("posting.fcgi")
@@ -162,18 +156,18 @@ public class Dvach
             @Override
             public void post(Reply reply, final PostListener postListener) {
                 httpCallManager.makeHttpCall(new DvachReplyCall(Dvach.this, reply),
-                                             new HttpCall.HttpCallback<CommonReplyHttpCall>() {
-                                                 @Override
-                                                 public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                                                     postListener.onPostComplete(httpPost, httpPost.replyResponse);
-                                                 }
+                        new HttpCall.HttpCallback<CommonReplyHttpCall>() {
+                            @Override
+                            public void onHttpSuccess(CommonReplyHttpCall httpPost) {
+                                postListener.onPostComplete(httpPost, httpPost.replyResponse);
+                            }
 
-                                                 @Override
-                                                 public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                                                     postListener.onPostError(httpPost, e);
-                                                 }
-                                             },
-                                             postListener::onUploadingProgress
+                            @Override
+                            public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
+                                postListener.onPostError(httpPost, e);
+                            }
+                        },
+                        postListener::onUploadingProgress
                 );
             }
 
@@ -190,11 +184,11 @@ public class Dvach
                     switch (captchaType.get()) {
                         case V2JS:
                             return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY,
-                                                                   "https://2ch.hk/api/captcha/recaptcha/mobile"
+                                    "https://2ch.hk/api/captcha/recaptcha/mobile"
                             );
                         case V2NOJS:
                             return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY,
-                                                                       "https://2ch.hk/api/captcha/recaptcha/mobile"
+                                    "https://2ch.hk/api/captcha/recaptcha/mobile"
                             );
                         default:
                             throw new IllegalArgumentException();

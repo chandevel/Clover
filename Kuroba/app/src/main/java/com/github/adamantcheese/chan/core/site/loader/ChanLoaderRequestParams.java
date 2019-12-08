@@ -49,11 +49,12 @@ public class ChanLoaderRequestParams {
      */
     public final Response.ErrorListener errorListener;
 
-    public ChanLoaderRequestParams(Loadable loadable,
-                                   ChanReader chanReader,
-                                   List<Post> cached,
-                                   Response.Listener<ChanLoaderResponse> listener,
-                                   Response.ErrorListener errorListener
+    public ChanLoaderRequestParams(
+            Loadable loadable,
+            ChanReader chanReader,
+            List<Post> cached,
+            Response.Listener<ChanLoaderResponse> listener,
+            Response.ErrorListener errorListener
     ) {
 
         this.loadable = loadable;

@@ -39,7 +39,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -68,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.TYPE_POST;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -135,11 +135,12 @@ public class ThreadListLayout
         searchStatus.setTypeface(ThemeHelper.getTheme().mainFont);
     }
 
-    public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback,
-                             PostCell.PostCellCallback postCellCallback,
-                             ThreadStatusCell.Callback statusCellCallback,
-                             ThreadListLayoutPresenterCallback callback,
-                             ThreadListLayoutCallback threadListLayoutCallback
+    public void setCallbacks(
+            PostAdapter.PostAdapterCallback postAdapterCallback,
+            PostCell.PostCellCallback postCellCallback,
+            ThreadStatusCell.Callback statusCellCallback,
+            ThreadListLayoutPresenterCallback callback,
+            ThreadListLayoutCallback threadListLayoutCallback
     ) {
         this.callback = callback;
         this.threadListLayoutCallback = threadListLayoutCallback;
@@ -161,9 +162,9 @@ public class ThreadListLayout
             reply.setPadding(0, toolbarHeight(), 0, 0);
         }
         searchStatus.setPadding(searchStatus.getPaddingLeft(),
-                                searchStatus.getPaddingTop() + toolbarHeight(),
-                                searchStatus.getPaddingRight(),
-                                searchStatus.getPaddingBottom()
+                searchStatus.getPaddingTop() + toolbarHeight(),
+                searchStatus.getPaddingRight(),
+                searchStatus.getPaddingBottom()
         );
     }
 
@@ -218,11 +219,12 @@ public class ThreadListLayout
                 case LIST:
                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext()) {
                         @Override
-                        public boolean requestChildRectangleOnScreen(RecyclerView parent,
-                                                                     View child,
-                                                                     Rect rect,
-                                                                     boolean immediate,
-                                                                     boolean focusedChildVisible
+                        public boolean requestChildRectangleOnScreen(
+                                RecyclerView parent,
+                                View child,
+                                Rect rect,
+                                boolean immediate,
+                                boolean focusedChildVisible
                         ) {
                             return false;
                         }
@@ -238,21 +240,19 @@ public class ThreadListLayout
 
                     break;
                 case CARD:
-                    GridLayoutManager gridLayoutManager = new GridLayoutManager(null,
-                                                                                spanCount,
-                                                                                GridLayoutManager.VERTICAL,
-                                                                                false
-                    ) {
-                        @Override
-                        public boolean requestChildRectangleOnScreen(RecyclerView parent,
-                                                                     View child,
-                                                                     Rect rect,
-                                                                     boolean immediate,
-                                                                     boolean focusedChildVisible
-                        ) {
-                            return false;
-                        }
-                    };
+                    GridLayoutManager gridLayoutManager =
+                            new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false) {
+                                @Override
+                                public boolean requestChildRectangleOnScreen(
+                                        RecyclerView parent,
+                                        View child,
+                                        Rect rect,
+                                        boolean immediate,
+                                        boolean focusedChildVisible
+                                ) {
+                                    return false;
+                                }
+                            };
                     setRecyclerViewPadding();
                     recyclerView.setLayoutManager(gridLayoutManager);
                     layoutManager = gridLayoutManager;
@@ -310,22 +310,19 @@ public class ThreadListLayout
          * long since we have like 300-500 posts in a thread to filter in the database).
          * BUT if for some reason it starts to cause ANRs then we will have to apply the callback solution.
          */
-        List<Post> filteredPosts = filter.apply(thread.getPosts(),
-                                                thread.getLoadable().siteId,
-                                                thread.getLoadable().board.code
-        );
+        List<Post> filteredPosts =
+                filter.apply(thread.getPosts(), thread.getLoadable().siteId, thread.getLoadable().board.code);
 
         //Filter out any bookmarked threads from the catalog
         if (ChanSettings.removeWatchedFromCatalog.get() && thread.getLoadable().isCatalogMode()) {
             List<Post> toRemove = new ArrayList<>();
-            for (Pin pin : Chan.injector().instance(WatchManager.class).getAllPins()) {
+            for (Pin pin : instance(WatchManager.class).getAllPins()) {
                 for (Post post : filteredPosts) {
                     if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().site,
-                                                               thread.getLoadable().board,
-                                                               post.no,
-                                                               ""
-                    )))
-                    {
+                            thread.getLoadable().board,
+                            post.no,
+                            ""
+                    ))) {
                         toRemove.add(post);
                     }
                 }
@@ -333,7 +330,7 @@ public class ThreadListLayout
             filteredPosts.removeAll(toRemove);
         }
 
-        postAdapter.setThread(thread, filteredPosts);
+        postAdapter.setThread(thread.getLoadable(), filteredPosts);
     }
 
     public boolean onBack() {
@@ -372,7 +369,7 @@ public class ThreadListLayout
             this.replyOpen = open;
 
             reply.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
-                          MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
             int height = reply.getMeasuredHeight();
 
@@ -382,7 +379,7 @@ public class ThreadListLayout
             viewPropertyAnimator.setDuration(600);
 
             if (open) {
-                reply.setVisibility(View.VISIBLE);
+                reply.setVisibility(VISIBLE);
                 reply.setTranslationY(ChanSettings.moveInputToBottom.get() ? height : -height);
                 viewPropertyAnimator.translationY(0f);
             } else {
@@ -392,7 +389,7 @@ public class ThreadListLayout
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         viewPropertyAnimator.setListener(null);
-                        reply.setVisibility(View.GONE);
+                        reply.setVisibility(GONE);
                     }
                 });
             }
@@ -421,7 +418,7 @@ public class ThreadListLayout
             searchOpen = open;
 
             searchStatus.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
-                                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
             int height = searchStatus.getMeasuredHeight();
 
@@ -431,7 +428,7 @@ public class ThreadListLayout
             viewPropertyAnimator.setDuration(600);
 
             if (open) {
-                searchStatus.setVisibility(View.VISIBLE);
+                searchStatus.setVisibility(VISIBLE);
                 searchStatus.setTranslationY(-height);
                 viewPropertyAnimator.translationY(0f);
             } else {
@@ -441,7 +438,7 @@ public class ThreadListLayout
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         viewPropertyAnimator.setListener(null);
-                        searchStatus.setVisibility(View.GONE);
+                        searchStatus.setVisibility(GONE);
                     }
                 });
             }
@@ -471,8 +468,8 @@ public class ThreadListLayout
         if (query != null) {
             int size = getDisplayingPosts().size();
             searchStatus.setText(getString(R.string.search_results,
-                                           getQuantityString(R.plurals.posts, size, size),
-                                           query
+                    getQuantityString(R.plurals.posts, size, size),
+                    query
             ));
         }
     }
@@ -511,11 +508,10 @@ public class ThreadListLayout
 
     public void smoothScrollNewPosts(int displayPosition) {
         if (layoutManager instanceof LinearLayoutManager) {
-            ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(displayPosition + 1,
-                                                                             //position + 1 for last seen view, dp(4) for it's height
-                                                                             recyclerView.getHeight()
-                                                                                     - recyclerView.getPaddingTop()
-                                                                                     - dp(4)
+            ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(
+                    displayPosition + 1,
+                    //position + 1 for last seen view, dp(4) for it's height
+                    recyclerView.getHeight() - recyclerView.getPaddingTop() - dp(4)
             );
         } else {
             Logger.wtf(TAG, "Layout manager is grid inside thread??");
@@ -711,7 +707,7 @@ public class ThreadListLayout
 
         if (replyOpen) {
             reply.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
-                          MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
             if (ChanSettings.moveInputToBottom.get()) {
                 bottom += reply.getMeasuredHeight();
@@ -721,7 +717,7 @@ public class ThreadListLayout
             }
         } else if (searchOpen) {
             searchStatus.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
-                                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
             top += searchStatus.getMeasuredHeight();
         } else {
@@ -780,9 +776,9 @@ public class ThreadListLayout
                         int top = child.getTop() + params.topMargin;
                         int left = child.getLeft() + params.leftMargin;
                         c.drawBitmap(hat,
-                                     left - parent.getPaddingLeft() - dp(25),
-                                     top - dp(80) - parent.getPaddingTop() + toolbarHeight(),
-                                     null
+                                left - parent.getPaddingLeft() - dp(25),
+                                top - dp(80) - parent.getPaddingTop() + toolbarHeight(),
+                                null
                         );
                     }
                 }

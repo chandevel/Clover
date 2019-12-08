@@ -27,7 +27,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -74,8 +73,10 @@ import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getIsOfficial;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -121,7 +122,7 @@ public class StartActivity
             return;
         }
 
-        Chan.injector().instance(ThemeHelper.class).setupContext(this);
+        instance(ThemeHelper.class).setupContext(this);
 
         fileChooser.setCallbacks(this);
         imagePickDelegate = new ImagePickDelegate(this);
@@ -159,12 +160,12 @@ public class StartActivity
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             Logger.e("UNCAUGHT", sw.toString());
-            Logger.e("UNCAUGHT",
-                     ".\n----------------------------------------\nEND OF CURRENT RUNTIME MESSAGES\n----------------------------------------\n."
-            );
+            Logger.e("UNCAUGHT", "------------------------------");
+            Logger.e("UNCAUGHT", "END OF CURRENT RUNTIME MESSAGES");
+            Logger.e("UNCAUGHT", "------------------------------");
             Logger.e("UNCAUGHT", "Android API Level: " + Build.VERSION.SDK_INT);
-            Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME
-                    + " " + (getIsOfficial() ? "Release" : "Development"));
+            Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME);
+            Logger.e("UNCAUGHT", "Development Build: " + (getIsOfficial() ? "No" : "Yes"));
             Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
             System.exit(999);
         });
@@ -215,8 +216,9 @@ public class StartActivity
                     browseController.showThread(loadable, false);
                 }
             } else {
-                new AlertDialog.Builder(this)
-                        .setMessage(getString(R.string.open_link_not_matched, getApplicationLabel()))
+                new AlertDialog.Builder(this).setMessage(getString(R.string.open_link_not_matched,
+                        getApplicationLabel()
+                ))
                         .setPositiveButton(R.string.ok, (dialog, which) -> openLink(data.toString()))
                         .show();
             }
@@ -262,7 +264,7 @@ public class StartActivity
             return null;
         }
 
-        Site site = Chan.injector().instance(SiteRepository.class).forId(stateLoadable.siteId);
+        Site site = instance(SiteRepository.class).forId(stateLoadable.siteId);
         if (site != null) {
             Board board = site.board(stateLoadable.boardCode);
             if (board != null) {
@@ -302,7 +304,7 @@ public class StartActivity
         switch (layoutMode) {
             case SPLIT:
                 SplitNavigationController split = new SplitNavigationController(this);
-                split.setEmptyView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.layout_split_empty, null));
+                split.setEmptyView(inflate(this, R.layout.layout_split_empty));
 
                 drawerController.setChildController(split);
 
@@ -318,9 +320,7 @@ public class StartActivity
 
         if (layoutMode == ChanSettings.LayoutMode.SLIDE) {
             ThreadSlideController slideController = new ThreadSlideController(this);
-            slideController.setEmptyView(
-                    (ViewGroup) LayoutInflater.from(this)
-                                              .inflate(R.layout.layout_split_empty, null));
+            slideController.setEmptyView(inflate(this, R.layout.layout_split_empty));
             mainNavigationController.pushController(slideController, false);
             slideController.setLeftController(browseController);
         } else {
@@ -450,11 +450,11 @@ public class StartActivity
     public NdefMessage createNdefMessage(NfcEvent event) {
         Controller threadController = null;
         if (drawerController.childControllers.get(0) instanceof DoubleNavigationController) {
-            SplitNavigationController splitNavigationController
-                    = (SplitNavigationController) drawerController.childControllers.get(0);
+            SplitNavigationController splitNavigationController =
+                    (SplitNavigationController) drawerController.childControllers.get(0);
             if (splitNavigationController.rightController instanceof NavigationController) {
-                NavigationController rightNavigationController
-                        = (NavigationController) splitNavigationController.rightController;
+                NavigationController rightNavigationController =
+                        (NavigationController) splitNavigationController.rightController;
                 for (Controller controller : rightNavigationController.childControllers) {
                     if (controller instanceof NfcAdapter.CreateNdefMessageCallback) {
                         threadController = controller;
@@ -531,7 +531,8 @@ public class StartActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 

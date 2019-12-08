@@ -36,8 +36,8 @@ public class Chan4ReplyCall
     }
 
     @Override
-    public void addParameters(MultipartBody.Builder formBuilder,
-                              @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    public void addParameters(
+            MultipartBody.Builder formBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         formBuilder.addFormDataPart("mode", "regist");
         formBuilder.addFormDataPart("pwd", replyResponse.password);
@@ -73,17 +73,18 @@ public class Chan4ReplyCall
         }
     }
 
-    private void attachFile(MultipartBody.Builder formBuilder,
-                            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    private void attachFile(
+            MultipartBody.Builder formBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         RequestBody requestBody;
 
         if (progressListener == null) {
             requestBody = RequestBody.create(MediaType.parse("application/octet-stream"), reply.file);
         } else {
-            requestBody = new ProgressRequestBody(RequestBody.create(MediaType.parse("application/octet-stream"),
-                                                                     reply.file
-            ), progressListener);
+            requestBody =
+                    new ProgressRequestBody(RequestBody.create(MediaType.parse("application/octet-stream"), reply.file),
+                            progressListener
+                    );
         }
 
         formBuilder.addFormDataPart("upfile", reply.fileName, requestBody);

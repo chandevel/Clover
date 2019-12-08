@@ -24,6 +24,8 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+
 public class PopupController
         extends Controller
         implements View.OnClickListener {
@@ -37,7 +39,7 @@ public class PopupController
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.layout_controller_popup);
+        view = inflate(context, R.layout.layout_controller_popup);
         FrameLayout topView = view.findViewById(R.id.top_view);
         topView.setOnClickListener(this);
         container = view.findViewById(R.id.container);

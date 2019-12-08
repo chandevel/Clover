@@ -21,6 +21,7 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
@@ -101,5 +102,27 @@ public class PostLinkable
 
     public boolean isSpoilerVisible() {
         return spoilerVisible;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        for (char c : key.toString().toCharArray()) {
+            result += c;
+        }
+        result = 31 * result;
+        for (char c : value.toString().toCharArray()) {
+            result += c;
+        }
+        result = 31 * result + type.ordinal();
+        return result;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) return false;
+        if (!(obj instanceof PostLinkable)) return false;
+        PostLinkable linkable = (PostLinkable) obj;
+        return linkable.key.equals(this.key) && linkable.value.equals(this.value) && linkable.type.equals(this.type);
     }
 }

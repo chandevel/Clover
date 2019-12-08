@@ -86,7 +86,8 @@ public class ImagePickDelegate
                 showToast(R.string.image_url_get_attempt);
                 HttpUrl clipboardURL = null;
                 try {
-                    clipboardURL = HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
+                    clipboardURL =
+                            HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
                 } catch (Exception ignored) {
                     showToast(R.string.image_url_get_failed);
                     callback.onFilePickError(true);
@@ -99,21 +100,21 @@ public class ImagePickDelegate
                             public void onSuccess(RawFile file) {
                                 BackgroundUtils.ensureMainThread();
 
-                                showToast(R.string.image_url_get_success);
-                                Uri imageURL = Uri.parse(finalClipboardURL.toString());
-                                callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
-                                reset();
-                            }
+                            showToast(R.string.image_url_get_success);
+                            Uri imageURL = Uri.parse(finalClipboardURL.toString());
+                            callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
+                            reset();
+                        }
 
-                            @Override
-                            public void onFail(Exception exception) {
-                                BackgroundUtils.ensureMainThread();
+                        @Override
+                        public void onFail(Exception exception) {
+                            BackgroundUtils.ensureMainThread();
 
-                                showToast(R.string.image_url_get_failed);
-                                callback.onFilePickError(true);
-                                reset();
-                            }
-                        });
+                            showToast(R.string.image_url_get_failed);
+                            callback.onFilePickError(true);
+                            reset();
+                        }
+                    });
                 }
             } else {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);

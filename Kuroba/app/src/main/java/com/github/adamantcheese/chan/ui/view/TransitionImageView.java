@@ -71,9 +71,9 @@ public class TransitionImageView
         float destScale = Math.min(selfWidth / (float) bitmap.getWidth(), selfHeight / (float) bitmap.getHeight());
 
         RectF output = new RectF((selfWidth - bitmap.getWidth() * destScale) * 0.5f,
-                                 (selfHeight - bitmap.getHeight() * destScale) * 0.5f,
-                                 0,
-                                 0
+                (selfHeight - bitmap.getHeight() * destScale) * 0.5f,
+                0,
+                0
         );
 
         output.right = bitmap.getWidth() * destScale + output.left;
@@ -99,7 +99,7 @@ public class TransitionImageView
 
         // Get the coords in the image view with the center crop method
         float scale = Math.max((float) viewSize.x / (float) bitmap.getWidth(),
-                               (float) viewSize.y / (float) bitmap.getHeight()
+                (float) viewSize.y / (float) bitmap.getHeight()
         );
         float scaledX = bitmap.getWidth() * scale;
         float scaledY = bitmap.getHeight() * scale;
@@ -109,9 +109,9 @@ public class TransitionImageView
         sourceOverlap.set(offsetX, offsetY);
 
         sourceImageRect.set(-offsetX + globalOffsetX,
-                            -offsetY + globalOffsetY,
-                            scaledX - offsetX + globalOffsetX,
-                            scaledY - offsetY + globalOffsetY
+                -offsetY + globalOffsetY,
+                scaledX - offsetX + globalOffsetX,
+                scaledY - offsetY + globalOffsetY
         );
     }
 
@@ -138,9 +138,9 @@ public class TransitionImageView
             float destScale = Math.min(selfWidth / (float) bitmap.getWidth(), selfHeight / (float) bitmap.getHeight());
 
             output = new RectF((selfWidth - bitmap.getWidth() * destScale) * 0.5f,
-                               (selfHeight - bitmap.getHeight() * destScale) * 0.5f,
-                               0,
-                               0
+                    (selfHeight - bitmap.getHeight() * destScale) * 0.5f,
+                    0,
+                    0
             );
 
             output.right = bitmap.getWidth() * destScale + output.left;
@@ -158,9 +158,9 @@ public class TransitionImageView
         matrix.setRectToRect(bitmapRect, destRect, Matrix.ScaleToFit.FILL);
 
         destClip.set(output.left + sourceOverlap.x * (1f - progress),
-                     output.top + sourceOverlap.y * (1f - progress),
-                     output.right - sourceOverlap.x * (1f - progress),
-                     output.bottom - sourceOverlap.y * (1f - progress)
+                output.top + sourceOverlap.y * (1f - progress),
+                output.right - sourceOverlap.x * (1f - progress),
+                output.bottom - sourceOverlap.y * (1f - progress)
         );
 
         invalidate();

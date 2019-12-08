@@ -54,8 +54,7 @@ public class Arisuchan
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl()
-                        .newBuilder()
+                return getUrl().newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
@@ -71,15 +70,16 @@ public class Arisuchan
         setName("Arisuchan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://arisuchan.jp/favicon.ico")));
 
-        setBoards(Board.fromSiteNameCode(this, "technology", "tech"),
-                  Board.fromSiteNameCode(this, "art and creative", "art"),
-                  Board.fromSiteNameCode(this, "culture and media", "cult"),
-                  Board.fromSiteNameCode(this, "psychology and psychonautics", "psy"),
-                  Board.fromSiteNameCode(this, "programming", "λ"),
-                  Board.fromSiteNameCode(this, "shape your world", "Δ"),
-                  Board.fromSiteNameCode(this, "Киберпанк", "ru"),
-                  Board.fromSiteNameCode(this, "miscellaneous", "r"),
-                  Board.fromSiteNameCode(this, "arisuchan meta", "q")
+        setBoards(
+                Board.fromSiteNameCode(this, "technology", "tech"),
+                Board.fromSiteNameCode(this, "art and creative", "art"),
+                Board.fromSiteNameCode(this, "culture and media", "cult"),
+                Board.fromSiteNameCode(this, "psychology and psychonautics", "psy"),
+                Board.fromSiteNameCode(this, "programming", "λ"),
+                Board.fromSiteNameCode(this, "shape your world", "Δ"),
+                Board.fromSiteNameCode(this, "Киберпанк", "ru"),
+                Board.fromSiteNameCode(this, "miscellaneous", "r"),
+                Board.fromSiteNameCode(this, "arisuchan meta", "q")
         );
 
         setResolvable(URL_HANDLER);

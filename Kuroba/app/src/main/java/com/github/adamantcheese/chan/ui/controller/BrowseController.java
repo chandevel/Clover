@@ -123,8 +123,7 @@ public class BrowseController
         // Toolbar menu
         navigation.hasBack = false;
 
-        NavigationItem.MenuOverflowBuilder overflowBuilder = navigation
-                .buildMenu()
+        NavigationItem.MenuOverflowBuilder overflowBuilder = navigation.buildMenu()
                 .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
                 .withItem(R.drawable.ic_refresh_white_24dp, this::reloadClicked)
                 .withOverflow();
@@ -134,14 +133,13 @@ public class BrowseController
         }
 
         overflowBuilder.withSubItem(VIEW_MODE_ID,
-                                    ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST
-                                            ? R.string.action_switch_catalog
-                                            : R.string.action_switch_board,
-                                    this::viewModeClicked
+                ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST
+                        ? R.string.action_switch_catalog
+                        : R.string.action_switch_board,
+                this::viewModeClicked
         );
 
-        overflowBuilder
-                .withSubItem(ARCHIVE_ID, R.string.thread_view_archive, this::archiveClicked)
+        overflowBuilder.withSubItem(ARCHIVE_ID, R.string.thread_view_archive, this::archiveClicked)
                 .withSubItem(R.string.action_sort, this::orderClicked)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
@@ -161,17 +159,17 @@ public class BrowseController
             refreshView.setScaleX(1f);
             refreshView.setScaleY(1f);
             refreshView.animate()
-                       .scaleX(10f)
-                       .scaleY(10f)
-                       .setDuration(500)
-                       .setInterpolator(new AccelerateInterpolator(2f))
-                       .setListener(new AnimatorListenerAdapter() {
-                           @Override
-                           public void onAnimationEnd(Animator animation) {
-                               refreshView.setScaleX(1f);
-                               refreshView.setScaleY(1f);
-                           }
-                       });
+                    .scaleX(10f)
+                    .scaleY(10f)
+                    .setDuration(500)
+                    .setInterpolator(new AccelerateInterpolator(2f))
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            refreshView.setScaleX(1f);
+                            refreshView.setScaleY(1f);
+                        }
+                    });
 
             ((ToolbarNavigationController) navigationController).showSearch();
         }
@@ -187,11 +185,11 @@ public class BrowseController
             //Disable the ripple effect until the animation ends, but turn it back on so tap/hold ripple works
             refreshView.setBackgroundResource(0);
             Animation animation = new RotateAnimation(0,
-                                                      360,
-                                                      RotateAnimation.RELATIVE_TO_SELF,
-                                                      0.5f,
-                                                      RotateAnimation.RELATIVE_TO_SELF,
-                                                      0.5f
+                    360,
+                    RotateAnimation.RELATIVE_TO_SELF,
+                    0.5f,
+                    RotateAnimation.RELATIVE_TO_SELF,
+                    0.5f
             );
             animation.setDuration(500L);
             animation.setAnimationListener(new Animation.AnimationListener() {
@@ -456,8 +454,8 @@ public class BrowseController
         if (splitNav != null) {
             // Create a threadview inside a toolbarnav in the right part of the split layout
             if (splitNav.getRightController() instanceof StyledToolbarNavigationController) {
-                StyledToolbarNavigationController navigationController
-                        = (StyledToolbarNavigationController) splitNav.getRightController();
+                StyledToolbarNavigationController navigationController =
+                        (StyledToolbarNavigationController) splitNav.getRightController();
 
                 if (navigationController.getTop() instanceof ViewThreadController) {
                     ((ViewThreadController) navigationController.getTop()).loadThread(threadLoadable);

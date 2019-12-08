@@ -38,6 +38,7 @@ import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 
 public class DatabaseLoadableManager {
     private static final String TAG = "DatabaseLoadableManager";
@@ -93,7 +94,7 @@ public class DatabaseLoadableManager {
 
         // We only cache THREAD loadables in the db
         if (loadable.isThreadMode()) {
-            return Chan.injector().provider(DatabaseManager.class).get().runTask(getLoadable(loadable));
+            return Chan.instance(DatabaseManager.class).runTask(getLoadable(loadable));
         } else {
             return loadable;
         }
@@ -123,7 +124,7 @@ public class DatabaseLoadableManager {
 
         // Add it to the cache, refresh contents
         helper.loadableDao.refresh(loadable);
-        loadable.site = Chan.injector().instance(SiteRepository.class).forId(loadable.siteId);
+        loadable.site = instance(SiteRepository.class).forId(loadable.siteId);
         loadable.board = loadable.site.board(loadable.boardCode);
         cachedLoadables.put(loadable, loadable);
         return loadable;
@@ -141,8 +142,7 @@ public class DatabaseLoadableManager {
                 return cachedLoadable;
             } else {
                 QueryBuilder<Loadable, Integer> builder = helper.loadableDao.queryBuilder();
-                List<Loadable> results = builder
-                        .where()
+                List<Loadable> results = builder.where()
                         .eq("site", loadable.siteId)
                         .and()
                         .eq("mode", loadable.mode)
@@ -166,7 +166,7 @@ public class DatabaseLoadableManager {
                     result = loadable;
                 } else {
                     Log.d(TAG, "Loadable found in db");
-                    result.site = Chan.injector().instance(SiteRepository.class).forId(result.siteId);
+                    result.site = instance(SiteRepository.class).forId(result.siteId);
                     result.board = result.site.board(result.boardCode);
                 }
 

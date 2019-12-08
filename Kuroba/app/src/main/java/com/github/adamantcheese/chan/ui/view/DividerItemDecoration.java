@@ -68,9 +68,10 @@ public class DividerItemDecoration
         final TypedArray a = context.obtainStyledAttributes(ATTRS);
         mDivider = a.getDrawable(0);
         if (mDivider == null) {
-            Log.w(TAG,
-                  "@android:attr/listDivider was not set in the theme used for this "
-                          + "DividerItemDecoration. Please set that attribute all call setDrawable()"
+            Log.w(
+                    TAG,
+                    "@android:attr/listDivider was not set in the theme used for this "
+                            + "DividerItemDecoration. Please set that attribute all call setDrawable()"
             );
         }
         a.recycle();

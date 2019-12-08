@@ -144,9 +144,9 @@ public class ArrowMenuDrawable
             badgePaint.setTextSize(textSize);
             badgePaint.getTextBounds(badgeText, 0, badgeText.length(), badgeTextBounds);
             canvas.drawText(badgeText,
-                            badgeX - badgeTextBounds.right / 2f,
-                            badgeY - badgeTextBounds.top / 2f,
-                            badgePaint
+                    badgeX - badgeTextBounds.right / 2f,
+                    badgeY - badgeTextBounds.top / 2f,
+                    badgePaint
             );
             canvas.restore();
         }

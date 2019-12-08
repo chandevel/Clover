@@ -16,14 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
-import android.view.LayoutInflater;
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -35,6 +34,8 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
 public class PostAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -63,10 +64,11 @@ public class PostAdapter
     private ChanSettings.PostViewMode postViewMode;
     private boolean compact = false;
 
-    public PostAdapter(RecyclerView recyclerView,
-                       PostAdapterCallback postAdapterCallback,
-                       PostCellInterface.PostCellCallback postCellCallback,
-                       ThreadStatusCell.Callback statusCellCallback
+    public PostAdapter(
+            RecyclerView recyclerView,
+            PostAdapterCallback postAdapterCallback,
+            PostCellInterface.PostCellCallback postCellCallback,
+            ThreadStatusCell.Callback statusCellCallback
     ) {
         this.recyclerView = recyclerView;
         this.postAdapterCallback = postAdapterCallback;
@@ -78,6 +80,7 @@ public class PostAdapter
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Context inflateContext = parent.getContext();
         switch (viewType) {
             case TYPE_POST:
                 int layout = 0;
@@ -90,20 +93,20 @@ public class PostAdapter
                         break;
                 }
 
-                PostCellInterface postCell = (PostCellInterface)
-                        LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
+                PostCellInterface postCell = (PostCellInterface) inflate(inflateContext, layout, parent, false);
                 return new PostViewHolder(postCell);
             case TYPE_POST_STUB:
-                return new PostViewHolder((PostCellInterface) LayoutInflater
-                        .from(parent.getContext()).inflate(R.layout.cell_post_stub, parent, false));
+                PostCellInterface postCellStub =
+                        (PostCellInterface) inflate(inflateContext, R.layout.cell_post_stub, parent, false);
+                return new PostViewHolder(postCellStub);
             case TYPE_LAST_SEEN:
-                return new LastSeenViewHolder(
-                        LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post_last_seen, parent, false));
+                return new LastSeenViewHolder(inflate(inflateContext, R.layout.cell_post_last_seen, parent, false));
             case TYPE_STATUS:
-                StatusViewHolder statusViewHolder = new StatusViewHolder((ThreadStatusCell) LayoutInflater
-                        .from(parent.getContext()).inflate(R.layout.cell_thread_status, parent, false));
-                ((ThreadStatusCell) statusViewHolder.itemView).setCallback(statusCellCallback);
-                ((ThreadStatusCell) statusViewHolder.itemView).setError(error);
+                ThreadStatusCell statusCell =
+                        (ThreadStatusCell) inflate(inflateContext, R.layout.cell_thread_status, parent, false);
+                StatusViewHolder statusViewHolder = new StatusViewHolder(statusCell);
+                statusCell.setCallback(statusCellCallback);
+                statusCell.setError(error);
                 return statusViewHolder;
             default:
                 throw new IllegalStateException();
@@ -122,19 +125,21 @@ public class PostAdapter
 
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(getPostPosition(position));
-                boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId)
-                        || post.no == highlightedPostNo || post.tripcode.equals(highlightedPostTripcode);
-                ((PostCellInterface) postViewHolder.itemView).setPost(loadable,
-                                                                      post,
-                                                                      postCellCallback,
-                                                                      true,
-                                                                      highlight,
-                                                                      post.no == selectedPost,
-                                                                      -1,
-                                                                      true,
-                                                                      postViewMode,
-                                                                      compact,
-                                                                      ThemeHelper.getTheme()
+                boolean highlight =
+                        post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo
+                                || post.tripcode.equals(highlightedPostTripcode);
+                ((PostCellInterface) postViewHolder.itemView).setPost(
+                        loadable,
+                        post,
+                        postCellCallback,
+                        true,
+                        highlight,
+                        post.no == selectedPost,
+                        -1,
+                        true,
+                        postViewMode,
+                        compact,
+                        ThemeHelper.getTheme()
                 );
 
                 if (itemViewType == TYPE_POST_STUB) {
@@ -208,29 +213,45 @@ public class PostAdapter
         }
     }
 
-    public void setThread(ChanThread thread, List<Post> posts) {
+    public void setThread(Loadable threadLoadable, List<Post> posts) {
         BackgroundUtils.ensureMainThread();
+        boolean changed = this.loadable != null && !this.loadable.equals(threadLoadable); //changed threads, update
 
-        this.loadable = thread.getLoadable();
+        this.loadable = threadLoadable;
         showError(null);
+
+        int lastLastSeenIndicator = lastSeenIndicatorPosition;
+        if (displayList.size() == posts.size()) {
+            for (int i = 0; i < displayList.size(); i++) {
+                if (!displayList.get(i).equals(posts.get(i))) {
+                    changed = true; //posts are different, or a post got deleted and needs to be updated
+                    break;
+                }
+            }
+        } else {
+            changed = true; //new posts or fewer posts, update
+        }
 
         displayList.clear();
         displayList.addAll(posts);
 
         lastSeenIndicatorPosition = -1;
-        if (thread.getLoadable().lastViewed >= 0) {
+        if (threadLoadable.lastViewed >= 0) {
             // Do not process the last post, the indicator does not have to appear at the bottom
             for (int i = 0, displayListSize = displayList.size() - 1; i < displayListSize; i++) {
                 Post post = displayList.get(i);
-                if (post.no == thread.getLoadable().lastViewed) {
+                if (post.no == threadLoadable.lastViewed) {
                     lastSeenIndicatorPosition = i + 1;
                     break;
                 }
             }
         }
 
-        // Update all, recyclerview will figure out all the animations
-        notifyDataSetChanged();
+        //update for indicator (adds/removes extra recycler item that causes inconsistency exceptions)
+        //or if something changed per reasons above
+        if (lastLastSeenIndicator != lastSeenIndicatorPosition || changed) {
+            notifyDataSetChanged();
+        }
     }
 
     public List<Post> getDisplayList() {

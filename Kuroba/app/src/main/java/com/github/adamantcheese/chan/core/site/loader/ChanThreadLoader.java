@@ -155,11 +155,10 @@ public class ChanThreadLoader
     public void requestData() {
         clearTimer();
 
-        Disposable disposable = Single
-                .fromCallable(this::loadSavedCopyIfExists)
+        Disposable disposable = Single.fromCallable(this::loadSavedCopyIfExists)
                 .subscribeOn(Schedulers.io())
                 .subscribe(this::requestDataInternal,
-                           error -> Logger.e(TAG, "Error while loading saved thread", error)
+                        error -> Logger.e(TAG, "Error while loading saved thread", error)
                 );
 
         compositeDisposable.add(disposable);
@@ -205,9 +204,9 @@ public class ChanThreadLoader
                 thread = chanThread;
 
                 onPreparedResponseInternal(chanThread,
-                                           loadable.loadableDownloadingState,
-                                           chanThread.isClosed(),
-                                           chanThread.isArchived()
+                        loadable.loadableDownloadingState,
+                        chanThread.isClosed(),
+                        chanThread.isArchived()
                 );
 
                 return true;
@@ -227,18 +226,17 @@ public class ChanThreadLoader
         clearPendingRunnable();
 
         if (loadable.isThreadMode() && request == null) {
-            Disposable disposable = Single
-                    .fromCallable(() -> {
-                        ChanLoaderRequest request = getData();
-                        if (request == null) {
-                            // Throw an exception here, because we have to do something here but we can't just
-                            // return the result, because it is null and rxjava2 does not allow us to pass
-                            // nulls into the reactive stream.
-                            throw new NullPointerException("getData() returned null");
-                        }
+            Disposable disposable = Single.fromCallable(() -> {
+                ChanLoaderRequest request = getData();
+                if (request == null) {
+                    // Throw an exception here, because we have to do something here but we can't just
+                    // return the result, because it is null and rxjava2 does not allow us to pass
+                    // nulls into the reactive stream.
+                    throw new NullPointerException("getData() returned null");
+                }
 
-                        return request;
-                    })
+                return request;
+            })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(req -> request = req, error -> {
@@ -327,8 +325,7 @@ public class ChanThreadLoader
 
     private ChanLoaderRequest getData() {
         if (loadable.mode == Loadable.Mode.THREAD
-                && loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded)
-        {
+                && loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
             // If loadableDownloadingState is AlreadyDownloaded try to load the local thread from
             // the disk. If we couldn't do that then try to send the request to the server
             if (onThreadArchived(true, true)) {
@@ -355,8 +352,7 @@ public class ChanThreadLoader
     public void onResponse(ChanLoaderResponse response) {
         request = null;
 
-        Disposable disposable = Single
-                .fromCallable(() -> onResponseInternal(response))
+        Disposable disposable = Single.fromCallable(() -> onResponseInternal(response))
                 .subscribeOn(Schedulers.io())
                 .subscribe(result -> {}, error -> Logger.e(TAG, "onResponse error", error));
 
@@ -400,7 +396,7 @@ public class ChanThreadLoader
         }
 
         Logger.d(TAG,
-                 "Thread " + chanThread.getLoadable().no + " is archived (" + archived + ") or closed (" + closed + ")"
+                "Thread " + chanThread.getLoadable().no + " is archived (" + archived + ") or closed (" + closed + ")"
         );
         thread = chanThread;
 
@@ -420,9 +416,9 @@ public class ChanThreadLoader
 
             // Otherwise pass it to the response parse method
             onPreparedResponseInternal(chanThread,
-                                       Loadable.LoadableDownloadingState.AlreadyDownloaded,
-                                       closed,
-                                       archived
+                    Loadable.LoadableDownloadingState.AlreadyDownloaded,
+                    closed,
+                    archived
             );
             return true;
         } else {
@@ -441,9 +437,8 @@ public class ChanThreadLoader
 
         Pin pin = watchManager.findPinByLoadableId(savedThread.loadableId);
         if (pin == null) {
-            pin = databaseManager.runTask(databaseManager
-                                                  .getDatabasePinManager()
-                                                  .getPinByLoadableId(savedThread.loadableId));
+            pin = databaseManager.runTask(databaseManager.getDatabasePinManager()
+                    .getPinByLoadableId(savedThread.loadableId));
         }
 
         if (pin == null) {
@@ -457,12 +452,10 @@ public class ChanThreadLoader
         watchManager.updatePin(pin);
 
         databaseManager.runTask(() -> {
-            databaseManager
-                    .getDatabaseSavedThreadManager()
+            databaseManager.getDatabaseSavedThreadManager()
                     .updateThreadStoppedFlagByLoadableId(savedThread.loadableId, true)
                     .call();
-            databaseManager
-                    .getDatabaseSavedThreadManager()
+            databaseManager.getDatabaseSavedThreadManager()
                     .updateThreadFullyDownloadedByLoadableId(savedThread.loadableId)
                     .call();
 
@@ -472,10 +465,8 @@ public class ChanThreadLoader
         Logger.d(TAG, "Successfully updated thread " + chanThread.getLoadable().no + " as fully downloaded");
     }
 
-    private void onPreparedResponseInternal(ChanThread chanThread,
-                                            Loadable.LoadableDownloadingState state,
-                                            boolean closed,
-                                            boolean archived
+    private void onPreparedResponseInternal(
+            ChanThread chanThread, Loadable.LoadableDownloadingState state, boolean closed, boolean archived
     ) {
         Post.Builder fakeOp = new Post.Builder();
         Post savedOp = chanThread.getOp();
@@ -556,8 +547,7 @@ public class ChanThreadLoader
         Disposable disposable = Single.fromCallable(() -> {
             // Thread was deleted (404), try to load a saved copy (if we have it)
             if (error.networkResponse != null && error.networkResponse.statusCode == 404 && loadable != null
-                    && loadable.mode == Loadable.Mode.THREAD)
-            {
+                    && loadable.mode == Loadable.Mode.THREAD) {
                 Logger.d(TAG, "Got 404 status for a thread " + loadable.no);
 
                 ChanThread chanThread = loadSavedThreadIfItExists();
@@ -565,14 +555,14 @@ public class ChanThreadLoader
                     thread = chanThread;
 
                     Logger.d(TAG,
-                             "Successfully loaded local thread " + loadable.no + " from disk, isClosed = "
-                                     + chanThread.isClosed() + ", isArchived = " + chanThread.isArchived()
+                            "Successfully loaded local thread " + loadable.no + " from disk, isClosed = "
+                                    + chanThread.isClosed() + ", isArchived = " + chanThread.isArchived()
                     );
 
                     onPreparedResponseInternal(chanThread,
-                                               Loadable.LoadableDownloadingState.AlreadyDownloaded,
-                                               chanThread.isClosed(),
-                                               chanThread.isArchived()
+                            Loadable.LoadableDownloadingState.AlreadyDownloaded,
+                            chanThread.isClosed(),
+                            chanThread.isArchived()
                     );
                     return false;
                 }
@@ -671,8 +661,7 @@ public class ChanThreadLoader
             if (volleyError.getCause() instanceof SSLException) {
                 errorMessage = R.string.thread_load_failed_ssl;
             } else if (volleyError instanceof NetworkError || volleyError instanceof TimeoutError
-                    || volleyError instanceof ParseError || volleyError instanceof AuthFailureError)
-            {
+                    || volleyError instanceof ParseError || volleyError instanceof AuthFailureError) {
                 errorMessage = R.string.thread_load_failed_network;
             } else if (volleyError instanceof ServerError) {
                 if (isServerErrorNotFound((ServerError) volleyError)) {

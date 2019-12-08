@@ -1,11 +1,13 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
+
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 public class LoadingViewController
         extends BaseFloatingController {
@@ -40,12 +42,12 @@ public class LoadingViewController
             throw new IllegalStateException("Cannot be used with indeterminate flag");
         }
 
-        if (textView.getVisibility() != View.VISIBLE && percent > 0) {
-            textView.setVisibility(View.VISIBLE);
+        if (textView.getVisibility() != VISIBLE && percent > 0) {
+            textView.setVisibility(VISIBLE);
         }
 
-        if (progressBar.getVisibility() != View.VISIBLE) {
-            progressBar.setVisibility(View.VISIBLE);
+        if (progressBar.getVisibility() != VISIBLE) {
+            progressBar.setVisibility(VISIBLE);
         }
 
         textView.setText(String.valueOf(percent));
@@ -60,12 +62,12 @@ public class LoadingViewController
             throw new IllegalStateException("Cannot be used with indeterminate flag");
         }
 
-        if (textView.getVisibility() != View.VISIBLE) {
-            textView.setVisibility(View.VISIBLE);
+        if (textView.getVisibility() != VISIBLE) {
+            textView.setVisibility(VISIBLE);
         }
 
-        if (progressBar.getVisibility() == View.VISIBLE) {
-            progressBar.setVisibility(View.GONE);
+        if (progressBar.getVisibility() == VISIBLE) {
+            progressBar.setVisibility(GONE);
         }
 
         textView.setText(text);

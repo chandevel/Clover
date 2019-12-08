@@ -27,7 +27,6 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -67,6 +66,7 @@ import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
 
 import org.greenrobot.eventbus.EventBus;
@@ -76,6 +76,8 @@ import java.io.File;
 
 import javax.inject.Inject;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -135,7 +137,7 @@ public class ReplyLayout
     private Runnable closeMessageRunnable = new Runnable() {
         @Override
         public void run() {
-            message.setVisibility(View.GONE);
+            message.setVisibility(GONE);
         }
     };
 
@@ -168,10 +170,8 @@ public class ReplyLayout
         super.onFinishInflate();
         inject(this);
 
-        final LayoutInflater inflater = LayoutInflater.from(getContext());
-
         // Inflate reply input
-        replyInputLayout = inflater.inflate(R.layout.layout_reply_input, this, false);
+        replyInputLayout = AndroidUtils.inflate(getContext(), R.layout.layout_reply_input, this, false);
         message = replyInputLayout.findViewById(R.id.message);
         name = replyInputLayout.findViewById(R.id.name);
         subject = replyInputLayout.findViewById(R.id.subject);
@@ -190,7 +190,7 @@ public class ReplyLayout
         more = replyInputLayout.findViewById(R.id.more);
         submit = replyInputLayout.findViewById(R.id.submit);
 
-        progressLayout = inflater.inflate(R.layout.layout_reply_progress, this, false);
+        progressLayout = AndroidUtils.inflate(getContext(), R.layout.layout_reply_progress, this, false);
         currentProgress = progressLayout.findViewById(R.id.current_progress);
 
         spoiler.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
@@ -202,18 +202,18 @@ public class ReplyLayout
         comment.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
         comment.setOnFocusChangeListener((view, focused) -> {
-            if (!focused)
-                hideKeyboard(comment);
+            if (!focused) hideKeyboard(comment);
         });
+        comment.setPlainTextPaste(true);
         setupCommentContextMenu();
 
         previewHolder.setOnClickListener(this);
 
         moreDropdown = new DropdownArrowDrawable(dp(16),
-                                                 dp(16),
-                                                 !ChanSettings.moveInputToBottom.get(),
-                                                 getAttrColor(getContext(), R.attr.dropdown_dark_color),
-                                                 getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
+                dp(16),
+                !ChanSettings.moveInputToBottom.get(),
+                getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
         );
         more.setImageDrawable(moreDropdown);
         setRoundItemBackground(more);
@@ -236,11 +236,11 @@ public class ReplyLayout
         submit.setOnClickListener(this);
 
         // Inflate captcha layout
-        captchaContainer = (FrameLayout) inflater.inflate(R.layout.layout_reply_captcha, this, false);
+        captchaContainer = (FrameLayout) AndroidUtils.inflate(getContext(), R.layout.layout_reply_captcha, this, false);
         captchaHardReset = captchaContainer.findViewById(R.id.reset);
 
         // Setup captcha layout views
-        captchaContainer.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        captchaContainer.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
         ThemeHelper.getTheme().refreshDrawable.apply(captchaHardReset);
         setRoundItemBackground(captchaHardReset);
@@ -286,8 +286,8 @@ public class ReplyLayout
 
     private void setWrappingMode(boolean matchParent) {
         LayoutParams params = (LayoutParams) getLayoutParams();
-        params.width = LayoutParams.MATCH_PARENT;
-        params.height = matchParent ? LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
+        params.width = MATCH_PARENT;
+        params.height = matchParent ? MATCH_PARENT : WRAP_CONTENT;
 
         if (ChanSettings.moveInputToBottom.get()) {
             if (matchParent) {
@@ -328,19 +328,20 @@ public class ReplyLayout
     }
 
     @Override
-    public void initializeAuthentication(Site site,
-                                         SiteAuthentication authentication,
-                                         AuthenticationLayoutCallback callback,
-                                         boolean useV2NoJsCaptcha,
-                                         boolean autoReply
+    public void initializeAuthentication(
+            Site site,
+            SiteAuthentication authentication,
+            AuthenticationLayoutCallback callback,
+            boolean useV2NoJsCaptcha,
+            boolean autoReply
     ) {
         if (authenticationLayout == null) {
             switch (authentication.type) {
                 case CAPTCHA1: {
-                    final LayoutInflater inflater = LayoutInflater.from(getContext());
-                    authenticationLayout = (LegacyCaptchaLayout) inflater.inflate(R.layout.layout_captcha_legacy,
-                                                                                  captchaContainer,
-                                                                                  false
+                    authenticationLayout = (LegacyCaptchaLayout) AndroidUtils.inflate(getContext(),
+                            R.layout.layout_captcha_legacy,
+                            captchaContainer,
+                            false
                     );
                     break;
                 }
@@ -361,10 +362,10 @@ public class ReplyLayout
                     if (resetButton != null) {
                         if (useV2NoJsCaptcha) {
                             // we don't need the default reset button because we have our own
-                            resetButton.setVisibility(View.GONE);
+                            resetButton.setVisibility(GONE);
                         } else {
                             // restore the button's visibility when using old v1 captcha view
-                            resetButton.setVisibility(View.VISIBLE);
+                            resetButton.setVisibility(VISIBLE);
                         }
                     }
 
@@ -372,9 +373,7 @@ public class ReplyLayout
                 case GENERIC_WEBVIEW: {
                     GenericWebViewAuthenticationLayout view = new GenericWebViewAuthenticationLayout(getContext());
 
-                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-                                                                                   LayoutParams.MATCH_PARENT
-                    );
+                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
                     view.setLayoutParams(params);
 
                     authenticationLayout = view;
@@ -405,7 +404,7 @@ public class ReplyLayout
                 setView(progressLayout);
 
                 //reset progress to 0 upon uploading start
-                currentProgress.setVisibility(View.INVISIBLE);
+                currentProgress.setVisibility(INVISIBLE);
                 break;
             case INPUT:
                 setView(replyInputLayout);
@@ -474,7 +473,7 @@ public class ReplyLayout
     public void openMessage(boolean open, boolean animate, String text, boolean autoHide) {
         removeCallbacks(closeMessageRunnable);
         message.setText(text);
-        message.setVisibility(open ? View.VISIBLE : View.GONE);
+        message.setVisibility(open ? VISIBLE : GONE);
 
         if (autoHide) {
             postDelayed(closeMessageRunnable, 5000);
@@ -495,7 +494,7 @@ public class ReplyLayout
 
     @Override
     public void showCommentCounter(boolean show) {
-        commentCounter.setVisibility(show ? View.VISIBLE : View.GONE);
+        commentCounter.setVisibility(show ? VISIBLE : GONE);
     }
 
     @Subscribe
@@ -519,15 +518,12 @@ public class ReplyLayout
 
         comment.setMaxLines(expanded ? 500 : 6);
 
-        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                                                                    expanded ? dp(150) : dp(100)
-        ));
+        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, expanded ? dp(150) : dp(100)));
 
         float startRotation = ChanSettings.moveInputToBottom.get() ? 1f : 0f;
         float endRotation = ChanSettings.moveInputToBottom.get() ? 0f : 1f;
-        ValueAnimator animator = ValueAnimator.ofFloat(expanded ? startRotation : endRotation,
-                                                       expanded ? endRotation : startRotation
-        );
+        ValueAnimator animator =
+                ValueAnimator.ofFloat(expanded ? startRotation : endRotation, expanded ? endRotation : startRotation);
         animator.setInterpolator(new DecelerateInterpolator(2f));
         animator.setDuration(400);
         animator.addUpdateListener(animation -> moreDropdown.setRotation((float) animation.getAnimatedValue()));
@@ -536,17 +532,17 @@ public class ReplyLayout
 
     @Override
     public void openNameOptions(boolean open) {
-        nameOptions.setVisibility(open ? View.VISIBLE : View.GONE);
+        nameOptions.setVisibility(open ? VISIBLE : GONE);
     }
 
     @Override
     public void openSubject(boolean open) {
-        subject.setVisibility(open ? View.VISIBLE : View.GONE);
+        subject.setVisibility(open ? VISIBLE : GONE);
     }
 
     @Override
     public void openFileName(boolean open) {
-        fileName.setVisibility(open ? View.VISIBLE : View.GONE);
+        fileName.setVisibility(open ? VISIBLE : GONE);
     }
 
     @Override
@@ -586,9 +582,9 @@ public class ReplyLayout
         if (show) {
             ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(400), dp(300), this);
         } else {
-            spoiler.setVisibility(View.GONE);
-            previewHolder.setVisibility(View.GONE);
-            previewMessage.setVisibility(View.GONE);
+            spoiler.setVisibility(GONE);
+            previewHolder.setVisibility(GONE);
+            previewMessage.setVisibility(GONE);
             callback.updatePadding();
         }
     }
@@ -601,7 +597,7 @@ public class ReplyLayout
 
     @Override
     public void openSpoiler(boolean show, boolean checked) {
-        spoiler.setVisibility(show ? View.VISIBLE : View.GONE);
+        spoiler.setVisibility(show ? VISIBLE : GONE);
         spoiler.setChecked(checked);
     }
 
@@ -609,7 +605,7 @@ public class ReplyLayout
     public void onImageBitmap(Bitmap bitmap) {
         if (bitmap != null) {
             preview.setImageBitmap(bitmap);
-            previewHolder.setVisibility(View.VISIBLE);
+            previewHolder.setVisibility(VISIBLE);
             callback.updatePadding();
 
             showReencodeImageHint();
@@ -651,9 +647,9 @@ public class ReplyLayout
                 // [spoiler] tags
                 if (callback.getThread() != null && callback.getThread().getLoadable().board.spoilers) {
                     spoilerMenuItem = menu.add(Menu.NONE,
-                                               R.id.reply_selection_action_spoiler,
-                                               2,
-                                               R.string.reply_comment_button_spoiler
+                            R.id.reply_selection_action_spoiler,
+                            2,
+                            R.string.reply_comment_button_spoiler
                     );
                 }
 
@@ -661,27 +657,25 @@ public class ReplyLayout
                 SubMenu otherMods = menu.addSubMenu("Modify");
                 // g [code]
                 if (callback.getThread() != null && callback.getThread().getLoadable().board.site.name().equals("4chan")
-                        && callback.getThread().getLoadable().board.code.equals("g"))
-                {
+                        && callback.getThread().getLoadable().board.code.equals("g")) {
                     codeMenuItem = otherMods.add(Menu.NONE,
-                                            R.id.reply_selection_action_code,
-                                            1,
-                                            R.string.reply_comment_button_code
+                            R.id.reply_selection_action_code,
+                            1,
+                            R.string.reply_comment_button_code
                     );
                 }
                 // sci [eqn] and [math]
                 if (callback.getThread() != null && callback.getThread().getLoadable().board.site.name().equals("4chan")
-                        && callback.getThread().getLoadable().board.code.equals("sci"))
-                {
+                        && callback.getThread().getLoadable().board.code.equals("sci")) {
                     eqnMenuItem = otherMods.add(Menu.NONE,
-                                           R.id.reply_selection_action_eqn,
-                                           2,
-                                           R.string.reply_comment_button_eqn
+                            R.id.reply_selection_action_eqn,
+                            2,
+                            R.string.reply_comment_button_eqn
                     );
                     mathMenuItem = otherMods.add(Menu.NONE,
-                                            R.id.reply_selection_action_math,
-                                            3,
-                                            R.string.reply_comment_button_math
+                            R.id.reply_selection_action_math,
+                            3,
+                            R.string.reply_comment_button_math
                     );
                 }
                 return true;
@@ -695,7 +689,19 @@ public class ReplyLayout
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 if (item == quoteMenuItem) {
-                    insertTags(">", "");
+                    int selectionStart = comment.getSelectionStart();
+                    int selectionEnd = comment.getSelectionEnd();
+                    String[] textLines =
+                            comment.getText().subSequence(selectionStart, selectionEnd).toString().split("\n");
+                    StringBuilder rebuilder = new StringBuilder();
+                    for (int i = 0; i < textLines.length; i++) {
+                        rebuilder.append(">").append(textLines[i]);
+                        if (i != textLines.length - 1) {
+                            rebuilder.append("\n");
+                        }
+                    }
+                    comment.getText().replace(selectionStart, selectionEnd, rebuilder.toString());
+                    processed = true;
                 } else if (item == spoilerMenuItem) {
                     insertTags("[spoiler]", "[/spoiler]");
                 } else if (item == codeMenuItem) {
@@ -785,7 +791,7 @@ public class ReplyLayout
     public void onUploadingProgress(int percent) {
         if (currentProgress != null) {
             if (percent <= 0) {
-                currentProgress.setVisibility(View.VISIBLE);
+                currentProgress.setVisibility(VISIBLE);
             }
 
             currentProgress.setText(String.valueOf(percent));

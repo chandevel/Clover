@@ -30,7 +30,6 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -55,6 +54,7 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ColorPickerView;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -159,46 +159,31 @@ public class FilterLayout
         applyToSaved = findViewById(R.id.apply_to_saved_checkbox);
 
         typeText.setOnClickListener(this);
-        typeText.setCompoundDrawablesWithIntrinsicBounds(
-                null,
-                null,
-                new DropdownArrowDrawable(
-                        dp(12),
-                        dp(12),
-                        true,
-                        getAttrColor(getContext(), R.attr.dropdown_dark_color),
-                        getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
-                ),
-                null
-        );
+        typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
+                dp(12),
+                dp(12),
+                true,
+                getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
+        ), null);
 
         boardsSelector.setOnClickListener(this);
-        boardsSelector.setCompoundDrawablesWithIntrinsicBounds(
-                null,
-                null,
-                new DropdownArrowDrawable(
-                        dp(12),
-                        dp(12),
-                        true,
-                        getAttrColor(getContext(), R.attr.dropdown_dark_color),
-                        getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
-                ),
-                null
-        );
+        boardsSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
+                dp(12),
+                dp(12),
+                true,
+                getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
+        ), null);
 
         actionText.setOnClickListener(this);
-        actionText.setCompoundDrawablesWithIntrinsicBounds(
-                null,
-                null,
-                new DropdownArrowDrawable(
-                        dp(12),
-                        dp(12),
-                        true,
-                        getAttrColor(getContext(), R.attr.dropdown_dark_color),
-                        getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
-                ),
-                null
-        );
+        actionText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
+                dp(12),
+                dp(12),
+                true,
+                getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
+        ), null);
 
         enabled.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
         enabled.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
@@ -239,8 +224,9 @@ public class FilterLayout
     @Override
     public void onClick(View v) {
         if (v == typeText) {
-            @SuppressWarnings("unchecked") final SelectLayout<FilterType> selectLayout = (SelectLayout<FilterType>)
-                    LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
+            @SuppressWarnings("unchecked")
+            final SelectLayout<FilterType> selectLayout =
+                    (SelectLayout<FilterType>) AndroidUtils.inflate(getContext(), R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
             for (FilterType filterType : FilterType.values()) {
@@ -252,8 +238,7 @@ public class FilterLayout
 
             selectLayout.setItems(items);
 
-            new AlertDialog.Builder(getContext())
-                    .setView(selectLayout)
+            new AlertDialog.Builder(getContext()).setView(selectLayout)
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         List<SelectLayout.SelectItem<FilterType>> items12 = selectLayout.getItems();
                         int flags = 0;
@@ -269,8 +254,10 @@ public class FilterLayout
                     })
                     .show();
         } else if (v == boardsSelector) {
-            @SuppressLint("InflateParams") @SuppressWarnings("unchecked") final SelectLayout<Board> selectLayout
-                    = (SelectLayout<Board>) LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
+            @SuppressLint("InflateParams")
+            @SuppressWarnings("unchecked")
+            final SelectLayout<Board> selectLayout =
+                    (SelectLayout<Board>) AndroidUtils.inflate(getContext(), R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
 
@@ -288,8 +275,7 @@ public class FilterLayout
 
             selectLayout.setItems(items);
 
-            new AlertDialog.Builder(getContext())
-                    .setView(selectLayout)
+            new AlertDialog.Builder(getContext()).setView(selectLayout)
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         List<SelectLayout.SelectItem<Board>> items1 = selectLayout.getItems();
                         boolean all = selectLayout.areAllChecked();
@@ -315,8 +301,7 @@ public class FilterLayout
 
             for (FilterAction action : FilterAction.values()) {
                 //don't display the watch action unless it's been enabled
-                if (action == FilterAction.WATCH && !ChanSettings.watchFilterWatch.get())
-                    continue;
+                if (action == FilterAction.WATCH && !ChanSettings.watchFilterWatch.get()) continue;
                 menuItems.add(new FloatingMenuItem(action, FilterAction.actionName(action)));
             }
 
@@ -356,8 +341,7 @@ public class FilterLayout
                 }
             }
 
-            new AlertDialog.Builder(getContext())
-                    .setTitle(R.string.filter_help_title)
+            new AlertDialog.Builder(getContext()).setTitle(R.string.filter_help_title)
                     .setMessage(message)
                     .setPositiveButton(R.string.ok, null)
                     .show();
@@ -365,8 +349,7 @@ public class FilterLayout
             final ColorPickerView colorPickerView = new ColorPickerView(getContext());
             colorPickerView.setColor(filter.color);
 
-            AlertDialog dialog = new AlertDialog.Builder(getContext())
-                    .setTitle(R.string.filter_color_pick)
+            AlertDialog dialog = new AlertDialog.Builder(getContext()).setTitle(R.string.filter_color_pick)
                     .setView(colorPickerView)
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog1, which) -> {

@@ -168,7 +168,7 @@ public class Post
         subjectSpan = builder.subjectSpan;
         nameTripcodeIdCapcodeSpan = builder.nameTripcodeIdCapcodeSpan;
 
-        linkables = Collections.unmodifiableList(builder.linkables);
+        linkables = Collections.unmodifiableList(new ArrayList<>(builder.linkables));
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
     }
 
@@ -269,7 +269,12 @@ public class Post
 
     @Override
     public int hashCode() {
-        return 31 * no + 31 * board.code.hashCode() + 31 * board.siteId;
+        int commentTotal = 0;
+        for (char c : comment.toString().toCharArray()) {
+            commentTotal += c;
+        }
+        return 31 * no + 31 * board.code.hashCode() + 31 * board.siteId + 31 * (deleted.get() ? 1 : 0)
+                + 31 * commentTotal;
     }
 
     @Override
@@ -288,8 +293,13 @@ public class Post
 
         Post otherPost = (Post) other;
 
-        return this.no == otherPost.no && this.board.code.equals(otherPost.board.code)
-                && this.board.siteId == otherPost.board.siteId;
+        //@formatter:off
+        return this.no == otherPost.no
+                && this.board.code.equals(otherPost.board.code)
+                && this.board.siteId == otherPost.board.siteId
+                && this.deleted.get() == otherPost.deleted.get()
+                && this.comment.toString().equals(otherPost.comment.toString());
+        //@formatter:on
     }
 
     @Override
@@ -341,7 +351,7 @@ public class Post
         public CharSequence subjectSpan;
         public CharSequence nameTripcodeIdCapcodeSpan;
 
-        private List<PostLinkable> linkables = new ArrayList<>();
+        private Set<PostLinkable> linkables = new HashSet<>();
         private Set<Integer> repliesToIds = new HashSet<>();
 
         public Builder() {
@@ -472,13 +482,14 @@ public class Post
             return this;
         }
 
-        public Builder filter(int highlightedColor,
-                              boolean stub,
-                              boolean remove,
-                              boolean watch,
-                              boolean filterReplies,
-                              boolean onlyOnOp,
-                              boolean filterSaved
+        public Builder filter(
+                int highlightedColor,
+                boolean stub,
+                boolean remove,
+                boolean watch,
+                boolean filterReplies,
+                boolean onlyOnOp,
+                boolean filterSaved
         ) {
             filterHighlightedColor = highlightedColor;
             filterStub = stub;
@@ -507,12 +518,16 @@ public class Post
         }
 
         public Builder linkables(List<PostLinkable> linkables) {
-            this.linkables = linkables;
+            this.linkables = new HashSet<>(linkables);
             return this;
         }
 
         public List<PostLinkable> getLinkables() {
-            return linkables == null ? new ArrayList<>() : linkables;
+            List<PostLinkable> result = new ArrayList<>();
+            if (linkables != null) {
+                result.addAll(linkables);
+            }
+            return result;
         }
 
         public Builder addReplyTo(int postId) {

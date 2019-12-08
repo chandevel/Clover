@@ -42,10 +42,10 @@ import okhttp3.ResponseBody;
 
 public class CaptchaNoJsPresenterV2 {
     private static final String TAG = "CaptchaNoJsPresenterV2";
-    private static final String userAgentHeader
-            = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36";
-    private static final String acceptHeader
-            = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
+    private static final String userAgentHeader =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36";
+    private static final String acceptHeader =
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
     private static final String acceptEncodingHeader = "deflate, br";
     private static final String acceptLanguageHeader = "en-US";
     private static final String recaptchaUrlBase = "https://www.google.com/recaptcha/api/fallback?k=";
@@ -57,8 +57,8 @@ public class CaptchaNoJsPresenterV2 {
     private static final long CAPTCHA_REQUEST_THROTTLE_MS = 3000L;
 
     // this cookie is taken from dashchan
-    private static final String defaultGoogleCookies
-            = "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
+    private static final String defaultGoogleCookies =
+            "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final CaptchaNoJsHtmlParser parser;
@@ -78,8 +78,7 @@ public class CaptchaNoJsPresenterV2 {
     public CaptchaNoJsPresenterV2(@Nullable AuthenticationCallbacks callbacks, Context context) {
         this.callbacks = callbacks;
         this.parser = new CaptchaNoJsHtmlParser(context);
-        this.okHttpClient =  Chan.injector()
-                .instance(NetModule.ProxiedOkHttpClient.class);
+        this.okHttpClient =  Chan.instance(NetModule.ProxiedOkHttpClient.class);
     }
 
     public void init(String siteKey, String baseUrl) {
@@ -124,8 +123,7 @@ public class CaptchaNoJsPresenterV2 {
 
                     Logger.d(TAG, "Verify called");
 
-                    Request request = new Request.Builder()
-                            .url(recaptchaUrl)
+                    Request request = new Request.Builder().url(recaptchaUrl)
                             .post(body)
                             .header("Referer", recaptchaUrl)
                             .header("User-Agent", userAgentHeader)
@@ -224,8 +222,7 @@ public class CaptchaNoJsPresenterV2 {
 
         String recaptchaUrl = recaptchaUrlBase + siteKey;
 
-        Request request = new Request.Builder()
-                .url(recaptchaUrl)
+        Request request = new Request.Builder().url(recaptchaUrl)
                 .header("Referer", baseUrl)
                 .header("User-Agent", userAgentHeader)
                 .header("Accept", acceptHeader)

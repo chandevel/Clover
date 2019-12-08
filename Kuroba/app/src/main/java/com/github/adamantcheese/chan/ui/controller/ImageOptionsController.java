@@ -23,7 +23,6 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Pair;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -43,10 +42,14 @@ import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
@@ -78,12 +81,13 @@ public class ImageOptionsController
     private boolean ignoreSetup;
     private boolean reencodeEnabled;
 
-    public ImageOptionsController(Context context,
-                                  ImageOptionsHelper imageReencodingHelper,
-                                  ImageOptionsControllerCallbacks callbacks,
-                                  Loadable loadable,
-                                  ImageReencodingPresenter.ImageOptions lastOptions,
-                                  boolean supportsReencode
+    public ImageOptionsController(
+            Context context,
+            ImageOptionsHelper imageReencodingHelper,
+            ImageOptionsControllerCallbacks callbacks,
+            Loadable loadable,
+            ImageReencodingPresenter.ImageOptions lastOptions,
+            boolean supportsReencode
     ) {
         super(context);
         this.imageReencodingHelper = imageReencodingHelper;
@@ -98,7 +102,7 @@ public class ImageOptionsController
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.layout_image_options);
+        view = inflate(context, R.layout.layout_image_options);
 
         viewHolder = view.findViewById(R.id.image_options_view_holder);
         container = view.findViewById(R.id.container);
@@ -164,10 +168,10 @@ public class ImageOptionsController
 
         viewHolder.setOnClickListener(this);
         preview.setOnClickListener(v -> {
-            boolean isCurrentlyVisible = optionsHolder.getVisibility() == View.VISIBLE;
-            optionsHolder.setVisibility(isCurrentlyVisible ? View.GONE : View.VISIBLE);
+            boolean isCurrentlyVisible = optionsHolder.getVisibility() == VISIBLE;
+            optionsHolder.setVisibility(isCurrentlyVisible ? GONE : VISIBLE);
             Point p = getDisplaySize();
-            int dimX1 = isCurrentlyVisible ? p.x : ViewGroup.LayoutParams.MATCH_PARENT;
+            int dimX1 = isCurrentlyVisible ? p.x : MATCH_PARENT;
             int dimY1 = isCurrentlyVisible ? p.y : dp(300);
             preview.setLayoutParams(new LinearLayout.LayoutParams(dimX1, dimY1, 0));
             ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) container.getLayoutParams();
@@ -293,8 +297,8 @@ public class ImageOptionsController
     }
 
     public interface ImageOptionsControllerCallbacks {
-        void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat,
-                                     @Nullable Pair<Integer, Integer> dims
+        void onReencodeOptionClicked(
+                @Nullable Bitmap.CompressFormat imageFormat, @Nullable Pair<Integer, Integer> dims
         );
 
         void onImageOptionsApplied(Reply reply, boolean filenameRemoved);

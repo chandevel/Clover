@@ -52,24 +52,24 @@ public class VichanAntispam {
 
     public VichanAntispam(HttpUrl url) {
         this.url = url;
-        this.okHttpClient = Chan.injector()
-                .instance(NetModule.ProxiedOkHttpClient.class);
+        this.okHttpClient = Chan.instance(NetModule.ProxiedOkHttpClient.class);
     }
 
     public void addDefaultIgnoreFields() {
-        fieldsToIgnore.addAll(Arrays.asList("board",
-                                            "thread",
-                                            "name",
-                                            "email",
-                                            "subject",
-                                            "body",
-                                            "password",
-                                            "file",
-                                            "spoiler",
-                                            "json_response",
-                                            "file_url1",
-                                            "file_url2",
-                                            "file_url3"
+        fieldsToIgnore.addAll(Arrays.asList(
+                "board",
+                "thread",
+                "name",
+                "email",
+                "subject",
+                "body",
+                "password",
+                "file",
+                "spoiler",
+                "json_response",
+                "file_url1",
+                "file_url2",
+                "file_url3"
         ));
     }
 

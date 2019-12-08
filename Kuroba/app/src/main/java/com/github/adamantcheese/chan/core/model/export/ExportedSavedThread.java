@@ -42,12 +42,13 @@ public class ExportedSavedThread {
     @NonNull
     @Override
     public String toString() {
-        return String.format(Locale.US,
-                             "loadableId: %d, lastSavedPostNo: %d, isFullyDownloaded: %b, isStopped: %b",
-                             loadableId,
-                             lastSavedPostNo,
-                             isFullyDownloaded,
-                             isStopped
+        return String.format(
+                Locale.US,
+                "loadableId: %d, lastSavedPostNo: %d, isFullyDownloaded: %b, isStopped: %b",
+                loadableId,
+                lastSavedPostNo,
+                isFullyDownloaded,
+                isStopped
         );
     }
 }

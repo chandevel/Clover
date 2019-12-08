@@ -49,8 +49,9 @@ public class CaptchaHolder {
 
         synchronized (captchaQueue) {
             captchaQueue.add(0, new CaptchaInfo(token, tokenLifetime + System.currentTimeMillis()));
-            Logger.d(TAG,
-                     "A new token has been added, validCount = " + captchaQueue.size() + ", token = " + trimToken(token)
+            Logger.d(
+                    TAG,
+                    "A new token has been added, validCount = " + captchaQueue.size() + ", token = " + trimToken(token)
             );
         }
 
@@ -122,10 +123,11 @@ public class CaptchaHolder {
                     captchasCountDecreased = true;
                     it.remove();
 
-                    Logger.d(TAG,
-                             "Captcha token got expired, now = " + sdf.format(now) + ", token validUntil = "
-                                     + sdf.format(captchaInfo.getValidUntil()) + ", token = "
-                                     + trimToken(captchaInfo.getToken())
+                    Logger.d(
+                            TAG,
+                            "Captcha token got expired, now = " + sdf.format(now) + ", token validUntil = "
+                                    + sdf.format(captchaInfo.getValidUntil()) + ", token = "
+                                    + trimToken(captchaInfo.getToken())
                     );
                 }
             }
@@ -185,8 +187,8 @@ public class CaptchaHolder {
 
         @Override
         public int hashCode() {
-            return token.hashCode() * 31 * (int) (validUntil & 0x00000000FFFFFFFFL) * 31 * (int) (
-                    (validUntil >> 32) & 0x00000000FFFFFFFFL);
+            return token.hashCode() * 31 * (int) (validUntil & 0x00000000FFFFFFFFL) * 31 * (int) ((validUntil >> 32)
+                    & 0x00000000FFFFFFFFL);
         }
 
         @Override

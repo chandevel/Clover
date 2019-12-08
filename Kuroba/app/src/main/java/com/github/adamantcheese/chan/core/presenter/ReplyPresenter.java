@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.presenter;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
@@ -56,6 +55,7 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -94,10 +94,11 @@ public class ReplyPresenter
     private int selectedQuote = -1;
 
     @Inject
-    public ReplyPresenter(ReplyManager replyManager,
-                          WatchManager watchManager,
-                          DatabaseManager databaseManager,
-                          LastReplyRepository lastReplyRepository
+    public ReplyPresenter(
+            ReplyManager replyManager,
+            WatchManager watchManager,
+            DatabaseManager databaseManager,
+            LastReplyRepository lastReplyRepository
     ) {
         this.replyManager = replyManager;
         this.watchManager = watchManager;
@@ -127,8 +128,8 @@ public class ReplyPresenter
         callback.loadDraftIntoViews(draft);
         callback.updateCommentCount(0, board.maxCommentChars, false);
         callback.setCommentHint(getString(loadable.isThreadMode()
-                                                  ? R.string.reply_comment_thread
-                                                  : R.string.reply_comment_board));
+                ? R.string.reply_comment_thread
+                : R.string.reply_comment_board));
         callback.showCommentCounter(board.maxCommentChars > 0);
 
         if (draft.file != null) {
@@ -287,8 +288,11 @@ public class ReplyPresenter
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
         draft.captchaResponse = null;
         if (ChanSettings.enableEmoji.get()) {
-            draft.comment = EmojiParser.parseFromUnicode(draft.comment, e -> ":" + e.getEmoji().getAliases().get(0) + (
-                    e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "") + ": ");
+            draft.comment = EmojiParser.parseFromUnicode(draft.comment,
+                    e -> ":" + e.getEmoji().getAliases().get(0) + (e.hasFitzpatrick()
+                            ? "|" + e.getFitzpatrickType()
+                            : "") + ": "
+            );
         }
 
         return true;
@@ -299,16 +303,14 @@ public class ReplyPresenter
         if (replyResponse.posted) {
             //if the thread being presented has changed in the time waiting for this call to complete, the loadable field in
             //ReplyPresenter will be incorrect; reconstruct the loadable (local to this method) from the reply response
-            Site localSite = Chan.injector().instance(SiteRepository.class).forId(replyResponse.siteId);
-            Board localBoard = Chan.injector().instance(BoardRepository.class)
-                                   .getFromCode(localSite, replyResponse.boardCode);
-            Loadable localLoadable = databaseManager
-                    .getDatabaseLoadableManager()
-                    .get(Loadable.forThread(localSite, localBoard,
-                                            //this loadable is for the reply response's site and board
-                                            replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo,
-                                            //for the time being, will be updated later when the watchmanager updates
-                                            "/" + localBoard.code + "/"
+            Site localSite = instance(SiteRepository.class).forId(replyResponse.siteId);
+            Board localBoard = instance(BoardRepository.class).getFromCode(localSite, replyResponse.boardCode);
+            Loadable localLoadable =
+                    databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(localSite, localBoard,
+                            //this loadable is for the reply response's site and board
+                            replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo,
+                            //for the time being, will be updated later when the watchmanager updates
+                            "/" + localBoard.code + "/"
                     ));
 
             if (localLoadable.isThreadMode()) {
@@ -333,9 +335,9 @@ public class ReplyPresenter
             }
 
             SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(localLoadable.site,
-                                                                       localLoadable.board,
-                                                                       replyResponse.postNo,
-                                                                       replyResponse.password
+                    localLoadable.board,
+                    replyResponse.postNo,
+                    replyResponse.password
             );
             databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
 
@@ -349,9 +351,8 @@ public class ReplyPresenter
             callback.loadDraftIntoViews(draft);
             callback.onPosted();
 
-            if (bound
-                    && loadable.isCatalogMode())
-            { //special case for new threads, check if we were on the catalog with the nonlocal loadable
+            //special case for new threads, check if we were on the catalog with the nonlocal loadable
+            if (bound && loadable.isCatalogMode()) {
                 callback.showThread(localLoadable);
             }
         } else if (replyResponse.requireAuthentication) {
@@ -392,10 +393,8 @@ public class ReplyPresenter
     }
 
     @Override
-    public void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout,
-                                         String challenge,
-                                         String response,
-                                         boolean autoReply
+    public void onAuthenticationComplete(
+            AuthenticationLayoutInterface authenticationLayout, String challenge, String response, boolean autoReply
     ) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
@@ -454,8 +453,7 @@ public class ReplyPresenter
 
         String extraNewline = "";
         if (draft.selectionStart - 1 >= 0 && draft.selectionStart - 1 < draft.comment.length()
-                && draft.comment.charAt(draft.selectionStart - 1) != '\n')
-        {
+                && draft.comment.charAt(draft.selectionStart - 1) != '\n') {
             extraNewline = "\n";
         }
 
@@ -589,8 +587,8 @@ public class ReplyPresenter
         int maxSize = probablyWebm ? board.maxWebmSize : board.maxFileSize;
         //if the max size is undefined for the board, ignore this message
         if (file.length() > maxSize && maxSize != -1) {
-            String fileSize = getReadableFileSize(file.length(), false);
-            String maxSizeString = getReadableFileSize(maxSize, false);
+            String fileSize = getReadableFileSize(file.length());
+            String maxSizeString = getReadableFileSize(maxSize);
 
             int stringResId = probablyWebm ? R.string.reply_webm_too_big : R.string.reply_file_too_big;
 
@@ -626,11 +624,12 @@ public class ReplyPresenter
 
         void setPage(Page page);
 
-        void initializeAuthentication(Site site,
-                                      SiteAuthentication authentication,
-                                      AuthenticationLayoutCallback callback,
-                                      boolean useV2NoJsCaptcha,
-                                      boolean autoReply
+        void initializeAuthentication(
+                Site site,
+                SiteAuthentication authentication,
+                AuthenticationLayoutCallback callback,
+                boolean useV2NoJsCaptcha,
+                boolean autoReply
         );
 
         void resetAuthentication();

@@ -25,6 +25,8 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
 import java.util.List;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+
 public class ImageViewerNavigationController
         extends ToolbarNavigationController {
 
@@ -36,7 +38,7 @@ public class ImageViewerNavigationController
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.controller_navigation_image_viewer);
+        view = inflate(context, R.layout.controller_navigation_image_viewer);
         container = (NavigationControllerContainerLayout) view.findViewById(R.id.container);
         NavigationControllerContainerLayout nav = (NavigationControllerContainerLayout) container;
         nav.setNavigationController(this);
@@ -45,19 +47,21 @@ public class ImageViewerNavigationController
         toolbar.setCallback(this);
     }
 
-    public void showImages(final List<PostImage> images,
-                           final int index,
-                           final Loadable loadable,
-                           ImageViewerController.ImageViewerCallback imageViewerCallback
+    public void showImages(
+            final List<PostImage> images,
+            final int index,
+            final Loadable loadable,
+            ImageViewerController.ImageViewerCallback imageViewerCallback
     ) {
         showImages(images, index, loadable, imageViewerCallback, null);
     }
 
-    public void showImages(final List<PostImage> images,
-                           final int index,
-                           final Loadable loadable,
-                           ImageViewerController.ImageViewerCallback imageViewerCallback,
-                           ImageViewerController.GoPostCallback goPostCallback
+    public void showImages(
+            final List<PostImage> images,
+            final int index,
+            final Loadable loadable,
+            ImageViewerController.ImageViewerCallback imageViewerCallback,
+            ImageViewerController.GoPostCallback goPostCallback
     ) {
         ImageViewerController imageViewerController = new ImageViewerController(loadable, context, toolbar);
         imageViewerController.setGoPostCallback(goPostCallback);

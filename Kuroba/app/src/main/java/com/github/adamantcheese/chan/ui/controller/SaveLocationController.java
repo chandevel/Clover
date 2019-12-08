@@ -20,7 +20,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.appcompat.app.AlertDialog;
@@ -39,6 +38,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.File;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class SaveLocationController
@@ -52,9 +52,8 @@ public class SaveLocationController
     private SaveLocationControllerMode mode;
     private SaveLocationControllerCallback callback;
 
-    public SaveLocationController(Context context,
-                                  SaveLocationControllerMode mode,
-                                  SaveLocationControllerCallback callback
+    public SaveLocationController(
+            Context context, SaveLocationControllerMode mode, SaveLocationControllerCallback callback
     ) {
         super(context);
 
@@ -68,7 +67,7 @@ public class SaveLocationController
 
         navigation.setTitle(R.string.save_location_screen);
 
-        view = inflateRes(R.layout.controller_save_location);
+        view = inflate(context, R.layout.controller_save_location);
         filesLayout = view.findViewById(R.id.files_layout);
         filesLayout.setCallback(this);
         setButton = view.findViewById(R.id.set_button);
@@ -108,11 +107,10 @@ public class SaveLocationController
             onDirectoryChosen();
             navigationController.popController();
         } else if (v == addButton) {
-            @SuppressLint("InflateParams") final NewFolderLayout dialogView = (NewFolderLayout)
-                    LayoutInflater.from(context).inflate(R.layout.layout_folder_add, null);
+            @SuppressLint("InflateParams")
+            final NewFolderLayout dialogView = (NewFolderLayout) inflate(context, R.layout.layout_folder_add, null);
 
-            new AlertDialog.Builder(context)
-                    .setView(dialogView)
+            new AlertDialog.Builder(context).setView(dialogView)
                     .setTitle(R.string.save_new_folder)
                     .setPositiveButton(R.string.add, (dialog, which) -> {
                         onPositionButtonClick(dialogView, dialog);
@@ -170,10 +168,11 @@ public class SaveLocationController
             if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 initialize();
             } else {
-                runtimePermissionsHelper.showPermissionRequiredDialog(context,
-                                                                      getString(R.string.save_location_storage_permission_required_title),
-                                                                      getString(R.string.save_location_storage_permission_required),
-                                                                      this::requestPermission
+                runtimePermissionsHelper.showPermissionRequiredDialog(
+                        context,
+                        getString(R.string.save_location_storage_permission_required_title),
+                        getString(R.string.save_location_storage_permission_required),
+                        this::requestPermission
                 );
             }
         });

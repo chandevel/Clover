@@ -66,8 +66,7 @@ public class LastReplyRepository {
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof SiteBoard))
-                return false;
+            if (!(o instanceof SiteBoard)) return false;
             SiteBoard sb = (SiteBoard) o;
             return sb.boardCode.equals(this.boardCode) && sb.site.equals(this.site);
         }

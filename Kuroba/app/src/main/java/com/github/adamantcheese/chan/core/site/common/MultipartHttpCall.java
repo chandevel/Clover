@@ -55,15 +55,15 @@ public abstract class MultipartHttpCall
 
     public MultipartHttpCall fileParameter(String name, String filename, File file) {
         formBuilder.addFormDataPart(name,
-                                    filename,
-                                    RequestBody.create(MediaType.parse("application/octet-stream"), file)
+                filename,
+                RequestBody.create(MediaType.parse("application/octet-stream"), file)
         );
         return this;
     }
 
     @Override
-    public void setup(Request.Builder requestBuilder,
-                      @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    public void setup(
+            Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         requestBuilder.url(url);
         String r = url.scheme() + "://" + url.host();

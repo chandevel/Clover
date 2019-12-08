@@ -20,13 +20,8 @@ public class SerializableBoard {
     @SerializedName("code")
     public String code;
 
-    public SerializableBoard(int id,
-                             int siteId,
-                             SerializableSite site,
-                             boolean saved,
-                             int order,
-                             String name,
-                             String code
+    public SerializableBoard(
+            int id, int siteId, SerializableSite site, boolean saved, int order, String name, String code
     ) {
         this.id = id;
         this.siteId = siteId;

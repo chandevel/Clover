@@ -134,8 +134,7 @@ public class DatabaseBoardManager {
 
     public Callable<Board> getBoard(final Site site, final String code) {
         return () -> {
-            Board board = helper.boardsDao
-                    .queryBuilder()
+            Board board = helper.boardsDao.queryBuilder()
                     .where()
                     .eq("site", site.id())
                     .and()
@@ -194,8 +193,7 @@ public class DatabaseBoardManager {
             List<Pair<Site, List<Board>>> res = new ArrayList<>();
             for (Site site : sitesOrdered) {
                 List<Board> siteBoards = bySite.get(site.id());
-                if (siteBoards == null)
-                    siteBoards = new ArrayList<>();
+                if (siteBoards == null) siteBoards = new ArrayList<>();
                 Collections.sort(siteBoards, (lhs, rhs) -> lhs.order - rhs.order);
                 res.add(new Pair<>(site, siteBoards));
             }
@@ -216,13 +214,8 @@ public class DatabaseBoardManager {
 
     public Callable<List<Board>> getSiteSavedBoards(final Site site) {
         return () -> {
-            List<Board> boards = helper.boardsDao
-                    .queryBuilder()
-                    .where()
-                    .eq("site", site.id())
-                    .and()
-                    .eq("saved", true)
-                    .query();
+            List<Board> boards =
+                    helper.boardsDao.queryBuilder().where().eq("site", site.id()).and().eq("saved", true).query();
             for (int i = 0; i < boards.size(); i++) {
                 Board board = boards.get(i);
                 board.site = site;

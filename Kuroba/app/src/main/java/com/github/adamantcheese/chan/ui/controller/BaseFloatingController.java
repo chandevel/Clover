@@ -6,6 +6,7 @@ import android.view.Window;
 
 import com.github.adamantcheese.chan.controller.Controller;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
 
 public abstract class BaseFloatingController
@@ -21,7 +22,7 @@ public abstract class BaseFloatingController
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(getLayoutId());
+        view = inflate(context, getLayoutId());
 
         statusBarColorPrevious = getWindow().getStatusBarColor();
         if (statusBarColorPrevious != 0) {

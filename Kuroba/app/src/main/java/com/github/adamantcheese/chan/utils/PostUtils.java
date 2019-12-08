@@ -12,19 +12,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 public class PostUtils {
 
-    public static String getReadableFileSize(long bytes, boolean si) {
-        long unit = si ? 1000 : 1024;
-        if (bytes < unit)
-            return bytes + " B";
-        int exp = (int) (Math.log(bytes) / Math.log(unit));
-        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
-        return String.format(Locale.US, "%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    @SuppressLint("DefaultLocale")
+    public static String getReadableFileSize(long bytes) {
+        //Nice stack overflow copy-paste, but it's been updated to be more correct
+        //https://programming.guide/java/formatting-byte-size-to-human-readable-format.html
+        //@formatter:off
+        String s = bytes < 0 ? "-" : "";
+        long b = bytes == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(bytes);
+        return b < 1000L ? bytes + " B"
+                : b < 999_950L ? String.format("%s%.1f kB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f MB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f GB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f TB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f PB", s, b / 1e3)
+                : String.format("%s%.1f EB", s, b / 1e6);
+        //@formatter:on
     }
 
     public static Post findPostById(int id, @Nullable ChanThread thread) {
@@ -70,10 +77,11 @@ public class PostUtils {
      * Collects all hidden posts with their replies.
      * This function is slow so it must be executed on the background thread
      */
-    public static List<PostHide> findHiddenPostsWithReplies(List<PostHide> hiddenPostsFirstIteration,
-                                                            Map<Integer, Post> postsFastLookupMap
+    public static List<PostHide> findHiddenPostsWithReplies(
+            List<PostHide> hiddenPostsFirstIteration, Map<Integer, Post> postsFastLookupMap
     ) {
-        @SuppressLint("UseSparseArrays") Map<Integer, PostHide> hiddenPostsFastLookupMap = new HashMap<>();
+        @SuppressLint("UseSparseArrays")
+        Map<Integer, PostHide> hiddenPostsFastLookupMap = new HashMap<>();
 
         for (PostHide postHide : hiddenPostsFirstIteration) {
             hiddenPostsFastLookupMap.put(postHide.no, postHide);
@@ -96,8 +104,8 @@ public class PostUtils {
      * For every post checks whether it has a reply to already hidden post and adds that post to the
      * hidden posts list if it has. Checks for some flags to decide whether that post should be hidden or not.
      */
-    private static List<PostHide> search(Map<Integer, PostHide> hiddenPostsFastLookupMap,
-                                         Map<Integer, Post> postsFastLookupMap
+    private static List<PostHide> search(
+            Map<Integer, PostHide> hiddenPostsFastLookupMap, Map<Integer, Post> postsFastLookupMap
     ) {
         Set<PostHide> newHiddenPosts = new HashSet<>();
 
@@ -117,8 +125,7 @@ public class PostUtils {
 
                 PostHide toInheritBaseInfoFrom = hiddenPostsFastLookupMap.get(replyTo);
                 if (repliedToPost.isOP || toInheritBaseInfoFrom == null
-                        || !toInheritBaseInfoFrom.hideRepliesToThisPost)
-                {
+                        || !toInheritBaseInfoFrom.hideRepliesToThisPost) {
                     // skip if OP or if has a flag to not hide replies to this post
                     continue;
                 }

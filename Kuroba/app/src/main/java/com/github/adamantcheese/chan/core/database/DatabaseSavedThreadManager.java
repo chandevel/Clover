@@ -30,8 +30,7 @@ public class DatabaseSavedThreadManager {
 
     public Callable<Long> countDownloadingThreads() {
         return () -> {
-            return helper.savedThreadDao
-                    .queryBuilder()
+            return helper.savedThreadDao.queryBuilder()
                     .where()
                     .eq(SavedThread.IS_STOPPED, false)
                     .and()
@@ -75,18 +74,18 @@ public class DatabaseSavedThreadManager {
                             + ", currLoadableId = " + savedThread.loadableId + ")");
         }
 
-        return new SavedThread(prevSavedThread.id,
-                               savedThread.isFullyDownloaded,
-                               savedThread.isStopped,
-                               Math.max(prevSavedThread.lastSavedPostNo, savedThread.lastSavedPostNo),
-                               prevSavedThread.loadableId
+        return new SavedThread(
+                prevSavedThread.id,
+                savedThread.isFullyDownloaded,
+                savedThread.isStopped,
+                Math.max(prevSavedThread.lastSavedPostNo, savedThread.lastSavedPostNo),
+                prevSavedThread.loadableId
         );
     }
 
     public Callable<Void> updateLastSavedPostNo(int loadableId, int lastPostNo) {
         return () -> {
-            SavedThread savedThread = helper.savedThreadDao
-                    .queryBuilder()
+            SavedThread savedThread = helper.savedThreadDao.queryBuilder()
                     .where()
                     .eq(SavedThread.LOADABLE_ID, loadableId)
                     .queryForFirst();
@@ -103,8 +102,7 @@ public class DatabaseSavedThreadManager {
 
     public Callable<Boolean> updateThreadStoppedFlagByLoadableId(int loadableId, boolean stop) {
         return () -> {
-            SavedThread savedThread = helper.savedThreadDao
-                    .queryBuilder()
+            SavedThread savedThread = helper.savedThreadDao.queryBuilder()
                     .where()
                     .eq(SavedThread.LOADABLE_ID, loadableId)
                     .queryForFirst();
@@ -125,8 +123,7 @@ public class DatabaseSavedThreadManager {
 
     public Callable<Boolean> updateThreadFullyDownloadedByLoadableId(int loadableId) {
         return () -> {
-            SavedThread savedThread = helper.savedThreadDao
-                    .queryBuilder()
+            SavedThread savedThread = helper.savedThreadDao.queryBuilder()
                     .where()
                     .eq(SavedThread.LOADABLE_ID, loadableId)
                     .queryForFirst();
@@ -148,8 +145,7 @@ public class DatabaseSavedThreadManager {
 
     public Callable<Integer> getLastSavedPostNo(int loadableId) {
         return () -> {
-            SavedThread savedThread = helper.savedThreadDao
-                    .queryBuilder()
+            SavedThread savedThread = helper.savedThreadDao.queryBuilder()
                     .where()
                     .eq(SavedThread.LOADABLE_ID, loadableId)
                     .queryForFirst();
@@ -162,8 +158,7 @@ public class DatabaseSavedThreadManager {
     }
 
     public Callable<SavedThread> getSavedThreadByLoadableId(int loadableId) {
-        return () -> helper.savedThreadDao
-                .queryBuilder()
+        return () -> helper.savedThreadDao.queryBuilder()
                 .where()
                 .eq(SavedThread.LOADABLE_ID, loadableId)
                 .queryForFirst();
@@ -189,8 +184,7 @@ public class DatabaseSavedThreadManager {
         AbstractFile localThreadsDir = fileManager.newBaseDirectoryFile(LocalThreadsBaseDirectory.class);
 
         if (localThreadsDir == null || !fileManager.exists(localThreadsDir)
-                || !fileManager.isDirectory(localThreadsDir))
-        {
+                || !fileManager.isDirectory(localThreadsDir)) {
             // Probably already deleted
             return;
         }
