@@ -83,7 +83,7 @@ public class CaptchaNoJsPresenterV2 {
 
     public void init(String siteKey, String baseUrl) {
         this.siteKey = siteKey;
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl; 
     }
 
     /**
