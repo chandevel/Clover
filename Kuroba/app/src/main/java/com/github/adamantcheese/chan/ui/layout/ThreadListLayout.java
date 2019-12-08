@@ -330,7 +330,7 @@ public class ThreadListLayout
             filteredPosts.removeAll(toRemove);
         }
 
-        postAdapter.setThread(thread, filteredPosts);
+        postAdapter.setThread(thread.getLoadable(), filteredPosts);
     }
 
     public boolean onBack() {

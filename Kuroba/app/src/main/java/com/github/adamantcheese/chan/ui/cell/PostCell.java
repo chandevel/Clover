@@ -94,6 +94,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
@@ -503,7 +504,7 @@ public class PostCell
                         } else if (item == webSearchItem) {
                             Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
                             searchIntent.putExtra(SearchManager.QUERY, selection.toString());
-                            AndroidUtils.openIntent(searchIntent);
+                            openIntent(searchIntent);
                             processed = true;
                         }
 
