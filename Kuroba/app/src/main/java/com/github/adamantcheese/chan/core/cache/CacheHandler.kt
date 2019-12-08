@@ -130,7 +130,7 @@ class CacheHandler(
 
     /**
      * Checks whether this file is already downloaded by reading it's meta info. If a file has no
-     * meta info or it cannot be read - deletes the file so it can be redownloaded again with all
+     * meta info or it cannot be read - deletes the file so it can be re-downloaded again with all
      * necessary information
      * */
     fun isAlreadyDownloaded(file: RawFile): Boolean {
@@ -165,7 +165,6 @@ class CacheHandler(
 
             if (fileManager.getLength(cacheFileMetaFile) <= 0) {
                 // File is empty
-
                 deleteCacheFile(file)
                 return false
             }
@@ -186,7 +185,7 @@ class CacheHandler(
 
     /**
      * Marks the file as a downloaded (sets a flag in it's meta info). If meta info cannot be read
-     * deletes the file so it can be redownloaded again.
+     * deletes the file so it can be re-downloaded again.
      * */
     fun markFileDownloaded(output: RawFile): Boolean {
         return try {
@@ -301,7 +300,11 @@ class CacheHandler(
         if (fileManager.delete(cacheFile)) {
             if (fileManager.delete(cacheMetaFile)) {
                 val cacheFileSize = fileManager.getLength(cacheFile)
+
                 size.getAndAdd(-cacheFileSize)
+                if (size.get() < 0L) {
+                    size.set(0L)
+                }
 
                 Logger.d(TAG, "Deleted $cacheFileName and it's meta $cacheMetaFileName")
                 return true
@@ -435,7 +438,7 @@ class CacheHandler(
 
         return fileManager.withFileDescriptor(file, FileDescriptorMode.Read) { fd ->
             try {
-                FileReader(fd).use { reader ->
+                return@withFileDescriptor FileReader(fd).use { reader ->
                     val lengthBuffer = CharArray(CACHE_FILE_META_HEADER_SIZE)
 
                     var read = reader.read(lengthBuffer)
@@ -464,7 +467,7 @@ class CacheHandler(
                         )
                     }
 
-                    return@withFileDescriptor CacheFileMeta(
+                    return@use CacheFileMeta(
                             split[0].toLong(),
                             split[1].toBoolean()
                     )
@@ -622,9 +625,7 @@ class CacheHandler(
         }
 
         recalculateSize()
-        Logger.d(TAG,
-                "trim() ended, filesDeleted = filesDeleted, space freed = $totalDeleted"
-        )
+        Logger.d(TAG, "trim() ended, filesDeleted = $filesDeleted, space freed = $totalDeleted")
     }
 
     private fun groupFilterAndSortFiles(directoryFiles: List<AbstractFile>): List<CacheFile> {
@@ -778,6 +779,7 @@ class CacheHandler(
         // So let's increase it. And it's the Android app's cache which can be cleaned by the
         // OS (or user) at any time so it shouldn't be a problem.
         private const val DEFAULT_CACHE_SIZE = 512L * 1024L * 1024L
+        // TODO: maybe we should also increase the size of the cache with prefetching turned on?
         private const val PREFETCH_CACHE_SIZE = 1024L * 1024L * 1024L
         private const val CACHE_FILE_META_HEADER_SIZE = 4
         private const val CACHE_FILE_NAME_FORMAT = "%s.%s"
@@ -791,6 +793,7 @@ class CacheHandler(
         private val CACHE_FILE_COMPARATOR = Comparator<CacheFile> { cacheFile1, cacheFile2 ->
             cacheFile1.createdOn.compareTo(cacheFile2.createdOn)
         }
+
         private val FILE_CACHE_DISK_SIZE = if (ChanSettings.autoLoadThreadImages.get()) {
             PREFETCH_CACHE_SIZE
         } else {
