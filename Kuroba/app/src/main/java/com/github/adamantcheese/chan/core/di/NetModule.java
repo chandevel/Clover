@@ -47,8 +47,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 
 public class NetModule {
     public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
-    public static final long DOWNLOADER_OKHTTP_TIMEOUT_SECONDS = 30L;
-    public static final long PROXIED_OKHTTP_TIMEOUT_SECONDS = 20L;
+    public static final long DOWNLOADER_OKHTTP_TIMEOUT_SECONDS = 20L;
+    public static final long PROXIED_OKHTTP_TIMEOUT_SECONDS = 30L;
     public static final long THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS = 30L;
     public static final String THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME = "thread_save_manager_okhttp_client";
     public static final String DOWNLOADER_OKHTTP_CLIENT_NAME = "downloader_okhttp_client";
@@ -117,8 +117,6 @@ public class NetModule {
         );
 
         return new OkHttpClient.Builder()
-                // So that people can still download files with a really bad connection we need to
-                // set the timeouts relatively high
                 .connectTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .readTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .writeTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)

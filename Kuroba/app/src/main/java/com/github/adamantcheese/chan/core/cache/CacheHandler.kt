@@ -19,8 +19,8 @@ package com.github.adamantcheese.chan.core.cache
 import android.text.TextUtils
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.BackgroundUtils
-import com.github.adamantcheese.chan.utils.ConversionUtil.charArrayToInt
-import com.github.adamantcheese.chan.utils.ConversionUtil.intToCharArray
+import com.github.adamantcheese.chan.utils.ConversionUtils.charArrayToInt
+import com.github.adamantcheese.chan.utils.ConversionUtils.intToCharArray
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils
 import com.github.k1rakishou.fsaf.FileManager
@@ -140,7 +140,7 @@ class CacheHandler(
             }
 
             if (!fileManager.getName(file).endsWith(CACHE_EXTENSION)) {
-                Logger.e(TAG, "Not a cache file meta! file = " + file.getFullPath())
+                Logger.e(TAG, "Not a cache file! file = " + file.getFullPath())
                 return false
             }
 
@@ -525,7 +525,8 @@ class CacheHandler(
     }
 
     private fun backgroundRecalculateSize() {
-        if (recalculationRunning.get()) { // Already running. Do not use compareAndSet() here!
+        if (recalculationRunning.get()) {
+            // Already running. Do not use compareAndSet() here!
             return
         }
 
@@ -536,8 +537,6 @@ class CacheHandler(
         var calculatedSize: Long = 0
 
         if (!recalculationRunning.compareAndSet(false, true)) {
-            // Check once more because we call this method from within the trim() method so it
-            // may be already running on background thread.
             return
         }
 
@@ -591,7 +590,7 @@ class CacheHandler(
             }
         }
 
-        // We either delete all file we can in the cache directory or at most half of the cache
+        // We either delete all files we can in the cache directory or at most half of the cache
         for (cacheFile in sortedFiles) {
             val file = cacheFile.file
             val createdOn = cacheFile.createdOn
@@ -632,7 +631,7 @@ class CacheHandler(
         BackgroundUtils.ensureBackgroundThread()
 
         val groupedCacheFiles = filterAndGroupCacheFilesWithMeta(directoryFiles)
-        val cacheFiles: MutableList<CacheFile> = ArrayList(groupedCacheFiles.size)
+        val cacheFiles = ArrayList<CacheFile>(groupedCacheFiles.size)
 
         for ((abstractFile, abstractFileMeta) in groupedCacheFiles) {
             val cacheFileMeta = readCacheFileMeta(abstractFileMeta)

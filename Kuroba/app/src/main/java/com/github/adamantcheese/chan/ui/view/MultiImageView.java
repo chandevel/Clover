@@ -301,7 +301,7 @@ public class MultiImageView
                             onModeLoaded(Mode.LOWRES, thumbnail);
                         }
                     }
-                                                  }
+                }
         );
 
         if (thumbnailRequest != null && thumbnailRequest.getBitmap() != null) {

@@ -3,7 +3,7 @@ package com.github.adamantcheese.chan.utils
 import okhttp3.internal.and
 
 
-object ConversionUtil {
+object ConversionUtils {
 
     @JvmStatic
     fun intToByteArray(value: Int): ByteArray {
