@@ -28,7 +28,6 @@ import okhttp3.internal.http2.StreamResetException
 import okio.*
 import java.io.File
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -1060,7 +1059,7 @@ class FileCacheV2(
         private const val NORMAL_THREAD_NAME_FORMAT = "NormalFileCacheV2Thread-%d"
         private const val BATCH_THREAD_NAME_FORMAT = "BatchFileCacheV2Thread-%d"
         private const val BUFFER_SIZE: Long = 8192L
-        private const val MAX_RETRIES = 7L
+        private const val MAX_RETRIES = 5L
 
         private fun log(message: String) {
             Logger.d(TAG, String.format("[%s]: %s", Thread.currentThread().name, message))

@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.media.AudioManager;
 
+import androidx.annotation.GuardedBy;
 import androidx.viewpager.widget.ViewPager;
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
@@ -28,8 +29,10 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,6 +80,8 @@ public class ImageViewerPresenter
     private Loadable loadable;
 
     private Set<FileCacheV2.CancelableDownload> preloadingImages = new HashSet<>();
+    @GuardedBy("itself")
+    private final Set<String> nonCancelableImages = new HashSet<>();
 
     // Disables swiping until the view pager is visible
     private boolean viewPagerVisible = false;
@@ -142,6 +147,11 @@ public class ImageViewerPresenter
         for (FileCacheV2.CancelableDownload preloadingImage : preloadingImages) {
             preloadingImage.cancel();
         }
+
+        synchronized (nonCancelableImages) {
+            nonCancelableImages.clear();
+        }
+
         preloadingImages.clear();
     }
 
@@ -233,6 +243,11 @@ public class ImageViewerPresenter
             callback.setImageMode(other, LOWRES, false);
         }
 
+        synchronized (nonCancelableImages) {
+            nonCancelableImages.clear();
+            nonCancelableImages.addAll(getNonCancelableImages(position));
+        }
+
         if (swipingForward) {
             cancelPreviousFromStartImageDownload(position);
         } else {
@@ -293,6 +308,28 @@ public class ImageViewerPresenter
         }
     }
 
+    private List<String> getNonCancelableImages(int index) {
+        if (images.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<String> nonCancelableImages = new ArrayList<>(3);
+
+        if (index - 1 >= 0) {
+            nonCancelableImages.add(images.get(index - 1).imageUrl.toString());
+        }
+
+        if (index >= 0 && index < images.size()) {
+            nonCancelableImages.add(images.get(index).imageUrl.toString());
+        }
+
+        if (index + 1 < images.size()) {
+            nonCancelableImages.add(images.get(index + 1).imageUrl.toString());
+        }
+
+        return nonCancelableImages;
+    }
+
     private void doPreloading(PostImage postImage) {
         boolean load = false;
         if (postImage.type == STATIC || postImage.type == GIF) {
@@ -346,6 +383,16 @@ public class ImageViewerPresenter
     }
 
     private boolean cancelImageDownload(int position, FileCacheV2.CancelableDownload downloader) {
+        synchronized (nonCancelableImages) {
+            if (nonCancelableImages.contains(downloader.getUrl())) {
+                Logger.d(TAG,
+                        "Attempt to cancel non cancelable download for image with url: "
+                        + downloader.getUrl()
+                );
+                return false;
+            }
+        }
+
         PostImage previousImage = images.get(position);
         if (downloader.getUrl().equals(previousImage.imageUrl.toString())) {
             downloader.cancel();
