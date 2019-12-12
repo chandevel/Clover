@@ -494,7 +494,7 @@ public class ChanThreadLoader
         }
 
         // TODO: do we really need to do this?
-        for (Post post : thread.getPostsUnsafe()) {
+        for (Post post : thread.getPosts()) {
             post.setTitle(loadable.title);
         }
 

@@ -368,7 +368,7 @@ public class ThreadPresenter
         }
 
         Post op = chanLoader.getThread().getOp();
-        List<Post> postsToSave = chanLoader.getThread().getPostsUnsafe();
+        List<Post> postsToSave = chanLoader.getThread().getPosts();
 
         Pin oldPin = watchManager.findPinByLoadableId(loadable.id);
         if (oldPin != null) {
@@ -518,15 +518,15 @@ public class ThreadPresenter
             int lastLoaded = loadable.lastLoaded;
             int more = 0;
             if (lastLoaded > 0) {
-                for (Post p : result.getPostsUnsafe()) {
+                for (Post p : result.getPosts()) {
                     if (p.no == lastLoaded) {
-                        more = result.getPostsCount() - result.getPostsUnsafe().indexOf(p) - 1;
+                        more = result.getPostsCount() - result.getPosts().indexOf(p) - 1;
                         break;
                     }
                 }
             }
 
-            loadable.setLastLoaded(result.getPostsUnsafe().get(result.getPostsCount() - 1).no);
+            loadable.setLastLoaded(result.getPosts().get(result.getPostsCount() - 1).no);
 
             if (more > 0) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
@@ -538,7 +538,7 @@ public class ThreadPresenter
             }
 
             if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal()) {
-                for (Post p : result.getPostsUnsafe()) {
+                for (Post p : result.getPosts()) {
                     if (p.images != null) {
                         for (PostImage postImage : p.images) {
                             if (cacheHandler.exists(postImage.imageUrl.toString())) {
@@ -569,7 +569,7 @@ public class ThreadPresenter
             loadable.markedNo = -1;
         }
 
-        storeNewPostsIfThreadIsBeingDownloaded(loadable, result.getPostsUnsafe());
+        storeNewPostsIfThreadIsBeingDownloaded(loadable, result.getPosts());
         addHistory();
 
         // Update loadable in the database
@@ -1183,7 +1183,7 @@ public class ThreadPresenter
             text.append("\nId: ").append(post.id);
             int count = 0;
             try {
-                for (Post p : chanLoader.getThread().getPostsUnsafe()) {
+                for (Post p : chanLoader.getThread().getPosts()) {
                     if (p.id.equals(post.id)) count++;
                 }
             } catch (Exception ignored) {
@@ -1248,7 +1248,7 @@ public class ThreadPresenter
             if (wholeChain) {
                 ChanThread thread = chanLoader.getThread();
                 if (thread != null) {
-                    posts.addAll(PostUtils.findPostWithReplies(post.no, thread.getPostsUnsafe()));
+                    posts.addAll(PostUtils.findPostWithReplies(post.no, thread.getPosts()));
                 }
             } else {
                 posts.add(PostUtils.findPostById(post.no, chanLoader.getThread()));
@@ -1264,7 +1264,7 @@ public class ThreadPresenter
             return;
         }
 
-        threadPresenterCallback.viewRemovedPostsForTheThread(chanLoader.getThread().getPostsUnsafe(),
+        threadPresenterCallback.viewRemovedPostsForTheThread(chanLoader.getThread().getPosts(),
                 chanLoader.getThread().getOp().no
         );
     }

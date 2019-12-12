@@ -1044,7 +1044,7 @@ public class WatchManager
         public int getImageCount() {
             if (chanLoader != null && chanLoader.getThread() != null) {
                 int total = 0;
-                List<Post> posts = chanLoader.getThread().getPostsUnsafe();
+                List<Post> posts = chanLoader.getThread().getPosts();
                 if (posts == null) return 0;
                 for (Post p : posts) {
                     if (!p.isOP) total += p.images.size();
@@ -1184,21 +1184,21 @@ public class WatchManager
 
             // Populate posts list
             posts.clear();
-            posts.addAll(thread.getPostsUnsafe());
+            posts.addAll(thread.getPosts());
 
             // Populate quotes list
             quotes.clear();
 
             // Get list of saved replies from this thread
             List<Post> savedReplies = new ArrayList<>();
-            for (Post item : thread.getPostsUnsafe()) {
+            for (Post item : thread.getPosts()) {
                 if (item.isSavedReply) {
                     savedReplies.add(item);
                 }
             }
 
             // Now get a list of posts that have a quote to a saved reply, but not self-replies
-            for (Post post : thread.getPostsUnsafe()) {
+            for (Post post : thread.getPosts()) {
                 for (Post saved : savedReplies) {
                     if (post.repliesTo.contains(saved.no) && !post.isSavedReply) {
                         quotes.add(post);
