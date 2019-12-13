@@ -356,7 +356,7 @@ Note that for country code filtering, troll country codes should be prepended wi
 
     <string name="album_download_screen">Select images (%1$d / %2$d)</string>
     <string name="album_download_none_checked">Please select images to download</string>
-    <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
+    <string name="album_download_confirm">%1$s will be downloaded to %2$s</string>
     <string name="album_download_success">Finished saving images; downloaded to %1$s</string>
 
     <string name="report_screen">Report %1$s</string>
