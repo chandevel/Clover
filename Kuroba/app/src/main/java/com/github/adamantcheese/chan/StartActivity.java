@@ -549,9 +549,13 @@ public class StartActivity
 
         fileChooser.removeCallbacks();
 
-        // TODO: clear whole stack?
-        stackTop().onHide();
-        stackTop().onDestroy();
+        for (int i = stack.size() - 1; i >= 0; --i) {
+            Controller controller = stack.get(i);
+
+            controller.onHide();
+            controller.onDestroy();
+        }
+
         stack.clear();
     }
 
