@@ -11,6 +11,8 @@ import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.save.SerializableThread;
 import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -40,6 +42,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -88,9 +91,10 @@ public class ThreadSaveManager {
             .connectTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .callTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .build();
-    private ExecutorService executorService = Executors.newFixedThreadPool(getThreadsCountForDownloaderExecutor());
 
+    private ExecutorService executorService = Executors.newFixedThreadPool(getThreadsCountForDownloaderExecutor());
     private PublishProcessor<Loadable> workerQueue = PublishProcessor.create();
+    private AtomicBoolean cancelingRunning = new AtomicBoolean(false);
 
     private static int getThreadsCountForDownloaderExecutor() {
         int threadsCount = (Runtime.getRuntime().availableProcessors() / 2) + 1;
@@ -151,7 +155,6 @@ public class ThreadSaveManager {
         Logger.d(TAG, "Collected " + loadableList.size() + " local thread download requests");
 
         AbstractFile baseLocalThreadsDirectory = fileManager.newBaseDirectoryFile(LocalThreadsBaseDirectory.class);
-
         if (baseLocalThreadsDirectory == null) {
             Logger.e(TAG, "LocalThreadsBaseDirectory is not registered!");
             return Flowable.just(false);
@@ -276,6 +279,14 @@ public class ThreadSaveManager {
      */
     public void cancelAllDownloading() {
         synchronized (activeDownloads) {
+            if (activeDownloads.isEmpty()) {
+                return;
+            }
+
+            if (cancelingRunning.compareAndSet(false, true)) {
+                return;
+            }
+
             for (Map.Entry<Loadable, SaveThreadParameters> entry : activeDownloads.entrySet()) {
                 SaveThreadParameters parameters = entry.getValue();
 
@@ -284,6 +295,53 @@ public class ThreadSaveManager {
 
             additionalThreadParameter.clear();
         }
+
+        Logger.d(TAG, "Canceling all active thread downloads");
+
+        databaseManager.runTask(() -> {
+            try {
+                List<Pin> pins = databaseManager.getDatabasePinManager().getPins().call();
+                if (pins.isEmpty()) {
+                    return null;
+                }
+
+                List<Pin> downloadPins = new ArrayList<>();
+
+                for (Pin pin : pins) {
+                    if (PinType.hasDownloadFlag(pin.pinType)) {
+                        downloadPins.add(pin);
+                    }
+                }
+
+                if (downloadPins.isEmpty()) {
+                    return null;
+                }
+
+                databaseManager.getDatabaseSavedThreadManager().deleteAllSavedThreads().call();
+
+                for (Pin pin : downloadPins) {
+                    pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
+
+                    if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
+                        continue;
+                    }
+
+                    // We don't want to delete all of the users's bookmarks so we just change their
+                    // types to WatchNewPosts
+                    pin.pinType = PinType.addWatchNewPostsFlag(pin.pinType);
+                }
+
+                databaseManager.getDatabasePinManager().updatePins(downloadPins).call();
+
+                for (Pin pin : downloadPins) {
+                    databaseManager.getDatabaseSavedThreadManager().deleteThreadFromDisk(pin.loadable);
+                }
+
+                return null;
+            } finally {
+                cancelingRunning.set(false);
+            }
+        });
     }
 
     /**

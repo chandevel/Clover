@@ -43,7 +43,9 @@ import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -133,6 +135,7 @@ public class WatchManager
     private final WakeManager wakeManager;
     private final PageRequestManager pageRequestManager;
     private final ThreadSaveManager threadSaveManager;
+    private final FileManager fileManager;
 
     private IntervalType currentInterval = NONE;
 
@@ -149,7 +152,8 @@ public class WatchManager
             ChanLoaderFactory chanLoaderFactory,
             WakeManager wakeManager,
             PageRequestManager pageRequestManager,
-            ThreadSaveManager threadSaveManager
+            ThreadSaveManager threadSaveManager,
+            FileManager fileManager
     ) {
         //retain local references to needed managers/factories/pins
         this.databaseManager = databaseManager;
@@ -157,6 +161,7 @@ public class WatchManager
         this.wakeManager = wakeManager;
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
+        this.fileManager = fileManager;
         this.prevIncrementalThreadSavingEnabled = false;
 
         databasePinManager = databaseManager.getDatabasePinManager();
@@ -240,6 +245,13 @@ public class WatchManager
     }
 
     public boolean startSavingThread(Loadable loadable, List<Post> postsToSave) {
+        if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
+            Logger.d(TAG, "startSavingThread() LocalThreadsBaseDirectory does not exist");
+
+            stopSavingAllThread();
+            return false;
+        }
+
         if (!startSavingThread(loadable)) {
             return false;
         }
@@ -283,6 +295,28 @@ public class WatchManager
 
         loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
         threadSaveManager.stopDownloading(loadable);
+    }
+
+    public void stopSavingAllThread() {
+        boolean hasDownloadingPins = false;
+
+        for (Pin pin : pins) {
+            if (!PinType.hasDownloadFlag(pin.pinType)) {
+                continue;
+            }
+
+            hasDownloadingPins = true;
+            stopSavingThread(pin.loadable);
+
+            pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
+            updatePin(pin);
+        }
+
+        if (!hasDownloadingPins) {
+            return;
+        }
+
+        threadSaveManager.cancelAllDownloading();
     }
 
     public void createOrUpdateSavedThread(SavedThread savedThread) {

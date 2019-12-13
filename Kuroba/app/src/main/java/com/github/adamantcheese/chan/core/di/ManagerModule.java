@@ -80,10 +80,18 @@ public class ManagerModule {
             ChanLoaderFactory chanLoaderFactory,
             WakeManager wakeManager,
             PageRequestManager pageRequestManager,
-            ThreadSaveManager threadSaveManager
+            ThreadSaveManager threadSaveManager,
+            FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
-        return new WatchManager(databaseManager, chanLoaderFactory, wakeManager, pageRequestManager, threadSaveManager);
+        return new WatchManager(
+                databaseManager,
+                chanLoaderFactory,
+                wakeManager,
+                pageRequestManager,
+                threadSaveManager,
+                fileManager
+        );
     }
 
     @Provides
@@ -140,7 +148,11 @@ public class ManagerModule {
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Thread save manager");
-        return new ThreadSaveManager(databaseManager, savedThreadLoaderRepository, fileManager);
+        return new ThreadSaveManager(
+                databaseManager,
+                savedThreadLoaderRepository,
+                fileManager
+        );
     }
 
     @Provides

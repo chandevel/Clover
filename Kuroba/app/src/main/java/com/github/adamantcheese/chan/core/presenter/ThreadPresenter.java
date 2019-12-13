@@ -624,6 +624,13 @@ public class ThreadPresenter
             return;
         }
 
+        if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
+            Logger.d(TAG, "storeNewPostsIfThreadIsBeingDownloaded() LocalThreadsBaseDirectory does not exist");
+
+            watchManager.stopSavingAllThread();
+            return;
+        }
+
         if (!threadSaveManager.enqueueThreadToSave(loadable, posts)) {
             // Probably base directory was removed by the user, can't do anything other than
             // just stop this download

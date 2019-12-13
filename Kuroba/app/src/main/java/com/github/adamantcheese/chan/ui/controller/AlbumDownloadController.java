@@ -122,15 +122,30 @@ public class AlbumDownloadController
                                 }
                             }
 
-                            if (imageSaver.startBundledTask(context, folderForAlbum, tasks)) {
-                                navigationController.popController();
-                                return;
-                            }
-
-                            showToast(R.string.album_download_could_not_save_one_or_more_images);
+                            handleDownloadResult(folderForAlbum, tasks);
                         })
                         .show();
             }
+        }
+    }
+
+    private void handleDownloadResult(String folderForAlbum, List<ImageSaveTask> tasks) {
+        ImageSaver.BundledImageSaveResult result = imageSaver.startBundledTask(
+                context,
+                folderForAlbum,
+                tasks
+        );
+
+        switch (result) {
+            case Ok:
+                navigationController.popController();
+                break;
+            case BaseDirectoryDoesNotExist:
+                showToast(R.string.files_base_dir_does_not_exist);
+                break;
+            case UnknownError:
+                showToast(R.string.album_download_could_not_save_one_or_more_images);
+                break;
         }
     }
 

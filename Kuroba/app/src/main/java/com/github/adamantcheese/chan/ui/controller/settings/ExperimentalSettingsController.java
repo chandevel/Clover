@@ -3,17 +3,12 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 import android.content.Context;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
-import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinType;
+import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -33,7 +28,7 @@ public class ExperimentalSettingsController
     @Inject
     ThreadSaveManager threadSaveManager;
     @Inject
-    DatabaseManager databaseManager;
+    WatchManager watchManager;
 
     @Override
     public void onCreate() {
@@ -52,54 +47,11 @@ public class ExperimentalSettingsController
     public void onPreferenceChange(SettingView item) {
         super.onPreferenceChange(item);
 
-        if (item == incrementalThreadDownloadingSetting && !ChanSettings.incrementalThreadDownloadingEnabled.get()) {
-            cancelAllDownloads();
+        if (item == incrementalThreadDownloadingSetting &&
+                !ChanSettings.incrementalThreadDownloadingEnabled.get()) {
+            watchManager.stopSavingAllThread();
+            threadSaveManager.cancelAllDownloading();
         }
-    }
-
-    private void cancelAllDownloads() {
-        threadSaveManager.cancelAllDownloading();
-
-        databaseManager.runTask(() -> {
-            List<Pin> pins = databaseManager.getDatabasePinManager().getPins().call();
-            if (pins.isEmpty()) {
-                return null;
-            }
-
-            List<Pin> downloadPins = new ArrayList<>(10);
-
-            for (Pin pin : pins) {
-                if (PinType.hasDownloadFlag(pin.pinType)) {
-                    downloadPins.add(pin);
-                }
-            }
-
-            if (downloadPins.isEmpty()) {
-                return null;
-            }
-
-            databaseManager.getDatabaseSavedThreadManager().deleteAllSavedThreads().call();
-
-            for (Pin pin : downloadPins) {
-                pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
-
-                if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
-                    continue;
-                }
-
-                // We don't want to delete all of the users's bookmarks so we just change their
-                // types to WatchNewPosts
-                pin.pinType = PinType.addWatchNewPostsFlag(pin.pinType);
-            }
-
-            databaseManager.getDatabasePinManager().updatePins(downloadPins).call();
-
-            for (Pin pin : downloadPins) {
-                databaseManager.getDatabaseSavedThreadManager().deleteThreadFromDisk(pin.loadable);
-            }
-
-            return null;
-        });
     }
 
     private void populatePreferences() {

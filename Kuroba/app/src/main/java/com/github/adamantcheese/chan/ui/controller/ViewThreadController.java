@@ -231,7 +231,7 @@ public class ViewThreadController
 
         if (baseLocalThreadsDir == null) {
             Logger.e(TAG, "saveClickedInternal() fileManager.newLocalThreadFile() returned null");
-            showToast(R.string.base_local_threads_dir_not_exists, Toast.LENGTH_LONG);
+            showToast(R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
             return;
         }
 
@@ -243,7 +243,7 @@ public class ViewThreadController
 
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
             Logger.e(TAG, "Base local threads directory does not exist");
-            showToast(R.string.base_local_threads_dir_not_exists, Toast.LENGTH_LONG);
+            showToast(R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
             return;
         }
 

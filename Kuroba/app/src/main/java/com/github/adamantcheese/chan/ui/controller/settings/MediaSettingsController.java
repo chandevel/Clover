@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -443,8 +444,13 @@ public class MediaSettingsController
 
     @Override
     public void askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
-            @NonNull AbstractFile oldBaseDirectory, @NonNull AbstractFile newBaseDirectory
+            @Nullable AbstractFile oldBaseDirectory, @NonNull AbstractFile newBaseDirectory
     ) {
+        if (oldBaseDirectory == null) {
+            showToast(R.string.done, Toast.LENGTH_LONG);
+            return;
+        }
+
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
             forgetOldSAFBaseDirectory(oldBaseDirectory);
 
@@ -474,8 +480,13 @@ public class MediaSettingsController
 
     @Override
     public void askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(
-            @NotNull AbstractFile oldBaseDirectory, @NotNull AbstractFile newBaseDirectory
+            @Nullable AbstractFile oldBaseDirectory, @NotNull AbstractFile newBaseDirectory
     ) {
+        if (oldBaseDirectory == null) {
+            showToast(R.string.done, Toast.LENGTH_LONG);
+            return;
+        }
+
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
             forgetOldSAFBaseDirectory(oldBaseDirectory);
 
