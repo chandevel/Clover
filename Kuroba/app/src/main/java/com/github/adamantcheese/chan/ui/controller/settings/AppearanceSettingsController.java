@@ -136,6 +136,24 @@ public class AppearanceSettingsController
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.addDubs,
+                    R.string.add_dubs_title,
+                    R.string.add_dubs_description
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.parseYoutubeTitles,
+                    R.string.setting_youtube_title,
+                    R.string.setting_youtube_title_description
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.parseYoutubeDuration,
+                    R.string.setting_youtube_dur_title,
+                    R.string.setting_youtube_dur_description
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.enableEmoji,
                     R.string.setting_enable_emoji,
                     R.string.setting_enable_emoji_description
@@ -158,6 +176,12 @@ public class AppearanceSettingsController
                     ChanSettings.useImmersiveModeForGallery,
                     R.string.setting_images_immersive_mode_title,
                     R.string.setting_images_immersive_mode_description
+            )));
+
+            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
+                    ChanSettings.parsePostImageLinks,
+                    R.string.setting_image_link_loading_title,
+                    R.string.setting_image_link_loading_description
             )));
 
             groups.add(images);

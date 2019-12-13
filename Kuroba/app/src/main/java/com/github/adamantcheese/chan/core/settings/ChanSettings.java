@@ -321,9 +321,9 @@ public class ChanSettings {
             moveInputToBottom = new BooleanSetting(p, "move_input_bottom", false);
             enableLongPressURLCopy = new BooleanSetting(p, "long_press_image_url_copy", true);
 
-            parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", false);
+            parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", true);
             parseYoutubeDuration = new BooleanSetting(p, "parse_youtube_duration", false);
-            parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", false);
+            parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
 
             previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
 

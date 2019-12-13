@@ -54,7 +54,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 40;
+    private static final int DATABASE_VERSION = 41;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -328,6 +328,12 @@ public class DatabaseHelper
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 40");
             }
+        }
+
+        if (oldVersion < 41) {
+            //enable the following as default for 4.10.2
+            ChanSettings.parsePostImageLinks.set(true);
+            ChanSettings.parseYoutubeTitles.set(true);
         }
     }
 
