@@ -24,8 +24,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,13 +35,16 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.saver.ImageSaveTask;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,35 +107,40 @@ public class AlbumDownloadController
             if (checkCount == 0) {
                 showToast(R.string.album_download_none_checked);
             } else {
-                final String folderForAlbum = imageSaver.getSubFolder(loadable.title);
-
+                String subFolder = ChanSettings.saveBoardFolder.get() ? (ChanSettings.saveThreadFolder.get()
+                        ? appendAdditionalSubDirectories(items.get(0).postImage)
+                        : loadable.site.name() + File.separator + loadable.boardCode) : null;
                 String message = getString(
                         R.string.album_download_confirm,
                         getQuantityString(R.plurals.image, checkCount, checkCount),
-                        folderForAlbum
+                        (subFolder != null ? subFolder : "your base saved files location") + "."
                 );
+
+                //generate tasks before prompting
+                List<ImageSaveTask> tasks = new ArrayList<>(items.size());
+                for (AlbumDownloadItem item : items) {
+                    if (item.checked) {
+                        ImageSaveTask imageTask = new ImageSaveTask(loadable, item.postImage);
+                        if (subFolder != null) {
+                            imageTask.setSubFolder(subFolder);
+                        }
+                        tasks.add(imageTask);
+                    }
+                }
 
                 new AlertDialog.Builder(context).setMessage(message)
                         .setNegativeButton(R.string.cancel, null)
                         .setPositiveButton(R.string.ok, (dialog, which) -> {
-                            List<ImageSaveTask> tasks = new ArrayList<>(items.size());
-                            for (AlbumDownloadItem item : items) {
-                                if (item.checked) {
-                                    tasks.add(new ImageSaveTask(loadable, item.postImage));
-                                }
-                            }
-
-                            handleDownloadResult(folderForAlbum, tasks);
+                            handleDownloadResult(tasks);
                         })
                         .show();
             }
         }
     }
 
-    private void handleDownloadResult(String folderForAlbum, List<ImageSaveTask> tasks) {
+    private void handleDownloadResult(List<ImageSaveTask> tasks) {
         ImageSaver.BundledImageSaveResult result = imageSaver.startBundledTask(
                 context,
-                folderForAlbum,
                 tasks
         );
 
@@ -191,6 +199,22 @@ public class AlbumDownloadController
             }
         }
         return checkCount;
+    }
+
+    //This method and the one in ImageViewerController should be roughly equivalent in function
+    @NonNull
+    private String appendAdditionalSubDirectories(PostImage postImage) {
+        // save to op no appended with the first 50 characters of the subject
+        // should be unique and perfectly understandable title wise
+        String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(loadable.site.name()) + File.separator
+                + StringUtils.dirNameRemoveBadCharacters(loadable.boardCode) + File.separator + loadable.no + "_";
+
+        String tempTitle = (loadable.no == 0 ? "catalog" : loadable.title);
+
+        String sanitizedFileName = StringUtils.dirNameRemoveBadCharacters(tempTitle);
+        String truncatedFileName = sanitizedFileName.substring(0, Math.min(sanitizedFileName.length(), 50));
+
+        return sanitizedSubFolderName + truncatedFileName;
     }
 
     private static class AlbumDownloadItem {
@@ -273,16 +297,8 @@ public class AlbumDownloadController
         }
 
         Drawable drawable = context.getDrawable(checked
-                ? R.drawable.ic_check_circle_white_24dp
+                ? R.drawable.ic_blue_checkmark_24dp
                 : R.drawable.ic_radio_button_unchecked_white_24dp);
-        assert drawable != null;
-
-        if (checked) {
-            Drawable wrapped = DrawableCompat.wrap(drawable);
-            DrawableCompat.setTint(wrapped, ThemeHelper.PrimaryColor.BLUE.color);
-            cell.checkbox.setImageDrawable(wrapped);
-        } else {
-            cell.checkbox.setImageDrawable(drawable);
-        }
+        cell.checkbox.setImageDrawable(drawable);
     }
 }

@@ -34,7 +34,6 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
-import com.github.adamantcheese.chan.ui.settings.TextSettingView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -166,25 +165,22 @@ public class SettingsController
                 ViewGroup preferenceView = null;
                 String topValue = settingView.getTopDescription();
                 String bottomValue = settingView.getBottomDescription();
-                boolean noDivider = false;
 
                 if ((settingView instanceof ListSettingView) || (settingView instanceof LinkSettingView)
                         || (settingView instanceof StringSettingView) || (settingView instanceof IntegerSettingView)) {
                     preferenceView = (ViewGroup) inflate(context, R.layout.setting_link, groupLayout, false);
                 } else if (settingView instanceof BooleanSettingView) {
                     preferenceView = (ViewGroup) inflate(context, R.layout.setting_boolean, groupLayout, false);
-                } else if (settingView instanceof TextSettingView) {
-                    preferenceView = (ViewGroup) inflate(context, R.layout.setting_text, groupLayout, false);
-                    noDivider = true;
                 }
 
-                setDescriptionText(preferenceView, topValue, bottomValue);
+                if (preferenceView != null) {
+                    setDescriptionText(preferenceView, topValue, bottomValue);
 
-                groupLayout.addView(preferenceView);
+                    groupLayout.addView(preferenceView);
+                    settingView.setView(preferenceView);
+                }
 
-                settingView.setView(preferenceView);
-
-                if (i < group.settingViews.size() - 1 && !noDivider) {
+                if (i < group.settingViews.size() - 1) {
                     settingView.divider = inflate(context, R.layout.setting_divider, groupLayout, false);
                     groupLayout.addView(settingView.divider);
                 }

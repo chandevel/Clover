@@ -107,15 +107,13 @@ public class ImageSaver
 
     public BundledImageSaveResult startBundledTask(
             Context context,
-            final String subFolder,
-            final List<ImageSaveTask> tasks
+            final  List<ImageSaveTask> tasks
     ) {
         if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
             return BundledImageSaveResult.BaseDirectoryDoesNotExist;
         }
-
         if (hasPermission(context)) {
-            boolean result = startBundledTaskInternal(subFolder, tasks);
+            boolean result = startBundledTaskInternal(tasks);
             if (result) {
                 return BundledImageSaveResult.Ok;
             }
@@ -127,7 +125,7 @@ public class ImageSaver
         // This is ok and will drop the tasks.
         requestPermission(context, granted -> {
             if (granted) {
-                if (startBundledTaskInternal(subFolder, tasks)) {
+                if (startBundledTaskInternal(tasks)) {
                     return;
                 }
             }
@@ -136,12 +134,6 @@ public class ImageSaver
         });
 
         return BundledImageSaveResult.Ok;
-    }
-
-    public String getSubFolder(String name) {
-        String filtered = filterName(name, false);
-        filtered = filtered.substring(0, Math.min(filtered.length(), MAX_NAME_LENGTH));
-        return filtered;
     }
 
     @Nullable
@@ -216,13 +208,12 @@ public class ImageSaver
         executor.execute(task);
     }
 
-    private boolean startBundledTaskInternal(String subFolder, List<ImageSaveTask> tasks) {
+    private boolean startBundledTaskInternal(List<ImageSaveTask> tasks) {
         boolean allSuccess = true;
 
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
 
-            task.setSubFolder(subFolder);
             AbstractFile deduplicateFile = deduplicateFile(postImage, task);
             if (deduplicateFile == null) {
                 allSuccess = false;
