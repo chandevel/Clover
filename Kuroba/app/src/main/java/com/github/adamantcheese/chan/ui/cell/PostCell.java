@@ -77,7 +77,6 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
