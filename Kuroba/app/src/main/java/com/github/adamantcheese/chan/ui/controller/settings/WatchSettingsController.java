@@ -40,7 +40,6 @@ public class WatchSettingsController
     private CrossfadeView crossfadeView;
 
     private SettingView enableBackground;
-    private SettingView enableFilterWatch;
 
     private SettingView backgroundTimeout;
     private SettingView removeWatched;
@@ -104,7 +103,6 @@ public class WatchSettingsController
         setSettingViewVisibility(notifyMode, enabled);
         setSettingViewVisibility(soundMode, enabled);
         setSettingViewVisibility(peekMode, enabled);
-        setSettingViewVisibility(enableFilterWatch, enabled);
     }
 
     private void populatePreferences() {
@@ -181,12 +179,6 @@ public class WatchSettingsController
                 ChanSettings.watchPeek,
                 R.string.setting_watch_peek,
                 R.string.setting_watch_peek_description
-        ));
-
-        enableFilterWatch = settings.add(new BooleanSettingView(this,
-                ChanSettings.watchFilterWatch,
-                R.string.setting_watch_enable_filter_watch,
-                R.string.setting_watch_enable_filter_watch_description
         ));
 
         groups.add(settings);

@@ -89,26 +89,11 @@ public class FilterWatchManager
         this.boardRepository = boardRepository;
         this.databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
 
-        if (ChanSettings.watchFilterWatch.get()) {
-            wakeManager.registerWakeable(this);
-        }
+        wakeManager.registerWakeable(this);
 
         Set<Integer> previousIgnore =
                 serializer.fromJson(ChanSettings.filterWatchIgnored.get(), new TypeToken<Set<Integer>>() {}.getType());
         if (previousIgnore != null) ignoredPosts.addAll(previousIgnore);
-
-        EventBus.getDefault().register(this);
-    }
-
-    @Subscribe
-    public void onEvent(ChanSettings.SettingChanged<?> settingChanged) {
-        if (settingChanged.setting == ChanSettings.watchFilterWatch) {
-            if (ChanSettings.watchFilterWatch.get()) {
-                wakeManager.registerWakeable(this);
-            } else {
-                wakeManager.unregisterWakeable(this);
-            }
-        }
     }
 
     @Override

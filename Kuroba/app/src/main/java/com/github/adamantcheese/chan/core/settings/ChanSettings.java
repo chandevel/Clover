@@ -161,7 +161,6 @@ public class ChanSettings {
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchBackground;
-    public static final BooleanSetting watchFilterWatch;
     public static final BooleanSetting watchLastPageNotify;
     public static final IntegerSetting watchBackgroundInterval;
     public static final StringSetting watchNotifyMode;
@@ -278,8 +277,6 @@ public class ChanSettings {
             watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
             watchBackground.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(watchBackground)));
             watchLastPageNotify = new BooleanSetting(p, "preference_watch_last_page_notify", false);
-            watchFilterWatch = new BooleanSetting(p, "preference_watch_filter_watch", false);
-            watchFilterWatch.addCallback(((setting, value) -> postToEventBus(new SettingChanged<>(watchFilterWatch))));
             watchBackgroundInterval =
                     new IntegerSetting(p, "preference_watch_background_interval", (int) MINUTES.toMillis(15));
             watchBackgroundInterval.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(

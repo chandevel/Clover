@@ -586,7 +586,7 @@ public class ThreadPresenter
             watchManager.updatePin(pin, true);
         }
 
-        if (ChanSettings.watchFilterWatch.get() && result.getLoadable().isCatalogMode()) {
+        if (result.getLoadable().isCatalogMode()) {
             instance(FilterWatchManager.class).onCatalogLoad(result);
         }
     }

@@ -396,8 +396,6 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
     <string name="setting_watch_enable_background">Enable in background</string>
     <string name="setting_watch_enable_background_description">Watch bookmarks when app is in the background</string>
-    <string name="setting_watch_enable_filter_watch">Enable filter watching</string>
-    <string name="setting_watch_enable_filter_watch_description">Watch posts that match filters marked as watch post</string>
     <string name="setting_watch_background_timeout">Background update interval</string>
     <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
     <string name="setting_thread_page_limit_notify">Last page notifications</string>

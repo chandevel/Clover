@@ -300,8 +300,6 @@ public class FilterLayout
             List<FloatingMenuItem> menuItems = new ArrayList<>(6);
 
             for (FilterAction action : FilterAction.values()) {
-                //don't display the watch action unless it's been enabled
-                if (action == FilterAction.WATCH && !ChanSettings.watchFilterWatch.get()) continue;
                 menuItems.add(new FloatingMenuItem(action, FilterAction.actionName(action)));
             }
 
