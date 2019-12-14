@@ -29,6 +29,7 @@ import okio.*
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -153,6 +154,44 @@ class FileCacheV2(
                 })
     }
 
+    fun enqueueMediaPrefetchRequestBatch(
+            loadable: Loadable,
+            postImageList: List<PostImage>
+    ): List<CancelableDownload> {
+        if (loadable.isLocal || loadable.isDownloading) {
+            throw IllegalArgumentException("Cannot use local thread loadable for prefetching!")
+        }
+
+        val urls = mutableListOf<String>()
+        val cancelableDownloads = mutableListOf<CancelableDownload>()
+
+        for (postImage in postImageList) {
+            val url = postImage.imageUrl.toString()
+
+            val file: RawFile = cacheHandler.getOrCreate(url)
+                    ?: continue
+
+            val cancelableDownload = getOrCreateCancelableDownload(
+                    url,
+                    null,
+                    file,
+                    true
+            )
+
+            if (checkAlreadyCached(file, url)) {
+                continue
+            }
+
+            urls += url
+            cancelableDownloads += cancelableDownload
+        }
+
+        log("Prefetching ${urls.size} files")
+        batchRequestQueue.onNext(urls)
+
+        return cancelableDownloads
+    }
+
     fun enqueueDownloadFileRequest(
             loadable: Loadable,
             postImage: PostImage,
@@ -195,7 +234,52 @@ class FileCacheV2(
             return null
         }
 
-        val cancelableDownload = synchronized(activeDownloads) {
+        val cancelableDownload = getOrCreateCancelableDownload(
+                url,
+                callback,
+                file,
+                false
+        )
+
+        if (checkAlreadyCached(file, url)) {
+            return null
+        }
+
+        log("Downloading a file, url = $url")
+        normalRequestQueue.onNext(url)
+
+        return cancelableDownload
+    }
+
+    private fun checkAlreadyCached(file: RawFile, url: String): Boolean {
+        if (!cacheHandler.isAlreadyDownloaded(file)) {
+            return false
+        }
+
+        log("File already downloaded, url = $url")
+
+        try {
+            handleFileImmediatelyAvailable(file, url)
+        } finally {
+            synchronized(activeDownloads) {
+                val request = activeDownloads[url]
+                if (request != null) {
+                    request.cancelableDownload.clearCallbacks()
+                    activeDownloads.remove(url)
+                }
+            }
+        }
+
+        return true
+    }
+
+    private fun getOrCreateCancelableDownload(
+            url: String,
+            callback: FileCacheListener?,
+            file: RawFile,
+            isPrefetch: Boolean
+    ): CancelableDownload {
+        return synchronized(activeDownloads) {
             if (activeDownloads.containsKey(url)) {
                 val prevRequest = checkNotNull(activeDownloads[url]) {
                     "Request was removed inside a synchronized block. " +
@@ -209,10 +293,14 @@ class FileCacheV2(
                     prevCancelableDownload.addCallback(callback)
                 }
 
-                return prevCancelableDownload
+                return@synchronized prevCancelableDownload
             }
 
-            val cancelableDownload = CancelableDownload(url = url)
+            val cancelableDownload = CancelableDownload(
+                    url = url,
+                    isPartOfBatchDownload = AtomicBoolean(isPrefetch)
+            )
+
             if (callback != null) {
                 cancelableDownload.addCallback(callback)
             }
@@ -227,29 +315,6 @@ class FileCacheV2(
 
             return@synchronized cancelableDownload
         }
-
-        if (cacheHandler.isAlreadyDownloaded(file)) {
-            log("File already downloaded, url = $url")
-
-            try {
-                handleFileImmediatelyAvailable(file, url)
-            } finally {
-                synchronized(activeDownloads) {
-                    val request = activeDownloads[url]
-                    if (request != null) {
-                        request.cancelableDownload.clearCallbacks()
-                        activeDownloads.remove(url)
-                    }
-                }
-            }
-
-            return null
-        }
-
-        log("Downloading a file, url = $url")
-        normalRequestQueue.onNext(url)
-
-        return cancelableDownload
     }
 
     // For now it is only used in the developer settings so it's okay to block the UI
@@ -766,6 +831,7 @@ class FileCacheV2(
                 cleanupResourcesFunc()
             }
         }, BackpressureStrategy.DROP)
+        // TODO: add scheduler
     }
 
     private fun markFileAsDownloaded(requestId: String) {
@@ -967,6 +1033,7 @@ class FileCacheV2(
                 }
             })
         }, BackpressureStrategy.BUFFER)
+        // TODO: add scheduler
     }
 
     class FileDownloadRequest(
@@ -1014,6 +1081,7 @@ class FileCacheV2(
     inner class CancelableDownload(
             val url: String,
             private val canceled: AtomicBoolean = AtomicBoolean(false),
+            private val isPartOfBatchDownload: AtomicBoolean = AtomicBoolean(false),
             private var callbacks: MutableSet<FileCacheListener> = mutableSetOf(),
             var disposeFunc: (() -> Unit)? = null
     ) {
@@ -1038,19 +1106,45 @@ class FileCacheV2(
             callbacks.clear()
         }
 
+        /**
+         * Use this to cancel prefetches. You can't cancel them via the regular cancel() method
+         * to avoid canceling prefetches when swiping through the images in the album viewer.
+         * */
+        fun cancelPrefetch() {
+            cancel(true)
+        }
+
+        /**
+         * A regular cancel() method that cancels active downloads but not prefetch downloads.
+         * */
         fun cancel() {
+            cancel(false)
+        }
+
+        private fun cancel(canCancelBatchDownloads: Boolean) {
             if (!canceled.compareAndSet(false, true)) {
                 // Already canceled
                 return
             }
 
-            // We need to cancel the network requests on a background thread
-            requestCancellationThread.execute {
+            if (isPartOfBatchDownload.get() && !canCancelBatchDownloads) {
+                // When prefetching media in a thread and viewing images in the same thread at the
+                // same time we may accidentally cancel a prefetch download which we don't want.
+                // We only want to cancel prefetch downloads when exiting a thread not when swiping
+                // through the images in the album viewer.
+                return
+            }
+
+            // We need to cancel the network requests on a background thread.
+            // We also want it to be blocking.
+            requestCancellationThread.submit {
                 disposeFunc?.invoke()
                 disposeFunc = null
 
                 log("Cancelling file download request, requestId = $url")
             }
+                    // Just in case
+                    .get(5, TimeUnit.SECONDS)
         }
     }
 

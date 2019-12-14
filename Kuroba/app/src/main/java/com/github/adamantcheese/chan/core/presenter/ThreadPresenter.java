@@ -134,6 +134,9 @@ public class ThreadPresenter
     private boolean addToLocalBackHistory;
     private Context context;
 
+    @Nullable
+    private List<FileCacheV2.CancelableDownload> activePrefetches = null;
+
     @Inject
     public ThreadPresenter(
             WatchManager watchManager,
@@ -203,10 +206,26 @@ public class ThreadPresenter
             loadable = null;
             historyAdded = false;
             addToLocalBackHistory = true;
+            cancelPrefetching();
 
             threadPresenterCallback.showNewPostsNotification(false, -1);
             threadPresenterCallback.showLoading();
         }
+    }
+
+    private void cancelPrefetching() {
+        if (activePrefetches == null || activePrefetches.isEmpty()) {
+            return;
+        }
+
+        Logger.d(TAG, "Cancel previous prefetching");
+
+        for (FileCacheV2.CancelableDownload cancelableDownload : activePrefetches) {
+            cancelableDownload.cancelPrefetch();
+        }
+
+        activePrefetches.clear();
+        activePrefetches = null;
     }
 
     private void stopSavingThreadIfItIsBeingSaved(Loadable loadable) {
@@ -538,6 +557,9 @@ public class ThreadPresenter
             }
 
             if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal()) {
+                List<PostImage> postImageList = new ArrayList<>(16);
+                cancelPrefetching();
+
                 for (Post p : result.getPosts()) {
                     if (p.images != null) {
                         for (PostImage postImage : p.images) {
@@ -548,14 +570,21 @@ public class ThreadPresenter
                             if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
                                     && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get()))
                             {
-                                fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, null);
+                                postImageList.add(postImage);
                             } else if (postImage.type == PostImage.Type.MOVIE
                                     && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get()))
                             {
-                                fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, null);
+                                postImageList.add(postImage);
                             }
                         }
                     }
+                }
+
+                if (postImageList.size() > 0) {
+                    activePrefetches = fileCacheV2.enqueueMediaPrefetchRequestBatch(
+                            loadable,
+                            postImageList
+                    );
                 }
             }
         }
