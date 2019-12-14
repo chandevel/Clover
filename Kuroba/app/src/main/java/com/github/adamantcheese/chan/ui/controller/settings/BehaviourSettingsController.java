@@ -80,8 +80,7 @@ public class BehaviourSettingsController
                     0
             ));
 
-            general.add(new BooleanSettingView(
-                    this,
+            general.add(new BooleanSettingView(this,
                     ChanSettings.openLinkBrowser,
                     R.string.setting_open_link_browser,
                     0

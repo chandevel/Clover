@@ -130,16 +130,25 @@ public class AlbumDownloadController
 
                 new AlertDialog.Builder(context).setMessage(message)
                         .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.ok, (dialog, which) -> {
-                            if (imageSaver.startBundledTask(context, tasks)) {
-                                navigationController.popController();
-                                return;
-                            }
-
-                            showToast(R.string.album_download_could_not_save_one_or_more_images);
-                        })
+                        .setPositiveButton(R.string.ok, (dialog, which) -> handleDownloadResult(tasks))
                         .show();
             }
+        }
+    }
+
+    private void handleDownloadResult(List<ImageSaveTask> tasks) {
+        ImageSaver.BundledImageSaveResult result = imageSaver.startBundledTask(context, tasks);
+
+        switch (result) {
+            case Ok:
+                navigationController.popController();
+                break;
+            case BaseDirectoryDoesNotExist:
+                showToast(R.string.files_base_dir_does_not_exist);
+                break;
+            case UnknownError:
+                showToast(R.string.album_download_could_not_save_one_or_more_images);
+                break;
         }
     }
 

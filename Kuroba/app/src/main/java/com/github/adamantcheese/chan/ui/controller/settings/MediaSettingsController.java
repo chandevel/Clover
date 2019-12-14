@@ -23,13 +23,13 @@ import android.net.Uri;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
-import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinType;
+import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.LoadingViewController;
@@ -89,6 +89,8 @@ public class MediaSettingsController
     DatabaseManager databaseManager;
     @Inject
     ThreadSaveManager threadSaveManager;
+    @Inject
+    WatchManager watchManager;
 
     public MediaSettingsController(Context context) {
         super(context);
@@ -135,7 +137,7 @@ public class MediaSettingsController
             updateHeadsetDefaultMutedSetting();
         } else if (item == incrementalThreadDownloadingSetting
                 && !ChanSettings.incrementalThreadDownloadingEnabled.get()) {
-            cancelAllDownloads();
+            watchManager.stopSavingAllThread();
         }
     }
 
@@ -425,8 +427,13 @@ public class MediaSettingsController
     //region Presenter callbacks
     @Override
     public void askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
-            @NonNull AbstractFile oldBaseDirectory, @NonNull AbstractFile newBaseDirectory
+            @Nullable AbstractFile oldBaseDirectory, @NonNull AbstractFile newBaseDirectory
     ) {
+        if (oldBaseDirectory == null) {
+            showToast(R.string.done, Toast.LENGTH_LONG);
+            return;
+        }
+
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
             forgetOldSAFBaseDirectory(oldBaseDirectory);
 
@@ -468,8 +475,13 @@ public class MediaSettingsController
 
     @Override
     public void askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(
-            @NotNull AbstractFile oldBaseDirectory, @NotNull AbstractFile newBaseDirectory
+            @Nullable AbstractFile oldBaseDirectory, @NotNull AbstractFile newBaseDirectory
     ) {
+        if (oldBaseDirectory == null) {
+            showToast(R.string.done, Toast.LENGTH_LONG);
+            return;
+        }
+
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
             forgetOldSAFBaseDirectory(oldBaseDirectory);
 
@@ -670,51 +682,6 @@ public class MediaSettingsController
 
     private void updateHeadsetDefaultMutedSetting() {
         headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
-    }
-
-    private void cancelAllDownloads() {
-        threadSaveManager.cancelAllDownloading();
-
-        databaseManager.runTask(() -> {
-            List<Pin> pins = databaseManager.getDatabasePinManager().getPins().call();
-            if (pins.isEmpty()) {
-                return null;
-            }
-
-            List<Pin> downloadPins = new ArrayList<>(10);
-
-            for (Pin pin : pins) {
-                if (PinType.hasDownloadFlag(pin.pinType)) {
-                    downloadPins.add(pin);
-                }
-            }
-
-            if (downloadPins.isEmpty()) {
-                return null;
-            }
-
-            databaseManager.getDatabaseSavedThreadManager().deleteAllSavedThreads().call();
-
-            for (Pin pin : downloadPins) {
-                pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
-
-                if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
-                    continue;
-                }
-
-                // We don't want to delete all of the users's bookmarks so we just change their
-                // types to WatchNewPosts
-                pin.pinType = PinType.addWatchNewPostsFlag(pin.pinType);
-            }
-
-            databaseManager.getDatabasePinManager().updatePins(downloadPins).call();
-
-            for (Pin pin : downloadPins) {
-                databaseManager.getDatabaseSavedThreadManager().deleteThreadFromDisk(pin.loadable);
-            }
-
-            return null;
-        });
     }
     //endregion
 }

@@ -45,8 +45,10 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,12 +83,12 @@ public class WatchNotification
 
     @Inject
     NotificationManager notificationManager;
-
     @Inject
     WatchManager watchManager;
-
     @Inject
     ThreadSaveManager threadSaveManager;
+    @Inject
+    FileManager fileManager;
 
     @Override
     public IBinder onBind(final Intent intent) {
@@ -264,6 +266,13 @@ public class WatchNotification
     }
 
     private void updateSavedThreads(HashMap<SavedThread, Pair<Loadable, List<Post>>> allPostsByThread) {
+        if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
+            Logger.d(TAG, "updateSavedThreads() LocalThreadsBaseDirectory does not exist");
+
+            watchManager.stopSavingAllThread();
+            return;
+        }
+
         for (Map.Entry<SavedThread, Pair<Loadable, List<Post>>> entry : allPostsByThread.entrySet()) {
             Loadable loadable = entry.getValue().first;
             List<Post> posts = entry.getValue().second;

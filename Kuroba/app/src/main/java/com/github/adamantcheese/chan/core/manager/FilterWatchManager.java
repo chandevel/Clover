@@ -33,9 +33,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collections;
