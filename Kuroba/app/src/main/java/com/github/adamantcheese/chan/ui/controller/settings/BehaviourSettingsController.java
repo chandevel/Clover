@@ -74,13 +74,18 @@ public class BehaviourSettingsController
                     0
             )));
 
-           general.add(new BooleanSettingView(this,
+            general.add(new BooleanSettingView(this,
                     ChanSettings.openLinkConfirmation,
                     R.string.setting_open_link_confirmation,
                     0
             ));
 
-            general.add(new BooleanSettingView(this, ChanSettings.openLinkBrowser, R.string.setting_open_link_browser, 0));
+            general.add(new BooleanSettingView(
+                    this,
+                    ChanSettings.openLinkBrowser,
+                    R.string.setting_open_link_browser,
+                    0
+            ));
 
             requiresRestart.add(general.add(new BooleanSettingView(this,
                     ChanSettings.fullUserRotationEnable,
@@ -148,6 +153,13 @@ public class BehaviourSettingsController
                     ChanSettings.shareUrl,
                     R.string.setting_share_url,
                     R.string.setting_share_url_description
+            ));
+
+            //this is also in Appearance settings
+            post.add(new BooleanSettingView(this,
+                    ChanSettings.enableEmoji,
+                    R.string.setting_enable_emoji,
+                    R.string.setting_enable_emoji_description
             ));
 
             groups.add(post);

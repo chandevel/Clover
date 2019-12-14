@@ -156,18 +156,18 @@ public class AppearanceSettingsController
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.anonymize,
                     R.string.setting_anonymize,
-                    0
-            )));
-
-            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.anonymizeIds,
-                    R.string.setting_anonymize_ids,
-                    0
+                    "Sets everyone's name field to be \"Anonymous\""
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.showAnonymousName,
                     R.string.setting_show_anonymous_name,
+                    "Displays \"Anonymous\" rather than an empty field"
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.anonymizeIds,
+                    R.string.setting_anonymize_ids,
                     0
             )));
 
@@ -189,6 +189,7 @@ public class AppearanceSettingsController
                     R.string.setting_youtube_dur_description
             )));
 
+            //this is also in Behavior settings
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.enableEmoji,
                     R.string.setting_enable_emoji,
@@ -229,7 +230,8 @@ public class AppearanceSettingsController
             images.add(new BooleanSettingView(this,
                     ChanSettings.transparencyOn,
                     "Image opacity",
-                    "Sets the default state for image transparency, for PNGs or GIFs"));
+                    "Default state for image transparency in the viewer"
+            ));
 
             groups.add(images);
         }

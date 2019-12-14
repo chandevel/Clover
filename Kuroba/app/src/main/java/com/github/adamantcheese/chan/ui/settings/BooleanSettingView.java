@@ -37,6 +37,10 @@ public class BooleanSettingView
         this(controller, setting, getString(name), getString(description));
     }
 
+    public BooleanSettingView(SettingsController controller, Setting<Boolean> setting, int name, String description) {
+        this(controller, setting, getString(name), description);
+    }
+
     public BooleanSettingView(
             SettingsController settingsController, Setting<Boolean> setting, String name, String description
     ) {
