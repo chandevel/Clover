@@ -58,7 +58,7 @@ public class BehaviourSettingsController
         groups.clear();
         requiresRestart.clear();
 
-        // General group
+        // General group (general application behavior)
         {
             SettingsGroup general = new SettingsGroup(R.string.settings_group_general);
 
@@ -74,6 +74,14 @@ public class BehaviourSettingsController
                     0
             )));
 
+           general.add(new BooleanSettingView(this,
+                    ChanSettings.openLinkConfirmation,
+                    R.string.setting_open_link_confirmation,
+                    0
+            ));
+
+            general.add(new BooleanSettingView(this, ChanSettings.openLinkBrowser, R.string.setting_open_link_browser, 0));
+
             requiresRestart.add(general.add(new BooleanSettingView(this,
                     ChanSettings.fullUserRotationEnable,
                     R.string.setting_full_screen_rotation,
@@ -86,12 +94,18 @@ public class BehaviourSettingsController
                     0
             ));
 
+            general.add(new BooleanSettingView(this,
+                    ChanSettings.allowMediaScannerToScanLocalThreads,
+                    R.string.settings_allow_media_scanner_scan_local_threads_title,
+                    R.string.settings_allow_media_scanner_scan_local_threads_description
+            ));
+
             setupClearThreadHidesSetting(general);
 
             groups.add(general);
         }
 
-        // Reply group
+        // Reply group (reply input specific behavior)
         {
             SettingsGroup reply = new SettingsGroup(R.string.settings_group_reply);
 
@@ -106,39 +120,9 @@ public class BehaviourSettingsController
             groups.add(reply);
         }
 
-        // Post group
+        // Post group (post/thread specific behavior)
         {
             SettingsGroup post = new SettingsGroup(R.string.settings_group_post);
-
-            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.textOnly,
-                    R.string.setting_text_only,
-                    R.string.setting_text_only_description
-            )));
-
-            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.revealTextSpoilers,
-                    R.string.settings_reveal_text_spoilers,
-                    R.string.settings_reveal_text_spoilers_description
-            )));
-
-            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.anonymize,
-                    R.string.setting_anonymize,
-                    0
-            )));
-
-            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.anonymizeIds,
-                    R.string.setting_anonymize_ids,
-                    0
-            )));
-
-            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.showAnonymousName,
-                    R.string.setting_show_anonymous_name,
-                    0
-            )));
 
             post.add(new BooleanSettingView(this,
                     ChanSettings.repliesButtonsBottom,
@@ -161,19 +145,15 @@ public class BehaviourSettingsController
             ));
 
             post.add(new BooleanSettingView(this,
-                    ChanSettings.openLinkConfirmation,
-                    R.string.setting_open_link_confirmation,
-                    0
+                    ChanSettings.shareUrl,
+                    R.string.setting_share_url,
+                    R.string.setting_share_url_description
             ));
-            post.add(new BooleanSettingView(this, ChanSettings.openLinkBrowser, R.string.setting_open_link_browser, 0));
-
-            //postingTimeoutSetting = addPostingTimeoutSetting();
-            //post.add(postingTimeoutSetting);
 
             groups.add(post);
         }
 
-        // Proxy group
+        // Proxy group (proxy settings)
         {
             SettingsGroup proxy = new SettingsGroup(R.string.settings_group_proxy);
 

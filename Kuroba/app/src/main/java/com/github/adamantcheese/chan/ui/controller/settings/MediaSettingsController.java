@@ -157,9 +157,11 @@ public class MediaSettingsController
         {
             SettingsGroup media = new SettingsGroup(R.string.settings_group_media);
 
+            //Save locations
             setupSaveLocationSetting(media);
             setupLocalThreadLocationSetting(media);
 
+            //Save modifications
             boardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
                     ChanSettings.saveBoardFolder,
                     R.string.setting_save_board_folder,
@@ -176,6 +178,13 @@ public class MediaSettingsController
                     ChanSettings.saveServerFilename,
                     R.string.setting_save_server_filename,
                     R.string.setting_save_server_filename_description
+            ));
+
+            //Video options
+            media.add(new BooleanSettingView(this,
+                    ChanSettings.videoAutoLoop,
+                    R.string.setting_video_auto_loop,
+                    R.string.setting_video_auto_loop_description
             ));
 
             videoDefaultMutedSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
@@ -196,44 +205,14 @@ public class MediaSettingsController
                     R.string.setting_video_open_external_description
             ));
 
-            media.add(new BooleanSettingView(this,
-                    ChanSettings.shareUrl,
-                    R.string.setting_share_url,
-                    R.string.setting_share_url_description
-            ));
-
-            media.add(new BooleanSettingView(this,
-                    ChanSettings.removeImageSpoilers,
-                    R.string.settings_remove_image_spoilers,
-                    R.string.settings_remove_image_spoilers_description
-            ));
-
-            media.add(new BooleanSettingView(this,
-                    ChanSettings.revealimageSpoilers,
-                    R.string.settings_reveal_image_spoilers,
-                    R.string.settings_reveal_image_spoilers_description
-            ));
-
-            media.add(new BooleanSettingView(this,
-                    ChanSettings.allowMediaScannerToScanLocalThreads,
-                    R.string.settings_allow_media_scanner_scan_local_threads_title,
-                    R.string.settings_allow_media_scanner_scan_local_threads_description
-            ));
-
             groups.add(media);
         }
 
-        // Loading group
+        // Loading group (media specific loading behavior)
         {
             SettingsGroup loading = new SettingsGroup(R.string.settings_group_media_loading);
 
             setupMediaLoadTypesSetting(loading);
-
-            loading.add(new BooleanSettingView(this,
-                    ChanSettings.videoAutoLoop,
-                    R.string.setting_video_auto_loop,
-                    R.string.setting_video_auto_loop_description
-            ));
 
             requiresRestart.add(loading.add(new BooleanSettingView(this,
                     ChanSettings.autoLoadThreadImages,
@@ -245,12 +224,7 @@ public class MediaSettingsController
         }
     }
 
-    /**
-     * ==============================================
-     * Setup Local Threads location
-     * ==============================================
-     */
-
+    //region Setup Local Threads location
     private void setupLocalThreadLocationSetting(SettingsGroup media) {
         if (!ChanSettings.incrementalThreadDownloadingEnabled.get()) {
             Logger.d(TAG, "setupLocalThreadLocationSetting() incrementalThreadDownloadingEnabled is disabled");
@@ -364,12 +338,9 @@ public class MediaSettingsController
 
         navigationController.pushController(saveLocationController);
     }
+    //endregion
 
-    /**
-     * ==============================================
-     * Setup Save Files location
-     * ==============================================
-     */
+    //region Setup Save Files location
 
     private void setupSaveLocationSetting(SettingsGroup media) {
         LinkSettingView chooseSaveLocationSetting = new LinkSettingView(this,
@@ -431,13 +402,9 @@ public class MediaSettingsController
 
         navigationController.pushController(saveLocationController);
     }
+    //endregion
 
-    /**
-     * ==============================================
-     * Presenter callbacks
-     * ==============================================
-     */
-
+    //region Presenter callbacks
     @Override
     public void askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
             @NonNull AbstractFile oldBaseDirectory, @NonNull AbstractFile newBaseDirectory
@@ -466,6 +433,18 @@ public class MediaSettingsController
     private void forgetOldSAFBaseDirectory(@NonNull AbstractFile oldBaseDirectory) {
         if (oldBaseDirectory instanceof ExternalFile) {
             forgetPreviousExternalBaseDirectory(oldBaseDirectory);
+        }
+    }
+
+    private void forgetPreviousExternalBaseDirectory(
+            @NonNull AbstractFile oldLocalThreadsDirectory
+    ) {
+        if (oldLocalThreadsDirectory instanceof ExternalFile) {
+            Uri safTreeUri = oldLocalThreadsDirectory.<CachingDocumentFile>getFileRoot().getHolder().uri();
+
+            if (!fileChooser.forgetSAFTree(safTreeUri)) {
+                showToast(R.string.media_settings_could_not_release_uri_permissions, Toast.LENGTH_SHORT);
+            }
         }
     }
 
@@ -597,24 +576,7 @@ public class MediaSettingsController
 
         alertDialog.show();
     }
-
-    /**
-     * ==============================================
-     * Other methods
-     * ==============================================
-     */
-
-    private void forgetPreviousExternalBaseDirectory(
-            @NonNull AbstractFile oldLocalThreadsDirectory
-    ) {
-        if (oldLocalThreadsDirectory instanceof ExternalFile) {
-            Uri safTreeUri = oldLocalThreadsDirectory.<CachingDocumentFile>getFileRoot().getHolder().uri();
-
-            if (!fileChooser.forgetSAFTree(safTreeUri)) {
-                showToast(R.string.media_settings_could_not_release_uri_permissions, Toast.LENGTH_SHORT);
-            }
-        }
-    }
+    //endregion
 
     private void setupMediaLoadTypesSetting(SettingsGroup loading) {
         List<ListSettingView.Item> imageAutoLoadTypes = new ArrayList<>();
@@ -654,6 +616,7 @@ public class MediaSettingsController
         updateVideoLoadModes();
     }
 
+    //region Setting update methods
     private void updateVideoLoadModes() {
         ChanSettings.MediaAutoLoadMode currentImageLoadMode = ChanSettings.imageAutoLoadNetwork.get();
         ChanSettings.MediaAutoLoadMode[] modes = ChanSettings.MediaAutoLoadMode.values();
@@ -690,4 +653,5 @@ public class MediaSettingsController
     private void updateHeadsetDefaultMutedSetting() {
         headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
     }
+    //endregion
 }

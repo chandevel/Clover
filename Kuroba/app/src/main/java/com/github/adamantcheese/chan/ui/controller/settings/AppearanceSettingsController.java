@@ -64,7 +64,7 @@ public class AppearanceSettingsController
             groups.add(appearance);
         }
 
-        // Layout group
+        // Layout group (over-arching UI changes)
         {
             SettingsGroup layout = new SettingsGroup(R.string.settings_group_layout);
 
@@ -85,21 +85,21 @@ public class AppearanceSettingsController
             )));
 
             requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
-                    ChanSettings.accessibleInfo,
-                    "Enable accessible post info",
-                    "Enabling places info in the first post option menu"
-            )));
-
-            requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.moveInputToBottom,
                     "Bottom input",
                     "Makes the captcha and reply input float to the bottom of the screen"
             )));
 
+            requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
+                    ChanSettings.useImmersiveModeForGallery,
+                    R.string.setting_images_immersive_mode_title,
+                    R.string.setting_images_immersive_mode_description
+            )));
+
             groups.add(layout);
         }
 
-        // Post group
+        // Post group (post-specific UI changes)
         {
             SettingsGroup post = new SettingsGroup(R.string.settings_group_post);
 
@@ -118,6 +118,12 @@ public class AppearanceSettingsController
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.accessibleInfo,
+                    "Enable accessible post info",
+                    "Enabling places info in the first post option menu"
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.postFullDate,
                     R.string.setting_post_full_date,
                     0
@@ -132,6 +138,36 @@ public class AppearanceSettingsController
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.postFilename,
                     R.string.setting_post_filename,
+                    0
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.textOnly,
+                    R.string.setting_text_only,
+                    R.string.setting_text_only_description
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.revealTextSpoilers,
+                    R.string.settings_reveal_text_spoilers,
+                    R.string.settings_reveal_text_spoilers_description
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.anonymize,
+                    R.string.setting_anonymize,
+                    0
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.anonymizeIds,
+                    R.string.setting_anonymize_ids,
+                    0
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.showAnonymousName,
+                    R.string.setting_show_anonymous_name,
                     0
             )));
 
@@ -162,20 +198,26 @@ public class AppearanceSettingsController
             groups.add(post);
         }
 
-        //Image group
+        //Image group (image cell specific UI changes)
         {
             SettingsGroup images = new SettingsGroup(R.string.settings_group_images);
+
+            images.add(new BooleanSettingView(this,
+                    ChanSettings.removeImageSpoilers,
+                    R.string.settings_remove_image_spoilers,
+                    R.string.settings_remove_image_spoilers_description
+            ));
+
+            images.add(new BooleanSettingView(this,
+                    ChanSettings.revealimageSpoilers,
+                    R.string.settings_reveal_image_spoilers,
+                    R.string.settings_reveal_image_spoilers_description
+            ));
 
             requiresUiRefresh.add(images.add(new BooleanSettingView(this,
                     ChanSettings.highResCells,
                     R.string.setting_images_high_res,
                     R.string.setting_images_high_res_description
-            )));
-
-            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
-                    ChanSettings.useImmersiveModeForGallery,
-                    R.string.setting_images_immersive_mode_title,
-                    R.string.setting_images_immersive_mode_description
             )));
 
             requiresUiRefresh.add(images.add(new BooleanSettingView(this,

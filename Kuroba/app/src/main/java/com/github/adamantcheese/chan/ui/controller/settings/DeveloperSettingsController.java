@@ -68,11 +68,13 @@ public class DeveloperSettingsController
         LinearLayout wrapper = new LinearLayout(context);
         wrapper.setOrientation(LinearLayout.VERTICAL);
 
+        //VIEW LOGS
         Button logsButton = new Button(context);
         logsButton.setOnClickListener(v -> navigationController.pushController(new LogsController(context)));
         logsButton.setText(R.string.settings_open_logs);
         wrapper.addView(logsButton);
 
+        //CRASH APP
         Button crashButton = new Button(context);
         crashButton.setOnClickListener(v -> {
             throw new RuntimeException("Debug crash");
@@ -80,6 +82,7 @@ public class DeveloperSettingsController
         crashButton.setText("Crash the app");
         wrapper.addView(crashButton);
 
+        //CLEAR CACHE
         Button clearCacheButton = new Button(context);
         FileCache cache = instance(FileCache.class);
         clearCacheButton.setOnClickListener(v -> {
@@ -90,11 +93,13 @@ public class DeveloperSettingsController
         clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize() / 1024 / 1024 + "MB)");
         wrapper.addView(clearCacheButton);
 
+        //DATABASE SUMMARY
         TextView summaryText = new TextView(context);
         summaryText.setText("Database summary:\n" + databaseManager.getSummary());
         summaryText.setPadding(dp(15), dp(5), 0, 0);
         wrapper.addView(summaryText);
 
+        //DATABASE RESET
         Button resetDbButton = new Button(context);
         resetDbButton.setOnClickListener(v -> {
             databaseManager.reset();
@@ -103,6 +108,7 @@ public class DeveloperSettingsController
         resetDbButton.setText("Delete database");
         wrapper.addView(resetDbButton);
 
+        //FILTER WATCH IGNORE RESET
         Button clearFilterWatchIgnores = new Button(context);
         clearFilterWatchIgnores.setOnClickListener(v -> {
             try {
@@ -118,6 +124,7 @@ public class DeveloperSettingsController
         clearFilterWatchIgnores.setText("Clear ignored filter watches");
         wrapper.addView(clearFilterWatchIgnores);
 
+        //THREAD STACK DUMPER
         Button dumpAllThreadStacks = new Button(context);
         dumpAllThreadStacks.setOnClickListener(v -> {
             Set<Thread> activeThreads = Thread.getAllStackTraces().keySet();
@@ -149,8 +156,9 @@ public class DeveloperSettingsController
         dumpAllThreadStacks.setText("Dump active thread stack traces to log");
         wrapper.addView(dumpAllThreadStacks);
 
-        Button forceFilterWatch = new Button(context);
-        forceFilterWatch.setOnClickListener(v -> {
+        //FORCE WAKE
+        Button forceWake = new Button(context);
+        forceWake.setOnClickListener(v -> {
             try {
                 WakeManager wakeManager = instance(WakeManager.class);
                 Field wakeables = wakeManager.getClass().getDeclaredField("wakeableSet");
@@ -163,8 +171,8 @@ public class DeveloperSettingsController
                 Logger.i(TAG, "Failed to run wakeables");
             }
         });
-        forceFilterWatch.setText("Force wakemanager wake");
-        wrapper.addView(forceFilterWatch);
+        forceWake.setText("Force wakemanager wake");
+        wrapper.addView(forceWake);
 
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);
