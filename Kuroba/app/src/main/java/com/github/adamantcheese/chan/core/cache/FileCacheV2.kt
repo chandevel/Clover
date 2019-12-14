@@ -59,25 +59,15 @@ class FileCacheV2(
     private val normalRequestQueue = PublishProcessor.create<String>()
     private val batchRequestQueue = PublishProcessor.create<List<String>>()
 
-    private val threadsCount = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(4)
+    private val threadsCount = (Runtime.getRuntime().availableProcessors()).coerceAtLeast(8)
     private val requestCancellationThread = Executors.newSingleThreadExecutor()
 
-    private val normalThreadIndex = AtomicInteger(0)
-    private val normalWorkerScheduler = Schedulers.from(
+    private val threadIndex = AtomicInteger(0)
+    private val workerScheduler = Schedulers.from(
             Executors.newFixedThreadPool(threadsCount) { runnable ->
                 return@newFixedThreadPool Thread(
                         runnable,
-                        String.format(NORMAL_THREAD_NAME_FORMAT, normalThreadIndex.getAndIncrement())
-                )
-            }
-    )
-
-    private val batchThreadIndex = AtomicInteger(0)
-    private val batchWorkerScheduler = Schedulers.from(
-            Executors.newFixedThreadPool(threadsCount) { runnable ->
-                return@newFixedThreadPool Thread(
-                        runnable,
-                        String.format(BATCH_THREAD_NAME_FORMAT, batchThreadIndex.getAndIncrement())
+                        String.format(THREAD_NAME_FORMAT, threadIndex.getAndIncrement())
                 )
             }
     )
@@ -90,11 +80,11 @@ class FileCacheV2(
     @SuppressLint("CheckResult")
     private fun initNormalRxWorkerQueue() {
         normalRequestQueue
-                .observeOn(normalWorkerScheduler)
+                .observeOn(workerScheduler)
                 .onBackpressureBuffer()
                 .flatMap { requestId ->
                     return@flatMap Flowable.defer { handleFileDownload(requestId) }
-                            .subscribeOn(normalWorkerScheduler)
+                            .subscribeOn(workerScheduler)
                             .onErrorReturn { throwable ->
                                 if (throwable is CancellationException) {
                                     return@onErrorReturn FileDownloadResult.Canceled
@@ -121,11 +111,11 @@ class FileCacheV2(
     @SuppressLint("CheckResult")
     private fun initBatchRequestQueue() {
         batchRequestQueue
-                .observeOn(batchWorkerScheduler)
+                .observeOn(workerScheduler)
                 .onBackpressureBuffer()
                 .flatMap { requestIdList ->
                     return@flatMap Flowable.fromIterable(requestIdList)
-                            .subscribeOn(normalWorkerScheduler)
+                            .subscribeOn(workerScheduler)
                             .flatMap { requestId ->
                                 return@flatMap handleFileDownload(requestId)
                                         .onErrorReturn { throwable ->
@@ -171,12 +161,16 @@ class FileCacheV2(
             val file: RawFile = cacheHandler.getOrCreate(url)
                     ?: continue
 
-            val cancelableDownload = getOrCreateCancelableDownload(
+            val (alreadyActive, cancelableDownload) = getOrCreateCancelableDownload(
                     url,
                     null,
                     file,
                     true
             )
+
+            if (alreadyActive) {
+                continue
+            }
 
             if (checkAlreadyCached(file, url)) {
                 continue
@@ -234,12 +228,16 @@ class FileCacheV2(
             return null
         }
 
-        val cancelableDownload = getOrCreateCancelableDownload(
+        val (alreadyActive, cancelableDownload) = getOrCreateCancelableDownload(
                 url,
                 callback,
                 file,
                 false
         )
+
+        if (alreadyActive) {
+            return cancelableDownload
+        }
 
         if (checkAlreadyCached(file, url)) {
             return null
@@ -278,7 +276,7 @@ class FileCacheV2(
             callback: FileCacheListener?,
             file: RawFile,
             isPrefetch: Boolean
-    ): CancelableDownload {
+    ): Pair<Boolean, CancelableDownload> {
         return synchronized(activeDownloads) {
             if (activeDownloads.containsKey(url)) {
                 val prevRequest = checkNotNull(activeDownloads[url]) {
@@ -293,7 +291,7 @@ class FileCacheV2(
                     prevCancelableDownload.addCallback(callback)
                 }
 
-                return@synchronized prevCancelableDownload
+                return@synchronized true to prevCancelableDownload
             }
 
             val cancelableDownload = CancelableDownload(
@@ -313,7 +311,7 @@ class FileCacheV2(
                     cancelableDownload
             )
 
-            return@synchronized cancelableDownload
+            return@synchronized false to cancelableDownload
         }
     }
 
@@ -731,7 +729,7 @@ class FileCacheV2(
             }
         }
 
-        return Flowable.create({ emitter ->
+        return Flowable.create<FileDownloadResult>({ emitter ->
             BackgroundUtils.ensureBackgroundThread()
             val serializedEmitter = emitter.serialize()
 
@@ -830,8 +828,7 @@ class FileCacheV2(
 
                 cleanupResourcesFunc()
             }
-        }, BackpressureStrategy.DROP)
-        // TODO: add scheduler
+        }, BackpressureStrategy.BUFFER)
     }
 
     private fun markFileAsDownloaded(requestId: String) {
@@ -1033,7 +1030,6 @@ class FileCacheV2(
                 }
             })
         }, BackpressureStrategy.BUFFER)
-        // TODO: add scheduler
     }
 
     class FileDownloadRequest(
@@ -1150,8 +1146,7 @@ class FileCacheV2(
 
     companion object {
         private const val TAG = "FileCacheV2"
-        private const val NORMAL_THREAD_NAME_FORMAT = "NormalFileCacheV2Thread-%d"
-        private const val BATCH_THREAD_NAME_FORMAT = "BatchFileCacheV2Thread-%d"
+        private const val THREAD_NAME_FORMAT = "FileCacheV2Thread-%d"
         private const val BUFFER_SIZE: Long = 8192L
         private const val MAX_RETRIES = 5L
 
