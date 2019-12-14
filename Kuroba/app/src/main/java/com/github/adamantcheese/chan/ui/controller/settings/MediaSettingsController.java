@@ -28,6 +28,8 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
+import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.LoadingViewController;
@@ -73,6 +75,7 @@ public class MediaSettingsController
     private LinkSettingView localThreadsLocation;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
+    private BooleanSettingView incrementalThreadDownloadingSetting;
 
     private LoadingViewController loadingViewController;
     private MediaSettingsControllerPresenter presenter;
@@ -130,6 +133,9 @@ public class MediaSettingsController
             updateThreadFolderSetting();
         } else if (item == videoDefaultMutedSetting) {
             updateHeadsetDefaultMutedSetting();
+        } else if (item == incrementalThreadDownloadingSetting
+                && !ChanSettings.incrementalThreadDownloadingEnabled.get()) {
+            cancelAllDownloads();
         }
     }
 
@@ -155,7 +161,7 @@ public class MediaSettingsController
     private void populatePreferences() {
         // Media group
         {
-            SettingsGroup media = new SettingsGroup(R.string.settings_group_media);
+            SettingsGroup media = new SettingsGroup(R.string.settings_group_saving);
 
             //Save locations
             setupSaveLocationSetting(media);
@@ -180,32 +186,44 @@ public class MediaSettingsController
                     R.string.setting_save_server_filename_description
             ));
 
+            incrementalThreadDownloadingSetting = new BooleanSettingView(this,
+                    ChanSettings.incrementalThreadDownloadingEnabled,
+                    R.string.incremental_thread_downloading_title,
+                    R.string.incremental_thread_downloading_description
+            );
+            requiresRestart.add(media.add(incrementalThreadDownloadingSetting));
+
+            groups.add(media);
+        }
+
+        {
             //Video options
-            media.add(new BooleanSettingView(this,
+            SettingsGroup video = new SettingsGroup("Video settings");
+            video.add(new BooleanSettingView(this,
                     ChanSettings.videoAutoLoop,
                     R.string.setting_video_auto_loop,
                     R.string.setting_video_auto_loop_description
             ));
 
-            videoDefaultMutedSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+            videoDefaultMutedSetting = (BooleanSettingView) video.add(new BooleanSettingView(this,
                     ChanSettings.videoDefaultMuted,
                     R.string.setting_video_default_muted,
                     R.string.setting_video_default_muted_description
             ));
 
-            headsetDefaultMutedSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+            headsetDefaultMutedSetting = (BooleanSettingView) video.add(new BooleanSettingView(this,
                     ChanSettings.headsetDefaultMuted,
                     R.string.setting_headset_default_muted,
                     R.string.setting_headset_default_muted_description
             ));
 
-            media.add(new BooleanSettingView(this,
+            video.add(new BooleanSettingView(this,
                     ChanSettings.videoOpenExternal,
                     R.string.setting_video_open_external,
                     R.string.setting_video_open_external_description
             ));
 
-            groups.add(media);
+            groups.add(video);
         }
 
         // Loading group (media specific loading behavior)
@@ -652,6 +670,51 @@ public class MediaSettingsController
 
     private void updateHeadsetDefaultMutedSetting() {
         headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
+    }
+
+    private void cancelAllDownloads() {
+        threadSaveManager.cancelAllDownloading();
+
+        databaseManager.runTask(() -> {
+            List<Pin> pins = databaseManager.getDatabasePinManager().getPins().call();
+            if (pins.isEmpty()) {
+                return null;
+            }
+
+            List<Pin> downloadPins = new ArrayList<>(10);
+
+            for (Pin pin : pins) {
+                if (PinType.hasDownloadFlag(pin.pinType)) {
+                    downloadPins.add(pin);
+                }
+            }
+
+            if (downloadPins.isEmpty()) {
+                return null;
+            }
+
+            databaseManager.getDatabaseSavedThreadManager().deleteAllSavedThreads().call();
+
+            for (Pin pin : downloadPins) {
+                pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
+
+                if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
+                    continue;
+                }
+
+                // We don't want to delete all of the users's bookmarks so we just change their
+                // types to WatchNewPosts
+                pin.pinType = PinType.addWatchNewPostsFlag(pin.pinType);
+            }
+
+            databaseManager.getDatabasePinManager().updatePins(downloadPins).call();
+
+            for (Pin pin : downloadPins) {
+                databaseManager.getDatabaseSavedThreadManager().deleteThreadFromDisk(pin.loadable);
+            }
+
+            return null;
+        });
     }
     //endregion
 }

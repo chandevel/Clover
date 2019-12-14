@@ -489,7 +489,7 @@ Note that for country code filtering, troll country codes should be prepended wi
     <!-- Behavior proxy group -->
     <string name="setting_proxy_port">Proxy server port</string>
     <string name="settings_screen_media">Media</string>
-    <string name="settings_group_media">Media</string>
+    <string name="settings_group_saving">Media saving</string>
     <string name="setting_save_board_folder">Save images in board folders</string>
 
 
