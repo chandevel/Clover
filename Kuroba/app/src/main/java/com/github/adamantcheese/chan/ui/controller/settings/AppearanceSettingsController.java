@@ -184,6 +184,11 @@ public class AppearanceSettingsController
                     R.string.setting_image_link_loading_description
             )));
 
+            images.add(new BooleanSettingView(this,
+                    ChanSettings.transparencyOn,
+                    "Image opacity",
+                    "Sets the default state for image transparency, for PNGs or GIFs"));
+
             groups.add(images);
         }
     }

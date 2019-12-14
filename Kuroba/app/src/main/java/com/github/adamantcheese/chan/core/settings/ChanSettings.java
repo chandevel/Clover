@@ -207,6 +207,7 @@ public class ChanSettings {
     public static final StringSetting previousDevHash;
 
     public static final BooleanSetting addDubs;
+    public static final BooleanSetting transparencyOn;
 
     static {
         try {
@@ -328,6 +329,7 @@ public class ChanSettings {
             previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
 
             addDubs = new BooleanSetting(p, "add_dubs", false);
+            transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.
