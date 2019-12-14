@@ -29,6 +29,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Lifecycle;
@@ -44,6 +45,8 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
+import com.github.adamantcheese.chan.core.cache.MediaSourceCallback;
+import com.github.adamantcheese.chan.core.cache.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -62,6 +65,9 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,7 +102,8 @@ public class MultiImageView
 
     @Inject
     FileCacheV2 fileCacheV2;
-
+    @Inject
+    WebmStreamingSource webmStreamingSource;
     @Inject
     ImageLoaderV2 imageLoaderV2;
 
@@ -139,6 +146,7 @@ public class MultiImageView
     private FileCacheV2.CancelableDownload videoRequest;
 
     private SimpleExoPlayer exoPlayer;
+    private boolean mediaSourceCancel = false;
 
     private boolean backgroundToggle;
 
@@ -444,6 +452,57 @@ public class MultiImageView
     private void setVideo(Loadable loadable, PostImage postImage) {
         BackgroundUtils.ensureMainThread();
 
+        if (ChanSettings.videoStream.get()) {
+            openVideoInternalStream(postImage.imageUrl.toString());
+        } else {
+            openVideoExternal(loadable, postImage);
+        }
+    }
+
+    private void openVideoInternalStream(String videoUrl) {
+        webmStreamingSource.createMediaSource(videoUrl, new MediaSourceCallback() {
+            @Override
+            public void onMediaSourceReady(@Nullable MediaSource source) {
+                synchronized (MultiImageView.this) {
+                    if (mediaSourceCancel) {
+                        return;
+                    }
+
+                    if (!hasContent || mode == Mode.VIDEO) {
+                        PlayerView exoVideoView = new PlayerView(getContext());
+                        exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+                        exoVideoView.setPlayer(exoPlayer);
+
+                        exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
+                                Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
+
+                        exoPlayer.prepare(source);
+                        exoPlayer.setVolume(0f);
+                        exoPlayer.addAudioListener(MultiImageView.this);
+
+                        addView(exoVideoView);
+                        exoPlayer.setPlayWhenReady(true);
+                        onModeLoaded(Mode.VIDEO, exoVideoView);
+                        callback.onVideoLoaded(MultiImageView.this);
+                    }
+                }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable error) {
+                Logger.e(TAG, "Error while trying to stream a webm", error);
+
+                String message = "Couldn't open webm in streaming mode, error = "
+                        + error.getMessage();
+
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void openVideoExternal(Loadable loadable, PostImage postImage) {
+        BackgroundUtils.ensureMainThread();
+
         if (videoRequest != null) {
             return;
         }
@@ -651,6 +710,16 @@ public class MultiImageView
         if (videoRequest != null) {
             videoRequest.cancel();
             videoRequest = null;
+        }
+
+        synchronized (this) {
+            mediaSourceCancel = true;
+        }
+
+        if (exoPlayer != null) {
+            // ExoPlayer will keep loading resources if we don't release it here.
+            exoPlayer.release();
+            exoPlayer = null;
         }
     }
 

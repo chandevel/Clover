@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * A file downloader with two reactive queues:
@@ -84,16 +85,18 @@ class FileCacheV2(
                 .onBackpressureBuffer()
                 .flatMap { requestId ->
                     return@flatMap Flowable.defer { handleFileDownload(requestId) }
-                            .subscribeOn(workerScheduler)
-                            .onErrorReturn { throwable ->
-                                if (throwable is CancellationException) {
-                                    return@onErrorReturn FileDownloadResult.Canceled
-                                }
-
-                                return@onErrorReturn FileDownloadResult.Exception(throwable)
+                        .subscribeOn(workerScheduler)
+                        .onErrorReturn { throwable ->
+                            if (throwable is CancellationException) {
+                                return@onErrorReturn cancellationExceptionToDownloadResult(
+                                        throwable
+                                )
                             }
-                            .map { result -> Pair(requestId, result) }
-                            .doOnNext { (requestId, result) -> handleResults(requestId, result) }
+
+                            return@onErrorReturn FileDownloadResult.Exception(throwable)
+                        }
+                        .map { result -> Pair(requestId, result) }
+                        .doOnNext { (requestId, result) -> handleResults(requestId, result) }
                 }
                 .subscribe({
                     // Do nothing
@@ -115,21 +118,23 @@ class FileCacheV2(
                 .onBackpressureBuffer()
                 .flatMap { requestIdList ->
                     return@flatMap Flowable.fromIterable(requestIdList)
-                            .subscribeOn(workerScheduler)
-                            .flatMap { requestId ->
-                                return@flatMap handleFileDownload(requestId)
-                                        .onErrorReturn { throwable ->
-                                            if (throwable is CancellationException) {
-                                                return@onErrorReturn FileDownloadResult.Canceled
-                                            }
+                        .subscribeOn(workerScheduler)
+                        .flatMap { requestId ->
+                            return@flatMap handleFileDownload(requestId)
+                                .onErrorReturn { throwable ->
+                                    if (throwable is CancellationException) {
+                                        return@onErrorReturn cancellationExceptionToDownloadResult(
+                                                throwable
+                                        )
+                                    }
 
-                                            return@onErrorReturn FileDownloadResult.Exception(throwable)
-                                        }
-                                        .map { result -> Pair(requestId, result) }
-                                        .doOnNext { (requestId, result) ->
-                                            handleResults(requestId, result)
-                                        }
-                            }
+                                    return@onErrorReturn FileDownloadResult.Exception(throwable)
+                                }
+                                .map { result -> Pair(requestId, result) }
+                                .doOnNext { (requestId, result) ->
+                                    handleResults(requestId, result)
+                                }
+                        }
                 }
                 .subscribe({
                     // Do nothing
@@ -492,8 +497,12 @@ class FileCacheV2(
             }
 
             if (result.isErrorOfAnyKind()) {
-                synchronized(activeDownloads) {
-                    activeDownloads[requestId]?.cancelableDownload?.cancel()
+                // Only call cancel when not already canceled and not stopped
+                if (result !is FileDownloadResult.Canceled
+                        && result !is FileDownloadResult.Stopped) {
+                    synchronized(activeDownloads) {
+                        activeDownloads[requestId]?.cancelableDownload?.cancel()
+                    }
                 }
 
                 purgeOutput(request.url, request.output)
@@ -552,6 +561,22 @@ class FileCacheV2(
 
                 resultHandler(requestId, request) {
                     onCancel()
+                    onEnd()
+                }
+            }
+            is FileDownloadResult.Stopped -> {
+                val (downloaded, total, output) = synchronized(activeDownloads) {
+                    val downloaded = activeDownloads[requestId]?.downloaded?.get()
+                    val total = activeDownloads[requestId]?.total?.get()
+                    val output = activeDownloads[requestId]?.output
+
+                    Triple(downloaded, total, output)
+                }
+
+                log("Request ${request} stopped, downloaded = $downloaded, total = $total")
+
+                resultHandler(requestId, request) {
+                    onStop(output)
                     onEnd()
                 }
             }
@@ -654,8 +679,11 @@ class FileCacheV2(
         BackgroundUtils.ensureBackgroundThread()
 
         val request = synchronized(activeDownloads) { activeDownloads[requestId] }
-        if (request == null || request.cancelableDownload.isCanceled()) {
-            return Flowable.error(CancellationException(requestId))
+        if (request == null || !request.cancelableDownload.isRunning()) {
+            val state = request?.cancelableDownload?.getState()
+                    ?: DownloadState.Canceled
+
+            return Flowable.error(CancellationException(state, requestId))
         }
 
         val exists = fileManager.exists(request.output)
@@ -695,6 +723,10 @@ class FileCacheV2(
                 }
                 .onErrorReturn { throwable ->
                     if (isCancellationError(throwable)) {
+                        if (throwable is CancellationException) {
+                            return@onErrorReturn cancellationExceptionToDownloadResult(throwable)
+                        }
+
                         return@onErrorReturn FileDownloadResult.Canceled
                     }
 
@@ -745,8 +777,8 @@ class FileCacheV2(
                     return@create
                 }
 
-                if (isRequestCanceled(requestId)) {
-                    throw CancellationException(requestId)
+                if (isRequestStoppedOrCanceled(requestId)) {
+                    throw CancellationException(getState(requestId), requestId)
                 }
 
                 val responseBody = response.body.also { cachedResponseBody = it }
@@ -755,8 +787,8 @@ class FileCacheV2(
                     return@create
                 }
 
-                if (isRequestCanceled(requestId)) {
-                    throw CancellationException(requestId)
+                if (isRequestStoppedOrCanceled(requestId)) {
+                    throw CancellationException(getState(requestId), requestId)
                 }
 
                 val sink = try {
@@ -769,8 +801,8 @@ class FileCacheV2(
                     null
                 }
 
-                if (isRequestCanceled(requestId)) {
-                    throw CancellationException(requestId)
+                if (isRequestStoppedOrCanceled(requestId)) {
+                    throw CancellationException(getState(requestId), requestId)
                 }
 
                 if (sink == null) {
@@ -790,8 +822,8 @@ class FileCacheV2(
 
                 val source = responseBody.source().also { cachedBufferedSource = it }
 
-                if (isRequestCanceled(requestId)) {
-                    throw CancellationException(requestId)
+                if (isRequestStoppedOrCanceled(requestId)) {
+                    throw CancellationException(getState(requestId), requestId)
                 }
 
                 val time = pipeBody(
@@ -817,7 +849,9 @@ class FileCacheV2(
                             "requestId = $requestId"
                     )
 
-                    serializedEmitter.onError(CancellationException(requestId))
+                    serializedEmitter.onError(
+                            CancellationException(getState(requestId), requestId)
+                    )
                 } else {
                     serializedEmitter.onError(error)
                 }
@@ -861,7 +895,14 @@ class FileCacheV2(
         return false
     }
 
-    private fun isRequestCanceled(requestId: String): Boolean {
+    private fun getState(requestId: String): DownloadState {
+        return synchronized(activeDownloads) {
+            activeDownloads[requestId]?.cancelableDownload?.getState()
+                    ?: DownloadState.Canceled
+        }
+    }
+
+    private fun isRequestStoppedOrCanceled(requestId: String): Boolean {
         BackgroundUtils.ensureBackgroundThread()
 
         return synchronized(activeDownloads) {
@@ -874,7 +915,7 @@ class FileCacheV2(
                         "Apparently it's not thread-safe anymore"
             }
 
-            return@synchronized request.cancelableDownload.isCanceled()
+            return@synchronized !request.cancelableDownload.isRunning()
         }
     }
 
@@ -891,8 +932,8 @@ class FileCacheV2(
                         "Apparently it's not thread-safe anymore"
             }
 
-            if (!request.cancelableDownload.isCanceled()) {
-                // Not canceled
+            if (request.cancelableDownload.getState() != DownloadState.Canceled) {
+                // Not canceled, only purge output when canceled
                 return
             }
         }
@@ -920,18 +961,26 @@ class FileCacheV2(
         val notifySize = contentLength / 10L
         val startTime = System.currentTimeMillis()
 
+        synchronized(activeDownloads) {
+            activeDownloads[requestId]?.total?.set(contentLength)
+        }
+
         while (true) {
             read = source.read(buffer, BUFFER_SIZE)
             if (read == -1L) {
                 break
             }
 
-            if (isRequestCanceled(requestId)) {
-                throw CancellationException(requestId)
+            if (isRequestStoppedOrCanceled(requestId)) {
+                throw CancellationException(getState(requestId), requestId)
             }
 
             sink.write(buffer, read)
             downloaded += read
+
+            synchronized(activeDownloads) {
+                activeDownloads[requestId]?.downloaded?.set(downloaded)
+            }
 
             if (downloaded >= notifyTotal + notifySize) {
                 notifyTotal = downloaded
@@ -947,7 +996,7 @@ class FileCacheV2(
         }
 
         if (downloaded != contentLength) {
-            throw CancellationException(requestId)
+            throw CancellationException(getState(requestId), requestId)
         }
 
         synchronized(activeDownloads) {
@@ -962,8 +1011,8 @@ class FileCacheV2(
     private fun sendRequest(requestId: String): Flowable<Response> {
         BackgroundUtils.ensureBackgroundThread()
 
-        if (isRequestCanceled(requestId)) {
-            throw CancellationException(requestId)
+        if (isRequestStoppedOrCanceled(requestId)) {
+            throw CancellationException(getState(requestId), requestId)
         }
 
         val request = synchronized(activeDownloads) {
@@ -988,7 +1037,9 @@ class FileCacheV2(
                     if (!isCancellationError(e)) {
                         serializedEmitter.onError(e)
                     } else {
-                        serializedEmitter.onError(CancellationException(requestId))
+                        serializedEmitter.onError(
+                                CancellationException(getState(requestId), requestId)
+                        )
                     }
                 }
 
@@ -998,8 +1049,10 @@ class FileCacheV2(
                 }
             })
 
-            if (isRequestCanceled(requestId)) {
-                serializedEmitter.onError(CancellationException(requestId))
+            if (isRequestStoppedOrCanceled(requestId)) {
+                serializedEmitter.onError(
+                        CancellationException(getState(requestId), requestId)
+                )
                 return@create
             }
 
@@ -1033,6 +1086,22 @@ class FileCacheV2(
         }, BackpressureStrategy.BUFFER)
     }
 
+    private fun cancellationExceptionToDownloadResult(
+            error: CancellationException
+    ): FileDownloadResult {
+        return when (error.state) {
+            DownloadState.Running -> {
+                throw IllegalStateException("state is running")
+            }
+            DownloadState.Stopped -> {
+                FileDownloadResult.Stopped
+            }
+            DownloadState.Canceled -> {
+                FileDownloadResult.Canceled
+            }
+        }
+    }
+
     class FileDownloadRequest(
             val url: String,
             val output: RawFile,
@@ -1047,8 +1116,9 @@ class FileCacheV2(
         }
     }
 
-    class CancellationException(requestId: String)
-        : IOException("CancellationException for request with id ${requestId}")
+    class CancellationException(val state: DownloadState, requestId: String)
+        : IOException("CancellationException for request with " +
+            "id = ${requestId}, state = ${state.javaClass.name}")
 
     class NotFoundException : Exception()
 
@@ -1063,6 +1133,7 @@ class FileCacheV2(
         object NotFound : FileDownloadResult()
 
         object Canceled : FileDownloadResult()
+        object Stopped : FileDownloadResult()
         class Exception(val throwable: Throwable) : FileDownloadResult()
         class CouldNotCreateOutputFile(val filePath: String) : FileDownloadResult()
         class BadOutputFileError(val exists: Boolean, val isFile: Boolean, val canWrite: Boolean) : FileDownloadResult()
@@ -1077,16 +1148,18 @@ class FileCacheV2(
 
     inner class CancelableDownload(
             val url: String,
-            private val canceled: AtomicBoolean = AtomicBoolean(false),
             private val isPartOfBatchDownload: AtomicBoolean = AtomicBoolean(false),
-            private var callbacks: MutableSet<FileCacheListener> = mutableSetOf(),
             var disposeFunc: (() -> Unit)? = null
     ) {
-        fun isCanceled() = canceled.get()
+        private val state: AtomicReference<DownloadState> = AtomicReference(DownloadState.Running)
+        private val callbacks: MutableSet<FileCacheListener> = mutableSetOf()
+
+        fun isRunning(): Boolean = state.get() == DownloadState.Running
+        fun getState(): DownloadState = state.get()
 
         @Synchronized
         fun addCallback(callback: FileCacheListener) {
-            if (canceled.get()) {
+            if (state.get() != DownloadState.Running) {
                 return
             }
 
@@ -1112,15 +1185,31 @@ class FileCacheV2(
         }
 
         /**
-         * A regular cancel() method that cancels active downloads but not prefetch downloads.
+         * A regular [cancel] method that cancels active downloads but not prefetch downloads.
          * */
         fun cancel() {
             cancel(false)
         }
 
+        /**
+         * Similar to [cancel] but does not delete the output file. Used by [WebmStreamingSource]
+         * to stop the download without deleting the output which is then getting transferred into
+         * [FileCacheDataSource]
+         * */
+        fun stop() {
+            if (!state.compareAndSet(DownloadState.Running, DownloadState.Stopped)) {
+                // Already canceled or stopped
+                return
+            }
+
+            // TODO: wtf do I do in case of this webm being prefetched?
+
+            dispose()
+        }
+
         private fun cancel(canCancelBatchDownloads: Boolean) {
-            if (!canceled.compareAndSet(false, true)) {
-                // Already canceled
+            if (!state.compareAndSet(DownloadState.Running, DownloadState.Canceled)) {
+                // Already canceled or stopped
                 return
             }
 
@@ -1132,17 +1221,26 @@ class FileCacheV2(
                 return
             }
 
+            dispose()
+        }
+
+        private fun dispose() {
             // We need to cancel the network requests on a background thread.
             // We also want it to be blocking.
+
             requestCancellationThread.submit {
                 disposeFunc?.invoke()
                 disposeFunc = null
 
                 log("Cancelling file download request, requestId = $url")
-            }
-                    // Just in case
-                    .get(5, TimeUnit.SECONDS)
+            }.get(5, TimeUnit.SECONDS)
         }
+    }
+
+    sealed class DownloadState {
+        object Running : DownloadState()
+        object Stopped : DownloadState()
+        object Canceled : DownloadState()
     }
 
     companion object {

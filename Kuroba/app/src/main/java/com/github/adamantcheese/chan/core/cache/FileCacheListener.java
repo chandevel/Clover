@@ -36,6 +36,13 @@ public abstract class FileCacheListener {
     }
 
     /**
+     * Called when the file download was stopped by WebmStreamingSource.
+     */
+    public void onStop(RawFile file) {
+
+    }
+
+    /**
      * Called when the file download was canceled.
      */
     public void onCancel() {

@@ -121,6 +121,7 @@ public class ChanSettings {
     public static final BooleanSetting autoRefreshThread;
     public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
     public static final OptionsSetting<MediaAutoLoadMode> videoAutoLoadNetwork;
+    public static final BooleanSetting videoStream;
     public static final BooleanSetting videoOpenExternal;
     public static final BooleanSetting textOnly;
     public static final OptionsSetting<PostViewMode> boardViewMode;
@@ -232,6 +233,7 @@ public class ChanSettings {
                     MediaAutoLoadMode.class,
                     MediaAutoLoadMode.WIFI
             );
+            videoStream = new BooleanSetting(p, "preference_video_stream", false);
             videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
             textOnly = new BooleanSetting(p, "preference_text_only", false);
             boardViewMode =

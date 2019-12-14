@@ -21,6 +21,7 @@ import com.android.volley.toolbox.Volley;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
+import com.github.adamantcheese.chan.core.cache.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
@@ -81,6 +82,17 @@ public class NetModule {
     ) {
         Logger.d(AppModule.DI_TAG, "File cache V2");
         return new FileCacheV2(fileManager, cacheHandler, okHttpClient);
+    }
+
+    @Provides
+    @Singleton
+    public WebmStreamingSource provideWebmStreamingSource(
+            FileManager fileManager,
+            FileCacheV2 fileCacheV2,
+            CacheHandler cacheHandler
+    ) {
+        Logger.d(AppModule.DI_TAG, "WebmStreamingSource");
+        return new WebmStreamingSource(fileManager, fileCacheV2, cacheHandler);
     }
 
     private File getCacheDir() {
