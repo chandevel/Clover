@@ -249,6 +249,20 @@ class FileCacheV2(
         return cancelableDownload
     }
 
+    // For now it is only used in the developer settings so it's okay to block the UI
+    fun clearCache() {
+        synchronized(activeDownloads) {
+            activeDownloads.values.forEach { download ->
+                download.cancelableDownload.cancel()
+                download.cancelableDownload.clearCallbacks()
+            }
+
+            activeDownloads.clear()
+        }
+
+        cacheHandler.clearCache()
+    }
+
     private fun checkAlreadyCached(file: RawFile, url: String): Boolean {
         if (!cacheHandler.isAlreadyDownloaded(file)) {
             return false
@@ -313,20 +327,6 @@ class FileCacheV2(
 
             return@synchronized false to cancelableDownload
         }
-    }
-
-    // For now it is only used in the developer settings so it's okay to block the UI
-    fun clearCache() {
-        synchronized(activeDownloads) {
-            activeDownloads.values.forEach { download ->
-                download.cancelableDownload.cancel()
-                download.cancelableDownload.clearCallbacks()
-            }
-
-            activeDownloads.clear()
-        }
-
-        cacheHandler.clearCache()
     }
 
     private fun handleLoadThreadFile(
