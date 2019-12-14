@@ -980,25 +980,26 @@ class FileCacheV2(
 
         return Flowable.create<Response>({ emitter ->
             BackgroundUtils.ensureBackgroundThread()
+            val serializedEmitter = emitter.serialize()
             val call = okHttpClient.newCall(httpRequest)
 
             call.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     if (!isCancellationError(e)) {
-                        emitter.onError(e)
+                        serializedEmitter.onError(e)
                     } else {
-                        emitter.onError(CancellationException(requestId))
+                        serializedEmitter.onError(CancellationException(requestId))
                     }
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    emitter.onNext(response)
-                    emitter.onComplete()
+                    serializedEmitter.onNext(response)
+                    serializedEmitter.onComplete()
                 }
             })
 
             if (isRequestCanceled(requestId)) {
-                emitter.onError(CancellationException(requestId))
+                serializedEmitter.onError(CancellationException(requestId))
                 return@create
             }
 
@@ -1017,7 +1018,7 @@ class FileCacheV2(
                 activeDownloads[requestId]?.cancelableDownload?.disposeFunc = disposeFunc
             }
 
-            emitter.setDisposable(object : Disposable {
+            serializedEmitter.setDisposable(object : Disposable {
                 override fun isDisposed(): Boolean = call.isCanceled()
 
                 override fun dispose() {
