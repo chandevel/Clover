@@ -211,6 +211,10 @@ public class FileCacheDataSource extends BaseDataSource {
             firedCacheComplete = true;
         }
 
+        public void clearListeners() {
+            listeners.clear();
+        }
+
         boolean isCacheComplete() {
             return isCached(0, fileLength);
         }
@@ -404,6 +408,7 @@ public class FileCacheDataSource extends BaseDataSource {
         }
 
         listeners.clear();
+        partialFileCache.clearListeners();
     }
 
     public void addListener(Callback c) {
