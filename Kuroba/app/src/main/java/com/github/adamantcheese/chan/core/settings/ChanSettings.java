@@ -202,6 +202,8 @@ public class ChanSettings {
 
     public static final BooleanSetting parseYoutubeTitles;
     public static final BooleanSetting parseYoutubeDuration;
+    public static final StringSetting parseYoutubeAPIKey;
+
     public static final BooleanSetting parsePostImageLinks;
 
     public static final StringSetting previousDevHash;
@@ -324,6 +326,11 @@ public class ChanSettings {
 
             parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", true);
             parseYoutubeDuration = new BooleanSetting(p, "parse_youtube_duration", false);
+            parseYoutubeAPIKey = new StringSetting(p,
+                    "parse_youtube_API_key",
+                    "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE"
+            ); // this is 4chanX's key, but it is recommended that you use your own
+
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
 
             previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");

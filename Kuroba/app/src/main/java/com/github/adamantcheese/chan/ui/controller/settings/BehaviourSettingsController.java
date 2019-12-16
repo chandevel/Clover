@@ -188,6 +188,16 @@ public class BehaviourSettingsController
 
             groups.add(proxy);
         }
+
+        {
+            SettingsGroup other = new SettingsGroup("Other Options");
+
+            other.add(new StringSettingView(this,
+                    ChanSettings.parseYoutubeAPIKey,
+                    "Youtube API Key",
+                    "Youtube API Key"
+            ));
+        }
     }
 
     private void setupClearThreadHidesSetting(SettingsGroup post) {

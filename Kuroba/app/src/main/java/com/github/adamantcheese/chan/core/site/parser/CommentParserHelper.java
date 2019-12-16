@@ -65,7 +65,6 @@ public class CommentParserHelper {
 
     private static Pattern youtubeLinkPattern = Pattern.compile(
             "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
-    private static final String API_KEY = "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE";
     private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
     // a cache for titles and durations to prevent extra api calls if not necessary
     private static LruCache<String, String> youtubeTitleCache = new LruCache<>(250);
@@ -127,7 +126,7 @@ public class CommentParserHelper {
                             + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "") + "&id=" + videoID
                             + "&fields=items%28id%2Csnippet%28title%29" + (ChanSettings.parseYoutubeDuration.get()
                             ? "%2CcontentDetails%28duration%29"
-                            : "") + "%29&key=" + API_KEY,
+                            : "") + "%29&key=" + ChanSettings.parseYoutubeAPIKey.get(),
                     null,
                     future,
                     future
