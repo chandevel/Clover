@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -60,10 +59,11 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static java.lang.Thread.currentThread;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ThreadSaveManager {
     private static final String TAG = "ThreadSaveManager";
-    private static final int OKHTTP_TIMEOUT_SECONDS = 30;
     private static final int REQUEST_BUFFERING_TIME_SECONDS = 30;
     private static final int MAX_RETRY_ATTEMPTS = 3;
     private static final boolean VERBOSE_LOG = false;
@@ -86,10 +86,10 @@ public class ThreadSaveManager {
     private final Map<Loadable, AdditionalThreadParameters> additionalThreadParameter = new HashMap<>();
 
     private OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-            .writeTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .readTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .connectTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .callTimeout(OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .writeTimeout(30, SECONDS)
+            .readTimeout(30, SECONDS)
+            .connectTimeout(30, SECONDS)
+            .callTimeout(2, MINUTES)
             .build();
 
     private ExecutorService executorService = Executors.newFixedThreadPool(getThreadsCountForDownloaderExecutor());
@@ -135,7 +135,7 @@ public class ThreadSaveManager {
         // is already enqueued so it's okay for us to rely on the buffering)
         workerQueue.onBackpressureBuffer()
                 // Collect all the request over some time
-                .buffer(REQUEST_BUFFERING_TIME_SECONDS, TimeUnit.SECONDS)
+                .buffer(REQUEST_BUFFERING_TIME_SECONDS, SECONDS)
                 .concatMap(this::processCollectedRequests)
                 .subscribe(res -> {},
                         // OK

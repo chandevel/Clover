@@ -29,7 +29,6 @@ import com.github.k1rakishou.fsaf.FileManager;
 import org.codejargon.feather.Provides;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
 
@@ -37,6 +36,8 @@ import okhttp3.OkHttpClient;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class NetModule {
     public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
@@ -86,10 +87,10 @@ public class NetModule {
         public OkHttpClient getProxiedClient() {
             if (proxiedClient == null) {
                 proxiedClient = newBuilder().proxy(ChanSettings.getProxy())
-                        .connectTimeout(20, TimeUnit.SECONDS)
-                        .readTimeout(20, TimeUnit.SECONDS)
-                        .writeTimeout(20, TimeUnit.SECONDS)
-                        .callTimeout(20, TimeUnit.SECONDS)
+                        .connectTimeout(20, SECONDS)
+                        .readTimeout(20, SECONDS)
+                        .writeTimeout(20, SECONDS)
+                        .callTimeout(2, MINUTES)
                         .build();
             }
             return proxiedClient;
