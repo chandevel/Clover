@@ -211,6 +211,9 @@ public class ChanSettings {
     public static final BooleanSetting addDubs;
     public static final BooleanSetting transparencyOn;
 
+    public static final StringSetting youtubeTitleCache;
+    public static final StringSetting youtubeDurationCache;
+
     static {
         try {
             SettingProvider p = new SharedPreferencesSettingProvider(getPreferences());
@@ -337,6 +340,9 @@ public class ChanSettings {
 
             addDubs = new BooleanSetting(p, "add_dubs", false);
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
+
+            youtubeTitleCache = new StringSetting(p, "yt_title_cache", "{}");
+            youtubeDurationCache = new StringSetting(p, "yt_dur_cache", "{}");
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.

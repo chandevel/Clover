@@ -67,8 +67,8 @@ public class CommentParserHelper {
             "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
     private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
     // a cache for titles and durations to prevent extra api calls if not necessary
-    private static LruCache<String, String> youtubeTitleCache = new LruCache<>(250);
-    private static LruCache<String, String> youtubeDurCache = new LruCache<>(250);
+    public static LruCache<String, String> youtubeTitleCache = new LruCache<>(500);
+    public static LruCache<String, String> youtubeDurCache = new LruCache<>(500);
 
     //@formatter:off
     private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf)", Pattern.CASE_INSENSITIVE);
