@@ -68,7 +68,6 @@ public class CaptchaNoJsLayoutV2
 
     private CaptchaNoJsV2Adapter adapter;
     private CaptchaNoJsPresenterV2 presenter;
-    private Context context;
     private AuthenticationLayoutCallback callback;
 
     private boolean isAutoReply = true;
@@ -88,7 +87,6 @@ public class CaptchaNoJsLayoutV2
         super(context, attrs, defStyleAttr);
         inject(this);
 
-        this.context = context;
         this.presenter = new CaptchaNoJsPresenterV2(this, context);
         this.adapter = new CaptchaNoJsV2Adapter();
 

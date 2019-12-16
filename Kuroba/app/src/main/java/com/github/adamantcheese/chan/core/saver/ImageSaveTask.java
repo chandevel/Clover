@@ -108,9 +108,7 @@ public class ImageSaveTask
                 // Manually call postFinished()
                 postFinished(success);
             } else {
-                runOnUiThread(() -> {
-                    fileCache.downloadFile(loadable, postImage, this);
-                });
+                runOnUiThread(() -> fileCache.downloadFile(loadable, postImage, this));
             }
         } catch (Exception e) {
             Logger.e(TAG, "Uncaught exception", e);
@@ -156,9 +154,7 @@ public class ImageSaveTask
         if (destination instanceof RawFile) {
             String[] paths = {destination.getFullPath()};
 
-            MediaScannerConnection.scanFile(getAppContext(), paths, null, (path, uri) -> {
-                runOnUiThread(() -> afterScan(uri));
-            });
+            MediaScannerConnection.scanFile(getAppContext(), paths, null, (path, uri) -> runOnUiThread(() -> afterScan(uri)));
         } else if (destination instanceof ExternalFile) {
             Uri uri = Uri.parse(destination.getFullPath());
             runOnUiThread(() -> afterScan(uri));
@@ -204,9 +200,7 @@ public class ImageSaveTask
     }
 
     private void postError(Throwable error) {
-        runOnUiThread(() -> {
-            callback.imageSaveTaskFailed(error);
-        });
+        runOnUiThread(() -> callback.imageSaveTaskFailed(error));
     }
 
     private void postFinished(final boolean success) {

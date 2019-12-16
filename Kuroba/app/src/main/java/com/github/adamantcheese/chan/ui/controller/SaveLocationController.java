@@ -112,9 +112,7 @@ public class SaveLocationController
 
             new AlertDialog.Builder(context).setView(dialogView)
                     .setTitle(R.string.save_new_folder)
-                    .setPositiveButton(R.string.add, (dialog, which) -> {
-                        onPositionButtonClick(dialogView, dialog);
-                    })
+                    .setPositiveButton(R.string.add, (dialog, which) -> onPositionButtonClick(dialogView, dialog))
                     .setNegativeButton(R.string.cancel, null)
                     .create()
                     .show();
