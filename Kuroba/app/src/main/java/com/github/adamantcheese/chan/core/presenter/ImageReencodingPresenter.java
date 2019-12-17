@@ -40,6 +40,7 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_IS;
 import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_JPEG;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -155,7 +156,7 @@ public class ImageReencodingPresenter {
             reply = replyManager.getReply(loadable);
         }
 
-        ChanSettings.lastImageOptions.set(new Gson().toJson(imageOptions));
+        ChanSettings.lastImageOptions.set(instance(Gson.class).toJson(imageOptions));
         Logger.d(TAG, "imageOptions: [" + imageOptions.toString() + "]");
 
         //all options are default - do nothing
