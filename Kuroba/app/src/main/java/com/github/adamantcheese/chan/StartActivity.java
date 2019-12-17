@@ -621,10 +621,12 @@ public class StartActivity
     public void onStart() {
         super.onStart();
         //restore parsed youtube stuff
-        Gson gson = new Gson();
+        Gson gson = instance(Gson.class);
         Type lruType = new TypeToken<Map<String, String>>() {}.getType();
+        //convert
         Map<String, String> titles = gson.fromJson(ChanSettings.youtubeTitleCache.get(), lruType);
         Map<String, String> durs = gson.fromJson(ChanSettings.youtubeDurationCache.get(), lruType);
+        //reconstruct
         CommentParserHelper.youtubeTitleCache = new LruCache<>(500);
         CommentParserHelper.youtubeDurCache = new LruCache<>(500);
         for (String s : titles.keySet()) {
@@ -633,6 +635,9 @@ public class StartActivity
         for (String s : durs.keySet()) {
             CommentParserHelper.youtubeDurCache.put(s, durs.get(s));
         }
+        //reset to not use up as much memory
+        ChanSettings.youtubeTitleCache.set(ChanSettings.youtubeTitleCache.getDefault());
+        ChanSettings.youtubeDurationCache.set(ChanSettings.youtubeDurationCache.getDefault());
 
         Logger.d(TAG, "start");
     }
@@ -641,8 +646,9 @@ public class StartActivity
     public void onStop() {
         super.onStop();
         //store parsed youtube stuff, extra prevention of unneeded API calls
-        Gson gson = new Gson();
+        Gson gson = instance(Gson.class);
         Type lruType = new TypeToken<Map<String, String>>() {}.getType();
+        //convert and set
         ChanSettings.youtubeTitleCache.set(gson.toJson(CommentParserHelper.youtubeTitleCache.snapshot(), lruType));
         ChanSettings.youtubeDurationCache.set(gson.toJson(CommentParserHelper.youtubeDurCache.snapshot(), lruType));
         Logger.d(TAG, "stop");
