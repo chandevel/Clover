@@ -216,10 +216,15 @@ public class CommentParserHelper {
                 if (linkable.type == PostLinkable.Type.LINK) {
                     Matcher matcher = imageUrlPattern.matcher(((String) linkable.value));
                     if (matcher.matches()) {
+                        boolean noThumbnail =
+                                ((String) linkable.value).endsWith("webm") || ((String) linkable.value).endsWith("pdf")
+                                        || ((String) linkable.value).endsWith("mp4");
+                        String spoilerThumbnail =
+                                "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png";
                         post.images(Collections.singletonList(new PostImage.Builder().serverFilename(matcher.group(1))
-                                .thumbnailUrl(HttpUrl.parse((String) linkable.value)) //just have the thumbnail for when spoilers are removed be the image itself; probably not a great idea
-                                .spoilerThumbnailUrl(HttpUrl.parse(
-                                        "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png"))
+                                //spoiler thumb for some linked items, the image itself for the rest; probably not a great idea
+                                .thumbnailUrl(HttpUrl.parse(noThumbnail ? spoilerThumbnail : (String) linkable.value))
+                                .spoilerThumbnailUrl(HttpUrl.parse(spoilerThumbnail))
                                 .imageUrl(HttpUrl.parse((String) linkable.value))
                                 .filename(matcher.group(1))
                                 .extension(matcher.group(2))
