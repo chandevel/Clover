@@ -22,6 +22,7 @@ import android.util.SparseArray;
 import org.floens.chan.core.site.sites.chan4.Chan4;
 import org.floens.chan.core.site.sites.lainchan.Lainchan;
 import org.floens.chan.core.site.sites.chan8.Chan8;
+import org.floens.chan.core.site.sites.kun8.Kun8;
 import org.floens.chan.core.site.sites.arisuchan.Arisuchan;
 import org.floens.chan.core.site.sites.sushichan.Sushichan;
 import org.floens.chan.core.site.sites.dvach.Dvach;
@@ -43,6 +44,7 @@ public class SiteRegistry {
         URL_HANDLERS.add(Arisuchan.URL_HANDLER);
         URL_HANDLERS.add(Sushichan.URL_HANDLER);
         URL_HANDLERS.add(Dvach.URL_HANDLER);
+        URL_HANDLERS.add(Kun8.URL_HANDLER);
     }
 
     static {
@@ -56,5 +58,8 @@ public class SiteRegistry {
         SITE_CLASSES.put(3, Arisuchan.class);
         SITE_CLASSES.put(4, Sushichan.class);
         SITE_CLASSES.put(5, Dvach.class);
+        SITE_CLASSES.put(6, Kun8.class);
+
+
     }
 }
