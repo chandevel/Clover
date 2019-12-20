@@ -56,10 +56,11 @@ class PostParseCallable
 
     @Override
     public Post call() {
+        // needed for "Apply to own posts" to work correctly
+        post.isSavedReply(savedReplyManager.isSaved(post.board, post.id));
+
         // Process the filters before finish, because parsing the html is dependent on filter matches
         processPostFilter(post);
-
-        post.isSavedReply(savedReplyManager.isSaved(post.board, post.id));
 
         return reader.getParser().parse(null, post, new PostParser.Callback() {
             @Override
