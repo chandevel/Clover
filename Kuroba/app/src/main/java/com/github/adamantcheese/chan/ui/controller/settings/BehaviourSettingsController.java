@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
@@ -102,6 +103,12 @@ public class BehaviourSettingsController
                     ChanSettings.allowMediaScannerToScanLocalThreads,
                     R.string.settings_allow_media_scanner_scan_local_threads_title,
                     R.string.settings_allow_media_scanner_scan_local_threads_description
+            ));
+
+            general.add(new LinkSettingView(this,
+                    R.string.settings_captcha_setup,
+                    R.string.settings_captcha_setup_description,
+                    v -> navigationController.pushController(new SitesSetupController(context))
             ));
 
             setupClearThreadHidesSetting(general);

@@ -752,4 +752,6 @@ Don't have a 4chan Pass?<br>
     <string name="files_base_dir_does_not_exist"><![CDATA[Base directory for files does not exist! Set it manually in the settings (Media -> Save location)]]></string>
     <string name="local_threads_base_dir_does_not_exist"><![CDATA[Base directory for local threads does not exist! Set it manually in the settings (Media -> Local threads location). All active download has been stopped! Resume them manually after setting the base directory.]]></string>
     <string name="image_saver_could_not_figure_out_save_location">Couldn\'t figure out save location</string>
+    <string name="settings_captcha_setup">Captcha Settings</string>
+    <string name="settings_captcha_setup_description">Captcha settings are per-site configurable. Tap for site setup.</string>
 </resources>
