@@ -213,7 +213,7 @@ public class PostAdapter
         }
     }
 
-    public void setThread(Loadable threadLoadable, List<Post> posts) {
+    public void setThread(Loadable threadLoadable, List<Post> posts, boolean refreshAfterHideOrRemovePosts) {
         BackgroundUtils.ensureMainThread();
         boolean changed = this.loadable != null && !this.loadable.equals(threadLoadable); //changed threads, update
 
@@ -249,7 +249,13 @@ public class PostAdapter
 
         //update for indicator (adds/removes extra recycler item that causes inconsistency exceptions)
         //or if something changed per reasons above
-        if (lastLastSeenIndicator != lastSeenIndicatorPosition || changed) {
+        if (
+                lastLastSeenIndicator != lastSeenIndicatorPosition
+                        || changed
+                        // When true that means that the user has just hid or removed post/thread
+                        // so we need to refresh the UI
+                        || refreshAfterHideOrRemovePosts
+        ) {
             notifyDataSetChanged();
         }
     }

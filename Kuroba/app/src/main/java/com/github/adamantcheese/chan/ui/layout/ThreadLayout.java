@@ -256,7 +256,7 @@ public class ThreadLayout
     }
 
     @Override
-    public void showPosts(ChanThread thread, PostsFilter filter) {
+    public void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts) {
         if (thread.getLoadable().isLocal()) {
             if (replyButton.getVisibility() == VISIBLE) {
                 replyButton.hide();
@@ -269,7 +269,13 @@ public class ThreadLayout
 
         getPresenter().updateLoadable(thread.getLoadable().loadableDownloadingState);
 
-        threadListLayout.showPosts(thread, filter, visible != Visible.THREAD);
+        threadListLayout.showPosts(
+                thread,
+                filter,
+                visible != Visible.THREAD,
+                refreshAfterHideOrRemovePosts
+        );
+
         switchVisible(Visible.THREAD);
         callback.onShowPosts();
     }
