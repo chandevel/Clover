@@ -462,7 +462,7 @@ public class ThreadPresenter
 
     public void refreshUI() {
         if (chanLoader != null && chanLoader.getThread() != null) {
-            showPosts();
+            showPosts(true);
         }
     }
 
@@ -1215,8 +1215,16 @@ public class ThreadPresenter
     }
 
     private void showPosts() {
+        showPosts(false);
+    }
+
+    private void showPosts(boolean refreshAfterHideOrRemovePosts) {
         if (chanLoader != null && chanLoader.getThread() != null) {
-            threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
+            threadPresenterCallback.showPosts(
+                    chanLoader.getThread(),
+                    new PostsFilter(order, searchQuery),
+                    refreshAfterHideOrRemovePosts
+            );
         }
     }
 
@@ -1318,7 +1326,7 @@ public class ThreadPresenter
     }
 
     public interface ThreadPresenterCallback {
-        void showPosts(ChanThread thread, PostsFilter filter);
+        void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts);
 
         void postClicked(Post post);
 
