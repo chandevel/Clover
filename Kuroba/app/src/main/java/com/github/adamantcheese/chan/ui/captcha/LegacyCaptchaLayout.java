@@ -68,10 +68,6 @@ public class LegacyCaptchaLayout
         super(context, attrs, defStyleAttr);
     }
 
-    /**
-     * TODO: add support for the Captcha queueing {@link CaptchaHolder}
-     */
-
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
     protected void onFinishInflate() {
