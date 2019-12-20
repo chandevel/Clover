@@ -440,7 +440,11 @@ public class MediaSettingsController
         AlertDialog alertDialog =
                 new AlertDialog.Builder(context).setTitle(getString(R.string.media_settings_move_threads_to_new_dir))
                         .setMessage(getString(R.string.media_settings_operation_may_take_some_time))
-                        .setPositiveButton(R.string.move, (dialog, which) -> presenter.moveOldFilesToTheNewDirectory(oldBaseDirectory, newBaseDirectory))
+                        .setPositiveButton(R.string.move,
+                                (dialog, which) -> presenter.moveOldFilesToTheNewDirectory(oldBaseDirectory,
+                                        newBaseDirectory
+                                )
+                        )
                         .setNegativeButton(R.string.do_not, (dialog, which) -> dialog.dismiss())
                         .create();
 
@@ -484,7 +488,11 @@ public class MediaSettingsController
         AlertDialog alertDialog =
                 new AlertDialog.Builder(context).setTitle(getString(R.string.media_settings_move_saved_file_to_new_dir))
                         .setMessage(getString(R.string.media_settings_operation_may_take_some_time))
-                        .setPositiveButton(R.string.move, (dialog, which) -> presenter.moveOldFilesToTheNewDirectory(oldBaseDirectory, newBaseDirectory))
+                        .setPositiveButton(R.string.move,
+                                (dialog, which) -> presenter.moveOldFilesToTheNewDirectory(oldBaseDirectory,
+                                        newBaseDirectory
+                                )
+                        )
                         .setNegativeButton(R.string.do_not, (dialog, which) -> dialog.dismiss())
                         .create();
 

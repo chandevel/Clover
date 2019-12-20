@@ -488,7 +488,9 @@ public class ThreadLayout
         new AlertDialog.Builder(getContext()).setTitle(R.string.delete_confirm)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.delete, (dialog, which) -> presenter.deletePostConfirmed(post, checkBox.isChecked()))
+                .setPositiveButton(R.string.delete,
+                        (dialog, which) -> presenter.deletePostConfirmed(post, checkBox.isChecked())
+                )
                 .show();
     }
 

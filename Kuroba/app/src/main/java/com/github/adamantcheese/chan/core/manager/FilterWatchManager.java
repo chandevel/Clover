@@ -88,8 +88,7 @@ public class FilterWatchManager
 
         wakeManager.registerWakeable(this);
 
-        Set<Integer> previousIgnore = instance(Gson.class).fromJson(
-                ChanSettings.filterWatchIgnored.get(),
+        Set<Integer> previousIgnore = instance(Gson.class).fromJson(ChanSettings.filterWatchIgnored.get(),
                 new TypeToken<Set<Integer>>() {}.getType()
         );
         if (previousIgnore != null) ignoredPosts.addAll(previousIgnore);

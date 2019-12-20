@@ -649,7 +649,7 @@ public class ThreadPresenter
      */
     @Override
     public void onListScrolledToBottom() {
-        if(loadable == null) return; //null loadable means no thread loaded, possibly unbinding?
+        if (loadable == null) return; //null loadable means no thread loaded, possibly unbinding?
         if (loadable.isThreadMode() && chanLoader != null && chanLoader.getThread() != null
                 && chanLoader.getThread().getPostsCount() > 0) {
             List<Post> posts = chanLoader.getThread().getPosts();
