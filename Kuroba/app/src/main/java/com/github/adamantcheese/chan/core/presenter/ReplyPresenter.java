@@ -313,9 +313,8 @@ public class ReplyPresenter
                             "/" + localBoard.code + "/"
                     ));
 
-            if (localLoadable.isThreadMode()) {
-                lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
-            } else if (localLoadable.isCatalogMode()) {
+            lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
+            if (localLoadable.isCatalogMode()) {
                 lastReplyRepository.putLastThread(localLoadable.site, localLoadable.board);
             }
 
