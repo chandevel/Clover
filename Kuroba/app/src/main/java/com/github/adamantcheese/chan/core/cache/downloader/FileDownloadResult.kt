@@ -15,20 +15,10 @@ internal sealed class FileDownloadResult {
     }
 
     // Errors
-    class Exception(val throwable: Throwable) : FileDownloadResult()
-
-    // TODO: replace all of the following errors with exceptions vvv
-    object NotFound : FileDownloadResult()
     object Canceled : FileDownloadResult()
     object Stopped : FileDownloadResult()
-    object DoesNotSupportPartialContent : FileDownloadResult()
-    data class CouldNotCreateOutputFile(val filePath: String) : FileDownloadResult()
-    data class BadOutputFileError(val exists: Boolean, val isFile: Boolean, val canWrite: Boolean) : FileDownloadResult()
-    data class CouldNotGetInputStreamError(val path: String, val exists: Boolean, val isFile: Boolean, val canWrite: Boolean) : FileDownloadResult()
-    data class CouldNotGetOutputStreamError(val path: String, val exists: Boolean, val isFile: Boolean, val canWrite: Boolean) : FileDownloadResult()
-    data class HttpCodeIOError(val statusCode: Int) : FileDownloadResult()
-    object NoResponseBodyError : FileDownloadResult()
-    // TODO ^^^
+    class KnownException(val fileCacheException: FileCacheException) : FileDownloadResult()
+    class UnknownException(val error: Throwable) : FileDownloadResult()
 
     fun isErrorOfAnyKind(): Boolean {
         return this !is Success && this !is Progress

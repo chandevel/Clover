@@ -35,7 +35,7 @@ internal abstract class FileDownloader(
         }
 
         if (!cacheHandler.markFileDownloaded(request.output)) {
-            throw CouldNotMarkFileAsDownloaded(request.output)
+            throw FileCacheException.CouldNotMarkFileAsDownloaded(request.output)
         }
     }
 

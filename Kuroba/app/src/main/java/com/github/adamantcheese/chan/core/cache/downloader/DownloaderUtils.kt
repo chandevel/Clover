@@ -5,28 +5,12 @@ import java.io.IOException
 
 internal object DownloaderUtils {
 
-    fun cancellationExceptionToDownloadResult(
-            error: CancellationException
-    ): FileDownloadResult {
-        return when (error.state) {
-            DownloadState.Running -> {
-                throw IllegalStateException("state is running")
-            }
-            DownloadState.Stopped -> {
-                FileDownloadResult.Stopped
-            }
-            DownloadState.Canceled -> {
-                FileDownloadResult.Canceled
-            }
-        }
-    }
-
     fun isCancellationError(error: Throwable): Boolean {
         if (error !is IOException) {
             return false
         }
 
-        if (error is CancellationException
+        if (error is FileCacheException.CancellationException
                 || error is StreamResetException) {
             return true
         }

@@ -2,7 +2,6 @@ package com.github.adamantcheese.chan.core.cache
 
 import android.annotation.SuppressLint
 import com.github.adamantcheese.chan.core.cache.downloader.*
-import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.cancellationExceptionToDownloadResult
 import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
 import com.github.adamantcheese.chan.core.kt_extensions.exhaustive
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
@@ -90,15 +89,7 @@ class FileCacheV2(
                 .flatMap { url ->
                     return@flatMap Flowable.defer { handleFileDownload(url) }
                         .subscribeOn(workerScheduler)
-                        .onErrorReturn { throwable ->
-                            if (throwable is CancellationException) {
-                                return@onErrorReturn cancellationExceptionToDownloadResult(
-                                        throwable
-                                )
-                            }
-
-                            return@onErrorReturn FileDownloadResult.Exception(throwable)
-                        }
+                        .onErrorReturn { throwable -> processErrors(throwable) }
                         .map { result -> Pair(url, result) }
                         .doOnNext { (url, result) -> handleResults(url, result) }
                 }
@@ -125,15 +116,7 @@ class FileCacheV2(
                         .subscribeOn(workerScheduler)
                         .flatMap { url ->
                             return@flatMap handleFileDownload(url)
-                                .onErrorReturn { throwable ->
-                                    if (throwable is CancellationException) {
-                                        return@onErrorReturn cancellationExceptionToDownloadResult(
-                                                throwable
-                                        )
-                                    }
-
-                                    return@onErrorReturn FileDownloadResult.Exception(throwable)
-                                }
+                                .onErrorReturn { throwable -> processErrors(throwable) }
                                 .map { result -> Pair(url, result) }
                                 .doOnNext { (url, result) ->
                                     handleResults(url, result)
@@ -459,7 +442,7 @@ class FileCacheV2(
                 }
 
                 if (!cacheHandler.markFileDownloaded(resultFile)) {
-                    callback?.onFail(CouldNotMarkFileAsDownloaded(resultFile))
+                    callback?.onFail(FileCacheException.CouldNotMarkFileAsDownloaded(resultFile))
                     callback?.onEnd()
                     return
                 }
@@ -586,89 +569,93 @@ class FileCacheV2(
                     onEnd()
                 }
             }
+            is FileDownloadResult.KnownException -> {
+                logError(TAG, "Exception for request ${request}", result.fileCacheException)
+
+                // TODO: exception handling
+
+                resultHandler(url, request) {
+                    onFail(IOException(result.fileCacheException))
+                    onEnd()
+                }
+            }
+            is FileDownloadResult.UnknownException -> TODO()
+
 
             // Errors
-            is FileDownloadResult.NotFound -> {
-                logError(TAG, "File not found for request ${request}")
-
-                resultHandler(url, request) {
-                    onFail(IOException("File not found"))
-                    onEnd()
-                }
-            }
-            is FileDownloadResult.Exception -> {
-                logError(TAG, "Exception for request ${request}", result.throwable)
-
-                resultHandler(url, request) {
-                    onFail(IOException(result.throwable))
-                    onEnd()
-                }
-            }
-            is FileDownloadResult.BadOutputFileError -> {
-                val exception = IOException("Bad output file: " +
-                        "exists = ${result.exists}, " +
-                        "isFile = ${result.isFile}, " +
-                        "canWrite = ${result.canWrite}"
-                )
-
-                logError(TAG, "Bad output file error for request ${request}", exception)
-
-                resultHandler(url, request) {
-                    onFail(exception)
-                    onEnd()
-                }
-            }
-            is FileDownloadResult.HttpCodeIOError -> {
-                val exception = if (result.statusCode != 404) {
-                    IOException("Bad response status code: ${result.statusCode}")
-                } else {
-                    FileNotFoundOnTheServerException()
-                }
-
-                logError(TAG, "Http code error for request ${request}, status code = ${result.statusCode}")
-
-                resultHandler(url, request) {
-                    onFail(exception)
-                    onEnd()
-                }
-            }
-            is FileDownloadResult.NoResponseBodyError -> {
-                val exception = IOException("No response body returned for request ${request}")
-                logError(TAG, "No response body returned for request ${request}")
-
-                resultHandler(url, request) {
-                    onFail(exception)
-                    onEnd()
-                }
-            }
-            is FileDownloadResult.CouldNotGetOutputStreamError -> {
-                logError(TAG, "CouldNotGetOutputStreamError(" +
-                        "exists = ${result.exists}, " +
-                        "isFile = ${result.isFile}, " +
-                        "canWrite = ${result.canWrite}) for request ${request}")
-
-                resultHandler(url, request) {
-                    onFail(IOException("Could not get output stream"))
-                    onEnd()
-                }
-            }
-            is FileDownloadResult.CouldNotCreateOutputFile -> {
-                logError(TAG, "CouldNotCreateOutputFile for request ${request}, " +
-                        "output file path = ${result.filePath}")
-
-                resultHandler(url, request) {
-                    onFail(IOException("Could not create output file"))
-                    onEnd()
-                }
-            }
-            FileDownloadResult.DoesNotSupportPartialContent -> {
-                logError(TAG, "DoesNotSupportPartialContent")
-                // TODO("Not implemented")
-            }
-            is FileDownloadResult.CouldNotGetInputStreamError -> {
-                // TODO("Not implemented")
-                logError(TAG, "CouldNotGetInputStreamError")
-            }
+//            is FileDownloadResult.NotFound -> {
+//                logError(TAG, "File not found for request ${request}")
+//
+//                resultHandler(url, request) {
+//                    onFail(IOException("File not found"))
+//                    onEnd()
+//                }
+//            }
+//            is FileDownloadResult.BadOutputFileError -> {
+//                val exception = IOException("Bad output file: " +
+//                        "exists = ${result.exists}, " +
+//                        "isFile = ${result.isFile}, " +
+//                        "canWrite = ${result.canWrite}"
+//                )
+//
+//                logError(TAG, "Bad output file error for request ${request}", exception)
+//
+//                resultHandler(url, request) {
+//                    onFail(exception)
+//                    onEnd()
+//                }
+//            }
+//            is FileDownloadResult.HttpCodeIOError -> {
+//                val exception = if (result.statusCode != 404) {
+//                    IOException("Bad response status code: ${result.statusCode}")
+//                } else {
+//                    FileNotFoundOnTheServerException()
+//                }
+//
+//                logError(TAG, "Http code error for request ${request}, status code = ${result.statusCode}")
+//
+//                resultHandler(url, request) {
+//                    onFail(exception)
+//                    onEnd()
+//                }
+//            }
+//            is FileDownloadResult.NoResponseBodyError -> {
+//                val exception = IOException("No response body returned for request ${request}")
+//                logError(TAG, "No response body returned for request ${request}")
+//
+//                resultHandler(url, request) {
+//                    onFail(exception)
+//                    onEnd()
+//                }
+//            }
+//            is FileDownloadResult.CouldNotGetOutputStreamError -> {
+//                logError(TAG, "CouldNotGetOutputStreamError(" +
+//                        "exists = ${result.exists}, " +
+//                        "isFile = ${result.isFile}, " +
+//                        "canWrite = ${result.canWrite}) for request ${request}")
+//
+//                resultHandler(url, request) {
+//                    onFail(IOException("Could not get output stream"))
+//                    onEnd()
+//                }
+//            }
+//            is FileDownloadResult.CouldNotCreateOutputFile -> {
+//                logError(TAG, "CouldNotCreateOutputFile for request ${request}, " +
+//                        "output file path = ${result.filePath}")
+//
+//                resultHandler(url, request) {
+//                    onFail(IOException("Could not create output file"))
+//                    onEnd()
+//                }
+//            }
+//            FileDownloadResult.DoesNotSupportPartialContent -> {
+//                logError(TAG, "DoesNotSupportPartialContent")
+//                // TODO("Not implemented")
+//            }
+//            is FileDownloadResult.CouldNotGetInputStreamError -> {
+//                // TODO("Not implemented")
+//                logError(TAG, "CouldNotGetInputStreamError")
+//            }
         }.exhaustive
     }
 
@@ -710,7 +697,9 @@ class FileCacheV2(
                     onEnd()
                 }
             }
-            is FileDownloadResult.Success.ChunkSuccess -> TODO("Not implemented")
+            is FileDownloadResult.Success.ChunkSuccess -> {
+                // Do nothing, this is already handled in ConcurrentChunkedFileDownloader
+            }
         }
 
         return true
@@ -739,7 +728,7 @@ class FileCacheV2(
             val state = request?.cancelableDownload?.getState()
                     ?: DownloadState.Canceled
 
-            return Flowable.error(CancellationException(state, url))
+            return Flowable.error(FileCacheException.CancellationException(state, url))
         }
 
         val exists = fileManager.exists(request.output)
@@ -749,9 +738,11 @@ class FileCacheV2(
             request.output
         }
 
+        val fullPath = request.output.getFullPath()
+
         if (outputFile == null) {
-            return Flowable.just(
-                    FileDownloadResult.CouldNotCreateOutputFile(request.output.getFullPath())
+            return Flowable.error(
+                    FileCacheException.CouldNotCreateOutputFileException(fullPath)
             )
         }
 
@@ -759,8 +750,8 @@ class FileCacheV2(
         val canWrite = fileManager.canWrite(outputFile)
 
         if (!isFile || !canWrite) {
-            return Flowable.just(
-                    FileDownloadResult.BadOutputFileError(exists, isFile, canWrite)
+            return Flowable.error(
+                    FileCacheException.BadOutputFileException(fullPath, exists, isFile, canWrite)
             )
         }
 
@@ -773,42 +764,22 @@ class FileCacheV2(
                             result.supportsPartialContentDownload
                     )
                 }
-                .onErrorReturn { error -> processErrors(error) }
     }
 
     private fun processErrors(error: Throwable): FileDownloadResult? {
         if (isCancellationError(error)) {
-            if (error is CancellationException) {
-                return cancellationExceptionToDownloadResult(error)
-            }
-
             return FileDownloadResult.Canceled
         }
 
-        return when (error) {
-            is NoResponseBodyException -> {
-                FileDownloadResult.NoResponseBodyError
-            }
-            is CouldNotGetInputStreamException -> {
-                FileDownloadResult.CouldNotGetInputStreamError(
-                        error.path,
-                        error.exists,
-                        error.isFile,
-                        error.canRead
-                )
-            }
-            is CouldNotGetOutputStreamException -> {
-                FileDownloadResult.CouldNotGetOutputStreamError(
-                        error.path,
-                        error.exists,
-                        error.isFile,
-                        error.canWrite
-                )
-            }
-            else -> {
-                FileDownloadResult.Exception(error)
-            }
+        if (error is FileCacheException.StoppedException) {
+            return FileDownloadResult.Stopped
         }
+
+        if (error is FileCacheException) {
+            return FileDownloadResult.KnownException(error)
+        }
+
+        return FileDownloadResult.UnknownException(error)
     }
 
     private fun purgeOutput(url: String, output: RawFile) {

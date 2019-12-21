@@ -94,7 +94,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
         val multicastEvent = downloadedChunks
                 .doOnNext { event ->
                     check(
-                            event is FileDownloadResult.Exception
+                            event is FileDownloadResult.KnownException
                                     || event is FileDownloadResult.Progress.ChunkProgress
                                     || event is FileDownloadResult.Success.ChunkSuccess
                     ) {
@@ -112,7 +112,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
         // events we just want to pass them to the downstream
         val skipEvents = multicastEvent
                 .filter { event ->
-                    event is FileDownloadResult.Exception
+                    event is FileDownloadResult.KnownException
                             || event is FileDownloadResult.Progress.ChunkProgress
                 }
 
@@ -179,7 +179,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     // Retry on IO error mechanism. Apply it to each chunk individually
                     // instead of applying it to all chunks
                     .retry(MAX_RETRIES) { error ->
-                        val retry = error !is CancellationException
+                        val retry = error !is FileCacheException.CancellationException
                                 && error is IOException
 
                         if (retry) {
@@ -208,7 +208,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                 val sortedChunks = chunks.sortedBy { chunk -> chunk.chunkFileOffset }
 
                 if (!fileManager.exists(output)) {
-                    throw OutputFileDoesNotExist(output.getFullPath())
+                    throw FileCacheException.OutputFileDoesNotExist(output.getFullPath())
                 }
 
                 fileManager.getOutputStream(output)?.use { outputStream ->
@@ -217,12 +217,12 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                         val chunkFile = chunk.chunkFile
 
                         if (!fileManager.exists(chunkFile)) {
-                            throw ChunkFileDoesNotExist(chunkFile.getFullPath())
+                            throw FileCacheException.ChunkFileDoesNotExist(chunkFile.getFullPath())
                         }
 
                         fileManager.getInputStream(chunkFile)?.use { inputStream ->
                             inputStream.copyTo(outputStream)
-                        } ?: throw CouldNotGetInputStreamException(
+                        } ?: throw FileCacheException.CouldNotGetInputStreamException(
                                 chunkFile.getFullPath(),
                                 true,
                                 fileManager.isFile(chunkFile),
@@ -231,7 +231,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     }
 
                     outputStream.flush()
-                } ?: throw CouldNotGetOutputStreamException(
+                } ?: throw FileCacheException.CouldNotGetOutputStreamException(
                         output.getFullPath(),
                         true,
                         fileManager.isFile(output),
@@ -304,7 +304,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             try {
                 val responseBody = chunkResponse.response.body
                         ?.also { cachedResponseBody = it }
-                        ?: throw NoResponseBodyException()
+                        ?: throw FileCacheException.NoResponseBodyException()
 
                 var read: Long
                 var downloaded: Long = 0
@@ -335,7 +335,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     val isFile = fileManager.exists(chunkCacheFile)
                     val canWrite = fileManager.exists(chunkCacheFile)
 
-                    throw CouldNotGetOutputStreamException(
+                    throw FileCacheException.CouldNotGetOutputStreamException(
                             chunkCacheFile.getFullPath(),
                             fileExists,
                             isFile,
@@ -412,7 +412,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
      * */
     private fun throwCancellationException(url: String): Nothing {
         activeDownloads.get(url)?.cancelableDownload?.cancel()
-        throw CancellationException(getState(url), url)
+        throw FileCacheException.CancellationException(getState(url), url)
     }
 
     private fun downloadChunk(url: String, from: Long, to: Long): Flowable<Response> {
@@ -464,7 +464,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                         emitter.onError(e)
                     } else {
                         emitter.onError(
-                                CancellationException(getState(url), url)
+                                FileCacheException.CancellationException(getState(url), url)
                         )
                     }
                 }

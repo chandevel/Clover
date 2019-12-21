@@ -58,7 +58,7 @@ internal class PartialContentSupportChecker(
                         emitter.onError(e)
                     } else {
                         emitter.onError(
-                                CancellationException(DownloadState.Canceled, url)
+                                FileCacheException.CancellationException(DownloadState.Canceled, url)
                         )
                     }
                 }
