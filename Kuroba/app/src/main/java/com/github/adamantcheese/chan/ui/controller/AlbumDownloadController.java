@@ -118,7 +118,7 @@ public class AlbumDownloadController
                             List<ImageSaveTask> tasks = new ArrayList<>(items.size());
                             for (AlbumDownloadItem item : items) {
                                 if (item.checked) {
-                                    tasks.add(new ImageSaveTask(loadable, item.postImage));
+                                    tasks.add(new ImageSaveTask(loadable, item.postImage, true));
                                 }
                             }
 

@@ -55,6 +55,7 @@ public class ImageSaveTask
 
     private PostImage postImage;
     private Loadable loadable;
+    private boolean isBatchDownload;
     private ImageSaveTaskCallback callback;
     private AbstractFile destination;
     private boolean share;
@@ -62,10 +63,12 @@ public class ImageSaveTask
 
     private boolean success = false;
 
-    public ImageSaveTask(Loadable loadable, PostImage postImage) {
+    public ImageSaveTask(Loadable loadable, PostImage postImage, boolean isBatchDownload) {
         inject(this);
+
         this.loadable = loadable;
         this.postImage = postImage;
+        this.isBatchDownload = isBatchDownload;
     }
 
     public void setSubFolder(String boardName) {
@@ -108,7 +111,7 @@ public class ImageSaveTask
                 // Manually call postFinished()
                 postFinished(success);
             } else {
-                fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, this);
+                fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, isBatchDownload, this);
             }
         } catch (Exception e) {
             Logger.e(TAG, "Uncaught exception", e);

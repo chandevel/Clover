@@ -24,6 +24,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
+import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -79,7 +80,7 @@ public class ImageViewerPresenter
     private boolean swipingForward = false;
     private Loadable loadable;
 
-    private Set<FileCacheV2.CancelableDownload> preloadingImages = new HashSet<>();
+    private Set<CancelableDownload> preloadingImages = new HashSet<>();
     @GuardedBy("itself")
     private final Set<String> nonCancelableImages = new HashSet<>();
 
@@ -144,7 +145,7 @@ public class ImageViewerPresenter
         callback.startPreviewOutTransition(loadable, postImage);
         callback.showProgress(false);
 
-        for (FileCacheV2.CancelableDownload preloadingImage : preloadingImages) {
+        for (CancelableDownload preloadingImage : preloadingImages) {
             preloadingImage.cancel();
         }
 
@@ -342,7 +343,7 @@ public class ImageViewerPresenter
             // If downloading, remove from preloadingImages if it finished.
             // Array to allow access from within the callback (the callback should really
             // pass the filecachedownloader itself).
-            final FileCacheV2.CancelableDownload[] preloadDownload = new FileCacheV2.CancelableDownload[1];
+            final CancelableDownload[] preloadDownload = new CancelableDownload[1];
             preloadDownload[0] = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
                 @Override
                 public void onEnd() {
@@ -361,7 +362,7 @@ public class ImageViewerPresenter
     }
 
     private void cancelPreviousFromEndImageDownload(int position) {
-        for (FileCacheV2.CancelableDownload downloader : preloadingImages) {
+        for (CancelableDownload downloader : preloadingImages) {
             int index = position + CANCEL_IMAGE_INDEX;
             if (index < images.size()) {
                 if (cancelImageDownload(index, downloader)) {
@@ -372,7 +373,7 @@ public class ImageViewerPresenter
     }
 
     private void cancelPreviousFromStartImageDownload(int position) {
-        for (FileCacheV2.CancelableDownload downloader : preloadingImages) {
+        for (CancelableDownload downloader : preloadingImages) {
             int index = position - CANCEL_IMAGE_INDEX;
             if (index >= 0) {
                 if (cancelImageDownload(index, downloader)) {
@@ -382,7 +383,7 @@ public class ImageViewerPresenter
         }
     }
 
-    private boolean cancelImageDownload(int position, FileCacheV2.CancelableDownload downloader) {
+    private boolean cancelImageDownload(int position, CancelableDownload downloader) {
         synchronized (nonCancelableImages) {
             if (nonCancelableImages.contains(downloader.getUrl())) {
                 Logger.d(TAG,

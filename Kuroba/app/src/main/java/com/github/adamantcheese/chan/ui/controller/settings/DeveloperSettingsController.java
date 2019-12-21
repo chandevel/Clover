@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -31,6 +32,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -77,6 +79,8 @@ public class DeveloperSettingsController
         logsButton.setOnClickListener(v -> navigationController.pushController(new LogsController(context)));
         logsButton.setText(R.string.settings_open_logs);
         wrapper.addView(logsButton);
+
+        addVerboseLogsButton(wrapper);
 
         Button crashButton = new Button(context);
         crashButton.setOnClickListener(v -> {
@@ -175,5 +179,29 @@ public class DeveloperSettingsController
         scrollView.addView(wrapper);
         view = scrollView;
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
+    }
+
+    private void addVerboseLogsButton(LinearLayout wrapper) {
+        Button verboseLogsButton = new Button(context);
+
+        verboseLogsButton.setOnClickListener(v -> {
+            ChanSettings.verboseLogs.set(!ChanSettings.verboseLogs.get());
+
+            if (ChanSettings.verboseLogs.get()) {
+                Toast.makeText(context, "Verbose logs enabled", Toast.LENGTH_SHORT).show();
+                verboseLogsButton.setText(R.string.settings_disable_verbose_logs);
+            } else {
+                Toast.makeText(context, "Verbose logs disabled", Toast.LENGTH_SHORT).show();
+                verboseLogsButton.setText(R.string.settings_enable_verbose_logs);
+            }
+        });
+
+        if (ChanSettings.verboseLogs.get()) {
+            verboseLogsButton.setText(R.string.settings_disable_verbose_logs);
+        } else {
+            verboseLogsButton.setText(R.string.settings_enable_verbose_logs);
+        }
+
+        wrapper.addView(verboseLogsButton);
     }
 }

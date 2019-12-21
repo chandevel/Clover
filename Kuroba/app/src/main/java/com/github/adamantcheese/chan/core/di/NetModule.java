@@ -54,6 +54,7 @@ public class NetModule {
     public static final String THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME = "thread_save_manager_okhttp_client";
     public static final String DOWNLOADER_OKHTTP_CLIENT_NAME = "downloader_okhttp_client";
     private static final String FILE_CACHE_DIR = "filecache";
+    private static final String FILE_CHUNKS_CACHE_DIR = "file_chunks_cache";
 
     @Provides
     @Singleton
@@ -69,8 +70,11 @@ public class NetModule {
     ) {
         Logger.d(AppModule.DI_TAG, "Cache handler");
 
-        RawFile cacheDirFile = fileManager.fromRawFile(new File(getCacheDir(), FILE_CACHE_DIR));
-        return new CacheHandler(fileManager, cacheDirFile);
+        File cacheDir = getCacheDir();
+        RawFile cacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CACHE_DIR));
+        RawFile chunksCacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CHUNKS_CACHE_DIR));
+
+        return new CacheHandler(fileManager, cacheDirFile, chunksCacheDirFile);
     }
 
     @Provides

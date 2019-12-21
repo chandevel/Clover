@@ -556,7 +556,8 @@ Tap the toolbar menu to change its color."
     </string>
     <string name="setting_theme_accent">Tap here to change the FAB color.</string>
     <string name="settings_open_logs">View logs</string>
-
+    <string name="settings_enable_verbose_logs">Enable verbose logs</string>
+    <string name="settings_disable_verbose_logs">Disable verbose logs</string>
 
     <!-- Theme settings -->
     <string name="settings_logs_screen">Logs</string>

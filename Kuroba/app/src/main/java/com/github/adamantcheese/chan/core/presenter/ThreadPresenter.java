@@ -29,6 +29,7 @@ import androidx.core.util.Pair;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
+import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
@@ -135,7 +136,7 @@ public class ThreadPresenter
     private Context context;
 
     @Nullable
-    private List<FileCacheV2.CancelableDownload> activePrefetches = null;
+    private List<CancelableDownload> activePrefetches = null;
 
     @Inject
     public ThreadPresenter(
@@ -220,7 +221,7 @@ public class ThreadPresenter
 
         Logger.d(TAG, "Cancel previous prefetching");
 
-        for (FileCacheV2.CancelableDownload cancelableDownload : activePrefetches) {
+        for (CancelableDownload cancelableDownload : activePrefetches) {
             cancelableDownload.cancelPrefetch();
         }
 

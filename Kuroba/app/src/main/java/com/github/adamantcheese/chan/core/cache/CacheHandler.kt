@@ -46,7 +46,6 @@ import java.util.concurrent.atomic.AtomicLong
  * 1. Time of creation of the cache file (in millis).
  * 2. A flag that indicates whether the download has been completed or not.
  *
- *
  * We need creation time to not delete cache file for active downloads or for downloads that has
  * just been completed (otherwise the user may see a black screen instead of an image/webm). The
  * minimum cache file life time is 5 minutes. That means we won't delete any cache file (and their
@@ -57,10 +56,13 @@ import java.util.concurrent.atomic.AtomicLong
  * where a file (i.e. webm) may take up to 25MB (like 2ch.hk). So we definitely need to increase it.
  * The files are being located at the cache directory and can be removed at any time by the OS or
  * the user so it's not a big deal.
+ *
+ * CacheHandler now also caches file chunks that are used by [ConcurrentChunkedFileDownloader]
  */
 class CacheHandler(
         private val fileManager: FileManager,
-        private val cacheDirFile: RawFile
+        private val cacheDirFile: RawFile,
+        private val chunksCacheDirFile: RawFile
 ) {
     private val pool = Executors.newSingleThreadExecutor()
     /**
@@ -85,9 +87,9 @@ class CacheHandler(
      * Either returns already downloaded file or creates an empty new one on the disk (also creates
      * cache file meta with default parameters)
      * */
-    fun getOrCreate(key: String): RawFile? {
+    fun getOrCreateCacheFile(url: String): RawFile? {
         createDirectories()
-        var cacheFile = getCacheFileInternal(key)
+        var cacheFile = getCacheFileInternal(url)
 
         return try {
             if (!fileManager.exists(cacheFile)) {
@@ -100,7 +102,7 @@ class CacheHandler(
                 cacheFile = createdFile
             }
 
-            val cacheFileMeta = getCacheFileMetaInternal(key)
+            val cacheFileMeta = getCacheFileMetaInternal(url)
             if (!fileManager.exists(cacheFileMeta)) {
                 val createdFile = fileManager.create(cacheFileMeta) as RawFile?
                 if (createdFile == null) {
@@ -126,6 +128,19 @@ class CacheHandler(
             deleteCacheFile(cacheFile)
             null
         }
+    }
+
+    fun getOrCreateChunkCacheFile(chunkStart: Long, chunkEnd: Long, url: String): RawFile? {
+        createDirectories()
+        val chunkCacheFile = getChunkCacheFileInternal(chunkStart, chunkEnd, url)
+
+        if (fileManager.exists(chunkCacheFile)) {
+            if (!fileManager.delete(chunkCacheFile)) {
+                throw IOException("Couldn't delete old chunk cache file")
+            }
+        }
+
+        return fileManager.create(chunkCacheFile) as RawFile?
     }
 
     /**
@@ -264,6 +279,18 @@ class CacheHandler(
                     Logger.d(
                             TAG,
                             "Could not delete cache file while clearing" +
+                                    " cache ${fileManager.getName(file)}"
+                    )
+                }
+            }
+        }
+
+        if (fileManager.exists(chunksCacheDirFile) && fileManager.isDirectory(chunksCacheDirFile)) {
+            for (file in fileManager.listFiles(chunksCacheDirFile)) {
+                if (!fileManager.delete(file)) {
+                    Logger.d(
+                            TAG,
+                            "Could not delete cache chunk file while clearing" +
                                     " cache ${fileManager.getName(file)}"
                     )
                 }
@@ -483,12 +510,18 @@ class CacheHandler(
         }
     }
 
-    private fun getCacheFileInternal(key: String): RawFile {
+    private fun getCacheFileInternal(url: String): RawFile {
         createDirectories()
 
-        // AbstractFile expects all file names to have extensions
-        val fileName = formatCacheFileName(key.hashCode().toString())
+        val fileName = formatCacheFileName(url.hashCode().toString())
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
+    }
+
+    private fun getChunkCacheFileInternal(chunkStart: Long, chunkEnd: Long, url: String): RawFile {
+        createDirectories()
+
+        val fileName = formatChunkCacheFileName(chunkStart, chunkEnd, url.hashCode().toString())
+        return chunksCacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
     private fun getCacheFileMetaInternal(key: String): RawFile {
@@ -499,11 +532,28 @@ class CacheHandler(
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
+    private fun formatChunkCacheFileName(
+            chunkStart: Long,
+            chunkEnd: Long,
+            originalFileName: String
+    ): String {
+        return String.format(
+                Locale.US,
+                CHUNK_CACHE_FILE_NAME_FORMAT,
+                originalFileName,
+                chunkStart,
+                chunkEnd,
+                // AbstractFile expects all file names to have extensions
+                CHUNK_CACHE_EXTENSION
+        )
+    }
+
     private fun formatCacheFileName(originalFileName: String): String {
         return String.format(
                 Locale.US,
                 CACHE_FILE_NAME_FORMAT,
                 originalFileName,
+                // AbstractFile expects all file names to have extensions
                 CACHE_EXTENSION
         )
     }
@@ -513,6 +563,7 @@ class CacheHandler(
                 Locale.US,
                 CACHE_FILE_NAME_FORMAT,
                 originalFileName,
+                // AbstractFile expects all file names to have extensions
                 CACHE_META_EXTENSION
         )
     }
@@ -520,7 +571,14 @@ class CacheHandler(
     private fun createDirectories() {
         if (!fileManager.exists(cacheDirFile)
                 && fileManager.create(cacheDirFile) == null) {
-            throw RuntimeException("Unable to create file cache dir " + cacheDirFile.getFullPath())
+            throw RuntimeException(
+                    "Unable to create file cache dir " + cacheDirFile.getFullPath())
+        }
+
+        if (!fileManager.exists(chunksCacheDirFile)
+                && fileManager.create(chunksCacheDirFile) == null) {
+            throw RuntimeException(
+                    "Unable to create file chunks cache dir " + chunksCacheDirFile.getFullPath())
         }
     }
 
@@ -782,9 +840,11 @@ class CacheHandler(
         private const val PREFETCH_CACHE_SIZE = 1024L * 1024L * 1024L
         private const val CACHE_FILE_META_HEADER_SIZE = 4
         private const val CACHE_FILE_NAME_FORMAT = "%s.%s"
+        private const val CHUNK_CACHE_FILE_NAME_FORMAT = "%s_%d_%d.%s"
         private const val CACHE_FILE_META_CONTENT_FORMAT = "%d,%b"
         private const val CACHE_EXTENSION = "cache"
         private const val CACHE_META_EXTENSION = "cache_meta"
+        private const val CHUNK_CACHE_EXTENSION = "chunk"
 
         private val MIN_CACHE_FILE_LIFE_TIME = TimeUnit.MINUTES.toMillis(5)
         private val MIN_TRIM_INTERVAL = TimeUnit.MINUTES.toMillis(1)

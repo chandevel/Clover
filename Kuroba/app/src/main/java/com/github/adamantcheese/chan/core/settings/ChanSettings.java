@@ -207,8 +207,9 @@ public class ChanSettings {
     public static final BooleanSetting parsePostImageLinks;
 
     public static final StringSetting previousDevHash;
-
     public static final BooleanSetting addDubs;
+    public static final IntegerSetting concurrentFileDownloadingThreadCount;
+    public static final BooleanSetting verboseLogs;
 
     static {
         try {
@@ -331,8 +332,17 @@ public class ChanSettings {
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", false);
 
             previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
-
             addDubs = new BooleanSetting(p, "add_dubs", false);
+            concurrentFileDownloadingThreadCount = new IntegerSetting(
+                    p,
+                    "concurrent_file_downloading_thread_count",
+                    Runtime.getRuntime().availableProcessors()
+            );
+            verboseLogs = new BooleanSetting(
+                    p,
+                    "verbose_logs",
+                    false
+            );
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.

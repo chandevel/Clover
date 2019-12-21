@@ -47,6 +47,8 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.MediaSourceCallback;
 import com.github.adamantcheese.chan.core.cache.WebmStreamingSource;
+import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
+import com.github.adamantcheese.chan.core.cache.downloader.FileNotFoundOnTheServerException;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -141,9 +143,9 @@ public class MultiImageView
 
     private boolean hasContent = false;
     private ImageContainer thumbnailRequest;
-    private FileCacheV2.CancelableDownload bigImageRequest;
-    private FileCacheV2.CancelableDownload gifRequest;
-    private FileCacheV2.CancelableDownload videoRequest;
+    private CancelableDownload bigImageRequest;
+    private CancelableDownload gifRequest;
+    private CancelableDownload videoRequest;
 
     private SimpleExoPlayer exoPlayer;
     private boolean mediaSourceCancel = false;
@@ -350,7 +352,7 @@ public class MultiImageView
             public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
-                if (exception instanceof FileCacheV2.NotFoundException) {
+                if (exception instanceof FileNotFoundOnTheServerException) {
                     onNotFoundError();
                 } else {
                     onError(exception);
@@ -401,7 +403,7 @@ public class MultiImageView
             public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
-                if (exception instanceof FileCacheV2.NotFoundException) {
+                if (exception instanceof FileNotFoundOnTheServerException) {
                     onNotFoundError();
                 } else {
                     onError(exception);
@@ -529,7 +531,7 @@ public class MultiImageView
             public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
-                if (exception instanceof FileCacheV2.NotFoundException) {
+                if (exception instanceof FileNotFoundOnTheServerException) {
                     onNotFoundError();
                 } else {
                     onError(exception);
