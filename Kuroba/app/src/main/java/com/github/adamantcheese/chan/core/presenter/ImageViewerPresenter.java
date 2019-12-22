@@ -496,7 +496,8 @@ public class ImageViewerPresenter
             }
         }
 
-        if (multiImageView.getPostImage() == images.get(selectedPosition)) {
+        if (multiImageView.getPostImage() == images.get(selectedPosition)
+                && progress.get(selectedPosition) != null) {
             callback.onLoadProgress(progress.get(selectedPosition));
         }
     }
