@@ -29,14 +29,12 @@ public class DatabaseSavedThreadManager {
     }
 
     public Callable<Long> countDownloadingThreads() {
-        return () -> {
-            return helper.savedThreadDao.queryBuilder()
-                    .where()
-                    .eq(SavedThread.IS_STOPPED, false)
-                    .and()
-                    .eq(SavedThread.IS_FULLY_DOWNLOADED, false)
-                    .countOf();
-        };
+        return () -> helper.savedThreadDao.queryBuilder()
+                .where()
+                .eq(SavedThread.IS_STOPPED, false)
+                .and()
+                .eq(SavedThread.IS_FULLY_DOWNLOADED, false)
+                .countOf();
     }
 
     public Callable<List<SavedThread>> getSavedThreads() {

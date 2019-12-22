@@ -25,6 +25,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.LruCache;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
@@ -33,6 +34,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
@@ -48,6 +51,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.core.site.SiteService;
+import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
 import com.github.adamantcheese.chan.ui.controller.BrowseController;
 import com.github.adamantcheese.chan.ui.controller.DoubleNavigationController;
 import com.github.adamantcheese.chan.ui.controller.DrawerController;
@@ -61,13 +65,17 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.callback.FSAFActivityCallbacks;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -549,9 +557,13 @@ public class StartActivity
 
         fileChooser.removeCallbacks();
 
-        // TODO: clear whole stack?
-        stackTop().onHide();
-        stackTop().onDestroy();
+        for (int i = stack.size() - 1; i >= 0; --i) {
+            Controller controller = stack.get(i);
+
+            controller.onHide();
+            controller.onDestroy();
+        }
+
         stack.clear();
     }
 
@@ -603,5 +615,42 @@ public class StartActivity
     @Override
     public void fsafStartActivityForResult(@NotNull Intent intent, int requestCode) {
         startActivityForResult(intent, requestCode);
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    public void onStart() {
+        super.onStart();
+        //restore parsed youtube stuff
+        Gson gson = instance(Gson.class);
+        Type lruType = new TypeToken<Map<String, String>>() {}.getType();
+        //convert
+        Map<String, String> titles = gson.fromJson(ChanSettings.youtubeTitleCache.get(), lruType);
+        Map<String, String> durs = gson.fromJson(ChanSettings.youtubeDurationCache.get(), lruType);
+        //reconstruct
+        CommentParserHelper.youtubeTitleCache = new LruCache<>(500);
+        CommentParserHelper.youtubeDurCache = new LruCache<>(500);
+        for (String s : titles.keySet()) {
+            CommentParserHelper.youtubeTitleCache.put(s, titles.get(s));
+        }
+        for (String s : durs.keySet()) {
+            CommentParserHelper.youtubeDurCache.put(s, durs.get(s));
+        }
+        //reset to not use up as much memory
+        ChanSettings.youtubeTitleCache.set(ChanSettings.youtubeTitleCache.getDefault());
+        ChanSettings.youtubeDurationCache.set(ChanSettings.youtubeDurationCache.getDefault());
+
+        Logger.d(TAG, "start");
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    public void onStop() {
+        super.onStop();
+        //store parsed youtube stuff, extra prevention of unneeded API calls
+        Gson gson = instance(Gson.class);
+        Type lruType = new TypeToken<Map<String, String>>() {}.getType();
+        //convert and set
+        ChanSettings.youtubeTitleCache.set(gson.toJson(CommentParserHelper.youtubeTitleCache.snapshot(), lruType));
+        ChanSettings.youtubeDurationCache.set(gson.toJson(CommentParserHelper.youtubeDurCache.snapshot(), lruType));
+        Logger.d(TAG, "stop");
     }
 }

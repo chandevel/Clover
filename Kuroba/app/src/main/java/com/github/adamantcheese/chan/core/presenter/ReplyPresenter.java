@@ -41,7 +41,6 @@ import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
-import com.github.adamantcheese.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -313,9 +312,8 @@ public class ReplyPresenter
                             "/" + localBoard.code + "/"
                     ));
 
-            if (localLoadable.isThreadMode()) {
-                lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
-            } else if (localLoadable.isCatalogMode()) {
+            lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
+            if (localLoadable.isCatalogMode()) {
                 lastReplyRepository.putLastThread(localLoadable.site, localLoadable.board);
             }
 
@@ -398,13 +396,6 @@ public class ReplyPresenter
     ) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
-
-        // we don't need this to be called for new captcha window.
-        // Otherwise "Request captcha request is already in progress" message will be shown
-        if (!(authenticationLayout instanceof CaptchaNoJsLayoutV2)) {
-            // should this be called here?
-            authenticationLayout.reset();
-        }
 
         if (autoReply) {
             makeSubmitCall();

@@ -39,11 +39,6 @@ class MediaSettingsControllerPresenter(
                 val oldLocalThreadsDirectory =
                         fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
-                if (oldLocalThreadsDirectory == null) {
-                    showToast(R.string.media_settings_old_threads_base_dir_not_registered)
-                    return
-                }
-
                 if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(uri)) {
                     showToast(R.string.media_settings_base_directory_is_already_registered)
                     return
@@ -120,11 +115,6 @@ class MediaSettingsControllerPresenter(
             override fun onResult(uri: Uri) {
                 val oldSavedFileBaseDirectory =
                         fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
-
-                if (oldSavedFileBaseDirectory == null) {
-                    showToast(R.string.media_settings_old_saved_files_base_dir_not_registered)
-                    return
-                }
 
                 if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(uri)) {
                     showToast(R.string.media_settings_base_directory_is_already_registered)

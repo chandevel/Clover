@@ -489,7 +489,7 @@ public class ThreadPresenter
 
     public void refreshUI() {
         if (chanLoader != null && chanLoader.getThread() != null) {
-            showPosts();
+            showPosts(true);
         }
     }
 
@@ -624,7 +624,7 @@ public class ThreadPresenter
             watchManager.updatePin(pin, true);
         }
 
-        if (ChanSettings.watchFilterWatch.get() && result.getLoadable().isCatalogMode()) {
+        if (result.getLoadable().isCatalogMode()) {
             instance(FilterWatchManager.class).onCatalogLoad(result);
         }
     }
@@ -662,6 +662,13 @@ public class ThreadPresenter
             return;
         }
 
+        if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
+            Logger.d(TAG, "storeNewPostsIfThreadIsBeingDownloaded() LocalThreadsBaseDirectory does not exist");
+
+            watchManager.stopSavingAllThread();
+            return;
+        }
+
         if (!threadSaveManager.enqueueThreadToSave(loadable, posts)) {
             // Probably base directory was removed by the user, can't do anything other than
             // just stop this download
@@ -680,6 +687,7 @@ public class ThreadPresenter
      */
     @Override
     public void onListScrolledToBottom() {
+        if (loadable == null) return; //null loadable means no thread loaded, possibly unbinding?
         if (loadable.isThreadMode() && chanLoader != null && chanLoader.getThread() != null
                 && chanLoader.getThread().getPostsCount() > 0) {
             List<Post> posts = chanLoader.getThread().getPosts();
@@ -1245,8 +1253,16 @@ public class ThreadPresenter
     }
 
     private void showPosts() {
+        showPosts(false);
+    }
+
+    private void showPosts(boolean refreshAfterHideOrRemovePosts) {
         if (chanLoader != null && chanLoader.getThread() != null) {
-            threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
+            threadPresenterCallback.showPosts(
+                    chanLoader.getThread(),
+                    new PostsFilter(order, searchQuery),
+                    refreshAfterHideOrRemovePosts
+            );
         }
     }
 
@@ -1348,7 +1364,7 @@ public class ThreadPresenter
     }
 
     public interface ThreadPresenterCallback {
-        void showPosts(ChanThread thread, PostsFilter filter);
+        void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts);
 
         void postClicked(Post post);
 

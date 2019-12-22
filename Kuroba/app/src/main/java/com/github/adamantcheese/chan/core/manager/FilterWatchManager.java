@@ -33,9 +33,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,6 +44,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.instance;
 
 public class FilterWatchManager
         implements WakeManager.Wakeable {
@@ -71,8 +70,6 @@ public class FilterWatchManager
     private List<Filter> filters;
     private boolean processing = false;
 
-    private final Gson serializer = new Gson();
-
     @Inject
     public FilterWatchManager(
             WakeManager wakeManager,
@@ -89,26 +86,12 @@ public class FilterWatchManager
         this.boardRepository = boardRepository;
         this.databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
 
-        if (ChanSettings.watchFilterWatch.get()) {
-            wakeManager.registerWakeable(this);
-        }
+        wakeManager.registerWakeable(this);
 
-        Set<Integer> previousIgnore =
-                serializer.fromJson(ChanSettings.filterWatchIgnored.get(), new TypeToken<Set<Integer>>() {}.getType());
+        Set<Integer> previousIgnore = instance(Gson.class).fromJson(ChanSettings.filterWatchIgnored.get(),
+                new TypeToken<Set<Integer>>() {}.getType()
+        );
         if (previousIgnore != null) ignoredPosts.addAll(previousIgnore);
-
-        EventBus.getDefault().register(this);
-    }
-
-    @Subscribe
-    public void onEvent(ChanSettings.SettingChanged<?> settingChanged) {
-        if (settingChanged.setting == ChanSettings.watchFilterWatch) {
-            if (ChanSettings.watchFilterWatch.get()) {
-                wakeManager.registerWakeable(this);
-            } else {
-                wakeManager.unregisterWakeable(this);
-            }
-        }
     }
 
     @Override
@@ -190,7 +173,7 @@ public class FilterWatchManager
         //clear the ignored posts set if it gets too large; don't have the same sync stuff as background and it's a hassle to keep track of recently loaded catalogs
         if (ignoredPosts.size() + toAdd.size() > 650) ignoredPosts.clear(); //like 11 4chan catalogs? should be plenty
         ignoredPosts.addAll(toAdd);
-        ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
+        ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
     }
 
     private class BackgroundLoader
@@ -227,7 +210,7 @@ public class FilterWatchManager
                         lastCheckedPostNumbers.add(post.no);
                     }
                     ignoredPosts.retainAll(lastCheckedPostNumbers);
-                    ChanSettings.filterWatchIgnored.set(serializer.toJson(ignoredPosts));
+                    ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
                     lastCheckedPosts.clear();
                     processing = false;
                     Logger.i(TAG,

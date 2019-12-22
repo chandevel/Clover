@@ -162,7 +162,6 @@ public class ChanSettings {
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchBackground;
-    public static final BooleanSetting watchFilterWatch;
     public static final BooleanSetting watchLastPageNotify;
     public static final IntegerSetting watchBackgroundInterval;
     public static final StringSetting watchNotifyMode;
@@ -204,10 +203,15 @@ public class ChanSettings {
 
     public static final BooleanSetting parseYoutubeTitles;
     public static final BooleanSetting parseYoutubeDuration;
+    public static final StringSetting parseYoutubeAPIKey;
+
     public static final BooleanSetting parsePostImageLinks;
 
     public static final StringSetting previousDevHash;
     public static final BooleanSetting addDubs;
+    public static final BooleanSetting transparencyOn;
+    public static final StringSetting youtubeTitleCache;
+    public static final StringSetting youtubeDurationCache;
     public static final IntegerSetting concurrentFileDownloadingThreadCount;
     public static final BooleanSetting verboseLogs;
 
@@ -281,8 +285,6 @@ public class ChanSettings {
             watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
             watchBackground.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(watchBackground)));
             watchLastPageNotify = new BooleanSetting(p, "preference_watch_last_page_notify", false);
-            watchFilterWatch = new BooleanSetting(p, "preference_watch_filter_watch", false);
-            watchFilterWatch.addCallback(((setting, value) -> postToEventBus(new SettingChanged<>(watchFilterWatch))));
             watchBackgroundInterval =
                     new IntegerSetting(p, "preference_watch_background_interval", (int) MINUTES.toMillis(15));
             watchBackgroundInterval.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(
@@ -327,12 +329,20 @@ public class ChanSettings {
             moveInputToBottom = new BooleanSetting(p, "move_input_bottom", false);
             enableLongPressURLCopy = new BooleanSetting(p, "long_press_image_url_copy", true);
 
-            parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", false);
+            parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", true);
             parseYoutubeDuration = new BooleanSetting(p, "parse_youtube_duration", false);
-            parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", false);
+            parseYoutubeAPIKey = new StringSetting(p,
+                    "parse_youtube_API_key",
+                    "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE"
+            ); // this is 4chanX's key, but it is recommended that you use your own
+
+            parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
 
             previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
             addDubs = new BooleanSetting(p, "add_dubs", false);
+            transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
+            youtubeTitleCache = new StringSetting(p, "yt_title_cache", "{}");
+            youtubeDurationCache = new StringSetting(p, "yt_dur_cache", "{}");
             concurrentFileDownloadingThreadCount = new IntegerSetting(
                     p,
                     "concurrent_file_downloading_thread_count",

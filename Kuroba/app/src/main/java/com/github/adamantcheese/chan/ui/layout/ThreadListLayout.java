@@ -271,7 +271,12 @@ public class ThreadListLayout
         }
     }
 
-    public void showPosts(ChanThread thread, PostsFilter filter, boolean initial) {
+    public void showPosts(
+            ChanThread thread,
+            PostsFilter filter,
+            boolean initial,
+            boolean refreshAfterHideOrRemovePosts
+    ) {
         showingThread = thread;
         if (initial) {
             reply.bindLoadable(showingThread.getLoadable());
@@ -330,7 +335,7 @@ public class ThreadListLayout
             filteredPosts.removeAll(toRemove);
         }
 
-        postAdapter.setThread(thread.getLoadable(), filteredPosts);
+        postAdapter.setThread(thread.getLoadable(), filteredPosts, refreshAfterHideOrRemovePosts);
     }
 
     public boolean onBack() {

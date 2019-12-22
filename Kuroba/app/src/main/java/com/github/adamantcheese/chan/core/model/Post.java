@@ -438,11 +438,13 @@ public class Post
         }
 
         public Builder images(List<PostImage> images) {
-            if (this.images == null) {
-                this.images = new ArrayList<>(images.size());
-            }
+            synchronized (this) {
+                if (this.images == null) {
+                    this.images = new ArrayList<>(images.size());
+                }
 
-            this.images.addAll(images);
+                this.images.addAll(images);
+            }
 
             return this;
         }
@@ -513,21 +515,27 @@ public class Post
         }
 
         public Builder addLinkable(PostLinkable linkable) {
-            linkables.add(linkable);
-            return this;
+            synchronized (this) {
+                linkables.add(linkable);
+                return this;
+            }
         }
 
         public Builder linkables(List<PostLinkable> linkables) {
-            this.linkables = new HashSet<>(linkables);
-            return this;
+            synchronized (this) {
+                this.linkables = new HashSet<>(linkables);
+                return this;
+            }
         }
 
         public List<PostLinkable> getLinkables() {
-            List<PostLinkable> result = new ArrayList<>();
-            if (linkables != null) {
-                result.addAll(linkables);
+            synchronized (this) {
+                List<PostLinkable> result = new ArrayList<>();
+                if (linkables != null) {
+                    result.addAll(linkables);
+                }
+                return result;
             }
-            return result;
         }
 
         public Builder addReplyTo(int postId) {

@@ -45,6 +45,7 @@ import okhttp3.OkHttpClient;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class NetModule {
     public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
@@ -186,6 +187,7 @@ public class NetModule {
                         .readTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                         .writeTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                         .dispatcher(dispatcher)
+                        .callTimeout(2, MINUTES)
                         .build();
             }
             return proxiedClient;

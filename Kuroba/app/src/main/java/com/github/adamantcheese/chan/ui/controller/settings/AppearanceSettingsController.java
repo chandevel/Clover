@@ -64,7 +64,7 @@ public class AppearanceSettingsController
             groups.add(appearance);
         }
 
-        // Layout group
+        // Layout group (over-arching UI changes)
         {
             SettingsGroup layout = new SettingsGroup(R.string.settings_group_layout);
 
@@ -85,21 +85,21 @@ public class AppearanceSettingsController
             )));
 
             requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
-                    ChanSettings.accessibleInfo,
-                    "Enable accessible post info",
-                    "Enabling places info in the first post option menu"
-            )));
-
-            requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.moveInputToBottom,
                     "Bottom input",
                     "Makes the captcha and reply input float to the bottom of the screen"
             )));
 
+            requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
+                    ChanSettings.useImmersiveModeForGallery,
+                    R.string.setting_images_immersive_mode_title,
+                    R.string.setting_images_immersive_mode_description
+            )));
+
             groups.add(layout);
         }
 
-        // Post group
+        // Post group (post-specific UI changes)
         {
             SettingsGroup post = new SettingsGroup(R.string.settings_group_post);
 
@@ -115,6 +115,12 @@ public class AppearanceSettingsController
                     ChanSettings.fontAlternate,
                     R.string.setting_font_alt,
                     R.string.setting_font_alt_description
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.accessibleInfo,
+                    "Enable accessible post info",
+                    "Enabling places info in the first post option menu"
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
@@ -136,6 +142,55 @@ public class AppearanceSettingsController
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.textOnly,
+                    R.string.setting_text_only,
+                    R.string.setting_text_only_description
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.revealTextSpoilers,
+                    R.string.settings_reveal_text_spoilers,
+                    R.string.settings_reveal_text_spoilers_description
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.anonymize,
+                    R.string.setting_anonymize,
+                    "Sets everyone's name field to be \"Anonymous\""
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.showAnonymousName,
+                    R.string.setting_show_anonymous_name,
+                    "Displays \"Anonymous\" rather than an empty field"
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.anonymizeIds,
+                    R.string.setting_anonymize_ids,
+                    0
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.addDubs,
+                    R.string.add_dubs_title,
+                    R.string.add_dubs_description
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.parseYoutubeTitles,
+                    R.string.setting_youtube_title,
+                    R.string.setting_youtube_title_description
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.parseYoutubeDuration,
+                    R.string.setting_youtube_dur_title,
+                    R.string.setting_youtube_dur_description
+            )));
+
+            //this is also in Behavior settings
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.enableEmoji,
                     R.string.setting_enable_emoji,
                     R.string.setting_enable_emoji_description
@@ -144,9 +199,21 @@ public class AppearanceSettingsController
             groups.add(post);
         }
 
-        //Image group
+        //Image group (image cell specific UI changes)
         {
             SettingsGroup images = new SettingsGroup(R.string.settings_group_images);
+
+            images.add(new BooleanSettingView(this,
+                    ChanSettings.removeImageSpoilers,
+                    R.string.settings_remove_image_spoilers,
+                    R.string.settings_remove_image_spoilers_description
+            ));
+
+            images.add(new BooleanSettingView(this,
+                    ChanSettings.revealimageSpoilers,
+                    R.string.settings_reveal_image_spoilers,
+                    R.string.settings_reveal_image_spoilers_description
+            ));
 
             requiresUiRefresh.add(images.add(new BooleanSettingView(this,
                     ChanSettings.highResCells,
@@ -155,10 +222,16 @@ public class AppearanceSettingsController
             )));
 
             requiresUiRefresh.add(images.add(new BooleanSettingView(this,
-                    ChanSettings.useImmersiveModeForGallery,
-                    R.string.setting_images_immersive_mode_title,
-                    R.string.setting_images_immersive_mode_description
+                    ChanSettings.parsePostImageLinks,
+                    R.string.setting_image_link_loading_title,
+                    R.string.setting_image_link_loading_description
             )));
+
+            images.add(new BooleanSettingView(this,
+                    ChanSettings.transparencyOn,
+                    "Image opacity",
+                    "Default state for image transparency in the viewer"
+            ));
 
             groups.add(images);
         }

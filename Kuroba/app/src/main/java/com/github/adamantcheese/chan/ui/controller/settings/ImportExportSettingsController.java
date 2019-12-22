@@ -204,12 +204,8 @@ public class ImportExportSettingsController
         int negativeButtonId = R.string.import_or_export_dialog_negative_button_text;
 
         AlertDialog alertDialog = new AlertDialog.Builder(context).setTitle(R.string.import_or_export_dialog_title)
-                .setPositiveButton(positiveButtonId, (dialog, which) -> {
-                    overwriteExisting();
-                })
-                .setNegativeButton(negativeButtonId, (dialog, which) -> {
-                    createNew();
-                })
+                .setPositiveButton(positiveButtonId, (dialog, which) -> overwriteExisting())
+                .setNegativeButton(negativeButtonId, (dialog, which) -> createNew())
                 .create();
 
         alertDialog.show();

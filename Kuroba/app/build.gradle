@@ -38,7 +38,7 @@ android {
         //bump the PATCH (ZZ) version otherwise, for anything small
         int major = 4
         int minor = 10
-        int patch = 1
+        int patch = 2
 
         /**
          * ------------------------------------------------------------
@@ -257,7 +257,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha17'
+    implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha18'
     implementation 'joda-time:joda-time:2.10.5'
 
     testImplementation 'junit:junit:4.12'

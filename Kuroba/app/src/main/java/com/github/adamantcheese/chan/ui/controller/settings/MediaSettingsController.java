@@ -23,11 +23,13 @@ import android.net.Uri;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
+import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.LoadingViewController;
@@ -38,7 +40,6 @@ import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
-import com.github.adamantcheese.chan.ui.settings.TextSettingView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
@@ -74,6 +75,7 @@ public class MediaSettingsController
     private LinkSettingView localThreadsLocation;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
+    private BooleanSettingView incrementalThreadDownloadingSetting;
 
     private LoadingViewController loadingViewController;
     private MediaSettingsControllerPresenter presenter;
@@ -87,6 +89,8 @@ public class MediaSettingsController
     DatabaseManager databaseManager;
     @Inject
     ThreadSaveManager threadSaveManager;
+    @Inject
+    WatchManager watchManager;
 
     public MediaSettingsController(Context context) {
         super(context);
@@ -131,6 +135,9 @@ public class MediaSettingsController
             updateThreadFolderSetting();
         } else if (item == videoDefaultMutedSetting) {
             updateHeadsetDefaultMutedSetting();
+        } else if (item == incrementalThreadDownloadingSetting
+                && !ChanSettings.incrementalThreadDownloadingEnabled.get()) {
+            watchManager.stopSavingAllThread();
         }
     }
 
@@ -156,13 +163,13 @@ public class MediaSettingsController
     private void populatePreferences() {
         // Media group
         {
-            SettingsGroup media = new SettingsGroup(R.string.settings_group_media);
+            SettingsGroup media = new SettingsGroup(R.string.settings_group_saving);
 
+            //Save locations
             setupSaveLocationSetting(media);
             setupLocalThreadLocationSetting(media);
 
-            media.add(new TextSettingView(this, "These two options don't apply to albums"));
-
+            //Save modifications
             boardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
                     ChanSettings.saveBoardFolder,
                     R.string.setting_save_board_folder,
@@ -181,61 +188,50 @@ public class MediaSettingsController
                     R.string.setting_save_server_filename_description
             ));
 
-            videoDefaultMutedSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+            incrementalThreadDownloadingSetting = new BooleanSettingView(this,
+                    ChanSettings.incrementalThreadDownloadingEnabled,
+                    R.string.incremental_thread_downloading_title,
+                    R.string.incremental_thread_downloading_description
+            );
+            requiresRestart.add(media.add(incrementalThreadDownloadingSetting));
+
+            groups.add(media);
+        }
+
+        {
+            //Video options
+            SettingsGroup video = new SettingsGroup("Video settings");
+            video.add(new BooleanSettingView(this,
+                    ChanSettings.videoAutoLoop,
+                    R.string.setting_video_auto_loop,
+                    R.string.setting_video_auto_loop_description
+            ));
+
+            videoDefaultMutedSetting = (BooleanSettingView) video.add(new BooleanSettingView(this,
                     ChanSettings.videoDefaultMuted,
                     R.string.setting_video_default_muted,
                     R.string.setting_video_default_muted_description
             ));
 
-            headsetDefaultMutedSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+            headsetDefaultMutedSetting = (BooleanSettingView) video.add(new BooleanSettingView(this,
                     ChanSettings.headsetDefaultMuted,
                     R.string.setting_headset_default_muted,
                     R.string.setting_headset_default_muted_description
             ));
 
-            media.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal,
+            video.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal,
                     R.string.setting_video_open_external,
                     R.string.setting_video_open_external_description
             ));
 
-            media.add(new BooleanSettingView(this,
-                    ChanSettings.shareUrl,
-                    R.string.setting_share_url,
-                    R.string.setting_share_url_description
-            ));
-
-            media.add(new BooleanSettingView(this,
-                    ChanSettings.removeImageSpoilers,
-                    R.string.settings_remove_image_spoilers,
-                    R.string.settings_remove_image_spoilers_description
-            ));
-
-            media.add(new BooleanSettingView(this,
-                    ChanSettings.revealimageSpoilers,
-                    R.string.settings_reveal_image_spoilers,
-                    R.string.settings_reveal_image_spoilers_description
-            ));
-
-            media.add(new BooleanSettingView(this,
-                    ChanSettings.allowMediaScannerToScanLocalThreads,
-                    R.string.settings_allow_media_scanner_scan_local_threads_title,
-                    R.string.settings_allow_media_scanner_scan_local_threads_description
-            ));
-
-            groups.add(media);
+            groups.add(video);
         }
 
-        // Loading group
+        // Loading group (media specific loading behavior)
         {
             SettingsGroup loading = new SettingsGroup(R.string.settings_group_media_loading);
 
             setupMediaLoadTypesSetting(loading);
-
-            loading.add(new BooleanSettingView(this,
-                    ChanSettings.videoAutoLoop,
-                    R.string.setting_video_auto_loop,
-                    R.string.setting_video_auto_loop_description
-            ));
 
             requiresRestart.add(loading.add(new BooleanSettingView(this,
                     ChanSettings.autoLoadThreadImages,
@@ -247,12 +243,7 @@ public class MediaSettingsController
         }
     }
 
-    /**
-     * ==============================================
-     * Setup Local Threads location
-     * ==============================================
-     */
-
+    //region Setup Local Threads location
     private void setupLocalThreadLocationSetting(SettingsGroup media) {
         if (!ChanSettings.incrementalThreadDownloadingEnabled.get()) {
             Logger.d(TAG, "setupLocalThreadLocationSetting() incrementalThreadDownloadingEnabled is disabled");
@@ -320,9 +311,7 @@ public class MediaSettingsController
                 new AlertDialog.Builder(context).setTitle(R.string.media_settings_use_saf_for_local_threads_location_dialog_title)
                         .setMessage(R.string.media_settings_use_saf_for_local_threads_location_dialog_message)
                         .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text,
-                                (dialog, which) -> {
-                                    presenter.onLocalThreadsLocationUseSAFClicked();
-                                }
+                                (dialog, which) -> presenter.onLocalThreadsLocationUseSAFClicked()
                         )
                         .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text,
                                 (dialog, which) -> {
@@ -340,9 +329,7 @@ public class MediaSettingsController
                 new AlertDialog.Builder(context).setTitle(R.string.media_settings_some_thread_downloads_are_still_processed)
                         .setMessage(R.string.media_settings_do_not_terminate_the_app_manually)
                         .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text,
-                                (dialog, which) -> {
-                                    presenter.onLocalThreadsLocationUseSAFClicked();
-                                }
+                                (dialog, which) -> presenter.onLocalThreadsLocationUseSAFClicked()
                         )
                         .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text,
                                 (dialog, which) -> {
@@ -366,12 +353,9 @@ public class MediaSettingsController
 
         navigationController.pushController(saveLocationController);
     }
+    //endregion
 
-    /**
-     * ==============================================
-     * Setup Save Files location
-     * ==============================================
-     */
+    //region Setup Save Files location
 
     private void setupSaveLocationSetting(SettingsGroup media) {
         LinkSettingView chooseSaveLocationSetting = new LinkSettingView(this,
@@ -433,17 +417,18 @@ public class MediaSettingsController
 
         navigationController.pushController(saveLocationController);
     }
+    //endregion
 
-    /**
-     * ==============================================
-     * Presenter callbacks
-     * ==============================================
-     */
-
+    //region Presenter callbacks
     @Override
     public void askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
-            @NonNull AbstractFile oldBaseDirectory, @NonNull AbstractFile newBaseDirectory
+            @Nullable AbstractFile oldBaseDirectory, @NonNull AbstractFile newBaseDirectory
     ) {
+        if (oldBaseDirectory == null) {
+            showToast(R.string.done, Toast.LENGTH_LONG);
+            return;
+        }
+
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
             forgetOldSAFBaseDirectory(oldBaseDirectory);
 
@@ -454,12 +439,12 @@ public class MediaSettingsController
         AlertDialog alertDialog =
                 new AlertDialog.Builder(context).setTitle(getString(R.string.media_settings_move_threads_to_new_dir))
                         .setMessage(getString(R.string.media_settings_operation_may_take_some_time))
-                        .setPositiveButton(R.string.move, (dialog, which) -> {
-                            presenter.moveOldFilesToTheNewDirectory(oldBaseDirectory, newBaseDirectory);
-                        })
-                        .setNegativeButton(R.string.do_not, (dialog, which) -> {
-                            dialog.dismiss();
-                        })
+                        .setPositiveButton(R.string.move,
+                                (dialog, which) -> presenter.moveOldFilesToTheNewDirectory(oldBaseDirectory,
+                                        newBaseDirectory
+                                )
+                        )
+                        .setNegativeButton(R.string.do_not, (dialog, which) -> dialog.dismiss())
                         .create();
 
         alertDialog.show();
@@ -471,10 +456,27 @@ public class MediaSettingsController
         }
     }
 
+    private void forgetPreviousExternalBaseDirectory(
+            @NonNull AbstractFile oldLocalThreadsDirectory
+    ) {
+        if (oldLocalThreadsDirectory instanceof ExternalFile) {
+            Uri safTreeUri = oldLocalThreadsDirectory.<CachingDocumentFile>getFileRoot().getHolder().uri();
+
+            if (!fileChooser.forgetSAFTree(safTreeUri)) {
+                showToast(R.string.media_settings_could_not_release_uri_permissions, Toast.LENGTH_SHORT);
+            }
+        }
+    }
+
     @Override
     public void askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(
-            @NotNull AbstractFile oldBaseDirectory, @NotNull AbstractFile newBaseDirectory
+            @Nullable AbstractFile oldBaseDirectory, @NotNull AbstractFile newBaseDirectory
     ) {
+        if (oldBaseDirectory == null) {
+            showToast(R.string.done, Toast.LENGTH_LONG);
+            return;
+        }
+
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
             forgetOldSAFBaseDirectory(oldBaseDirectory);
 
@@ -485,12 +487,12 @@ public class MediaSettingsController
         AlertDialog alertDialog =
                 new AlertDialog.Builder(context).setTitle(getString(R.string.media_settings_move_saved_file_to_new_dir))
                         .setMessage(getString(R.string.media_settings_operation_may_take_some_time))
-                        .setPositiveButton(R.string.move, (dialog, which) -> {
-                            presenter.moveOldFilesToTheNewDirectory(oldBaseDirectory, newBaseDirectory);
-                        })
-                        .setNegativeButton(R.string.do_not, (dialog, which) -> {
-                            dialog.dismiss();
-                        })
+                        .setPositiveButton(R.string.move,
+                                (dialog, which) -> presenter.moveOldFilesToTheNewDirectory(oldBaseDirectory,
+                                        newBaseDirectory
+                                )
+                        )
+                        .setNegativeButton(R.string.do_not, (dialog, which) -> dialog.dismiss())
                         .create();
 
         alertDialog.show();
@@ -599,24 +601,7 @@ public class MediaSettingsController
 
         alertDialog.show();
     }
-
-    /**
-     * ==============================================
-     * Other methods
-     * ==============================================
-     */
-
-    private void forgetPreviousExternalBaseDirectory(
-            @NonNull AbstractFile oldLocalThreadsDirectory
-    ) {
-        if (oldLocalThreadsDirectory instanceof ExternalFile) {
-            Uri safTreeUri = oldLocalThreadsDirectory.<CachingDocumentFile>getFileRoot().getHolder().uri();
-
-            if (!fileChooser.forgetSAFTree(safTreeUri)) {
-                showToast(R.string.media_settings_could_not_release_uri_permissions, Toast.LENGTH_SHORT);
-            }
-        }
-    }
+    //endregion
 
     private void setupMediaLoadTypesSetting(SettingsGroup loading) {
         List<ListSettingView.Item> imageAutoLoadTypes = new ArrayList<>();
@@ -656,6 +641,7 @@ public class MediaSettingsController
         updateVideoLoadModes();
     }
 
+    //region Setting update methods
     private void updateVideoLoadModes() {
         ChanSettings.MediaAutoLoadMode currentImageLoadMode = ChanSettings.imageAutoLoadNetwork.get();
         ChanSettings.MediaAutoLoadMode[] modes = ChanSettings.MediaAutoLoadMode.values();
@@ -692,4 +678,5 @@ public class MediaSettingsController
     private void updateHeadsetDefaultMutedSetting() {
         headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
     }
+    //endregion
 }

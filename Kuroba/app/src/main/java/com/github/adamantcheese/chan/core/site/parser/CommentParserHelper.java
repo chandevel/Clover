@@ -65,11 +65,10 @@ public class CommentParserHelper {
 
     private static Pattern youtubeLinkPattern = Pattern.compile(
             "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
-    private static final String API_KEY = "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE";
     private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
     // a cache for titles and durations to prevent extra api calls if not necessary
-    private static LruCache<String, String> youtubeTitleCache = new LruCache<>(250);
-    private static LruCache<String, String> youtubeDurCache = new LruCache<>(250);
+    public static LruCache<String, String> youtubeTitleCache = new LruCache<>(500);
+    public static LruCache<String, String> youtubeDurCache = new LruCache<>(500);
 
     //@formatter:off
     private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf)", Pattern.CASE_INSENSITIVE);
@@ -127,7 +126,7 @@ public class CommentParserHelper {
                             + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "") + "&id=" + videoID
                             + "&fields=items%28id%2Csnippet%28title%29" + (ChanSettings.parseYoutubeDuration.get()
                             ? "%2CcontentDetails%28duration%29"
-                            : "") + "%29&key=" + API_KEY,
+                            : "") + "%29&key=" + ChanSettings.parseYoutubeAPIKey.get(),
                     null,
                     future,
                     future
@@ -217,10 +216,15 @@ public class CommentParserHelper {
                 if (linkable.type == PostLinkable.Type.LINK) {
                     Matcher matcher = imageUrlPattern.matcher(((String) linkable.value));
                     if (matcher.matches()) {
+                        boolean noThumbnail =
+                                ((String) linkable.value).endsWith("webm") || ((String) linkable.value).endsWith("pdf")
+                                        || ((String) linkable.value).endsWith("mp4");
+                        String spoilerThumbnail =
+                                "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png";
                         post.images(Collections.singletonList(new PostImage.Builder().serverFilename(matcher.group(1))
-                                .thumbnailUrl(HttpUrl.parse((String) linkable.value)) //just have the thumbnail for when spoilers are removed be the image itself; probably not a great idea
-                                .spoilerThumbnailUrl(HttpUrl.parse(
-                                        "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png"))
+                                //spoiler thumb for some linked items, the image itself for the rest; probably not a great idea
+                                .thumbnailUrl(HttpUrl.parse(noThumbnail ? spoilerThumbnail : (String) linkable.value))
+                                .spoilerThumbnailUrl(HttpUrl.parse(spoilerThumbnail))
                                 .imageUrl(HttpUrl.parse((String) linkable.value))
                                 .filename(matcher.group(1))
                                 .extension(matcher.group(2))

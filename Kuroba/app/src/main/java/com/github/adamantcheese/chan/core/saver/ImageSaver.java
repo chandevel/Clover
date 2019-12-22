@@ -45,6 +45,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.BaseDirectoryDoesNotExist;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.Ok;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.UnknownError;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -82,9 +85,14 @@ public class ImageSaver
     }
 
     private void startDownloadTaskInternal(ImageSaveTask task, DownloadTaskCallbacks callbacks) {
+        if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
+            callbacks.onError(getString(R.string.files_base_dir_does_not_exist));
+            return;
+        }
+
         AbstractFile saveLocation = getSaveLocation(task);
         if (saveLocation == null) {
-            callbacks.onError("Couldn't figure out save location");
+            callbacks.onError(getString(R.string.image_saver_could_not_figure_out_save_location));
             return;
         }
 
@@ -96,16 +104,21 @@ public class ImageSaver
         updateNotification();
     }
 
-    public boolean startBundledTask(Context context, final String subFolder, final List<ImageSaveTask> tasks) {
+    public BundledImageSaveResult startBundledTask(Context context, final List<ImageSaveTask> tasks) {
+        if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
+            return BaseDirectoryDoesNotExist;
+        }
+
         if (hasPermission(context)) {
-            return startBundledTaskInternal(subFolder, tasks);
+            boolean result = startBundledTaskInternal(tasks);
+            return result ? Ok : UnknownError;
         }
 
         // This does not request the permission when another request is pending.
         // This is ok and will drop the tasks.
         requestPermission(context, granted -> {
             if (granted) {
-                if (startBundledTaskInternal(subFolder, tasks)) {
+                if (startBundledTaskInternal(tasks)) {
                     return;
                 }
             }
@@ -113,13 +126,7 @@ public class ImageSaver
             showToast(null, false, false);
         });
 
-        return true;
-    }
-
-    public String getSubFolder(String name) {
-        String filtered = filterName(name, false);
-        filtered = filtered.substring(0, Math.min(filtered.length(), MAX_NAME_LENGTH));
-        return filtered;
+        return Ok;
     }
 
     @Nullable
@@ -194,13 +201,12 @@ public class ImageSaver
         executor.execute(task);
     }
 
-    private boolean startBundledTaskInternal(String subFolder, List<ImageSaveTask> tasks) {
+    private boolean startBundledTaskInternal(List<ImageSaveTask> tasks) {
         boolean allSuccess = true;
 
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
 
-            task.setSubFolder(subFolder);
             AbstractFile deduplicateFile = deduplicateFile(postImage, task);
             if (deduplicateFile == null) {
                 allSuccess = false;
@@ -353,6 +359,12 @@ public class ImageSaver
     private void requestPermission(Context context, RuntimePermissionsHelper.Callback callback) {
         ((StartActivity) context).getRuntimePermissionsHelper()
                 .requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
+    }
+
+    public enum BundledImageSaveResult {
+        Ok,
+        BaseDirectoryDoesNotExist,
+        UnknownError
     }
 
     public interface DownloadTaskCallbacks {

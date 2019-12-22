@@ -201,6 +201,7 @@ public class MultiImageView
             switch (newMode) {
                 case LOWRES:
                     setThumbnail(loadable, postImage, center);
+                    backgroundToggle = false;
                     break;
                 case BIGIMAGE:
                     setBigImage(loadable, postImage);
@@ -353,6 +354,9 @@ public class MultiImageView
                 BackgroundUtils.ensureMainThread();
 
                 setBitImageFileInternal(new File(file.getFullPath()), true, Mode.BIGIMAGE);
+                if (!ChanSettings.transparencyOn.get() && !backgroundToggle) {
+                    toggleTransparency();
+                }
             }
 
             @Override
@@ -410,6 +414,9 @@ public class MultiImageView
 
                 if (!hasContent || mode == Mode.GIFIMAGE) {
                     setGifFile(new File(file.getFullPath()));
+                    if (!ChanSettings.transparencyOn.get() && !backgroundToggle) {
+                        toggleTransparency();
+                    }
                 }
             }
 

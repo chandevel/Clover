@@ -17,6 +17,7 @@ import com.github.adamantcheese.chan.ui.controller.ImageOptionsController;
 import com.github.adamantcheese.chan.ui.controller.ImageReencodeOptionsController;
 import com.google.gson.Gson;
 
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageOptionsHelper
@@ -37,7 +38,7 @@ public class ImageOptionsHelper
     public void showController(Loadable loadable, boolean supportsReencode) {
         if (imageOptionsController == null) {
             try { //load up the last image options every time this controller is created
-                lastImageOptions = new Gson().fromJson(ChanSettings.lastImageOptions.get(),
+                lastImageOptions = instance(Gson.class).fromJson(ChanSettings.lastImageOptions.get(),
                         ImageReencodingPresenter.ImageOptions.class
                 );
             } catch (Exception ignored) {
