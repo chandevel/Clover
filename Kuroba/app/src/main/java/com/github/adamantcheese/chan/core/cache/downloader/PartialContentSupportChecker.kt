@@ -103,7 +103,7 @@ internal class PartialContentSupportChecker(
 
                     if (length < FileCacheV2.MIN_CHUNK_SIZE) {
                         // Download tiny files normally, no need to chunk them
-                        emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
+                        emitter.onSuccess(cache(url, PartialContentCheckResult(false, length = length)))
                         return
                     }
 

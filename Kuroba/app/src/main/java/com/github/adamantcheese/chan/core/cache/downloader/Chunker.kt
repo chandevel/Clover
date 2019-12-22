@@ -2,8 +2,8 @@ package com.github.adamantcheese.chan.core.cache.downloader
 
 
 fun chunkLong(value: Long, chunksCount: Int, minChunkSize: Long): List<Chunk> {
-    require(chunksCount > 0)
-    require(value >= chunksCount)
+    require(chunksCount > 0) { "ChunksCount ($chunksCount) must be greater than zero!" }
+    require(value >= chunksCount) { "Value ($value) must be greater or equal to chunksCount ($chunksCount)" }
 
     if (value < minChunkSize) {
         return listOf(Chunk(0, value))
