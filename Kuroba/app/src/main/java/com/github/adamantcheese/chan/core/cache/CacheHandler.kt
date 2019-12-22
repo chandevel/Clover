@@ -720,7 +720,7 @@ class CacheHandler(
         BackgroundUtils.ensureBackgroundThread()
 
         val grouped = directoryFiles
-                // TODO: this can be optimized.
+                // TODO(FileCacheV2): this can be optimized.
                 //  Instead of calling getName in a loop for every file it is a better idea to
                 //  implement getNameBatched in FSAF and use it instead.
                 .map { file -> Pair(file, fileManager.getName(file)) }
@@ -836,7 +836,7 @@ class CacheHandler(
         // So let's increase it. And it's the Android app's cache which can be cleaned by the
         // OS (or user) at any time so it shouldn't be a problem.
         private const val DEFAULT_CACHE_SIZE = 512L * 1024L * 1024L
-        // TODO: maybe we should also increase the size of the cache with prefetching turned on?
+        // TODO(FileCacheV2): maybe we should also increase the size of the cache with prefetching turned on?
         private const val PREFETCH_CACHE_SIZE = 1024L * 1024L * 1024L
         private const val CACHE_FILE_META_HEADER_SIZE = 4
         private const val CACHE_FILE_NAME_FORMAT = "%s.%s"

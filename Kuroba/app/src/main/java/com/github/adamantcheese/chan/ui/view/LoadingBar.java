@@ -23,6 +23,10 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
@@ -30,8 +34,9 @@ public class LoadingBar
         extends View {
     private static final float MINIMUM_PROGRESS = 0.1f;
 
-    private float progress;
-    private float targetProgress;
+    private int chunksCount = -1;
+    private List<Float> chunkLoadingProgress;
+    private List<Float> chunkTargetLoadingProgress;
     private Paint paint;
 
     public LoadingBar(Context context) {
@@ -49,12 +54,40 @@ public class LoadingBar
         init();
     }
 
-    public void setProgress(float targetProgress) {
-        float clampedProgress = Math.min(Math.max(targetProgress, 0f), 1f);
-        this.targetProgress = MINIMUM_PROGRESS + clampedProgress * (1f - MINIMUM_PROGRESS);
-        if (this.targetProgress < this.progress) {
-            this.progress = this.targetProgress;
+    public void setChunksCount(int chunksCount) {
+        BackgroundUtils.ensureMainThread();
+
+        this.chunksCount = chunksCount;
+        this.chunkLoadingProgress = new ArrayList<>(chunksCount);
+        this.chunkTargetLoadingProgress = new ArrayList<>(chunksCount);
+
+        for (int i = 0; i < chunksCount; ++i) {
+            chunkLoadingProgress.add(0f);
+            chunkTargetLoadingProgress.add(0f);
         }
+    }
+
+    public void setProgress(List<Float> updatedProgress) {
+        BackgroundUtils.ensureMainThread();
+
+        if (chunksCount != updatedProgress.size()) {
+            throw new IllegalArgumentException("Bad updatedProgress list size: "
+                    + updatedProgress.size() + ", should be " + chunksCount);
+        }
+
+        for (int i = 0; i < updatedProgress.size(); i++) {
+            float updatedChunkProgress = updatedProgress.get(i);
+            float targetChunkProgress = chunkTargetLoadingProgress.get(i);
+
+            float clampedProgress = Math.min(Math.max(updatedChunkProgress, 0f), 1f);
+            this.chunkTargetLoadingProgress.set(
+                    i,
+                    MINIMUM_PROGRESS + clampedProgress * (1f - MINIMUM_PROGRESS)
+            );
+
+            chunkLoadingProgress.set(i, targetChunkProgress);
+        }
+
         invalidate();
     }
 
@@ -62,14 +95,20 @@ public class LoadingBar
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        progress += (targetProgress - progress) * 0.05f;
-
-        if (progress > 0f) {
-            canvas.drawRect(0f, 0f, getWidth() * progress, getHeight(), paint);
+        if (chunkLoadingProgress.size() != chunkTargetLoadingProgress.size()) {
+            throw new IllegalStateException("chunkLoadingProgress.size != chunkTargetLoadingProgress.size!");
         }
 
-        if ((getWidth() * Math.abs(targetProgress - progress)) > 1f) {
-            invalidate();
+        float width = getWidth() / chunksCount;
+        float offset = 0f;
+
+        for (int i = 0; i < chunkLoadingProgress.size(); i++) {
+            float progress = chunkLoadingProgress.get(i);
+            if (progress > 0f) {
+                canvas.drawRect(offset, 0f, offset + (width * progress), getHeight(), paint);
+            }
+
+            offset += width;
         }
     }
 

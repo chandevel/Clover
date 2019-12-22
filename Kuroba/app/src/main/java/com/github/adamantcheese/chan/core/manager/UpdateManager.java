@@ -258,9 +258,10 @@ public class UpdateManager {
 
         fileCacheV2.enqueueDownloadFileRequest(response.apkURL.toString(), new FileCacheListener() {
             @Override
-            public void onProgress(long downloaded, long total) {
+            public void onProgress(int chunkIndex, long downloaded, long total) {
                 BackgroundUtils.ensureMainThread();
 
+                // TODO(FileCacheV2): may not work
                 updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded / (double) total)));
             }
 

@@ -493,7 +493,6 @@ public class ChanThreadLoader
             loadable.setTitle(PostHelper.getTitle(thread.getOp(), loadable));
         }
 
-        // TODO: do we really need to do this?
         for (Post post : thread.getPosts()) {
             post.setTitle(loadable.title);
         }

@@ -95,6 +95,8 @@ public class ImagePickDelegate
                 }
                 if (clipboardURL != null) {
                     HttpUrl finalClipboardURL = clipboardURL;
+
+                    // TODO(FileCacheV2): MEMORY LEAK!!!!!!!!!!!!!!!!!!!!!!
                     fileCacheV2.enqueueDownloadFileRequest(clipboardURL.toString(), new FileCacheListener() {
                             @Override
                             public void onSuccess(RawFile file) {

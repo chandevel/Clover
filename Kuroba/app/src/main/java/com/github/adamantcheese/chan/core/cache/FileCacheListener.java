@@ -19,13 +19,25 @@ package com.github.adamantcheese.chan.core.cache;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 public abstract class FileCacheListener {
-    public void onProgress(long downloaded, long total) {
+
+    /**
+     * Called before the download has been started to prepare for progress updates.
+     * */
+    public void onStart(int chunksCount) {
+
+    }
+
+    public void onProgress(int chunkIndex, long downloaded, long total) {
     }
 
     /**
      * Called when the file download was completed.
      */
     public void onSuccess(RawFile file) {
+    }
+
+    public void onNotFound() {
+
     }
 
     /**

@@ -64,6 +64,20 @@ internal class PartialContentSupportChecker(
                 }
 
                 override fun onResponse(call: Call, response: Response) {
+                    val statusCode = response.code
+                    if (statusCode == NOT_FOUND_STATUS_CODE) {
+                        // Fast path: the server returned 404 so that mean we don't have to do any
+                        // requests since the file does not exist
+                        val result = PartialContentCheckResult(
+                                supportsPartialContentDownload = false,
+                                notFoundOnServer = true
+                        )
+                        cache(url, result)
+
+                        emitter.onError(FileCacheException.HttpCodeException(statusCode))
+                        return
+                    }
+
                     val acceptsRangesValue = response.header(ACCEPT_RANGES_HEADER)
                     if (acceptsRangesValue == null) {
                         emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
@@ -101,12 +115,13 @@ internal class PartialContentSupportChecker(
                                 "cfCacheStatusHeader = $cfCacheStatusHeader, took = ${diff}ms")
                     }
 
-                    emitter.onSuccess(
-                            cache(
-                                    url,
-                                    PartialContentCheckResult(true, length)
-                            )
+                    val result = PartialContentCheckResult(
+                            supportsPartialContentDownload = true,
+                            notFoundOnServer = false,
+                            length = length
                     )
+
+                    emitter.onSuccess(cache(url, result))
                 }
             })
         }
@@ -126,6 +141,8 @@ internal class PartialContentSupportChecker(
         private const val CONTENT_LENGTH_HEADER = "Content-Length"
         private const val CF_CACHE_STATUS_HEADER = "CF-Cache-Status"
         private const val ACCEPT_RANGES_HEADER_VALUE = "bytes"
+
+        private const val NOT_FOUND_STATUS_CODE = 404
     }
 
 }

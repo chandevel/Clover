@@ -3,13 +3,10 @@ package com.github.adamantcheese.chan.core.cache.downloader
 import com.github.k1rakishou.fsaf.file.RawFile
 
 internal sealed class FileCacheException(message: String) : Exception(message) {
+
     internal class CancellationException(val state: DownloadState, url: String)
         : FileCacheException("CancellationException for request with " +
-            "url = ${url}, state = ${state.javaClass.name}")
-
-    internal class StoppedException(val state: DownloadState, url: String)
-        : FileCacheException("StoppedException for request with " +
-            "url = ${url}, state = ${state.javaClass.name}")
+            "url = ${url}, state = ${state.javaClass.simpleName}")
 
     internal class FileNotFoundOnTheServerException
         : FileCacheException("FileNotFoundOnTheServerException")
@@ -43,8 +40,6 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
     internal class ChunkFileDoesNotExist(val path: String)
         : FileCacheException("ChunkFileDoesNotExist path = $path")
 
-    // TODO: this should be probably thrown when HEAD request returns back non 200 response.
-    //  Needs testing
     internal class HttpCodeException(val statusCode: Int)
         : FileCacheException("HttpCodeException statusCode = $statusCode")
 

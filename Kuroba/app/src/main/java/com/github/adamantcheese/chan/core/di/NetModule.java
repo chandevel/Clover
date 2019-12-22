@@ -115,7 +115,7 @@ public class NetModule {
         return new HttpCallManager(okHttpClient);
     }
 
-    // TODO: make this @Named as well instead of using hacks
+    // TODO(FileCacheV2): make this @Named as well instead of using hacks
     @Provides
     @Singleton
     public ProxiedOkHttpClient provideProxiedOkHttpClient() {

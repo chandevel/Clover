@@ -212,7 +212,6 @@ public class WatchManager
         // No duplicates
         for (Pin e : pins) {
             if (e.loadable.equals(pin.loadable)) {
-                // TODO: update the pin type here
                 return false;
             }
         }
@@ -833,7 +832,6 @@ public class WatchManager
                     continue;
                 }
 
-                // TODO: should the pinType be updated here?
                 createOrUpdateSavedThread(savedThread);
 
                 databaseManager.runTask(() -> {

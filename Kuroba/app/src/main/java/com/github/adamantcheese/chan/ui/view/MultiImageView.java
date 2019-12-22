@@ -332,13 +332,20 @@ public class MultiImageView
             return;
         }
 
-        callback.showProgress(this, true);
         bigImageRequest = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
+
             @Override
-            public void onProgress(long downloaded, long total) {
+            public void onStart(int chunksCount) {
                 BackgroundUtils.ensureMainThread();
 
-                callback.onProgress(MultiImageView.this, downloaded, total);
+                callback.onStartDownload(MultiImageView.this, chunksCount);
+            }
+
+            @Override
+            public void onProgress(int chunkIndex, long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
+
+                callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
             }
 
             @Override
@@ -364,7 +371,7 @@ public class MultiImageView
                 BackgroundUtils.ensureMainThread();
 
                 bigImageRequest = null;
-                callback.showProgress(MultiImageView.this, false);
+                callback.hideProgress(MultiImageView.this);
             }
         });
     }
@@ -381,13 +388,20 @@ public class MultiImageView
             return;
         }
 
-        callback.showProgress(this, true);
         gifRequest = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
+
             @Override
-            public void onProgress(long downloaded, long total) {
+            public void onStart(int chunksCount) {
                 BackgroundUtils.ensureMainThread();
 
-                callback.onProgress(MultiImageView.this, downloaded, total);
+                callback.onStartDownload(MultiImageView.this, chunksCount);
+            }
+
+            @Override
+            public void onProgress(int chunkIndex, long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
+
+                callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
             }
 
             @Override
@@ -415,7 +429,7 @@ public class MultiImageView
                 BackgroundUtils.ensureMainThread();
 
                 gifRequest = null;
-                callback.showProgress(MultiImageView.this, false);
+                callback.hideProgress(MultiImageView.this);
             }
         });
     }
@@ -509,13 +523,20 @@ public class MultiImageView
             return;
         }
 
-        callback.showProgress(this, true);
         videoRequest = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
+
             @Override
-            public void onProgress(long downloaded, long total) {
+            public void onStart(int chunksCount) {
                 BackgroundUtils.ensureMainThread();
 
-                callback.onProgress(MultiImageView.this, downloaded, total);
+                callback.onStartDownload(MultiImageView.this, chunksCount);
+            }
+
+            @Override
+            public void onProgress(int chunkIndex, long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
+
+                callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
             }
 
             @Override
@@ -543,7 +564,7 @@ public class MultiImageView
                 BackgroundUtils.ensureMainThread();
 
                 videoRequest = null;
-                callback.showProgress(MultiImageView.this, false);
+                callback.hideProgress(MultiImageView.this);
             }
         });
     }
@@ -651,7 +672,7 @@ public class MultiImageView
             @Override
             public void onReady() {
                 if (!hasContent || mode == forMode) {
-                    callback.showProgress(MultiImageView.this, false);
+                    callback.hideProgress(MultiImageView.this);
                     onModeLoaded(Mode.BIGIMAGE, image);
                 }
             }
@@ -676,23 +697,23 @@ public class MultiImageView
         );
 
         showToast(message);
-        callback.showProgress(this, false);
+        callback.hideProgress(MultiImageView.this);
     }
 
     private void onNotFoundError() {
         showToast(R.string.image_not_found);
-        callback.showProgress(this, false);
+        callback.hideProgress(MultiImageView.this);
     }
 
     private void onOutOfMemoryError() {
         showToast(R.string.image_preview_failed_oom);
-        callback.showProgress(this, false);
+        callback.hideProgress(MultiImageView.this);
     }
 
     private void onBigImageError(boolean wasInitial) {
         if (wasInitial) {
             showToast(R.string.image_failed_big_image);
-            callback.showProgress(this, false);
+            callback.hideProgress(MultiImageView.this);
         }
     }
 
@@ -757,14 +778,16 @@ public class MultiImageView
 
         void onDoubleTap();
 
-        void showProgress(MultiImageView multiImageView, boolean progress);
+        void onStartDownload(MultiImageView multiImageView, int chunksCount);
 
-        void onProgress(MultiImageView multiImageView, long current, long total);
+        void onProgress(MultiImageView multiImageView, int chunkIndex, long current, long total);
 
         void onVideoLoaded(MultiImageView multiImageView);
 
         void onModeLoaded(MultiImageView multiImageView, Mode mode);
 
         void onAudioLoaded(MultiImageView multiImageView);
+
+        void hideProgress(MultiImageView multiImageView);
     }
 }

@@ -70,7 +70,7 @@ class CancelableDownload(
             return
         }
 
-        // TODO: wtf do I do in case of this webm being prefetched?
+        // TODO(FileCacheV2): wtf do I do in case of this webm being prefetched?
 
         dispose()
     }
@@ -97,7 +97,7 @@ class CancelableDownload(
         // We also want it to be blocking.
 
         requestCancellationThread.submit {
-            // TODO: this may deadlock, be careful (I haven't encountered a deadlock here yet, but
+            // This may deadlock, be careful (I haven't encountered a deadlock here yet, but
             //  it's just a theoretical posibility)
 
             synchronized(this) {

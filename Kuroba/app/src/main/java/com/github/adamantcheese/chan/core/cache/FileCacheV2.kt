@@ -469,13 +469,6 @@ class FileCacheV2(
             val request = activeDownloads.get(url)
                     ?: return
 
-            // We handle Progress separately because we don't want to also call removeCacheFile()
-            // after every Progress event (there will likely be a lot of them)
-            if (result is FileDownloadResult.Progress) {
-                handleProgressResult(result, request)
-                return
-            }
-
             if (result.isErrorOfAnyKind()) {
                 // Only call cancel when not already canceled and not stopped
                 if (result !is FileDownloadResult.Canceled
@@ -486,238 +479,183 @@ class FileCacheV2(
                 purgeOutput(request.url, request.output)
             }
 
-            handleSuccessOrError(result, url, request)
+            when (result) {
+                is FileDownloadResult.Start -> {
+                    log(TAG, "Download (${request}) has started. Chunks count = ${result.chunksCount}")
+
+                    // Start is not a terminal event so we don't want to remove request from the
+                    // activeDownloads
+                    resultHandler(url, request, false) {
+                        onStart(result.chunksCount)
+                    }
+                }
+
+                // Success
+                is FileDownloadResult.Success -> {
+                    val (downloaded, total) = synchronized(activeDownloads) {
+                        val activeDownload = activeDownloads.get(url)
+
+                        val downloaded = activeDownload?.downloaded?.get()
+                        val total = activeDownload?.total?.get()
+
+                        Pair(downloaded, total)
+                    }
+
+                    if (downloaded == null || total == null) {
+                        return
+                    }
+
+                    val downloadedString = PostUtils.getReadableFileSize(downloaded)
+                    val totalString = PostUtils.getReadableFileSize(total)
+
+                    log(TAG, "Success (" +
+                            "downloaded = ${downloadedString} ($downloaded B), " +
+                            "total = ${totalString} ($total B), " +
+                            "took ${result.requestTime}ms" +
+                            ") for request ${request}"
+                    )
+
+                    // Trigger cache trimmer after a file has been successfully downloaded
+                    cacheHandler.fileWasAdded(total)
+
+                    resultHandler(url, request, true) {
+                        onSuccess(result.file)
+                        onEnd()
+                    }
+                }
+                // Progress
+                is FileDownloadResult.Progress -> {
+                    val chunkSize = if (result.chunkSize == 0L) {
+                        1L
+                    } else {
+                        result.chunkSize
+                    }
+
+                    val percents = (result.downloaded.toFloat() / chunkSize.toFloat()) * 100f
+                    val downloadedString = PostUtils.getReadableFileSize(result.downloaded)
+                    val totalString = PostUtils.getReadableFileSize(chunkSize)
+
+                    log(TAG,
+                            "Progress " +
+                            "chunkIndex = ${result.chunkIndex}, downloaded: (${downloadedString}) " +
+                            "(${result.downloaded} B) / ${totalString} (${chunkSize} B), " +
+                            "${percents}%) for request ${request}"
+                    )
+
+                    // Progress is not a terminal event so we don't want to remove request from the
+                    // activeDownloads
+                    resultHandler(url, request, false) {
+                        onProgress(result.chunkIndex, result.downloaded, chunkSize)
+                    }
+                }
+
+                // Cancel
+                is FileDownloadResult.Canceled,
+                // Stop (called by WebmStreamingSource to stop downloading a file via FileCache and
+                // continue downloading it via FileCacheDataSource)
+                is FileDownloadResult.Stopped -> {
+                    val (downloaded, total, output) = synchronized(activeDownloads) {
+                        val activeDownload =  activeDownloads.get(url)
+
+                        val downloaded = activeDownload?.downloaded?.get()
+                        val total = activeDownload?.total?.get()
+                        val output = activeDownload?.output
+
+                        Triple(downloaded, total, output)
+                    }
+
+                    val isCanceled = when (result) {
+                        is FileDownloadResult.Canceled -> true
+                        is FileDownloadResult.Stopped -> false
+                        else -> throw RuntimeException("Not implemented for ${result}")
+                    }
+
+                    val causeText = if (isCanceled) {
+                        "canceled"
+                    } else {
+                        "stopped"
+                    }
+
+                    log(TAG, "Request ${request} $causeText, downloaded = $downloaded, total = $total")
+
+                    resultHandler(url, request, true) {
+                        if (isCanceled) {
+                            onCancel()
+                        } else {
+                            onStop(output)
+                        }
+
+                        onEnd()
+                    }
+                }
+                is FileDownloadResult.KnownException -> {
+                    logError(TAG, "Exception for request ${request}", result.fileCacheException)
+
+                    resultHandler(url, request, true) {
+                        when (result.fileCacheException) {
+                            is FileCacheException.CancellationException -> {
+                                throw RuntimeException("Not used")
+                            }
+                            is FileCacheException.FileNotFoundOnTheServerException -> {
+                                onNotFound()
+                            }
+                            is FileCacheException.CouldNotMarkFileAsDownloaded,
+                            is FileCacheException.NoResponseBodyException,
+                            is FileCacheException.CouldNotCreateOutputFileException,
+                            is FileCacheException.CouldNotGetInputStreamException,
+                            is FileCacheException.CouldNotGetOutputStreamException,
+                            is FileCacheException.OutputFileDoesNotExist,
+                            is FileCacheException.ChunkFileDoesNotExist,
+                            is FileCacheException.HttpCodeException,
+                            is FileCacheException.BadOutputFileException -> {
+                                if (result.fileCacheException is FileCacheException.HttpCodeException
+                                        && result.fileCacheException.statusCode == 404) {
+                                    throw RuntimeException("This shouldn't be handled here!")
+                                }
+
+                                onFail(IOException(result.fileCacheException.message))
+                            }
+                        }
+
+                        onEnd()
+                    }
+                }
+                is FileDownloadResult.UnknownException -> {
+                    val message = "Unknown exception, " +
+                            "class = ${result.error.javaClass.name}, " +
+                            "message = ${result.error.message}"
+
+                    logError(TAG, message)
+
+                    resultHandler(url, request, true) {
+                        onFail(IOException(message))
+                        onEnd()
+                    }
+                }
+            }.exhaustive
         } catch (error: Throwable) {
             Logger.e(TAG, "An error in result handler", error)
         }
     }
 
-    private fun handleProgressResult(result: FileDownloadResult.Progress, request: FileDownloadRequest) {
-        when (result) {
-            is FileDownloadResult.Progress.NormalProgress -> {
-                val total = if (result.total == 0L) {
-                    1L
-                } else {
-                    result.total
-                }
-
-                val percents = (result.downloaded.toFloat() / total.toFloat()) * 100f
-                val downloadedString = PostUtils.getReadableFileSize(result.downloaded)
-                val totalString = PostUtils.getReadableFileSize(total)
-
-                log(TAG, "Progress (" +
-                        "${downloadedString} (${result.downloaded} B) / ${totalString} (${total} B)," +
-                        " ${percents}%) for request ${request}"
-                )
-
-                request.cancelableDownload.forEachCallback {
-                    BackgroundUtils.runOnUiThread {
-                        onProgress(result.downloaded, total)
-                    }
-                }
-            }
-            is FileDownloadResult.Progress.ChunkProgress -> {
-                // TODO("Not implemented")
-            }
-        }
-    }
-
-    private fun handleSuccessOrError(
-            result: FileDownloadResult,
-            url: String,
-            request: FileDownloadRequest
-    ) {
-        when (result) {
-            // Success/Progress
-            is FileDownloadResult.Success -> {
-                if (!handleSuccess(url, result, request)) {
-                    return
-                } else {
-                    // Do nothing. Exhaustive when requires us to handle all branches of nested
-                    // if/else statements
-                    Unit
-                }
-            }
-            is FileDownloadResult.Progress -> {
-                // Do nothing, already handled above
-            }
-
-            // Cancel
-            is FileDownloadResult.Canceled -> {
-                log(TAG, "Request ${request} canceled")
-
-                resultHandler(url, request) {
-                    onCancel()
-                    onEnd()
-                }
-            }
-            is FileDownloadResult.Stopped -> {
-                val (downloaded, total, output) = synchronized(activeDownloads) {
-                    val activeDownload =  activeDownloads.get(url)
-
-                    val downloaded = activeDownload?.downloaded?.get()
-                    val total = activeDownload?.total?.get()
-                    val output = activeDownload?.output
-
-                    Triple(downloaded, total, output)
-                }
-
-                log(TAG, "Request ${request} stopped, downloaded = $downloaded, total = $total")
-
-                resultHandler(url, request) {
-                    onStop(output)
-                    onEnd()
-                }
-            }
-            is FileDownloadResult.KnownException -> {
-                logError(TAG, "Exception for request ${request}", result.fileCacheException)
-
-                // TODO: exception handling
-
-                resultHandler(url, request) {
-                    onFail(IOException(result.fileCacheException))
-                    onEnd()
-                }
-            }
-            is FileDownloadResult.UnknownException -> TODO()
-
-
-            // Errors
-//            is FileDownloadResult.NotFound -> {
-//                logError(TAG, "File not found for request ${request}")
-//
-//                resultHandler(url, request) {
-//                    onFail(IOException("File not found"))
-//                    onEnd()
-//                }
-//            }
-//            is FileDownloadResult.BadOutputFileError -> {
-//                val exception = IOException("Bad output file: " +
-//                        "exists = ${result.exists}, " +
-//                        "isFile = ${result.isFile}, " +
-//                        "canWrite = ${result.canWrite}"
-//                )
-//
-//                logError(TAG, "Bad output file error for request ${request}", exception)
-//
-//                resultHandler(url, request) {
-//                    onFail(exception)
-//                    onEnd()
-//                }
-//            }
-//            is FileDownloadResult.HttpCodeIOError -> {
-//                val exception = if (result.statusCode != 404) {
-//                    IOException("Bad response status code: ${result.statusCode}")
-//                } else {
-//                    FileNotFoundOnTheServerException()
-//                }
-//
-//                logError(TAG, "Http code error for request ${request}, status code = ${result.statusCode}")
-//
-//                resultHandler(url, request) {
-//                    onFail(exception)
-//                    onEnd()
-//                }
-//            }
-//            is FileDownloadResult.NoResponseBodyError -> {
-//                val exception = IOException("No response body returned for request ${request}")
-//                logError(TAG, "No response body returned for request ${request}")
-//
-//                resultHandler(url, request) {
-//                    onFail(exception)
-//                    onEnd()
-//                }
-//            }
-//            is FileDownloadResult.CouldNotGetOutputStreamError -> {
-//                logError(TAG, "CouldNotGetOutputStreamError(" +
-//                        "exists = ${result.exists}, " +
-//                        "isFile = ${result.isFile}, " +
-//                        "canWrite = ${result.canWrite}) for request ${request}")
-//
-//                resultHandler(url, request) {
-//                    onFail(IOException("Could not get output stream"))
-//                    onEnd()
-//                }
-//            }
-//            is FileDownloadResult.CouldNotCreateOutputFile -> {
-//                logError(TAG, "CouldNotCreateOutputFile for request ${request}, " +
-//                        "output file path = ${result.filePath}")
-//
-//                resultHandler(url, request) {
-//                    onFail(IOException("Could not create output file"))
-//                    onEnd()
-//                }
-//            }
-//            FileDownloadResult.DoesNotSupportPartialContent -> {
-//                logError(TAG, "DoesNotSupportPartialContent")
-//                // TODO("Not implemented")
-//            }
-//            is FileDownloadResult.CouldNotGetInputStreamError -> {
-//                // TODO("Not implemented")
-//                logError(TAG, "CouldNotGetInputStreamError")
-//            }
-        }.exhaustive
-    }
-
-    private fun handleSuccess(
-            url: String,
-            result: FileDownloadResult.Success,
-            request: FileDownloadRequest
-    ): Boolean {
-        when (result) {
-            is FileDownloadResult.Success.NormalSuccess -> {
-                val (downloaded, total) = synchronized(activeDownloads) {
-                    val activeDownload = activeDownloads.get(url)
-
-                    val downloaded = activeDownload?.downloaded?.get()
-                    val total = activeDownload?.total?.get()
-
-                    Pair(downloaded, total)
-                }
-
-                if (downloaded == null || total == null) {
-                    return false
-                }
-
-                val downloadedString = PostUtils.getReadableFileSize(downloaded)
-                val totalString = PostUtils.getReadableFileSize(total)
-
-                log(TAG, "Success (" +
-                        "downloaded = ${downloadedString} ($downloaded B), " +
-                        "total = ${totalString} ($total B), " +
-                        "took ${result.requestTime}ms" +
-                        ") for request ${request}"
-                )
-
-                // Trigger cache trimmer after a file has been successfully downloaded
-                cacheHandler.fileWasAdded(total)
-
-                resultHandler(url, request) {
-                    onSuccess(result.file)
-                    onEnd()
-                }
-            }
-            is FileDownloadResult.Success.ChunkSuccess -> {
-                // Do nothing, this is already handled in ConcurrentChunkedFileDownloader
-            }
-        }
-
-        return true
-    }
-
     private fun resultHandler(
             url: String,
             request: FileDownloadRequest,
+            isTerminalEvent: Boolean,
             func: FileCacheListener.() -> Unit
     ) {
-        request.cancelableDownload.forEachCallback {
-            BackgroundUtils.runOnUiThread {
-                func()
+        try {
+            request.cancelableDownload.forEachCallback {
+                BackgroundUtils.runOnUiThread {
+                    func()
+                }
+            }
+        } finally {
+            if (isTerminalEvent) {
+                request.cancelableDownload.clearCallbacks()
+                activeDownloads.remove(url)
             }
         }
-
-        request.cancelableDownload.clearCallbacks()
-        activeDownloads.remove(url)
     }
 
     private fun handleFileDownload(url: String): Flowable<FileDownloadResult> {
@@ -758,6 +696,10 @@ class FileCacheV2(
         return partialContentSupportChecker.check(url)
                 .toFlowable()
                 .flatMap { result ->
+                    if (result.notFoundOnServer) {
+                        throw FileCacheException.FileNotFoundOnTheServerException()
+                    }
+
                     return@flatMap concurrentChunkedFileDownloader.download(
                             result,
                             url,
@@ -767,12 +709,18 @@ class FileCacheV2(
     }
 
     private fun processErrors(error: Throwable): FileDownloadResult? {
-        if (isCancellationError(error)) {
-            return FileDownloadResult.Canceled
+        if (error is FileCacheException.CancellationException) {
+            return when (error.state) {
+                DownloadState.Running -> {
+                    throw RuntimeException("Got cancellation exception but the state is still running!")
+                }
+                DownloadState.Stopped -> FileDownloadResult.Stopped
+                DownloadState.Canceled -> FileDownloadResult.Canceled
+            }
         }
 
-        if (error is FileCacheException.StoppedException) {
-            return FileDownloadResult.Stopped
+        if (isCancellationError(error)) {
+            return FileDownloadResult.Canceled
         }
 
         if (error is FileCacheException) {

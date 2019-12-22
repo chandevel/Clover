@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.annotation.SuppressLint;
 import android.media.AudioManager;
 
 import androidx.annotation.GuardedBy;
@@ -34,8 +35,10 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -75,7 +78,7 @@ public class ImageViewerPresenter
     private boolean entering = true;
     private boolean exiting = false;
     private List<PostImage> images;
-    private List<Float> progress;
+    private Map<Integer, List<Float>> progress;
     private int selectedPosition = 0;
     private boolean swipingForward = false;
     private Loadable loadable;
@@ -99,15 +102,12 @@ public class ImageViewerPresenter
                 || !audioManager.isWiredHeadsetOn());
     }
 
+    @SuppressLint("UseSparseArrays")
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
         this.images = images;
-        selectedPosition = Math.max(0, Math.min(images.size() - 1, position));
         this.loadable = loadable;
-
-        progress = new ArrayList<>(images.size());
-        for (int i = 0; i < images.size(); i++) {
-            progress.add(i, -1f);
-        }
+        this.selectedPosition = Math.max(0, Math.min(images.size() - 1, position));
+        this.progress = new HashMap<>(images.size());
 
         // Do this before the view is measured, to avoid it to always loading the first two pages
         callback.setPagerItems(loadable, images, selectedPosition);
@@ -259,10 +259,6 @@ public class ImageViewerPresenter
         if (callback.getImageMode(postImage) == LOWRES) {
             onLowResInCenter();
         }
-        // Else let onModeLoaded handle it
-
-        callback.showProgress(progress.get(selectedPosition) >= 0f);
-        callback.onLoadProgress(progress.get(selectedPosition));
     }
 
     // Called from either a page swipe caused a lowres image to be in the center or an
@@ -446,29 +442,56 @@ public class ImageViewerPresenter
     }
 
     @Override
-    public void showProgress(MultiImageView multiImageView, boolean show) {
+    public void onStartDownload(MultiImageView multiImageView, int chunksCount) {
+        BackgroundUtils.ensureMainThread();
+
+        if (chunksCount <= 0) {
+            throw new IllegalArgumentException("chunksCount must be 1 or greater than 1");
+        }
+
+        List<Float> initialProgress = new ArrayList<>(chunksCount);
+
+        for (int i = 0; i < chunksCount; ++i) {
+            initialProgress.add(0f);
+        }
+
         for (int i = 0; i < images.size(); i++) {
             PostImage postImage = images.get(i);
             if (postImage == multiImageView.getPostImage()) {
-                progress.set(i, show ? 0f : -1f);
+                progress.put(i, initialProgress);
                 break;
             }
         }
 
         if (multiImageView.getPostImage() == images.get(selectedPosition)) {
-            callback.showProgress(progress.get(selectedPosition) >= 0f);
-            if (show) {
-                callback.onLoadProgress(0f);
-            }
+            callback.setChunksCount(chunksCount);
+            callback.showProgress(true);
+            callback.onLoadProgress(initialProgress);
         }
     }
 
     @Override
-    public void onProgress(MultiImageView multiImageView, long current, long total) {
+    public void hideProgress(MultiImageView multiImageView) {
+        BackgroundUtils.ensureMainThread();
+
+        callback.showProgress(false);
+    }
+
+    @Override
+    public void onProgress(MultiImageView multiImageView, int chunkIndex, long current, long total) {
+        BackgroundUtils.ensureMainThread();
+
         for (int i = 0; i < images.size(); i++) {
             PostImage postImage = images.get(i);
             if (postImage == multiImageView.getPostImage()) {
-                progress.set(i, current / (float) total);
+                List<Float> chunksProgress = progress.get(i);
+
+                if (chunksProgress != null) {
+                    if (chunkIndex >= 0 && chunkIndex < chunksProgress.size()) {
+                        chunksProgress.set(chunkIndex, current / (float) total);
+                    }
+                }
+
                 break;
             }
         }
@@ -552,9 +575,11 @@ public class ImageViewerPresenter
 
         MultiImageView.Mode getImageMode(PostImage postImage);
 
+        void setChunksCount(int chunksCount);
+
         void showProgress(boolean show);
 
-        void onLoadProgress(float progress);
+        void onLoadProgress(List<Float> progress);
 
         void showVolumeMenuItem(boolean show, boolean muted);
 
