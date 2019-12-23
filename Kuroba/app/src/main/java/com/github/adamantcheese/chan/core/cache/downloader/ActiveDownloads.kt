@@ -64,8 +64,7 @@ internal class ActiveDownloads {
         synchronized(activeDownloads) {
             activeDownloads[url]
                     ?.cancelableDownload
-                    ?.disposeFuncList
-                    ?.add(disposeFunc)
+                    ?.addDisposeFuncList(disposeFunc)
         }
     }
 

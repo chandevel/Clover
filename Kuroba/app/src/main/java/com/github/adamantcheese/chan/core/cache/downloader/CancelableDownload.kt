@@ -12,15 +12,15 @@ import java.util.concurrent.atomic.AtomicReference
 class CancelableDownload(
         val url: String,
         private val requestCancellationThread: ExecutorService,
-        val isPartOfBatchDownload: AtomicBoolean = AtomicBoolean(false),
-        /**
-         * This callbacks are used to cancel a lot of things like the HEAD request, the get response
-         * body request and response body read loop.
-         * */
-        val disposeFuncList: MutableList<() -> Unit> = mutableListOf()
+        val isPartOfBatchDownload: AtomicBoolean = AtomicBoolean(false)
 ) {
     private val state: AtomicReference<DownloadState> = AtomicReference(DownloadState.Running)
     private val callbacks: MutableSet<FileCacheListener> = mutableSetOf()
+    /**
+     * This callbacks are used to cancel a lot of things like the HEAD request, the get response
+     * body request and response body read loop.
+     * */
+    private val disposeFuncList: MutableList<() -> Unit> = mutableListOf()
 
     fun isRunning(): Boolean = state.get() == DownloadState.Running
     fun getState(): DownloadState = state.get()
@@ -42,6 +42,11 @@ class CancelableDownload(
     @Synchronized
     fun clearCallbacks() {
         callbacks.clear()
+    }
+
+    @Synchronized
+    fun addDisposeFuncList(disposeFunc: () -> Unit) {
+        disposeFuncList += disposeFunc
     }
 
     /**
