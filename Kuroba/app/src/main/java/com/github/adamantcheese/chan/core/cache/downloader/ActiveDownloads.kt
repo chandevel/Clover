@@ -62,6 +62,16 @@ internal class ActiveDownloads {
 
     fun addDisposeFunc(url: String, disposeFunc: () -> Unit) {
         synchronized(activeDownloads) {
+            val state = activeDownloads[url]?.cancelableDownload?.getState()
+                    ?: DownloadState.Canceled
+
+            // If already canceled - do not add any new dispose functions and call it to immediately
+            // to cancel whatever it is
+            if (state !is DownloadState.Running) {
+                disposeFunc.invoke()
+                return
+            }
+
             activeDownloads[url]
                     ?.cancelableDownload
                     ?.addDisposeFuncList(disposeFunc)

@@ -97,12 +97,12 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             log(TAG, "File (${url}) was split into chunks: ${chunks}")
         }
 
-        val startTime = System.currentTimeMillis()
-        val canceled = AtomicBoolean(false)
-
         if (isRequestStoppedOrCanceled(url)) {
             throwCancellationException(url)
         }
+
+        val startTime = System.currentTimeMillis()
+        val canceled = AtomicBoolean(false)
 
         activeDownloads.updateTotalLength(url, partialContentCheckResult.length)
         val totalDownloaded = AtomicLong(0L)
@@ -140,8 +140,8 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                 .autoConnect(2)
 
         // First separate stream.
-        // We don't want to do anything with both Exception events and Progress
-        // events we just want to pass them to the downstream
+        // We don't want to do anything with Progress events we just want to pass them
+        // to the downstream
         val skipEvents = multicastEvent
                 .filter { event -> event is ChunkDownloadEvent.Progress }
 
@@ -162,8 +162,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
         // So why are we splitting a reactive stream in two? Because we need to do some
         // additional handling of ChunkedSuccess events but we don't want to do that
-        // for Exception and ChunkedProgress events (We want to pass them downstream
-        // right away).
+        // for Progress event (We want to pass them downstream right away).
 
         // Merge them back into a single stream
         return Flowable.merge(skipEvents, successEvents)
@@ -171,12 +170,21 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     // Map ChunkDownloadEvent to FileDownloadResult
                     return@map when (cde) {
                         is ChunkDownloadEvent.Success -> {
-                            FileDownloadResult.Success(cde.output, cde.requestTime)
+                            FileDownloadResult.Success(
+                                    cde.output,
+                                    cde.requestTime
+                            )
                         }
                         is ChunkDownloadEvent.Progress -> {
-                            FileDownloadResult.Progress(cde.downloaderIndex, cde.downloaded, cde.chunkSize)
+                            FileDownloadResult.Progress(
+                                    cde.downloaderIndex,
+                                    cde.downloaded,
+                                    cde.chunkSize
+                            )
                         }
-                        is ChunkDownloadEvent.ChunkSuccess -> throw RuntimeException("Not used")
+                        is ChunkDownloadEvent.ChunkSuccess -> {
+                            throw RuntimeException("Not used")
+                        }
                     }
                 }
     }
@@ -200,7 +208,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
         return downloadChunk(url, chunksCount, chunkStart, chunkEnd - 1)
                 .subscribeOn(workerScheduler)
                 .observeOn(workerScheduler)
-                .map { response -> ChunkResponse(chunkStart, chunkEnd, response)}
+                .map { response -> ChunkResponse(chunkStart, chunkEnd, response) }
                 .flatMap { chunkResponse ->
                     // Here is where the most fun is happening. At this point we have sent multiple
                     // requests to the server and got responses. Now we need to read the bodies of
@@ -308,30 +316,12 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                         "${chunkResponse.chunkStart}..${chunkResponse.chuckEnd}")
             }
 
-            val disposed = AtomicBoolean(false)
             var cachedOutputStream: OutputStream? = null
             var cachedSink: Sink? = null
             var cachedBufferedSink: BufferedSink? = null
             var cachedResponseBody: ResponseBody? = null
+            var cachedResponse: Response? = null
             var cachedBufferedSource: BufferedSource? = null
-
-            // A lambda function to dispose of response bodies for every downloaded chunk
-            val disposeFunc = {
-                if (disposed.compareAndSet(false, true)) {
-                    if (ChanSettings.verboseLogs.get()) {
-                        log(TAG, "Disposing of response body ($url) for chunk " +
-                                "${chunkResponse.chunkStart}..${chunkResponse.chuckEnd}")
-                    }
-
-                    cachedOutputStream?.closeQuietly()
-                    cachedSink?.closeQuietly()
-                    cachedBufferedSink?.closeQuietly()
-                    cachedResponseBody?.closeQuietly()
-                    cachedBufferedSource?.closeQuietly()
-                }
-            }
-
-            activeDownloads.addDisposeFunc(url, disposeFunc)
 
             val chunkCacheFile = cacheHandler.getOrCreateChunkCacheFile(
                     chunkResponse.chunkStart,
@@ -340,8 +330,13 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             )
 
             try {
-                val responseBody = chunkResponse.response.body
-                        ?.also { cachedResponseBody = it }
+                if (chunkCacheFile == null) {
+                    throw IOException("Couldn't create chunk cache file")
+                }
+
+                val responseBody = chunkResponse
+                        .response.also { cachedResponse = it }
+                        .body?.also { cachedResponseBody = it }
                         ?: throw FileCacheException.NoResponseBodyException()
 
                 var read: Long
@@ -355,10 +350,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
                 if (!source.isOpen) {
                     throwCancellationException(url)
-                }
-
-                if (chunkCacheFile == null) {
-                    throw IOException("Couldn't create chunk cache file")
                 }
 
                 val sink = fileManager.getOutputStream(chunkCacheFile)
@@ -449,7 +440,12 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
                 emitter.onError(error)
             } finally {
-                disposeFunc()
+                cachedOutputStream?.closeQuietly()
+                cachedSink?.closeQuietly()
+                cachedBufferedSink?.closeQuietly()
+                cachedResponseBody?.closeQuietly()
+                cachedBufferedSource?.closeQuietly()
+                cachedResponse?.closeQuietly()
             }
         }, BackpressureStrategy.BUFFER)
     }

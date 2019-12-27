@@ -75,7 +75,7 @@ class CancelableDownload(
             return
         }
 
-        // TODO(FileCacheV2): wtf do I do in case of this webm being prefetched?
+        // TODO(FileCacheV2): wtf do I do in case of this file/image being prefetched?
 
         dispose()
     }

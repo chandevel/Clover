@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 /**
  * CacheHandler has been re-worked a little bit because old implementation was relying on the
- * lastModified file flag which doesn't work on some Android versions/different phone. It was decided
+ * lastModified file flag which doesn't work on some Android versions/different phones. It was decided
  * to instead use a meta file for every cache file which will contain the following information:
  * 1. Time of creation of the cache file (in millis).
  * 2. A flag that indicates whether the download has been completed or not.
@@ -52,7 +52,7 @@ import java.util.concurrent.atomic.AtomicLong
  * meta files) for at least 5 minutes.
  *
  * The cache size has been increased from 100MB up to 512MB. The reasoning for that is that there
- * are some boards on 4chan where a single file make take up to 5MB. Also, there are other chans
+ * are some boards on 4chan where a single file may take up to 5MB. Also, there are other chans
  * where a file (i.e. webm) may take up to 25MB (like 2ch.hk). So we definitely need to increase it.
  * The files are being located at the cache directory and can be removed at any time by the OS or
  * the user so it's not a big deal.
@@ -151,11 +151,13 @@ class CacheHandler(
     fun isAlreadyDownloaded(file: RawFile): Boolean {
         return try {
             if (!fileManager.exists(file)) {
+                deleteCacheFile(file)
                 return false
             }
 
             if (!fileManager.getName(file).endsWith(CACHE_EXTENSION)) {
                 Logger.e(TAG, "Not a cache file! file = " + file.getFullPath())
+                deleteCacheFile(file)
                 return false
             }
 
@@ -206,6 +208,7 @@ class CacheHandler(
         return try {
             if (!fileManager.exists(output)) {
                 Logger.e(TAG, "File does not exist! file = ${output.getFullPath()}")
+                deleteCacheFile(output)
                 return false
             }
 
@@ -453,8 +456,9 @@ class CacheHandler(
             return null
         }
 
-        require(fileManager.getName(file).endsWith(CACHE_META_EXTENSION)) {
-            "Not a cache file meta! file = ${file.getFullPath()}"
+        if (!fileManager.getName(file).endsWith(CACHE_META_EXTENSION)) {
+            Logger.e(TAG, "Not a cache file meta! file = ${file.getFullPath()}")
+            return null
         }
 
         val inputStream = fileManager.getInputStream(file)
@@ -490,7 +494,7 @@ class CacheHandler(
                     val split = content.split(",").toTypedArray()
                     if (split.size != 2) {
                         throw IOException(
-                                "Couldn't split meta content, split.size = ${split.size}"
+                                "Couldn't split meta content ($content), split.size = ${split.size}"
                         )
                     }
 
