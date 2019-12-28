@@ -109,6 +109,42 @@ public class ChanSettings {
         }
     }
 
+    public enum ConcurrentFileDownloadingChunks implements OptionSettingItem {
+        Default("One chunk (Default)"),
+        Two("Two chunks"),
+        Four("Four chunks"),
+        Six("Six chunks"),
+        Eight("Eight chunks");
+
+        String name;
+
+        ConcurrentFileDownloadingChunks(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getKey() {
+            return name;
+        }
+
+        public static int toChunkCount(ConcurrentFileDownloadingChunks item) {
+            switch (item) {
+                case Default:
+                    return 1;
+                case Two:
+                    return 2;
+                case Four:
+                    return 4;
+                case Six:
+                    return 6;
+                case Eight:
+                    return 8;
+                default:
+                    throw new RuntimeException("Not implemented for " + item.getClass().getName());
+            }
+        }
+    }
+
     private static Proxy proxy;
     private static final String sharedPrefsFile = "shared_prefs/" + BuildConfig.APPLICATION_ID + "_preferences.xml";
 
@@ -212,7 +248,7 @@ public class ChanSettings {
     public static final BooleanSetting transparencyOn;
     public static final StringSetting youtubeTitleCache;
     public static final StringSetting youtubeDurationCache;
-    public static final IntegerSetting concurrentFileDownloadingThreadCount;
+    public static final OptionsSetting<ConcurrentFileDownloadingChunks> concurrentFileDownloadingChunksCount;
     public static final BooleanSetting verboseLogs;
 
     static {
@@ -343,10 +379,11 @@ public class ChanSettings {
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
             youtubeTitleCache = new StringSetting(p, "yt_title_cache", "{}");
             youtubeDurationCache = new StringSetting(p, "yt_dur_cache", "{}");
-            concurrentFileDownloadingThreadCount = new IntegerSetting(
+            concurrentFileDownloadingChunksCount = new OptionsSetting<>(
                     p,
-                    "concurrent_file_downloading_thread_count",
-                    Runtime.getRuntime().availableProcessors()
+                    "concurrent_file_downloading_chunks_count",
+                    ConcurrentFileDownloadingChunks.class,
+                    ConcurrentFileDownloadingChunks.Default
             );
             verboseLogs = new BooleanSetting(
                     p,

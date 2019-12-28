@@ -5,8 +5,12 @@ import android.content.Context;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
+import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -43,6 +47,27 @@ public class ExperimentalSettingsController
                 R.string.setting_video_stream,
                 R.string.setting_video_stream_description));
 
+        setupConcurrentFileDownloadingChunksSetting(group);
+
         groups.add(group);
+    }
+
+    private void setupConcurrentFileDownloadingChunksSetting(SettingsGroup group) {
+        List<ListSettingView.Item> items = new ArrayList<>();
+
+        for (ChanSettings.ConcurrentFileDownloadingChunks setting
+                : ChanSettings.ConcurrentFileDownloadingChunks.values()) {
+            items.add(new ListSettingView.Item<>(setting.getKey(), setting));
+        }
+
+        requiresRestart.add(
+                group.add(
+                        new ListSettingView<>(
+                                this,
+                                ChanSettings.concurrentFileDownloadingChunksCount,
+                                "Try to download files concurrently in chunks",
+                                items)
+                )
+        );
     }
 }
