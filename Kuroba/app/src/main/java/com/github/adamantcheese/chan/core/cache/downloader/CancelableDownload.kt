@@ -9,9 +9,14 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
+/**
+ * ThreadSafe
+ * */
 class CancelableDownload(
         val url: String,
         private val requestCancellationThread: ExecutorService,
+        // If true that means that this CancelableDownload belongs to some kind of a batched request
+        // i.e. either thread media prefetch or gallery download
         val isPartOfBatchDownload: AtomicBoolean = AtomicBoolean(false)
 ) {
     private val state: AtomicReference<DownloadState> = AtomicReference(DownloadState.Running)
@@ -36,7 +41,12 @@ class CancelableDownload(
 
     @Synchronized
     fun forEachCallback(func: FileCacheListener.() -> Unit) {
-        callbacks.forEach { func(it) }
+        if (state.get() != DownloadState.Canceled) {
+            // Do not touch the callbacks when canceled because it will blow up everything since the
+            // view where this request was originated from is probably no longer exist. But it's
+            // fine to do this for Stopped state.
+            callbacks.forEach { func(it) }
+        }
     }
 
     @Synchronized
@@ -89,7 +99,7 @@ class CancelableDownload(
         if (isPartOfBatchDownload.get() && !canCancelBatchDownloads) {
             // When prefetching media in a thread and viewing images in the same thread at the
             // same time we may accidentally cancel a prefetch download which we don't want.
-            // We only want to cancel prefetch downloads when exiting a thread not when swiping
+            // We only want to cancel prefetch downloads when exiting a thread, not when swiping
             // through the images in the album viewer.
             return
         }
@@ -98,21 +108,30 @@ class CancelableDownload(
     }
 
     private fun dispose() {
-        // We need to cancel the network requests on a background thread.
-        // We also want it to be blocking.
+        // We need to cancel the network requests on a background thread because otherwise it will
+        // throw NetworkOnMainThread exception.
+        // We also want it to be blocking so that we won't end up in a race condition when you
+        // cancel a download and then start a new one with the same url right away. We need a little
+        // bit of time for it to get really canceled.
 
         requestCancellationThread.submit {
-            // This may deadlock, be careful (I haven't encountered a deadlock here yet, but
-            //  it's just a theoretical posibility)
-
             synchronized(this) {
                 // Cancel downloads
-                disposeFuncList.forEach { func -> func.invoke() }
+                disposeFuncList.forEach { func ->
+                    try {
+                        func.invoke()
+                    } catch (error: Throwable) {
+                        Logger.e(TAG, "Unhandled error in dispose function")
+                    }
+                }
+
                 disposeFuncList.clear()
             }
 
             Logger.d(TAG, "Cancelling file download request, url = $url")
-        }.get(MAX_CANCELLATION_WAIT_TIME_SECONDS, TimeUnit.SECONDS)
+        }
+        // We use timeout here just in case to not get deadlocked
+        .get(MAX_CANCELLATION_WAIT_TIME_SECONDS, TimeUnit.SECONDS)
     }
 
     companion object {

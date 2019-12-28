@@ -48,7 +48,6 @@ import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.MediaSourceCallback;
 import com.github.adamantcheese.chan.core.cache.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
-import com.github.adamantcheese.chan.core.cache.downloader.FileCacheException;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -333,7 +332,7 @@ public class MultiImageView
             return;
         }
 
-        bigImageRequest = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
+        bigImageRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, new FileCacheListener() {
 
             @Override
             public void onStart(int chunksCount) {
@@ -360,14 +359,17 @@ public class MultiImageView
             }
 
             @Override
+            public void onNotFound() {
+                BackgroundUtils.ensureMainThread();
+
+                onNotFoundError();
+            }
+
+            @Override
             public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
-                if (exception instanceof FileCacheException.FileNotFoundOnTheServerException) {
-                    onNotFoundError();
-                } else {
-                    onError(exception);
-                }
+                onError(exception);
             }
 
             @Override
@@ -392,7 +394,7 @@ public class MultiImageView
             return;
         }
 
-        gifRequest = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
+        gifRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, new FileCacheListener() {
 
             @Override
             public void onStart(int chunksCount) {
@@ -421,14 +423,17 @@ public class MultiImageView
             }
 
             @Override
+            public void onNotFound() {
+                BackgroundUtils.ensureMainThread();
+
+                onNotFoundError();
+            }
+
+            @Override
             public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
-                if (exception instanceof FileCacheException.FileNotFoundOnTheServerException) {
-                    onNotFoundError();
-                } else {
-                    onError(exception);
-                }
+                onError(exception);
             }
 
             @Override
@@ -530,7 +535,7 @@ public class MultiImageView
             return;
         }
 
-        videoRequest = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
+        videoRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, new FileCacheListener() {
 
             @Override
             public void onStart(int chunksCount) {
@@ -556,14 +561,17 @@ public class MultiImageView
             }
 
             @Override
+            public void onNotFound() {
+                BackgroundUtils.ensureMainThread();
+
+                onNotFoundError();
+            }
+
+            @Override
             public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
-                if (exception instanceof FileCacheException.FileNotFoundOnTheServerException) {
-                    onNotFoundError();
-                } else {
-                    onError(exception);
-                }
+                onError(exception);
             }
 
             @Override

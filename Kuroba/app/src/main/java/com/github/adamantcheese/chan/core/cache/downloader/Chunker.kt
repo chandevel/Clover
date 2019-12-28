@@ -26,4 +26,18 @@ fun chunkLong(value: Long, chunksCount: Int, minChunkSize: Long): List<Chunk> {
     return chunks
 }
 
-data class Chunk(val start: Long, val end: Long)
+data class Chunk(val start: Long, private val _end: Long) {
+    // Must be 1 less than actual _end
+    val end: Long
+        get() = _end - 1
+
+    fun isWholeFile(): Boolean {
+        return start == 0L && end == Long.MAX_VALUE
+    }
+
+    fun chunkSize(): Long = _end - start
+
+    companion object {
+        fun wholeFile(): Chunk = Chunk(0, Long.MAX_VALUE)
+    }
+}

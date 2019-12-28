@@ -27,6 +27,10 @@ public abstract class FileCacheListener {
 
     }
 
+    /**
+     * In case of the file being downloaded in chunks [chunkIndex] will be representing the chunk
+     * index. Otherwise it will always be 0.
+     * */
     public void onProgress(int chunkIndex, long downloaded, long total) {
     }
 
@@ -36,6 +40,10 @@ public abstract class FileCacheListener {
     public void onSuccess(RawFile file) {
     }
 
+    /**
+     * This is called when we got 404 status from the server. You must override this method because
+     * onFail won't be called!
+     * */
     public void onNotFound() {
 
     }
@@ -48,7 +56,9 @@ public abstract class FileCacheListener {
     }
 
     /**
-     * Called when the file download was stopped by WebmStreamingSource.
+     * Called when the file download was stopped by WebmStreamingSource. Right now this is only used
+     * for the WebmStreaming so there is no need to override this. But if you need to stop (not
+     * cancel) a download then you probably should override this.
      */
     public void onStop(RawFile file) {
 
@@ -62,7 +72,7 @@ public abstract class FileCacheListener {
 
     /**
      * When the download was ended, this is always called, when it failed, succeeded or was
-     * canceled.
+     * canceled/stopped.
      */
     public void onEnd() {
     }

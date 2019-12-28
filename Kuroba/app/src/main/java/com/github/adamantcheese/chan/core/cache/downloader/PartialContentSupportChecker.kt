@@ -48,12 +48,29 @@ internal class PartialContentSupportChecker(
 
             val disposeFunc = {
                 if (!call.isCanceled()) {
-                    log(TAG, "Disposing of HEAD request")
+                    log(TAG, "Disposing of HEAD request for url ($url)")
                     call.cancel()
                 }
             }
 
-            activeDownloads.addDisposeFunc(url, disposeFunc)
+            val downloadState = activeDownloads.addDisposeFunc(url, disposeFunc)
+            if (downloadState != DownloadState.Running) {
+                when (downloadState) {
+                    DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
+                    DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
+                    else -> {
+                        emitter.onError(
+                                RuntimeException("DownloadState must be either Stopped or Canceled")
+                        )
+                        return@create
+                    }
+                }
+
+                emitter.onError(
+                        FileCacheException.CancellationException(downloadState, url)
+                )
+                return@create
+            }
 
             call.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
@@ -71,19 +88,26 @@ internal class PartialContentSupportChecker(
                 }
             })
         }
-                // Some HEAD requests to 4chan may take a lot of time (up to 2 seconds) so if a
-                // request takes more than a second we assume that cloudflare doesn't have this
-                // file cached so we just download it normally without using Partial Content
-                .timeout(MAX_TIMEOUT_MS, TimeUnit.MILLISECONDS)
-                .onErrorReturn { error ->
-                    if (error !is TimeoutException) {
-                        throw error
-                    }
+        // Some HEAD requests to 4chan may take a lot of time (like 2 or more seconds) when a file
+        // is not cached by the cloudflare so if a request takes more than [MAX_TIMEOUT_MS]
+        // we assume that cloudflare doesn't have this file cached so we just download it normally
+        // without using Partial Content
+        .timeout(MAX_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        .onErrorReturn { error ->
+            if (error !is TimeoutException) {
+                throw error
+            }
 
-                    return@onErrorReturn PartialContentCheckResult(
-                            supportsPartialContentDownload = false
-                    )
-                }
+            val diff = System.currentTimeMillis() - startTime
+            log(TAG, "HEAD request took for url ($url) too much time, " +
+                    "canceled by timeout() operator, took = ${diff}ms")
+
+            // Do not cache this result because after this request the file should be cached by the
+            // cloudflare, so the next time we open it, it should load way faster
+            return@onErrorReturn PartialContentCheckResult(
+                    supportsPartialContentDownload = false
+            )
+        }
     }
 
     private fun handleResponse(
@@ -167,7 +191,7 @@ internal class PartialContentSupportChecker(
         private const val CF_CACHE_STATUS_HEADER = "CF-Cache-Status"
         private const val ACCEPT_RANGES_HEADER_VALUE = "bytes"
 
-        private const val NOT_FOUND_STATUS_CODE = 404
+        const val NOT_FOUND_STATUS_CODE = 404
         private const val MAX_TIMEOUT_MS = 1000L
     }
 

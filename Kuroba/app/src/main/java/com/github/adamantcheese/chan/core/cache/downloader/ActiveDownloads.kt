@@ -2,6 +2,9 @@ package com.github.adamantcheese.chan.core.cache.downloader
 
 import androidx.annotation.GuardedBy
 
+/**
+ * ThreadSafe
+ * */
 internal class ActiveDownloads {
 
     @GuardedBy("itself")
@@ -60,8 +63,8 @@ internal class ActiveDownloads {
         }
     }
 
-    fun addDisposeFunc(url: String, disposeFunc: () -> Unit) {
-        synchronized(activeDownloads) {
+    fun addDisposeFunc(url: String, disposeFunc: () -> Unit): DownloadState {
+        return synchronized(activeDownloads) {
             val state = activeDownloads[url]?.cancelableDownload?.getState()
                     ?: DownloadState.Canceled
 
@@ -69,12 +72,14 @@ internal class ActiveDownloads {
             // to cancel whatever it is
             if (state !is DownloadState.Running) {
                 disposeFunc.invoke()
-                return
+                return@synchronized state
             }
 
             activeDownloads[url]
                     ?.cancelableDownload
                     ?.addDisposeFuncList(disposeFunc)
+
+            return@synchronized state
         }
     }
 

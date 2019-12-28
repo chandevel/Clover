@@ -65,7 +65,7 @@ public class ImageViewerPresenter
      * We don't want to cancel an image right after we have started preloading it because it
      * sometimes causes weird bugs where you swipe to an already canceled image/webm and nothing
      * happens so you need to swipe back and forth for it to start loading.
-     * */
+     */
     private static final int CANCEL_IMAGE_INDEX = 2;
 
     private final Callback callback;
@@ -340,16 +340,19 @@ public class ImageViewerPresenter
             // Array to allow access from within the callback (the callback should really
             // pass the filecachedownloader itself).
             final CancelableDownload[] preloadDownload = new CancelableDownload[1];
-            preloadDownload[0] = fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, new FileCacheListener() {
-                @Override
-                public void onEnd() {
-                    BackgroundUtils.ensureMainThread();
+            preloadDownload[0] = fileCacheV2.enqueueChunkedDownloadFileRequest(
+                    loadable,
+                    postImage,
+                    new FileCacheListener() {
+                        @Override
+                        public void onEnd() {
+                            BackgroundUtils.ensureMainThread();
 
-                    if (preloadDownload[0] != null) {
-                        preloadingImages.remove(preloadDownload[0]);
-                    }
-                }
-            });
+                            if (preloadDownload[0] != null) {
+                                preloadingImages.remove(preloadDownload[0]);
+                            }
+                        }
+                    });
 
             if (preloadDownload[0] != null) {
                 preloadingImages.add(preloadDownload[0]);
@@ -384,7 +387,7 @@ public class ImageViewerPresenter
             if (nonCancelableImages.contains(downloader.getUrl())) {
                 Logger.d(TAG,
                         "Attempt to cancel non cancelable download for image with url: "
-                        + downloader.getUrl()
+                                + downloader.getUrl()
                 );
                 return false;
             }

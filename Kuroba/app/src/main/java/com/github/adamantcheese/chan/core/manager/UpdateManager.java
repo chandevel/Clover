@@ -30,6 +30,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.widget.Button;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 
@@ -40,6 +41,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
+import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
@@ -49,6 +51,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,6 +83,9 @@ public class UpdateManager {
 
     private ProgressDialog updateDownloadDialog;
     private Context context;
+
+    @Nullable
+    private CancelableDownload cancelableDownload;
 
     public UpdateManager(Context context) {
         inject(this);
@@ -256,12 +262,16 @@ public class UpdateManager {
     public void doUpdate(UpdateApiRequest.UpdateApiResponse response) {
         BackgroundUtils.ensureMainThread();
 
-        fileCacheV2.enqueueDownloadFileRequest(response.apkURL.toString(), new FileCacheListener() {
+        if (cancelableDownload != null) {
+            cancelableDownload.cancel();
+            cancelableDownload = null;
+        }
+
+        cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(response.apkURL.toString(), new FileCacheListener() {
             @Override
             public void onProgress(int chunkIndex, long downloaded, long total) {
                 BackgroundUtils.ensureMainThread();
 
-                // TODO(FileCacheV2): may not work
                 updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded / (double) total)));
             }
 
@@ -286,12 +296,24 @@ public class UpdateManager {
             }
 
             @Override
+            public void onNotFound() {
+                onFail(new IOException("Not found"));
+            }
+
+            @Override
             public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
+                String description = context.getString(
+                        R.string.update_install_download_failed_description,
+                        exception.getMessage()
+                );
+
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
-                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
+                new AlertDialog.Builder(context)
+                        .setTitle(R.string.update_install_download_failed)
+                        .setMessage(description)
                         .setPositiveButton(R.string.ok, null)
                         .show();
             }
@@ -355,5 +377,12 @@ public class UpdateManager {
                 );
             }
         });
+    }
+
+    public void onDestroy() {
+        if (cancelableDownload != null) {
+            cancelableDownload.cancel();
+            cancelableDownload = null;
+        }
     }
 }

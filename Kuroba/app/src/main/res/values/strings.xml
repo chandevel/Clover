@@ -114,6 +114,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_install_downloading">Downloading update…</string>
 
     <string name="update_install_download_failed">Download failed</string>
+    <string name="update_install_download_failed_description">Reason: %1$s</string>
 
     <string name="update_retry_title">Retry update</string>
 
@@ -664,7 +665,7 @@ Don't have a 4chan Pass?<br>
     <string name="setting_bookmark_short_info_description">Shorter information in the bookmark menu for unread and quoted posts</string>
     <string name="filter_removed_undo">Removed filter %1$s</string>
     <string name="image_url_get_attempt">Getting image from clipboard URL…</string>
-    <string name="image_url_get_failed">Failed to get image from clipboard</string>
+    <string name="image_url_get_failed">Failed to get image from clipboard, reason = %1$s</string>
     <string name="image_url_get_success">Got image from clipboard</string>
     <string name="setting_shift_post">Shift post format</string>
     <string name="setting_shift_post_description">Shift the comment of long posts to start below the thumbnail</string>

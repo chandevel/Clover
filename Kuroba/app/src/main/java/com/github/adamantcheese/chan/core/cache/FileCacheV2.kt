@@ -18,6 +18,7 @@ import com.github.k1rakishou.fsaf.file.FileSegment
 import com.github.k1rakishou.fsaf.file.RawFile
 import com.github.k1rakishou.fsaf.file.Segment
 import io.reactivex.Flowable
+import io.reactivex.exceptions.CompositeException
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
@@ -51,20 +52,9 @@ class FileCacheV2(
     private val normalRequestQueue = PublishProcessor.create<String>()
     private val batchRequestQueue = PublishProcessor.create<List<String>>()
 
-    private val threadsCount = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(3)
+    private val chunksCount = ChanSettings.concurrentFileDownloadingThreadCount.get()
+    private val threadsCount = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(4)
     private val requestCancellationThread = Executors.newSingleThreadExecutor()
-
-    private val partialContentSupportChecker = PartialContentSupportChecker(
-            okHttpClient,
-            activeDownloads
-    )
-    private val concurrentChunkedFileDownloader = ConcurrentChunkedFileDownloader(
-            okHttpClient,
-            fileManager,
-            ChanSettings.concurrentFileDownloadingThreadCount.get(),
-            activeDownloads,
-            cacheHandler
-    )
 
     private val threadIndex = AtomicInteger(0)
     private val workerScheduler = Schedulers.from(
@@ -74,6 +64,19 @@ class FileCacheV2(
                         String.format(THREAD_NAME_FORMAT, threadIndex.getAndIncrement())
                 )
             }
+    )
+
+    private val partialContentSupportChecker = PartialContentSupportChecker(
+            okHttpClient,
+            activeDownloads
+    )
+    private val concurrentChunkedFileDownloader = ConcurrentChunkedFileDownloader(
+            okHttpClient,
+            fileManager,
+            workerScheduler,
+            chunksCount,
+            activeDownloads,
+            cacheHandler
     )
 
     init {
@@ -157,6 +160,8 @@ class FileCacheV2(
                     url,
                     null,
                     file,
+                    // Always 1 for media prefetching
+                    chunksCount = 1,
                     isBatchDownload = true,
                     isPrefetch = true
             )
@@ -179,7 +184,7 @@ class FileCacheV2(
         return cancelableDownloads
     }
 
-    fun enqueueDownloadFileRequest(
+    fun enqueueChunkedDownloadFileRequest(
             loadable: Loadable,
             postImage: PostImage,
             callback: FileCacheListener?
@@ -187,14 +192,31 @@ class FileCacheV2(
         return enqueueDownloadFileRequest(
                 loadable,
                 postImage,
+                threadsCount,
                 false,
                 callback
         )
     }
 
-    fun enqueueDownloadFileRequest(
+    fun enqueueNormalDownloadFileRequest(
             loadable: Loadable,
             postImage: PostImage,
+            isBatchDownload: Boolean,
+            callback: FileCacheListener?
+    ): CancelableDownload? {
+        return enqueueDownloadFileRequest(
+                loadable,
+                postImage,
+                1,
+                isBatchDownload,
+                callback
+        )
+    }
+
+    private fun enqueueDownloadFileRequest(
+            loadable: Loadable,
+            postImage: PostImage,
+            chunksCount: Int,
             isBatchDownload: Boolean,
             callback: FileCacheListener?
     ): CancelableDownload? {
@@ -220,18 +242,26 @@ class FileCacheV2(
             }
         }
 
-        return enqueueDownloadFileRequest(url, isBatchDownload, callback)
+        return enqueueDownloadFileRequest(url, chunksCount, isBatchDownload, callback)
     }
 
-    fun enqueueDownloadFileRequest(
+    fun enqueueChunkedDownloadFileRequest(
             url: String,
             callback: FileCacheListener?
     ): CancelableDownload? {
-        return enqueueDownloadFileRequest(url, false, callback)
+        return enqueueDownloadFileRequest(url, threadsCount, false, callback)
+    }
+
+    fun enqueueNormalDownloadFileRequest(
+            url: String,
+            callback: FileCacheListener?
+    ): CancelableDownload? {
+        return enqueueDownloadFileRequest(url, 1, false, callback)
     }
 
     private fun enqueueDownloadFileRequest(
             url: String,
+            chunksCount: Int,
             isBatchDownload: Boolean,
             callback: FileCacheListener?
     ): CancelableDownload? {
@@ -247,6 +277,7 @@ class FileCacheV2(
                 url,
                 callback,
                 file,
+                chunksCount = chunksCount,
                 isBatchDownload = isBatchDownload,
                 isPrefetch = false
         )
@@ -291,9 +322,15 @@ class FileCacheV2(
             url: String,
             callback: FileCacheListener?,
             file: RawFile,
+            chunksCount: Int,
             isBatchDownload: Boolean,
             isPrefetch: Boolean
     ): Pair<Boolean, CancelableDownload> {
+        if (chunksCount > 1 && (isBatchDownload || isPrefetch)) {
+            throw IllegalArgumentException("Cannot download file in chunks for media " +
+                    "prefetching or gallery downloading!")
+        }
+
         return synchronized(activeDownloads) {
             if (activeDownloads.containsKey(url)) {
                 val prevRequest = checkNotNull(activeDownloads.get(url)) {
@@ -324,6 +361,7 @@ class FileCacheV2(
             val request = FileDownloadRequest(
                     url,
                     file,
+                    chunksCount,
                     AtomicLong(0L),
                     AtomicLong(0L),
                     cancelableDownload
@@ -531,16 +569,18 @@ class FileCacheV2(
                         result.chunkSize
                     }
 
-                    val percents = (result.downloaded.toFloat() / chunkSize.toFloat()) * 100f
-                    val downloadedString = PostUtils.getReadableFileSize(result.downloaded)
-                    val totalString = PostUtils.getReadableFileSize(chunkSize)
+                    if (ChanSettings.verboseLogs.get()) {
+                        val percents = (result.downloaded.toFloat() / chunkSize.toFloat()) * 100f
+                        val downloadedString = PostUtils.getReadableFileSize(result.downloaded)
+                        val totalString = PostUtils.getReadableFileSize(chunkSize)
 
-                    log(TAG,
-                            "Progress " +
-                            "chunkIndex = ${result.chunkIndex}, downloaded: (${downloadedString}) " +
-                            "(${result.downloaded} B) / ${totalString} (${chunkSize} B), " +
-                            "${percents}%) for request ${request}"
-                    )
+                        log(TAG,
+                                "Progress " +
+                                "chunkIndex = ${result.chunkIndex}, downloaded: (${downloadedString}) " +
+                                "(${result.downloaded} B) / ${totalString} (${chunkSize} B), " +
+                                "${percents}%) for request ${request}"
+                        )
+                    }
 
                     // Progress is not a terminal event so we don't want to remove request from the
                     // activeDownloads
@@ -567,7 +607,7 @@ class FileCacheV2(
                     val isCanceled = when (result) {
                         is FileDownloadResult.Canceled -> true
                         is FileDownloadResult.Stopped -> false
-                        else -> throw RuntimeException("Not implemented for ${result}")
+                        else -> throw RuntimeException("Must be either Canceled or Stopped")
                     }
 
                     val causeText = if (isCanceled) {
@@ -621,11 +661,7 @@ class FileCacheV2(
                     }
                 }
                 is FileDownloadResult.UnknownException -> {
-                    val message = "Unknown exception, " +
-                            "class = ${result.error.javaClass.name}, " +
-                            "message = ${result.error.message}"
-
-                    logError(TAG, message)
+                    val message = logErrorsAndExtractErrorMessage(result.error)
 
                     resultHandler(url, request, true) {
                         onFail(IOException(message))
@@ -635,6 +671,29 @@ class FileCacheV2(
             }.exhaustive
         } catch (error: Throwable) {
             Logger.e(TAG, "An error in result handler", error)
+        }
+    }
+
+    private fun logErrorsAndExtractErrorMessage(
+            error: Throwable
+    ): String {
+        return if (error is CompositeException) {
+            val sb = StringBuilder()
+
+            for ((index, exception) in error.exceptions.withIndex()) {
+                sb.append(
+                        "Unknown exception ($index), " +
+                                "class = ${exception.javaClass.name}, " +
+                                "message = ${exception.message}"
+                ).append("; ")
+            }
+
+            sb.toString()
+        } else {
+            val msg = "Unknown exception, class = ${error.javaClass.name}, message = ${error.message}"
+            logError(TAG, msg)
+
+            msg
         }
     }
 
@@ -708,7 +767,21 @@ class FileCacheV2(
                 }
     }
 
-    private fun processErrors(error: Throwable): FileDownloadResult? {
+    private fun processErrors(throwable: Throwable): FileDownloadResult? {
+        val error = if (throwable is CompositeException) {
+            require(throwable.exceptions.size > 0) {
+                "Got CompositeException without exceptions!"
+            }
+
+            if (throwable.exceptions.size == 1) {
+                throwable.exceptions.first()
+            } else {
+                extractErrorFromCompositeException(throwable.exceptions)
+            }
+        } else {
+            throwable
+        }
+
         if (error is FileCacheException.CancellationException) {
             return when (error.state) {
                 DownloadState.Running -> {
@@ -728,6 +801,27 @@ class FileCacheV2(
         }
 
         return FileDownloadResult.UnknownException(error)
+    }
+
+    private fun extractErrorFromCompositeException(exceptions: List<Throwable>): Throwable {
+        val cancellationException = exceptions.firstOrNull { exception ->
+            exception is FileCacheException.CancellationException
+        }
+
+        if (cancellationException != null) {
+            return cancellationException
+        }
+
+        if (exceptions.all { it is FileCacheException.CancellationException }) {
+            return exceptions.first()
+        }
+
+        for (exception in exceptions) {
+            Logger.e(TAG, "Composite exception error: " +
+                    "${exception.javaClass.name}, message: ${exception.message}")
+        }
+
+        return exceptions.first()
     }
 
     private fun purgeOutput(url: String, output: RawFile) {

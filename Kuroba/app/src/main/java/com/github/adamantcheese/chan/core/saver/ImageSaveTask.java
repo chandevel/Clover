@@ -111,7 +111,12 @@ public class ImageSaveTask
                 // Manually call postFinished()
                 postFinished(success);
             } else {
-                fileCacheV2.enqueueDownloadFileRequest(loadable, postImage, isBatchDownload, this);
+                fileCacheV2.enqueueNormalDownloadFileRequest(
+                        loadable,
+                        postImage,
+                        isBatchDownload,
+                        this
+                );
             }
         } catch (Exception e) {
             Logger.e(TAG, "Uncaught exception", e);
