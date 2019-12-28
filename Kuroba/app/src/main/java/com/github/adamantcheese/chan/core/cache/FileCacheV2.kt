@@ -74,12 +74,14 @@ class FileCacheV2(
             okHttpClient,
             fileManager,
             workerScheduler,
-            chunksCount,
             activeDownloads,
             cacheHandler
     )
 
     init {
+        require(chunksCount > 0) { "Chunks count is zero or less ${chunksCount}" }
+        log(TAG, "chunksCount = $chunksCount")
+
         initNormalRxWorkerQueue()
         initBatchRequestQueue()
     }
@@ -192,7 +194,7 @@ class FileCacheV2(
         return enqueueDownloadFileRequest(
                 loadable,
                 postImage,
-                threadsCount,
+                chunksCount,
                 false,
                 callback
         )
@@ -249,7 +251,7 @@ class FileCacheV2(
             url: String,
             callback: FileCacheListener?
     ): CancelableDownload? {
-        return enqueueDownloadFileRequest(url, threadsCount, false, callback)
+        return enqueueDownloadFileRequest(url, chunksCount, false, callback)
     }
 
     fun enqueueNormalDownloadFileRequest(

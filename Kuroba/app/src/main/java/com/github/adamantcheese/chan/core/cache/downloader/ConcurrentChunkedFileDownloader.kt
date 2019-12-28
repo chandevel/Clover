@@ -25,15 +25,9 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
         private val okHttpClient: OkHttpClient,
         private val fileManager: FileManager,
         private val workerScheduler: Scheduler,
-        private val downloadChunksCount: Int,
         activeDownloads: ActiveDownloads,
         cacheHandler: CacheHandler
 ) : FileDownloader(activeDownloads, cacheHandler) {
-
-    init {
-        require(downloadChunksCount > 0) { "Chunks count is zero or less ${downloadChunksCount}" }
-        log(TAG, "chunksCount = $downloadChunksCount")
-    }
 
     override fun download(
             partialContentCheckResult: PartialContentCheckResult,
@@ -52,10 +46,14 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
         // We can't use Partial Content if we don't know the file size
         val chunksCount = if (chunked && partialContentCheckResult.couldDetermineFileSize()) {
-            downloadChunksCount
+            activeDownloads.get(url)
+                    ?.chunksCount
+                    ?: throwCancellationException(url)
         } else {
             1
         }
+
+        check(chunksCount >= 1) { "Chunks count is less than 1 = $chunksCount" }
 
         // Split the whole file size into chunks
         val chunks = if (chunksCount > 1) {
