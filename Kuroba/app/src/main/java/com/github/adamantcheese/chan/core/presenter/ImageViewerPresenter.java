@@ -80,7 +80,7 @@ public class ImageViewerPresenter
     private List<PostImage> images;
     private Map<Integer, List<Float>> progress;
     private int selectedPosition = 0;
-    private boolean swipingForward = false;
+    private SwipeDirection swipeDirection = SwipeDirection.Default;
     private Loadable loadable;
 
     private Set<CancelableDownload> preloadingImages = new HashSet<>();
@@ -180,9 +180,15 @@ public class ImageViewerPresenter
             return;
         }
 
-        swipingForward = position >= selectedPosition;
-        selectedPosition = position;
+        if (position == selectedPosition) {
+            swipeDirection = SwipeDirection.Default;
+        } else if (position > selectedPosition) {
+            swipeDirection = SwipeDirection.Forward;
+        } else {
+            swipeDirection = SwipeDirection.Backward;
+        }
 
+        selectedPosition = position;
         onPageSwipedTo(position);
     }
 
@@ -249,9 +255,9 @@ public class ImageViewerPresenter
             nonCancelableImages.addAll(getNonCancelableImages(position));
         }
 
-        if (swipingForward) {
+        if (swipeDirection == SwipeDirection.Forward) {
             cancelPreviousFromStartImageDownload(position);
-        } else {
+        } else if (swipeDirection == SwipeDirection.Backward) {
             cancelPreviousFromEndImageDownload(position);
         }
 
@@ -278,9 +284,9 @@ public class ImageViewerPresenter
             }
         }
 
-        if (swipingForward) {
+        if (swipeDirection == SwipeDirection.Forward) {
             preloadNext();
-        } else {
+        } else if (swipeDirection == SwipeDirection.Backward) {
             preloadPrevious();
         }
     }
@@ -556,6 +562,12 @@ public class ImageViewerPresenter
             other.add(images.get(position + 1));
         }
         return other;
+    }
+
+    private enum SwipeDirection {
+        Default,
+        Forward,
+        Backward
     }
 
     public interface Callback {

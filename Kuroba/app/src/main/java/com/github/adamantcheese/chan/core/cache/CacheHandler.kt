@@ -130,8 +130,17 @@ class CacheHandler(
         }
     }
 
+    fun getChunkCacheFileOrNull(chunkStart: Long, chunkEnd: Long, url: String): RawFile? {
+        val chunkCacheFile = getChunkCacheFileInternal(chunkStart, chunkEnd, url)
+
+        if (fileManager.exists(chunkCacheFile)) {
+            return chunkCacheFile
+        }
+
+        return null
+    }
+
     fun getOrCreateChunkCacheFile(chunkStart: Long, chunkEnd: Long, url: String): RawFile? {
-        createDirectories()
         val chunkCacheFile = getChunkCacheFileInternal(chunkStart, chunkEnd, url)
 
         if (fileManager.exists(chunkCacheFile)) {
@@ -517,14 +526,14 @@ class CacheHandler(
     private fun getCacheFileInternal(url: String): RawFile {
         createDirectories()
 
-        val fileName = formatCacheFileName(url.hashCode().toString())
+        val fileName = formatCacheFileName(hashUrl(url))
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
     private fun getChunkCacheFileInternal(chunkStart: Long, chunkEnd: Long, url: String): RawFile {
         createDirectories()
 
-        val fileName = formatChunkCacheFileName(chunkStart, chunkEnd, url.hashCode().toString())
+        val fileName = formatChunkCacheFileName(chunkStart, chunkEnd, hashUrl(url))
         return chunksCacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
@@ -534,6 +543,10 @@ class CacheHandler(
         // AbstractFile expects all file names to have extensions
         val fileName = formatCacheFileMetaName(key.hashCode().toString())
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
+    }
+
+    private fun hashUrl(url: String): String {
+        return url.hashCode().toString()
     }
 
     private fun formatChunkCacheFileName(

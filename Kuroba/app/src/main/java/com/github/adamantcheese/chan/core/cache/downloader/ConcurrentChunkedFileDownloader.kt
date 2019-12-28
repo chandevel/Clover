@@ -10,12 +10,12 @@ import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
+import io.reactivex.FlowableEmitter
 import io.reactivex.Scheduler
 import okhttp3.*
 import okhttp3.internal.closeQuietly
 import okio.*
 import java.io.IOException
-import java.io.OutputStream
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -100,8 +100,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
         val startTime = System.currentTimeMillis()
         val canceled = AtomicBoolean(false)
-        // To avoid CompositeExceptions
-        val exceptionPassedInfoEmitter = AtomicBoolean(false)
 
         if (partialContentCheckResult.couldDetermineFileSize()) {
             activeDownloads.updateTotalLength(url, partialContentCheckResult.length)
@@ -109,6 +107,8 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
         val totalDownloaded = AtomicLong(0L)
         val chunkIndex = AtomicInteger(0)
+
+        activeDownloads.addChunks(url, chunks)
 
         val downloadedChunks = Flowable.fromIterable(chunks)
                 .subscribeOn(workerScheduler)
@@ -119,7 +119,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                             totalDownloaded,
                             chunkIndex.getAndIncrement(),
                             canceled,
-                            exceptionPassedInfoEmitter,
                             chunk,
                             chunks.size
                     )
@@ -221,7 +220,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             totalDownloaded: AtomicLong,
             chunkIndex: Int,
             canceled: AtomicBoolean,
-            exceptionPassedInfoEmitter: AtomicBoolean,
             chunk: Chunk,
             totalChunksCount: Int
     ): Flowable<ChunkDownloadEvent> {
@@ -249,23 +247,22 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                             totalDownloaded,
                             chunkIndex,
                             totalChunksCount,
-                            canceled,
-                            exceptionPassedInfoEmitter
+                            canceled
                     )
-                    // Retry on IO error mechanism. Apply it to each chunk individually
-                    // instead of applying it to all chunks. Do not use it if the exception
-                    // is CancellationException
-                    .retry(MAX_RETRIES) { error ->
-                        val retry = error !is FileCacheException.CancellationException
-                                && error is IOException
+                }
+                // Retry on IO error mechanism. Apply it to each chunk individually
+                // instead of applying it to all chunks. Do not use it if the exception
+                // is CancellationException
+                .retry(MAX_RETRIES) { error ->
+                    val retry = error !is FileCacheException.CancellationException
+                            && error is IOException
 
-                        if (retry) {
-                            log(TAG, "Retrying request with url ${url}, " +
-                                    "error = ${error.javaClass.simpleName}")
-                        }
-
-                        retry
+                    if (retry) {
+                        log(TAG, "Retrying chunk ($chunk) for url ${url}, " +
+                                "error = ${error.javaClass.simpleName}, msg = ${error.message}")
                     }
+
+                    retry
                 }
     }
 
@@ -317,9 +314,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             } finally {
                 // In case of success or an error we want delete all chunk files
                 chunkSuccessEvents.forEach { event ->
-                    if (!fileManager.delete(event.chunkCacheFile)) {
-                        logError(TAG, "Couldn't delete chunk file: ${event.chunkCacheFile.getFullPath()}")
-                    }
+                    deleteChunkFile(event.chunkCacheFile)
                 }
             }
 
@@ -331,54 +326,41 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
         }
     }
 
+    private fun deleteChunkFile(chunkFile: RawFile) {
+        if (!fileManager.delete(chunkFile)) {
+            logError(TAG, "Couldn't delete chunk file: ${chunkFile.getFullPath()}")
+        }
+    }
+
     private fun pipeChunk(
             url: String,
             chunkResponse: ChunkResponse,
             totalDownloaded: AtomicLong,
             chunkIndex: Int,
             totalChunksCount: Int,
-            canceled: AtomicBoolean,
-            exceptionPassedInfoEmitter: AtomicBoolean
+            canceled: AtomicBoolean
     ): Flowable<ChunkDownloadEvent> {
         return Flowable.create<ChunkDownloadEvent>({ emitter ->
             BackgroundUtils.ensureBackgroundThread()
-
-            if (ChanSettings.verboseLogs.get()) {
-                log(TAG, "pipeChunk($chunkIndex) ($url) called for chunk " +
-                        "${chunkResponse.chunk.start}..${chunkResponse.chunk.end}")
-            }
-
-            if (chunkResponse.chunk.isWholeFile() && totalChunksCount > 1) {
-                throw IllegalStateException("pipeChunk($chunkIndex) Bad amount of chunks, " +
-                        "should be only one but actual = $totalChunksCount")
-            }
-
-            var cachedOutputStream: OutputStream? = null
-            var cachedSink: Sink? = null
-            var cachedBufferedSink: BufferedSink? = null
-            var cachedResponseBody: ResponseBody? = null
-            var cachedResponse: Response? = null
-            var cachedBufferedSource: BufferedSource? = null
-            var chunkCacheFile: RawFile? = null
-
-            var downloaded = 0L
-            var read = 0L
-            var notifyTotal = 0L
-            var chunkSize = 0L
+            val chunk = chunkResponse.chunk
 
             try {
-                val responseBody = chunkResponse
-                        .response.also { cachedResponse = it }
-                        .body?.also { cachedResponseBody = it }
-                        ?: throw FileCacheException.NoResponseBodyException()
+                log(TAG,
+                        "pipeChunk($chunkIndex) ($url) called for chunk ${chunk.start}..${chunk.end}"
+                )
+
+                if (chunk.isWholeFile() && totalChunksCount > 1) {
+                    throw IllegalStateException("pipeChunk($chunkIndex) Bad amount of chunks, " +
+                            "should be only one but actual = $totalChunksCount")
+                }
 
                 if (!chunkResponse.response.isSuccessful) {
                     throw FileCacheException.HttpCodeException(chunkResponse.response.code)
                 }
 
-                chunkCacheFile = cacheHandler.getOrCreateChunkCacheFile(
-                        chunkResponse.chunk.start,
-                        chunkResponse.chunk.end,
+                val chunkCacheFile = cacheHandler.getOrCreateChunkCacheFile(
+                        chunk.start,
+                        chunk.end,
                         url
                 )
 
@@ -386,131 +368,170 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     throw IOException("Couldn't create chunk cache file")
                 }
 
-                chunkSize = responseBody.contentLength()
-                if (chunkSize <= 0L) {
-                    throw IOException("Unknown response body size, chunkSize = $chunkSize")
-                }
+                try {
+                    chunkResponse.response.useAsResponseBody { responseBody ->
+                        val chunkSize = responseBody.contentLength()
+                        if (chunkSize <= 0L) {
+                            throw IOException("Unknown response body size, chunkSize = $chunkSize")
+                        }
 
-                if (totalChunksCount == 1) {
-                    activeDownloads.updateTotalLength(url, chunkSize)
-                }
+                        responseBody.source().use { bufferedSource ->
+                            if (!bufferedSource.isOpen) {
+                                throwCancellationException(url)
+                            }
 
-                val buffer = Buffer()
-                val notifySize = chunkSize / 10
-                val source = responseBody.source().also { cachedBufferedSource = it }
+                            if (totalChunksCount == 1) {
+                                activeDownloads.updateTotalLength(url, chunkSize)
+                            }
 
-                if (!source.isOpen) {
-                    throwCancellationException(url)
-                }
-
-                val sink = fileManager.getOutputStream(chunkCacheFile)
-                        ?.also { cachedOutputStream = it }
-                        ?.sink()
-                        ?.also { cachedSink = it }
-                        ?.buffer()
-                        ?.also { cachedBufferedSink = it }
-
-                if (sink == null) {
-                    val fileExists = fileManager.exists(chunkCacheFile)
-                    val isFile = fileManager.exists(chunkCacheFile)
-                    val canWrite = fileManager.exists(chunkCacheFile)
-
-                    throw FileCacheException.CouldNotGetOutputStreamException(
-                            chunkCacheFile.getFullPath(),
-                            fileExists,
-                            isFile,
-                            canWrite
-                    )
-                }
-
-                while (true) {
-                    if (canceled.get()) {
-                        throwCancellationException(url)
-                    }
-
-                    if (isRequestStoppedOrCanceled(url)) {
-                        throwCancellationException(url)
-                    }
-
-                    read = source.read(buffer, BUFFER_SIZE)
-                    if (read == -1L) {
-                        break
-                    }
-
-                    sink.write(buffer, read)
-
-                    downloaded += read
-                    val total = totalDownloaded.addAndGet(read)
-                    activeDownloads.updateDownloaded(url, total)
-
-                    if (downloaded >= notifyTotal + notifySize) {
-                        notifyTotal = downloaded
-
-                        emitter.onNext(
-                                ChunkDownloadEvent.Progress(
+                            chunkCacheFile.useAsBufferedSink { bufferedSink ->
+                                readBodyLoop(
+                                        chunkSize,
+                                        canceled,
+                                        url,
+                                        bufferedSource,
+                                        bufferedSink,
+                                        totalDownloaded,
+                                        emitter,
                                         chunkIndex,
-                                        downloaded,
-                                        chunkSize
+                                        chunkCacheFile,
+                                        chunk
                                 )
-                        )
+                            }
+                        }
                     }
+                } catch (error: Throwable) {
+                    deleteChunkFile(chunkCacheFile)
+                    throw error
                 }
-
-                sink.flush()
-
-                // So that we have 100% progress for every chunk
-                emitter.onNext(
-                        ChunkDownloadEvent.Progress(
-                                chunkIndex,
-                                chunkSize,
-                                chunkSize
-                        )
-                )
-
-                if (downloaded != chunkSize) {
-                    logError(TAG, "downloaded (${downloaded}) != chunkSize (${chunkSize})")
-                    throwCancellationException(url)
-                }
-
-                emitter.onNext(
-                        ChunkDownloadEvent.ChunkSuccess(
-                                chunkCacheFile,
-                                chunkResponse.chunk
-                        )
-                )
-                emitter.onComplete()
             } catch (error: Throwable) {
-                canceled.set(true)
-                activeDownloads.get(url)?.cancelableDownload?.cancel()
-
-                if (chunkCacheFile != null) {
-                    if (!fileManager.delete(chunkCacheFile)) {
-                        logError(TAG, "Couldn't delete chunk file: ${chunkCacheFile.getFullPath()}")
-                    }
+                if (totalChunksCount > 1 && error !is IOException) {
+                    canceled.set(true)
+                    activeDownloads.get(url)?.cancelableDownload?.cancel()
                 }
 
-                if (exceptionPassedInfoEmitter.compareAndSet(false, true)) {
-                    emitter.tryOnError(error)
-                } else {
-                    // Just ignore any other exceptions after passing the first one into the emitter
-                    // and replace them with CancellationException
-                    emitter.tryOnError(
-                            FileCacheException.CancellationException(getState(url), url)
-                    )
-                }
-
-                log(TAG, "pipeChunk($chunkIndex) ($url) canceled for chunk " +
-                        "${chunkResponse.chunk.start}..${chunkResponse.chunk.end}, " +
-                        "downloaded = $downloaded, out of $chunkSize")
-            } finally {
-                cachedOutputStream?.closeQuietly()
-                cachedSink?.closeQuietly()
-                cachedBufferedSink?.closeQuietly()
-                cachedResponseBody?.closeQuietly()
-                cachedBufferedSource?.closeQuietly()
-                cachedResponse?.closeQuietly()
+                emitter.tryOnError(error)
+                log(TAG, "pipeChunk($chunkIndex) ($url) fail for chunk ${chunk.start}..${chunk.end}")
             }
         }, BackpressureStrategy.BUFFER)
+    }
+
+    private fun Response.useAsResponseBody(func: (ResponseBody) -> Unit) {
+        this.use { response ->
+            response.body?.use { responseBody ->
+                func(responseBody)
+            } ?: throw IOException("ResponseBody is null")
+        }
+    }
+
+    private fun RawFile.useAsBufferedSink(func: (BufferedSink) -> Unit) {
+        val outputStream = fileManager.getOutputStream(this)
+        if (outputStream == null) {
+            val fileExists = fileManager.exists(this)
+            val isFile = fileManager.exists(this)
+            val canWrite = fileManager.exists(this)
+
+            throw FileCacheException.CouldNotGetOutputStreamException(
+                    this.getFullPath(),
+                    fileExists,
+                    isFile,
+                    canWrite
+            )
+        }
+
+        outputStream.sink().use { sink ->
+            sink.buffer().use { bufferedSink ->
+                func(bufferedSink)
+            }
+        }
+    }
+
+    private fun readBodyLoop(
+            chunkSize: Long,
+            canceled: AtomicBoolean,
+            url: String,
+            bufferedSource: BufferedSource,
+            bufferedSink: BufferedSink,
+            totalDownloaded: AtomicLong,
+            emitter: FlowableEmitter<ChunkDownloadEvent>,
+            chunkIndex: Int,
+            chunkCacheFile: RawFile,
+            chunk: Chunk
+    ) {
+        var downloaded = 0L
+        var notifyTotal = 0L
+        var read = 0L
+        val buffer = Buffer()
+        val notifySize = chunkSize / 10
+
+        try {
+            if (chunkSize <= 0) {
+                throw IOException("chunkSize <= 0 ($chunkSize)")
+            }
+
+            while (true) {
+                if (canceled.get()) {
+                    throwCancellationException(url)
+                }
+
+                if (isRequestStoppedOrCanceled(url)) {
+                    throwCancellationException(url)
+                }
+
+                read = bufferedSource.read(buffer, BUFFER_SIZE)
+                if (read == -1L) {
+                    break
+                }
+
+                bufferedSink.write(buffer, read)
+
+                downloaded += read
+                val total = totalDownloaded.addAndGet(read)
+                activeDownloads.updateDownloaded(url, total)
+
+                if (downloaded >= notifyTotal + notifySize) {
+                    notifyTotal = downloaded
+
+                    emitter.onNext(
+                            ChunkDownloadEvent.Progress(
+                                    chunkIndex,
+                                    downloaded,
+                                    chunkSize
+                            )
+                    )
+                }
+            }
+
+            bufferedSink.flush()
+
+            // So that we have 100% progress for every chunk
+            emitter.onNext(
+                    ChunkDownloadEvent.Progress(
+                            chunkIndex,
+                            chunkSize,
+                            chunkSize
+                    )
+            )
+
+            if (downloaded != chunkSize) {
+                logError(TAG, "downloaded (${downloaded}) != chunkSize (${chunkSize})")
+                throwCancellationException(url)
+            }
+
+            emitter.onNext(
+                    ChunkDownloadEvent.ChunkSuccess(
+                            chunkCacheFile,
+                            chunk
+                    )
+            )
+            emitter.onComplete()
+
+            log(TAG,
+                    "pipeChunk($chunkIndex) ($url) SUCCESS for chunk ${chunk.start}..${chunk.end}"
+            )
+        } finally {
+            buffer.closeQuietly()
+        }
     }
 
     /**
@@ -536,9 +557,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     "should be only one but actual = $totalChunksCount")
         }
 
-        if (ChanSettings.verboseLogs.get()) {
-            log(TAG, "Starting downloading ($url), chunk ${chunk.start}..${chunk.end}")
-        }
+        log(TAG, "Start downloading ($url), chunk ${chunk.start}..${chunk.end}")
 
         val builder = Request.Builder()
                 .url(url)
@@ -595,6 +614,12 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
             call.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
+                    val diff = System.currentTimeMillis() - startTime
+                    log(TAG,
+                            "Couldn't get chunk response, reason = ${e.javaClass.simpleName}" +
+                            " ($url) ${chunk.start}..${chunk.end}, time = ${diff}ms"
+                    )
+
                     if (!isCancellationError(e)) {
                         emitter.tryOnError(e)
                     } else {
@@ -605,10 +630,8 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    if (ChanSettings.verboseLogs.get()) {
-                        val diff = System.currentTimeMillis() - startTime
-                        log(TAG, "Chunk downloaded ($url) ${chunk.start}..${chunk.end} in ${diff}ms")
-                    }
+                    val diff = System.currentTimeMillis() - startTime
+                    log(TAG, "Got chunk response in ($url) ${chunk.start}..${chunk.end} in ${diff}ms")
 
                     emitter.onNext(response)
                     emitter.onComplete()

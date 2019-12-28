@@ -5,6 +5,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheV2
 import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
 import com.github.adamantcheese.chan.core.di.NetModule
 import com.github.adamantcheese.chan.core.settings.ChanSettings
+import com.github.adamantcheese.chan.utils.Logger
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
 import okhttp3.*
@@ -34,6 +35,8 @@ internal class PartialContentSupportChecker(
         if (cached != null) {
             return Single.just(cached)
         }
+
+        Logger.d(TAG, "Sending HEAD request to url ($url)")
 
         val headRequest = Request.Builder()
                 .head()
@@ -107,6 +110,15 @@ internal class PartialContentSupportChecker(
             return@onErrorReturn PartialContentCheckResult(
                     supportsPartialContentDownload = false
             )
+        }
+        .doOnSuccess {
+            val diff = System.currentTimeMillis() - startTime
+            Logger.d(TAG, "HEAD request to url ($url) has succeeded, time = ${diff}ms")
+        }
+        .doOnError { error ->
+            val diff = System.currentTimeMillis() - startTime
+            Logger.e(TAG, "HEAD request to url ($url) has failed " +
+                    "because of ${error.javaClass.name} exception, time = ${diff}ms")
         }
     }
 

@@ -715,8 +715,27 @@ class FileCacheV2(
             }
         } finally {
             if (isTerminalEvent) {
+                removeChunksFromDisk(url)
                 request.cancelableDownload.clearCallbacks()
                 activeDownloads.remove(url)
+            }
+        }
+    }
+
+    private fun removeChunksFromDisk(url: String) {
+        val chunks = activeDownloads.getChunks(url)
+        if (chunks.isEmpty()) {
+            return
+        }
+
+        for (chunk in chunks) {
+            val chunkFile = cacheHandler.getChunkCacheFileOrNull(chunk.start, chunk.end, url)
+                    ?: continue
+
+            if (fileManager.delete(chunkFile)) {
+                log(TAG, "Deleted chunk file ${chunkFile.getFullPath()}")
+            } else {
+                logError(TAG, "Couldn't delete chunk file ${chunkFile.getFullPath()}")
             }
         }
     }
@@ -757,6 +776,7 @@ class FileCacheV2(
         }
 
         return partialContentSupportChecker.check(url)
+                .observeOn(workerScheduler)
                 .toFlowable()
                 .flatMap { result ->
                     if (result.notFoundOnServer) {

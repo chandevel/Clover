@@ -4,6 +4,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheDataSource
 import com.github.adamantcheese.chan.core.cache.FileCacheListener
 import com.github.adamantcheese.chan.core.cache.WebmStreamingSource
 import com.github.adamantcheese.chan.utils.Logger
+import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -20,7 +21,7 @@ class CancelableDownload(
         val isPartOfBatchDownload: AtomicBoolean = AtomicBoolean(false)
 ) {
     private val state: AtomicReference<DownloadState> = AtomicReference(DownloadState.Running)
-    private val callbacks: MutableSet<FileCacheListener> = mutableSetOf()
+    private val callbacks: MutableSet<WeakReference<FileCacheListener>> = mutableSetOf()
     /**
      * This callbacks are used to cancel a lot of things like the HEAD request, the get response
      * body request and response body read loop.
@@ -36,16 +37,13 @@ class CancelableDownload(
             return
         }
 
-        callbacks.add(callback)
+        callbacks.add(WeakReference(callback))
     }
 
     @Synchronized
     fun forEachCallback(func: FileCacheListener.() -> Unit) {
-        if (state.get() != DownloadState.Canceled) {
-            // Do not touch the callbacks when canceled because it will blow up everything since the
-            // view where this request was originated from is probably no longer exist. But it's
-            // fine to do this for Stopped state.
-            callbacks.forEach { func(it) }
+        callbacks.forEach { callbackRef ->
+            callbackRef.get()?.let { callback -> func(callback) }
         }
     }
 
@@ -114,28 +112,33 @@ class CancelableDownload(
         // cancel a download and then start a new one with the same url right away. We need a little
         // bit of time for it to get really canceled.
 
-        requestCancellationThread.submit {
-            synchronized(this) {
-                // Cancel downloads
-                disposeFuncList.forEach { func ->
-                    try {
-                        func.invoke()
-                    } catch (error: Throwable) {
-                        Logger.e(TAG, "Unhandled error in dispose function")
+        try {
+            requestCancellationThread.submit {
+                synchronized(this) {
+                    // Cancel downloads
+                    disposeFuncList.forEach { func ->
+                        try {
+                            func.invoke()
+                        } catch (error: Throwable) {
+                            Logger.e(TAG, "Unhandled error in dispose function")
+                        }
                     }
+
+                    disposeFuncList.clear()
                 }
 
-                disposeFuncList.clear()
+                Logger.d(TAG, "Cancelling file download request, url = $url")
             }
-
-            Logger.d(TAG, "Cancelling file download request, url = $url")
+            // We use timeout here just in case to not get deadlocked
+            .get(MAX_CANCELLATION_WAIT_TIME_SECONDS, TimeUnit.SECONDS)
+        } catch (error: Throwable) {
+            // Catch all the exceptions so we can clear this request afterwards
+            Logger.e(TAG, "Error while trying to dispose of a request for url = ($url)")
         }
-        // We use timeout here just in case to not get deadlocked
-        .get(MAX_CANCELLATION_WAIT_TIME_SECONDS, TimeUnit.SECONDS)
     }
 
     companion object {
         private const val TAG = "CancelableDownload"
-        private const val MAX_CANCELLATION_WAIT_TIME_SECONDS = 5L
+        private const val MAX_CANCELLATION_WAIT_TIME_SECONDS = 10L
     }
 }

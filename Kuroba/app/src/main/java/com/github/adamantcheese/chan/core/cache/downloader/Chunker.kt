@@ -37,6 +37,10 @@ data class Chunk(val start: Long, private val _end: Long) {
 
     fun chunkSize(): Long = _end - start
 
+    override fun toString(): String {
+        return "Chunk(start=$start, end=$end)"
+    }
+
     companion object {
         fun wholeFile(): Chunk = Chunk(0, Long.MAX_VALUE)
     }

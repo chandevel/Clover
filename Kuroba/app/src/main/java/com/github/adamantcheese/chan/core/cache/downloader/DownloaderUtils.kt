@@ -15,10 +15,6 @@ internal object DownloaderUtils {
             return true
         }
 
-        if (error.message?.contains("Canceled") == true) {
-            return true
-        }
-
         return false
     }
 

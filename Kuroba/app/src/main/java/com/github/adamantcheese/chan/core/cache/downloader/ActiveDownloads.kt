@@ -83,4 +83,14 @@ internal class ActiveDownloads {
         }
     }
 
+    fun getChunks(url: String): Set<Chunk> {
+        return synchronized(activeDownloads) { activeDownloads[url]?.chunks?.toSet() ?: emptySet() }
+    }
+
+    fun addChunks(url: String, chunks: List<Chunk>) {
+        synchronized(activeDownloads) {
+            activeDownloads[url]?.chunks?.addAll(chunks)
+        }
+    }
+
 }

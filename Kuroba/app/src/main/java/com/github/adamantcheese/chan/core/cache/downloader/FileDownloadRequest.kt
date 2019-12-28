@@ -15,7 +15,8 @@ internal class FileDownloadRequest(
         // How many bytes a file we download takes in total
         val total: AtomicLong,
         // A handle to cancel the current download
-        val cancelableDownload: CancelableDownload
+        val cancelableDownload: CancelableDownload,
+        val chunks: MutableSet<Chunk> = mutableSetOf()
 ) {
 
     init {

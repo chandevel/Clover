@@ -108,33 +108,11 @@ public class MultiImageView
     @Inject
     ImageLoaderV2 imageLoaderV2;
 
+    @Nullable
     private Context context;
     private ImageView playView;
-    private GestureDetector exoDoubleTapDetector = new GestureDetector(context, new SimpleOnGestureListener() {
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            callback.onDoubleTap();
-            return true;
-        }
-    });
-    private GestureDetector gifDoubleTapDetector = new GestureDetector(context, new SimpleOnGestureListener() {
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            GifDrawable drawable = (GifDrawable) findGifImageView().getDrawable();
-            if (drawable.isPlaying()) {
-                drawable.pause();
-            } else {
-                drawable.start();
-            }
-            return true;
-        }
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            callback.onTap();
-            return true;
-        }
-    });
+    private GestureDetector exoDoubleTapDetector;
+    private GestureDetector gifDoubleTapDetector;
 
     private PostImage postImage;
     private Callback callback;
@@ -174,6 +152,33 @@ public class MultiImageView
         if (context instanceof StartActivity) {
             ((StartActivity) context).getLifecycle().addObserver(this);
         }
+
+        exoDoubleTapDetector = new GestureDetector(context, new SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                callback.onDoubleTap();
+                return true;
+            }
+        });
+
+        gifDoubleTapDetector = new GestureDetector(context, new SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                GifDrawable drawable = (GifDrawable) findGifImageView().getDrawable();
+                if (drawable.isPlaying()) {
+                    drawable.pause();
+                } else {
+                    drawable.start();
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                callback.onTap();
+                return true;
+            }
+        });
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
@@ -263,7 +268,7 @@ public class MultiImageView
         super.onDetachedFromWindow();
         cancelLoad();
 
-        if (context instanceof StartActivity) {
+        if (context != null && context instanceof StartActivity) {
             ((StartActivity) context).getLifecycle().removeObserver(this);
         }
 
@@ -520,10 +525,12 @@ public class MultiImageView
             public void onError(@NotNull Throwable error) {
                 Logger.e(TAG, "Error while trying to stream a webm", error);
 
-                String message = "Couldn't open webm in streaming mode, error = "
-                        + error.getMessage();
+                if (context != null) {
+                    String message = "Couldn't open webm in streaming mode, error = "
+                            + error.getMessage();
 
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -700,19 +707,21 @@ public class MultiImageView
     }
 
     private void onError(Exception exception) {
-        String reason = exception.getMessage();
-        if (reason == null) {
-            reason = "Unknown reason";
+        if (context != null) {
+            String reason = exception.getMessage();
+            if (reason == null) {
+                reason = "Unknown reason";
+            }
+
+            String message = String.format(
+                    "%s, reason: %s",
+                    context.getString(R.string.image_preview_failed),
+                    reason
+            );
+
+            showToast(message);
+            callback.hideProgress(MultiImageView.this);
         }
-
-        String message = String.format(
-                "%s, reason: %s",
-                context.getString(R.string.image_preview_failed),
-                reason
-        );
-
-        showToast(message);
-        callback.hideProgress(MultiImageView.this);
     }
 
     private void onNotFoundError() {
