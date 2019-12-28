@@ -4,7 +4,6 @@ import com.github.adamantcheese.chan.core.cache.FileCacheDataSource
 import com.github.adamantcheese.chan.core.cache.FileCacheListener
 import com.github.adamantcheese.chan.core.cache.WebmStreamingSource
 import com.github.adamantcheese.chan.utils.Logger
-import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -21,7 +20,7 @@ class CancelableDownload(
         val isPartOfBatchDownload: AtomicBoolean = AtomicBoolean(false)
 ) {
     private val state: AtomicReference<DownloadState> = AtomicReference(DownloadState.Running)
-    private val callbacks: MutableSet<WeakReference<FileCacheListener>> = mutableSetOf()
+    private val callbacks: MutableSet<FileCacheListener> = mutableSetOf()
     /**
      * This callbacks are used to cancel a lot of things like the HEAD request, the get response
      * body request and response body read loop.
@@ -37,13 +36,13 @@ class CancelableDownload(
             return
         }
 
-        callbacks.add(WeakReference(callback))
+        callbacks.add(callback)
     }
 
     @Synchronized
     fun forEachCallback(func: FileCacheListener.() -> Unit) {
-        callbacks.forEach { callbackRef ->
-            callbackRef.get()?.let { callback -> func(callback) }
+        callbacks.forEach { callback ->
+            func(callback)
         }
     }
 
