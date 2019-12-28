@@ -21,21 +21,23 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
  * Container for a view with an ProgressBar. Toggles between the view and a
  * ProgressBar.
  */
-public class LoadView extends FrameLayout {
+public class LoadView
+        extends FrameLayout {
     private int fadeDuration = 200;
     private Listener listener;
 
@@ -95,22 +97,20 @@ public class LoadView extends FrameLayout {
             animatorSet = new AnimatorSet();
 
             // Fade all attached views out.
-            // If the animation is cancelled, the views are not removed. If the animation ends,
+            // If the animation is canceled, the views are not removed. If the animation ends,
             // the views are removed.
             List<Animator> animators = new ArrayList<>();
             for (int i = 0; i < getChildCount(); i++) {
                 final View child = getChildAt(i);
 
                 // We don't add a listener to remove the view we also animate in.
-                if (child == newView) {
-                    continue;
-                }
+                if (child == newView) continue;
 
                 ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(child, View.ALPHA, 0f);
                 objectAnimator.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationCancel(Animator animation) {
-                        // If cancelled, don't remove the view, but re-run the animation.
+                        // If canceled, don't remove the view, but re-run the animation.
                         animation.removeListener(this);
                     }
 
@@ -124,7 +124,7 @@ public class LoadView extends FrameLayout {
 
             if (newView.getParent() != this) {
                 if (newView.getParent() != null) {
-                    AndroidUtils.removeFromParentView(newView);
+                    removeFromParentView(newView);
                 }
                 addView(newView);
             }

@@ -25,7 +25,9 @@ import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 
-public abstract class ToolbarNavigationController extends NavigationController implements Toolbar.ToolbarCallback {
+public abstract class ToolbarNavigationController
+        extends NavigationController
+        implements Toolbar.ToolbarCallback {
     protected Toolbar toolbar;
     protected boolean requireSpaceForToolbar = true;
 
@@ -47,7 +49,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
         super.transition(from, to, pushing, controllerTransition);
 
         if (to != null) {
-            toolbar.setNavigationItem(controllerTransition != null, pushing, to.navigation);
+            toolbar.setNavigationItem(controllerTransition != null, pushing, to.navigation, null);
             updateToolbarCollapse(to, controllerTransition != null);
         }
     }

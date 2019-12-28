@@ -22,7 +22,8 @@ import android.widget.FrameLayout;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class PopupControllerContainer extends FrameLayout {
+public class PopupControllerContainer
+        extends FrameLayout {
     public PopupControllerContainer(Context context) {
         super(context);
     }

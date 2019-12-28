@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
-
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
@@ -36,7 +35,8 @@ import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
-public class BoardSetupPresenter implements Observer {
+public class BoardSetupPresenter
+        implements Observer {
     private BoardManager boardManager;
 
     private Callback callback;
@@ -196,8 +196,7 @@ public class BoardSetupPresenter implements Observer {
             suggestionCall.cancel();
         }
 
-        final String query = suggestionsQuery == null ? null :
-                suggestionsQuery.replace("/", "").replace("\\", "");
+        final String query = suggestionsQuery == null ? null : suggestionsQuery.replace("/", "").replace("\\", "");
         suggestionCall = BackgroundUtils.runWithExecutor(executor, () -> {
             List<BoardSuggestion> suggestions = new ArrayList<>();
             if (site.boardsType().canList) {
@@ -245,8 +244,7 @@ public class BoardSetupPresenter implements Observer {
 
     private void setOrder() {
         for (int i = 0; i < savedBoards.size(); i++) {
-            Board b = savedBoards.get(i);
-            b.order = i;
+            savedBoards.get(i).order = i;
         }
     }
 

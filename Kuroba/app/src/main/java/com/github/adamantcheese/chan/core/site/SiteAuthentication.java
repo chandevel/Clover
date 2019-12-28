@@ -16,6 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
+import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA1;
+import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2;
+import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2_NOJS;
+import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.GENERIC_WEBVIEW;
+import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.NONE;
+
 public class SiteAuthentication {
     public enum Type {
         NONE,
@@ -26,32 +32,32 @@ public class SiteAuthentication {
     }
 
     public static SiteAuthentication fromNone() {
-        return new SiteAuthentication(Type.NONE);
+        return new SiteAuthentication(NONE);
     }
 
     public static SiteAuthentication fromCaptcha1(String siteKey, String baseUrl) {
-        SiteAuthentication a = new SiteAuthentication(Type.CAPTCHA1);
+        SiteAuthentication a = new SiteAuthentication(CAPTCHA1);
         a.siteKey = siteKey;
         a.baseUrl = baseUrl;
         return a;
     }
 
     public static SiteAuthentication fromCaptcha2(String siteKey, String baseUrl) {
-        SiteAuthentication a = new SiteAuthentication(Type.CAPTCHA2);
+        SiteAuthentication a = new SiteAuthentication(CAPTCHA2);
         a.siteKey = siteKey;
         a.baseUrl = baseUrl;
         return a;
     }
 
     public static SiteAuthentication fromCaptcha2nojs(String siteKey, String baseUrl) {
-        SiteAuthentication a = new SiteAuthentication(Type.CAPTCHA2_NOJS);
+        SiteAuthentication a = new SiteAuthentication(CAPTCHA2_NOJS);
         a.siteKey = siteKey;
         a.baseUrl = baseUrl;
         return a;
     }
 
     public static SiteAuthentication fromUrl(String url, String retryText, String successText) {
-        SiteAuthentication a = new SiteAuthentication(Type.GENERIC_WEBVIEW);
+        SiteAuthentication a = new SiteAuthentication(GENERIC_WEBVIEW);
         a.url = url;
         a.retryText = retryText;
         a.successText = successText;

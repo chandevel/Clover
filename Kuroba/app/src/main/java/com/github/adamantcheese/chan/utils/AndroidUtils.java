@@ -16,72 +16,67 @@
  */
 package com.github.adamantcheese.chan.utils;
 
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.Typeface;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.ScaleAnimation;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.content.ContextCompat;
 
-import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
 
-    private static HashMap<String, Typeface> typefaceCache = new HashMap<>();
-
-    public static Typeface ROBOTO_MEDIUM;
-    public static Typeface ROBOTO_CONDENSED_REGULAR;
-
     @SuppressLint("StaticFieldLeak")
     private static Application application;
-
-    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public static void init(Application application) {
         if (AndroidUtils.application == null) {
             AndroidUtils.application = application;
-
-            ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
-            ROBOTO_CONDENSED_REGULAR = getTypeface("RobotoCondensed-Regular.ttf");
         }
     }
 
@@ -97,12 +92,39 @@ public class AndroidUtils {
         return getRes().getString(res);
     }
 
+    public static String getString(int res, Object... formatArgs) {
+        return getRes().getString(res, formatArgs);
+    }
+
+    public static String getQuantityString(int res, int quantity) {
+        return getRes().getQuantityString(res, quantity);
+    }
+
+    public static String getQuantityString(int res, int quantity, Object... formatArgs) {
+        return getRes().getQuantityString(res, quantity, formatArgs);
+    }
+
     public static CharSequence getApplicationLabel() {
         return application.getPackageManager().getApplicationLabel(application.getApplicationInfo());
     }
 
+    public static String getAppFileProvider() {
+        return application.getPackageName() + ".fileprovider";
+    }
+
     public static SharedPreferences getPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(application);
+    }
+
+    public static boolean getIsOfficial() {
+        try {
+            @SuppressLint("PackageManagerGetSignatures")
+            Signature sig = application.getPackageManager()
+                    .getPackageInfo(application.getPackageName(), PackageManager.GET_SIGNATURES).signatures[0];
+            return BuildConfig.SIGNATURE.equals(Integer.toHexString(sig.toCharsString().hashCode()));
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     /**
@@ -113,15 +135,15 @@ public class AndroidUtils {
      * @param link url to open
      */
     public static void openLink(String link) {
-        PackageManager pm = getAppContext().getPackageManager();
+        PackageManager pm = application.getPackageManager();
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
 
         ComponentName resolvedActivity = intent.resolveActivity(pm);
         if (resolvedActivity == null) {
-            openIntentFailed();
+            showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
         } else {
-            boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(getAppContext().getPackageName());
+            boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(application.getPackageName());
             if (!thisAppIsDefault) {
                 openIntent(intent);
             } else {
@@ -129,7 +151,7 @@ public class AndroidUtils {
                 List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
                 List<Intent> filteredIntents = new ArrayList<>(resolveInfos.size());
                 for (ResolveInfo info : resolveInfos) {
-                    if (!info.activityInfo.packageName.equals(getAppContext().getPackageName())) {
+                    if (!info.activityInfo.packageName.equals(application.getPackageName())) {
                         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
                         i.setPackage(info.activityInfo.packageName);
                         filteredIntents.add(i);
@@ -142,7 +164,7 @@ public class AndroidUtils {
                     chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, filteredIntents.toArray(new Intent[0]));
                     openIntent(chooser);
                 } else {
-                    openIntentFailed();
+                    showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
                 }
             }
         }
@@ -155,21 +177,20 @@ public class AndroidUtils {
         // openLink to avoid that and show a chooser instead.
         boolean openWithCustomTabs = true;
         Intent urlIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-        PackageManager pm = getAppContext().getPackageManager();
+        PackageManager pm = application.getPackageManager();
         ComponentName resolvedActivity = urlIntent.resolveActivity(pm);
         if (resolvedActivity != null) {
-            openWithCustomTabs = !resolvedActivity.getPackageName().equals(getAppContext().getPackageName());
+            openWithCustomTabs = !resolvedActivity.getPackageName().equals(application.getPackageName());
         }
 
         if (openWithCustomTabs) {
-            CustomTabsIntent tabsIntent = new CustomTabsIntent.Builder()
-                    .setToolbarColor(Chan.injector().instance(ThemeHelper.class).getTheme().primaryColor.color)
-                    .build();
+            CustomTabsIntent tabsIntent =
+                    new CustomTabsIntent.Builder().setToolbarColor(ThemeHelper.getTheme().primaryColor.color).build();
             try {
                 tabsIntent.launchUrl(activity, Uri.parse(link));
             } catch (ActivityNotFoundException e) {
                 // Can't check it beforehand so catch the exception
-                openIntentFailed();
+                showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
             }
         } else {
             openLink(link);
@@ -186,15 +207,11 @@ public class AndroidUtils {
 
     public static void openIntent(Intent intent) {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (intent.resolveActivity(getAppContext().getPackageManager()) != null) {
-            getAppContext().startActivity(intent);
+        if (intent.resolveActivity(application.getPackageManager()) != null) {
+            application.startActivity(intent);
         } else {
-            openIntentFailed();
+            showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
         }
-    }
-
-    private static void openIntentFailed() {
-        Toast.makeText(getAppContext(), R.string.open_link_failed, Toast.LENGTH_LONG).show();
     }
 
     public static int getAttrColor(Context context, int attr) {
@@ -204,6 +221,11 @@ public class AndroidUtils {
         return color;
     }
 
+    @ColorInt
+    public static int getColor(Context context, @ColorRes int colorId) {
+        return ContextCompat.getColor(context, colorId);
+    }
+
     public static Drawable getAttrDrawable(Context context, int attr) {
         TypedArray typedArray = context.obtainStyledAttributes(new int[]{attr});
         Drawable drawable = typedArray.getDrawable(0);
@@ -211,16 +233,16 @@ public class AndroidUtils {
         return drawable;
     }
 
-    public static boolean isTablet(Context context) {
-        return context.getResources().getBoolean(R.bool.is_tablet);
+    public static boolean isTablet() {
+        return getRes().getBoolean(R.bool.is_tablet);
     }
 
-    public static int getDimen(Context context, int dimen) {
-        return context.getResources().getDimensionPixelSize(dimen);
+    public static int getDimen(int dimen) {
+        return getRes().getDimensionPixelSize(dimen);
     }
 
     public static File getAppDir() {
-        return getAppContext().getFilesDir().getParentFile();
+        return application.getFilesDir().getParentFile();
     }
 
     public static int dp(float dp) {
@@ -231,58 +253,27 @@ public class AndroidUtils {
         return (int) (sp * getRes().getDisplayMetrics().scaledDensity);
     }
 
-    public static Typeface getTypeface(String name) {
-        if (!typefaceCache.containsKey(name)) {
-            Typeface typeface = Typeface.createFromAsset(getRes().getAssets(), "font/" + name);
-            typefaceCache.put(name, typeface);
-        }
-        return typefaceCache.get(name);
-    }
-
-    /**
-     * Causes the runnable to be added to the message queue. The runnable will
-     * be run on the ui thread.
-     */
-    public static void runOnUiThread(Runnable runnable) {
-        mainHandler.post(runnable);
-    }
-
-    public static void runOnUiThread(Runnable runnable, long delay) {
-        mainHandler.postDelayed(runnable, delay);
-    }
-
     public static void requestKeyboardFocus(Dialog dialog, final View view) {
         view.requestFocus();
         dialog.setOnShowListener(dialog1 -> requestKeyboardFocus(view));
     }
 
     public static void requestKeyboardFocus(final View view) {
-        InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        getInputManager().showSoftInput(view, SHOW_IMPLICIT);
     }
 
     public static void hideKeyboard(View view) {
-        InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        if (view != null) {
+            getInputManager().hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     public static void requestViewAndKeyboardFocus(View view) {
         view.setFocusable(false);
         view.setFocusableInTouchMode(true);
         if (view.requestFocus()) {
-            InputMethodManager inputManager =
-                    (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+            getInputManager().showSoftInput(view, SHOW_IMPLICIT);
         }
-    }
-
-    public static String getReadableFileSize(long bytes, boolean si) {
-        long unit = si ? 1000 : 1024;
-        if (bytes < unit)
-            return bytes + " B";
-        int exp = (int) (Math.log(bytes) / Math.log(unit));
-        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
-        return String.format(Locale.US, "%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
     public interface OnMeasuredCallback {
@@ -304,7 +295,8 @@ public class AndroidUtils {
         if (view.getWindowToken() == null) {
             // If you call getViewTreeObserver on a view when it's not attached to a window will result in the creation of a temporarily viewtreeobserver.
             // This is almost always not what you want.
-            throw new IllegalArgumentException("The view given to waitForMeasure is not attached to the window and does not have a ViewTreeObserver.");
+            throw new IllegalArgumentException(
+                    "The view given to waitForMeasure is not attached to the window and does not have a ViewTreeObserver.");
         }
 
         waitForLayoutInternal(true, view.getViewTreeObserver(), view, callback);
@@ -317,7 +309,8 @@ public class AndroidUtils {
     public static void waitForLayout(final View view, final OnMeasuredCallback callback) {
         if (view.getWindowToken() == null) {
             // See comment above
-            throw new IllegalArgumentException("The view given to waitForLayout is not attached to the window and does not have a ViewTreeObserver.");
+            throw new IllegalArgumentException(
+                    "The view given to waitForLayout is not attached to the window and does not have a ViewTreeObserver.");
         }
 
         waitForLayoutInternal(false, view.getViewTreeObserver(), view, callback);
@@ -326,11 +319,18 @@ public class AndroidUtils {
     /**
      * Always registers an onpredrawlistener. The given ViewTreeObserver will be used.
      */
-    public static void waitForLayout(final ViewTreeObserver viewTreeObserver, final View view, final OnMeasuredCallback callback) {
+    public static void waitForLayout(
+            final ViewTreeObserver viewTreeObserver, final View view, final OnMeasuredCallback callback
+    ) {
         waitForLayoutInternal(false, viewTreeObserver, view, callback);
     }
 
-    private static void waitForLayoutInternal(boolean returnIfNotZero, final ViewTreeObserver viewTreeObserver, final View view, final OnMeasuredCallback callback) {
+    private static void waitForLayoutInternal(
+            boolean returnIfNotZero,
+            final ViewTreeObserver viewTreeObserver,
+            final View view,
+            final OnMeasuredCallback callback
+    ) {
         int width = view.getWidth();
         int height = view.getHeight();
 
@@ -342,14 +342,20 @@ public class AndroidUtils {
                 public boolean onPreDraw() {
                     ViewTreeObserver usingViewTreeObserver = viewTreeObserver;
                     if (viewTreeObserver != view.getViewTreeObserver()) {
-                        Logger.e(TAG, "view.getViewTreeObserver() is another viewtreeobserver! replacing with the new one");
+                        Logger.e(
+                                TAG,
+                                "view.getViewTreeObserver() is another viewtreeobserver! replacing with the new one"
+                        );
                         usingViewTreeObserver = view.getViewTreeObserver();
                     }
 
                     if (usingViewTreeObserver.isAlive()) {
                         usingViewTreeObserver.removeOnPreDrawListener(this);
                     } else {
-                        Logger.e(TAG, "ViewTreeObserver not alive, could not remove onPreDrawListener! This will probably not end well");
+                        Logger.e(
+                                TAG,
+                                "ViewTreeObserver not alive, could not remove onPreDrawListener! This will probably not end well"
+                        );
                     }
 
                     boolean ret;
@@ -401,65 +407,61 @@ public class AndroidUtils {
     }
 
     public static void fixSnackbarText(Context context, Snackbar snackbar) {
-        ((TextView) snackbar.getView().findViewById(R.id.snackbar_text)).setTextColor(0xffffffff);
+        ((TextView) snackbar.getView().findViewById(R.id.snackbar_text)).setTextColor(Color.WHITE);
         snackbar.setActionTextColor(getAttrColor(context, R.attr.colorAccent));
     }
 
     public static boolean isConnected(int type) {
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                application.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getNetworkInfo(type);
         return networkInfo != null && networkInfo.isConnected();
     }
 
-    public static void animateStatusBar(Window window, boolean in, final int originalColor, int duration) {
-        ValueAnimator statusBar = ValueAnimator.ofFloat(in ? 0f : 0.5f, in ? 0.5f : 0f);
-        statusBar.addUpdateListener(animation -> {
-            float progress = (float) animation.getAnimatedValue();
-            if (progress == 0f) {
-                window.setStatusBarColor(originalColor);
-            } else {
-                int r = (int) ((1f - progress) * Color.red(originalColor));
-                int g = (int) ((1f - progress) * Color.green(originalColor));
-                int b = (int) ((1f - progress) * Color.blue(originalColor));
-                window.setStatusBarColor(Color.argb(255, r, g, b));
-            }
-        });
-        statusBar.setDuration(duration).setInterpolator(new LinearInterpolator());
-        statusBar.start();
+    public static Point getDisplaySize() {
+        Point displaySize = new Point();
+        WindowManager windowManager = (WindowManager) application.getSystemService(Activity.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getSize(displaySize);
+        return displaySize;
     }
 
-    public static void animateViewScale(View view, boolean zoomOut, int duration) {
-        ScaleAnimation scaleAnimation;
-        final float normalScale = 1.0f;
-        final float zoomOutScale = 0.8f;
+    public static void showToast(String message, int duration) {
+        runOnUiThread(() -> Toast.makeText(application, message, duration).show());
+    }
 
-        if (zoomOut) {
-            scaleAnimation = new ScaleAnimation(
-                    normalScale,
-                    zoomOutScale,
-                    normalScale,
-                    zoomOutScale,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f);
-        } else {
-            scaleAnimation = new ScaleAnimation(
-                    zoomOutScale,
-                    normalScale,
-                    zoomOutScale,
-                    normalScale,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f,
-                    ScaleAnimation.RELATIVE_TO_SELF,
-                    0.5f);
-        }
+    public static void showToast(String message) {
+        runOnUiThread(() -> Toast.makeText(application, message, Toast.LENGTH_SHORT).show());
+    }
 
-        scaleAnimation.setDuration(duration);
-        scaleAnimation.setFillAfter(true);
-        scaleAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
+    public static void showToast(int resId, int duration) {
+        runOnUiThread(() -> Toast.makeText(application, getString(resId), duration).show());
+    }
 
-        view.startAnimation(scaleAnimation);
+    public static void showToast(int resId) {
+        runOnUiThread(() -> Toast.makeText(application, getString(resId), Toast.LENGTH_SHORT).show());
+    }
+
+    private static InputMethodManager getInputManager() {
+        return (InputMethodManager) application.getSystemService(INPUT_METHOD_SERVICE);
+    }
+
+    public static ClipboardManager getClipboardManager() {
+        return (ClipboardManager) application.getSystemService(CLIPBOARD_SERVICE);
+    }
+
+    public static View inflate(Context context, int resId, ViewGroup root) {
+        return LayoutInflater.from(context).inflate(resId, root);
+    }
+
+    public static View inflate(Context context, int resId, ViewGroup root, boolean attachToRoot) {
+        return LayoutInflater.from(context).inflate(resId, root, attachToRoot);
+    }
+
+    public static ViewGroup inflate(Context context, int resId) {
+        return (ViewGroup) LayoutInflater.from(context).inflate(resId, null);
+    }
+
+    public static void postToEventBus(Object message) {
+        EventBus.getDefault().post(message);
     }
 }

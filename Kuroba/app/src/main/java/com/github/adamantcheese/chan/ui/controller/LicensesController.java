@@ -17,11 +17,13 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.webkit.WebView;
 
 import com.github.adamantcheese.chan.controller.Controller;
 
-public class LicensesController extends Controller {
+public class LicensesController
+        extends Controller {
     private String title;
     private String url;
 
@@ -39,7 +41,7 @@ public class LicensesController extends Controller {
 
         WebView webView = new WebView(context);
         webView.loadUrl(url);
-        webView.setBackgroundColor(0xffffffff);
+        webView.setBackgroundColor(Color.WHITE);
         view = webView;
     }
 }

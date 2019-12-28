@@ -23,7 +23,8 @@ import android.view.ViewGroup;
 import com.github.adamantcheese.chan.controller.transition.PopControllerTransition;
 import com.github.adamantcheese.chan.controller.transition.PushControllerTransition;
 
-public abstract class NavigationController extends Controller {
+public abstract class NavigationController
+        extends Controller {
     protected ViewGroup container;
 
     protected ControllerTransition controllerTransition;
@@ -107,7 +108,9 @@ public abstract class NavigationController extends Controller {
         blockingInput = false;
     }
 
-    public void transition(final Controller from, final Controller to, final boolean pushing, ControllerTransition controllerTransition) {
+    public void transition(
+            final Controller from, final Controller to, final boolean pushing, ControllerTransition controllerTransition
+    ) {
         if (this.controllerTransition != null || blockingInput) {
             throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
         }

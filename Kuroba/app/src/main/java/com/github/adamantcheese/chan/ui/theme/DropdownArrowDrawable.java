@@ -22,9 +22,11 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+
 import androidx.annotation.NonNull;
 
-public class DropdownArrowDrawable extends Drawable {
+public class DropdownArrowDrawable
+        extends Drawable {
     private Paint paint = new Paint();
     private Path path = new Path();
     private int width;

@@ -1,8 +1,9 @@
 To release:
 
-Change the version name and code in the app/build.gradle file; commit and push.
+Change the version code in the app/build.gradle file; commit and push.
 Build signed APK.
 In Github Releases, draft a new release with tag v(major).(minor).(patch) to match what you did above.
 Write your changelog in the description. Markdown is supported.
 Upload APK to github releases.
 Release.
+Delete the last release's APK, to prevent previous version support as much as posible.

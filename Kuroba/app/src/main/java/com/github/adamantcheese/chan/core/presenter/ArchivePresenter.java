@@ -21,7 +21,6 @@ import com.github.adamantcheese.chan.core.model.Archive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteActions;
-import com.github.adamantcheese.chan.ui.helper.PostHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,8 @@ import javax.inject.Inject;
 
 import static android.text.TextUtils.isEmpty;
 
-public class ArchivePresenter implements SiteActions.ArchiveListener {
+public class ArchivePresenter
+        implements SiteActions.ArchiveListener {
     private DatabaseManager databaseManager;
 
     private Callback callback;
@@ -78,8 +78,8 @@ public class ArchivePresenter implements SiteActions.ArchiveListener {
     }
 
     public void onItemClicked(Archive.ArchiveItem item) {
-        Loadable loadable = databaseManager.getDatabaseLoadableManager()
-                .get(Loadable.forThread(board.site, board, item.id, PostHelper.getTitle(null, null)));
+        Loadable loadable =
+                databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(board.site, board, item.id, ""));
 
         callback.openThread(loadable);
     }

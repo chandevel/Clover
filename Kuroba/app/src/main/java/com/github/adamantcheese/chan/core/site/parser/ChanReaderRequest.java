@@ -27,12 +27,14 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.JsonReaderRequest;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderRequestParams;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -40,6 +42,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 
@@ -52,13 +55,21 @@ import static com.github.adamantcheese.chan.Chan.inject;
  * This class is highly multithreaded, take good care to not access models that are to be only
  * changed on the main thread.
  */
-public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
+public class ChanReaderRequest
+        extends JsonReaderRequest<ChanLoaderResponse> {
+    private static final String TAG = "ChanReaderRequest";
     private static final int THREAD_COUNT;
     private static final ExecutorService EXECUTOR;
+    private static final String threadFactoryName = "post_parser_thread_%d";
+    private static final AtomicInteger threadIndex = new AtomicInteger(0);
 
     static {
         THREAD_COUNT = Runtime.getRuntime().availableProcessors();
-        EXECUTOR = Executors.newFixedThreadPool(THREAD_COUNT);
+        Logger.d(TAG, "Thread count: " + THREAD_COUNT);
+        EXECUTOR = Executors.newFixedThreadPool(THREAD_COUNT, r -> {
+            String threadName = String.format(Locale.US, threadFactoryName, threadIndex.getAndIncrement());
+            return new Thread(r, threadName);
+        });
     }
 
     @Inject
@@ -85,9 +96,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
         filters = new ArrayList<>();
         List<Filter> enabledFilters = filterEngine.getEnabledFilters();
-        for (int i = 0; i < enabledFilters.size(); i++) {
-            Filter filter = enabledFilters.get(i);
-
+        for (Filter filter : enabledFilters) {
             if (filterEngine.matchesBoard(filter, loadable.board)) {
                 // copy the filter because it will get used on other threads
                 filters.add(filter.clone());
@@ -124,7 +133,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
     }
 
     @Override
-    public ChanLoaderResponse readJson(JsonReader reader) throws Exception {
+    public ChanLoaderResponse readJson(JsonReader reader)
+            throws Exception {
         ChanReaderProcessingQueue processing = new ChanReaderProcessingQueue(cached, loadable);
 
         if (loadable.isThreadMode()) {
@@ -140,7 +150,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
     }
 
     // Concurrently parses the new posts with an executor
-    private List<Post> parsePosts(ChanReaderProcessingQueue queue) throws InterruptedException, ExecutionException {
+    private List<Post> parsePosts(ChanReaderProcessingQueue queue)
+            throws InterruptedException, ExecutionException {
         List<Post> cached = queue.getToReuse();
         List<Post> total = new ArrayList<>(cached);
 
@@ -150,12 +161,12 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         // thread or externally.
         Set<Integer> internalIds = new HashSet<>();
         // All ids of cached posts.
-        for (int i = 0; i < cached.size(); i++) {
-            internalIds.add(cached.get(i).no);
+        for (Post post : cached) {
+            internalIds.add(post.no);
         }
         // And ids for posts to parse, from the builder.
-        for (int i = 0; i < toParse.size(); i++) {
-            internalIds.add(toParse.get(i).id);
+        for (Post.Builder builder : toParse) {
+            internalIds.add(builder.id);
         }
         // Do not modify internalIds after this point.
         internalIds = Collections.unmodifiableSet(internalIds);
@@ -167,13 +178,13 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                     databaseSavedReplyManager,
                     post,
                     reader,
-                    internalIds));
+                    internalIds
+            ));
         }
 
         if (!tasks.isEmpty()) {
             List<Future<Post>> futures = EXECUTOR.invokeAll(tasks);
-            for (int i = 0; i < futures.size(); i++) {
-                Future<Post> future = futures.get(i);
+            for (Future<Post> future : futures) {
                 Post parsedPost = future.get();
                 if (parsedPost != null) {
                     total.add(parsedPost);
@@ -194,28 +205,24 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
             cachedPosts.addAll(cached);
 
             Map<Integer, Post> cachedPostsByNo = new HashMap<>();
-            for (int i = 0; i < cachedPosts.size(); i++) {
-                Post post = cachedPosts.get(i);
+            for (Post post : cachedPosts) {
                 cachedPostsByNo.put(post.no, post);
             }
 
             Map<Integer, Post> serverPostsByNo = new HashMap<>();
-            for (int i = 0; i < allPost.size(); i++) {
-                Post post = allPost.get(i);
+            for (Post post : allPost) {
                 serverPostsByNo.put(post.no, post);
             }
 
             // If there's a cached post but it's not in the list received from the server, mark it as deleted
             if (loadable.isThreadMode()) {
-                for (int i = 0; i < cachedPosts.size(); i++) {
-                    Post cachedPost = cachedPosts.get(i);
+                for (Post cachedPost : cachedPosts) {
                     cachedPost.deleted.set(!serverPostsByNo.containsKey(cachedPost.no));
                 }
             }
 
             // If there's a post in the list from the server, that's not in the cached list, add it.
-            for (int i = 0; i < allPost.size(); i++) {
-                Post serverPost = allPost.get(i);
+            for (Post serverPost : allPost) {
                 if (!cachedPostsByNo.containsKey(serverPost.no)) {
                     newPosts.add(serverPost);
                 }
@@ -230,17 +237,14 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
         if (loadable.isThreadMode()) {
             Map<Integer, Post> postsByNo = new HashMap<>();
-            for (int i = 0; i < allPosts.size(); i++) {
-                Post post = allPosts.get(i);
+            for (Post post : allPosts) {
                 postsByNo.put(post.no, post);
             }
 
             // Maps post no's to a list of no's that that post received replies from
             Map<Integer, List<Integer>> replies = new HashMap<>();
 
-            for (int i = 0; i < allPosts.size(); i++) {
-                Post sourcePost = allPosts.get(i);
-
+            for (Post sourcePost : allPosts) {
                 for (int replyTo : sourcePost.repliesTo) {
                     List<Integer> value = replies.get(replyTo);
                     if (value == null) {
@@ -269,5 +273,9 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         response.posts.addAll(allPosts);
 
         return response;
+    }
+
+    public Loadable getLoadable() {
+        return loadable;
     }
 }

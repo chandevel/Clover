@@ -79,8 +79,7 @@ public class DatabasePinManager {
 
     public Callable<List<Pin>> updatePins(final List<Pin> pins) {
         return () -> {
-            for (int i = 0; i < pins.size(); i++) {
-                Pin pin = pins.get(i);
+            for (Pin pin : pins) {
                 helper.pinDao.update(pin);
             }
 
@@ -113,5 +112,9 @@ public class DatabasePinManager {
 
             return null;
         };
+    }
+
+    public Callable<Pin> getPinByLoadableId(int loadableId) {
+        return () -> helper.pinDao.queryBuilder().where().eq("loadable_id", loadableId).queryForFirst();
     }
 }

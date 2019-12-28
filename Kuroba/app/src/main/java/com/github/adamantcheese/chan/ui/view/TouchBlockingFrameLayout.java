@@ -17,12 +17,14 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
-public class TouchBlockingFrameLayout extends FrameLayout {
+import androidx.annotation.NonNull;
+
+public class TouchBlockingFrameLayout
+        extends FrameLayout {
     public TouchBlockingFrameLayout(Context context) {
         super(context);
     }

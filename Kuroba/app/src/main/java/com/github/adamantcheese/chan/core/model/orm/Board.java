@@ -16,19 +16,20 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.site.Site;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * A board is something that can be browsed, it is unique by it's site and code.
  */
 @DatabaseTable(tableName = "board")
-public class Board implements Cloneable {
+public class Board
+        implements Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -248,6 +249,7 @@ public class Board implements Cloneable {
      *
      * @return copy of this board.
      */
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Board clone() {
         Board b = new Board();
         b.id = id;
@@ -283,28 +285,29 @@ public class Board implements Cloneable {
     public boolean equals(Object board) {
         if (board != null && board.getClass() == Board.class) {
             Board b = (Board) board;
-            return name.equals(b.name) &&
-                    code.equals(b.code) &&
-                    workSafe == b.workSafe &&
-                    perPage == b.perPage &&
-                    pages == b.pages &&
-                    maxFileSize == b.maxFileSize &&
-                    maxWebmSize == b.maxWebmSize &&
-                    maxCommentChars == b.maxCommentChars &&
-                    bumpLimit == b.bumpLimit &&
-                    imageLimit == b.imageLimit &&
-                    cooldownThreads == b.cooldownThreads &&
-                    cooldownReplies == b.cooldownReplies &&
-                    cooldownImages == b.cooldownImages &&
-                    spoilers == b.spoilers &&
-                    customSpoilers == b.customSpoilers &&
-                    userIds == b.userIds &&
-                    codeTags == b.codeTags &&
-                    preuploadCaptcha == b.preuploadCaptcha &&
-                    countryFlags == b.countryFlags &&
-                    mathTags == b.mathTags &&
-                    description.equals(b.description) &&
-                    archive == b.archive;
+            //@formatter:off
+            return name.equals(b.name)
+                    && code.equals(b.code)
+                    && workSafe == b.workSafe
+                    && perPage == b.perPage
+                    && pages == b.pages
+                    && maxFileSize == b.maxFileSize
+                    && maxWebmSize == b.maxWebmSize
+                    && maxCommentChars == b.maxCommentChars
+                    && bumpLimit == b.bumpLimit
+                    && imageLimit == b.imageLimit
+                    && cooldownThreads == b.cooldownThreads
+                    && cooldownReplies == b.cooldownReplies
+                    && cooldownImages == b.cooldownImages
+                    && spoilers == b.spoilers
+                    && customSpoilers == b.customSpoilers
+                    && userIds == b.userIds && codeTags == b.codeTags
+                    && preuploadCaptcha == b.preuploadCaptcha
+                    && countryFlags == b.countryFlags
+                    && mathTags == b.mathTags
+                    && description.equals(b.description)
+                    && archive == b.archive;
+            //@formatter:on
         }
         return false;
     }

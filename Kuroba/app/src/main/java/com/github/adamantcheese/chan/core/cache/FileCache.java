@@ -17,42 +17,44 @@
 package com.github.adamantcheese.chan.core.cache;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
+import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.FileSegment;
+import com.github.k1rakishou.fsaf.file.RawFile;
+import com.github.k1rakishou.fsaf.file.Segment;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Protocol;
-
-public class FileCache implements FileCacheDownloader.Callback {
+public class FileCache
+        implements FileCacheDownloader.Callback {
     private static final String TAG = "FileCache";
-    private static final int TIMEOUT = 10000;
-    private static final int DOWNLOAD_POOL_SIZE = 2;
+    private static final String FILE_CACHE_DIR = "filecache";
 
-    private final ExecutorService downloadPool = Executors.newFixedThreadPool(DOWNLOAD_POOL_SIZE);
-    protected OkHttpClient httpClient;
-
+    private final ExecutorService downloadPool = Executors.newCachedThreadPool();
     private final CacheHandler cacheHandler;
+    private final FileManager fileManager;
 
     private List<FileCacheDownloader> downloaders = new ArrayList<>();
 
-    public FileCache(File directory) {
-        httpClient = new OkHttpClient.Builder()
-                .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                // Disable SPDY, causes reproducible timeouts, only one download at the same time and other fun stuff
-                .protocols(Collections.singletonList(Protocol.HTTP_1_1))
-                .build();
+    public FileCache(File cacheDir, FileManager fileManager) {
+        this.fileManager = fileManager;
 
-        cacheHandler = new CacheHandler(directory);
+        RawFile cacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CACHE_DIR));
+
+        cacheHandler = new CacheHandler(fileManager, cacheDirFile);
     }
 
     public void clearCache() {
@@ -61,6 +63,48 @@ public class FileCache implements FileCacheDownloader.Callback {
         }
 
         cacheHandler.clearCache();
+    }
+
+    public FileCacheDownloader downloadFile(
+            Loadable loadable, @NonNull PostImage postImage, FileCacheListener listener
+    ) {
+        if (loadable.isLocal()) {
+            String filename = ThreadSaveManager.formatOriginalImageName(postImage.serverFilename, postImage.extension);
+
+            if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
+                Logger.e(TAG, "Base local threads directory does not exist");
+                return null;
+            }
+
+            AbstractFile baseDirFile = fileManager.newBaseDirectoryFile(LocalThreadsBaseDirectory.class);
+
+            if (baseDirFile == null) {
+                Logger.e(TAG, "downloadFile() fileManager.newLocalThreadFile() returned null");
+                return null;
+            }
+
+            // TODO: double check, may not work as expected
+            List<Segment> segments = new ArrayList<>(ThreadSaveManager.getImagesSubDir(loadable));
+            segments.add(new FileSegment(filename));
+
+            AbstractFile localImgFile = baseDirFile.clone(segments);
+
+            if (fileManager.exists(localImgFile) && fileManager.isFile(localImgFile)
+                    && fileManager.canRead(localImgFile)) {
+                handleFileImmediatelyAvailable(listener, localImgFile);
+            } else {
+                Logger.e(TAG, "Cannot load saved image from the disk, path: " + localImgFile.getFullPath());
+
+                if (listener != null) {
+                    listener.onFail(true);
+                    listener.onEnd();
+                }
+            }
+
+            return null;
+        } else {
+            return downloadFile(postImage.imageUrl.toString(), listener);
+        }
     }
 
     /**
@@ -75,15 +119,19 @@ public class FileCache implements FileCacheDownloader.Callback {
      * @return {@code null} if in the cache, {@link FileCacheDownloader} otherwise.
      */
     @MainThread
-    public FileCacheDownloader downloadFile(String url, FileCacheListener listener) {
+    public FileCacheDownloader downloadFile(@NonNull String url, FileCacheListener listener) {
+        BackgroundUtils.ensureMainThread();
+
         FileCacheDownloader runningDownloaderForKey = getDownloaderByKey(url);
         if (runningDownloaderForKey != null) {
-            runningDownloaderForKey.addListener(listener);
+            if (listener != null) {
+                runningDownloaderForKey.addListener(listener);
+            }
             return runningDownloaderForKey;
         }
 
-        File file = get(url);
-        if (file.exists()) {
+        RawFile file = get(url);
+        if (fileManager.exists(file)) {
             handleFileImmediatelyAvailable(listener, file);
             return null;
         } else {
@@ -106,15 +154,15 @@ public class FileCache implements FileCacheDownloader.Callback {
     }
 
     @Override
-    public void downloaderAddedFile(File file) {
-        cacheHandler.fileWasAdded(file);
+    public void downloaderAddedFile(long fileLen) {
+        cacheHandler.fileWasAdded(fileLen);
     }
 
     public boolean exists(String key) {
         return cacheHandler.exists(key);
     }
 
-    public File get(String key) {
+    public RawFile get(String key) {
         return cacheHandler.get(key);
     }
 
@@ -122,22 +170,50 @@ public class FileCache implements FileCacheDownloader.Callback {
         return cacheHandler.getSize().get();
     }
 
-    private void handleFileImmediatelyAvailable(FileCacheListener listener, File file) {
-        // TODO: setLastModified doesn't seem to work on Android...
-        if (!file.setLastModified(System.currentTimeMillis())) {
-            Logger.e(TAG, "Could not set last modified time on file");
+    private void handleFileImmediatelyAvailable(FileCacheListener listener, AbstractFile file) {
+        BackgroundUtils.ensureMainThread();
+
+        if (listener != null) {
+            if (file instanceof RawFile) {
+                listener.onSuccess((RawFile) file);
+                try {
+                    if (new File(file.getFullPath()).setLastModified(System.currentTimeMillis())) {
+                        Logger.e(TAG, "Could not set last modified time on file");
+                    }
+                } catch (Exception ignored) {
+                }
+            } else {
+                try {
+                    RawFile resultFile = fileManager.fromRawFile(cacheHandler.randomCacheFile());
+                    if (!fileManager.copyFileContents(file, resultFile)) {
+                        throw new IOException(
+                                "Could not copy external SAF file into internal cache file, externalFile = "
+                                        + file.getFullPath() + ", resultFile = " + resultFile.getFullPath());
+                    }
+
+                    listener.onSuccess(resultFile);
+                } catch (IOException e) {
+                    Logger.e(TAG, "Error while trying to create a new random cache file", e);
+                    listener.onFail(false);
+                }
+            }
+
+            listener.onEnd();
         }
-        listener.onSuccess(file);
-        listener.onEnd();
     }
 
-    private FileCacheDownloader handleStartDownload(
-            FileCacheListener listener, File file, String url) {
-        FileCacheDownloader downloader = FileCacheDownloader.fromCallbackClientUrlOutputUserAgent(
-                this, httpClient, url, file);
-        downloader.addListener(listener);
-        downloader.execute(downloadPool);
+    private FileCacheDownloader handleStartDownload(FileCacheListener listener, RawFile file, String url) {
+        BackgroundUtils.ensureMainThread();
+
+        FileCacheDownloader downloader = new FileCacheDownloader(fileManager, this, file, url);
+
+        if (listener != null) {
+            downloader.addListener(listener);
+        }
+
+        downloadPool.submit(downloader);
         downloaders.add(downloader);
+
         return downloader;
     }
 }

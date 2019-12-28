@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -49,14 +50,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:textColor="#fff44336"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <LinearLayout
                 android:id="@+id/name_options"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <EditText
                     android:id="@+id/name"
@@ -87,7 +90,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:inputType="textCapSentences|textAutoCorrect"
                 android:singleLine="true"
                 android:textSize="16sp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -101,7 +105,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:imeActionLabel="@string/reply_submit"
                     android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
                     android:maxLines="6"
-                    android:minHeight="107dp"
+                    android:minHeight="108dp"
                     android:textSize="16sp" />
 
                 <TextView
@@ -117,66 +121,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             </RelativeLayout>
 
-            <LinearLayout
-                android:id="@+id/comment_buttons"
-                style="?android:attr/buttonBarStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                tools:ignore="SpUsage">
-
-                <Button
-                    android:id="@+id/comment_quote"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="0dp"
-                    android:padding="0dp"
-                    android:text="@string/reply_comment_button_quote"
-                    android:textAllCaps="false"
-                    android:textSize="15dp"
-                    android:visibility="gone" />
-
-                <Button
-                    android:id="@+id/comment_spoiler"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="0dp"
-                    android:padding="0dp"
-                    android:text="@string/reply_comment_button_spoiler"
-                    android:textAllCaps="false"
-                    android:textSize="15dp"
-                    android:visibility="gone" />
-
-                <Button
-                    android:id="@+id/comment_code"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="0dp"
-                    android:padding="0dp"
-                    android:text="@string/reply_comment_button_code"
-                    android:textAllCaps="false"
-                    android:textSize="15dp"
-                    android:visibility="gone" />
-
-            </LinearLayout>
-
             <CheckBox
                 android:id="@+id/spoiler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/reply_spoiler_image"
                 android:textSize="14sp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <LinearLayout
                 android:id="@+id/preview_holder"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:orientation="horizontal"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <View
                     android:layout_width="0dp"
@@ -201,7 +161,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <EditText
                 android:id="@+id/file_name"
@@ -210,7 +171,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:hint="@string/reply_file_name"
                 android:singleLine="true"
                 android:textSize="16sp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible" />
 
         </LinearLayout>
 
@@ -232,6 +194,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:padding="6dp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/captcha_container"
+                android:layout_width="36dp"
+                android:layout_height="36dp">
+
+                <ImageView
+                    android:id="@+id/captcha"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_captcha" />
+
+                <TextView
+                    android:id="@+id/valid_captchas_count"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@drawable/circle_background"
+                    android:gravity="center"
+                    android:textColor="#fff"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:text="99+" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ImageView
                 android:id="@+id/submit"

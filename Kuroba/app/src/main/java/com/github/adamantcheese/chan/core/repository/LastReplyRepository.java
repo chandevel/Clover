@@ -24,6 +24,7 @@ import java.util.Map;
 
 public class LastReplyRepository {
     private Map<SiteBoard, Long> lastReplyMap = new HashMap<>();
+    private Map<SiteBoard, Long> lastThreadMap = new HashMap<>();
 
     public void putLastReply(Site s, Board b) {
         lastReplyMap.put(new SiteBoard(s, b), System.currentTimeMillis());
@@ -34,9 +35,24 @@ public class LastReplyRepository {
         return lastTime != null ? lastTime : 0L;
     }
 
-    public boolean canPost(Site s, Board b) {
+    public void putLastThread(Site s, Board b) {
+        lastThreadMap.put(new SiteBoard(s, b), System.currentTimeMillis());
+    }
+
+    public long getLastThread(Site s, Board b) {
+        Long lastTime = lastThreadMap.get(new SiteBoard(s, b));
+        return lastTime != null ? lastTime : 0L;
+    }
+
+    public boolean canPostReply(Site s, Board b, boolean hasImage) {
         boolean half = s.name().equals("4chan") && s.actions().isLoggedIn();
-        return getLastReply(s, b) + (half ? b.cooldownReplies * 500 : b.cooldownReplies * 1000) < System.currentTimeMillis();
+        int cooldownTime = (hasImage ? b.cooldownImages : b.cooldownReplies) * (half ? 500 : 1000);
+        return getLastReply(s, b) + cooldownTime < System.currentTimeMillis();
+    }
+
+    public boolean canPostThread(Site s, Board b) {
+        boolean half = s.name().equals("4chan") && s.actions().isLoggedIn();
+        return getLastThread(s, b) + b.cooldownThreads * (half ? 500 : 1000) < System.currentTimeMillis();
     }
 
     private class SiteBoard {

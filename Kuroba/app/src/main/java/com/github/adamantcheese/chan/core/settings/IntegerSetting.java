@@ -16,7 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.settings;
 
-public class IntegerSetting extends Setting<Integer> {
+public class IntegerSetting
+        extends Setting<Integer> {
     private boolean hasCached = false;
     private Integer cached;
 
@@ -39,6 +40,14 @@ public class IntegerSetting extends Setting<Integer> {
     public void set(Integer value) {
         if (!value.equals(get())) {
             settingProvider.putInt(key, value);
+            cached = value;
+            onValueChanged();
+        }
+    }
+
+    public void setSync(Integer value) {
+        if (!value.equals(get())) {
+            settingProvider.putIntSync(key, value);
             cached = value;
             onValueChanged();
         }

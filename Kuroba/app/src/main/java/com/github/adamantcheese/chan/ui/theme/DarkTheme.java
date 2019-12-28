@@ -16,25 +16,31 @@
  */
 package com.github.adamantcheese.chan.ui.theme;
 
-import com.github.adamantcheese.chan.R;
+import android.graphics.Typeface;
 
-public class DarkTheme extends Theme {
-    public DarkTheme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor) {
-        super(displayName, name, resValue, primaryColor);
+public class DarkTheme
+        extends Theme {
+    public DarkTheme(
+            String displayName,
+            String name,
+            int resValue,
+            ThemeHelper.PrimaryColor primaryColor,
+            Typeface mainFont,
+            Typeface altFont
+    ) {
+        super(displayName, name, resValue, primaryColor, mainFont, altFont);
         isLightTheme = false;
     }
 
     public void resolveDrawables() {
-        super.resolveDrawables();
-        settingsDrawable = new ThemeDrawable(R.drawable.ic_settings_white_24dp, 1f);
-        imageDrawable = new ThemeDrawable(R.drawable.ic_image_white_24dp, 1f);
-        sendDrawable = new ThemeDrawable(R.drawable.ic_send_white_24dp, 1f);
-        clearDrawable = new ThemeDrawable(R.drawable.ic_clear_white_24dp, 1f);
-        backDrawable = new ThemeDrawable(R.drawable.ic_arrow_back_white_24dp, 1f);
-        doneDrawable = new ThemeDrawable(R.drawable.ic_done_white_24dp, 1f);
-        historyDrawable = new ThemeDrawable(R.drawable.ic_history_white_24dp, 1f);
-        listAddDrawable = new ThemeDrawable(R.drawable.ic_playlist_add_white_24dp, 1f);
-        helpDrawable = new ThemeDrawable(R.drawable.ic_help_outline_white_24dp, 1f);
-        refreshDrawable = new ThemeDrawable(R.drawable.ic_refresh_white_24dp, 1f);
+        settingsDrawable.setAlpha(1f);
+        imageDrawable.setAlpha(1f);
+        sendDrawable.setAlpha(1f);
+        clearDrawable.setAlpha(1f);
+        backDrawable.setAlpha(1f);
+        doneDrawable.setAlpha(1f);
+        historyDrawable.setAlpha(1f);
+        helpDrawable.setAlpha(1f);
+        refreshDrawable.setAlpha(1f);
     }
 }

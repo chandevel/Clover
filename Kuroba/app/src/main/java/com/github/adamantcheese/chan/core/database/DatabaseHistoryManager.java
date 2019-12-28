@@ -49,7 +49,8 @@ public class DatabaseHistoryManager {
 
     public Callable<Void> load() {
         return () -> {
-            Chan.injector().provider(DatabaseManager.class).get().trimTable(helper.historyDao, "history", HISTORY_TRIM_TRIGGER, HISTORY_TRIM_COUNT);
+            Chan.instance(DatabaseManager.class)
+                    .trimTable(helper.historyDao, "history", HISTORY_TRIM_TRIGGER, HISTORY_TRIM_COUNT);
 
             return null;
         };
@@ -59,8 +60,7 @@ public class DatabaseHistoryManager {
         return () -> {
             QueryBuilder<History, Integer> historyQuery = helper.historyDao.queryBuilder();
             List<History> date = historyQuery.orderBy("date", false).query();
-            for (int i = 0; i < date.size(); i++) {
-                History history = date.get(i);
+            for (History history : date) {
                 history.loadable = databaseLoadableManager.refreshForeign(history.loadable);
             }
             return date;

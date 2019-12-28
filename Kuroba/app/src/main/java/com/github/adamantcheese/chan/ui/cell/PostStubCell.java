@@ -27,7 +27,9 @@ import android.widget.TextView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
@@ -38,7 +40,9 @@ import java.util.List;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class PostStubCell extends RelativeLayout implements PostCellInterface, View.OnClickListener {
+public class PostStubCell
+        extends RelativeLayout
+        implements PostCellInterface, View.OnClickListener {
     private static final int TITLE_MAX_LENGTH = 100;
 
     private boolean bound;
@@ -92,9 +96,9 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
         });
     }
 
-    private void showOptions(View anchor, List<FloatingMenuItem> items,
-                             List<FloatingMenuItem> extraItems,
-                             Object extraOption) {
+    private void showOptions(
+            View anchor, List<FloatingMenuItem> items, List<FloatingMenuItem> extraItems, Object extraOption
+    ) {
         FloatingMenu menu = new FloatingMenu(getContext(), anchor, items);
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
@@ -138,10 +142,19 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
         }
     }
 
-    public void setPost(final Post post, PostCellInterface.PostCellCallback callback,
-                        boolean selectable, boolean highlighted, boolean selected, int markedNo,
-                        boolean showDivider, ChanSettings.PostViewMode postViewMode,
-                        boolean compact) {
+    public void setPost(
+            Loadable loadable,
+            final Post post,
+            PostCellInterface.PostCellCallback callback,
+            boolean selectable,
+            boolean highlighted,
+            boolean selected,
+            int markedNo,
+            boolean showDivider,
+            ChanSettings.PostViewMode postViewMode,
+            boolean compact,
+            Theme theme
+    ) {
         if (this.post == post) {
             return;
         }
@@ -187,8 +200,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
             title.setText(titleText);
         }
 
-        divider.setVisibility(postViewMode == ChanSettings.PostViewMode.CARD ? GONE :
-                (showDivider ? VISIBLE : GONE));
+        divider.setVisibility(postViewMode == ChanSettings.PostViewMode.CARD ? GONE : (showDivider ? VISIBLE : GONE));
     }
 
     private void unbindPost() {

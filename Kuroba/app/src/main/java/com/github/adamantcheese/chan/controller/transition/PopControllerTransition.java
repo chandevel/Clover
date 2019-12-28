@@ -26,7 +26,8 @@ import android.view.animation.DecelerateInterpolator;
 
 import com.github.adamantcheese.chan.controller.ControllerTransition;
 
-public class PopControllerTransition extends ControllerTransition {
+public class PopControllerTransition
+        extends ControllerTransition {
     @Override
     public void perform() {
         Animator toAlpha = ObjectAnimator.ofFloat(to.view, View.ALPHA, to.view.getAlpha(), 1f);

@@ -17,15 +17,17 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
-import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.github.adamantcheese.chan.R;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class DrawerWidthAdjustingLayout extends DrawerLayout {
+public class DrawerWidthAdjustingLayout
+        extends DrawerLayout {
     public DrawerWidthAdjustingLayout(Context context) {
         super(context);
     }
@@ -40,10 +42,7 @@ public class DrawerWidthAdjustingLayout extends DrawerLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-//        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-//        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
         View drawer = findViewById(R.id.drawer);
 

@@ -1,25 +1,96 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
+    // !!! IMPORTANT !!!
+    // When changing any of the following: compileSdkVersion, targetSdkVersion
+    // don't forget to also update travis.yml config
+    // !!! IMPORTANT !!!
+
     compileSdkVersion 28
 
+    def getCommitHash = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+
     defaultConfig {
-        minSdkVersion 22
+        minSdkVersion 21
         targetSdkVersion 28
 
-        // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
-        // (watch out for octal notation, never start with a 0)
-        // version name should be of the form vXX.YY.ZZ
-        versionCode 40009
-        versionName "v4.0.9"
+        /**
+         * ------------------------------------------------------------
+         *
+         *              CHANGE PER RELEASE BUILD
+         *              SEE docs/release.txt FOR INFO
+         *
+         * ------------------------------------------------------------
+         */
+        //bump the MAJOR (XX) version when there are incompatible changes between versions
+        //or major changes to the application that would require a reinstall
+        //bump the MINOR (YY) version when there are compatible changes between versions (ie database changes)
+        //or if there are big application level changes like tearing out/adding major features
+        //bump the PATCH (ZZ) version otherwise, for anything small
+        int major = 4
+        int minor = 10
+        int patch = 2
 
+        /**
+         * ------------------------------------------------------------
+         *
+         *              CHANGE PER NEW FORK MODIFICATION
+         *              IF AND ONLY IF NECESSARY
+         *
+         * ------------------------------------------------------------
+         */
+        //if you change this, also change the AndroidManifest package
         applicationId "com.github.adamantcheese.chan"
+        //ALL ENDPOINTS SHOULD BE HTTPS
+        //these are your update and github repo endpoints, change it to your repository
+        //the repo endpoint is also used to calculate the issues endpoint
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
+        buildConfigField "String", "GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba\""
+        //this is for your development server endpoint
+        //you WILL need to change the code in UpdateManager if your endpoint changes or you use a different API structure
+        buildConfigField "String", "DEV_API_ENDPOINT", "\"http://94.140.116.243:8080\""
+        //this is for checking who's built what in debug logs
+        buildConfigField "String", "SIGNATURE", "\"8952c098\""
+
+        /**
+         * ------------------------------------------------------------
+         *
+         *              DON'T CHANGE THESE AUTO-CALCULATIONS
+         *              USED FOR VERSION CODE GENERATION
+         *              USED FOR VERSION NAME GENERATION
+         *              USED FOR AUTO UPDATER NAMING CONSISTENCY
+         *
+         * ------------------------------------------------------------
+         */
+        versionCode major * 10000 + minor * 100 + patch
+        versionName "v" + major + "." + minor + "." + patch
+
+        applicationVariants.all { variant ->
+            variant.outputs.all {
+                outputFileName = manifestPlaceholders.get("appName").toString() + ".apk"
+            }
+        }
+
+        buildConfigField "String", "COMMIT_HASH", "\"" + getCommitHash() + "\""
     }
 
     compileOptions {
+        encoding = 'UTF-8'
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        freeCompilerArgs = ["-Xallow-result-return-type"]
     }
 
     lintOptions {
@@ -29,37 +100,77 @@ android {
     // Needed for volley
     useLibrary 'org.apache.http.legacy'
 
-    android.applicationVariants.all { variant ->
-        variant.outputs.all {
-            outputFileName = "Kuroba.apk"
+    packagingOptions {
+        exclude 'META-INF/*'
+    }
+
+    flavorDimensions "default"
+
+    productFlavors {
+        stable {
+            dimension "default"
+            applicationIdSuffix ""
+            versionNameSuffix ""
+
+            buildConfigField "boolean", "DEV_BUILD", "false"
+            buildConfigField "int", "UPDATE_DELAY", "5"
+
+            // These are manifest placeholders for the application name, icon location and file
+            // provider authority (the file provider authority should differ for different flavors
+            // otherwise the app will not work)
+            manifestPlaceholders = [
+                    appName              : "Kuroba",
+                    iconLoc              : "@mipmap/ic_launcher",
+                    fileProviderAuthority: "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider",
+                    devBuild             : false
+            ]
+        }
+        dev {
+            dimension "default"
+            // Different app ids for different flavors so that the users are able to install both
+            // of them without deleting anything
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-${getCommitHash().substring(0, 7)}"
+
+            // To easily figure out whether the app uses development flavors or not
+            buildConfigField "boolean", "DEV_BUILD", "true"
+            buildConfigField "int", "UPDATE_DELAY", "1"
+
+            // The same as in stable flavor
+            manifestPlaceholders = [
+                    appName              : "Kuroba-dev",
+                    iconLoc              : "@mipmap/ic_launcher",
+                    fileProviderAuthority: "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider",
+                    devBuild             : true
+            ]
         }
     }
 
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/ASL2.0'
-        exclude 'META-INF/LICENSE-LGPL-3.txt'
-        exclude 'META-INF/LICENSE-LGPL-2.1.txt'
-        exclude 'META-INF/LICENSE-W3C-TEST'
-    }
-
     buildTypes {
+        // manifestPlaceholders do not work here for some reason so here is a little hack.
+        // We need to iterate each build variant and for each build variant we need to find it's
+        // flavor then we need to extract the versionNameSuffix from the flavor and update the output
+        // apk name with it.
+        android.applicationVariants.all { variant ->
+            variant.outputs.all {
+                Object flavor = getCurrentFlavor(variant.flavorName)
+                if (flavor == null) {
+                    throw new GradleException("Couldn't find flavor by variant.flavorName = ${variant.flavorName}")
+                }
+
+                outputFileName = "Kuroba${flavor.versionNameSuffix}.apk"
+            }
+        }
+
         release {
             /*
-            If you want to sign releases, make a file in app/keys.properties with the following content:
+            If you want to sign releases without using "Generate Signed APK", make a file in app/keys.properties with the following content:
             keystoreFile=yourkey.store
             keystorePass=pass
             keyAlias=alias
             keyPass=pass
             */
-            // This code exists specifically so you don't have to use the "Generate Signed APK" function in Android Studio
-            // Just select your build variant (debug/release) and do build -> APK
+            // Just select your build variant (debug/release) and do Build -> APK
             File f = file('keys.properties')
             if (f.exists()) {
                 Properties props = new Properties()
@@ -78,11 +189,32 @@ android {
                 is.close()
                 signingConfig signingConfigs.release
             }
-            minifyEnabled true
+            // Because we're always on dev, don't minify to make sure that crash logs are intelligible
+            //You can turn this on if you wish
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
             debuggable = false
         }
         debug {
+            File f = file('debug.properties')
+            if (f.exists()) {
+                Properties props = new Properties()
+                InputStream is = new FileInputStream(f)
+                props.load(is)
+
+                signingConfigs {
+                    debug {
+                        storeFile file(props['keystoreFile'])
+                        storePassword props['keystorePass']
+                        keyAlias props['keyAlias']
+                        keyPassword props['keyPass']
+                    }
+                }
+
+                is.close()
+                signingConfig signingConfigs.debug
+            }
+
             minifyEnabled false
             debuggable = true
         }
@@ -90,28 +222,118 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.legacy:legacy-support-v13:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
-    implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.annotation:annotation:1.0.2'
-    implementation 'androidx.exifinterface:exifinterface:1.0.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.browser:browser:1.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.collection:collection:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-
-    implementation 'com.google.android.exoplayer:exoplayer:2.10.1'
-
-    implementation 'com.squareup.okhttp3:okhttp:3.14.1'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
+    implementation 'androidx.core:core:1.1.0'
+    implementation 'androidx.drawerlayout:drawerlayout:1.0.0'
+    implementation 'androidx.exifinterface:exifinterface:1.1.0'
+    implementation 'androidx.lifecycle:lifecycle-common:2.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.slidingpanelayout:slidingpanelayout:1.0.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
+    implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
+    implementation 'androidx.viewpager:viewpager:1.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.exoplayer:exoplayer:2.10.4'
+    implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.2.2'
     implementation 'com.j256.ormlite:ormlite-core:5.1'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
-    implementation 'org.jsoup:jsoup:1.11.3'
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.12'
+    implementation 'org.jsoup:jsoup:1.12.1'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.17'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
-    implementation 'de.greenrobot:eventbus:2.4.0'
+    implementation 'org.greenrobot:eventbus:3.1.1'
     implementation 'org.nibor.autolink:autolink:0.10.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'me.xdrop:fuzzywuzzy:1.1.10'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'me.xdrop:fuzzywuzzy:1.2.0'
     implementation 'org.codejargon.feather:feather:1.0'
-    implementation 'com.vladsch.flexmark:flexmark-all:0.42.12'
+    implementation 'com.vladsch.flexmark:flexmark:0.50.44'
+    implementation 'com.vdurmont:emoji-java:5.1.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha18'
+    implementation 'joda-time:joda-time:2.10.5'
+
+    testImplementation 'junit:junit:4.12'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
+}
+
+//====================================================================
+// All of the below functions are being used by the upload_apk script
+//====================================================================
+
+def getCurrentFlavor(String name) {
+    Object resultFlavor = null
+
+    android.productFlavors.all { flavor ->
+        if (flavor.name == name) {
+            resultFlavor = flavor
+        }
+    }
+
+    return resultFlavor
+}
+
+def getLatestCommit(String branchName) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        def printArgs = "%H; %ad; %s"
+
+        commandLine 'git', 'log', branchName, '-n 1', "--pretty=format:${printArgs}", "--date=iso8601-strict"
+        standardOutput = stdout
+    }
+
+    return stdout.toString().trim()
+}
+
+def getLastCommitsFromCommitByHash(String branchName, String from) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        def printArgs = "%H; %ad; %s"
+
+        commandLine 'git', 'log', branchName, "${from}..HEAD", "--pretty=format:${printArgs}", "--date=iso8601-strict"
+        standardOutput = stdout
+    }
+
+    return stdout.toString().trim()
+}
+
+def checkBranchExists(String branchName) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--verify', branchName
+        standardOutput = stdout
+    }
+
+    return stdout.toString().trim()
+}
+
+task checkBranchExistsTask {
+    doLast {
+        println(checkBranchExists(branch_name))
+    }
+}
+
+task getLatestCommitTask {
+    doLast {
+        println(getLatestCommit(branch_name))
+    }
+}
+
+task getLastCommitsFromCommitByHashTask {
+    doLast {
+        println(getLastCommitsFromCommitByHash(branch_name, from))
+    }
+}
+
+task getVersionCodeTask {
+    doLast {
+        println(project.android.defaultConfig.versionCode)
+    }
 }

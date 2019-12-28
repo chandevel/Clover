@@ -3,15 +3,14 @@ package com.github.adamantcheese.chan.core.database;
 import android.annotation.SuppressLint;
 import android.util.Pair;
 
+import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.model.orm.SiteModel;
+import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedUpdate;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.UpdateBuilder;
-
-import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.model.orm.SiteModel;
-import com.github.adamantcheese.chan.core.site.Site;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,8 +36,7 @@ public class DatabaseBoardManager {
     public Callable<Board> createOrUpdate(final Board board) {
         return () -> {
             QueryBuilder<Board, Integer> q = helper.boardsDao.queryBuilder();
-            q.where().eq("site", board.getSite().id())
-                    .and().eq("value", board.code);
+            q.where().eq("site", board.getSite().id()).and().eq("value", board.code);
             Board existing = q.queryForFirst();
             if (existing != null) {
                 existing.updateExcludingUserFields(board);
@@ -137,8 +135,10 @@ public class DatabaseBoardManager {
     public Callable<Board> getBoard(final Site site, final String code) {
         return () -> {
             Board board = helper.boardsDao.queryBuilder()
-                    .where().eq("site", site.id())
-                    .and().eq("value", code)
+                    .where()
+                    .eq("site", site.id())
+                    .and()
+                    .eq("value", code)
                     .queryForFirst();
 
             if (board != null) {
@@ -163,17 +163,14 @@ public class DatabaseBoardManager {
 
             List<Site> sitesOrdered = new ArrayList<>(sites);
             // Sort the given sites array with these orders.
-            Collections.sort(sitesOrdered,
-                    (lhs, rhs) -> ordering.get(lhs.id()) - ordering.get(rhs.id()));
+            Collections.sort(sitesOrdered, (lhs, rhs) -> ordering.get(lhs.id()) - ordering.get(rhs.id()));
 
             // Query all boards belonging to any of these sites.
             List<Integer> siteIds = new ArrayList<>(sitesOrdered.size());
             for (Site site : sitesOrdered) {
                 siteIds.add(site.id());
             }
-            List<Board> allBoards = helper.boardsDao.queryBuilder()
-                    .where().in("site", siteIds)
-                    .query();
+            List<Board> allBoards = helper.boardsDao.queryBuilder().where().in("site", siteIds).query();
 
             // Map the boards from siteId to a list of boards.
             Map<Integer, Site> sitesById = new HashMap<>();
@@ -206,9 +203,7 @@ public class DatabaseBoardManager {
 
     public Callable<List<Board>> getSiteBoards(final Site site) {
         return () -> {
-            List<Board> boards = helper.boardsDao.queryBuilder()
-                    .where().eq("site", site.id())
-                    .query();
+            List<Board> boards = helper.boardsDao.queryBuilder().where().eq("site", site.id()).query();
             for (int i = 0; i < boards.size(); i++) {
                 Board board = boards.get(i);
                 board.site = site;
@@ -219,10 +214,8 @@ public class DatabaseBoardManager {
 
     public Callable<List<Board>> getSiteSavedBoards(final Site site) {
         return () -> {
-            List<Board> boards = helper.boardsDao.queryBuilder()
-                    .where().eq("site", site.id())
-                    .and().eq("saved", true)
-                    .query();
+            List<Board> boards =
+                    helper.boardsDao.queryBuilder().where().eq("site", site.id()).and().eq("saved", true).query();
             for (int i = 0; i < boards.size(); i++) {
                 Board board = boards.get(i);
                 board.site = site;
@@ -235,8 +228,7 @@ public class DatabaseBoardManager {
         return () -> {
             DeleteBuilder<Board, Integer> builder = helper.boardsDao.deleteBuilder();
 
-            builder.where()
-                    .eq("site", site.id());
+            builder.where().eq("site", site.id());
             builder.delete();
 
             return null;

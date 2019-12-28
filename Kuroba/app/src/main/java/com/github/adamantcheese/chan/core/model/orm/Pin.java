@@ -17,12 +17,14 @@
 package com.github.adamantcheese.chan.core.model.orm;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "pin")
-public class Pin implements Comparable<Pin>, Cloneable {
+public class Pin
+        implements Comparable<Pin>, Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -47,14 +49,20 @@ public class Pin implements Comparable<Pin>, Cloneable {
     @DatabaseField
     public boolean isError = false;
 
-    @DatabaseField
-    public String thumbnailUrl = null;
+    @DatabaseField(canBeNull = false)
+    public String thumbnailUrl = "";
 
     @DatabaseField
     public int order = -1;
 
     @DatabaseField
     public boolean archived = false;
+
+    /**
+     * Pins can now be used to either watch new posts or save new posts or do both
+     */
+    @DatabaseField(columnName = "pin_type")
+    public int pinType;
 
     public Pin() {
     }
@@ -69,7 +77,8 @@ public class Pin implements Comparable<Pin>, Cloneable {
             boolean isError,
             String thumbnailUrl,
             int order,
-            boolean archived
+            boolean archived,
+            int pinType
     ) {
         this.loadable = loadable;
         this.watching = watching;
@@ -81,6 +90,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
         this.thumbnailUrl = thumbnailUrl;
         this.order = order;
         this.archived = archived;
+        this.pinType = pinType;
     }
 
     public int getNewPostCount() {
@@ -99,6 +109,7 @@ public class Pin implements Comparable<Pin>, Cloneable {
         }
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public Pin clone() {
         Pin copy = new Pin();
@@ -113,11 +124,44 @@ public class Pin implements Comparable<Pin>, Cloneable {
         copy.thumbnailUrl = thumbnailUrl;
         copy.order = order;
         copy.archived = archived;
+        copy.pinType = pinType;
         return copy;
     }
 
     @Override
     public int compareTo(@NonNull Pin o) {
         return this.order - o.order;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * loadable.id + 31 * id;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Pin other = (Pin) obj;
+
+        return this.id == other.id && this.loadable.id == other.loadable.id;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "[id = " + id + ", pinType = " + pinType + ", isError = " + isError + ", isArchived = " + archived
+                + ", watching = " + watching + ", (active) = " + (!isError && !archived) + ", no = " + loadable.no
+                + "]";
     }
 }

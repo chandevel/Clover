@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.ControllerTransition;
@@ -26,7 +25,10 @@ import com.github.adamantcheese.chan.controller.ui.NavigationControllerContainer
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
-public class StyledToolbarNavigationController extends ToolbarNavigationController {
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+
+public class StyledToolbarNavigationController
+        extends ToolbarNavigationController {
     public StyledToolbarNavigationController(Context context) {
         super(context);
     }
@@ -35,20 +37,19 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.controller_navigation_toolbar);
+        view = inflate(context, R.layout.controller_navigation_toolbar);
         container = (NavigationControllerContainerLayout) view.findViewById(R.id.container);
         NavigationControllerContainerLayout nav = (NavigationControllerContainerLayout) container;
         nav.setNavigationController(this);
         nav.setSwipeEnabled(ChanSettings.controllerSwipeable.get());
         toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(Chan.injector().instance(ThemeHelper.class).getTheme().primaryColor.color);
+        toolbar.setBackgroundColor(ThemeHelper.getTheme().primaryColor.color);
         toolbar.setCallback(this);
     }
 
     @Override
     public boolean popController(ControllerTransition controllerTransition) {
         return !toolbar.isTransitioning() && super.popController(controllerTransition);
-
     }
 
     @Override

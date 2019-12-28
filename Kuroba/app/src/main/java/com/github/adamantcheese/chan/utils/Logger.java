@@ -20,109 +20,124 @@ import android.util.Log;
 
 import com.github.adamantcheese.chan.BuildConfig;
 
-public class Logger {
-    private static final String TAG = "Kuroba";
-    private static final String TAG_SPACER = " | ";
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
+public class Logger {
+    private static final String TAG_PREFIX = getApplicationLabel() + " | ";
+
+    //region VERBOSE
     public static void v(String tag, String message) {
         if (BuildConfig.DEBUG) {
-            Log.v(TAG + TAG_SPACER + tag, message);
+            Log.v(TAG_PREFIX + tag, message);
         }
     }
 
     public static void v(String tag, String message, Throwable throwable) {
         if (BuildConfig.DEBUG) {
-            Log.v(TAG + TAG_SPACER + tag, message, throwable);
+            Log.v(TAG_PREFIX + tag, message, throwable);
         }
     }
 
     public static void v(String tag, String format, Object... args) {
         if (BuildConfig.DEBUG) {
-            Log.v(TAG + TAG_SPACER + tag, String.format(format, args));
+            Log.v(TAG_PREFIX + tag, String.format(format, args));
         }
     }
+    //endregion VERBOSE
 
+    //region DEBUG
     public static void d(String tag, String message) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG + TAG_SPACER + tag, message);
+            Log.d(TAG_PREFIX + tag, message);
         }
     }
 
     public static void d(String tag, String message, Throwable throwable) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG + TAG_SPACER + tag, message, throwable);
+            Log.d(TAG_PREFIX + tag, message, throwable);
         }
     }
 
     public static void d(String tag, String format, Object... args) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG + TAG_SPACER + tag, String.format(format, args));
+            Log.d(TAG_PREFIX + tag, String.format(format, args));
         }
     }
+    //endregion DEBUG
 
+    //region INFO
     public static void i(String tag, String message) {
-        Log.i(TAG + TAG_SPACER + tag, message);
+        Log.i(TAG_PREFIX + tag, message);
     }
 
     public static void i(String tag, String message, Throwable throwable) {
-        Log.i(TAG + TAG_SPACER + tag, message, throwable);
+        Log.i(TAG_PREFIX + tag, message, throwable);
     }
 
     public static void i(String tag, String format, Object... args) {
-        Log.i(TAG + TAG_SPACER + tag, String.format(format, args));
+        Log.i(TAG_PREFIX + tag, String.format(format, args));
     }
+    //endregion INFO
 
+    //region WARN
     public static void w(String tag, String message) {
-        Log.w(TAG + TAG_SPACER + tag, message);
+        Log.w(TAG_PREFIX + tag, message);
     }
 
     public static void w(String tag, String message, Throwable throwable) {
-        Log.w(TAG + TAG_SPACER + tag, message, throwable);
+        Log.w(TAG_PREFIX + tag, message, throwable);
     }
 
     public static void w(String tag, String format, Object... args) {
-        Log.w(TAG + TAG_SPACER + tag, String.format(format, args));
+        Log.w(TAG_PREFIX + tag, String.format(format, args));
     }
+    //endregion WARN
 
+    //region ERROR
     public static void e(String tag, String message) {
-        Log.e(TAG + TAG_SPACER + tag, message);
+        Log.e(TAG_PREFIX + tag, message);
     }
 
     public static void e(String tag, String message, Throwable throwable) {
-        Log.e(TAG + TAG_SPACER + tag, message, throwable);
+        Log.e(TAG_PREFIX + tag, message, throwable);
     }
 
     public static void e(String tag, String format, Object... args) {
-        Log.e(TAG + TAG_SPACER + tag, String.format(format, args));
+        Log.e(TAG_PREFIX + tag, String.format(format, args));
     }
+    //endregion ERROR
 
+    //region WTF
     public static void wtf(String tag, String message) {
-        Log.wtf(TAG + TAG_SPACER + tag, message);
+        Log.wtf(TAG_PREFIX + tag, message);
     }
 
     public static void wtf(String tag, String message, Throwable throwable) {
-        Log.wtf(TAG + TAG_SPACER + tag, message, throwable);
+        Log.wtf(TAG_PREFIX + tag, message, throwable);
     }
 
     public static void wtf(String tag, String format, Object... args) {
-        Log.wtf(TAG + TAG_SPACER + tag, String.format(format, args));
+        Log.wtf(TAG_PREFIX + tag, String.format(format, args));
     }
+    //endregion WTF
 
+    //region TEST
     public static void test(String message) {
         if (BuildConfig.DEBUG) {
-            Log.i(TAG + TAG_SPACER + "test", message);
+            Log.i(TAG_PREFIX + "test", message);
         }
     }
 
     public static void test(String message, Throwable throwable) {
         if (BuildConfig.DEBUG) {
-            Log.i(TAG + TAG_SPACER + "test", message, throwable);
+            Log.i(TAG_PREFIX + "test", message, throwable);
         }
     }
 
     public static void test(String format, Object... args) {
         if (BuildConfig.DEBUG) {
-            Log.i(TAG + TAG_SPACER + "test", String.format(format, args));
+            Log.i(TAG_PREFIX + "test", String.format(format, args));
         }
     }
+    //endregion TEST
 }

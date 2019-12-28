@@ -16,6 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
+import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+
 public class ToolbarPresenter {
     public enum AnimationStyle {
         NONE,
@@ -38,7 +41,7 @@ public class ToolbarPresenter {
         this.callback = callback;
     }
 
-    void set(NavigationItem newItem, AnimationStyle animation) {
+    void set(NavigationItem newItem, Theme theme, AnimationStyle animation) {
         cancelTransitionIfNeeded();
         if (closeSearchIfNeeded()) {
             animation = AnimationStyle.FADE;
@@ -46,7 +49,7 @@ public class ToolbarPresenter {
 
         item = newItem;
 
-        callback.showForNavigationItem(item, animation);
+        callback.showForNavigationItem(item, theme, animation);
     }
 
     void update(NavigationItem updatedItem) {
@@ -56,7 +59,7 @@ public class ToolbarPresenter {
     void startTransition(NavigationItem newItem) {
         cancelTransitionIfNeeded();
         if (closeSearchIfNeeded()) {
-            callback.showForNavigationItem(item, AnimationStyle.NONE);
+            callback.showForNavigationItem(item, ThemeHelper.getTheme(), AnimationStyle.NONE);
         }
 
         transition = newItem;
@@ -73,7 +76,7 @@ public class ToolbarPresenter {
 
         if (didComplete) {
             item = transition;
-            callback.showForNavigationItem(item, AnimationStyle.NONE);
+            callback.showForNavigationItem(item, ThemeHelper.getTheme(), AnimationStyle.NONE);
         }
         transition = null;
     }
@@ -92,7 +95,7 @@ public class ToolbarPresenter {
         cancelTransitionIfNeeded();
 
         item.search = true;
-        callback.showForNavigationItem(item, AnimationStyle.FADE);
+        callback.showForNavigationItem(item, ThemeHelper.getTheme(), AnimationStyle.NONE);
 
         callback.onSearchVisibilityChanged(item, true);
     }
@@ -102,7 +105,7 @@ public class ToolbarPresenter {
 
         item.search = false;
         item.searchText = null;
-        set(item, AnimationStyle.FADE);
+        set(item, null, AnimationStyle.FADE);
 
         callback.onSearchVisibilityChanged(item, false);
 
@@ -116,7 +119,7 @@ public class ToolbarPresenter {
         }
     }
 
-    private boolean closeSearchIfNeeded() {
+    public boolean closeSearchIfNeeded() {
         // Cancel search, but don't unmark it as a search item so that onback will automatically pull up the search window
         if (item != null && item.search) {
             callback.onSearchVisibilityChanged(item, false);
@@ -135,7 +138,7 @@ public class ToolbarPresenter {
     }
 
     interface Callback {
-        void showForNavigationItem(NavigationItem item, AnimationStyle animation);
+        void showForNavigationItem(NavigationItem item, Theme theme, AnimationStyle animation);
 
         void containerStartTransition(NavigationItem item, TransitionAnimationStyle animation);
 

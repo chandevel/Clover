@@ -16,24 +16,26 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.android.volley.toolbox.ImageLoader.ImageListener;
+import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.Chan.injector;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 public class SiteIcon {
     private static final String TAG = "SiteIcon";
     private static final int FAVICON_SIZE = 64;
 
     private HttpUrl url;
+    private Drawable drawable;
 
     public static SiteIcon fromFavicon(HttpUrl url) {
         SiteIcon siteIcon = new SiteIcon();
@@ -41,16 +43,24 @@ public class SiteIcon {
         return siteIcon;
     }
 
+    public static SiteIcon fromDrawable(Drawable drawable) {
+        SiteIcon siteIcon = new SiteIcon();
+        siteIcon.drawable = drawable;
+        return siteIcon;
+    }
+
     private SiteIcon() {
     }
 
     public void get(SiteIconResult result) {
-        if (url != null) {
-            injector().instance(ImageLoader.class).get(url.toString(), new ImageLoader.ImageListener() {
+        if (drawable != null) {
+            result.onSiteIcon(SiteIcon.this, drawable);
+        } else if (url != null) {
+            instance(ImageLoaderV2.class).get(url.toString(), new ImageListener() {
                 @Override
-                public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                public void onResponse(ImageContainer response, boolean isImmediate) {
                     if (response.getBitmap() != null) {
-                        Drawable drawable = new BitmapDrawable(getAppContext().getResources(), response.getBitmap());
+                        Drawable drawable = new BitmapDrawable(getRes(), response.getBitmap());
                         result.onSiteIcon(SiteIcon.this, drawable);
                     }
                 }

@@ -18,7 +18,8 @@ package com.github.adamantcheese.chan.core.settings;
 
 import android.content.SharedPreferences;
 
-public class SharedPreferencesSettingProvider implements SettingProvider {
+public class SharedPreferencesSettingProvider
+        implements SettingProvider {
     private SharedPreferences prefs;
 
     public SharedPreferencesSettingProvider(SharedPreferences prefs) {
@@ -80,5 +81,15 @@ public class SharedPreferencesSettingProvider implements SettingProvider {
     @Override
     public void putStringSync(String key, String value) {
         prefs.edit().putString(key, value).commit();
+    }
+
+    @Override
+    public void removeSync(String key) {
+        prefs.edit().remove(key).commit();
+    }
+
+    @Override
+    public void putIntSync(String key, Integer value) {
+        prefs.edit().putInt(key, value).commit();
     }
 }

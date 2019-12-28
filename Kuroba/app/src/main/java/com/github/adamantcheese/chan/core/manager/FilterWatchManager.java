@@ -23,15 +23,20 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,9 +45,10 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import static com.github.adamantcheese.chan.Chan.instance;
 
-public class FilterWatchManager implements WakeManager.Wakeable {
+public class FilterWatchManager
+        implements WakeManager.Wakeable {
     private static final String TAG = "FilterWatchManager";
 
     private final WakeManager wakeManager;
@@ -61,14 +67,18 @@ public class FilterWatchManager implements WakeManager.Wakeable {
     //keep track of how many boards we've checked and their posts so we can cut out things from the ignored posts
     private int numBoardsChecked = 0;
     private Set<Post> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
+    private List<Filter> filters;
+    private boolean processing = false;
 
     @Inject
-    public FilterWatchManager(WakeManager wakeManager,
-                              FilterEngine filterEngine,
-                              WatchManager watchManager,
-                              ChanLoaderFactory chanLoaderFactory,
-                              BoardRepository boardRepository,
-                              DatabaseManager databaseManager) {
+    public FilterWatchManager(
+            WakeManager wakeManager,
+            FilterEngine filterEngine,
+            WatchManager watchManager,
+            ChanLoaderFactory chanLoaderFactory,
+            BoardRepository boardRepository,
+            DatabaseManager databaseManager
+    ) {
         this.wakeManager = wakeManager;
         this.filterEngine = filterEngine;
         this.watchManager = watchManager;
@@ -76,31 +86,38 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         this.boardRepository = boardRepository;
         this.databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
 
-        if (ChanSettings.watchFilterWatch.get()) {
-            wakeManager.registerWakeable(this);
-        }
+        wakeManager.registerWakeable(this);
 
-        EventBus.getDefault().register(this);
+        Set<Integer> previousIgnore = instance(Gson.class).fromJson(ChanSettings.filterWatchIgnored.get(),
+                new TypeToken<Set<Integer>>() {}.getType()
+        );
+        if (previousIgnore != null) ignoredPosts.addAll(previousIgnore);
     }
 
-    public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
-        if (settingChanged.setting == ChanSettings.watchFilterWatch) {
-            if (ChanSettings.watchFilterWatch.get()) {
-                wakeManager.registerWakeable(this);
-            } else {
-                wakeManager.unregisterWakeable(this);
+    @Override
+    public void onWake() {
+        if (!processing) {
+            wakeManager.manageLock(true, FilterWatchManager.this);
+            Logger.i(TAG, "Processing filter loaders, started at " + DateFormat.getTimeInstance().format(new Date()));
+            processing = true;
+            populateFilterLoaders();
+            Logger.d(TAG, "Number of filter loaders: " + numBoardsChecked);
+            for (ChanThreadLoader loader : filterLoaders.keySet()) {
+                loader.requestData();
             }
         }
     }
 
     private void populateFilterLoaders() {
-        Logger.d(TAG, "Populating filter loaders");
-        clearFilterLoaders();
+        for (ChanThreadLoader loader : filterLoaders.keySet()) {
+            chanLoaderFactory.release(loader, filterLoaders.get(loader));
+        }
+        filterLoaders.clear();
         //get our filters that are tagged as "pin"
-        List<Filter> activeFilters = filterEngine.getEnabledWatchFilters();
+        filters = filterEngine.getEnabledWatchFilters();
         //get a set of boards to background load
         Set<String> boardCodes = new HashSet<>();
-        for (Filter f : activeFilters) {
+        for (Filter f : filters) {
             //if the allBoards flag is set for any one filter, add all saved boards to the set
             if (f.allBoards) {
                 for (BoardRepository.SiteBoards s : boardRepository.getSaved().get()) {
@@ -117,58 +134,75 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         //create background loaders for each thing in the board set
         for (BoardRepository.SiteBoards siteBoard : boardRepository.getSaved().get()) {
             for (Board b : siteBoard.boards) {
-                for (String code : boardCodes)
+                for (String code : boardCodes) {
                     if (b.code.equals(code)) {
                         BackgroundLoader backgroundLoader = new BackgroundLoader();
                         Loadable boardLoadable = Loadable.forCatalog(b);
                         boardLoadable = databaseLoadableManager.get(boardLoadable);
-                        ChanThreadLoader catalogLoader = chanLoaderFactory.obtain(boardLoadable, backgroundLoader);
+                        ChanThreadLoader catalogLoader =
+                                chanLoaderFactory.obtain(boardLoadable, watchManager, backgroundLoader);
                         filterLoaders.put(catalogLoader, backgroundLoader);
                     }
+                }
             }
         }
     }
 
-    private void clearFilterLoaders() {
-        if (filterLoaders.isEmpty()) {
-            return;
+    public void onCatalogLoad(ChanThread catalog) {
+        Logger.d(TAG, "onCatalogLoad() for /" + catalog.getLoadable().board.code + "/");
+        if (catalog.getLoadable().isThreadMode()) return; //not a catalog
+        if (processing) return; //filter watch manager is currently processing, ignore
+
+        Set<Integer> toAdd = new HashSet<>();
+        //Match filters and ignores
+        List<Filter> filters = filterEngine.getEnabledWatchFilters();
+        for (Filter f : filters) {
+            for (Post p : catalog.getPostsUnsafe()) {
+                if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
+                    Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site,
+                            p.board,
+                            p.no,
+                            PostHelper.getTitle(p, catalog.getLoadable())
+                    );
+                    pinLoadable = databaseLoadableManager.get(pinLoadable);
+                    watchManager.createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
+                    toAdd.add(p.no);
+                }
+            }
         }
-        for (ChanThreadLoader loader : filterLoaders.keySet()) {
-            chanLoaderFactory.release(loader, filterLoaders.get(loader));
-        }
-        filterLoaders.clear();
+        //clear the ignored posts set if it gets too large; don't have the same sync stuff as background and it's a hassle to keep track of recently loaded catalogs
+        if (ignoredPosts.size() + toAdd.size() > 650) ignoredPosts.clear(); //like 11 4chan catalogs? should be plenty
+        ignoredPosts.addAll(toAdd);
+        ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
     }
 
-    @Override
-    public void onWake() {
-        populateFilterLoaders();
-        for (ChanThreadLoader loader : filterLoaders.keySet()) {
-            loader.requestData();
-        }
-    }
-
-    private class BackgroundLoader implements ChanThreadLoader.ChanLoaderCallback {
-
+    private class BackgroundLoader
+            implements ChanThreadLoader.ChanLoaderCallback {
         @Override
         public void onChanLoaderData(ChanThread result) {
+            Logger.d(TAG, "onChanLoaderData() for /" + result.getLoadable().board.code + "/");
             Set<Integer> toAdd = new HashSet<>();
             //Match filters and ignores
-            List<Filter> filters = filterEngine.getEnabledWatchFilters();
             for (Filter f : filters) {
-                for (Post p : result.posts) {
+                for (Post p : result.getPostsUnsafe()) {
                     if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
-                        Loadable pinLoadable = Loadable.forThread(result.loadable.site, p.board, p.no, PostHelper.getTitle(p, result.loadable));
+                        Loadable pinLoadable = Loadable.forThread(result.getLoadable().site,
+                                p.board,
+                                p.no,
+                                PostHelper.getTitle(p, result.getLoadable())
+                        );
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
-                        watchManager.createPin(pinLoadable, p);
+                        watchManager.createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
                         toAdd.add(p.no);
                     }
                 }
             }
             //add all posts to ignore
             ignoredPosts.addAll(toAdd);
-            lastCheckedPosts.addAll(result.posts);
+            lastCheckedPosts.addAll(result.getPostsUnsafe());
             synchronized (this) {
                 numBoardsChecked--;
+                Logger.d(TAG, "Filter loader processed, left " + numBoardsChecked);
                 if (numBoardsChecked <= 0) {
                     numBoardsChecked = 0;
                     Set<Integer> lastCheckedPostNumbers = new HashSet<>();
@@ -176,7 +210,14 @@ public class FilterWatchManager implements WakeManager.Wakeable {
                         lastCheckedPostNumbers.add(post.no);
                     }
                     ignoredPosts.retainAll(lastCheckedPostNumbers);
+                    ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
                     lastCheckedPosts.clear();
+                    processing = false;
+                    Logger.i(TAG,
+                            "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance()
+                                    .format(new Date())
+                    );
+                    wakeManager.manageLock(false, FilterWatchManager.this);
                 }
             }
         }

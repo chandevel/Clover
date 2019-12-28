@@ -18,9 +18,10 @@ package com.github.adamantcheese.chan.core.site.common;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.webkit.WebView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.webkit.WebView;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
@@ -44,7 +45,7 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.ui.helper.PostHelper;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -61,7 +62,8 @@ import okhttp3.Response;
 
 import static android.text.TextUtils.isEmpty;
 
-public abstract class CommonSite extends SiteBase {
+public abstract class CommonSite
+        extends SiteBase {
     private final Random secureRandom = new SecureRandom();
 
     private String name;
@@ -74,7 +76,7 @@ public abstract class CommonSite extends SiteBase {
     private CommonApi api;
     private CommonRequestModifier requestModifier;
 
-    private PostParser postParser;
+    public PostParser postParser;
 
     private List<Board> staticBoards = new ArrayList<>();
 
@@ -121,8 +123,7 @@ public abstract class CommonSite extends SiteBase {
 
         if (requestModifier == null) {
             // No-op implementation.
-            requestModifier = new CommonRequestModifier() {
-            };
+            requestModifier = new CommonRequestModifier() {};
         }
     }
 
@@ -233,7 +234,8 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonSiteUrlHandler implements SiteUrlHandler {
+    public static abstract class CommonSiteUrlHandler
+            implements SiteUrlHandler {
         public abstract HttpUrl getUrl();
 
         public abstract String[] getNames();
@@ -255,12 +257,13 @@ public abstract class CommonSite extends SiteBase {
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, @Nullable Post post) {
+        public String desktopUrl(Loadable loadable, @Nullable final Post post) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
                 return getUrl().newBuilder()
-                        .addPathSegment(loadable.boardCode).addPathSegment("res")
+                        .addPathSegment(loadable.boardCode)
+                        .addPathSegment("res")
                         .addPathSegment(String.valueOf(loadable.no))
                         .toString();
             } else {
@@ -279,7 +282,7 @@ public abstract class CommonSite extends SiteBase {
                     if (b == null) {
                         return null;
                     }
-                    Loadable l = Loadable.forThread(site, b, Integer.parseInt(thread.group(3)), PostHelper.getTitle(null, null));
+                    Loadable l = Loadable.forThread(site, b, Integer.parseInt(thread.group(3)), "");
 
                     if (isEmpty(url.fragment())) {
                         l.markedNo = Integer.parseInt(url.fragment());
@@ -309,7 +312,8 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonEndpoints implements SiteEndpoints {
+    public static abstract class CommonEndpoints
+            implements SiteEndpoints {
         protected CommonSite site;
 
         public CommonEndpoints(CommonSite site) {
@@ -407,7 +411,8 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonActions implements SiteActions {
+    public static abstract class CommonActions
+            implements SiteActions {
         protected CommonSite site;
 
         public CommonActions(CommonSite site) {
@@ -420,6 +425,8 @@ public abstract class CommonSite extends SiteBase {
 
             reply.password = Long.toHexString(site.secureRandom.nextLong());
             replyResponse.password = reply.password;
+            replyResponse.siteId = reply.loadable.siteId;
+            replyResponse.boardCode = reply.loadable.boardCode;
 
             MultipartHttpCall call = new MultipartHttpCall(site) {
                 @Override
@@ -523,6 +530,7 @@ public abstract class CommonSite extends SiteBase {
 
         @Override
         public void pages(Board board, PagesListener pagesListener) {
+            pagesListener.onPagesReceived(board, new Chan4PagesRequest.Pages(new ArrayList<>()));
         }
 
         @Override
@@ -552,7 +560,8 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public static abstract class CommonApi implements ChanReader {
+    public static abstract class CommonApi
+            implements ChanReader {
         protected CommonSite site;
 
         public CommonApi(CommonSite site) {
@@ -565,7 +574,8 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public abstract class CommonRequestModifier implements SiteRequestModifier {
+    public abstract class CommonRequestModifier
+            implements SiteRequestModifier {
         @Override
         public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
         }

@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.theme;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -29,29 +30,31 @@ import com.github.adamantcheese.chan.ui.helper.PinHelper;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class ArrowMenuDrawable extends Drawable {
+public class ArrowMenuDrawable
+        extends Drawable {
     private final Paint mPaint = new Paint();
 
     // The angle in degress that the arrow head is inclined at.
     private static final float ARROW_HEAD_ANGLE = (float) Math.toRadians(45);
-    private final float mBarThickness;
+    // The thickness of the bars
+    private final float mBarThickness = dp(2f);
     // The length of top and bottom bars when they merge into an arrow
-    private final float mTopBottomArrowSize;
+    private final float mTopBottomArrowSize = dp(11.31f);
     // The length of middle bar
-    private final float mBarSize;
+    private final float mBarSize = dp(18f);
     // The length of the middle bar when arrow is shaped
-    private final float mMiddleArrowSize;
+    private final float mMiddleArrowSize = dp(16f);
     // The space between bars when they are parallel
-    private final float mBarGap;
+    private final float mBarGap = dp(3f);
     // Use Path instead of canvas operations so that if color has transparency, overlapping sections
     // wont look different
     private final Path mPath = new Path();
     // The reported intrinsic size of the drawable.
-    private final int mSize;
+    private final int mSize = dp(24f);
     // Whether we should mirror animation when animation is reversed.
     private boolean mVerticalMirror = false;
     // The interpolated version of the original progress
-    private float mProgress;
+    private float mProgress = 0.0f;
 
     private String badgeText;
     private boolean badgeRed = false;
@@ -59,22 +62,12 @@ public class ArrowMenuDrawable extends Drawable {
     private Rect badgeTextBounds = new Rect();
 
     public ArrowMenuDrawable() {
-        mPaint.setColor(0xffffffff);
+        mPaint.setColor(Color.WHITE);
         mPaint.setAntiAlias(true);
-        mSize = dp(24f);
-        mBarSize = dp(18f);
-        mTopBottomArrowSize = dp(11.31f);
-        mBarThickness = dp(2f);
-        mBarGap = dp(3f);
-        mMiddleArrowSize = dp(16f);
-
         mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
+        mPaint.setStrokeJoin(Paint.Join.MITER);
         mPaint.setStrokeCap(Paint.Cap.SQUARE);
         mPaint.setStrokeWidth(mBarThickness);
-
-        setProgress(0f);
-
         badgePaint.setAntiAlias(true);
     }
 
@@ -102,7 +95,7 @@ public class ArrowMenuDrawable extends Drawable {
         float arrowWidth = arrowSize * (float) Math.cos(rotation);
         float arrowHeight = arrowSize * (float) Math.sin(rotation);
 
-        if (mProgress == 0f || mProgress == 1f) {
+        if (Float.compare(mProgress, 0f) == 0 || Float.compare(mProgress, 1f) == 0) {
             arrowWidth = Math.round(arrowWidth);
             arrowHeight = Math.round(arrowHeight);
         }
@@ -114,13 +107,10 @@ public class ArrowMenuDrawable extends Drawable {
         // bottom bar
         mPath.moveTo(arrowEdge, -topBottomBarOffset);
         mPath.rLineTo(arrowWidth, -arrowHeight);
-        mPath.moveTo(0, 0);
-        mPath.close();
 
         canvas.save();
         // Rotate the whole canvas if spinning.
-        canvas.rotate(canvasRotate * ((mVerticalMirror) ? -1 : 1),
-                bounds.centerX(), bounds.centerY());
+        canvas.rotate(canvasRotate * ((mVerticalMirror) ? -1 : 1), bounds.centerX(), bounds.centerY());
         canvas.translate(bounds.centerX(), bounds.centerY());
         canvas.drawPath(mPath, mPaint);
 
@@ -150,10 +140,14 @@ public class ArrowMenuDrawable extends Drawable {
                 textSize = badgeSize * 0.5f;
             }
 
-            badgePaint.setColor(0xffffffff);
+            badgePaint.setColor(Color.WHITE);
             badgePaint.setTextSize(textSize);
             badgePaint.getTextBounds(badgeText, 0, badgeText.length(), badgeTextBounds);
-            canvas.drawText(badgeText, badgeX - badgeTextBounds.right / 2f, badgeY - badgeTextBounds.top / 2f, badgePaint);
+            canvas.drawText(badgeText,
+                    badgeX - badgeTextBounds.right / 2f,
+                    badgeY - badgeTextBounds.top / 2f,
+                    badgePaint
+            );
             canvas.restore();
         }
     }
@@ -189,9 +183,9 @@ public class ArrowMenuDrawable extends Drawable {
 
     public void setProgress(float progress) {
         if (progress != mProgress) {
-            if (progress == 1f) {
+            if (Float.compare(progress, 1f) == 0) {
                 mVerticalMirror = true;
-            } else if (progress == 0f) {
+            } else if (Float.compare(progress, 0f) == 0) {
                 mVerticalMirror = false;
             }
             mProgress = progress;

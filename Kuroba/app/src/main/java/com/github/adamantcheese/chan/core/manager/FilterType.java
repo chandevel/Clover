@@ -16,23 +16,26 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import com.github.adamantcheese.chan.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 public enum FilterType {
-    TRIPCODE(0x1, false),
-    NAME(0x2, false),
-    COMMENT(0x4, true),
-    ID(0x8, false),
-    SUBJECT(0x10, true),
-    FILENAME(0x20, true);
+    TRIPCODE(0x1),
+    NAME(0x2),
+    COMMENT(0x4),
+    ID(0x8),
+    SUBJECT(0x10),
+    FILENAME(0x20),
+    COUNTRY_CODE(0x40);
 
     public final int flag;
-    public final boolean isRegex;
 
-    FilterType(int flag, boolean isRegex) {
+    FilterType(int flag) {
         this.flag = flag;
-        this.isRegex = isRegex;
     }
 
     public static List<FilterType> forFlags(int flag) {
@@ -43,5 +46,25 @@ public enum FilterType {
             }
         }
         return enabledTypes;
+    }
+
+    public static String filterTypeName(FilterType type) {
+        switch (type) {
+            case TRIPCODE:
+                return getString(R.string.filter_tripcode);
+            case NAME:
+                return getString(R.string.filter_name);
+            case COMMENT:
+                return getString(R.string.filter_comment);
+            case ID:
+                return getString(R.string.filter_id);
+            case SUBJECT:
+                return getString(R.string.filter_subject);
+            case FILENAME:
+                return getString(R.string.filter_filename);
+            case COUNTRY_CODE:
+                return getString(R.string.filter_country_code);
+        }
+        return null;
     }
 }

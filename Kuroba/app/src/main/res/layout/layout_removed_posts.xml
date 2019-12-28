@@ -33,7 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/dialog_full_light"
+        android:background="?backcolor"
+        android:elevation="4dp"
         android:minWidth="320dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -67,22 +68,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:gravity="center_horizontal"
+                    android:layout_marginBottom="16dp">
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/removed_posts_select_all"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
                         android:text="@string/select_all" />
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/removed_posts_restore_posts"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
                         android:layout_marginStart="16dp"
-                        android:layout_marginLeft="16dp"
                         android:text="@string/restore_posts" />
 
                 </LinearLayout>

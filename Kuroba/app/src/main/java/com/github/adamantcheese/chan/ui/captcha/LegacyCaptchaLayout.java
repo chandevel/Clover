@@ -30,18 +30,20 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
-public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationLayoutInterface, View.OnClickListener {
+public class LegacyCaptchaLayout
+        extends LinearLayout
+        implements AuthenticationLayoutInterface, View.OnClickListener {
     private FixedRatioThumbnailView image;
     private EditText input;
     private ImageView submit;
@@ -77,14 +79,14 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
         input = findViewById(R.id.input);
         input.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                AndroidUtils.hideKeyboard(input);
+                hideKeyboard(input);
                 submitCaptcha();
                 return true;
             }
             return false;
         });
         submit = findViewById(R.id.submit);
-        Chan.injector().instance(ThemeHelper.class).getTheme().sendDrawable.apply(submit);
+        ThemeHelper.getTheme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);
 
@@ -113,7 +115,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
     }
 
     @Override
-    public void initialize(Site site, AuthenticationLayoutCallback callback) {
+    public void initialize(Site site, AuthenticationLayoutCallback callback, boolean ignored) {
         this.callback = callback;
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
@@ -133,18 +135,18 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
         String html = IOUtils.assetAsString(getContext(), "captcha/captcha_legacy.html");
         html = html.replace("__site_key__", siteKey);
         internalWebView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
-        image.setUrl(null, 0, 0);
+        image.setUrl(null);
         input.requestFocus();
     }
 
     private void submitCaptcha() {
-        AndroidUtils.hideKeyboard(this);
-        callback.onAuthenticationComplete(this, challenge, input.getText().toString());
+        hideKeyboard(this);
+        callback.onAuthenticationComplete(this, challenge, input.getText().toString(), true);
     }
 
     private void onCaptchaLoaded(final String imageUrl, final String challenge) {
         this.challenge = challenge;
-        image.setUrl(imageUrl, 300, 57);
+        image.setUrl(imageUrl);
     }
 
     public static class CaptchaInterface {
@@ -156,7 +158,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
 
         @JavascriptInterface
         public void onCaptchaLoaded(final String imageUrl, final String challenge) {
-            AndroidUtils.runOnUiThread(() -> layout.onCaptchaLoaded(imageUrl, challenge));
+            runOnUiThread(() -> layout.onCaptchaLoaded(imageUrl, challenge));
         }
     }
 }

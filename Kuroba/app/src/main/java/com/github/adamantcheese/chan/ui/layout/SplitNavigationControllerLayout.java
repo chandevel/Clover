@@ -22,9 +22,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class SplitNavigationControllerLayout extends LinearLayout {
+public class SplitNavigationControllerLayout
+        extends LinearLayout {
     private final int dividerWidth;
     private final int minimumLeftWidth;
     private final double ratio;
@@ -64,9 +66,9 @@ public class SplitNavigationControllerLayout extends LinearLayout {
     }
 
     public void build() {
-        addView(leftView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT));
-        addView(divider, new LinearLayout.LayoutParams(dividerWidth, LinearLayout.LayoutParams.MATCH_PARENT));
-        addView(rightView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT));
+        addView(leftView, new LinearLayout.LayoutParams(0, MATCH_PARENT));
+        addView(divider, new LinearLayout.LayoutParams(dividerWidth, MATCH_PARENT));
+        addView(rightView, new LinearLayout.LayoutParams(0, MATCH_PARENT));
     }
 
     @Override

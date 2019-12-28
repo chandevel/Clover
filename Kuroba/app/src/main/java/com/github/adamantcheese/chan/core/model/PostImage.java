@@ -20,12 +20,20 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.PDF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
+
 public class PostImage {
     public enum Type {
-        STATIC, GIF, MOVIE
+        STATIC,
+        GIF,
+        MOVIE,
+        PDF
     }
 
-    public final String originalName;
+    public final String serverFilename;
     public final HttpUrl thumbnailUrl;
     public final HttpUrl spoilerThumbnailUrl;
     public final HttpUrl imageUrl;
@@ -39,7 +47,7 @@ public class PostImage {
     public final Type type;
 
     private PostImage(Builder builder) {
-        this.originalName = builder.originalName;
+        this.serverFilename = builder.serverFilename;
         this.thumbnailUrl = builder.thumbnailUrl;
         this.spoilerThumbnailUrl = builder.spoilerThumbnailUrl;
         this.imageUrl = builder.imageUrl;
@@ -52,19 +60,26 @@ public class PostImage {
 
         switch (extension) {
             case "gif":
-                type = Type.GIF;
+                type = GIF;
                 break;
             case "webm":
             case "mp4":
-                type = Type.MOVIE;
+                type = MOVIE;
+                break;
+            case "pdf":
+                type = PDF;
                 break;
             default:
-                type = Type.STATIC;
+                type = STATIC;
                 break;
         }
     }
 
     public boolean equalUrl(PostImage other) {
+        if (imageUrl == null || other.imageUrl == null) {
+            return serverFilename.equals(other.serverFilename);
+        }
+
         return imageUrl.equals(other.imageUrl);
     }
 
@@ -77,7 +92,7 @@ public class PostImage {
     }
 
     public static final class Builder {
-        private String originalName;
+        private String serverFilename;
         private HttpUrl thumbnailUrl;
         private HttpUrl spoilerThumbnailUrl;
         private HttpUrl imageUrl;
@@ -91,8 +106,8 @@ public class PostImage {
         public Builder() {
         }
 
-        public Builder originalName(String originalName) {
-            this.originalName = originalName;
+        public Builder serverFilename(String serverFilename) {
+            this.serverFilename = serverFilename;
             return this;
         }
 
@@ -142,7 +157,7 @@ public class PostImage {
         }
 
         public PostImage build() {
-            if (ChanSettings.revealImageSpoilers.get()) {
+            if (ChanSettings.removeImageSpoilers.get()) {
                 spoiler = false;
             }
 

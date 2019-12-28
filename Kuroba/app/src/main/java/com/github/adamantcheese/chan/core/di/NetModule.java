@@ -21,7 +21,10 @@ import com.android.volley.toolbox.Volley;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
+import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
 
 import org.codejargon.feather.Provides;
 
@@ -29,26 +32,28 @@ import java.io.File;
 
 import javax.inject.Singleton;
 
+import okhttp3.OkHttpClient;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class NetModule {
-    private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
-    public static final String USER_AGENT = "Kuroba/" + BuildConfig.VERSION_NAME;
+    public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
 
     @Provides
     @Singleton
     public RequestQueue provideRequestQueue() {
-        File cacheDir = getCacheDir();
-        return Volley.newRequestQueue(getAppContext(),
-                USER_AGENT,
-                new ProxiedHurlStack(USER_AGENT),
-                new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
+        Logger.d(AppModule.DI_TAG, "Request queue");
+        return Volley.newRequestQueue(getAppContext(), new ProxiedHurlStack());
     }
 
     @Provides
     @Singleton
-    public FileCache provideFileCache() {
-        return new FileCache(new File(getCacheDir(), "filecache"));
+    public FileCache provideFileCache(FileManager fileManager) {
+        Logger.d(AppModule.DI_TAG, "File cache");
+        return new FileCache(getCacheDir(), fileManager);
     }
 
     private File getCacheDir() {
@@ -63,6 +68,32 @@ public class NetModule {
     @Provides
     @Singleton
     public HttpCallManager provideHttpCallManager() {
+        Logger.d(AppModule.DI_TAG, "Http call manager");
         return new HttpCallManager();
+    }
+
+    @Provides
+    @Singleton
+    public OkHttpClient provideBasicOkHttpClient() {
+        Logger.d(AppModule.DI_TAG, "OkHTTP client");
+        return new ProxiedOkHttpClient();
+    }
+
+    //this is basically the same as OkHttpClient, but with a singleton for a proxy instance
+    public class ProxiedOkHttpClient
+            extends OkHttpClient {
+        private OkHttpClient proxiedClient;
+
+        public OkHttpClient getProxiedClient() {
+            if (proxiedClient == null) {
+                proxiedClient = newBuilder().proxy(ChanSettings.getProxy())
+                        .connectTimeout(20, SECONDS)
+                        .readTimeout(20, SECONDS)
+                        .writeTimeout(20, SECONDS)
+                        .callTimeout(2, MINUTES)
+                        .build();
+            }
+            return proxiedClient;
+        }
     }
 }

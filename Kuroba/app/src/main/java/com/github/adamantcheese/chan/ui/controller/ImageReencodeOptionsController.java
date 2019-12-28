@@ -2,31 +2,40 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatRadioButton;
-import androidx.appcompat.widget.AppCompatSeekBar;
+import android.util.Pair;
 import android.view.View;
 import android.view.Window;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatRadioButton;
+import androidx.appcompat.widget.AppCompatSeekBar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
-public class ImageReencodeOptionsController extends Controller implements
-        View.OnClickListener, RadioGroup.OnCheckedChangeListener {
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
+
+public class ImageReencodeOptionsController
+        extends Controller
+        implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
     private final static String TAG = "ImageReencodeOptionsController";
     private static final int TRANSITION_DURATION = 200;
 
     private ImageReencodeOptionsCallbacks callbacks;
     private ImageOptionsHelper imageReencodingHelper;
     private Bitmap.CompressFormat imageFormat;
+    private Pair<Integer, Integer> dims;
 
     private ConstraintLayout viewHolder;
     private RadioGroup radioGroup;
@@ -39,16 +48,29 @@ public class ImageReencodeOptionsController extends Controller implements
     private AppCompatRadioButton reencodeImageAsIs;
 
     private int statusBarColorPrevious;
+    private ImageReencodingPresenter.ReencodeSettings lastSettings;
+    private boolean ignoreSetup;
 
     private SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if (seekBar == quality) {
-                currentImageQuality.setText(String.format(context.getString(R.string.image_quality), progress));
-            } else if (seekBar == reduce) {
-                currentImageReduce.setText(String.format(context.getString(R.string.scale_reduce), progress));
-            } else {
-                throw new RuntimeException("Unknown seekBar");
+            if (!ignoreSetup) { //this variable is to ignore any side effects of setting progress while loading last options
+                if (seekBar == quality) {
+                    if (progress < 1) {
+                        //for API <26; the quality can't be lower than 1
+                        seekBar.setProgress(1);
+                        progress = 1;
+                    }
+                    currentImageQuality.setText(getString(R.string.image_quality, progress));
+                } else if (seekBar == reduce) {
+                    currentImageReduce.setText(getString(R.string.scale_reduce,
+                            dims.first,
+                            dims.second,
+                            (int) (dims.first * ((100f - (float) progress) / 100f)),
+                            (int) (dims.second * ((100f - (float) progress) / 100f)),
+                            100 - progress
+                    ));
+                }
             }
         }
 
@@ -67,20 +89,24 @@ public class ImageReencodeOptionsController extends Controller implements
             Context context,
             ImageOptionsHelper imageReencodingHelper,
             ImageReencodeOptionsCallbacks callbacks,
-            Bitmap.CompressFormat imageFormat
+            Bitmap.CompressFormat imageFormat,
+            Pair<Integer, Integer> dims,
+            ImageReencodingPresenter.ReencodeSettings lastOptions
     ) {
         super(context);
 
         this.imageReencodingHelper = imageReencodingHelper;
         this.callbacks = callbacks;
         this.imageFormat = imageFormat;
+        this.dims = dims;
+        lastSettings = lastOptions;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.layout_image_reencoding);
+        view = inflate(context, R.layout.layout_image_reencoding);
 
         viewHolder = view.findViewById(R.id.reencode_image_view_holder);
         radioGroup = view.findViewById(R.id.reencode_image_radio_group);
@@ -107,13 +133,44 @@ public class ImageReencodeOptionsController extends Controller implements
         if (imageFormat == Bitmap.CompressFormat.PNG) {
             quality.setEnabled(false);
             reencodeImageAsPng.setEnabled(false);
+            reencodeImageAsPng.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            reencodeImageAsPng.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
         } else if (imageFormat == Bitmap.CompressFormat.JPEG) {
             reencodeImageAsJpeg.setEnabled(false);
+            reencodeImageAsJpeg.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
+            reencodeImageAsJpeg.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
         }
 
         statusBarColorPrevious = getWindow().getStatusBarColor();
         if (statusBarColorPrevious != 0) {
-            AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+        }
+
+        currentImageReduce.setText(getString(R.string.scale_reduce,
+                dims.first,
+                dims.second,
+                dims.first,
+                dims.second,
+                100 - reduce.getProgress()
+        ));
+
+        if (lastSettings != null) {
+            //this variable is to ignore any side effects of checking/setting progress on these views
+            ignoreSetup = true;
+            quality.setProgress(lastSettings.getReencodeQuality());
+            reduce.setProgress(lastSettings.getReducePercent());
+            switch (lastSettings.getReencodeType()) {
+                case AS_JPEG:
+                    reencodeImageAsJpeg.setChecked(true);
+                    break;
+                case AS_PNG:
+                    reencodeImageAsPng.setChecked(true);
+                    break;
+                case AS_IS:
+                    reencodeImageAsIs.setChecked(true);
+                    break;
+            }
+            ignoreSetup = false;
         }
     }
 
@@ -128,7 +185,7 @@ public class ImageReencodeOptionsController extends Controller implements
             format = "Unknown";
         }
 
-        reencodeImageAsIs.setText(String.format(context.getString(R.string.reencode_image_as_is), format));
+        reencodeImageAsIs.setText(getString(R.string.reencode_image_as_is, format));
     }
 
     @Override
@@ -136,7 +193,7 @@ public class ImageReencodeOptionsController extends Controller implements
         super.stopPresenting();
 
         if (statusBarColorPrevious != 0) {
-            AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -152,38 +209,34 @@ public class ImageReencodeOptionsController extends Controller implements
             callbacks.onOk(getReencode());
         } else if (v == cancel || v == viewHolder) {
             callbacks.onCanceled();
-        } else {
-            throw new RuntimeException("onClick Unknown view clicked");
         }
     }
 
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
-        int index = group.indexOfChild(group.findViewById(group.getCheckedRadioButtonId()));
+        if (!ignoreSetup) { //this variable is to ignore any side effects of checking during last options load
+            int index = group.indexOfChild(group.findViewById(group.getCheckedRadioButtonId()));
 
-        // 0 - AS IS
-        // 1 - AS JPEG
-        // 2 - AS PNG
+            // 0 - AS IS
+            // 1 - AS JPEG
+            // 2 - AS PNG
 
-        // when re-encoding image as png it ignores the compress quality option so we can just
-        // disable the quality seekbar
-        if (index == 2 || (index == 0 && imageFormat == Bitmap.CompressFormat.PNG)) {
-            quality.setProgress(100);
-            quality.setEnabled(false);
-        } else {
-            quality.setEnabled(true);
+            // when re-encoding image as png it ignores the compress quality option so we can just
+            // disable the quality seekbar
+            if (index == 2 || (index == 0 && imageFormat == Bitmap.CompressFormat.PNG)) {
+                quality.setProgress(100);
+                quality.setEnabled(false);
+            } else {
+                quality.setEnabled(true);
+            }
         }
     }
 
-    private ImageReencodingPresenter.Reencode getReencode() {
+    private ImageReencodingPresenter.ReencodeSettings getReencode() {
         int index = radioGroup.indexOfChild(radioGroup.findViewById(radioGroup.getCheckedRadioButtonId()));
         ImageReencodingPresenter.ReencodeType reencodeType = ImageReencodingPresenter.ReencodeType.fromInt(index);
 
-        return new ImageReencodingPresenter.Reencode(
-                reencodeType,
-                quality.getProgress(),
-                reduce.getProgress()
-        );
+        return new ImageReencodingPresenter.ReencodeSettings(reencodeType, quality.getProgress(), reduce.getProgress());
     }
 
     private Window getWindow() {
@@ -192,6 +245,7 @@ public class ImageReencodeOptionsController extends Controller implements
 
     public interface ImageReencodeOptionsCallbacks {
         void onCanceled();
-        void onOk(ImageReencodingPresenter.Reencode reencode);
+
+        void onOk(ImageReencodingPresenter.ReencodeSettings reencodeSettings);
     }
 }

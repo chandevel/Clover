@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.database;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.j256.ormlite.stmt.DeleteBuilder;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +46,15 @@ public class DatabaseFilterManager {
         };
     }
 
+    public Callable<List<Filter>> updateFilters(final List<Filter> filters) {
+        return () -> {
+            for (Filter filter : filters) {
+                helper.filterDao.update(filter);
+            }
+            return filters;
+        };
+    }
+
     public Callable<Void> deleteFilter(final Filter filter) {
         return () -> {
             helper.filterDao.delete(filter);
@@ -60,7 +70,12 @@ public class DatabaseFilterManager {
     }
 
     public Callable<List<Filter>> getFilters() {
-        return () -> helper.filterDao.queryForAll();
+        return () -> {
+            List<Filter> filters = helper.filterDao.queryForAll();
+            Collections.sort(filters, (lhs, rhs) -> lhs.order - rhs.order);
+            updateFilters(filters);
+            return filters;
+        };
     }
 
     public Callable<Long> getCount() {
@@ -81,8 +96,9 @@ public class DatabaseFilterManager {
             int deletedCount = builder.delete();
 
             if (deletedCount != filterIdSet.size()) {
-                throw new IllegalStateException("Deleted count didn't equal filterIdList.size(). (deletedCount = "
-                        + deletedCount + "), " + "(filterIdSet = " + filterIdSet.size() + ")");
+                throw new IllegalStateException(
+                        "Deleted count didn't equal filterIdList.size(). (deletedCount = " + deletedCount + "), "
+                                + "(filterIdSet = " + filterIdSet.size() + ")");
             }
 
             return null;

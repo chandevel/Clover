@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -26,10 +25,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
@@ -40,7 +39,10 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.List;
 
-public class PostRepliesController extends BaseFloatingController {
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+
+public class PostRepliesController
+        extends BaseFloatingController {
     private PostPopupHelper postPopupHelper;
     private ThreadPresenter presenter;
 
@@ -95,8 +97,8 @@ public class PostRepliesController extends BaseFloatingController {
         }
     }
 
-    public void setPostRepliesData(PostPopupHelper.RepliesData data) {
-        displayData(data);
+    public void setPostRepliesData(Loadable loadable, PostPopupHelper.RepliesData data) {
+        displayData(loadable, data);
     }
 
     public List<Post> getPostRepliesData() {
@@ -107,14 +109,14 @@ public class PostRepliesController extends BaseFloatingController {
         listView.smoothScrollToPosition(displayPosition);
     }
 
-    private void displayData(final PostPopupHelper.RepliesData data) {
+    private void displayData(Loadable loadable, final PostPopupHelper.RepliesData data) {
         displayingData = data;
 
         View dataView;
         if (ChanSettings.repliesButtonsBottom.get()) {
-            dataView = inflateRes(R.layout.layout_post_replies_bottombuttons);
+            dataView = inflate(context, R.layout.layout_post_replies_bottombuttons);
         } else {
-            dataView = inflateRes(R.layout.layout_post_replies);
+            dataView = inflate(context, R.layout.layout_post_replies);
         }
 
         listView = dataView.findViewById(R.id.post_list);
@@ -127,35 +129,29 @@ public class PostRepliesController extends BaseFloatingController {
         View repliesClose = dataView.findViewById(R.id.replies_close);
         repliesClose.setOnClickListener(v -> postPopupHelper.popAll());
 
-        Drawable backDrawable = Chan.injector().instance(ThemeHelper.class).getTheme().backDrawable.makeDrawable(context);
-        Drawable doneDrawable = Chan.injector().instance(ThemeHelper.class).getTheme().doneDrawable.makeDrawable(context);
+        Drawable backDrawable = ThemeHelper.getTheme().backDrawable.makeDrawable(context);
+        Drawable doneDrawable = ThemeHelper.getTheme().doneDrawable.makeDrawable(context);
 
         TextView repliesBackText = dataView.findViewById(R.id.replies_back_icon);
         TextView repliesCloseText = dataView.findViewById(R.id.replies_close_icon);
         repliesBackText.setCompoundDrawablesWithIntrinsicBounds(backDrawable, null, null, null);
         repliesCloseText.setCompoundDrawablesWithIntrinsicBounds(doneDrawable, null, null, null);
-        if (Chan.injector().instance(ThemeHelper.class).getTheme().isLightTheme) {
-            repliesBackText.setTextColor(0x8a000000);
-            repliesCloseText.setTextColor(0x8a000000);
-        } else {
-            repliesBackText.setTextColor(0xffffffff);
-            repliesCloseText.setTextColor(0xffffffff);
-            dataView.findViewById(R.id.container).setBackgroundResource(R.drawable.dialog_full_dark);
-        }
 
         ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(context, 0) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 PostCellInterface postCell;
-                if (convertView instanceof PostCellInterface) {
+                if (convertView instanceof PostCellInterface && !ChanSettings.shiftPostFormat.get()) {
                     postCell = (PostCellInterface) convertView;
                 } else {
-                    postCell = (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
+                    postCell = (PostCellInterface) inflate(context, R.layout.cell_post, parent, false);
                 }
 
                 final Post p = getItem(position);
                 boolean showDivider = position < getCount() - 1;
-                postCell.setPost(p,
+                postCell.setPost(
+                        loadable,
+                        p,
                         presenter,
                         false,
                         false,
@@ -163,7 +159,9 @@ public class PostRepliesController extends BaseFloatingController {
                         data.forPost.no,
                         showDivider,
                         ChanSettings.PostViewMode.LIST,
-                        false);
+                        false,
+                        ThemeHelper.getTheme()
+                );
 
                 return (View) postCell;
             }

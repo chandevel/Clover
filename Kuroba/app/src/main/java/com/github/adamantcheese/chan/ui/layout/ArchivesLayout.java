@@ -1,12 +1,13 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+
+import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
@@ -16,7 +17,8 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
-public class ArchivesLayout extends LinearLayout {
+public class ArchivesLayout
+        extends LinearLayout {
     private Callback callback;
     private ArrayAdapter<PairForAdapter> adapter;
 
@@ -41,8 +43,8 @@ public class ArchivesLayout extends LinearLayout {
         super.onFinishInflate();
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
         ((ListView) findViewById(R.id.archives_list)).setAdapter(adapter);
-        ((ListView) findViewById(R.id.archives_list)).setOnItemClickListener(
-                (parent, view, position, id) -> callback.openArchive((PairForAdapter) parent.getItemAtPosition(position)));
+        ((ListView) findViewById(R.id.archives_list)).setOnItemClickListener((parent, view, position, id) -> callback.openArchive(
+                (PairForAdapter) parent.getItemAtPosition(position)));
     }
 
     public void setBoard(Board b) {
@@ -53,14 +55,15 @@ public class ArchivesLayout extends LinearLayout {
         callback = c;
     }
 
-    public static class PairForAdapter extends Pair<String, String> {
+    public static class PairForAdapter
+            extends Pair<String, String> {
         public PairForAdapter(@Nullable String first, @Nullable String second) {
             super(first, second);
         }
 
         @Override
         public String toString() {
-            return first;
+            return String.valueOf(first);
         }
     }
 

@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,17 +24,17 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.SweepGradient;
-import androidx.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class ColorPickerView extends View {
-    private static final int[] COLORS = new int[]{
-            0xFFFF0000, 0xFFFF00FF, 0xFF0000FF, 0xFF00FFFF, 0xFF00FF00,
-            0xFFFFFF00, 0xFFFF0000
-    };
+public class ColorPickerView
+        extends View {
+    private static final int[] COLORS =
+            new int[]{Color.RED, Color.MAGENTA, Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW, Color.RED};
 
     private Paint paint;
     private Paint centerPaint;
@@ -81,6 +82,7 @@ public class ColorPickerView extends View {
         return true;
     }
 
+    @SuppressLint("DrawAllocation")
     @Override
     protected void onDraw(Canvas canvas) {
         float r = Math.min(getWidth() / 2f, getHeight() / 2f) - paint.getStrokeWidth() * 0.5f;

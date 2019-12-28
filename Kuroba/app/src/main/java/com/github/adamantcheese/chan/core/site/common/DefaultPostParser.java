@@ -16,14 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.site.common;
 
-
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 
 import androidx.annotation.AnyThread;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -34,6 +32,7 @@ import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.vdurmont.emoji.EmojiParser;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -48,7 +47,8 @@ import java.util.List;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
-public class DefaultPostParser implements PostParser {
+public class DefaultPostParser
+        implements PostParser {
     private static final String TAG = "DefaultPostParser";
 
     private CommentParser commentParser;
@@ -60,7 +60,7 @@ public class DefaultPostParser implements PostParser {
     @Override
     public Post parse(Theme theme, Post.Builder builder, Callback callback) {
         if (theme == null) {
-            theme = Chan.injector().instance(ThemeHelper.class).getTheme();
+            theme = ThemeHelper.getTheme();
         }
 
         if (!TextUtils.isEmpty(builder.name)) {
@@ -120,7 +120,8 @@ public class DefaultPostParser implements PostParser {
             }
         }
 
-        if (!TextUtils.isEmpty(builder.name) && (!builder.name.equals(defaultName) || ChanSettings.showAnonymousName.get())) {
+        if (!TextUtils.isEmpty(builder.name) && (!builder.name.equals(defaultName)
+                || ChanSettings.showAnonymousName.get())) {
             nameSpan = new SpannableString(builder.name);
             nameSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, nameSpan.length(), 0);
         }
@@ -134,19 +135,9 @@ public class DefaultPostParser implements PostParser {
         if (!TextUtils.isEmpty(builder.posterId)) {
             idSpan = new SpannableString("  ID: " + builder.posterId + "  ");
 
-            // Stolen from the 4chan extension
-            int hash = builder.posterId.hashCode();
+            int idBgColor = builder.isLightColor ? theme.idBackgroundLight : theme.idBackgroundDark;
 
-            int r = (hash >> 24) & 0xff;
-            int g = (hash >> 16) & 0xff;
-            int b = (hash >> 8) & 0xff;
-
-            //noinspection NumericOverflow
-            int idColor = (0xff << 24) + (r << 16) + (g << 8) + b;
-            boolean lightColor = (r * 0.299f) + (g * 0.587f) + (b * 0.114f) > 125f;
-            int idBgColor = lightColor ? theme.idBackgroundLight : theme.idBackgroundDark;
-
-            idSpan.setSpan(new ForegroundColorSpanHashed(idColor), 0, idSpan.length(), 0);
+            idSpan.setSpan(new ForegroundColorSpanHashed(builder.idColor), 0, idSpan.length(), 0);
             idSpan.setSpan(new BackgroundColorSpan(idBgColor), 0, idSpan.length(), 0);
             idSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, idSpan.length(), 0);
         }
@@ -200,19 +191,38 @@ public class DefaultPostParser implements PostParser {
             Logger.e(TAG, "Error parsing comment html", e);
         }
 
+        CommentParserHelper.addPostImages(post);
+
         return total;
     }
 
     private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
-            SpannableString spannable = new SpannableString(text);
-
-            CommentParserHelper.detectLinks(theme, post, text, spannable);
+            if (ChanSettings.enableEmoji.get() && !( //emoji parse disable for [code] and [eqn]
+                    (node.parent() instanceof Element && (((Element) node.parent()).hasClass("prettyprint")))
+                            || text.startsWith("[eqn]"))) {
+                text = processEmojiMath(text);
+            }
+            //we need to replace youtube links with their titles before linkifying anything else
+            //because the string itself changes as a result of the titles shrinking/expanding the string length
+            //this would mess up the rest of the spans if we did it afterwards, so we do it as the first step
+            SpannableString spannable;
+            if (ChanSettings.parseYoutubeTitles.get()) {
+                spannable = CommentParserHelper.replaceYoutubeLinks(theme, post, text);
+                CommentParserHelper.detectLinks(theme, post, spannable.toString(), spannable);
+            } else {
+                spannable = new SpannableString(text);
+                CommentParserHelper.detectLinks(theme, post, text, spannable);
+            }
 
             return spannable;
         } else if (node instanceof Element) {
             String nodeName = node.nodeName();
+            String styleAttr = node.attr("style");
+            if (!styleAttr.isEmpty() && !nodeName.equals("span")) {
+                nodeName = nodeName + '-' + styleAttr.split(":")[1].trim();
+            }
 
             // Recursively call parseNode with the nodes of the paragraph.
             List<Node> innerNodes = node.childNodes();
@@ -225,20 +235,10 @@ public class DefaultPostParser implements PostParser {
                 }
             }
 
-//            if (node.nextSibling() != null) {
-//                texts.add("\n");
-//            }
+            CharSequence allInnerText = TextUtils.concat(texts.toArray(new CharSequence[0]));
 
-            CharSequence allInnerText = TextUtils.concat(
-                    texts.toArray(new CharSequence[0]));
-
-            CharSequence result = commentParser.handleTag(
-                    callback,
-                    theme,
-                    post,
-                    nodeName,
-                    allInnerText,
-                    (Element) node);
+            CharSequence result =
+                    commentParser.handleTag(callback, theme, post, nodeName, allInnerText, (Element) node);
             if (result != null) {
                 return result;
             } else {
@@ -247,5 +247,29 @@ public class DefaultPostParser implements PostParser {
         } else {
             return ""; // ?
         }
+    }
+
+    //This method parses emoji but only as long as the text isn't in a [math] block; this can be extended as necessary
+    //
+    //Text with math not at the start is "offset", so the loop processes alternating items starting at index 0
+    //  This covers the case when there are no math tags as well, as the split will return a single item array and the loop runs once
+    //Text with math at the start is not "offset", so the loop processes alternating items starting at index 1, as index 0 is covered by [3]
+    //  This covers the case when there are only math tags as well, as the split returns a single item array processed by [3] and the loop is skipped
+    private String processEmojiMath(String text) {
+        String[] split = text.split("\\[/?math]");
+        StringBuilder rebuilder = new StringBuilder();
+        boolean offset = true;
+        if (text.startsWith("[math]")) {
+            rebuilder.append("[math]").append(split[0]).append("[/math]"); //[3]
+            offset = false;
+        }
+        for (int i = (offset ? 0 : 1); i < split.length; i++) {
+            if ((i - (offset ? 0 : 1)) % 2 == 0) {
+                rebuilder.append(EmojiParser.parseToUnicode(split[i])); //[1]
+            } else {
+                rebuilder.append("[math]").append(split[i]).append("[/math]"); //[2]
+            }
+        }
+        return rebuilder.toString();
     }
 }

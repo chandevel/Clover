@@ -22,15 +22,16 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.provider.Settings;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 
 public class RuntimePermissionsHelper {
     private static final int RUNTIME_PERMISSION_RESULT_ID = 3;
@@ -53,7 +54,10 @@ public class RuntimePermissionsHelper {
             pendingCallback.callback = callback;
             pendingCallback.permission = permission;
 
-            ActivityCompat.requestPermissions((Activity) callbackActvity, new String[]{permission}, RUNTIME_PERMISSION_RESULT_ID);
+            ActivityCompat.requestPermissions((Activity) callbackActvity,
+                    new String[]{permission},
+                    RUNTIME_PERMISSION_RESULT_ID
+            );
 
             return true;
         } else {
@@ -61,13 +65,14 @@ public class RuntimePermissionsHelper {
         }
     }
 
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == RUNTIME_PERMISSION_RESULT_ID && pendingCallback != null) {
+    public void onRequestPermissionsResult(int reqCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (reqCode == RUNTIME_PERMISSION_RESULT_ID && pendingCallback != null) {
             boolean granted = false;
 
             for (int i = 0; i < permissions.length; i++) {
                 String permission = permissions[i];
-                if (permission.equals(pendingCallback.permission) && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                if (permission.equals(pendingCallback.permission)
+                        && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                     granted = true;
                     break;
                 }
@@ -78,16 +83,18 @@ public class RuntimePermissionsHelper {
         }
     }
 
-    public void showPermissionRequiredDialog(final Context context, String title, String message, final PermissionRequiredDialogCallback callback) {
-        new AlertDialog.Builder(context)
-                .setTitle(title)
+    public void showPermissionRequiredDialog(
+            final Context context, String title, String message, final PermissionRequiredDialogCallback callback
+    ) {
+        new AlertDialog.Builder(context).setTitle(title)
                 .setMessage(message)
                 .setCancelable(false)
                 .setNeutralButton(R.string.permission_app_settings, (dialog, which) -> {
                     callback.retryPermissionRequest();
                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.parse("package:" + context.getPackageName()));
-                    AndroidUtils.openIntent(intent);
+                            Uri.parse("package:" + context.getPackageName())
+                    );
+                    openIntent(intent);
                 })
                 .setPositiveButton(R.string.permission_grant, (dialog, which) -> callback.retryPermissionRequest())
                 .show();

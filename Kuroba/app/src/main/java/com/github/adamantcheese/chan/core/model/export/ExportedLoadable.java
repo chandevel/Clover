@@ -21,6 +21,8 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Locale;
+
 public class ExportedLoadable {
     @SerializedName("board_code")
     private String boardCode;
@@ -54,8 +56,7 @@ public class ExportedLoadable {
             int mode,
             int no,
             int siteId,
-            @NonNull
-            String title
+            @NonNull String title
     ) {
         this.boardCode = boardCode;
         this.loadableId = loadableId;
@@ -108,5 +109,20 @@ public class ExportedLoadable {
     @Nullable
     public String getTitle() {
         return title;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                Locale.US,
+                "boardCode = %s, loadableId = %d, no = %d, mode= %d, siteId = %d, title = %s",
+                boardCode,
+                loadableId,
+                no,
+                mode,
+                siteId,
+                title
+        );
     }
 }

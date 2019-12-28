@@ -16,16 +16,17 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import org.codejargon.feather.Provides;
 import com.github.adamantcheese.chan.core.settings.json.BooleanJsonSetting;
 import com.github.adamantcheese.chan.core.settings.json.IntegerJsonSetting;
 import com.github.adamantcheese.chan.core.settings.json.JsonSetting;
 import com.github.adamantcheese.chan.core.settings.json.LongJsonSetting;
 import com.github.adamantcheese.chan.core.settings.json.RuntimeTypeAdapterFactory;
 import com.github.adamantcheese.chan.core.settings.json.StringJsonSetting;
+import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.codejargon.feather.Provides;
 
 import javax.inject.Singleton;
 
@@ -40,9 +41,7 @@ public class GsonModule {
                         .registerSubtype(IntegerJsonSetting.class, "integer")
                         .registerSubtype(LongJsonSetting.class, "long")
                         .registerSubtype(BooleanJsonSetting.class, "boolean");
-
-        return new GsonBuilder()
-                .registerTypeAdapterFactory(userSettingAdapter)
-                .create();
+        Logger.d(AppModule.DI_TAG, "Gson module");
+        return new GsonBuilder().registerTypeAdapterFactory(userSettingAdapter).create();
     }
 }

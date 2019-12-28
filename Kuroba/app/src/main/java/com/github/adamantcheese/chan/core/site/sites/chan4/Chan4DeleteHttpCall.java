@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
+
 import org.jsoup.Jsoup;
 
 import java.util.regex.Matcher;
@@ -32,7 +33,8 @@ import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class Chan4DeleteHttpCall extends HttpCall {
+public class Chan4DeleteHttpCall
+        extends HttpCall {
     private static final Pattern ERROR_MESSAGE = Pattern.compile("\"errmsg\"[^>]*>(.*?)</span");
 
     private final DeleteRequest deleteRequest;
@@ -45,8 +47,7 @@ public class Chan4DeleteHttpCall extends HttpCall {
 
     @Override
     public void setup(
-            Request.Builder requestBuilder,
-            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+            Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         FormBody.Builder formBuilder = new FormBody.Builder();
         formBuilder.add(Integer.toString(deleteRequest.post.no), "delete");

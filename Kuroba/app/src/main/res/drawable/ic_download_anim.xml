@@ -1,0 +1,40 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="24dp"
+            android:height="23dp"
+            android:viewportWidth="512"
+            android:viewportHeight="512">
+            <path
+                android:name="top"
+                android:fillColor="#C7C8CA"
+                android:pathData="M191.667,64l0,0l0,0l61,0l67.333,0l0,0l0,0z" />
+            <path
+                android:fillColor="#FFFFFF"
+                android:pathData="M106.333,384.667h298v42h-298z"
+                android:strokeWidth="20"
+                android:strokeColor="#FFFFFF" />
+            <path
+                android:fillColor="#00000000"
+                android:pathData="M191.667,64l0,128.083l-85.253,-0.083l149.587,149.667l149,-149.667l-85.375,0l0,-128z"
+                android:strokeWidth="40"
+                android:strokeColor="#FFFFFF" />
+        </vector>
+    </aapt:attr>
+
+    <target android:name="top">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="2000"
+                    android:propertyName="pathData"
+                    android:repeatMode="restart"
+                    android:startOffset="1000"
+                    android:valueFrom="M191.667,64l0,0l0,0l61,0l67.333,0l0,0l0,0z"
+                    android:valueTo="M191.667,64l0.332,128.083l-85.253,-0.083l149.587,149.667l149,-149.667l-85.375,0l0.042,-128z"
+                    android:valueType="pathType" />
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

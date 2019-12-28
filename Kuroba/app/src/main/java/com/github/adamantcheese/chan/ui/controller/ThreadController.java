@@ -21,9 +21,9 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
+
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
@@ -39,22 +39,23 @@ import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
-
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
-public abstract class ThreadController extends Controller implements
-        ThreadLayout.ThreadLayoutCallback,
-        ImageViewerController.ImageViewerCallback,
-        SwipeRefreshLayout.OnRefreshListener,
-        ToolbarNavigationController.ToolbarSearchCallback,
-        NfcAdapter.CreateNdefMessageCallback,
-        ThreadSlideController.SlideChangeListener {
+public abstract class ThreadController
+        extends Controller
+        implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.ImageViewerCallback,
+                   SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback,
+                   NfcAdapter.CreateNdefMessageCallback, ThreadSlideController.SlideChangeListener {
     private static final String TAG = "ThreadController";
 
     protected ThreadLayout threadLayout;
@@ -72,7 +73,7 @@ public abstract class ThreadController extends Controller implements
 
         navigation.handlesToolbarInset = true;
 
-        threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
+        threadLayout = (ThreadLayout) inflate(context, R.layout.layout_thread, null);
         threadLayout.create(this);
 
         swipeRefreshLayout = new SwipeRefreshLayout(context) {
@@ -96,7 +97,6 @@ public abstract class ThreadController extends Controller implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         threadLayout.destroy();
 
         EventBus.getDefault().unregister(this);
@@ -129,10 +129,12 @@ public abstract class ThreadController extends Controller implements
         return threadLayout.sendKeyEvent(event) || super.dispatchKeyEvent(event);
     }
 
+    @Subscribe
     public void onEvent(Chan.ForegroundChangedMessage message) {
         threadLayout.getPresenter().onForegroundChanged(message.inForeground);
     }
 
+    @Subscribe
     public void onEvent(RefreshUIMessage message) {
         threadLayout.getPresenter().requestData();
     }
@@ -144,12 +146,17 @@ public abstract class ThreadController extends Controller implements
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
+        if (threadLayout.getPresenter().getChanThread() == null) {
+            showToast(R.string.cannot_send_thread_via_nfc_already_deleted);
+            return null;
+        }
+
         Loadable loadable = getLoadable();
         String url = null;
         NdefMessage message = null;
 
         if (loadable != null) {
-            url = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().op);
+            url = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
         }
 
         if (url != null) {
@@ -165,20 +172,6 @@ public abstract class ThreadController extends Controller implements
         return message;
     }
 
-    public void presentRepliesController(Controller controller) {
-        presentController(controller);
-    }
-
-    @Override
-    public void presentImageReencodingController(Controller controller) {
-        presentController(controller);
-    }
-
-    @Override
-    public void presenterRemovedPostsController(Controller controller) {
-        presentController(controller);
-    }
-
     @Override
     public void openReportController(final Post post) {
         navigationController.pushController(new ReportController(context, post));
@@ -192,9 +185,9 @@ public abstract class ThreadController extends Controller implements
     public void showImages(List<PostImage> images, int index, Loadable loadable, final ThumbnailView thumbnail) {
         // Just ignore the showImages request when the image is not loaded
         if (thumbnail.getBitmap() != null && !isAlreadyPresenting()) {
-            final ImageViewerNavigationController imageViewerNavigationController = new ImageViewerNavigationController(context);
-            presentController(imageViewerNavigationController, false);
-            imageViewerNavigationController.showImages(images, index, loadable, this);
+            final ImageViewerNavigationController imagerViewer = new ImageViewerNavigationController(context);
+            presentController(imagerViewer, false);
+            imagerViewer.showImages(images, index, loadable, this);
         }
     }
 
@@ -228,6 +221,10 @@ public abstract class ThreadController extends Controller implements
 
     @Override
     public void hideSwipeRefreshLayout() {
+        if (swipeRefreshLayout == null) {
+            return;
+        }
+
         swipeRefreshLayout.setRefreshing(false);
     }
 
@@ -242,7 +239,7 @@ public abstract class ThreadController extends Controller implements
 
     @Override
     public boolean shouldToolbarCollapse() {
-        return !AndroidUtils.isTablet(context) && !ChanSettings.neverHideToolbar.get();
+        return !isTablet() && !ChanSettings.neverHideToolbar.get();
     }
 
     @Override
@@ -273,5 +270,10 @@ public abstract class ThreadController extends Controller implements
     @Override
     public void onSlideChanged() {
         threadLayout.gainedFocus();
+    }
+
+    @Override
+    public boolean threadBackPressed() {
+        return false;
     }
 }

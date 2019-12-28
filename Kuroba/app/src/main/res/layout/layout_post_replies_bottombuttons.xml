@@ -25,7 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/dialog_full_light"
+        android:background="?backcolor_secondary"
+        android:elevation="4dp"
         android:minWidth="320dp"
         android:orientation="vertical"
         tools:ignore="UselessParent">
@@ -62,7 +63,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
                     android:paddingRight="20dp"
-                    android:text="@string/back" />
+                    android:text="@string/back"
+                    android:textColor="?text_color_primary" />
             </FrameLayout>
 
             <FrameLayout
@@ -82,7 +84,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
                     android:paddingRight="20dp"
-                    android:text="@string/close" />
+                    android:text="@string/close"
+                    android:textColor="?text_color_primary" />
             </FrameLayout>
         </LinearLayout>
 

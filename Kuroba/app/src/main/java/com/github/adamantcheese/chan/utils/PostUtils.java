@@ -2,6 +2,8 @@ package com.github.adamantcheese.chan.utils;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
@@ -15,12 +17,26 @@ import java.util.Set;
 
 public class PostUtils {
 
-    private PostUtils() {
+    @SuppressLint("DefaultLocale")
+    public static String getReadableFileSize(long bytes) {
+        //Nice stack overflow copy-paste, but it's been updated to be more correct
+        //https://programming.guide/java/formatting-byte-size-to-human-readable-format.html
+        //@formatter:off
+        String s = bytes < 0 ? "-" : "";
+        long b = bytes == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(bytes);
+        return b < 1000L ? bytes + " B"
+                : b < 999_950L ? String.format("%s%.1f kB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f MB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f GB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f TB", s, b / 1e3)
+                : (b /= 1000) < 999_950L ? String.format("%s%.1f PB", s, b / 1e3)
+                : String.format("%s%.1f EB", s, b / 1e6);
+        //@formatter:on
     }
 
-    public static Post findPostById(int id, ChanThread thread) {
+    public static Post findPostById(int id, @Nullable ChanThread thread) {
         if (thread != null) {
-            for (Post post : thread.posts) {
+            for (Post post : thread.getPostsUnsafe()) {
                 if (post.no == id) {
                     return post;
                 }
@@ -43,7 +59,13 @@ public class PostUtils {
             if (post.no == id && !postsSet.contains(post)) {
                 postsSet.add(post);
 
-                for (Integer replyId : post.repliesFrom) {
+                List<Integer> repliesFrom;
+
+                synchronized (post.repliesFrom) {
+                    repliesFrom = new ArrayList<>(post.repliesFrom);
+                }
+
+                for (Integer replyId : repliesFrom) {
                     findPostWithRepliesRecursive(replyId, posts, postsSet);
                 }
             }
@@ -56,8 +78,7 @@ public class PostUtils {
      * This function is slow so it must be executed on the background thread
      */
     public static List<PostHide> findHiddenPostsWithReplies(
-            List<PostHide> hiddenPostsFirstIteration,
-            Map<Integer, Post> postsFastLookupMap
+            List<PostHide> hiddenPostsFirstIteration, Map<Integer, Post> postsFastLookupMap
     ) {
         @SuppressLint("UseSparseArrays")
         Map<Integer, PostHide> hiddenPostsFastLookupMap = new HashMap<>();
@@ -66,9 +87,7 @@ public class PostUtils {
             hiddenPostsFastLookupMap.put(postHide.no, postHide);
         }
 
-        List<PostHide> newHiddenPosts = search(
-                hiddenPostsFastLookupMap,
-                postsFastLookupMap);
+        List<PostHide> newHiddenPosts = search(hiddenPostsFastLookupMap, postsFastLookupMap);
 
         if (newHiddenPosts.isEmpty()) {
             return hiddenPostsFirstIteration;
@@ -86,8 +105,7 @@ public class PostUtils {
      * hidden posts list if it has. Checks for some flags to decide whether that post should be hidden or not.
      */
     private static List<PostHide> search(
-            Map<Integer, PostHide> hiddenPostsFastLookupMap,
-            Map<Integer, Post> postsFastLookupMap
+            Map<Integer, PostHide> hiddenPostsFastLookupMap, Map<Integer, Post> postsFastLookupMap
     ) {
         Set<PostHide> newHiddenPosts = new HashSet<>();
 
@@ -106,12 +124,13 @@ public class PostUtils {
                 }
 
                 PostHide toInheritBaseInfoFrom = hiddenPostsFastLookupMap.get(replyTo);
-                if (repliedToPost.isOP || toInheritBaseInfoFrom == null || !toInheritBaseInfoFrom.hideRepliesToThisPost) {
+                if (repliedToPost.isOP || toInheritBaseInfoFrom == null
+                        || !toInheritBaseInfoFrom.hideRepliesToThisPost) {
                     // skip if OP or if has a flag to not hide replies to this post
                     continue;
                 }
 
-                PostHide postHide = PostHide.hidePost(post, false, toInheritBaseInfoFrom.hide, toInheritBaseInfoFrom.hideRepliesToThisPost);
+                PostHide postHide = PostHide.hidePost(post, false, toInheritBaseInfoFrom.hide, true);
                 hiddenPostsFastLookupMap.put(post.no, postHide);
                 newHiddenPosts.add(postHide);
 
@@ -122,5 +141,4 @@ public class PostUtils {
 
         return new ArrayList<>(newHiddenPosts);
     }
-
 }

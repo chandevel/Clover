@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
+
 import org.jsoup.Jsoup;
 
 import java.util.Random;
@@ -34,11 +35,12 @@ import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public abstract class CommonReplyHttpCall extends HttpCall {
+public abstract class CommonReplyHttpCall
+        extends HttpCall {
     private static final String TAG = "CommonReplyHttpCall";
     private static final Random RANDOM = new Random();
     private static final Pattern THREAD_NO_PATTERN = Pattern.compile("<!-- thread:([0-9]+),no:([0-9]+) -->");
-    private static final Pattern ERROR_MESSAGE = Pattern.compile("\"errmsg\"[^>]*>(.*?)<\\/span");
+    private static final Pattern ERROR_MESSAGE = Pattern.compile("\"errmsg\"[^>]*>(.*?)</span");
     private static final String PROBABLY_BANNED_TEXT = "banned";
 
     public final Reply reply;
@@ -47,12 +49,13 @@ public abstract class CommonReplyHttpCall extends HttpCall {
     public CommonReplyHttpCall(Site site, Reply reply) {
         super(site);
         this.reply = reply;
+        replyResponse.siteId = reply.loadable.siteId;
+        replyResponse.boardCode = reply.loadable.boardCode;
     }
 
     @Override
     public void setup(
-            Request.Builder requestBuilder,
-            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+            Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         replyResponse.password = Long.toHexString(RANDOM.nextLong());
 
@@ -82,7 +85,8 @@ public abstract class CommonReplyHttpCall extends HttpCall {
                 } catch (NumberFormatException ignored) {
                 }
 
-                if (replyResponse.threadNo >= 0 && replyResponse.postNo >= 0) {
+                if (replyResponse.threadNo >= 0
+                        && replyResponse.postNo > 0) { //threadNo can be 0 iff this is a new thread
                     replyResponse.posted = true;
                 }
             }
@@ -90,7 +94,6 @@ public abstract class CommonReplyHttpCall extends HttpCall {
     }
 
     public abstract void addParameters(
-            MultipartBody.Builder builder,
-            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+            MultipartBody.Builder builder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     );
 }

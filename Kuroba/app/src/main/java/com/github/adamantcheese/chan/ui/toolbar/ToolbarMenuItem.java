@@ -18,8 +18,9 @@ package com.github.adamantcheese.chan.ui.toolbar;
 
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
-import android.view.View;
 import android.widget.ImageView;
+
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -28,6 +29,8 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
@@ -50,26 +53,39 @@ public class ToolbarMenuItem {
 
     private ClickCallback clicked;
 
+    @Nullable
+    private ToobarThreedotMenuCallback threedotMenuCallback;
+
     // Views, only non-null if attached to ToolbarMenuView.
     private ImageView view;
 
     public ToolbarMenuItem(int id, int drawable, ClickCallback clicked) {
+        this(id, getAppContext().getDrawable(drawable), clicked);
+    }
+
+    public ToolbarMenuItem(int id, Drawable drawable, ClickCallback clicked) {
         this.id = id;
-        this.drawable = getAppContext().getDrawable(drawable);
+        this.drawable = drawable;
         this.clicked = clicked;
     }
 
-    public void attach(ImageView view) {
-        if (this.view != null) {
-            throw new IllegalStateException("Already attached");
-        }
+    public ToolbarMenuItem(
+            int id, int drawable, ClickCallback clicked, @Nullable ToobarThreedotMenuCallback threedotMenuCallback
+    ) {
+        this.id = id;
+        this.drawable = getAppContext().getDrawable(drawable);
+        this.clicked = clicked;
+        this.threedotMenuCallback = threedotMenuCallback;
+    }
 
+    public void attach(ImageView view) {
         this.view = view;
     }
 
     public void detach() {
-        if (this.view == null) {
-            throw new IllegalStateException("Not attached");
+        if (view == null) {
+            Logger.d(TAG, "Already detached");
+            return;
         }
 
         removeFromParentView(this.view);
@@ -84,11 +100,15 @@ public class ToolbarMenuItem {
         subItems.add(subItem);
     }
 
+    public void removeSubItem(ToolbarMenuSubItem subItem) {
+        subItems.remove(subItem);
+    }
+
     public void setVisible(boolean visible) {
         this.visible = visible;
 
         if (view != null) {
-            view.setVisibility(visible ? View.VISIBLE : View.GONE);
+            view.setVisibility(visible ? VISIBLE : GONE);
         }
     }
 
@@ -109,9 +129,8 @@ public class ToolbarMenuItem {
         if (!animated) {
             view.setImageDrawable(drawable);
         } else {
-            TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{
-                    this.drawable.mutate(), drawable.mutate()
-            });
+            TransitionDrawable transitionDrawable =
+                    new TransitionDrawable(new Drawable[]{this.drawable.mutate(), drawable.mutate()});
 
             view.setImageDrawable(transitionDrawable);
 
@@ -144,9 +163,16 @@ public class ToolbarMenuItem {
 
             @Override
             public void onFloatingMenuDismissed(FloatingMenu menu) {
+                if (threedotMenuCallback != null) {
+                    threedotMenuCallback.onMenuHidden();
+                }
             }
         });
         overflowMenu.show();
+
+        if (threedotMenuCallback != null) {
+            threedotMenuCallback.onMenuShown();
+        }
     }
 
     public Object getId() {
@@ -159,7 +185,17 @@ public class ToolbarMenuItem {
         }
     }
 
+    public void setCallback(ClickCallback callback) {
+        clicked = callback;
+    }
+
     public interface ClickCallback {
         void clicked(ToolbarMenuItem item);
+    }
+
+    public interface ToobarThreedotMenuCallback {
+        void onMenuShown();
+
+        void onMenuHidden();
     }
 }

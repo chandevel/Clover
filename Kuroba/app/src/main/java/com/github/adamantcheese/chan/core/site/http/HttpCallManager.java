@@ -19,37 +19,27 @@ package com.github.adamantcheese.chan.core.site.http;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.di.NetModule;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
-
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+
 /**
  * Manages the {@link HttpCall} executions.
  */
 public class HttpCallManager {
-    private OkHttpClient client;
 
     @Inject
     public HttpCallManager() {
-        long timeout = ChanSettings.postingTimeout.get().getTimeoutValue();
-
-        client = new OkHttpClient.Builder()
-                .connectTimeout(timeout, TimeUnit.MILLISECONDS)
-                .readTimeout(timeout, TimeUnit.MILLISECONDS)
-                .writeTimeout(timeout, TimeUnit.MILLISECONDS)
-                .build();
     }
 
     public void makeHttpCall(
-            HttpCall httpCall,
-            HttpCall.HttpCallback<? extends HttpCall> callback
+            HttpCall httpCall, HttpCall.HttpCallback<? extends HttpCall> callback
     ) {
         makeHttpCall(httpCall, callback, null);
     }
@@ -76,6 +66,6 @@ public class HttpCallManager {
         requestBuilder.header("User-Agent", NetModule.USER_AGENT);
         Request request = requestBuilder.build();
 
-        client.newCall(request).enqueue(httpCall);
+        instance(OkHttpClient.class).newCall(request).enqueue(httpCall);
     }
 }

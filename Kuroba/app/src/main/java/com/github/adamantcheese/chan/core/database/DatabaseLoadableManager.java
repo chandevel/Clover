@@ -38,6 +38,7 @@ import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 
 public class DatabaseLoadableManager {
     private static final String TAG = "DatabaseLoadableManager";
@@ -45,6 +46,7 @@ public class DatabaseLoadableManager {
     @Inject
     DatabaseHelper helper;
 
+    // Uhhh, should this really be like this?
     private Map<Loadable, Loadable> cachedLoadables = new HashMap<>();
 
     public DatabaseLoadableManager() {
@@ -67,8 +69,7 @@ public class DatabaseLoadableManager {
 
             if (!toFlush.isEmpty()) {
                 Logger.d(TAG, "Flushing " + toFlush.size() + " loadable(s)");
-                for (int i = 0; i < toFlush.size(); i++) {
-                    Loadable loadable = toFlush.get(i);
+                for (Loadable loadable : toFlush) {
                     helper.loadableDao.update(loadable);
                 }
             }
@@ -93,7 +94,7 @@ public class DatabaseLoadableManager {
 
         // We only cache THREAD loadables in the db
         if (loadable.isThreadMode()) {
-            return Chan.injector().provider(DatabaseManager.class).get().runTask(getLoadable(loadable));
+            return Chan.instance(DatabaseManager.class).runTask(getLoadable(loadable));
         } else {
             return loadable;
         }
@@ -105,9 +106,11 @@ public class DatabaseLoadableManager {
      *
      * @param loadable Loadable that only has its id loaded
      * @return a loadable ready to use.
+     *
      * @throws SQLException database error
      */
-    public Loadable refreshForeign(final Loadable loadable) throws SQLException {
+    public Loadable refreshForeign(final Loadable loadable)
+            throws SQLException {
         if (loadable.id == 0) {
             throw new IllegalArgumentException("This only works loadables that have their id loaded");
         }
@@ -121,7 +124,7 @@ public class DatabaseLoadableManager {
 
         // Add it to the cache, refresh contents
         helper.loadableDao.refresh(loadable);
-        loadable.site = Chan.injector().instance(SiteRepository.class).forId(loadable.siteId);
+        loadable.site = instance(SiteRepository.class).forId(loadable.siteId);
         loadable.board = loadable.site.board(loadable.boardCode);
         cachedLoadables.put(loadable, loadable);
         return loadable;
@@ -140,10 +143,13 @@ public class DatabaseLoadableManager {
             } else {
                 QueryBuilder<Loadable, Integer> builder = helper.loadableDao.queryBuilder();
                 List<Loadable> results = builder.where()
-                        .eq("site", loadable.siteId).and()
+                        .eq("site", loadable.siteId)
+                        .and()
                         .eq("mode", loadable.mode)
-                        .and().eq("board", loadable.boardCode)
-                        .and().eq("no", loadable.no)
+                        .and()
+                        .eq("board", loadable.boardCode)
+                        .and()
+                        .eq("no", loadable.no)
                         .query();
 
                 if (results.size() > 1) {
@@ -160,7 +166,7 @@ public class DatabaseLoadableManager {
                     result = loadable;
                 } else {
                     Log.d(TAG, "Loadable found in db");
-                    result.site = Chan.injector().instance(SiteRepository.class).forId(result.siteId);
+                    result.site = instance(SiteRepository.class).forId(result.siteId);
                     result.board = result.site.board(result.boardCode);
                 }
 
@@ -187,10 +193,25 @@ public class DatabaseLoadableManager {
 
             int deletedCount = builder.delete();
             if (loadableIdSet.size() != deletedCount) {
-                throw new IllegalStateException("Deleted count didn't equal loadableIdSet.size(). (deletedCount = "
-                        + deletedCount + "), " + "(loadableIdSet = " + loadableIdSet.size() + ")");
+                throw new IllegalStateException(
+                        "Deleted count didn't equal loadableIdSet.size(). (deletedCount = " + deletedCount + "), "
+                                + "(loadableIdSet = " + loadableIdSet.size() + ")");
             }
 
+            return null;
+        };
+    }
+
+    public Callable<Void> updateLoadable(Loadable updatedLoadable) {
+        return () -> {
+            for (Loadable key : cachedLoadables.keySet()) {
+                if (key.id == updatedLoadable.id) {
+                    cachedLoadables.put(key, updatedLoadable);
+                    break;
+                }
+            }
+
+            helper.loadableDao.update(updatedLoadable);
             return null;
         };
     }

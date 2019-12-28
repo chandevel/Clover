@@ -12,7 +12,6 @@ import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteRegistry;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -44,19 +43,16 @@ public class SiteRepository {
     }
 
     public SiteModel byId(int id) {
-        return databaseManager.runTask(databaseManager.getDatabaseSiteManager()
-                .byId(id));
+        return databaseManager.runTask(databaseManager.getDatabaseSiteManager().byId(id));
     }
 
     public void setId(SiteModel siteModel, int id) {
-        databaseManager.runTask(databaseManager.getDatabaseSiteManager()
-                .updateId(siteModel, id));
+        databaseManager.runTask(databaseManager.getDatabaseSiteManager().updateId(siteModel, id));
     }
 
     public void updateSiteUserSettingsAsync(SiteModel siteModel, JsonSettings jsonSettings) {
         siteModel.storeUserSettings(jsonSettings);
-        databaseManager.runTaskAsync(databaseManager.getDatabaseSiteManager()
-                .update(siteModel));
+        databaseManager.runTaskAsync(databaseManager.getDatabaseSiteManager().update(siteModel));
     }
 
     public Map<Integer, Integer> getOrdering() {
@@ -69,19 +65,16 @@ public class SiteRepository {
             ids.add(site.id());
         }
 
-        databaseManager.runTaskAsync(
-                databaseManager.getDatabaseSiteManager().updateOrdering(ids),
-                (r) -> {
-                    sitesObservable.wasReordered();
-                    sitesObservable.notifyObservers();
-                });
+        databaseManager.runTaskAsync(databaseManager.getDatabaseSiteManager().updateOrdering(ids), r -> {
+            sitesObservable.wasReordered();
+            sitesObservable.notifyObservers();
+        });
     }
 
     public void initialize() {
         List<Site> sites = new ArrayList<>();
 
-        List<SiteModel> models = databaseManager.runTask(
-                databaseManager.getDatabaseSiteManager().getAll());
+        List<SiteModel> models = databaseManager.runTask(databaseManager.getDatabaseSiteManager().getAll());
 
         for (SiteModel siteModel : models) {
             SiteConfigSettingsHolder holder;
@@ -110,26 +103,14 @@ public class SiteRepository {
         sitesObservable.notifyObservers();
     }
 
-    // Called before #initialize to add the old 4chan site when the database was upgraded from
-    // an older version. It only adds the model to the database with id 0.
-    public void addLegacySite() {
-        Site site = new Chan4();
-
-        SiteConfig config = new SiteConfig();
-        config.classId = SiteRegistry.SITE_CLASSES.indexOfValue(site.getClass());
-        config.external = false;
-
-        SiteModel model = createFromClass(config, new JsonSettings());
-        setId(model, 0);
-    }
-
     public Site createFromClass(Class<? extends Site> siteClass) {
         Site site = instantiateSiteClass(siteClass);
 
         SiteConfig config = new SiteConfig();
         JsonSettings settings = new JsonSettings();
 
-        config.classId = SiteRegistry.SITE_CLASSES.indexOfValue(site.getClass());
+        //the index doesn't necessarily match the key value to get the class ID anymore since sites were removed
+        config.classId = SiteRegistry.SITE_CLASSES.keyAt(SiteRegistry.SITE_CLASSES.indexOfValue(site.getClass()));
         config.external = false;
 
         SiteModel model = createFromClass(config, settings);
@@ -159,10 +140,7 @@ public class SiteRepository {
         SiteConfig config = configFields.first;
         JsonSettings settings = configFields.second;
 
-        return new SiteConfigSettingsHolder(
-                instantiateSiteClass(config.classId),
-                config,
-                settings);
+        return new SiteConfigSettingsHolder(instantiateSiteClass(config.classId), config, settings);
     }
 
     private Site instantiateSiteClass(int classId) {
@@ -177,9 +155,7 @@ public class SiteRepository {
         Site site;
         try {
             site = clazz.newInstance();
-        } catch (InstantiationException e) {
-            throw new IllegalArgumentException();
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new IllegalArgumentException();
         }
         return site;
@@ -192,6 +168,7 @@ public class SiteRepository {
 
             List<Loadable> siteLoadables = databaseManager.getDatabaseLoadableManager().getLoadables(site).call();
             if (!siteLoadables.isEmpty()) {
+                databaseManager.getDatabaseSavedThreadManager().deleteSavedThreads(siteLoadables).call();
                 databaseManager.getDatabasePinManager().deletePinsFromLoadables(siteLoadables).call();
                 databaseManager.getDatabaseHistoryManager().deleteHistory(siteLoadables).call();
                 databaseManager.getDatabaseLoadableManager().deleteLoadables(siteLoadables).call();
@@ -204,7 +181,8 @@ public class SiteRepository {
         });
     }
 
-    private void removeFilters(Site site) throws Exception {
+    private void removeFilters(Site site)
+            throws Exception {
         List<Filter> filtersToDelete = new ArrayList<>();
 
         for (Filter filter : databaseManager.getDatabaseFilterManager().getFilters().call()) {
@@ -224,7 +202,8 @@ public class SiteRepository {
         databaseManager.getDatabaseFilterManager().deleteFilters(filtersToDelete).call();
     }
 
-    public class Sites extends Observable {
+    public class Sites
+            extends Observable {
         private List<Site> sites = Collections.unmodifiableList(new ArrayList<>());
         private SparseArray<Site> sitesById = new SparseArray<>();
 
@@ -244,8 +223,7 @@ public class SiteRepository {
             Map<Integer, Integer> ordering = getOrdering();
 
             List<Site> ordered = new ArrayList<>(sites);
-            Collections.sort(ordered,
-                    (lhs, rhs) -> ordering.get(lhs.id()) - ordering.get(rhs.id()));
+            Collections.sort(ordered, (lhs, rhs) -> ordering.get(lhs.id()) - ordering.get(rhs.id()));
 
             return ordered;
         }

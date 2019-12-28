@@ -20,7 +20,6 @@ import android.util.JsonReader;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
-
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.net.JsonReaderRequest;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -29,7 +28,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DvachBoardsRequest extends JsonReaderRequest<List<Board>> {
+public class DvachBoardsRequest
+        extends JsonReaderRequest<List<Board>> {
     private final Site site;
 
     DvachBoardsRequest(Site site, Listener<List<Board>> listener, ErrorListener errorListener) {
@@ -38,7 +38,8 @@ public class DvachBoardsRequest extends JsonReaderRequest<List<Board>> {
     }
 
     @Override
-    public List<Board> readJson(JsonReader reader) throws Exception {
+    public List<Board> readJson(JsonReader reader)
+            throws Exception {
         List<Board> list = new ArrayList<>();
 
         reader.beginObject();
@@ -64,7 +65,8 @@ public class DvachBoardsRequest extends JsonReaderRequest<List<Board>> {
         return list;
     }
 
-    private Board readBoardEntry(JsonReader reader) throws IOException {
+    private Board readBoardEntry(JsonReader reader)
+            throws IOException {
         reader.beginObject();
 
         Board board = new Board();
@@ -97,6 +99,8 @@ public class DvachBoardsRequest extends JsonReaderRequest<List<Board>> {
         }
 
         reader.endObject();
+
+        board.maxFileSize = 20480 * 1024; //20MB
 
         if (board.hasMissingInfo()) {
             // Invalid data, ignore

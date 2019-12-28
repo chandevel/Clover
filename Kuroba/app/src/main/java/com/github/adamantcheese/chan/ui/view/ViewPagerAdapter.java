@@ -16,11 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
-import androidx.viewpager.widget.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
-public abstract class ViewPagerAdapter extends PagerAdapter {
+import androidx.viewpager.widget.PagerAdapter;
+
+public abstract class ViewPagerAdapter
+        extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View view = getView(position, container);

@@ -31,7 +31,8 @@ import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class Chan4PassHttpCall extends HttpCall {
+public class Chan4PassHttpCall
+        extends HttpCall {
     private final LoginRequest loginRequest;
     public final LoginResponse loginResponse = new LoginResponse();
 
@@ -42,8 +43,7 @@ public class Chan4PassHttpCall extends HttpCall {
 
     @Override
     public void setup(
-            Request.Builder requestBuilder,
-            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+            Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         FormBody.Builder formBuilder = new FormBody.Builder();
 

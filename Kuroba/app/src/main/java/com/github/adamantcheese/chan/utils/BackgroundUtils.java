@@ -16,34 +16,83 @@
  */
 package com.github.adamantcheese.chan.utils;
 
+import android.content.Context;
+import android.os.Handler;
 import android.os.Looper;
+
+import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.Chan;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+
 public class BackgroundUtils {
 
-    public static boolean isMainThread() {
+    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    public static boolean isInForeground() {
+        return ((Chan) instance(Context.class)).getApplicationInForeground();
+    }
+
+    /**
+     * Causes the runnable to be added to the message queue. The runnable will
+     * be run on the ui thread.
+     */
+    public static void runOnUiThread(Runnable runnable) {
+        mainHandler.post(runnable);
+    }
+
+    public static void runOnUiThread(Runnable runnable, long delay) {
+        mainHandler.postDelayed(runnable, delay);
+    }
+
+    private static boolean isMainThread() {
         return Thread.currentThread() == Looper.getMainLooper().getThread();
     }
 
-    public static <T> Cancelable runWithExecutor(Executor executor, final Callable<T> background,
-                                                 final BackgroundResult<T> result) {
-        final AtomicBoolean cancelled = new AtomicBoolean(false);
-        Cancelable cancelable = () -> cancelled.set(true);
+    public static void ensureMainThread() {
+        if (!isMainThread()) {
+            if (BuildConfig.DEV_BUILD) {
+                throw new IllegalStateException("Cannot be executed on a background thread!");
+            } else {
+                Logger.e(
+                        "BackgroundUtils",
+                        "ensureMainThread() expected main thread but got " + Thread.currentThread().getName()
+                );
+            }
+        }
+    }
+
+    public static void ensureBackgroundThread() {
+        if (isMainThread()) {
+            if (BuildConfig.DEV_BUILD) {
+                throw new IllegalStateException("Cannot be executed on the main thread!");
+            } else {
+                Logger.e("BackgroundUtils", "ensureBackgroundThread() expected background thread but got main");
+            }
+        }
+    }
+
+    public static <T> Cancelable runWithExecutor(
+            Executor executor, final Callable<T> background, final BackgroundResult<T> result
+    ) {
+        final AtomicBoolean canceled = new AtomicBoolean(false);
+        Cancelable cancelable = () -> canceled.set(true);
 
         executor.execute(() -> {
-            if (!cancelled.get()) {
+            if (!canceled.get()) {
                 try {
                     final T res = background.call();
-                    AndroidUtils.runOnUiThread(() -> {
-                        if (!cancelled.get()) {
+                    runOnUiThread(() -> {
+                        if (!canceled.get()) {
                             result.onResult(res);
                         }
                     });
                 } catch (final Exception e) {
-                    AndroidUtils.runOnUiThread(() -> {
+                    runOnUiThread(() -> {
                         throw new RuntimeException(e);
                     });
                 }
@@ -54,15 +103,15 @@ public class BackgroundUtils {
     }
 
     public static Cancelable runWithExecutor(Executor executor, final Runnable background) {
-        final AtomicBoolean cancelled = new AtomicBoolean(false);
-        Cancelable cancelable = () -> cancelled.set(true);
+        final AtomicBoolean canceled = new AtomicBoolean(false);
+        Cancelable cancelable = () -> canceled.set(true);
 
         executor.execute(() -> {
-            if (!cancelled.get()) {
+            if (!canceled.get()) {
                 try {
                     background.run();
                 } catch (final Exception e) {
-                    AndroidUtils.runOnUiThread(() -> {
+                    runOnUiThread(() -> {
                         throw new RuntimeException(e);
                     });
                 }

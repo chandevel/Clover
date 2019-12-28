@@ -1,44 +1,52 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatCheckBox;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.AppCompatTextView;
-import android.view.LayoutInflater;
+import android.content.res.ColorStateList;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.graphics.ColorUtils;
+
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-
+import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
-public class RemovedPostsController extends BaseFloatingController implements View.OnClickListener {
+public class RemovedPostsController
+        extends BaseFloatingController
+        implements View.OnClickListener {
     private static final String TAG = "RemovedPostsController";
 
     @Inject
-    ImageLoader imageLoader;
+    ImageLoaderV2 imageLoaderV2;
 
     private RemovedPostsHelper removedPostsHelper;
 
@@ -50,9 +58,7 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
     @Nullable
     private RemovedPostAdapter adapter;
 
-    public RemovedPostsController(
-            Context context,
-            RemovedPostsHelper removedPostsHelper) {
+    public RemovedPostsController(Context context, RemovedPostsHelper removedPostsHelper) {
         super(context);
         this.removedPostsHelper = removedPostsHelper;
 
@@ -71,6 +77,9 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
         viewHolder.setOnClickListener(this);
         restorePostsButton.setOnClickListener(this);
         selectAllButton.setOnClickListener(this);
+
+        selectAllButton.setBackgroundColor(ColorUtils.setAlphaComponent(ThemeHelper.getTheme().textPrimary, 32));
+        restorePostsButton.setBackgroundColor(ColorUtils.setAlphaComponent(ThemeHelper.getTheme().textPrimary, 32));
     }
 
     @Override
@@ -85,9 +94,7 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
     }
 
     public void showRemovePosts(List<Post> removedPosts) {
-        if (!BackgroundUtils.isMainThread()) {
-            throw new RuntimeException("Must be executed on the main thread!");
-        }
+        BackgroundUtils.ensureMainThread();
 
         RemovedPost[] removedPostsArray = new RemovedPost[removedPosts.size()];
 
@@ -97,10 +104,7 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
         }
 
         if (adapter == null) {
-            adapter = new RemovedPostAdapter(
-                    context,
-                    imageLoader,
-                    R.layout.layout_removed_posts);
+            adapter = new RemovedPostAdapter(context, imageLoaderV2, R.layout.layout_removed_posts);
 
             postsListView.setAdapter(adapter);
         }
@@ -168,13 +172,14 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
         }
     }
 
-    public static class RemovedPostAdapter extends ArrayAdapter<RemovedPost> {
-        private ImageLoader imageLoader;
+    public static class RemovedPostAdapter
+            extends ArrayAdapter<RemovedPost> {
+        private ImageLoaderV2 imageLoaderV2;
         private List<RemovedPost> removedPostsCopy = new ArrayList<>();
 
-        public RemovedPostAdapter(@NonNull Context context, ImageLoader imageLoader, int resource) {
+        public RemovedPostAdapter(@NonNull Context context, ImageLoaderV2 imageLoaderV2, int resource) {
             super(context, resource);
-            this.imageLoader = imageLoader;
+            this.imageLoaderV2 = imageLoaderV2;
         }
 
         @NonNull
@@ -183,15 +188,12 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
             RemovedPost removedPost = getItem(position);
 
             if (removedPost == null) {
-                throw new RuntimeException("removedPost is null! position = " +
-                        position + ", items count = " + getCount());
+                throw new RuntimeException(
+                        "removedPost is null! position = " + position + ", items count = " + getCount());
             }
 
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(
-                        R.layout.layout_removed_post,
-                        parent,
-                        false);
+                convertView = inflate(getContext(), R.layout.layout_removed_post, parent, false);
             }
 
             LinearLayout viewHolder = convertView.findViewById(R.id.removed_post_view_holder);
@@ -200,16 +202,18 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
             AppCompatCheckBox checkbox = convertView.findViewById(R.id.removed_post_checkbox);
             AppCompatImageView postImage = convertView.findViewById(R.id.post_image);
 
-            postNo.setText(String.format(Locale.getDefault(), "No. %d", removedPost.postNo));
+            postNo.setText(String.format("No. %d", removedPost.postNo));
             postComment.setText(removedPost.comment);
             checkbox.setChecked(removedPost.isChecked());
+            checkbox.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+            checkbox.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
 
             if (removedPost.images.size() > 0) {
                 // load only the first image
                 PostImage image = removedPost.getImages().get(0);
-                postImage.setVisibility(View.VISIBLE);
+                postImage.setVisibility(VISIBLE);
 
-                imageLoader.get(image.getThumbnailUrl().toString(), new ImageLoader.ImageListener() {
+                imageLoaderV2.get(image.getThumbnailUrl().toString(), new ImageListener() {
                     @Override
                     public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                         postImage.setImageBitmap(response.getBitmap());
@@ -218,15 +222,15 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Logger.e(TAG, "Error while trying to download post image", error);
-                        postImage.setVisibility(View.GONE);
+                        postImage.setVisibility(GONE);
                     }
                 }, postImage.getWidth(), postImage.getHeight());
             } else {
-                postImage.setVisibility(View.GONE);
+                postImage.setVisibility(GONE);
             }
 
-            checkbox.setOnClickListener((v) -> onItemClick(position));
-            viewHolder.setOnClickListener((v) -> onItemClick(position));
+            checkbox.setOnClickListener(v -> onItemClick(position));
+            viewHolder.setOnClickListener(v -> onItemClick(position));
 
             return convertView;
         }
@@ -255,11 +259,8 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
         public List<Integer> getSelectedPostNoList() {
             List<Integer> selectedPosts = new ArrayList<>();
 
-            for (int i = 0; i < removedPostsCopy.size(); ++i) {
-                RemovedPost removedPost = removedPostsCopy.get(i);
-                if (removedPost == null) {
-                    continue;
-                }
+            for (RemovedPost removedPost : removedPostsCopy) {
+                if (removedPost == null) continue;
 
                 if (removedPost.isChecked()) {
                     selectedPosts.add(removedPost.getPostNo());

@@ -16,27 +16,35 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
-import androidx.appcompat.app.AlertDialog;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.Setting;
+import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class StringSettingView extends SettingView implements View.OnClickListener {
+public class StringSettingView
+        extends SettingView
+        implements View.OnClickListener {
     private final Setting<String> setting;
     private final String dialogTitle;
 
-    public StringSettingView(SettingsController settingsController, Setting<String> setting, int name, int dialogTitle) {
-        this(settingsController, setting, getString(name), getString(dialogTitle));
+    public StringSettingView(SettingsController controller, Setting<String> setting, int name, int dialogTitle) {
+        this(controller, setting, getString(name), getString(dialogTitle));
     }
 
-    public StringSettingView(SettingsController settingsController, Setting<String> setting, String name, String dialogTitle) {
+    public StringSettingView(
+            SettingsController settingsController, Setting<String> setting, String name, String dialogTitle
+    ) {
         super(settingsController, name);
         this.setting = setting;
         this.dialogTitle = dialogTitle;
@@ -64,17 +72,12 @@ public class StringSettingView extends SettingView implements View.OnClickListen
         editText.setSingleLine(true);
         editText.setSelection(editText.getText().length());
 
-        container.addView(editText, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        container.addView(editText, MATCH_PARENT, WRAP_CONTENT);
 
-        AlertDialog dialog = new AlertDialog.Builder(v.getContext())
-                .setPositiveButton(R.string.ok, (d, which) -> {
-                    setting.set(editText.getText().toString());
-                    settingsController.onPreferenceChange(StringSettingView.this);
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .setTitle(dialogTitle)
-                .setView(container)
-                .create();
+        AlertDialog dialog = new AlertDialog.Builder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
+            setting.set(editText.getText().toString());
+            settingsController.onPreferenceChange(StringSettingView.this);
+        }).setNegativeButton(R.string.cancel, null).setTitle(dialogTitle).setView(container).create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();
     }

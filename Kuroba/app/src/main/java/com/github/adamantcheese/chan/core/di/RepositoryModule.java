@@ -16,15 +16,18 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import com.google.gson.Gson;
-
-import org.codejargon.feather.Provides;
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
+import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
+import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.google.gson.Gson;
+
+import org.codejargon.feather.Provides;
 
 import javax.inject.Singleton;
 
@@ -33,33 +36,37 @@ public class RepositoryModule {
     @Provides
     @Singleton
     public ImportExportRepository provideImportExportRepository(
-            DatabaseManager databaseManager,
-            DatabaseHelper databaseHelper,
-            Gson gson
+            DatabaseManager databaseManager, DatabaseHelper databaseHelper, Gson gson, FileManager fileManager
     ) {
-        return new ImportExportRepository(databaseManager, databaseHelper, gson);
+        Logger.d(AppModule.DI_TAG, "Import export repository");
+        return new ImportExportRepository(databaseManager, databaseHelper, gson, fileManager);
     }
 
     @Provides
     @Singleton
-    public SiteRepository provideSiteRepository(
-            DatabaseManager databaseManager
-    ) {
+    public SiteRepository provideSiteRepository(DatabaseManager databaseManager) {
+        Logger.d(AppModule.DI_TAG, "Site repository");
         return new SiteRepository(databaseManager);
     }
 
     @Provides
     @Singleton
-    public BoardRepository provideBoardRepository(
-            DatabaseManager databaseManager,
-            SiteRepository siteRepository
-    ) {
+    public BoardRepository provideBoardRepository(DatabaseManager databaseManager, SiteRepository siteRepository) {
+        Logger.d(AppModule.DI_TAG, "Board repository");
         return new BoardRepository(databaseManager, siteRepository);
     }
 
     @Provides
     @Singleton
     public LastReplyRepository provideLastReplyRepository() {
+        Logger.d(AppModule.DI_TAG, "Last reply repository");
         return new LastReplyRepository();
+    }
+
+    @Provides
+    @Singleton
+    public SavedThreadLoaderRepository provideSavedThreadLoaderRepository(Gson gson, FileManager fileManager) {
+        Logger.d(AppModule.DI_TAG, "Saved thread loader repository");
+        return new SavedThreadLoaderRepository(gson, fileManager);
     }
 }

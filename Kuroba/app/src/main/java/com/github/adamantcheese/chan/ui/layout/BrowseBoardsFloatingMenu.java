@@ -21,24 +21,27 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -46,7 +49,10 @@ import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter;
 import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
+import com.github.adamantcheese.chan.core.site.common.CommonSite;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.Observable;
@@ -54,8 +60,18 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
+
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.BOARD;
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SEARCH;
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SITE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
@@ -66,15 +82,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentV
  * It also features a search field at the top. The data shown is controlled by
  * {@link BoardsMenuPresenter}.
  */
-public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuPresenter.Callback,
-        Observer {
-    private static final int MINIMAL_WIDTH_DP = 4 * 56;
-    private static final int ELEVATION_DP = 4;
-    private static final int OFFSET_X_DP = 5;
-    private static final int OFFSET_Y_DP = 5;
-    private static final int MARGIN_DP = 5;
-    private static final int ANIMATE_IN_TRANSLATION_Y_DP = 25;
-
+public class BrowseBoardsFloatingMenu
+        extends FrameLayout
+        implements BoardsMenuPresenter.Callback, Observer {
     private View anchor;
     private RecyclerView recyclerView;
 
@@ -88,7 +98,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
     private BrowseBoardsAdapter adapter;
 
     private ClickCallback clickCallback;
-    private ViewTreeObserver.OnGlobalLayoutListener layoutListener;
+    private ViewTreeObserver.OnGlobalLayoutListener layoutListener = this::repositionToAnchor;
 
     public BrowseBoardsFloatingMenu(Context context) {
         this(context, null);
@@ -103,14 +113,11 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
 
         inject(this);
 
-        layoutListener = this::repositionToAnchor;
-
         setFocusableInTouchMode(true);
         setFocusable(true);
     }
 
-    public void show(ViewGroup baseView, View anchor, ClickCallback clickCallback,
-                     Board selectedBoard) {
+    public void show(ViewGroup baseView, View anchor, ClickCallback clickCallback, Board selectedBoard) {
         this.anchor = anchor;
         this.clickCallback = clickCallback;
 
@@ -124,10 +131,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(null);
 
-        rootView.addView(this, new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        ));
+        rootView.addView(this, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
         requestFocus();
 
@@ -138,6 +142,46 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         presenter.create(this, selectedBoard);
         items = presenter.items();
         items.addObserver(this);
+
+        if (items.items.size() == 1) {
+            CommonSite setupSite = new CommonSite() {
+                @Override
+                public void setup() {
+                    setName("App Setup");
+                    Drawable setupIcon = ThemeHelper.getTheme().settingsDrawable.makeDrawable(getAppContext());
+                    setupIcon.setColorFilter(ThemeHelper.getTheme().textPrimary, PorterDuff.Mode.SRC_IN);
+                    setIcon(SiteIcon.fromDrawable(setupIcon));
+                    setBoardsType(BoardsType.STATIC);
+                    setConfig(new CommonConfig() {});
+                    setResolvable(new CommonSiteUrlHandler() {
+                        @Override
+                        public HttpUrl getUrl() {
+                            return null;
+                        }
+
+                        @Override
+                        public String[] getNames() {
+                            return new String[0];
+                        }
+
+                        @Override
+                        public Class<? extends Site> getSiteClass() {
+                            return null;
+                        }
+                    });
+                    setEndpoints(new CommonEndpoints(null) {
+                        @Override
+                        public HttpUrl pages(Board board) {
+                            return null;
+                        }
+                    });
+                    setActions(new CommonActions(null) {});
+                    setParser(new CommentParser());
+                }
+            };
+            setupSite.setup();
+            items.items.add(new Item(1, setupSite));
+        }
     }
 
     @Override
@@ -158,7 +202,11 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         if (board != null) {
             clickCallback.onBoardClicked(board);
         } else {
-            clickCallback.onSiteClicked(site);
+            if (site.name().equals("App Setup")) {
+                clickCallback.openSetup();
+            } else {
+                clickCallback.onSiteClicked(site);
+            }
         }
         dismiss();
     }
@@ -174,7 +222,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         items.deleteObserver(this);
         presenter.destroy();
 
-        AndroidUtils.hideKeyboard(this);
+        hideKeyboard(this);
 
         anchor.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
 
@@ -186,22 +234,13 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         recyclerView = new RecyclerView(getContext());
 
         // View setup
-        recyclerView.setBackgroundColor(AndroidUtils.getAttrColor(getContext(), R.attr.backcolor));
-        recyclerView.setElevation(dp(ELEVATION_DP));
+        recyclerView.setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
+        recyclerView.setElevation(dp(4));
 
         // View attaching
-        int recyclerWidth = Math.max(
-                anchor.getWidth(),
-                dp(MINIMAL_WIDTH_DP));
-
-        LayoutParams params = new LayoutParams(
-                recyclerWidth,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        params.leftMargin = dp(MARGIN_DP);
-        params.topMargin = dp(MARGIN_DP);
-        params.rightMargin = dp(MARGIN_DP);
-        params.bottomMargin = dp(MARGIN_DP);
+        int recyclerWidth = Math.max(anchor.getWidth(), dp(4 * 56));
+        LayoutParams params = new LayoutParams(recyclerWidth, WRAP_CONTENT);
+        params.setMargins(dp(5), dp(5), dp(5), dp(5));
         addView(recyclerView, params);
     }
 
@@ -215,8 +254,8 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         int[] recyclerViewPos = new int[2];
         anchor.getLocationInWindow(anchorPos);
         recyclerView.getLocationInWindow(recyclerViewPos);
-        anchorPos[0] += dp(OFFSET_X_DP);
-        anchorPos[1] += dp(OFFSET_Y_DP);
+        anchorPos[0] += dp(5);
+        anchorPos[1] += dp(5);
         recyclerViewPos[0] += -recyclerView.getTranslationX() - getTranslationX();
         recyclerViewPos[1] += -recyclerView.getTranslationY() - getTranslationY();
 
@@ -242,8 +281,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (isInteractive() && keyCode == KeyEvent.KEYCODE_BACK && event.isTracking() &&
-                !event.isCanceled()) {
+        if (isInteractive() && keyCode == KeyEvent.KEYCODE_BACK && event.isTracking() && !event.isCanceled()) {
             dismiss();
             return true;
         }
@@ -265,27 +303,23 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
 
     private void animateIn() {
         setAlpha(0f);
-        setTranslationY(-dp(ANIMATE_IN_TRANSLATION_Y_DP));
-        post(() -> animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setInterpolator(new DecelerateInterpolator(2f))
-                .setDuration(250).start());
+        setTranslationY(-dp(25));
+        Interpolator slowdown = new DecelerateInterpolator(2f);
+        post(() -> animate().alpha(1f).translationY(0f).setInterpolator(slowdown).setDuration(250).start());
     }
 
     private void animateOut(Runnable done) {
-        animate().alpha(0f)
-                .setInterpolator(new DecelerateInterpolator(2f)).setDuration(250)
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        done.run();
-                    }
-                })
-                .start();
+        Interpolator slowdown = new DecelerateInterpolator(2f);
+        animate().alpha(0f).setInterpolator(slowdown).setDuration(250).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                done.run();
+            }
+        }).start();
     }
 
-    private class BrowseBoardsAdapter extends RecyclerView.Adapter<ViewHolder> {
+    private class BrowseBoardsAdapter
+            extends RecyclerView.Adapter<ViewHolder> {
         public BrowseBoardsAdapter() {
             setHasStableIds(true);
         }
@@ -310,16 +344,20 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            if (viewType == Item.Type.SEARCH.typeId) {
-                return new InputViewHolder(inflater.inflate(
-                        R.layout.cell_browse_input, parent, false));
-            } else if (viewType == Item.Type.SITE.typeId) {
-                return new SiteViewHolder(inflater.inflate(
-                        R.layout.cell_browse_site, parent, false));
-            } else if (viewType == Item.Type.BOARD.typeId) {
-                return new BoardViewHolder(inflater.inflate(
-                        R.layout.cell_browse_board, parent, false));
+            if (viewType == SEARCH.typeId) {
+                return new InputViewHolder(AndroidUtils.inflate(getContext(),
+                        R.layout.cell_browse_input,
+                        parent,
+                        false
+                ));
+            } else if (viewType == SITE.typeId) {
+                return new SiteViewHolder(AndroidUtils.inflate(getContext(), R.layout.cell_browse_site, parent, false));
+            } else if (viewType == BOARD.typeId) {
+                return new BoardViewHolder(AndroidUtils.inflate(getContext(),
+                        R.layout.cell_browse_board,
+                        parent,
+                        false
+                ));
             } else {
                 throw new IllegalArgumentException();
             }
@@ -328,8 +366,8 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Item item = items.getAtPosition(position);
+            //noinspection StatementWithEmptyBody
             if (holder instanceof InputViewHolder) {
-                InputViewHolder inputViewHolder = ((InputViewHolder) holder);
             } else if (holder instanceof SiteViewHolder) {
                 SiteViewHolder siteViewHolder = ((SiteViewHolder) holder);
                 siteViewHolder.bind(item.site);
@@ -342,8 +380,9 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         }
     }
 
-    private class InputViewHolder extends ViewHolder implements TextWatcher,
-            OnFocusChangeListener, OnClickListener, OnKeyListener {
+    private class InputViewHolder
+            extends ViewHolder
+            implements TextWatcher, OnFocusChangeListener, OnClickListener, OnKeyListener {
         private EditText input;
 
         public InputViewHolder(View itemView) {
@@ -372,14 +411,13 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if (!hasFocus) {
-                AndroidUtils.hideKeyboard(v);
+                hideKeyboard(v);
             }
         }
 
         @Override
         public void onClick(View v) {
-            ((LinearLayoutManager) recyclerView.getLayoutManager())
-                    .scrollToPositionWithOffset(0, 0);
+            ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(0, 0);
         }
 
         @Override
@@ -391,7 +429,8 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         }
     }
 
-    private class SiteViewHolder extends ViewHolder {
+    private class SiteViewHolder
+            extends ViewHolder {
         View divider;
         ImageView image;
         TextView text;
@@ -402,7 +441,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         public SiteViewHolder(View itemView) {
             super(itemView);
 
-            itemView.setOnClickListener((v) -> itemClicked(site, null));
+            itemView.setOnClickListener(v -> itemClicked(site, null));
 
             // View binding
             divider = itemView.findViewById(R.id.divider);
@@ -410,13 +449,13 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
             text = itemView.findViewById(R.id.text);
 
             // View setup
-            text.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+            text.setTypeface(ThemeHelper.getTheme().mainFont);
         }
 
         public void bind(Site site) {
             this.site = site;
 
-            divider.setVisibility(getAdapterPosition() == 0 ? View.GONE : View.VISIBLE);
+            divider.setVisibility(getAdapterPosition() == 0 ? GONE : VISIBLE);
 
             icon = site.icon();
 
@@ -425,6 +464,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
             icon.get((siteIcon, drawable) -> {
                 if (image.getTag() == siteIcon) {
                     image.setImageDrawable(drawable);
+                    image.getDrawable().setTintList(null);
                 }
             });
 
@@ -432,7 +472,8 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         }
     }
 
-    private class BoardViewHolder extends ViewHolder {
+    private class BoardViewHolder
+            extends ViewHolder {
         TextView text;
 
         Board board;
@@ -440,13 +481,13 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         public BoardViewHolder(View itemView) {
             super(itemView);
 
-            itemView.setOnClickListener((v) -> itemClicked(null, board));
+            itemView.setOnClickListener(v -> itemClicked(null, board));
 
             // View binding
             text = (TextView) itemView;
 
             // View setup
-            text.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+            text.setTypeface(ThemeHelper.getTheme().mainFont);
         }
 
         public void bind(Board board) {
@@ -459,5 +500,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
         void onBoardClicked(Board item);
 
         void onSiteClicked(Site site);
+
+        void openSetup();
     }
 }

@@ -16,25 +16,31 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
-import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final int TYPE_POST = 0;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+
+public class PostAdapter
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    //we don't recycle POST cells because of layout changes between cell contents
+    public static final int TYPE_POST = 0;
     private static final int TYPE_STATUS = 1;
     private static final int TYPE_POST_STUB = 2;
     private static final int TYPE_LAST_SEEN = 3;
@@ -45,6 +51,8 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final ThreadStatusCell.Callback statusCellCallback;
     private final List<Post> displayList = new ArrayList<>();
+
+    private Loadable loadable = null;
     private String error = null;
     private Post highlightedPost;
     private String highlightedPostId;
@@ -56,7 +64,12 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private ChanSettings.PostViewMode postViewMode;
     private boolean compact = false;
 
-    public PostAdapter(RecyclerView recyclerView, PostAdapterCallback postAdapterCallback, PostCellInterface.PostCellCallback postCellCallback, ThreadStatusCell.Callback statusCellCallback) {
+    public PostAdapter(
+            RecyclerView recyclerView,
+            PostAdapterCallback postAdapterCallback,
+            PostCellInterface.PostCellCallback postCellCallback,
+            ThreadStatusCell.Callback statusCellCallback
+    ) {
         this.recyclerView = recyclerView;
         this.postAdapterCallback = postAdapterCallback;
         this.postCellCallback = postCellCallback;
@@ -67,6 +80,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Context inflateContext = parent.getContext();
         switch (viewType) {
             case TYPE_POST:
                 int layout = 0;
@@ -79,16 +93,20 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         break;
                 }
 
-                PostCellInterface postCell = (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
+                PostCellInterface postCell = (PostCellInterface) inflate(inflateContext, layout, parent, false);
                 return new PostViewHolder(postCell);
             case TYPE_POST_STUB:
-                return new PostViewHolder((PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post_stub, parent, false));
+                PostCellInterface postCellStub =
+                        (PostCellInterface) inflate(inflateContext, R.layout.cell_post_stub, parent, false);
+                return new PostViewHolder(postCellStub);
             case TYPE_LAST_SEEN:
-                return new LastSeenViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post_last_seen, parent, false));
+                return new LastSeenViewHolder(inflate(inflateContext, R.layout.cell_post_last_seen, parent, false));
             case TYPE_STATUS:
-                StatusViewHolder statusViewHolder = new StatusViewHolder((ThreadStatusCell) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_thread_status, parent, false));
-                statusViewHolder.threadStatusCell.setCallback(statusCellCallback);
-                statusViewHolder.threadStatusCell.setError(error);
+                ThreadStatusCell statusCell =
+                        (ThreadStatusCell) inflate(inflateContext, R.layout.cell_thread_status, parent, false);
+                StatusViewHolder statusViewHolder = new StatusViewHolder(statusCell);
+                statusCell.setCallback(statusCellCallback);
+                statusCell.setError(error);
                 return statusViewHolder;
             default:
                 throw new IllegalStateException();
@@ -101,11 +119,18 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         switch (itemViewType) {
             case TYPE_POST:
             case TYPE_POST_STUB:
+                if (loadable == null) {
+                    throw new IllegalStateException("Loadable cannot be null");
+                }
+
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(getPostPosition(position));
-                boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo ||
-                        post.tripcode.equals(highlightedPostTripcode);
-                postViewHolder.postView.setPost(post,
+                boolean highlight =
+                        post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo
+                                || post.tripcode.equals(highlightedPostTripcode);
+                ((PostCellInterface) postViewHolder.itemView).setPost(
+                        loadable,
+                        post,
                         postCellCallback,
                         true,
                         highlight,
@@ -113,14 +138,16 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         -1,
                         true,
                         postViewMode,
-                        compact);
+                        compact,
+                        ThemeHelper.getTheme()
+                );
 
                 if (itemViewType == TYPE_POST_STUB) {
-                    ((View)postViewHolder.postView).setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));
+                    holder.itemView.setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));
                 }
                 break;
             case TYPE_STATUS:
-                ((StatusViewHolder) holder).threadStatusCell.update();
+                ((ThreadStatusCell) holder.itemView).update();
                 break;
             case TYPE_LAST_SEEN:
                 break;
@@ -175,29 +202,62 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public void setThread(ChanThread thread, List<Post> posts) {
-        if (!BackgroundUtils.isMainThread()) {
-            throw new RuntimeException("Must be called on the main thread!");
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        //this is a hack to make sure text is selectable
+        super.onViewAttachedToWindow(holder);
+        if (holder.itemView instanceof PostCell) {
+            PostCell cell = (PostCell) holder.itemView;
+            cell.findViewById(R.id.comment).setEnabled(false);
+            cell.findViewById(R.id.comment).setEnabled(true);
         }
+    }
+
+    public void setThread(Loadable threadLoadable, List<Post> posts, boolean refreshAfterHideOrRemovePosts) {
+        BackgroundUtils.ensureMainThread();
+        boolean changed = this.loadable != null && !this.loadable.equals(threadLoadable); //changed threads, update
+
+        this.loadable = threadLoadable;
         showError(null);
+
+        int lastLastSeenIndicator = lastSeenIndicatorPosition;
+        if (displayList.size() == posts.size()) {
+            for (int i = 0; i < displayList.size(); i++) {
+                if (!displayList.get(i).equals(posts.get(i))) {
+                    changed = true; //posts are different, or a post got deleted and needs to be updated
+                    break;
+                }
+            }
+        } else {
+            changed = true; //new posts or fewer posts, update
+        }
 
         displayList.clear();
         displayList.addAll(posts);
 
         lastSeenIndicatorPosition = -1;
-        if (thread.loadable.lastViewed >= 0) {
+        if (threadLoadable.lastViewed >= 0) {
             // Do not process the last post, the indicator does not have to appear at the bottom
             for (int i = 0, displayListSize = displayList.size() - 1; i < displayListSize; i++) {
                 Post post = displayList.get(i);
-                if (post.no == thread.loadable.lastViewed) {
+                if (post.no == threadLoadable.lastViewed) {
                     lastSeenIndicatorPosition = i + 1;
                     break;
                 }
             }
         }
 
-        // Update all, recyclerview will figure out all the animations
-        notifyDataSetChanged();
+        //update for indicator (adds/removes extra recycler item that causes inconsistency exceptions)
+        //or if something changed per reasons above
+        if (
+                lastLastSeenIndicator != lastSeenIndicatorPosition
+                        || changed
+                        // When true that means that the user has just hid or removed post/thread
+                        // so we need to refresh the UI
+                        || refreshAfterHideOrRemovePosts
+        ) {
+            notifyDataSetChanged();
+        }
     }
 
     public List<Post> getDisplayList() {
@@ -300,32 +360,32 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return loadable != null && loadable.isThreadMode();
     }
 
-    public static class PostViewHolder extends RecyclerView.ViewHolder {
-        private PostCellInterface postView;
-
+    //region Holders
+    public static class PostViewHolder
+            extends RecyclerView.ViewHolder {
         public PostViewHolder(PostCellInterface postView) {
             super((View) postView);
-            this.postView = postView;
         }
     }
 
-    public static class StatusViewHolder extends RecyclerView.ViewHolder {
-        private ThreadStatusCell threadStatusCell;
-
+    public static class StatusViewHolder
+            extends RecyclerView.ViewHolder {
         public StatusViewHolder(ThreadStatusCell threadStatusCell) {
             super(threadStatusCell);
-            this.threadStatusCell = threadStatusCell;
         }
     }
 
-    public static class LastSeenViewHolder extends RecyclerView.ViewHolder {
+    public static class LastSeenViewHolder
+            extends RecyclerView.ViewHolder {
         public LastSeenViewHolder(View itemView) {
             super(itemView);
         }
     }
+    //endregion
 
     public interface PostAdapterCallback {
         Loadable getLoadable();
+
         void onUnhidePostClick(Post post);
     }
 }

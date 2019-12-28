@@ -18,21 +18,29 @@ package com.github.adamantcheese.chan.core.site.parser;
 
 import android.graphics.Typeface;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 
 import androidx.annotation.AnyThread;
 
+import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,12 +48,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParser {
-    private static final String SAVED_REPLY_SUFFIX = " (You)";
+    private static final String SAVED_REPLY_SELF_SUFFIX = " (Me)";
+    private static final String SAVED_REPLY_OTHER_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
     private static final String EXTERN_THREAD_LINK_SUFFIX = " \u2192"; // arrow to the right
 
@@ -68,7 +78,10 @@ public class CommentParser {
     public void addDefaultRules() {
         rule(tagRule("a").action(this::handleAnchor));
 
-        rule(tagRule("span").cssClass("deadlink").foregroundColor(StyleRule.ForegroundColor.QUOTE).strikeThrough());
+        rule(tagRule("span").cssClass("deadlink")
+                .foregroundColor(StyleRule.ForegroundColor.QUOTE)
+                .strikeThrough()
+                .action(this::handleDead));
         rule(tagRule("span").cssClass("spoiler").link(PostLinkable.Type.SPOILER));
         rule(tagRule("span").cssClass("fortune").action(this::handleFortune));
         rule(tagRule("span").cssClass("abbr").nullify());
@@ -79,12 +92,16 @@ public class CommentParser {
         rule(tagRule("s").link(PostLinkable.Type.SPOILER));
 
         rule(tagRule("strong").bold());
+        rule(tagRule("strong-red;").bold().foregroundColor(StyleRule.ForegroundColor.RED));
         rule(tagRule("b").bold());
 
         rule(tagRule("i").italic());
         rule(tagRule("em").italic());
 
-        rule(tagRule("pre").cssClass("prettyprint").monospace().size(sp(12f)).backgroundColor(StyleRule.BackgroundColor.CODE));
+        rule(tagRule("pre").cssClass("prettyprint")
+                .monospace()
+                .size(sp(12f))
+                .backgroundColor(StyleRule.BackgroundColor.CODE));
     }
 
     public void rule(StyleRule rule) {
@@ -105,12 +122,9 @@ public class CommentParser {
         this.fullQuotePattern = fullQuotePattern;
     }
 
-    public CharSequence handleTag(PostParser.Callback callback,
-                                  Theme theme,
-                                  Post.Builder post,
-                                  String tag,
-                                  CharSequence text,
-                                  Element element) {
+    public CharSequence handleTag(
+            PostParser.Callback callback, Theme theme, Post.Builder post, String tag, CharSequence text, Element element
+    ) {
 
         List<StyleRule> rules = this.rules.get(tag);
         if (rules != null) {
@@ -128,11 +142,9 @@ public class CommentParser {
         return text;
     }
 
-    private CharSequence handleAnchor(Theme theme,
-                                      PostParser.Callback callback,
-                                      Post.Builder post,
-                                      CharSequence text,
-                                      Element anchor) {
+    private CharSequence handleAnchor(
+            Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element anchor
+    ) {
         CommentParser.Link handlerLink = matchAnchor(post, text, anchor, callback);
 
         if (handlerLink != null) {
@@ -149,15 +161,19 @@ public class CommentParser {
                     handlerLink.key = TextUtils.concat(handlerLink.key, OP_REPLY_SUFFIX);
                 }
 
-                // Append (You) when it's a reply to an saved reply
+                // Append (You) when it's a reply to a saved reply, (Me) if it's a self reply
                 if (callback.isSaved(postNo)) {
-                    handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_SUFFIX);
+                    if (post.isSavedReply) {
+                        handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_SELF_SUFFIX);
+                    } else {
+                        handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_OTHER_SUFFIX);
+                    }
                 }
             }
 
             SpannableString res = new SpannableString(handlerLink.key);
             PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
-            res.setSpan(pl, 0, res.length(), 0);
+            res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
             post.addLinkable(pl);
 
             return res;
@@ -166,11 +182,9 @@ public class CommentParser {
         }
     }
 
-    private CharSequence handleFortune(Theme theme,
-                                       PostParser.Callback callback,
-                                       Post.Builder builder,
-                                       CharSequence text,
-                                       Element span) {
+    private CharSequence handleFortune(
+            Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element span
+    ) {
         // html looks like <span class="fortune" style="color:#0893e1"><br><br><b>Your fortune:</b>
         String style = span.attr("style");
         if (!TextUtils.isEmpty(style)) {
@@ -180,8 +194,10 @@ public class CommentParser {
             if (matcher.find()) {
                 int hexColor = Integer.parseInt(matcher.group(1), 16);
                 if (hexColor >= 0 && hexColor <= 0xffffff) {
-                    text = span(text, new ForegroundColorSpanHashed(0xff000000 + hexColor),
-                            new StyleSpan(Typeface.BOLD));
+                    text = span(text,
+                            new ForegroundColorSpanHashed(0xff000000 + hexColor),
+                            new StyleSpan(Typeface.BOLD)
+                    );
                 }
             }
         }
@@ -189,11 +205,9 @@ public class CommentParser {
         return text;
     }
 
-    public CharSequence handleTable(Theme theme,
-                                    PostParser.Callback callback,
-                                    Post.Builder builder,
-                                    CharSequence text,
-                                    Element table) {
+    public CharSequence handleTable(
+            Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element table
+    ) {
         List<CharSequence> parts = new ArrayList<>();
         Elements tableRows = table.getElementsByTag("tr");
         for (int i = 0; i < tableRows.size(); i++) {
@@ -221,7 +235,29 @@ public class CommentParser {
         // Overrides the text (possibly) parsed by child nodes.
         return span(TextUtils.concat(parts.toArray(new CharSequence[0])),
                 new ForegroundColorSpanHashed(theme.inlineQuoteColor),
-                new AbsoluteSizeSpanHashed(sp(12f)));
+                new AbsoluteSizeSpanHashed(sp(12f))
+        );
+    }
+
+    public CharSequence handleDead(
+            Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element deadlink
+    ) {
+        // html looks like <span class="deadlink">&gt;&gt;number</span>
+        int postNo = Integer.parseInt(Parser.unescapeEntities(deadlink.text(), true).substring(2));
+        List<ArchivesLayout.PairForAdapter> boards = instance(ArchivesManager.class).domainsForBoard(builder.board);
+        if (!boards.isEmpty() && builder.op) {
+            //only allow deadlinks to be parsed in the OP, as they are likely previous thread links
+            //if a deadlink appears in a regular post that is likely to be a dead post link, we are unable to link to an archive
+            //as there are no URLs that directly will allow you to link to a post and be redirected to the right thread
+            Site site = builder.board.site;
+            String link =
+                    site.resolvable().desktopUrl(Loadable.forThread(site, builder.board, postNo, ""), builder.build());
+            link = link.replace("https://boards.4chan.org/", "https://" + boards.get(0).second + "/");
+            PostLinkable newLinkable = new PostLinkable(theme, link, link, PostLinkable.Type.LINK);
+            text = span(text, newLinkable);
+            builder.addLinkable(newLinkable);
+        }
+        return text;
     }
 
     public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback) {
@@ -268,7 +304,12 @@ public class CommentParser {
                 } else if (boardSearchMatcher.matches()) {
                     //search link
                     String board = boardSearchMatcher.group(1);
-                    String search = boardSearchMatcher.group(2);
+                    String search;
+                    try {
+                        search = URLDecoder.decode(boardSearchMatcher.group(2), "US-ASCII");
+                    } catch (UnsupportedEncodingException e) {
+                        search = boardSearchMatcher.group(2);
+                    }
                     t = PostLinkable.Type.SEARCH;
                     value = new SearchLink(board, search);
                 } else {

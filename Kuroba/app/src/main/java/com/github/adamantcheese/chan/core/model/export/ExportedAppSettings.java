@@ -19,22 +19,26 @@ package com.github.adamantcheese.chan.core.model.export;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import static com.github.adamantcheese.chan.core.repository.ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION;
 
 public class ExportedAppSettings {
     @SerializedName("exported_sites")
     private List<ExportedSite> exportedSites;
+    //there aren't any exported pins here because the pins are stored inside each exported site
+    //there also aren't any exported loadables because they are inside the exported pins
     @SerializedName("exported_boards")
     private List<ExportedBoard> exportedBoards;
     @SerializedName("exported_filters")
     private List<ExportedFilter> exportedFilters;
     @SerializedName("exported_post_hides")
     private List<ExportedPostHide> exportedPostHides;
+    @SerializedName("exported_saved_threads")
+    private List<ExportedSavedThread> exportedSavedThreads;
     @SerializedName("exported_settings")
     @Nullable
     private String settings;
@@ -44,18 +48,19 @@ public class ExportedAppSettings {
             List<ExportedBoard> exportedBoards,
             List<ExportedFilter> exportedFilters,
             List<ExportedPostHide> exportedPostHides,
-            @NonNull
-            String settings
+            List<ExportedSavedThread> exportedSavedThreads,
+            @NonNull String settings
     ) {
         this.exportedSites = exportedSites;
         this.exportedBoards = exportedBoards;
         this.exportedFilters = exportedFilters;
         this.exportedPostHides = exportedPostHides;
+        this.exportedSavedThreads = exportedSavedThreads;
         this.settings = settings;
     }
 
     public static ExportedAppSettings empty() {
-        return new ExportedAppSettings(
+        return new ExportedAppSettings(new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -88,8 +93,12 @@ public class ExportedAppSettings {
         return exportedPostHides;
     }
 
+    public List<ExportedSavedThread> getExportedSavedThreads() {
+        return exportedSavedThreads != null ? exportedSavedThreads : Collections.emptyList();
+    }
+
     public int getVersion() {
-        return CURRENT_EXPORT_SETTINGS_VERSION;
+        return ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION;
     }
 
     @Nullable
@@ -113,7 +122,12 @@ public class ExportedAppSettings {
         this.exportedPostHides = exportedPostHides;
     }
 
+    public void setExportedSavedThreads(List<ExportedSavedThread> exportedSavedThreads) {
+        this.exportedSavedThreads = exportedSavedThreads;
+    }
+
     public void setSettings(String settings) {
-        throw new UnsupportedOperationException("Settings are only allowed to be set with the constructor, and must be from ChanSettings.serializeToString().");
+        throw new UnsupportedOperationException("Settings are only allowed to be set with the "
+                + "constructor, and must be from ChanSettings.serializeToString().");
     }
 }

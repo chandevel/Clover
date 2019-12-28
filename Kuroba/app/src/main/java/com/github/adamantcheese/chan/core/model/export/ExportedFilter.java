@@ -40,6 +40,12 @@ public class ExportedFilter {
     private int color;
     @SerializedName("apply_to_replies")
     private boolean applyToReplies;
+    @SerializedName("order")
+    private int order;
+    @SerializedName("only_on_op")
+    private boolean onlyOnOP;
+    @SerializedName("apply_to_saved")
+    private boolean applyToSaved;
 
     public ExportedFilter(
             boolean enabled,
@@ -49,7 +55,10 @@ public class ExportedFilter {
             @NonNull String boards,
             int action,
             int color,
-            boolean applyToReplies
+            boolean applyToReplies,
+            int order,
+            boolean onlyOnOp,
+            boolean applyToSaved
     ) {
         this.enabled = enabled;
         this.type = type;
@@ -59,10 +68,17 @@ public class ExportedFilter {
         this.action = action;
         this.color = color;
         this.applyToReplies = applyToReplies;
+        this.order = order;
+        this.onlyOnOP = onlyOnOp;
+        this.applyToSaved = applyToSaved;
     }
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public int getType() {
@@ -83,6 +99,10 @@ public class ExportedFilter {
         return boards;
     }
 
+    public void setBoards(String boards) {
+        this.boards = boards;
+    }
+
     public int getAction() {
         return action;
     }
@@ -93,5 +113,17 @@ public class ExportedFilter {
 
     public boolean getApplyToReplies() {
         return applyToReplies;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public boolean getOnlyOnOP() {
+        return onlyOnOP;
+    }
+
+    public boolean getApplyToSaved() {
+        return applyToSaved;
     }
 }

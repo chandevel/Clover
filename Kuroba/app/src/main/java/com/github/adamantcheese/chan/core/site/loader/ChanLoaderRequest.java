@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.loader;
 
-
 import com.android.volley.Request;
 
 public class ChanLoaderRequest {

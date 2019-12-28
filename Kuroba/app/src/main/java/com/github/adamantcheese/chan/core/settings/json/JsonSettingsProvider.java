@@ -18,28 +18,19 @@ package com.github.adamantcheese.chan.core.settings.json;
 
 import com.github.adamantcheese.chan.core.settings.SettingProvider;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-
-public class JsonSettingsProvider implements SettingProvider {
+public class JsonSettingsProvider
+        implements SettingProvider {
     public final JsonSettings jsonSettings;
     private Callback callback;
-
-    private Map<String, JsonSetting> byKey = new HashMap<>();
 
     public JsonSettingsProvider(JsonSettings jsonSettings, Callback callback) {
         this.jsonSettings = jsonSettings;
         this.callback = callback;
-
-        load();
     }
 
     @Override
     public int getInt(String key, int def) {
-        JsonSetting setting = byKey.get(key);
+        JsonSetting setting = jsonSettings.settings.get(key);
         if (setting != null) {
             return ((IntegerJsonSetting) setting).value;
         } else {
@@ -49,20 +40,20 @@ public class JsonSettingsProvider implements SettingProvider {
 
     @Override
     public void putInt(String key, int value) {
-        JsonSetting jsonSetting = byKey.get(key);
+        JsonSetting jsonSetting = jsonSettings.settings.get(key);
         if (jsonSetting == null) {
             IntegerJsonSetting v = new IntegerJsonSetting();
             v.value = value;
-            byKey.put(key, v);
+            jsonSettings.settings.put(key, v);
         } else {
             ((IntegerJsonSetting) jsonSetting).value = value;
         }
-        save();
+        callback.save();
     }
 
     @Override
     public long getLong(String key, long def) {
-        JsonSetting setting = byKey.get(key);
+        JsonSetting setting = jsonSettings.settings.get(key);
         if (setting != null) {
             return ((LongJsonSetting) setting).value;
         } else {
@@ -72,20 +63,20 @@ public class JsonSettingsProvider implements SettingProvider {
 
     @Override
     public void putLong(String key, long value) {
-        JsonSetting jsonSetting = byKey.get(key);
+        JsonSetting jsonSetting = jsonSettings.settings.get(key);
         if (jsonSetting == null) {
             LongJsonSetting v = new LongJsonSetting();
             v.value = value;
-            byKey.put(key, v);
+            jsonSettings.settings.put(key, v);
         } else {
             ((LongJsonSetting) jsonSetting).value = value;
         }
-        save();
+        callback.save();
     }
 
     @Override
     public boolean getBoolean(String key, boolean def) {
-        JsonSetting setting = byKey.get(key);
+        JsonSetting setting = jsonSettings.settings.get(key);
         if (setting != null) {
             return ((BooleanJsonSetting) setting).value;
         } else {
@@ -95,20 +86,20 @@ public class JsonSettingsProvider implements SettingProvider {
 
     @Override
     public void putBoolean(String key, boolean value) {
-        JsonSetting jsonSetting = byKey.get(key);
+        JsonSetting jsonSetting = jsonSettings.settings.get(key);
         if (jsonSetting == null) {
             BooleanJsonSetting v = new BooleanJsonSetting();
             v.value = value;
-            byKey.put(key, v);
+            jsonSettings.settings.put(key, v);
         } else {
             ((BooleanJsonSetting) jsonSetting).value = value;
         }
-        save();
+        callback.save();
     }
 
     @Override
     public String getString(String key, String def) {
-        JsonSetting setting = byKey.get(key);
+        JsonSetting setting = jsonSettings.settings.get(key);
         if (setting != null) {
             return ((StringJsonSetting) setting).value;
         } else {
@@ -118,15 +109,15 @@ public class JsonSettingsProvider implements SettingProvider {
 
     @Override
     public void putString(String key, String value) {
-        JsonSetting jsonSetting = byKey.get(key);
+        JsonSetting jsonSetting = jsonSettings.settings.get(key);
         if (jsonSetting == null) {
             StringJsonSetting v = new StringJsonSetting();
             v.value = value;
-            byKey.put(key, v);
+            jsonSettings.settings.put(key, v);
         } else {
             ((StringJsonSetting) jsonSetting).value = value;
         }
-        save();
+        callback.save();
     }
 
     @Override
@@ -134,23 +125,17 @@ public class JsonSettingsProvider implements SettingProvider {
         throw new UnsupportedOperationException();
     }
 
-    private void load() {
-        byKey.clear();
-        for (JsonSetting setting : jsonSettings.settings) {
-            byKey.put(setting.key, setting);
-        }
-    }
-
-    private void save() {
-        List<JsonSetting> settings = new ArrayList<>();
-        for (Map.Entry<String, JsonSetting> e : byKey.entrySet()) {
-            settings.add(e.getValue());
-        }
-        jsonSettings.settings = settings;
-        callback.save();
-    }
-
     public interface Callback {
         void save();
+    }
+
+    @Override
+    public void removeSync(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void putIntSync(String key, Integer value) {
+        throw new UnsupportedOperationException();
     }
 }

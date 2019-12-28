@@ -23,20 +23,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <uses-permission-sdk-23 android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:name=".Chan"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="Kuroba"
-        android:theme="@style/Chan.Theme">
+        android:icon="${iconLoc}"
+        android:label="${appName}"
+        android:theme="@style/Chan.Theme"
+        android:usesCleartextTraffic="${devBuild}">
 
         <uses-library
             android:name="org.apache.http.legacy"
-            android:required="true" />
+            android:required="false" />
 
         <!--Dual Window support for Samsung and LG-->
         <meta-data
@@ -77,7 +81,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <data android:host="4chan.org" />
                 <data android:host="www.4chan.org" />
                 <data android:host="boards.4chan.org" />
-                <data android:host="8ch.net" />
+                <data android:host="4channel.org" />
+                <data android:host="www.4channel.org" />
+                <data android:host="boards.4channel.org" />
             </intent-filter>
 
         </activity>
@@ -100,7 +106,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities=".fileprovider"
+            android:authorities="${fileProviderAuthority}"
             android:exported="false"
             android:grantUriPermissions="true">
 

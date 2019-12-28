@@ -30,7 +30,8 @@ import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
-public abstract class MultipartHttpCall extends HttpCall {
+public abstract class MultipartHttpCall
+        extends HttpCall {
     private final MultipartBody.Builder formBuilder;
 
     private HttpUrl url;
@@ -53,16 +54,16 @@ public abstract class MultipartHttpCall extends HttpCall {
     }
 
     public MultipartHttpCall fileParameter(String name, String filename, File file) {
-        formBuilder.addFormDataPart(name, filename, RequestBody.create(
-                MediaType.parse("application/octet-stream"), file
-        ));
+        formBuilder.addFormDataPart(name,
+                filename,
+                RequestBody.create(MediaType.parse("application/octet-stream"), file)
+        );
         return this;
     }
 
     @Override
     public void setup(
-            Request.Builder requestBuilder,
-            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+            Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         requestBuilder.url(url);
         String r = url.scheme() + "://" + url.host();

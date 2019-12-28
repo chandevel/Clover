@@ -7,6 +7,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
+
 import org.jsoup.parser.Parser;
 
 import java.io.IOException;
@@ -16,13 +17,15 @@ import java.util.Map;
 
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
 
-public class DvachApi extends CommonSite.CommonApi {
+public class DvachApi
+        extends CommonSite.CommonApi {
     DvachApi(CommonSite commonSite) {
         super(commonSite);
     }
 
     @Override
-    public void loadThread(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+    public void loadThread(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception {
         reader.beginObject(); // Main object
 
         while (reader.hasNext()) {
@@ -52,7 +55,8 @@ public class DvachApi extends CommonSite.CommonApi {
     }
 
     @Override
-    public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+    public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception {
         reader.beginObject(); // Main object
 
         while (reader.hasNext()) {
@@ -73,7 +77,8 @@ public class DvachApi extends CommonSite.CommonApi {
     }
 
     @Override
-    public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+    public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception {
         Post.Builder builder = new Post.Builder();
         builder.board(queue.getLoadable().board);
 
@@ -88,6 +93,9 @@ public class DvachApi extends CommonSite.CommonApi {
             switch (key) {
                 case "name":
                     builder.name(reader.nextString());
+                    break;
+                case "subject":
+                    builder.subject(reader.nextString());
                     break;
                 case "comment":
                     builder.comment(reader.nextString());
@@ -170,8 +178,8 @@ public class DvachApi extends CommonSite.CommonApi {
         queue.addForParse(builder);
     }
 
-    private PostImage readPostImage(JsonReader reader, Post.Builder builder,
-                                    SiteEndpoints endpoints) throws IOException {
+    private PostImage readPostImage(JsonReader reader, Post.Builder builder, SiteEndpoints endpoints)
+            throws IOException {
         reader.beginObject();
 
         String path = null;
@@ -191,7 +199,8 @@ public class DvachApi extends CommonSite.CommonApi {
                     fileName = reader.nextString();
                     break;
                 case "size":
-                    fileSize = reader.nextLong();
+                    //2ch is in kB
+                    fileSize = reader.nextLong() * 1024;
                     break;
                 case "width":
                     fileWidth = reader.nextInt();
@@ -217,8 +226,7 @@ public class DvachApi extends CommonSite.CommonApi {
 
         if (path != null && fileName != null) {
             Map<String, String> args = makeArgument("path", path, "thumbnail", thumbnail);
-            return new PostImage.Builder()
-                    .originalName(fileName)
+            return new PostImage.Builder().serverFilename(fileName)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))

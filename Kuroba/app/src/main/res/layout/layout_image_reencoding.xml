@@ -37,6 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
+        android:background="?backcolor_secondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -120,7 +121,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:progress="100" />
 
                     <TextView
-                        android:layout_width="24dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:text="100"
@@ -140,7 +141,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:id="@+id/reecode_image_current_reduce"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/reencode_image_reduce_1x_default_text" />
+                    android:text="@string/reencode_image_reduce_default_text" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -151,7 +152,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="1"
+                        android:text="0%"
                         tools:ignore="HardcodedText" />
 
                     <androidx.appcompat.widget.AppCompatSeekBar
@@ -161,15 +162,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_marginTop="4dp"
                         android:layout_marginBottom="4dp"
                         android:layout_weight="1"
-                        android:max="10"
-                        android:min="1"
-                        android:progress="1" />
+                        android:progress="0" />
 
                     <TextView
-                        android:layout_width="24dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="10"
+                        android:text="100%"
                         tools:ignore="HardcodedText" />
 
                 </LinearLayout>

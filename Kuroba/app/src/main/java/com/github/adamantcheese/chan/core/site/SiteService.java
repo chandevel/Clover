@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
@@ -26,15 +25,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class SiteService {
-    private static boolean addSiteForLegacy = false;
-
-    /**
-     * Called from the DatabaseHelper when upgrading to the tables with a site id.
-     */
-    public static void addSiteForLegacy() {
-        addSiteForLegacy = true;
-    }
-
     private SiteRepository siteRepository;
     private SiteResolver resolver;
 
@@ -90,12 +80,6 @@ public class SiteService {
             throw new IllegalStateException("Already initialized");
         }
         initialized = true;
-
-        if (addSiteForLegacy) {
-            addSiteForLegacy = false;
-            siteRepository.addLegacySite();
-        }
-
         siteRepository.initialize();
     }
 

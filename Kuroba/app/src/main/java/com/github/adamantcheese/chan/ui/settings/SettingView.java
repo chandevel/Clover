@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.settings;
 
 import android.view.View;
 
+import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 public abstract class SettingView {

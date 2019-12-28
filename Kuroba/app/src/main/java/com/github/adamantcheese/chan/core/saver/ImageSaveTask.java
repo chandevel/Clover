@@ -21,37 +21,50 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 
 import com.github.adamantcheese.chan.core.cache.FileCache;
-import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.IOUtils;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.ExternalFile;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
 import java.io.IOException;
 
 import javax.inject.Inject;
 
+import kotlin.NotImplementedError;
+
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
-public class ImageSaveTask extends FileCacheListener implements Runnable {
+public class ImageSaveTask
+        extends FileCacheListener
+        implements Runnable {
     private static final String TAG = "ImageSaveTask";
 
     @Inject
     FileCache fileCache;
+    @Inject
+    FileManager fileManager;
 
     private PostImage postImage;
+    private Loadable loadable;
     private ImageSaveTaskCallback callback;
-    private File destination;
+    private AbstractFile destination;
     private boolean share;
     private String subFolder;
 
     private boolean success = false;
 
-    public ImageSaveTask(PostImage postImage) {
+    public ImageSaveTask(Loadable loadable, PostImage postImage) {
         inject(this);
+        this.loadable = loadable;
         this.postImage = postImage;
     }
 
@@ -71,11 +84,11 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         return postImage;
     }
 
-    public void setDestination(File destination) {
+    public void setDestination(AbstractFile destination) {
         this.destination = destination;
     }
 
-    public File getDestination() {
+    public AbstractFile getDestination() {
         return destination;
     }
 
@@ -90,31 +103,23 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     @Override
     public void run() {
         try {
-            if (destination.exists()) {
+            if (fileManager.exists(destination)) {
                 onDestination();
                 // Manually call postFinished()
                 postFinished(success);
             } else {
-                FileCacheDownloader fileCacheDownloader =
-                        fileCache.downloadFile(postImage.imageUrl.toString(), this);
-
-                // If the fileCacheDownloader is null then the destination already existed and onSuccess() has been called.
-                // Wait otherwise for the download to finish to avoid that the next task is immediately executed.
-                if (fileCacheDownloader != null) {
-                    // If the file is now downloading
-                    fileCacheDownloader.getFuture().get();
-                }
+                runOnUiThread(() -> fileCache.downloadFile(loadable, postImage, this));
             }
-        } catch (InterruptedException e) {
-            onInterrupted();
         } catch (Exception e) {
             Logger.e(TAG, "Uncaught exception", e);
         }
     }
 
     @Override
-    public void onSuccess(File file) {
-        if (copyToDestination(file)) {
+    public void onSuccess(RawFile file) {
+        BackgroundUtils.ensureMainThread();
+
+        if (copyToDestination(new File(file.getFullPath()))) {
             onDestination();
         } else {
             deleteDestination();
@@ -122,17 +127,23 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     }
 
     @Override
+    public void onNetworkError(IOException error) {
+        super.onNetworkError(error);
+        BackgroundUtils.ensureMainThread();
+
+        postError(error);
+    }
+
+    @Override
     public void onEnd() {
+        BackgroundUtils.ensureMainThread();
+
         postFinished(success);
     }
 
-    private void onInterrupted() {
-        deleteDestination();
-    }
-
     private void deleteDestination() {
-        if (destination.exists()) {
-            if (!destination.delete()) {
+        if (fileManager.exists(destination)) {
+            if (!fileManager.delete(destination)) {
                 Logger.e(TAG, "Could not delete destination after an interrupt");
             }
         }
@@ -140,26 +151,38 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     private void onDestination() {
         success = true;
-        MediaScannerConnection.scanFile(getAppContext(), new String[]{destination.getAbsolutePath()}, null, (path, uri) -> {
-            // Runs on a binder thread
-            AndroidUtils.runOnUiThread(() -> afterScan(uri));
-        });
+        if (destination instanceof RawFile) {
+            String[] paths = {destination.getFullPath()};
+
+            MediaScannerConnection.scanFile(getAppContext(),
+                    paths,
+                    null,
+                    (path, uri) -> runOnUiThread(() -> afterScan(uri))
+            );
+        } else if (destination instanceof ExternalFile) {
+            Uri uri = Uri.parse(destination.getFullPath());
+            runOnUiThread(() -> afterScan(uri));
+        } else {
+            throw new NotImplementedError("Not implemented for " + destination.getClass().getName());
+        }
     }
 
     private boolean copyToDestination(File source) {
         boolean result = false;
 
         try {
-            File parent = destination.getParentFile();
-            if (!parent.mkdirs() && !parent.isDirectory()) {
-                throw new IOException("Could not create parent directory");
+            AbstractFile createdDestinationFile = fileManager.create(destination);
+            if (createdDestinationFile == null) {
+                throw new IOException("Could not create destination file, path = " + destination.getFullPath());
             }
 
-            if (destination.isDirectory()) {
+            if (fileManager.isDirectory(createdDestinationFile)) {
                 throw new IOException("Destination file is already a directory");
             }
 
-            IOUtils.copyFile(source, destination);
+            if (!fileManager.copyFileContents(fileManager.fromRawFile(source), createdDestinationFile)) {
+                throw new IOException("Could not copy source file into destination");
+            }
 
             result = true;
         } catch (IOException e) {
@@ -176,16 +199,21 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("image/*");
             intent.putExtra(Intent.EXTRA_STREAM, uri);
-            AndroidUtils.openIntent(intent);
+            openIntent(intent);
         }
     }
 
+    private void postError(Throwable error) {
+        runOnUiThread(() -> callback.imageSaveTaskFailed(error));
+    }
+
     private void postFinished(final boolean success) {
-        AndroidUtils.runOnUiThread(() ->
-                callback.imageSaveTaskFinished(ImageSaveTask.this, success));
+        runOnUiThread(() -> callback.imageSaveTaskFinished(ImageSaveTask.this, success));
     }
 
     public interface ImageSaveTaskCallback {
+        void imageSaveTaskFailed(Throwable error);
+
         void imageSaveTaskFinished(ImageSaveTask task, boolean success);
     }
 }

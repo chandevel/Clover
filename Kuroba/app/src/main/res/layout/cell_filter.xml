@@ -56,7 +56,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/delete"
+            android:id="@+id/reorder"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"

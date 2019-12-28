@@ -14,11 +14,11 @@ import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.Reply;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -30,7 +30,10 @@ import java.util.Map;
 
 import okhttp3.HttpUrl;
 
-public class Dvach extends CommonSite {
+import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2JS;
+
+public class Dvach
+        extends CommonSite {
     private static final String TAG = "Dvach";
 
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
@@ -50,12 +53,13 @@ public class Dvach extends CommonSite {
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, @Nullable Post post) {
+        public String desktopUrl(Loadable loadable, @Nullable final Post post) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
                 return getUrl().newBuilder()
-                        .addPathSegment(loadable.boardCode).addPathSegment("res")
+                        .addPathSegment(loadable.boardCode)
+                        .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
                         .toString();
             } else {
@@ -71,19 +75,20 @@ public class Dvach extends CommonSite {
     @Override
     public void initializeSettings() {
         super.initializeSettings();
-        captchaType = new OptionsSetting<>(settingsProvider,
-                "preference_captcha_type",
-                Chan4.CaptchaType.class, Chan4.CaptchaType.V2JS);
+        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type", Chan4.CaptchaType.class, V2JS);
     }
 
     @Override
     public List<SiteSetting> settings() {
-        return Collections.singletonList(
-                SiteSetting.forOption(
-                        captchaType,
-                        "Captcha type",
-                        Arrays.asList("Javascript", "Noscript"))
-        );
+        return Collections.singletonList(SiteSetting.forOption(captchaType,
+                "Captcha type",
+                Arrays.asList("Javascript", "Noscript")
+        ));
+    }
+
+    @Override
+    public void setParser(CommentParser commentParser) {
+        this.postParser = new DvachPostParser(commentParser);
     }
 
     @Override
@@ -101,9 +106,7 @@ public class Dvach extends CommonSite {
             }
         });
 
-        setEndpoints(new VichanEndpoints(this,
-                "https://2ch.hk",
-                "https://2ch.hk") {
+        setEndpoints(new VichanEndpoints(this, "https://2ch.hk", "https://2ch.hk") {
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
                 return root.builder().s(arg.get("path")).url();
@@ -121,7 +124,12 @@ public class Dvach extends CommonSite {
 
             @Override
             public HttpUrl reply(Loadable loadable) {
-                return new HttpUrl.Builder().scheme("https").host("2ch.hk").addPathSegment("makaba").addPathSegment("posting.fcgi").addQueryParameter("json", "1").build();
+                return new HttpUrl.Builder().scheme("https")
+                        .host("2ch.hk")
+                        .addPathSegment("makaba")
+                        .addPathSegment("posting.fcgi")
+                        .addQueryParameter("json", "1")
+                        .build();
             }
         });
 
@@ -147,17 +155,20 @@ public class Dvach extends CommonSite {
 
             @Override
             public void post(Reply reply, final PostListener postListener) {
-                httpCallManager.makeHttpCall(new DvachReplyCall(Dvach.this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
-                    @Override
-                    public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                        postListener.onPostComplete(httpPost, httpPost.replyResponse);
-                    }
+                httpCallManager.makeHttpCall(new DvachReplyCall(Dvach.this, reply),
+                        new HttpCall.HttpCallback<CommonReplyHttpCall>() {
+                            @Override
+                            public void onHttpSuccess(CommonReplyHttpCall httpPost) {
+                                postListener.onPostComplete(httpPost, httpPost.replyResponse);
+                            }
 
-                    @Override
-                    public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                        postListener.onPostError(httpPost, e);
-                    }
-                }, postListener::onUploadingProgress);
+                            @Override
+                            public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
+                                postListener.onPostError(httpPost, e);
+                            }
+                        },
+                        postListener::onUploadingProgress
+                );
             }
 
             @Override
@@ -172,9 +183,13 @@ public class Dvach extends CommonSite {
                 } else {
                     switch (captchaType.get()) {
                         case V2JS:
-                            return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY, "https://2ch.hk/api/captcha/recaptcha/mobile");
+                            return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY,
+                                    "https://2ch.hk/api/captcha/recaptcha/mobile"
+                            );
                         case V2NOJS:
-                            return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY, "https://2ch.hk/api/captcha/recaptcha/mobile");
+                            return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY,
+                                    "https://2ch.hk/api/captcha/recaptcha/mobile"
+                            );
                         default:
                             throw new IllegalArgumentException();
                     }
@@ -188,23 +203,28 @@ public class Dvach extends CommonSite {
 
             @Override
             public void boards(final BoardsListener listener) {
-                requestQueue.add(new DvachBoardsRequest(Dvach.this, response -> listener.onBoardsReceived(new Boards(response)), (error) -> {
-                    Logger.e(TAG, "Failed to get boards from server", error);
+                //@formatter:off
+                requestQueue.add(new DvachBoardsRequest(Dvach.this,
+                   response -> listener.onBoardsReceived(new Boards(response)),
+                   error -> {
+                       Logger.e(TAG, "Failed to get boards from server", error);
 
-                    // API fail, provide some default boards
-                    List<Board> list = new ArrayList<>();
-                    list.add(Board.fromSiteNameCode(Dvach.this, "бред", "b"));
-                    list.add(Board.fromSiteNameCode(Dvach.this, "Видеоигры, general, официальные треды", "vg"));
-                    list.add(Board.fromSiteNameCode(Dvach.this, "новости", "news"));
-                    list.add(Board.fromSiteNameCode(Dvach.this, "политика, новости, ольгинцы, хохлы, либерахи, рептилоиды.. oh shi", "po"));
-                    Collections.shuffle(list);
-                    listener.onBoardsReceived(new Boards(list));
-                }));
+                       // API fail, provide some default boards
+                       List<Board> list = new ArrayList<>();
+                       list.add(Board.fromSiteNameCode(Dvach.this, "бред", "b"));
+                       list.add(Board.fromSiteNameCode(Dvach.this, "Видеоигры, general, официальные треды", "vg"));
+                       list.add(Board.fromSiteNameCode(Dvach.this, "новости", "news"));
+                       list.add(Board.fromSiteNameCode(Dvach.this, "политика, новости, ольгинцы, хохлы, либерахи, рептилоиды.. oh shi", "po"));
+                       Collections.shuffle(list);
+                       listener.onBoardsReceived(new Boards(list));
+                   }
+                ));
+                //@formatter:on
             }
         });
 
         setApi(new DvachApi(this));
 
-        setParser(new VichanCommentParser());
+        setParser(new DvachCommentParser());
     }
 }

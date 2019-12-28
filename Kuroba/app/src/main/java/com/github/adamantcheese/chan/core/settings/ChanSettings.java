@@ -16,12 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.settings;
 
-import android.os.Environment;
+import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.text.TextUtils;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.settings.base_dir.LocalThreadsBaseDirSetting;
+import com.github.adamantcheese.chan.core.settings.base_dir.SavedFilesBaseDirSetting;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,10 +34,16 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
-import de.greenrobot.event.EventBus;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppDir;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ChanSettings {
-    public enum MediaAutoLoadMode implements OptionSettingItem {
+    public enum MediaAutoLoadMode
+            implements OptionSettingItem {
         // ALways auto load, either wifi or mobile
         ALL("all"),
         // Only auto load if on wifi
@@ -51,9 +61,20 @@ public class ChanSettings {
         public String getKey() {
             return name;
         }
+
+        public static boolean shouldLoadForNetworkType(ChanSettings.MediaAutoLoadMode networkType) {
+            if (networkType == ChanSettings.MediaAutoLoadMode.NONE) {
+                return false;
+            } else if (networkType == ChanSettings.MediaAutoLoadMode.WIFI) {
+                return isConnected(ConnectivityManager.TYPE_WIFI);
+            } else {
+                return networkType == ChanSettings.MediaAutoLoadMode.ALL;
+            }
+        }
     }
 
-    public enum PostViewMode implements OptionSettingItem {
+    public enum PostViewMode
+            implements OptionSettingItem {
         LIST("list"),
         CARD("grid");
 
@@ -69,7 +90,8 @@ public class ChanSettings {
         }
     }
 
-    public enum LayoutMode implements OptionSettingItem {
+    public enum LayoutMode
+            implements OptionSettingItem {
         AUTO("auto"),
         PHONE("phone"),
         SLIDE("slide"),
@@ -87,41 +109,13 @@ public class ChanSettings {
         }
     }
 
-    public enum PostingTimeout implements OptionSettingItem {
-        THIRTY_SECONDS("30 seconds", 30_000L),
-        SIXTY_SECONDS("1 minute", 60_000L),
-        ONE_HUNDRED_EIGHTY("3 minutes", 180_000L),
-        THREE_HUNDRED("5 minutes", 300_000L);
-
-        String name;
-        Long timeInMs;
-
-        PostingTimeout(String name, Long timeInMs) {
-            this.name = name;
-            this.timeInMs = timeInMs;
-        }
-
-        @Override
-        public String getKey() {
-            return name().toLowerCase();
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Long getTimeoutValue() {
-            return timeInMs;
-        }
-    }
-
     private static Proxy proxy;
-    private static final String sharedPrefsFile = "shared_prefs/com.github.adamantcheese.chan_preferences.xml";
+    private static final String sharedPrefsFile = "shared_prefs/" + BuildConfig.APPLICATION_ID + "_preferences.xml";
 
     private static final StringSetting theme;
     public static final OptionsSetting<LayoutMode> layoutMode;
     public static final StringSetting fontSize;
-    public static final BooleanSetting fontCondensed;
+    public static final BooleanSetting fontAlternate;
     public static final BooleanSetting openLinkConfirmation;
     public static final BooleanSetting openLinkBrowser;
     public static final BooleanSetting autoRefreshThread;
@@ -135,19 +129,19 @@ public class ChanSettings {
 
     public static final StringSetting postDefaultName;
     public static final BooleanSetting postPinThread;
+    public static final BooleanSetting shortPinInfo;
 
-    public static final BooleanSetting developer;
-
-    public static final StringSetting saveLocation;
+    public static final SavedFilesBaseDirSetting saveLocation;
+    public static final LocalThreadsBaseDirSetting localThreadLocation;
     public static final BooleanSetting saveServerFilename;
     public static final BooleanSetting shareUrl;
     public static final BooleanSetting enableReplyFab;
-    public static final BooleanSetting enableYouCount;
     public static final BooleanSetting accessibleInfo;
     public static final BooleanSetting anonymize;
     public static final BooleanSetting anonymizeIds;
     public static final BooleanSetting showAnonymousName;
-    public static final BooleanSetting revealImageSpoilers;
+    public static final BooleanSetting removeImageSpoilers;
+    public static final BooleanSetting revealimageSpoilers;
     public static final BooleanSetting revealTextSpoilers;
     public static final BooleanSetting repliesButtonsBottom;
     public static final BooleanSetting tapNoReply;
@@ -160,11 +154,13 @@ public class ChanSettings {
     public static final BooleanSetting saveBoardFolder;
     public static final BooleanSetting saveThreadFolder;
     public static final BooleanSetting videoDefaultMuted;
+    public static final BooleanSetting headsetDefaultMuted;
     public static final BooleanSetting videoAutoLoop;
+    public static final BooleanSetting autoLoadThreadImages;
+    public static final BooleanSetting allowMediaScannerToScanLocalThreads;
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchBackground;
-    public static final BooleanSetting watchFilterWatch;
     public static final BooleanSetting watchLastPageNotify;
     public static final IntegerSetting watchBackgroundInterval;
     public static final StringSetting watchNotifyMode;
@@ -184,113 +180,175 @@ public class ChanSettings {
     public static final CounterSetting threadOpenCounter;
 
     public static final LongSetting updateCheckTime;
-
     public static final BooleanSetting reencodeHintShown;
+    public static final BooleanSetting useImmersiveModeForGallery;
 
-    public static final BooleanSetting useNewCaptchaWindow;
-    public static final BooleanSetting useRealGoogleCookies;
-    public static final StringSetting googleCookie;
-    public static final LongSetting lastGoogleCookieUpdateTime;
+    public static final StringSetting lastImageOptions;
+    public static final StringSetting filterWatchIgnored;
 
-    public static final OptionsSetting<PostingTimeout> postingTimeout;
+    public static final BooleanSetting removeWatchedFromCatalog;
+    public static final BooleanSetting shiftPostFormat;
+    public static final BooleanSetting enableEmoji;
+    public static final BooleanSetting highResCells;
+
+    public static final BooleanSetting incrementalThreadDownloadingEnabled;
+    public static final BooleanSetting fullUserRotationEnable;
+
+    public static final IntegerSetting drawerAutoOpenCount;
+    public static final BooleanSetting alwaysOpenDrawer;
+
+    public static final BooleanSetting moveInputToBottom;
+    public static final BooleanSetting enableLongPressURLCopy;
+
+    public static final BooleanSetting parseYoutubeTitles;
+    public static final BooleanSetting parseYoutubeDuration;
+    public static final StringSetting parseYoutubeAPIKey;
+
+    public static final BooleanSetting parsePostImageLinks;
+
+    public static final StringSetting previousDevHash;
+
+    public static final BooleanSetting addDubs;
+    public static final BooleanSetting transparencyOn;
+
+    public static final StringSetting youtubeTitleCache;
+    public static final StringSetting youtubeDurationCache;
 
     static {
-        SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
+        try {
+            SettingProvider p = new SharedPreferencesSettingProvider(getPreferences());
 
-        theme = new StringSetting(p, "preference_theme", "yotsuba");
+            theme = new StringSetting(p, "preference_theme", "yotsuba");
+            layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.class, LayoutMode.AUTO);
+            boolean tablet = getRes().getBoolean(R.bool.is_tablet);
 
-        layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.class, LayoutMode.AUTO);
+            fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
+            fontAlternate = new BooleanSetting(p, "preference_font_alternate", false);
+            openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
+            openLinkBrowser = new BooleanSetting(p, "preference_open_link_browser", false);
+            autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
+            imageAutoLoadNetwork = new OptionsSetting<>(p,
+                    "preference_image_auto_load_network",
+                    MediaAutoLoadMode.class,
+                    MediaAutoLoadMode.WIFI
+            );
+            videoAutoLoadNetwork = new OptionsSetting<>(p,
+                    "preference_video_auto_load_network",
+                    MediaAutoLoadMode.class,
+                    MediaAutoLoadMode.WIFI
+            );
+            videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
+            textOnly = new BooleanSetting(p, "preference_text_only", false);
+            boardViewMode =
+                    new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);
+            boardGridSpanCount = new IntegerSetting(p, "preference_board_grid_span_count", 0);
+            boardOrder = new StringSetting(p, "preference_board_order", PostsFilter.Order.BUMP.name);
 
-        boolean tablet = AndroidUtils.getRes().getBoolean(R.bool.is_tablet);
+            postDefaultName = new StringSetting(p, "preference_default_name", "");
+            postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
+            shortPinInfo = new BooleanSetting(p, "preference_short_pin_info", true);
 
-        fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
-        fontCondensed = new BooleanSetting(p, "preference_font_condensed", false);
-        openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
-        openLinkBrowser = new BooleanSetting(p, "preference_open_link_browser", false);
-        autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
-        imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
-        videoAutoLoadNetwork = new OptionsSetting<>(p, "preference_video_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
-        videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
-        textOnly = new BooleanSetting(p, "preference_text_only", false);
-        boardViewMode = new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);
-        boardGridSpanCount = new IntegerSetting(p, "preference_board_grid_span_count", 0);
-        boardOrder = new StringSetting(p, "preference_board_order", PostsFilter.Order.BUMP.name);
+            saveLocation = new SavedFilesBaseDirSetting(p);
+            localThreadLocation = new LocalThreadsBaseDirSetting(p);
 
-        postDefaultName = new StringSetting(p, "preference_default_name", "");
-        postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
+            saveServerFilename = new BooleanSetting(p, "preference_image_save_original", false);
+            shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
+            accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);
+            enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
+            anonymize = new BooleanSetting(p, "preference_anonymize", false);
+            anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
+            showAnonymousName = new BooleanSetting(p, "preference_show_anonymous_name", false);
+            removeImageSpoilers = new BooleanSetting(p, "preference_reveal_image_spoilers", false);
+            revealimageSpoilers = new BooleanSetting(p, "preference_auto_unspoil_images", true);
+            revealTextSpoilers = new BooleanSetting(p, "preference_reveal_text_spoilers", false);
+            repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
+            tapNoReply = new BooleanSetting(p, "preference_tap_no_reply", false);
+            volumeKeysScrolling = new BooleanSetting(p, "preference_volume_key_scrolling", false);
+            postFullDate = new BooleanSetting(p, "preference_post_full_date", false);
+            postFileInfo = new BooleanSetting(p, "preference_post_file_info", true);
+            postFilename = new BooleanSetting(p, "preference_post_filename", true);
+            neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
+            controllerSwipeable = new BooleanSetting(p, "preference_controller_swipeable", true);
+            saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
+            saveThreadFolder = new BooleanSetting(p, "preference_save_subthread", false);
+            videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
+            headsetDefaultMuted = new BooleanSetting(p, "preference_headset_default_muted", true);
+            videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
+            autoLoadThreadImages = new BooleanSetting(p, "preference_auto_load_thread", false);
+            allowMediaScannerToScanLocalThreads =
+                    new BooleanSetting(p, "allow_media_scanner_to_scan_local_threads", false);
 
-        developer = new BooleanSetting(p, "preference_developer", false);
+            watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
+            watchEnabled.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(watchEnabled)));
+            watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
+            watchBackground.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(watchBackground)));
+            watchLastPageNotify = new BooleanSetting(p, "preference_watch_last_page_notify", false);
+            watchBackgroundInterval =
+                    new IntegerSetting(p, "preference_watch_background_interval", (int) MINUTES.toMillis(15));
+            watchBackgroundInterval.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(
+                    watchBackgroundInterval)));
+            watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
+            watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
+            watchPeek = new BooleanSetting(p, "preference_watch_peek", true);
+            watchLastCount = new IntegerSetting(p, "preference_watch_last_count", 0);
 
-        saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Kuroba");
-        saveLocation.addCallback((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
-        saveServerFilename = new BooleanSetting(p, "preference_image_save_original", false);
-        shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
-        accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);
-        enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
-        enableYouCount = new BooleanSetting(p, "preference_enable_you_count", false);
-        anonymize = new BooleanSetting(p, "preference_anonymize", false);
-        anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
-        showAnonymousName = new BooleanSetting(p, "preference_show_anonymous_name", false);
-        revealImageSpoilers = new BooleanSetting(p, "preference_reveal_image_spoilers", false);
-        revealTextSpoilers = new BooleanSetting(p, "preference_reveal_text_spoilers", false);
-        repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
-        tapNoReply = new BooleanSetting(p, "preference_tap_no_reply", false);
-        volumeKeysScrolling = new BooleanSetting(p, "preference_volume_key_scrolling", false);
-        postFullDate = new BooleanSetting(p, "preference_post_full_date", false);
-        postFileInfo = new BooleanSetting(p, "preference_post_file_info", true);
-        postFilename = new BooleanSetting(p, "preference_post_filename", true);
-        neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
-        controllerSwipeable = new BooleanSetting(p, "preference_controller_swipeable", true);
-        saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
-        saveThreadFolder = new BooleanSetting(p, "preference_save_subthread", false);
-        videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
-        videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
+            historyEnabled = new BooleanSetting(p, "preference_history_enabled", true);
 
-        watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
-        watchEnabled.addCallback((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(watchEnabled)));
-        watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
-        watchBackground.addCallback((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(watchBackground)));
-        watchLastPageNotify = new BooleanSetting(p, "preference_watch_last_page_notify", false);
-        watchFilterWatch = new BooleanSetting(p, "preference_watch_filter_watch", false);
-        watchFilterWatch.addCallback(((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(watchFilterWatch))));
-        watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", 15 * 60 * 1000); //15 minute default
-        watchBackgroundInterval.addCallback((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(watchBackgroundInterval)));
-        watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
-        watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
-        watchPeek = new BooleanSetting(p, "preference_watch_peek", true);
-        watchLastCount = new IntegerSetting(p, "preference_watch_last_count", 0);
+            previousVersion = new IntegerSetting(p, "preference_previous_version", 0);
 
-        historyEnabled = new BooleanSetting(p, "preference_history_enabled", true);
+            proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false);
+            proxyAddress = new StringSetting(p, "preference_proxy_address", "");
+            proxyPort = new IntegerSetting(p, "preference_proxy_port", 80);
 
-        previousVersion = new IntegerSetting(p, "preference_previous_version", 0);
+            proxyEnabled.addCallback((setting, value) -> loadProxy());
+            proxyAddress.addCallback((setting, value) -> loadProxy());
+            proxyPort.addCallback((setting, value) -> loadProxy());
+            loadProxy();
 
-        proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false);
-        proxyAddress = new StringSetting(p, "preference_proxy_address", "");
-        proxyPort = new IntegerSetting(p, "preference_proxy_port", 80);
+            historyOpenCounter = new CounterSetting(p, "counter_history_open");
+            threadOpenCounter = new CounterSetting(p, "counter_thread_open");
+            updateCheckTime = new LongSetting(p, "update_check_time", 0L);
+            reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
+            useImmersiveModeForGallery = new BooleanSetting(p, "use_immersive_mode_for_gallery", false);
 
-        proxyEnabled.addCallback((setting, value) -> loadProxy());
-        proxyAddress.addCallback((setting, value) -> loadProxy());
-        proxyPort.addCallback((setting, value) -> loadProxy());
-        loadProxy();
+            lastImageOptions = new StringSetting(p, "last_image_options", "");
+            filterWatchIgnored = new StringSetting(p, "filter_watch_last_ignored_set", "");
 
-        historyOpenCounter = new CounterSetting(p, "counter_history_open");
-        threadOpenCounter = new CounterSetting(p, "counter_thread_open");
+            removeWatchedFromCatalog = new BooleanSetting(p, "remove_catalog_watch", false);
+            shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
+            enableEmoji = new BooleanSetting(p, "enable_emoji", false);
+            highResCells = new BooleanSetting(p, "high_res_cells", false);
+            incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
+            fullUserRotationEnable = new BooleanSetting(p, "full_user_rotation_enable", true);
 
-        updateCheckTime = new LongSetting(p, "update_check_time", 0L);
+            drawerAutoOpenCount = new IntegerSetting(p, "drawer_auto_open_count", 0);
+            alwaysOpenDrawer = new BooleanSetting(p, "drawer_auto_open_always", false);
 
-        postingTimeout = new OptionsSetting<>(p, "posting_timeout", PostingTimeout.class, PostingTimeout.THIRTY_SECONDS);
+            moveInputToBottom = new BooleanSetting(p, "move_input_bottom", false);
+            enableLongPressURLCopy = new BooleanSetting(p, "long_press_image_url_copy", true);
 
-        reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
+            parseYoutubeTitles = new BooleanSetting(p, "parse_youtube_titles", true);
+            parseYoutubeDuration = new BooleanSetting(p, "parse_youtube_duration", false);
+            parseYoutubeAPIKey = new StringSetting(p,
+                    "parse_youtube_API_key",
+                    "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE"
+            ); // this is 4chanX's key, but it is recommended that you use your own
 
-        useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", false);
-        useRealGoogleCookies = new BooleanSetting(p, "use_real_google_cookies", false);
-        googleCookie = new StringSetting(p, "google_cookie", "");
-        lastGoogleCookieUpdateTime = new LongSetting(p, "last_google_cookie_update_time", 0L);
+            parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
+
+            previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
+
+            addDubs = new BooleanSetting(p, "add_dubs", false);
+            transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
+
+            youtubeTitleCache = new StringSetting(p, "yt_title_cache", "{}");
+            youtubeDurationCache = new StringSetting(p, "yt_dur_cache", "{}");
+        } catch (Throwable error) {
+            // If something crashes while the settings are initializing we at least will have the
+            // stacktrace. Otherwise we won't because of the Feather.
+            Logger.e("ChanSettings", "Error while initializing the settings", error);
+            throw error;
+        }
     }
 
     public static ThemeColor getThemeAndColor() {
@@ -340,8 +398,44 @@ public class ChanSettings {
      * Reads setting from the shared preferences file to a string.
      * Called on the Database thread.
      */
-    public static String serializeToString() throws IOException {
-        File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
+    public static String serializeToString()
+            throws IOException {
+        String prevSaveLocationUri = null;
+        String prevLocalThreadsLocationUri = null;
+
+        /*
+         We need to check if the user has any of the location settings set to a SAF directory.
+         We can't export them because if the user reinstalls the app and then imports a location
+         setting that point to a SAF directory that directory won't be valid for the app because
+         after clearing settings all permissions for that directory will be lost. So in case the
+         user tries to export SAF directory paths we don't export them and instead export default
+         locations. But we also don't wont to change the paths for the current app so we need to
+         save the previous paths, patch the sharedPrefs file read it to string and then restore
+         the current paths back to what they were before exporting.
+
+         We also need to reset the active dir setting in case of resetting the base dir (and then
+         restore back) so that the user won't see empty paths to files when importing settings
+         back.
+        */
+        if (saveLocation.isSafDirActive()) {
+            // Save the saveLocationUri
+            prevSaveLocationUri = saveLocation.getSafBaseDir().get();
+
+            saveLocation.getSafBaseDir().remove();
+            saveLocation.resetFileDir();
+            saveLocation.resetActiveDir();
+        }
+
+        if (localThreadLocation.isSafDirActive()) {
+            // Save the localThreadsLocationUri
+            prevLocalThreadsLocationUri = localThreadLocation.getSafBaseDir().get();
+
+            localThreadLocation.getSafBaseDir().remove();
+            localThreadLocation.resetFileDir();
+            localThreadLocation.resetActiveDir();
+        }
+
+        File file = new File(getAppDir(), sharedPrefsFile);
 
         if (!file.exists()) {
             throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
@@ -357,8 +451,20 @@ public class ChanSettings {
             int readAmount = inputStream.read(buffer);
 
             if (readAmount != file.length()) {
-                throw new IOException("Could not read shared prefs file readAmount != fileLength " + readAmount + ", " + file.length());
+                throw new IOException("Could not read shared prefs file readAmount != fileLength " + readAmount + ", "
+                        + file.length());
             }
+        }
+
+        // Restore back the previous paths
+        if (prevSaveLocationUri != null) {
+            ChanSettings.saveLocation.resetFileDir();
+            ChanSettings.saveLocation.setSafBaseDir(Uri.parse(prevSaveLocationUri));
+        }
+
+        if (prevLocalThreadsLocationUri != null) {
+            ChanSettings.localThreadLocation.resetFileDir();
+            ChanSettings.localThreadLocation.setSafBaseDir(Uri.parse(prevLocalThreadsLocationUri));
         }
 
         return new String(buffer);
@@ -368,11 +474,15 @@ public class ChanSettings {
      * Reads settings from string and writes them to the shared preferences file.
      * Called on the Database thread.
      */
-    public static void deserializeFromString(String settings) throws IOException {
-        File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
+    public static void deserializeFromString(String settings)
+            throws IOException {
+        File file = new File(getAppDir(), sharedPrefsFile);
 
         if (!file.exists()) {
-            throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
+            // Hack to create the shared_prefs file when it does not exist so that we don't cancel
+            // settings importing because shared_prefs file does not exist
+            String fontSize = ChanSettings.fontSize.get();
+            ChanSettings.fontSize.setSyncNoCheck(fontSize);
         }
 
         if (!file.canWrite()) {

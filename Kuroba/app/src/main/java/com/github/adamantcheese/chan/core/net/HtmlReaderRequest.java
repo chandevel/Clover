@@ -29,7 +29,8 @@ import org.jsoup.nodes.Document;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-public abstract class HtmlReaderRequest<T> extends Request<T> {
+public abstract class HtmlReaderRequest<T>
+        extends Request<T> {
     protected final Listener<T> listener;
 
     public HtmlReaderRequest(String url, Listener<T> listener, Response.ErrorListener errorListener) {
@@ -47,7 +48,9 @@ public abstract class HtmlReaderRequest<T> extends Request<T> {
     protected Response<T> parseNetworkResponse(NetworkResponse response) {
         try {
             Document document = Jsoup.parse(new ByteArrayInputStream(response.data),
-                    HttpHeaderParser.parseCharset(response.headers), getUrl());
+                    HttpHeaderParser.parseCharset(response.headers),
+                    getUrl()
+            );
 
             T result = readDocument(document);
 

@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.helper;
 import android.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
+
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class BoardHelper {
     }
 
     public static String getDescription(Board board) {
-        return board.description == null ? null : Parser.unescapeEntities(board.description, false);
+        return Parser.unescapeEntities(board.description, false);
     }
 
     public static List<Board> quickSearch(List<Board> from, String query) {
@@ -47,7 +48,7 @@ public class BoardHelper {
 
         for (Iterator<Board> iterator = from.iterator(); iterator.hasNext(); ) {
             Board board = iterator.next();
-            if (board.code.toLowerCase().equals(query)) {
+            if (board.code.toLowerCase().startsWith(query)) {
                 iterator.remove();
                 res.add(board);
             }
@@ -98,21 +99,19 @@ public class BoardHelper {
     private static int getTokenSortRatio(Board board, String query) {
         int code = FuzzySearch.ratio(board.code, query);
         int name = FuzzySearch.ratio(board.name, query);
-        int description = FuzzySearch.weightedRatio(String.valueOf(getDescription(board)), query);
+        int description = FuzzySearch.weightedRatio(getDescription(board), query);
 
-        return code * 8 +
-                name * 5 +
-                Math.max(0, description - 30) * 4;
+        return code * 8 + name * 5 + Math.max(0, description - 30) * 4;
     }
 
     public static String boardUniqueId(Board board) {
         String code = board.code.replace(":", "").replace(",", "");
-        return board.site.id() + ":" + code;
+        return board.siteId + ":" + code;
     }
 
     public static boolean matchesUniqueId(Board board, String uniqueId) {
         if (!uniqueId.contains(":")) {
-            return board.site.id() == 0 && board.code.equals(uniqueId);
+            return board.siteId == 0 && board.code.equals(uniqueId);
         } else {
             String[] splitted = uniqueId.split(":");
             if (splitted.length != 2) {
@@ -120,7 +119,7 @@ public class BoardHelper {
             }
 
             try {
-                return Integer.parseInt(splitted[0]) == board.site.id() && splitted[1].equals(board.code);
+                return Integer.parseInt(splitted[0]) == board.siteId && splitted[1].equals(board.code);
             } catch (NumberFormatException ignored) {
                 return false;
             }

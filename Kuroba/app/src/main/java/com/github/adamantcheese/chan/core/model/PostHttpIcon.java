@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
-
 import okhttp3.HttpUrl;
 
 public class PostHttpIcon {

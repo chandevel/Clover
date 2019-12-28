@@ -22,7 +22,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
@@ -33,11 +32,17 @@ import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
-public class LoginController extends Controller implements View.OnClickListener, SiteActions.LoginListener {
+public class LoginController
+        extends Controller
+        implements View.OnClickListener, SiteActions.LoginListener {
     private CrossfadeView crossfadeView;
     private TextView errors;
     private Button button;
@@ -61,8 +66,7 @@ public class LoginController extends Controller implements View.OnClickListener,
 
         navigation.setTitle(R.string.settings_screen_pass);
 
-        view = inflateRes(R.layout.controller_pass);
-        LinearLayout container = view.findViewById(R.id.container);
+        view = inflate(context, R.layout.controller_pass);
         crossfadeView = view.findViewById(R.id.crossfade);
         errors = view.findViewById(R.id.errors);
         button = view.findViewById(R.id.button);
@@ -71,7 +75,7 @@ public class LoginController extends Controller implements View.OnClickListener,
         inputPin = view.findViewById(R.id.input_pin);
         authenticated = view.findViewById(R.id.authenticated);
 
-        errors.setVisibility(View.GONE);
+        errors.setVisibility(GONE);
 
         final boolean loggedIn = loggedIn();
         button.setText(loggedIn ? R.string.setting_pass_logout : R.string.setting_pass_login);
@@ -90,7 +94,7 @@ public class LoginController extends Controller implements View.OnClickListener,
         }
 
         // TODO: remove
-        AndroidUtils.waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
+        waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
             crossfadeView.getLayoutParams().height = crossfadeView.getHeight();
             crossfadeView.requestLayout();
             crossfadeView.toggle(!loggedIn, false);
@@ -152,7 +156,7 @@ public class LoginController extends Controller implements View.OnClickListener,
     }
 
     private void auth() {
-        AndroidUtils.hideKeyboard(view);
+        hideKeyboard(view);
         inputToken.setEnabled(false);
         inputPin.setEnabled(false);
         button.setEnabled(false);
@@ -170,12 +174,12 @@ public class LoginController extends Controller implements View.OnClickListener,
 
     private void showError(String error) {
         errors.setText(error);
-        errors.setVisibility(View.VISIBLE);
+        errors.setVisibility(VISIBLE);
     }
 
     private void hideError() {
         errors.setText(null);
-        errors.setVisibility(View.GONE);
+        errors.setVisibility(GONE);
     }
 
     private boolean loggedIn() {

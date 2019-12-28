@@ -26,10 +26,8 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
@@ -37,11 +35,17 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
@@ -52,24 +56,34 @@ import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.PostStubCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.FastScroller;
 import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.TYPE_POST;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 /**
  * A layout that wraps around a {@link RecyclerView} and a {@link ReplyLayout} to manage showing and replying to posts.
  */
-public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLayoutCallback {
+public class ThreadListLayout
+        extends FrameLayout
+        implements ReplyLayout.ReplyLayoutCallback {
+    private static final String TAG = "ThreadListLayout";
     public static final int MAX_SMOOTH_SCROLL_DISTANCE = 20;
 
     private ReplyLayout reply;
@@ -110,30 +124,48 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         searchStatus = findViewById(R.id.search_status);
         recyclerView = findViewById(R.id.recycler_view);
 
+        if (ChanSettings.moveInputToBottom.get()) {
+            LayoutParams params = (LayoutParams) reply.getLayoutParams();
+            params.gravity = Gravity.BOTTOM;
+            reply.setLayoutParams(params);
+        }
+
         // View setup
         reply.setCallback(this);
-        searchStatus.setTypeface(ROBOTO_MEDIUM);
+        searchStatus.setTypeface(ThemeHelper.getTheme().mainFont);
     }
 
-    public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback,
-                             PostCell.PostCellCallback postCellCallback,
-                             ThreadStatusCell.Callback statusCellCallback,
-                             ThreadListLayoutPresenterCallback callback,
-                             ThreadListLayoutCallback threadListLayoutCallback) {
+    public void setCallbacks(
+            PostAdapter.PostAdapterCallback postAdapterCallback,
+            PostCell.PostCellCallback postCellCallback,
+            ThreadStatusCell.Callback statusCellCallback,
+            ThreadListLayoutPresenterCallback callback,
+            ThreadListLayoutCallback threadListLayoutCallback
+    ) {
         this.callback = callback;
         this.threadListLayoutCallback = threadListLayoutCallback;
 
         postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postCellCallback, statusCellCallback);
         recyclerView.setAdapter(postAdapter);
+        if (ChanSettings.shiftPostFormat.get()) {
+            recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_POST, 0);
+        }
         recyclerView.addOnScrollListener(scrollListener);
 
         setFastScroll(false);
 
         attachToolbarScroll(true);
 
-        reply.setPadding(0, toolbarHeight(), 0, 0);
-        searchStatus.setPadding(searchStatus.getPaddingLeft(), searchStatus.getPaddingTop() + toolbarHeight(),
-                searchStatus.getPaddingRight(), searchStatus.getPaddingBottom());
+        if (ChanSettings.moveInputToBottom.get()) {
+            reply.setPadding(0, 0, 0, 0);
+        } else {
+            reply.setPadding(0, toolbarHeight(), 0, 0);
+        }
+        searchStatus.setPadding(searchStatus.getPaddingLeft(),
+                searchStatus.getPaddingTop() + toolbarHeight(),
+                searchStatus.getPaddingRight(),
+                searchStatus.getPaddingBottom()
+        );
     }
 
     private void onRecyclerViewScrolled() {
@@ -141,8 +173,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         if (showingThread != null) {
             int[] indexTop = getIndexAndTop();
 
-            showingThread.loadable.setListViewIndex(indexTop[0]);
-            showingThread.loadable.setListViewTop(indexTop[1]);
+            showingThread.getLoadable().setListViewIndex(indexTop[0]);
+            showingThread.getLoadable().setListViewTop(indexTop[1]);
 
             int last = getCompleteBottomAdapterPosition();
             if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
@@ -159,7 +191,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        int cardWidth = getResources().getDimensionPixelSize(R.dimen.grid_card_width);
+        int cardWidth = getDimen(R.dimen.grid_card_width);
         int gridCountSetting = ChanSettings.boardGridSpanCount.get();
         boolean compactMode;
         if (gridCountSetting > 0) {
@@ -188,8 +220,12 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext()) {
                         @Override
                         public boolean requestChildRectangleOnScreen(
-                                RecyclerView parent, View child, Rect rect, boolean immediate,
-                                boolean focusedChildVisible) {
+                                RecyclerView parent,
+                                View child,
+                                Rect rect,
+                                boolean immediate,
+                                boolean focusedChildVisible
+                        ) {
                             return false;
                         }
                     };
@@ -204,15 +240,19 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
                     break;
                 case CARD:
-                    GridLayoutManager gridLayoutManager = new GridLayoutManager(
-                            null, spanCount, GridLayoutManager.VERTICAL, false) {
-                        @Override
-                        public boolean requestChildRectangleOnScreen(
-                                RecyclerView parent, View child, Rect rect, boolean immediate,
-                                boolean focusedChildVisible) {
-                            return false;
-                        }
-                    };
+                    GridLayoutManager gridLayoutManager =
+                            new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false) {
+                                @Override
+                                public boolean requestChildRectangleOnScreen(
+                                        RecyclerView parent,
+                                        View child,
+                                        Rect rect,
+                                        boolean immediate,
+                                        boolean focusedChildVisible
+                                ) {
+                                    return false;
+                                }
+                            };
                     setRecyclerViewPadding();
                     recyclerView.setLayoutManager(gridLayoutManager);
                     layoutManager = gridLayoutManager;
@@ -231,17 +271,22 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         }
     }
 
-    public void showPosts(ChanThread thread, PostsFilter filter, boolean initial) {
+    public void showPosts(
+            ChanThread thread,
+            PostsFilter filter,
+            boolean initial,
+            boolean refreshAfterHideOrRemovePosts
+    ) {
         showingThread = thread;
         if (initial) {
-            reply.bindLoadable(showingThread.loadable);
+            reply.bindLoadable(showingThread.getLoadable());
 
             recyclerView.setLayoutManager(null);
             recyclerView.setLayoutManager(layoutManager);
             recyclerView.getRecycledViewPool().clear();
 
-            int index = thread.loadable.listViewIndex;
-            int top = thread.loadable.listViewTop;
+            int index = thread.getLoadable().listViewIndex;
+            int top = thread.getLoadable().listViewTop;
 
             switch (postViewMode) {
                 case LIST:
@@ -270,12 +315,27 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
          * long since we have like 300-500 posts in a thread to filter in the database).
          * BUT if for some reason it starts to cause ANRs then we will have to apply the callback solution.
          */
-        List<Post> filteredPosts = filter.apply(
-                thread.posts,
-                thread.loadable.site.id(),
-                thread.loadable.board.code
-        );
-        postAdapter.setThread(thread, filteredPosts);
+        List<Post> filteredPosts =
+                filter.apply(thread.getPosts(), thread.getLoadable().siteId, thread.getLoadable().board.code);
+
+        //Filter out any bookmarked threads from the catalog
+        if (ChanSettings.removeWatchedFromCatalog.get() && thread.getLoadable().isCatalogMode()) {
+            List<Post> toRemove = new ArrayList<>();
+            for (Pin pin : instance(WatchManager.class).getAllPins()) {
+                for (Post post : filteredPosts) {
+                    if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().site,
+                            thread.getLoadable().board,
+                            post.no,
+                            ""
+                    ))) {
+                        toRemove.add(post);
+                    }
+                }
+            }
+            filteredPosts.removeAll(toRemove);
+        }
+
+        postAdapter.setThread(thread.getLoadable(), filteredPosts, refreshAfterHideOrRemovePosts);
     }
 
     public boolean onBack() {
@@ -285,7 +345,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             openReply(false);
             return true;
         } else {
-            return false;
+            return threadListLayoutCallback.threadBackPressed();
         }
     }
 
@@ -313,8 +373,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         if (showingThread != null && replyOpen != open) {
             this.replyOpen = open;
 
-            reply.measure(
-                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+            reply.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
             int height = reply.getMeasuredHeight();
@@ -325,17 +384,17 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             viewPropertyAnimator.setDuration(600);
 
             if (open) {
-                reply.setVisibility(View.VISIBLE);
-                reply.setTranslationY(-height);
+                reply.setVisibility(VISIBLE);
+                reply.setTranslationY(ChanSettings.moveInputToBottom.get() ? height : -height);
                 viewPropertyAnimator.translationY(0f);
             } else {
                 reply.setTranslationY(0f);
-                viewPropertyAnimator.translationY(-height);
+                viewPropertyAnimator.translationY(ChanSettings.moveInputToBottom.get() ? height : -height);
                 viewPropertyAnimator.setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         viewPropertyAnimator.setListener(null);
-                        reply.setVisibility(View.GONE);
+                        reply.setVisibility(GONE);
                     }
                 });
             }
@@ -343,7 +402,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             reply.onOpen(open);
             setRecyclerViewPadding();
             if (!open) {
-                AndroidUtils.hideKeyboard(reply);
+                hideKeyboard(reply);
             }
             threadListLayoutCallback.replyLayoutOpen(open);
 
@@ -363,8 +422,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         if (showingThread != null && searchOpen != open) {
             searchOpen = open;
 
-            searchStatus.measure(
-                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+            searchStatus.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
             int height = searchStatus.getMeasuredHeight();
@@ -375,7 +433,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             viewPropertyAnimator.setDuration(600);
 
             if (open) {
-                searchStatus.setVisibility(View.VISIBLE);
+                searchStatus.setVisibility(VISIBLE);
                 searchStatus.setTranslationY(-height);
                 viewPropertyAnimator.translationY(0f);
             } else {
@@ -385,7 +443,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         viewPropertyAnimator.setListener(null);
-                        searchStatus.setVisibility(View.GONE);
+                        searchStatus.setVisibility(GONE);
                     }
                 });
             }
@@ -394,7 +452,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             if (open) {
                 searchStatus.setText(R.string.search_empty);
             } else {
-                threadListLayoutCallback.getToolbar().closeSearch();
+                threadListLayoutCallback.getToolbar().closeSearchPhoneMode();
             }
 
             attachToolbarScroll(!(open || replyOpen));
@@ -405,7 +463,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     //android studio doesn't like the nested getQuantityString and messes up, but nothing is wrong
     public void setSearchStatus(String query, boolean setEmptyText, boolean hideKeyboard) {
         if (hideKeyboard) {
-            AndroidUtils.hideKeyboard(this);
+            hideKeyboard(this);
         }
 
         if (setEmptyText) {
@@ -414,9 +472,10 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         if (query != null) {
             int size = getDisplayingPosts().size();
-            searchStatus.setText(getContext().getString(R.string.search_results,
-                    getContext().getResources().getQuantityString(R.plurals.posts, size, size),
-                    query));
+            searchStatus.setText(getString(R.string.search_results,
+                    getQuantityString(R.plurals.posts, size, size),
+                    query
+            ));
         }
     }
 
@@ -440,7 +499,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                         // PostStubCell does not have grid_card_margin
                         return top.getTop() != toolbarHeight() + dp(1);
                     } else {
-                        return top.getTop() != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
+                        return top.getTop() != getDimen(R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
                     }
                 }
                 break;
@@ -450,6 +509,18 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
     public boolean scrolledToBottom() {
         return getCompleteBottomAdapterPosition() == postAdapter.getItemCount() - 1;
+    }
+
+    public void smoothScrollNewPosts(int displayPosition) {
+        if (layoutManager instanceof LinearLayoutManager) {
+            ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(
+                    displayPosition + 1,
+                    //position + 1 for last seen view, dp(4) for it's height
+                    recyclerView.getHeight() - recyclerView.getPaddingTop() - dp(4)
+            );
+        } else {
+            Logger.wtf(TAG, "Layout manager is grid inside thread??");
+        }
     }
 
     public void cleanup() {
@@ -501,7 +572,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 recyclerView.scrollToPosition(bottom);
                 // No animation means no animation, wait for the layout to finish and skip all animations
                 final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
-                AndroidUtils.waitForLayout(recyclerView, view -> {
+                waitForLayout(recyclerView, view -> {
                     itemAnimator.endAnimations();
                     return true;
                 });
@@ -520,7 +591,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 recyclerView.scrollToPosition(scrollPosition);
                 // No animation means no animation, wait for the layout to finish and skip all animations
                 final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
-                AndroidUtils.waitForLayout(recyclerView, view -> {
+                waitForLayout(recyclerView, view -> {
                     itemAnimator.endAnimations();
                     return true;
                 });
@@ -565,8 +636,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     }
 
     @Override
-    public void showImageReencodingWindow() {
-        threadListLayoutCallback.showImageReencodingWindow();
+    public void showImageReencodingWindow(boolean supportsReencode) {
+        threadListLayoutCallback.showImageReencodingWindow(supportsReencode);
     }
 
     public int[] getIndexAndTop() {
@@ -625,7 +696,6 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 fastScroller = FastScrollerHelper.create(recyclerView);
             }
         }
-
         recyclerView.setVerticalScrollBarEnabled(!enabled);
     }
 
@@ -641,14 +711,17 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         int bottom = defaultPadding;
 
         if (replyOpen) {
-            reply.measure(
-                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+            reply.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
-            top += reply.getMeasuredHeight();
+            if (ChanSettings.moveInputToBottom.get()) {
+                bottom += reply.getMeasuredHeight();
+                top += toolbarHeight();
+            } else {
+                top += reply.getMeasuredHeight();
+            }
         } else if (searchOpen) {
-            searchStatus.measure(
-                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+            searchStatus.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
             top += searchStatus.getMeasuredHeight();
@@ -659,7 +732,12 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         recyclerView.setPadding(left, top, right, bottom);
     }
 
-    private int toolbarHeight() {
+    @Override
+    public void updatePadding() {
+        setRecyclerViewPadding();
+    }
+
+    public int toolbarHeight() {
         Toolbar toolbar = threadListLayoutCallback.getToolbar();
         return toolbar.getToolbarHeight();
     }
@@ -702,7 +780,11 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
                         int top = child.getTop() + params.topMargin;
                         int left = child.getLeft() + params.leftMargin;
-                        c.drawBitmap(hat, left - parent.getPaddingLeft() - dp(25), top - dp(80) - parent.getPaddingTop() + toolbarHeight(), null);
+                        c.drawBitmap(hat,
+                                left - parent.getPaddingLeft() - dp(25),
+                                top - dp(80) - parent.getPaddingTop() + toolbarHeight(),
+                                null
+                        );
                     }
                 }
             }
@@ -710,7 +792,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     };
 
     private void party() {
-        if (showingThread.loadable.site instanceof Chan4) {
+        if (showingThread.getLoadable().site instanceof Chan4) {
             Calendar calendar = Calendar.getInstance();
             if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
                 recyclerView.addItemDecoration(PARTY);
@@ -722,8 +804,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         recyclerView.removeItemDecoration(PARTY);
     }
 
-    public void onImageOptionsApplied(Reply _reply) {
-        reply.onImageOptionsApplied(_reply);
+    public void onImageOptionsApplied(Reply modifiedReply, boolean filenameRemoved) {
+        reply.onImageOptionsApplied(modifiedReply, filenameRemoved);
     }
 
     public interface ThreadListLayoutPresenterCallback {
@@ -741,6 +823,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         boolean shouldToolbarCollapse();
 
-        void showImageReencodingWindow();
+        void showImageReencodingWindow(boolean supportsReencode);
+
+        boolean threadBackPressed();
     }
 }

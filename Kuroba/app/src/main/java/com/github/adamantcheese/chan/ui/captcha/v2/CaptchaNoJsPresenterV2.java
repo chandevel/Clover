@@ -17,10 +17,9 @@
 package com.github.adamantcheese.chan.ui.captcha.v2;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
+
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -30,10 +29,8 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -42,28 +39,27 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+
 public class CaptchaNoJsPresenterV2 {
     private static final String TAG = "CaptchaNoJsPresenterV2";
-    private static final String userAgentHeader = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36";
-    private static final String acceptHeader = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
+    private static final String userAgentHeader =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36";
+    private static final String acceptHeader =
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
     private static final String acceptEncodingHeader = "deflate, br";
     private static final String acceptLanguageHeader = "en-US";
     private static final String recaptchaUrlBase = "https://www.google.com/recaptcha/api/fallback?k=";
-    private static final String googleBaseUrl = "https://www.google.com/";
     private static final String encoding = "UTF-8";
     private static final String mediaType = "application/x-www-form-urlencoded";
     private static final String recaptchaChallengeString = "reCAPTCHA challenge";
     private static final String verificationTokenString = "fbc-verification-token";
-    private static final String setCookieHeaderName = "set-cookie";
     private static final int SUCCESS_STATUS_CODE = 200;
     private static final long CAPTCHA_REQUEST_THROTTLE_MS = 3000L;
-    private static final long THREE_MONTHS = TimeUnit.DAYS.toMillis(90);
 
     // this cookie is taken from dashchan
-    private static final String defaultGoogleCookies = "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
-
-    // TODO: inject this in the future when https://github.com/Floens/Clover/pull/678 is merged
-    private final OkHttpClient okHttpClient = new OkHttpClient();
+    private static final String defaultGoogleCookies =
+            "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final CaptchaNoJsHtmlParser parser;
@@ -72,22 +68,16 @@ public class CaptchaNoJsPresenterV2 {
     private AuthenticationCallbacks callbacks;
     @Nullable
     private CaptchaInfo prevCaptchaInfo = null;
-    @NonNull
-    // either the default cookie or a real cookie
-    private volatile String googleCookie;
 
     private AtomicBoolean verificationInProgress = new AtomicBoolean(false);
     private AtomicBoolean captchaRequestInProgress = new AtomicBoolean(false);
-    private AtomicBoolean refreshCookiesRequestInProgress = new AtomicBoolean(false);
     private String siteKey;
     private String baseUrl;
     private long lastTimeCaptchaRequest = 0L;
 
     public CaptchaNoJsPresenterV2(@Nullable AuthenticationCallbacks callbacks, Context context) {
         this.callbacks = callbacks;
-        this.parser = new CaptchaNoJsHtmlParser(context, okHttpClient);
-
-        this.googleCookie = ChanSettings.googleCookie.get();
+        this.parser = new CaptchaNoJsHtmlParser(context);
     }
 
     public void init(String siteKey, String baseUrl) {
@@ -98,24 +88,23 @@ public class CaptchaNoJsPresenterV2 {
     /**
      * Send challenge solution back to the recaptcha
      */
-    public VerifyError verify(
-            List<Integer> selectedIds
-    ) throws CaptchaNoJsV2Error {
+    public VerifyError verify(List<Integer> selectedIds)
+            throws CaptchaNoJsV2Error {
         if (!verificationInProgress.compareAndSet(false, true)) {
             Logger.d(TAG, "Verify captcha request is already in progress");
-            return VerifyError.AlreadyInProgress;
+            return VerifyError.ALREADY_IN_PROGRESS;
         }
 
         if (executor.isShutdown()) {
             verificationInProgress.set(false);
             Logger.d(TAG, "Cannot verify, executor has been shut down");
-            return VerifyError.AlreadyShutdown;
+            return VerifyError.ALREADY_SHUTDOWN;
         }
 
         try {
             if (selectedIds.isEmpty()) {
                 verificationInProgress.set(false);
-                return VerifyError.NoImagesSelected;
+                return VerifyError.NO_IMAGES_SELECTED;
             }
 
             if (prevCaptchaInfo == null) {
@@ -126,29 +115,24 @@ public class CaptchaNoJsPresenterV2 {
                 throw new CaptchaNoJsV2Error("C parameter is null");
             }
 
-            if (googleCookie.isEmpty()) {
-                throw new IllegalStateException("Google cookies are not supposed to be empty here");
-            }
-
             executor.submit(() -> {
                 try {
                     String recaptchaUrl = recaptchaUrlBase + siteKey;
                     RequestBody body = createResponseBody(prevCaptchaInfo, selectedIds);
 
-                    Logger.d(TAG, "Verify called. Current cookie = " + googleCookie);
+                    Logger.d(TAG, "Verify called");
 
-                    Request request = new Request.Builder()
-                            .url(recaptchaUrl)
+                    Request request = new Request.Builder().url(recaptchaUrl)
                             .post(body)
                             .header("Referer", recaptchaUrl)
                             .header("User-Agent", userAgentHeader)
                             .header("Accept", acceptHeader)
                             .header("Accept-Encoding", acceptEncodingHeader)
                             .header("Accept-Language", acceptLanguageHeader)
-                            .header("Cookie", googleCookie)
+                            .header("Cookie", defaultGoogleCookies)
                             .build();
 
-                    try (Response response = okHttpClient.newCall(request).execute()) {
+                    try (Response response = instance(OkHttpClient.class).newCall(request).execute()) {
                         prevCaptchaInfo = handleGetRecaptchaResponse(response);
                     } finally {
                         verificationInProgress.set(false);
@@ -165,43 +149,11 @@ public class CaptchaNoJsPresenterV2 {
                 }
             });
 
-            return VerifyError.Ok;
+            return VerifyError.OK;
         } catch (Throwable error) {
             verificationInProgress.set(false);
             throw error;
         }
-    }
-
-    /**
-     * Manually refreshes the google cookie
-     * */
-    public void refreshCookies() {
-        if (!refreshCookiesRequestInProgress.compareAndSet(false, true)) {
-            Logger.d(TAG, "Google cookie request is already in progress");
-            return;
-        }
-
-        if (executor.isShutdown()) {
-            refreshCookiesRequestInProgress.set(false);
-            Logger.d(TAG, "Cannot request google cookie, executor has been shut down");
-            return;
-        }
-
-        executor.submit(() -> {
-            try {
-                googleCookie = getGoogleCookies(true);
-
-                if (callbacks != null) {
-                    callbacks.onGoogleCookiesRefreshed();
-                }
-            } catch (IOException e) {
-                if (callbacks != null) {
-                    callbacks.onGetGoogleCookieError(false, e);
-                }
-            } finally {
-                refreshCookiesRequestInProgress.set(false);
-            }
-        });
     }
 
     /**
@@ -210,7 +162,7 @@ public class CaptchaNoJsPresenterV2 {
     public RequestCaptchaInfoError requestCaptchaInfo() {
         if (!captchaRequestInProgress.compareAndSet(false, true)) {
             Logger.d(TAG, "Request captcha request is already in progress");
-            return RequestCaptchaInfoError.AlreadyInProgress;
+            return RequestCaptchaInfoError.ALREADY_IN_PROGRESS;
         }
 
         try {
@@ -218,29 +170,19 @@ public class CaptchaNoJsPresenterV2 {
             if (System.currentTimeMillis() - lastTimeCaptchaRequest < CAPTCHA_REQUEST_THROTTLE_MS) {
                 captchaRequestInProgress.set(false);
                 Logger.d(TAG, "Requesting captcha info too fast");
-                return RequestCaptchaInfoError.HoldYourHorses;
+                return RequestCaptchaInfoError.HOLD_YOUR_HORSES;
             }
 
             if (executor.isShutdown()) {
                 captchaRequestInProgress.set(false);
                 Logger.d(TAG, "Cannot request captcha info, executor has been shut down");
-                return RequestCaptchaInfoError.AlreadyShutdown;
+                return RequestCaptchaInfoError.ALREADY_SHUTDOWN;
             }
 
             lastTimeCaptchaRequest = System.currentTimeMillis();
 
             executor.submit(() -> {
                 try {
-                    try {
-                        googleCookie = getGoogleCookies(false);
-                    } catch (Throwable error) {
-                        if (callbacks != null) {
-                            callbacks.onGetGoogleCookieError(true, error);
-                        }
-
-                        throw error;
-                    }
-
                     try {
                         prevCaptchaInfo = getCaptchaInfo();
                     } catch (Throwable error) {
@@ -254,13 +196,12 @@ public class CaptchaNoJsPresenterV2 {
                     Logger.e(TAG, "Error while executing captcha requests", error);
 
                     prevCaptchaInfo = null;
-                    googleCookie = defaultGoogleCookies;
                 } finally {
                     captchaRequestInProgress.set(false);
                 }
             });
 
-            return RequestCaptchaInfoError.Ok;
+            return RequestCaptchaInfoError.OK;
         } catch (Throwable error) {
             captchaRequestInProgress.set(false);
 
@@ -269,87 +210,33 @@ public class CaptchaNoJsPresenterV2 {
             }
 
             // return ok here too because we already handled this exception in the callback
-            return RequestCaptchaInfoError.Ok;
-        }
-    }
-
-    @NonNull
-    private String getGoogleCookies(boolean forced) throws IOException {
-        if (BackgroundUtils.isMainThread()) {
-            throw new RuntimeException("Must not be executed on the main thread");
-        }
-
-        if (!ChanSettings.useRealGoogleCookies.get()) {
-            Logger.d(TAG, "Google cookies request is disabled in the settings, using the default ones");
-            return defaultGoogleCookies;
-        }
-
-        boolean isItTimeToUpdateCookies =
-                ((System.currentTimeMillis() - ChanSettings.lastGoogleCookieUpdateTime.get()) > THREE_MONTHS);
-
-        if (!forced && (!googleCookie.isEmpty() && !isItTimeToUpdateCookies)) {
-            Logger.d(TAG, "We already have google cookies");
-            return googleCookie;
-        }
-
-        Logger.d(TAG, "Time to update cookies: forced = " + forced + ", isCookieEmpty = " +
-                googleCookie.isEmpty() + ", last cookie expired = " + isItTimeToUpdateCookies);
-
-        Request request = new Request.Builder()
-                .url(googleBaseUrl)
-                .header("User-Agent", userAgentHeader)
-                .header("Accept", acceptHeader)
-                .header("Accept-Encoding", acceptEncodingHeader)
-                .header("Accept-Language", acceptLanguageHeader)
-                .build();
-
-        try (Response response = okHttpClient.newCall(request).execute()) {
-            String newCookie = handleGetGoogleCookiesResponse(response);
-            if (!newCookie.equalsIgnoreCase(defaultGoogleCookies)) {
-                ChanSettings.googleCookie.set(newCookie);
-                ChanSettings.lastGoogleCookieUpdateTime.set(System.currentTimeMillis());
-
-                Logger.d(TAG, "Successfully refreshed google cookies, new cookie = " + newCookie);
-            } else {
-                Logger.d(TAG, "Could not successfully handle google cookie response, " +
-                        "using the default google cookies until the next request");
-            }
-
-            return newCookie;
+            return RequestCaptchaInfoError.OK;
         }
     }
 
     @Nullable
-    private CaptchaInfo getCaptchaInfo() throws IOException {
-        if (BackgroundUtils.isMainThread()) {
-            throw new RuntimeException("Must not be executed on the main thread");
-        }
-
-        if (googleCookie.isEmpty()) {
-            throw new IllegalStateException("Google cookies are not supposed to be null here");
-        }
+    private CaptchaInfo getCaptchaInfo()
+            throws IOException {
+        BackgroundUtils.ensureBackgroundThread();
 
         String recaptchaUrl = recaptchaUrlBase + siteKey;
 
-        Request request = new Request.Builder()
-                .url(recaptchaUrl)
+        Request request = new Request.Builder().url(recaptchaUrl)
                 .header("Referer", baseUrl)
                 .header("User-Agent", userAgentHeader)
                 .header("Accept", acceptHeader)
                 .header("Accept-Encoding", acceptEncodingHeader)
                 .header("Accept-Language", acceptLanguageHeader)
-                .header("Cookie", googleCookie)
+                .header("Cookie", defaultGoogleCookies)
                 .build();
 
-        try (Response response = okHttpClient.newCall(request).execute()) {
+        try (Response response = instance(OkHttpClient.class).newCall(request).execute()) {
             return handleGetRecaptchaResponse(response);
         }
     }
 
-    private RequestBody createResponseBody(
-            CaptchaInfo prevCaptchaInfo,
-            List<Integer> selectedIds
-    ) throws UnsupportedEncodingException {
+    private RequestBody createResponseBody(CaptchaInfo prevCaptchaInfo, List<Integer> selectedIds)
+            throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
 
         sb.append(URLEncoder.encode("c", encoding));
@@ -372,36 +259,7 @@ public class CaptchaNoJsPresenterV2 {
             resultBody = sb.toString();
         }
 
-        return MultipartBody.create(
-                MediaType.parse(mediaType),
-                resultBody);
-    }
-
-    @NonNull
-    private String handleGetGoogleCookiesResponse(Response response) {
-        if (response.code() != SUCCESS_STATUS_CODE) {
-            Logger.w(TAG, "Get google cookies request returned bad status code = " + response.code());
-            return defaultGoogleCookies;
-        }
-
-        Headers headers = response.headers();
-
-        for (String headerName : headers.names()) {
-            if (headerName.equalsIgnoreCase(setCookieHeaderName)) {
-                String setCookieHeader = headers.get(headerName);
-                if (setCookieHeader != null) {
-                    String[] split = setCookieHeader.split(";");
-                    for (String splitPart : split) {
-                        if (splitPart.startsWith("NID")) {
-                            return splitPart;
-                        }
-                    }
-                }
-            }
-        }
-
-        Logger.d(TAG, "Could not find the NID cookie in the headers");
-        return defaultGoogleCookies;
+        return MultipartBody.create(MediaType.parse(mediaType), resultBody);
     }
 
     @Nullable
@@ -409,8 +267,8 @@ public class CaptchaNoJsPresenterV2 {
         try {
             if (response.code() != SUCCESS_STATUS_CODE) {
                 if (callbacks != null) {
-                    callbacks.onCaptchaInfoParseError(
-                            new IOException("Bad status code for captcha request = " + response.code()));
+                    callbacks.onCaptchaInfoParseError(new IOException(
+                            "Bad status code for captcha request = " + response.code()));
                 }
 
                 return null;
@@ -419,8 +277,7 @@ public class CaptchaNoJsPresenterV2 {
             ResponseBody body = response.body();
             if (body == null) {
                 if (callbacks != null) {
-                    callbacks.onCaptchaInfoParseError(
-                            new IOException("Captcha response body is empty (null)"));
+                    callbacks.onCaptchaInfoParseError(new IOException("Captcha response body is empty (null)"));
                 }
 
                 return null;
@@ -477,24 +334,20 @@ public class CaptchaNoJsPresenterV2 {
     }
 
     public enum VerifyError {
-        Ok,
-        NoImagesSelected,
-        AlreadyInProgress,
-        AlreadyShutdown
+        OK,
+        NO_IMAGES_SELECTED,
+        ALREADY_IN_PROGRESS,
+        ALREADY_SHUTDOWN
     }
 
     public enum RequestCaptchaInfoError {
-        Ok,
-        AlreadyInProgress,
-        HoldYourHorses,
-        AlreadyShutdown
+        OK,
+        ALREADY_IN_PROGRESS,
+        HOLD_YOUR_HORSES,
+        ALREADY_SHUTDOWN
     }
 
     public interface AuthenticationCallbacks {
-        void onGetGoogleCookieError(boolean shouldFallback, Throwable error);
-
-        void onGoogleCookiesRefreshed();
-
         void onCaptchaInfoParsed(CaptchaInfo captchaInfo);
 
         void onCaptchaInfoParseError(Throwable error);
@@ -502,7 +355,8 @@ public class CaptchaNoJsPresenterV2 {
         void onVerificationDone(String verificationToken);
     }
 
-    public static class CaptchaNoJsV2Error extends Exception {
+    public static class CaptchaNoJsV2Error
+            extends Exception {
         public CaptchaNoJsV2Error(String message) {
             super(message);
         }

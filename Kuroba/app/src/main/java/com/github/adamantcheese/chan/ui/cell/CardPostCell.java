@@ -25,13 +25,14 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.text.FastTextView;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -44,15 +45,18 @@ import java.util.List;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class CardPostCell extends CardView implements PostCellInterface, View.OnClickListener {
+public class CardPostCell
+        extends CardView
+        implements PostCellInterface, View.OnClickListener {
     private static final int COMMENT_MAX_LENGTH = 200;
 
     private boolean bound;
     private Post post;
+    private Loadable loadable;
     private PostCellInterface.PostCellCallback callback;
     private boolean compact = false;
 
-    private PostImageThumbnailView thumbnailView;
+    private PostImageThumbnailView thumbView;
     private TextView title;
     private FastTextView comment;
     private TextView replies;
@@ -77,9 +81,9 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
 
         FixedRatioLinearLayout content = findViewById(R.id.card_content);
         content.setRatio(9f / 18f);
-        thumbnailView = findViewById(R.id.thumbnail);
-        thumbnailView.setRatio(16f / 13f);
-        thumbnailView.setOnClickListener(this);
+        thumbView = findViewById(R.id.thumbnail);
+        thumbView.setRatio(16f / 13f);
+        thumbView.setOnClickListener(this);
         title = findViewById(R.id.title);
         comment = findViewById(R.id.comment);
         replies = findViewById(R.id.replies);
@@ -99,9 +103,9 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         });
     }
 
-    private void showOptions(View anchor, List<FloatingMenuItem> items,
-                             List<FloatingMenuItem> extraItems,
-                             Object extraOption) {
+    private void showOptions(
+            View anchor, List<FloatingMenuItem> items, List<FloatingMenuItem> extraItems, Object extraOption
+    ) {
         FloatingMenu menu = new FloatingMenu(getContext(), anchor, items);
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
@@ -122,8 +126,8 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
 
     @Override
     public void onClick(View v) {
-        if (v == thumbnailView) {
-            callback.onThumbnailClicked(post.image(), thumbnailView);
+        if (v == thumbView) {
+            callback.onThumbnailClicked(post.image(), thumbView);
         } else if (v == this) {
             callback.onPostClicked(post);
         }
@@ -147,10 +151,19 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         }
     }
 
-    public void setPost(final Post post, PostCellInterface.PostCellCallback callback,
-                        boolean selectable, boolean highlighted, boolean selected, int markedNo,
-                        boolean showDivider, ChanSettings.PostViewMode postViewMode,
-                        boolean compact) {
+    public void setPost(
+            Loadable loadable,
+            final Post post,
+            PostCellInterface.PostCellCallback callback,
+            boolean selectable,
+            boolean highlighted,
+            boolean selected,
+            int markedNo,
+            boolean showDivider,
+            ChanSettings.PostViewMode postViewMode,
+            boolean compact,
+            Theme theme
+    ) {
         if (this.post == post) {
             return;
         }
@@ -160,6 +173,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
             this.post = null;
         }
 
+        this.loadable = loadable;
         this.post = post;
         this.callback = callback;
 
@@ -176,7 +190,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     }
 
     public ThumbnailView getThumbnailView(PostImage postImage) {
-        return thumbnailView;
+        return thumbView;
     }
 
     @Override
@@ -188,25 +202,35 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         bound = true;
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
-            thumbnailView.setVisibility(View.VISIBLE);
-            thumbnailView.setPostImage(post.image(), thumbnailView.getWidth(), thumbnailView.getHeight());
+            thumbView.setVisibility(VISIBLE);
+            thumbView.setPostImage(
+                    loadable,
+                    post.image(),
+                    true,
+                    ChanSettings.autoLoadThreadImages.get()
+                            ? Math.max(500, thumbView.getWidth())
+                            : thumbView.getWidth(),
+                    ChanSettings.autoLoadThreadImages.get()
+                            ? Math.max(500, thumbView.getHeight())
+                            : thumbView.getHeight()
+            );
         } else {
-            thumbnailView.setVisibility(View.GONE);
-            thumbnailView.setPostImage(null, 0, 0);
+            thumbView.setVisibility(GONE);
+            thumbView.setPostImage(loadable, null, false, 0, 0);
         }
 
         if (post.filterHighlightedColor != 0) {
-            filterMatchColor.setVisibility(View.VISIBLE);
+            filterMatchColor.setVisibility(VISIBLE);
             filterMatchColor.setBackgroundColor(post.filterHighlightedColor);
         } else {
-            filterMatchColor.setVisibility(View.GONE);
+            filterMatchColor.setVisibility(GONE);
         }
 
         if (!TextUtils.isEmpty(post.subjectSpan)) {
-            title.setVisibility(View.VISIBLE);
+            title.setVisibility(VISIBLE);
             title.setText(post.subjectSpan);
         } else {
-            title.setVisibility(View.GONE);
+            title.setVisibility(GONE);
             title.setText(null);
         }
 
@@ -218,7 +242,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         }
 
         comment.setText(commentText);
-        comment.setTextColor(Chan.injector().instance(ThemeHelper.class).getTheme().textPrimary);
+        comment.setTextColor(ThemeHelper.getTheme().textPrimary);
 
         replies.setText(getResources().getString(R.string.card_stats, post.getReplies(), post.getImagesCount()));
     }

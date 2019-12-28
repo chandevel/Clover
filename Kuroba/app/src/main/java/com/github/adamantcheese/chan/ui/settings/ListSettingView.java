@@ -21,6 +21,7 @@ import android.view.View;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.Setting;
+import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 
@@ -30,18 +31,24 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class ListSettingView<T> extends SettingView implements FloatingMenu.FloatingMenuCallback, View.OnClickListener {
+public class ListSettingView<T>
+        extends SettingView
+        implements FloatingMenu.FloatingMenuCallback, View.OnClickListener {
     public final List<Item> items;
 
     public int selected;
 
     private Setting<T> setting;
 
-    public ListSettingView(SettingsController settingsController, Setting<T> setting, int name, String[] itemNames, String[] keys) {
+    public ListSettingView(
+            SettingsController settingsController, Setting<T> setting, int name, String[] itemNames, String[] keys
+    ) {
         this(settingsController, setting, getString(name), itemNames, keys);
     }
 
-    public ListSettingView(SettingsController settingsController, Setting<T> setting, String name, String[] itemNames, String[] keys) {
+    public ListSettingView(
+            SettingsController settingsController, Setting<T> setting, String name, String[] itemNames, String[] keys
+    ) {
         super(settingsController, name);
 
         this.setting = setting;
@@ -107,7 +114,6 @@ public class ListSettingView<T> extends SettingView implements FloatingMenu.Floa
 
         FloatingMenu menu = new FloatingMenu(v.getContext());
         menu.setAnchor(v, Gravity.LEFT, dp(5), dp(5));
-        menu.setPopupWidth(FloatingMenu.POPUP_WIDTH_ANCHOR);
         menu.setCallback(this);
         menu.setItems(menuItems);
         menu.show();

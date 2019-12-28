@@ -23,8 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp"
         android:gravity="center"
+        android:padding="8dp"
         android:textColor="?text_color_secondary" />
 
 </com.github.adamantcheese.chan.ui.cell.ThreadStatusCell>

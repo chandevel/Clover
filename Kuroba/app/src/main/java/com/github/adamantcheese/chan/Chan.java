@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.StrictMode;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.di.AppModule;
@@ -39,11 +38,19 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import org.codejargon.feather.Feather;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
+import io.reactivex.exceptions.UndeliverableException;
+import io.reactivex.plugins.RxJavaPlugins;
 
-public class Chan extends Application implements Application.ActivityLifecycleCallbacks {
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static java.lang.Thread.currentThread;
+
+public class Chan
+        extends Application
+        implements Application.ActivityLifecycleCallbacks {
     private int activityForegroundCounter = 0;
 
     @Inject
@@ -57,8 +64,8 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
 
     private static Feather feather;
 
-    public static Feather injector() {
-        return feather;
+    public static <T> T instance(Class<T> tClass) {
+        return feather.instance(tClass);
     }
 
     public static <T> T inject(T instance) {
@@ -97,22 +104,31 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
         feather.instance(ArchivesManager.class);
         feather.instance(FilterWatchManager.class);
 
-        // Start watching for slow disk reads and writes after the heavy initializing is done
-        if (BuildConfig.DEBUG) {
-            StrictMode.setThreadPolicy(
-                    new StrictMode.ThreadPolicy.Builder()
-                            .detectCustomSlowCalls()
-                            .detectNetwork()
-                            .detectDiskReads()
-                            .detectDiskWrites()
-                            .penaltyLog()
-                            .build());
-            StrictMode.setVmPolicy(
-                    new StrictMode.VmPolicy.Builder()
-                            .detectAll()
-                            .penaltyLog()
-                            .build());
-        }
+        RxJavaPlugins.setErrorHandler(e -> {
+            if (e instanceof UndeliverableException) {
+                e = e.getCause();
+            }
+            if (e instanceof IOException) {
+                // fine, irrelevant network problem or API that throws on cancellation
+                return;
+            }
+            if (e instanceof InterruptedException) {
+                // fine, some blocking code was interrupted by a dispose call
+                return;
+            }
+            if ((e instanceof NullPointerException) || (e instanceof IllegalArgumentException)) {
+                // that's likely a bug in the application
+                currentThread().getUncaughtExceptionHandler().uncaughtException(currentThread(), e);
+                return;
+            }
+            if (e instanceof IllegalStateException) {
+                // that's a bug in RxJava or in a custom operator
+                currentThread().getUncaughtExceptionHandler().uncaughtException(currentThread(), e);
+                return;
+            }
+
+            Logger.e("APP", "RxJava undeliverable exception", e);
+        });
     }
 
     private void activityEnteredForeground() {
@@ -121,7 +137,7 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
         activityForegroundCounter++;
 
         if (getApplicationInForeground() != lastForeground) {
-            EventBus.getDefault().post(new ForegroundChangedMessage(getApplicationInForeground()));
+            postToEventBus(new ForegroundChangedMessage(getApplicationInForeground()));
         }
     }
 
@@ -134,7 +150,7 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
         }
 
         if (getApplicationInForeground() != lastForeground) {
-            EventBus.getDefault().post(new ForegroundChangedMessage(getApplicationInForeground()));
+            postToEventBus(new ForegroundChangedMessage(getApplicationInForeground()));
         }
     }
 

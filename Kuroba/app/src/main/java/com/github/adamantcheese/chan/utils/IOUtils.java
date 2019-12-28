@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.utils;
 
-
 import android.content.Context;
 
 import java.io.BufferedInputStream;
@@ -70,7 +69,8 @@ public class IOUtils {
         }
     }
 
-    public static void copy(InputStream is, OutputStream os) throws IOException {
+    public static void copy(InputStream is, OutputStream os)
+            throws IOException {
         int read;
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         while ((read = is.read(buffer)) != -1) {
@@ -78,7 +78,8 @@ public class IOUtils {
         }
     }
 
-    public static boolean copy(InputStream is, OutputStream os, long maxBytes) throws IOException {
+    public static boolean copy(InputStream is, OutputStream os, long maxBytes)
+            throws IOException {
         long total = 0;
         int read;
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
@@ -92,7 +93,8 @@ public class IOUtils {
         return true;
     }
 
-    public static void copy(Reader input, Writer output) throws IOException {
+    public static void copy(Reader input, Writer output)
+            throws IOException {
         char[] buffer = new char[DEFAULT_BUFFER_SIZE];
         int read;
         while ((read = input.read(buffer)) != -1) {
@@ -108,12 +110,15 @@ public class IOUtils {
      * @param out output file
      * @throws IOException thrown on copy exceptions.
      */
-    public static void copyFile(File in, File out) throws IOException {
+    public static void copyFile(File in, File out)
+            throws IOException {
         InputStream is = null;
         OutputStream os = null;
         try {
-            copy(is = new BufferedInputStream(new FileInputStream(in)),
-                    os = new BufferedOutputStream(new FileOutputStream(out)));
+            copy(
+                    is = new BufferedInputStream(new FileInputStream(in)),
+                    os = new BufferedOutputStream(new FileOutputStream(out))
+            );
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(os);

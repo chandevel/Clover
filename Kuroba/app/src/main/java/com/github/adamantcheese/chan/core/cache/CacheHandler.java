@@ -16,14 +16,21 @@
  */
 package com.github.adamantcheese.chan.core.cache;
 
+import android.util.Pair;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
-import android.util.Pair;
 
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.FileSegment;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,14 +39,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.concurrent.TimeUnit.HOURS;
+
 public class CacheHandler {
     private static final String TAG = "CacheHandler";
-    private static final int TRIM_TRIES = 20;
-    private static final long FILE_CACHE_DISK_SIZE = 100 * 1024 * 1024;
+    //1GB for prefetching, so that entire threads can be loaded at once more easily, otherwise 100MB is plenty
+    private static final long FILE_CACHE_DISK_SIZE =
+            (ChanSettings.autoLoadThreadImages.get() ? 1000 : 100) * 1024 * 1024;
+    private static final String CACHE_EXTENSION = "cache";
 
-    private final ExecutorService pool = Executors.newFixedThreadPool(1);
-
-    private final File directory;
+    private final ExecutorService pool = Executors.newSingleThreadExecutor();
+    private final FileManager fileManager;
+    private final RawFile cacheDirFile;
 
     /**
      * An estimation of the current size of the directory. Used to check if trim must be run
@@ -48,8 +59,9 @@ public class CacheHandler {
     private AtomicLong size = new AtomicLong();
     private AtomicBoolean trimRunning = new AtomicBoolean(false);
 
-    public CacheHandler(File directory) {
-        this.directory = directory;
+    public CacheHandler(FileManager fileManager, RawFile cacheDirFile) {
+        this.fileManager = fileManager;
+        this.cacheDirFile = cacheDirFile;
 
         createDirectories();
         backgroundRecalculateSize();
@@ -57,14 +69,36 @@ public class CacheHandler {
 
     @MainThread
     public boolean exists(String key) {
-        return get(key).exists();
+        return fileManager.exists(get(key));
     }
 
     @MainThread
-    public File get(String key) {
+    public RawFile get(String key) {
         createDirectories();
 
-        return new File(directory, hash(key));
+        // AbstractFile expects all file names to have extensions
+        String fileName = String.format("%s.%s", String.valueOf(key.hashCode()), CACHE_EXTENSION);
+
+        return (RawFile) cacheDirFile.clone(new FileSegment(fileName));
+    }
+
+    public File randomCacheFile()
+            throws IOException {
+        createDirectories();
+
+        File cacheDir = new File(cacheDirFile.getFullPath());
+        File newFile = new File(cacheDir, String.valueOf(System.nanoTime()));
+
+        while (newFile.exists()) {
+            newFile = new File(cacheDir, String.valueOf(System.nanoTime()));
+        }
+
+        if (!newFile.createNewFile()) {
+            throw new IOException(
+                    "Could not create new file in cache directory, newFile = " + newFile.getAbsolutePath());
+        }
+
+        return newFile;
     }
 
     @MainThread
@@ -73,8 +107,8 @@ public class CacheHandler {
     }
 
     @MainThread
-    protected void fileWasAdded(File file) {
-        long adjustedSize = size.addAndGet(file.length());
+    protected void fileWasAdded(long fileLen) {
+        long adjustedSize = size.addAndGet(fileLen);
 
         if (adjustedSize > FILE_CACHE_DISK_SIZE && trimRunning.compareAndSet(false, true)) {
             pool.submit(() -> {
@@ -93,11 +127,10 @@ public class CacheHandler {
     public void clearCache() {
         Logger.d(TAG, "Clearing cache");
 
-        if (directory.exists() && directory.isDirectory()) {
-            for (File file : directory.listFiles()) {
-                if (!file.delete()) {
-                    Logger.d(TAG, "Could not delete cache file while clearing cache " +
-                            file.getName());
+        if (fileManager.exists(cacheDirFile) && fileManager.isDirectory(cacheDirFile)) {
+            for (AbstractFile file : fileManager.listFiles(cacheDirFile)) {
+                if (!fileManager.delete(file)) {
+                    Logger.d(TAG, "Could not delete cache file while clearing cache " + fileManager.getName(file));
                 }
             }
         }
@@ -107,11 +140,8 @@ public class CacheHandler {
 
     @MainThread
     public void createDirectories() {
-        if (!directory.exists()) {
-            if (!directory.mkdirs()) {
-                Logger.e(TAG, "Unable to create file cache dir " +
-                        directory.getAbsolutePath());
-            }
+        if (!fileManager.exists(cacheDirFile) && fileManager.create(cacheDirFile) == null) {
+            throw new RuntimeException("Unable to create file cache dir " + cacheDirFile.getFullPath());
         }
     }
 
@@ -124,11 +154,9 @@ public class CacheHandler {
     private void recalculateSize() {
         long calculatedSize = 0;
 
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                calculatedSize += file.length();
-            }
+        List<AbstractFile> files = fileManager.listFiles(cacheDirFile);
+        for (AbstractFile file : files) {
+            calculatedSize += fileManager.getLength(file);
         }
 
         size.set(calculatedSize);
@@ -136,43 +164,53 @@ public class CacheHandler {
 
     @WorkerThread
     private void trim() {
-        File[] directoryFiles = directory.listFiles();
+        List<AbstractFile> directoryFiles = fileManager.listFiles(cacheDirFile);
 
         // Don't try to trim empty directories or just one file in it.
-        if (directoryFiles == null || directoryFiles.length <= 1) {
+        if (directoryFiles.size() <= 1) {
             return;
         }
 
         // Get all files with their last modified times.
-        List<Pair<File, Long>> files = new ArrayList<>(directoryFiles.length);
-        for (File file : directoryFiles) {
-            files.add(new Pair<>(file, file.lastModified()));
+        List<Pair<AbstractFile, Long>> files = new ArrayList<>(directoryFiles.size());
+        for (AbstractFile file : directoryFiles) {
+            files.add(new Pair<>(file, fileManager.lastModified(file)));
         }
 
         // Sort by oldest first.
         Collections.sort(files, (o1, o2) -> Long.signum(o1.second - o2.second));
 
-        // Trim as long as the directory size exceeds the threshold and we haven't reached
-        // the trim limit.
+        //Pre-trim based on time, trash anything older than 6 hours
+        List<Pair<AbstractFile, Long>> removed = new ArrayList<>();
+        for (Pair<AbstractFile, Long> fileLongPair : files) {
+            if (fileLongPair.second + HOURS.toMillis(6) < System.currentTimeMillis()) {
+                Logger.d(TAG, "Delete for trim " + fileLongPair.first.getFullPath());
+                if (!fileManager.delete(fileLongPair.first)) {
+                    Logger.e(TAG, "Failed to delete cache file for trim");
+                }
+                removed.add(fileLongPair);
+            } else {
+                break; //only because we sorted earlier
+            }
+        }
+        for (Pair<AbstractFile, Long> deleted : removed) {
+            files.remove(deleted);
+        }
+        recalculateSize();
+
+        // Trim as long as the directory size exceeds the threshold (note that oldest is still first)
         long workingSize = size.get();
-        for (int i = 0; workingSize >= FILE_CACHE_DISK_SIZE && i < Math.min(files.size(), TRIM_TRIES); i++) {
-            File file = files.get(i).first;
+        for (int i = 0; workingSize >= FILE_CACHE_DISK_SIZE; i++) {
+            AbstractFile file = files.get(i).first;
 
-            Logger.d(TAG, "Delete for trim " + file.getAbsolutePath());
-            workingSize -= file.length();
+            Logger.d(TAG, "Delete for trim " + file.getFullPath());
+            workingSize -= fileManager.getLength(file);
 
-            boolean deleteResult = file.delete();
-
-            if (!deleteResult) {
+            if (!fileManager.delete(file)) {
                 Logger.e(TAG, "Failed to delete cache file for trim");
             }
         }
 
         recalculateSize();
-    }
-
-    @AnyThread
-    private String hash(String key) {
-        return String.valueOf(key.hashCode());
     }
 }

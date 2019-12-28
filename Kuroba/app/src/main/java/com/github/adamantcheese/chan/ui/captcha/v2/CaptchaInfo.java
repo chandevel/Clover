@@ -17,11 +17,15 @@
 package com.github.adamantcheese.chan.ui.captcha.v2;
 
 import android.graphics.Bitmap;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static com.github.adamantcheese.chan.ui.captcha.v2.CaptchaInfo.CaptchaType.UNKNOWN;
 
 public class CaptchaInfo {
     CaptchaType captchaType;
@@ -35,10 +39,10 @@ public class CaptchaInfo {
     CaptchaTitle captchaTitle;
 
     public CaptchaInfo() {
-        captchaType =  CaptchaType.Unknown;
+        captchaType = UNKNOWN;
         checkboxes = new ArrayList<>();
         cParameter = null;
-        challengeImages = null;
+        challengeImages = Collections.emptyList();
         captchaTitle = null;
     }
 
@@ -87,20 +91,20 @@ public class CaptchaInfo {
     }
 
     public enum CaptchaType {
-        Unknown,
+        UNKNOWN,
         // 3x3
-        Canonical,
+        CANONICAL,
         // 2x4
-        NoCanonical;
+        NO_CANONICAL;
 
         public static CaptchaType fromCheckboxesCount(int count) {
             if (count == 8) {
-                return NoCanonical;
+                return NO_CANONICAL;
             } else if (count == 9) {
-                return Canonical;
+                return CANONICAL;
             }
 
-            return Unknown;
+            return UNKNOWN;
         }
     }
 

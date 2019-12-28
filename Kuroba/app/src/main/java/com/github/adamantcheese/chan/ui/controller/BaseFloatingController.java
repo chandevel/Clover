@@ -5,9 +5,12 @@ import android.content.Context;
 import android.view.Window;
 
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-public abstract class BaseFloatingController extends Controller {
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
+
+public abstract class BaseFloatingController
+        extends Controller {
     private static final int TRANSITION_DURATION = 200;
     private int statusBarColorPrevious;
 
@@ -19,11 +22,11 @@ public abstract class BaseFloatingController extends Controller {
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(getLayoutId());
+        view = inflate(context, getLayoutId());
 
         statusBarColorPrevious = getWindow().getStatusBarColor();
         if (statusBarColorPrevious != 0) {
-            AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -32,7 +35,7 @@ public abstract class BaseFloatingController extends Controller {
         super.stopPresenting();
 
         if (statusBarColorPrevious != 0) {
-            AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -41,5 +44,4 @@ public abstract class BaseFloatingController extends Controller {
     }
 
     protected abstract int getLayoutId();
-
 }

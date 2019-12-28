@@ -16,19 +16,16 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -37,7 +34,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter;
@@ -58,11 +54,14 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class SitesSetupController extends StyledToolbarNavigationController implements
-        SitesSetupPresenter.Callback,
-        View.OnClickListener {
+public class SitesSetupController
+        extends StyledToolbarNavigationController
+        implements SitesSetupPresenter.Callback, View.OnClickListener {
 
     @Inject
     SitesSetupPresenter presenter;
@@ -76,24 +75,24 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
     private ItemTouchHelper itemTouchHelper;
     private List<SiteBoardCount> sites = new ArrayList<>();
 
-    private ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-            0
-    ) {
-        @Override
-        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-            int from = viewHolder.getAdapterPosition();
-            int to = target.getAdapterPosition();
+    private ItemTouchHelper.SimpleCallback touchHelperCallback =
+            new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+                @Override
+                public boolean onMove(
+                        RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
+                ) {
+                    int from = viewHolder.getAdapterPosition();
+                    int to = target.getAdapterPosition();
 
-            presenter.move(from, to);
+                    presenter.move(from, to);
 
-            return true;
-        }
+                    return true;
+                }
 
-        @Override
-        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        }
-    };
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                }
+            };
 
     public SitesSetupController(Context context) {
         super(context);
@@ -105,7 +104,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         inject(this);
 
         // Inflate
-        view = inflateRes(R.layout.controller_sites_setup);
+        view = inflate(context, R.layout.controller_sites_setup);
 
         // Navigation
         navigation.setTitle(R.string.setup_sites_title);
@@ -121,12 +120,11 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         // View setup
         sitesRecyclerview.setLayoutManager(new LinearLayoutManager(context));
         sitesRecyclerview.setAdapter(sitesAdapter);
-        sitesRecyclerview.addItemDecoration(
-                new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
+        sitesRecyclerview.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(sitesRecyclerview);
         addButton.setOnClickListener(this);
-        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(addButton);
+        ThemeHelper.getTheme().applyFabColor(addButton);
         crossfadeView.toggle(false, false);
 
         // Presenter
@@ -156,7 +154,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
     @Override
     public void showHint() {
-        String s = context.getString(R.string.setup_sites_add_hint);
+        String s = getString(R.string.setup_sites_add_hint);
         HintPopup popup = new HintPopup(context, addButton, s, 0, 0, true);
         popup.wiggle();
         popup.show();
@@ -164,14 +162,12 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
     @Override
     public void showAddDialog() {
-        @SuppressLint("InflateParams") final SiteAddLayout dialogView =
-                (SiteAddLayout) LayoutInflater.from(context)
-                        .inflate(R.layout.layout_site_add, null);
+        @SuppressLint("InflateParams")
+        final SiteAddLayout dialogView = (SiteAddLayout) inflate(context, R.layout.layout_site_add, null);
 
         dialogView.setPresenter(presenter);
 
-        final AlertDialog dialog = new AlertDialog.Builder(context)
-                .setView(dialogView)
+        final AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
                 .setTitle(R.string.setup_sites_add_title)
                 .setPositiveButton(R.string.add, null)
                 .setNegativeButton(R.string.cancel, null)
@@ -182,7 +178,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         dialog.show();
 
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        positiveButton.setOnClickListener((v) -> dialogView.onPositiveClicked());
+        positiveButton.setOnClickListener(v -> dialogView.onPositiveClicked());
     }
 
     @Override
@@ -206,27 +202,21 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         ((StartActivity) context).restartApp();
     }
 
-    @Override
-    public void onErrorWhileTryingToDeleteSite(Site site, Throwable error) {
-        String message = context.getString(R.string.could_not_remove_site_error_message, site.name(), error.getMessage());
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-    }
-
     private void onSiteCellSettingsClicked(Site site) {
         presenter.onSiteCellSettingsClicked(site);
     }
 
     private void onRemoveSiteSettingClicked(Site site) {
-        new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.delete_site_dialog_title))
-                .setMessage(context.getString(R.string.delete_site_dialog_message, site.name()))
+        new AlertDialog.Builder(context).setTitle(getString(R.string.delete_site_dialog_title))
+                .setMessage(getString(R.string.delete_site_dialog_message, site.name()))
                 .setPositiveButton(R.string.delete, (dialog, which) -> presenter.removeSite(site))
-                .setNegativeButton(R.string.cancel, ((dialog, which) -> dialog.dismiss()))
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .create()
                 .show();
     }
 
-    private class SitesAdapter extends RecyclerView.Adapter<SiteCell> {
+    private class SitesAdapter
+            extends RecyclerView.Adapter<SiteCell> {
         public SitesAdapter() {
             setHasStableIds(true);
         }
@@ -239,7 +229,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         @NonNull
         @Override
         public SiteCell onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new SiteCell(LayoutInflater.from(context).inflate(R.layout.cell_site, parent, false));
+            return new SiteCell(inflate(parent.getContext(), R.layout.cell_site, parent, false));
         }
 
         @Override
@@ -250,8 +240,8 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
             holder.text.setText(site.site.name());
 
             int boards = site.boardCount;
-            String boardsString = context.getResources().getQuantityString(R.plurals.board, boards, boards);
-            String descriptionText = context.getString(R.string.setup_sites_site_description, boardsString);
+            String boardsString = getQuantityString(R.plurals.board, boards, boards);
+            String descriptionText = getString(R.string.setup_sites_site_description, boardsString);
             holder.description.setText(descriptionText);
 
             if (boards == 0) {
@@ -269,14 +259,15 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         }
     }
 
-    private class SiteCell extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class SiteCell
+            extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         private ImageView image;
         private TextView text;
         private TextView description;
         private SiteIcon siteIcon;
         private ImageView removeSite;
         private ImageView settings;
-        private ImageView reorder;
 
         private Site site;
 
@@ -290,7 +281,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
             description = itemView.findViewById(R.id.description);
             removeSite = itemView.findViewById(R.id.remove_site);
             settings = itemView.findViewById(R.id.settings);
-            reorder = itemView.findViewById(R.id.reorder);
+            ImageView reorder = itemView.findViewById(R.id.reorder);
 
             // Setup views
             itemView.setOnClickListener(this);
@@ -298,11 +289,10 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
             setRoundItemBackground(settings);
             setRoundItemBackground(removeSite);
-            Chan.injector().instance(ThemeHelper.class).getTheme().settingsDrawable.apply(settings);
-            Chan.injector().instance(ThemeHelper.class).getTheme().clearDrawable.apply(removeSite);
+            ThemeHelper.getTheme().settingsDrawable.apply(settings);
+            ThemeHelper.getTheme().clearDrawable.apply(removeSite);
 
-            Drawable drawable = DrawableCompat.wrap(
-                    context.getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
+            Drawable drawable = DrawableCompat.wrap(context.getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
             DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));
             reorder.setImageDrawable(drawable);
 
@@ -323,6 +313,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
             siteIcon.get((siteIcon, icon) -> {
                 if (SiteCell.this.siteIcon == siteIcon) {
                     image.setImageDrawable(icon);
+                    image.getDrawable().setTintList(null);
                 }
             });
         }

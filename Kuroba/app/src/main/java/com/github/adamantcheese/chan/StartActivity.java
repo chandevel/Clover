@@ -17,20 +17,25 @@
 package com.github.adamantcheese.chan;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.LruCache;
 import android.util.Pair;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
@@ -46,6 +51,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.core.site.SiteService;
+import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
 import com.github.adamantcheese.chan.ui.controller.BrowseController;
 import com.github.adamantcheese.chan.ui.controller.DoubleNavigationController;
 import com.github.adamantcheese.chan.ui.controller.DrawerController;
@@ -56,20 +62,36 @@ import com.github.adamantcheese.chan.ui.controller.ViewThreadController;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileChooser;
+import com.github.k1rakishou.fsaf.callback.FSAFActivityCallbacks;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getIsOfficial;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
-public class StartActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
+public class StartActivity
+        extends AppCompatActivity
+        implements NfcAdapter.CreateNdefMessageCallback, FSAFActivityCallbacks {
     private static final String TAG = "StartActivity";
 
     private static final String STATE_KEY = "chan_state";
@@ -86,18 +108,18 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     private UpdateManager updateManager;
 
     private boolean intentMismatchWorkaroundActive = false;
+    private boolean exitFlag = false;
 
     @Inject
     DatabaseManager databaseManager;
-
     @Inject
     WatchManager watchManager;
-
     @Inject
     SiteResolver siteResolver;
-
     @Inject
     SiteService siteService;
+    @Inject
+    FileChooser fileChooser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,8 +130,9 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             return;
         }
 
-        Chan.injector().instance(ThemeHelper.class).setupContext(this);
+        instance(ThemeHelper.class).setupContext(this);
 
+        fileChooser.setCallbacks(this);
         imagePickDelegate = new ImagePickDelegate(this);
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
         updateManager = new UpdateManager(this);
@@ -145,9 +168,19 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             Logger.e("UNCAUGHT", sw.toString());
-            Logger.e("UNCAUGHT", ".\n----------------------------------------\nEND OF CURRENT RUNTIME MESSAGES\n----------------------------------------\n.");
+            Logger.e("UNCAUGHT", "------------------------------");
+            Logger.e("UNCAUGHT", "END OF CURRENT RUNTIME MESSAGES");
+            Logger.e("UNCAUGHT", "------------------------------");
+            Logger.e("UNCAUGHT", "Android API Level: " + Build.VERSION.SDK_INT);
+            Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME);
+            Logger.e("UNCAUGHT", "Development Build: " + (getIsOfficial() ? "No" : "Yes"));
+            Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
             System.exit(999);
         });
+
+        if (ChanSettings.fullUserRotationEnable.get()) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+        }
     }
 
     private void setupFromStateOrFreshLaunch(Bundle savedInstanceState) {
@@ -179,8 +212,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         final Uri data = getIntent().getData();
         // Start from an url launch.
         if (data != null) {
-            final SiteResolver.LoadableResult loadableResult =
-                    siteResolver.resolveLoadableForUrl(data.toString());
+            final SiteResolver.LoadableResult loadableResult = siteResolver.resolveLoadableForUrl(data.toString());
 
             if (loadableResult != null) {
                 handled = true;
@@ -192,10 +224,10 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                     browseController.showThread(loadable, false);
                 }
             } else {
-                new AlertDialog.Builder(this)
-                        .setMessage(R.string.open_link_not_matched)
-                        .setPositiveButton(R.string.ok, (dialog, which) ->
-                                AndroidUtils.openLink(data.toString()))
+                new AlertDialog.Builder(this).setMessage(getString(R.string.open_link_not_matched,
+                        getApplicationLabel()
+                ))
+                        .setPositiveButton(R.string.ok, (dialog, which) -> openLink(data.toString()))
                         .show();
             }
         }
@@ -240,7 +272,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             return null;
         }
 
-        Site site = Chan.injector().instance(SiteRepository.class).forId(stateLoadable.siteId);
+        Site site = instance(SiteRepository.class).forId(stateLoadable.siteId);
         if (site != null) {
             Board board = site.board(stateLoadable.boardCode);
             if (board != null) {
@@ -252,8 +284,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                     // object instance is reused. This means that the loadables we gave to the
                     // state are the same instance, and also have the id set etc. We don't need to
                     // query these from the loadablemanager.
-                    DatabaseLoadableManager loadableManager =
-                            databaseManager.getDatabaseLoadableManager();
+                    DatabaseLoadableManager loadableManager = databaseManager.getDatabaseLoadableManager();
                     if (stateLoadable.id == 0) {
                         stateLoadable = loadableManager.get(stateLoadable);
                     }
@@ -271,7 +302,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
         ChanSettings.LayoutMode layoutMode = ChanSettings.layoutMode.get();
         if (layoutMode == ChanSettings.LayoutMode.AUTO) {
-            if (AndroidUtils.isTablet(this)) {
+            if (isTablet()) {
                 layoutMode = ChanSettings.LayoutMode.SPLIT;
             } else {
                 layoutMode = ChanSettings.LayoutMode.SLIDE;
@@ -281,7 +312,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         switch (layoutMode) {
             case SPLIT:
                 SplitNavigationController split = new SplitNavigationController(this);
-                split.setEmptyView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.layout_split_empty, null));
+                split.setEmptyView(inflate(this, R.layout.layout_split_empty));
 
                 drawerController.setChildController(split);
 
@@ -297,7 +328,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
         if (layoutMode == ChanSettings.LayoutMode.SLIDE) {
             ThreadSlideController slideController = new ThreadSlideController(this);
-            slideController.setEmptyView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.layout_split_empty, null));
+            slideController.setEmptyView(inflate(this, R.layout.layout_split_empty));
             mainNavigationController.pushController(slideController, false);
             slideController.setLeftController(browseController);
         } else {
@@ -388,16 +419,15 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             Loadable thread = null;
 
             if (drawerController.childControllers.get(0) instanceof SplitNavigationController) {
-                SplitNavigationController doubleNav = (SplitNavigationController) drawerController.childControllers.get(0);
-                if (doubleNav.getRightController() instanceof NavigationController) {
-                    NavigationController rightNavigationController = (NavigationController) doubleNav.getRightController();
+                SplitNavigationController dblNav = (SplitNavigationController) drawerController.childControllers.get(0);
+                if (dblNav.getRightController() instanceof NavigationController) {
+                    NavigationController rightNavigationController = (NavigationController) dblNav.getRightController();
                     for (Controller controller : rightNavigationController.childControllers) {
                         if (controller instanceof ViewThreadController) {
                             thread = ((ViewThreadController) controller).getLoadable();
                             break;
                         }
                     }
-
                 }
             } else {
                 List<Controller> controllers = mainNavigationController.childControllers;
@@ -428,16 +458,17 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     public NdefMessage createNdefMessage(NfcEvent event) {
         Controller threadController = null;
         if (drawerController.childControllers.get(0) instanceof DoubleNavigationController) {
-            SplitNavigationController splitNavigationController = (SplitNavigationController) drawerController.childControllers.get(0);
+            SplitNavigationController splitNavigationController =
+                    (SplitNavigationController) drawerController.childControllers.get(0);
             if (splitNavigationController.rightController instanceof NavigationController) {
-                NavigationController rightNavigationController = (NavigationController) splitNavigationController.rightController;
+                NavigationController rightNavigationController =
+                        (NavigationController) splitNavigationController.rightController;
                 for (Controller controller : rightNavigationController.childControllers) {
                     if (controller instanceof NfcAdapter.CreateNdefMessageCallback) {
                         threadController = controller;
                         break;
                     }
                 }
-
             }
         }
 
@@ -497,16 +528,20 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     @Override
     public void onBackPressed() {
         if (!stackTop().onBack()) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.action_confirm_exit_title)
-                    .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.exit, (dialog, which) -> StartActivity.super.onBackPressed())
-                    .show();
+            if (!exitFlag) {
+                showToast(R.string.action_confirm_exit_title, Toast.LENGTH_LONG);
+                exitFlag = true;
+            } else {
+                exitFlag = false;
+                StartActivity.super.onBackPressed();
+            }
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         runtimePermissionsHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -520,15 +555,25 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             return;
         }
 
-        // TODO: clear whole stack?
-        stackTop().onHide();
-        stackTop().onDestroy();
+        fileChooser.removeCallbacks();
+
+        for (int i = stack.size() - 1; i >= 0; --i) {
+            Controller controller = stack.get(i);
+
+            controller.onHide();
+            controller.onDestroy();
+        }
+
         stack.clear();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (fileChooser.onActivityResult(requestCode, resultCode, data)) {
+            return;
+        }
 
         imagePickDelegate.onActivityResult(requestCode, resultCode, data);
     }
@@ -548,8 +593,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
         if (!isTaskRoot()) {
             Intent intent = getIntent();
-            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) &&
-                    Intent.ACTION_MAIN.equals(intent.getAction())) {
+            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && Intent.ACTION_MAIN.equals(intent.getAction())) {
                 Logger.w(TAG, "Workaround for intent mismatch.");
                 intentMismatchWorkaroundActive = true;
                 finish();
@@ -566,5 +610,47 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         finish();
 
         Runtime.getRuntime().exit(0);
+    }
+
+    @Override
+    public void fsafStartActivityForResult(@NotNull Intent intent, int requestCode) {
+        startActivityForResult(intent, requestCode);
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    public void onStart() {
+        super.onStart();
+        //restore parsed youtube stuff
+        Gson gson = instance(Gson.class);
+        Type lruType = new TypeToken<Map<String, String>>() {}.getType();
+        //convert
+        Map<String, String> titles = gson.fromJson(ChanSettings.youtubeTitleCache.get(), lruType);
+        Map<String, String> durs = gson.fromJson(ChanSettings.youtubeDurationCache.get(), lruType);
+        //reconstruct
+        CommentParserHelper.youtubeTitleCache = new LruCache<>(500);
+        CommentParserHelper.youtubeDurCache = new LruCache<>(500);
+        for (String s : titles.keySet()) {
+            CommentParserHelper.youtubeTitleCache.put(s, titles.get(s));
+        }
+        for (String s : durs.keySet()) {
+            CommentParserHelper.youtubeDurCache.put(s, durs.get(s));
+        }
+        //reset to not use up as much memory
+        ChanSettings.youtubeTitleCache.set(ChanSettings.youtubeTitleCache.getDefault());
+        ChanSettings.youtubeDurationCache.set(ChanSettings.youtubeDurationCache.getDefault());
+
+        Logger.d(TAG, "start");
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    public void onStop() {
+        super.onStop();
+        //store parsed youtube stuff, extra prevention of unneeded API calls
+        Gson gson = instance(Gson.class);
+        Type lruType = new TypeToken<Map<String, String>>() {}.getType();
+        //convert and set
+        ChanSettings.youtubeTitleCache.set(gson.toJson(CommentParserHelper.youtubeTitleCache.snapshot(), lruType));
+        ChanSettings.youtubeDurationCache.set(gson.toJson(CommentParserHelper.youtubeDurCache.snapshot(), lruType));
+        Logger.d(TAG, "stop");
     }
 }

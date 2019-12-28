@@ -18,13 +18,16 @@ package com.github.adamantcheese.chan.core.database;
 
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.NonNull;
 
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.misc.TransactionManager;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.misc.TransactionManager;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
@@ -36,8 +39,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-
-import de.greenrobot.event.EventBus;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
@@ -66,15 +67,13 @@ public class DatabaseManager {
     private final DatabaseBoardManager databaseBoardManager;
     private final DatabaseSiteManager databaseSiteManager;
     private final DatabaseHideManager databaseHideManager;
+    private final DatabaseSavedThreadManager databaseSavedThreadManager;
 
     @Inject
     public DatabaseManager() {
         inject(this);
 
-        backgroundExecutor = new ThreadPoolExecutor(
-                1, 1,
-                1000L, TimeUnit.DAYS,
-                new LinkedBlockingQueue<>());
+        backgroundExecutor = new ThreadPoolExecutor(1, 1, 1000L, TimeUnit.DAYS, new LinkedBlockingQueue<>());
 
         databaseLoadableManager = new DatabaseLoadableManager();
         databasePinManager = new DatabasePinManager(databaseLoadableManager);
@@ -84,6 +83,7 @@ public class DatabaseManager {
         databaseBoardManager = new DatabaseBoardManager();
         databaseSiteManager = new DatabaseSiteManager();
         databaseHideManager = new DatabaseHideManager();
+        databaseSavedThreadManager = new DatabaseSavedThreadManager();
         EventBus.getDefault().register(this);
     }
 
@@ -127,8 +127,13 @@ public class DatabaseManager {
     public DatabaseHideManager getDatabaseHideManager() {
         return databaseHideManager;
     }
+
+    public DatabaseSavedThreadManager getDatabaseSavedThreadManager() {
+        return databaseSavedThreadManager;
+    }
     // Called when the app changes foreground state
 
+    @Subscribe
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
             runTaskAsync(databaseLoadableManager.flush());
@@ -179,7 +184,10 @@ public class DatabaseManager {
         try {
             long count = dao.countOf();
             if (count > trigger) {
-                dao.executeRaw("DELETE FROM " + table + " WHERE id IN (SELECT id FROM " + table + " ORDER BY id ASC LIMIT ?)", String.valueOf(trim));
+                dao.executeRaw(
+                        "DELETE FROM " + table + " WHERE id IN (SELECT id FROM " + table + " ORDER BY id ASC LIMIT ?)",
+                        String.valueOf(trim)
+                );
             }
         } catch (SQLException e) {
             Logger.e(TAG, "Error trimming table " + table, e);
@@ -239,7 +247,8 @@ public class DatabaseManager {
         }
     }
 
-    private class DatabaseCallable<T> implements Callable<T> {
+    private class DatabaseCallable<T>
+            implements Callable<T> {
         private final Callable<T> taskCallable;
         private final TaskResult<T> taskResult;
 

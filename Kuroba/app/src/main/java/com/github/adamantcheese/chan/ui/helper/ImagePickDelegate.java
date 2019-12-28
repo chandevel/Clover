@@ -23,23 +23,34 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
+import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.cache.FileCache;
+import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
+import okhttp3.HttpUrl;
 
-public class ImagePickDelegate implements Runnable {
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+
+public class ImagePickDelegate
+        implements Runnable {
     private static final String TAG = "ImagePickActivity";
 
     private static final int IMAGE_PICK_RESULT = 2;
@@ -48,6 +59,8 @@ public class ImagePickDelegate implements Runnable {
 
     @Inject
     ReplyManager replyManager;
+    @Inject
+    FileManager fileManager;
 
     private Activity activity;
 
@@ -55,89 +68,138 @@ public class ImagePickDelegate implements Runnable {
     private Uri uri;
     private String fileName;
     private boolean success = false;
-    private File cacheFile;
+    private RawFile cacheFile;
 
     public ImagePickDelegate(Activity activity) {
         this.activity = activity;
         inject(this);
     }
 
-    public boolean pick(ImagePickCallback callback) {
-        if (this.callback != null) {
-            return false;
-        } else {
+    public void pick(ImagePickCallback callback, boolean longPressed) {
+        BackgroundUtils.ensureMainThread();
+
+        if (this.callback == null) {
             this.callback = callback;
 
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("*/*");
+            if (longPressed) {
+                showToast(R.string.image_url_get_attempt);
+                HttpUrl clipboardURL = null;
+                try {
+                    clipboardURL =
+                            HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
+                } catch (Exception ignored) {
+                    showToast(R.string.image_url_get_failed);
+                    callback.onFilePickError(true);
+                    reset();
+                }
+                if (clipboardURL != null) {
+                    HttpUrl finalClipboardURL = clipboardURL;
+                    instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
+                        @Override
+                        public void onSuccess(RawFile file) {
+                            BackgroundUtils.ensureMainThread();
 
-            if (intent.resolveActivity(activity.getPackageManager()) != null) {
-                activity.startActivityForResult(intent, IMAGE_PICK_RESULT);
-                return true;
+                            showToast(R.string.image_url_get_success);
+                            Uri imageURL = Uri.parse(finalClipboardURL.toString());
+                            callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
+                            reset();
+                        }
+
+                        @Override
+                        public void onFail(boolean notFound) {
+                            BackgroundUtils.ensureMainThread();
+
+                            showToast(R.string.image_url_get_failed);
+                            callback.onFilePickError(true);
+                            reset();
+                        }
+                    });
+                }
             } else {
-                Logger.e(TAG, "No activity found to get file with");
-                callback.onFilePickError(false);
-                reset();
-                return false;
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+
+                if (intent.resolveActivity(activity.getPackageManager()) != null) {
+                    activity.startActivityForResult(intent, IMAGE_PICK_RESULT);
+                } else {
+                    Logger.e(TAG, "No activity found to get file with");
+                    callback.onFilePickError(false);
+                    reset();
+                }
             }
         }
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         if (callback == null) {
-            return;
+            return false;
+        }
+
+        if (requestCode != IMAGE_PICK_RESULT) {
+            return false;
         }
 
         boolean ok = false;
-        boolean cancelled = false;
-        if (requestCode == IMAGE_PICK_RESULT) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                uri = data.getData();
+        boolean canceled = false;
 
-                Cursor returnCursor = activity.getContentResolver().query(uri, null, null, null, null);
-                if (returnCursor != null) {
-                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    returnCursor.moveToFirst();
-                    if (nameIndex > -1) {
-                        fileName = returnCursor.getString(nameIndex);
-                    }
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            uri = data.getData();
 
-                    returnCursor.close();
+            Cursor returnCursor = activity.getContentResolver().query(uri, null, null, null, null);
+            if (returnCursor != null) {
+                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                returnCursor.moveToFirst();
+                if (nameIndex > -1) {
+                    fileName = returnCursor.getString(nameIndex);
                 }
 
-                if (fileName == null) {
-                    // As per the comment on OpenableColumns.DISPLAY_NAME:
-                    // If this is not provided then the name should default to the last segment of the file's URI.
-                    fileName = uri.getLastPathSegment();
-                }
-
-                if (fileName == null) {
-                    fileName = DEFAULT_FILE_NAME;
-                }
-
-                new Thread(this).start();
-                ok = true;
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                cancelled = true;
+                returnCursor.close();
             }
+
+            if (fileName == null) {
+                // As per the comment on OpenableColumns.DISPLAY_NAME:
+                // If this is not provided then the name should default to the last segment of the file's URI.
+                fileName = uri.getLastPathSegment();
+            }
+
+            if (fileName == null) {
+                fileName = DEFAULT_FILE_NAME;
+            }
+
+            new Thread(this).start();
+            ok = true;
+        } else if (resultCode == Activity.RESULT_CANCELED) {
+            canceled = true;
         }
 
         if (!ok) {
-            callback.onFilePickError(cancelled);
+            callback.onFilePickError(canceled);
             reset();
         }
+
+        return true;
     }
 
     @Override
     public void run() {
-        cacheFile = replyManager.getPickFile();
+        cacheFile = fileManager.fromRawFile(replyManager.getPickFile());
 
         InputStream is = null;
         OutputStream os = null;
         try (ParcelFileDescriptor fileDescriptor = activity.getContentResolver().openFileDescriptor(uri, "r")) {
+            if (fileDescriptor == null) {
+                throw new IOException("Couldn't open file descriptor for uri = " + uri);
+            }
+
             is = new FileInputStream(fileDescriptor.getFileDescriptor());
-            os = new FileOutputStream(cacheFile);
+            os = fileManager.getOutputStream(cacheFile);
+
+            if (os == null) {
+                throw new IOException(
+                        "Could not get OutputStream from the cacheFile, cacheFile = " + cacheFile.getFullPath());
+            }
+
             boolean fullyCopied = IOUtils.copy(is, os, MAX_FILE_SIZE);
             if (fullyCopied) {
                 success = true;
@@ -150,14 +212,14 @@ public class ImagePickDelegate implements Runnable {
         }
 
         if (!success) {
-            if (!cacheFile.delete()) {
+            if (!fileManager.delete(cacheFile)) {
                 Logger.e(TAG, "Could not delete picked_file after copy fail");
             }
         }
 
         runOnUiThread(() -> {
             if (success) {
-                callback.onFilePicked(fileName, cacheFile);
+                callback.onFilePicked(fileName, new File(cacheFile.getFullPath()));
             } else {
                 callback.onFilePickError(false);
             }
@@ -176,6 +238,6 @@ public class ImagePickDelegate implements Runnable {
     public interface ImagePickCallback {
         void onFilePicked(String fileName, File file);
 
-        void onFilePickError(boolean cancelled);
+        void onFilePickError(boolean canceled);
     }
 }

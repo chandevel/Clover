@@ -16,7 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.settings;
 
-public class BooleanSetting extends Setting<Boolean> {
+public class BooleanSetting
+        extends Setting<Boolean> {
     private boolean hasCached = false;
     private boolean cached;
 

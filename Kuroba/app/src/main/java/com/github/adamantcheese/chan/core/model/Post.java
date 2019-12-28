@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -31,7 +32,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Contains all data needed to represent a single post.<br>
  * All {@code final} fields are thread-safe.
  */
-public class Post implements Comparable<Post> {
+public class Post
+        implements Comparable<Post> {
     public final String boardId;
 
     public final Board board;
@@ -39,8 +41,6 @@ public class Post implements Comparable<Post> {
     public final int no;
 
     public final boolean isOP;
-
-//    public final String date;
 
     public final String name;
 
@@ -77,6 +77,10 @@ public class Post implements Comparable<Post> {
 
     public final boolean filterReplies;
 
+    public final boolean filterOnlyOP;
+
+    public final boolean filterSaved;
+
     /**
      * This post replies to the these ids.
      */
@@ -112,13 +116,7 @@ public class Post implements Comparable<Post> {
     private String title = "";
 
     public int compareTo(Post p) {
-        if (this.time < p.time) {
-            return 1;
-        } else if (this.time > p.time) {
-            return -1;
-        } else {
-            return 0;
-        }
+        return -Long.compare(this.time, p.time);
     }
 
     private Post(Builder builder) {
@@ -162,17 +160,19 @@ public class Post implements Comparable<Post> {
         filterRemove = builder.filterRemove;
         filterWatch = builder.filterWatch;
         filterReplies = builder.filterReplies;
+        filterOnlyOP = builder.filterOnlyOP;
+        filterSaved = builder.filterSaved;
 
         isSavedReply = builder.isSavedReply;
 
         subjectSpan = builder.subjectSpan;
         nameTripcodeIdCapcodeSpan = builder.nameTripcodeIdCapcodeSpan;
 
-        linkables = Collections.unmodifiableList(builder.linkables);
+        linkables = Collections.unmodifiableList(new ArrayList<>(builder.linkables));
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
     }
 
-    @MainThread
+    @AnyThread
     public boolean isSticky() {
         return sticky;
     }
@@ -269,9 +269,12 @@ public class Post implements Comparable<Post> {
 
     @Override
     public int hashCode() {
-        return 31 * no +
-                31 * board.code.hashCode() +
-                31 * board.siteId;
+        int commentTotal = 0;
+        for (char c : comment.toString().toCharArray()) {
+            commentTotal += c;
+        }
+        return 31 * no + 31 * board.code.hashCode() + 31 * board.siteId + 31 * (deleted.get() ? 1 : 0)
+                + 31 * commentTotal;
     }
 
     @Override
@@ -290,17 +293,19 @@ public class Post implements Comparable<Post> {
 
         Post otherPost = (Post) other;
 
+        //@formatter:off
         return this.no == otherPost.no
                 && this.board.code.equals(otherPost.board.code)
-                && this.board.siteId == otherPost.board.siteId;
+                && this.board.siteId == otherPost.board.siteId
+                && this.deleted.get() == otherPost.deleted.get()
+                && this.comment.toString().equals(otherPost.comment.toString());
+        //@formatter:on
     }
 
     @Override
     public String toString() {
-        return "[no = " + no +
-                ", boardCode = " + board.code +
-                ", siteId = " + board.siteId +
-                ", comment = " + comment + "]";
+        return "[no = " + no + ", boardCode = " + board.code + ", siteId = " + board.siteId + ", comment = " + comment
+                + "]";
     }
 
     public static final class Builder {
@@ -330,18 +335,23 @@ public class Post implements Comparable<Post> {
         public String posterId = "";
         public String moderatorCapcode = "";
 
+        public int idColor;
+        public boolean isLightColor;
+
         public int filterHighlightedColor;
         public boolean filterStub;
         public boolean filterRemove;
         public boolean filterWatch;
         public boolean filterReplies;
+        public boolean filterOnlyOP;
+        public boolean filterSaved;
 
         public boolean isSavedReply;
 
         public CharSequence subjectSpan;
         public CharSequence nameTripcodeIdCapcodeSpan;
 
-        private List<PostLinkable> linkables = new ArrayList<>();
+        private Set<PostLinkable> linkables = new HashSet<>();
         private Set<Integer> repliesToIds = new HashSet<>();
 
         public Builder() {
@@ -428,17 +438,30 @@ public class Post implements Comparable<Post> {
         }
 
         public Builder images(List<PostImage> images) {
-            if (this.images == null) {
-                this.images = new ArrayList<>(images.size());
-            }
+            synchronized (this) {
+                if (this.images == null) {
+                    this.images = new ArrayList<>(images.size());
+                }
 
-            this.images.addAll(images);
+                this.images.addAll(images);
+            }
 
             return this;
         }
 
         public Builder posterId(String posterId) {
             this.posterId = posterId;
+
+            // Stolen from the 4chan extension
+            int hash = this.posterId.hashCode();
+
+            int r = (hash >> 24) & 0xff;
+            int g = (hash >> 16) & 0xff;
+            int b = (hash >> 8) & 0xff;
+
+            this.idColor = (0xff << 24) + (r << 16) + (g << 8) + b;
+            this.isLightColor = (r * 0.299f) + (g * 0.587f) + (b * 0.114f) > 125f;
+
             return this;
         }
 
@@ -461,12 +484,22 @@ public class Post implements Comparable<Post> {
             return this;
         }
 
-        public Builder filter(int highlightedColor, boolean stub, boolean remove, boolean watch, boolean filterReplies) {
+        public Builder filter(
+                int highlightedColor,
+                boolean stub,
+                boolean remove,
+                boolean watch,
+                boolean filterReplies,
+                boolean onlyOnOp,
+                boolean filterSaved
+        ) {
             filterHighlightedColor = highlightedColor;
             filterStub = stub;
             filterRemove = remove;
             filterWatch = watch;
             this.filterReplies = filterReplies;
+            filterOnlyOP = onlyOnOp;
+            this.filterSaved = filterSaved;
             return this;
         }
 
@@ -482,13 +515,27 @@ public class Post implements Comparable<Post> {
         }
 
         public Builder addLinkable(PostLinkable linkable) {
-            linkables.add(linkable);
-            return this;
+            synchronized (this) {
+                linkables.add(linkable);
+                return this;
+            }
         }
 
         public Builder linkables(List<PostLinkable> linkables) {
-            this.linkables = linkables;
-            return this;
+            synchronized (this) {
+                this.linkables = new HashSet<>(linkables);
+                return this;
+            }
+        }
+
+        public List<PostLinkable> getLinkables() {
+            synchronized (this) {
+                List<PostLinkable> result = new ArrayList<>();
+                if (linkables != null) {
+                    result.addAll(linkables);
+                }
+                return result;
+            }
         }
 
         public Builder addReplyTo(int postId) {

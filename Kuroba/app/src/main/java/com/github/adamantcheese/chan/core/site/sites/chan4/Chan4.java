@@ -47,8 +47,6 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
-import com.github.adamantcheese.chan.ui.helper.PostHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -62,7 +60,11 @@ import java.util.Random;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
-public class Chan4 extends SiteBase {
+import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2NOJS;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
+
+public class Chan4
+        extends SiteBase {
     public static final SiteUrlHandler URL_HANDLER = new SiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
@@ -76,13 +78,13 @@ public class Chan4 extends SiteBase {
 
         @Override
         public boolean respondsTo(HttpUrl url) {
-            return url.host().equals("4chan.org") ||
-                    url.host().equals("www.4chan.org") ||
-                    url.host().equals("boards.4chan.org");
+            return url.host().equals("4chan.org") || url.host().equals("www.4chan.org") || url.host()
+                    .equals("boards.4chan.org") || url.host().equals("4channel.org") || url.host()
+                    .equals("www.4channel.org") || url.host().equals("boards.4channel.org");
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, Post post) {
+        public String desktopUrl(Loadable loadable, final Post post) {
             if (loadable.isCatalogMode()) {
                 if (post != null && post.no != 0) {
                     return "https://boards.4chan.org/" + loadable.board.code + "/thread/" + post.no;
@@ -132,7 +134,7 @@ public class Chan4 extends SiteBase {
                         }
 
                         if (no >= 0) {
-                            Loadable loadable = Loadable.forThread(site, board, no, PostHelper.getTitle(null, null));
+                            Loadable loadable = Loadable.forThread(site, board, no, "");
                             if (post >= 0) {
                                 loadable.markedNo = post;
                             }
@@ -154,42 +156,21 @@ public class Chan4 extends SiteBase {
     private static final Random random = new Random();
 
     private final SiteEndpoints endpoints = new SiteEndpoints() {
-        private final HttpUrl a = new HttpUrl.Builder()
-                .scheme("https")
-                .host("a.4cdn.org")
-                .build();
+        private final HttpUrl a = new HttpUrl.Builder().scheme("https").host("a.4cdn.org").build();
 
-        private final HttpUrl i = new HttpUrl.Builder()
-                .scheme("https")
-                .host("i.4cdn.org")
-                .build();
+        private final HttpUrl i = new HttpUrl.Builder().scheme("https").host("i.4cdn.org").build();
 
-        private final HttpUrl t = new HttpUrl.Builder()
-                .scheme("https")
-                .host("i.4cdn.org")
-                .build();
+        private final HttpUrl t = new HttpUrl.Builder().scheme("https").host("i.4cdn.org").build();
 
-        private final HttpUrl s = new HttpUrl.Builder()
-                .scheme("https")
-                .host("s.4cdn.org")
-                .build();
+        private final HttpUrl s = new HttpUrl.Builder().scheme("https").host("s.4cdn.org").build();
 
-        private final HttpUrl sys = new HttpUrl.Builder()
-                .scheme("https")
-                .host("sys.4chan.org")
-                .build();
+        private final HttpUrl sys = new HttpUrl.Builder().scheme("https").host("sys.4chan.org").build();
 
-        private final HttpUrl b = new HttpUrl.Builder()
-                .scheme("https")
-                .host("boards.4chan.org")
-                .build();
+        private final HttpUrl b = new HttpUrl.Builder().scheme("https").host("boards.4chan.org").build();
 
         @Override
         public HttpUrl catalog(Board board) {
-            return a.newBuilder()
-                    .addPathSegment(board.code)
-                    .addPathSegment("catalog.json")
-                    .build();
+            return a.newBuilder().addPathSegment(board.code).addPathSegment("catalog.json").build();
         }
 
         @Override
@@ -203,17 +184,14 @@ public class Chan4 extends SiteBase {
 
         @Override
         public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
-            return i.newBuilder()
-                    .addPathSegment(post.board.code)
-                    .addPathSegment(arg.get("tim") + "." + arg.get("ext"))
-                    .build();
+            String imageFile = arg.get("tim") + "." + arg.get("ext");
+            return i.newBuilder().addPathSegment(post.board.code).addPathSegment(imageFile).build();
         }
 
         @Override
         public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
             if (spoiler) {
-                HttpUrl.Builder image = s.newBuilder()
-                        .addPathSegment("image");
+                HttpUrl.Builder image = s.newBuilder().addPathSegment("image");
                 if (post.board.customSpoilers >= 0) {
                     int i = random.nextInt(post.board.customSpoilers) + 1;
                     image.addPathSegment("spoiler-" + post.board.code + i + ".png");
@@ -222,10 +200,7 @@ public class Chan4 extends SiteBase {
                 }
                 return image.build();
             } else {
-                return t.newBuilder()
-                        .addPathSegment(post.board.code)
-                        .addPathSegment(arg.get("tim") + "s.jpg")
-                        .build();
+                return t.newBuilder().addPathSegment(post.board.code).addPathSegment(arg.get("tim") + "s.jpg").build();
             }
         }
 
@@ -253,41 +228,27 @@ public class Chan4 extends SiteBase {
 
         @Override
         public HttpUrl boards() {
-            return a.newBuilder()
-                    .addPathSegment("boards.json")
-                    .build();
+            return a.newBuilder().addPathSegment("boards.json").build();
         }
 
         @Override
         public HttpUrl pages(Board board) {
-            return a.newBuilder()
-                    .addPathSegment(board.code)
-                    .addPathSegment("threads.json")
-                    .build();
+            return a.newBuilder().addPathSegment(board.code).addPathSegment("threads.json").build();
         }
 
         @Override
         public HttpUrl archive(Board board) {
-            return b.newBuilder()
-                    .addPathSegment(board.code)
-                    .addPathSegment("archive")
-                    .build();
+            return b.newBuilder().addPathSegment(board.code).addPathSegment("archive").build();
         }
 
         @Override
         public HttpUrl reply(Loadable loadable) {
-            return sys.newBuilder()
-                    .addPathSegment(loadable.board.code)
-                    .addPathSegment("post")
-                    .build();
+            return sys.newBuilder().addPathSegment(loadable.board.code).addPathSegment("post").build();
         }
 
         @Override
         public HttpUrl delete(Post post) {
-            return sys.newBuilder()
-                    .addPathSegment(post.board.code)
-                    .addPathSegment("imgboard.php")
-                    .build();
+            return sys.newBuilder().addPathSegment(post.board.code).addPathSegment("imgboard.php").build();
         }
 
         @Override
@@ -302,9 +263,7 @@ public class Chan4 extends SiteBase {
 
         @Override
         public HttpUrl login() {
-            return sys.newBuilder()
-                    .addPathSegment("auth")
-                    .build();
+            return sys.newBuilder().addPathSegment("auth").build();
         }
     };
 
@@ -318,18 +277,12 @@ public class Chan4 extends SiteBase {
 
         @Override
         public void modifyWebView(WebView webView) {
-            final HttpUrl sys = new HttpUrl.Builder()
-                    .scheme("https")
-                    .host("sys.4chan.org")
-                    .build();
+            final HttpUrl sys = new HttpUrl.Builder().scheme("https").host("sys.4chan.org").build();
 
             CookieManager cookieManager = CookieManager.getInstance();
             cookieManager.removeAllCookies(null);
             if (actions.isLoggedIn()) {
-                String[] passCookies = {
-                        "pass_enabled=1;",
-                        "pass_id=" + passToken.get() + ";"
-                };
+                String[] passCookies = {"pass_enabled=1;", "pass_id=" + passToken.get() + ";"};
                 String domain = sys.scheme() + "://" + sys.host() + "/";
                 for (String cookie : passCookies) {
                     cookieManager.setCookie(domain, cookie);
@@ -341,30 +294,40 @@ public class Chan4 extends SiteBase {
     private SiteActions actions = new SiteActions() {
         @Override
         public void boards(final BoardsListener listener) {
-            requestQueue.add(new Chan4BoardsRequest(Chan4.this, response -> listener.onBoardsReceived(new Boards(response)), (error) -> {
-                Logger.e(TAG, "Failed to get boards from server", error);
-                listener.onBoardsReceived(new Boards(new ArrayList<>()));
-            }));
+            requestQueue.add(new Chan4BoardsRequest(Chan4.this,
+                    response -> listener.onBoardsReceived(new Boards(response)),
+                    error -> {
+                        Logger.e(TAG, "Failed to get boards from server", error);
+                        listener.onBoardsReceived(new Boards(new ArrayList<>()));
+                    }
+            ));
         }
 
         @Override
         public void pages(Board board, PagesListener listener) {
-            requestQueue.add(new Chan4PagesRequest(Chan4.this, board, response -> listener.onPagesReceived(board, new Chan4PagesRequest.Pages(response)), (error) -> {
-                Logger.e(TAG, "Failed to get threads for board " + board.code);
-                listener.onPagesReceived(board, new Chan4PagesRequest.Pages(new ArrayList<>()));
-            }));
+            requestQueue.add(new Chan4PagesRequest(Chan4.this,
+                    board,
+                    response -> listener.onPagesReceived(board, new Chan4PagesRequest.Pages(response)),
+                    error -> {
+                        Logger.e(TAG, "Failed to get pages for board " + board.code);
+                        listener.onPagesReceived(board, new Chan4PagesRequest.Pages(new ArrayList<>()));
+                    }
+            ));
         }
 
         @Override
         public void archives(ArchiveRequestListener archivesListener) {
-            requestQueue.add(new JsonReaderRequest<List<ArchivesManager.Archives>>("https://mayhemydg.github.io/archives.json/archives.json",
+            requestQueue.add(new JsonReaderRequest<List<ArchivesManager.Archives>>(
+                    "https://mayhemydg.github.io/archives.json/archives.json",
                     archivesListener::onArchivesReceived,
-                    (error) -> {
+                    error -> {
                         Logger.e(TAG, "Failed to get archives for 4Chan");
                         archivesListener.onArchivesReceived(new ArrayList<>());
-                    }) {
+                    }
+            ) {
                 @Override
-                public List<ArchivesManager.Archives> readJson(JsonReader reader) throws Exception {
+                public List<ArchivesManager.Archives> readJson(JsonReader reader)
+                        throws Exception {
                     List<ArchivesManager.Archives> archives = new ArrayList<>();
 
                     reader.beginArray();
@@ -406,15 +369,17 @@ public class Chan4 extends SiteBase {
 
         @Override
         public void archive(Board board, ArchiveListener archiveListener) {
-            requestQueue.add(new Chan4ArchiveRequest(Chan4.this, board,
+            requestQueue.add(new Chan4ArchiveRequest(Chan4.this,
+                    board,
                     archiveListener::onArchive,
-                    error -> archiveListener.onArchiveError()));
+                    error -> archiveListener.onArchiveError()
+            ));
         }
 
         @Override
         public void post(Reply reply, final PostListener postListener) {
-            httpCallManager.makeHttpCall(
-                    new Chan4ReplyCall(Chan4.this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
+            httpCallManager.makeHttpCall(new Chan4ReplyCall(Chan4.this, reply),
+                    new HttpCall.HttpCallback<CommonReplyHttpCall>() {
                         @Override
                         public void onHttpSuccess(CommonReplyHttpCall httpPost) {
                             postListener.onPostComplete(httpPost, httpPost.replyResponse);
@@ -424,7 +389,9 @@ public class Chan4 extends SiteBase {
                         public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
                             postListener.onPostError(httpPost, e);
                         }
-                    }, postListener::onUploadingProgress);
+                    },
+                    postListener::onUploadingProgress
+            );
         }
 
         @Override
@@ -450,17 +417,19 @@ public class Chan4 extends SiteBase {
 
         @Override
         public void delete(DeleteRequest deleteRequest, final DeleteListener deleteListener) {
-            httpCallManager.makeHttpCall(new Chan4DeleteHttpCall(Chan4.this, deleteRequest), new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
-                @Override
-                public void onHttpSuccess(Chan4DeleteHttpCall httpPost) {
-                    deleteListener.onDeleteComplete(httpPost, httpPost.deleteResponse);
-                }
+            httpCallManager.makeHttpCall(new Chan4DeleteHttpCall(Chan4.this, deleteRequest),
+                    new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
+                        @Override
+                        public void onHttpSuccess(Chan4DeleteHttpCall httpPost) {
+                            deleteListener.onDeleteComplete(httpPost, httpPost.deleteResponse);
+                        }
 
-                @Override
-                public void onHttpFail(Chan4DeleteHttpCall httpPost, Exception e) {
-                    deleteListener.onDeleteError(httpPost);
-                }
-            });
+                        @Override
+                        public void onHttpFail(Chan4DeleteHttpCall httpPost, Exception e) {
+                            deleteListener.onDeleteError(httpPost);
+                        }
+                    }
+            );
         }
 
         @Override
@@ -468,21 +437,23 @@ public class Chan4 extends SiteBase {
             passUser.set(loginRequest.user);
             passPass.set(loginRequest.pass);
 
-            httpCallManager.makeHttpCall(new Chan4PassHttpCall(Chan4.this, loginRequest), new HttpCall.HttpCallback<Chan4PassHttpCall>() {
-                @Override
-                public void onHttpSuccess(Chan4PassHttpCall httpCall) {
-                    LoginResponse loginResponse = httpCall.loginResponse;
-                    if (loginResponse.success) {
-                        passToken.set(loginResponse.token);
-                    }
-                    loginListener.onLoginComplete(httpCall, loginResponse);
-                }
+            httpCallManager.makeHttpCall(new Chan4PassHttpCall(Chan4.this, loginRequest),
+                    new HttpCall.HttpCallback<Chan4PassHttpCall>() {
+                        @Override
+                        public void onHttpSuccess(Chan4PassHttpCall httpCall) {
+                            LoginResponse loginResponse = httpCall.loginResponse;
+                            if (loginResponse.success) {
+                                passToken.set(loginResponse.token);
+                            }
+                            loginListener.onLoginComplete(httpCall, loginResponse);
+                        }
 
-                @Override
-                public void onHttpFail(Chan4PassHttpCall httpCall, Exception e) {
-                    loginListener.onLoginError(httpCall);
-                }
-            });
+                        @Override
+                        public void onHttpFail(Chan4PassHttpCall httpCall, Exception e) {
+                            loginListener.onLoginError(httpCall);
+                        }
+                    }
+            );
         }
 
         @Override
@@ -506,7 +477,8 @@ public class Chan4 extends SiteBase {
     private final StringSetting passPass;
     private final StringSetting passToken;
 
-    public enum CaptchaType implements OptionSettingItem {
+    public enum CaptchaType
+            implements OptionSettingItem {
         V2JS("v2js"),
         V2NOJS("v2nojs");
 
@@ -526,7 +498,7 @@ public class Chan4 extends SiteBase {
 
     public Chan4() {
         // we used these before multisite, and lets keep using them.
-        SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
+        SettingProvider p = new SharedPreferencesSettingProvider(getPreferences());
         passUser = new StringSetting(p, "preference_pass_token", "");
         passPass = new StringSetting(p, "preference_pass_pin", "");
         // token was renamed, before it meant the username, now it means the token returned
@@ -538,19 +510,15 @@ public class Chan4 extends SiteBase {
     public void initializeSettings() {
         super.initializeSettings();
 
-        captchaType = new OptionsSetting<>(settingsProvider,
-                "preference_captcha_type",
-                CaptchaType.class, CaptchaType.V2NOJS);
+        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type", CaptchaType.class, V2NOJS);
     }
 
     @Override
     public List<SiteSetting> settings() {
-        return Collections.singletonList(
-                SiteSetting.forOption(
-                        captchaType,
-                        "Captcha type",
-                        Arrays.asList("Javascript", "Noscript"))
-        );
+        return Collections.singletonList(SiteSetting.forOption(captchaType,
+                "Captcha type",
+                Arrays.asList("Javascript", "Noscript")
+        ));
     }
 
     @Override

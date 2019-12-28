@@ -16,23 +16,37 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
-import androidx.annotation.NonNull;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+
+import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.BOARD;
+import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.LINK;
+import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
+import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SPOILER;
+import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.THREAD;
 
 /**
  * A Clickable span that handles post clicks. These are created in PostParser for post quotes, spoilers etc.<br>
  * PostCell has a {@link PostCell.PostViewMovementMethod}, that searches spans at the location the TextView was tapped,
  * and handled if it was a PostLinkable.
  */
-public class PostLinkable extends ClickableSpan {
+public class PostLinkable
+        extends ClickableSpan {
     public enum Type {
-        QUOTE, LINK, SPOILER, THREAD, BOARD, SEARCH
+        QUOTE,
+        LINK,
+        SPOILER,
+        THREAD,
+        BOARD,
+        SEARCH
     }
 
     public final Theme theme;
@@ -61,21 +75,21 @@ public class PostLinkable extends ClickableSpan {
 
     @Override
     public void updateDrawState(@NonNull TextPaint ds) {
-        if (type == Type.QUOTE || type == Type.LINK || type == Type.THREAD || type == Type.BOARD || type == Type.SEARCH) {
-            if (type == Type.QUOTE) {
+        if (type == QUOTE || type == LINK || type == THREAD || type == BOARD || type == Type.SEARCH) {
+            if (type == QUOTE) {
                 if (value instanceof Integer && ((int) value) == markedNo) {
                     ds.setColor(theme.highlightQuoteColor);
                 } else {
                     ds.setColor(theme.quoteColor);
                 }
-            } else if (type == Type.LINK) {
+            } else if (type == LINK) {
                 ds.setColor(theme.linkColor);
             } else {
                 ds.setColor(theme.quoteColor);
             }
 
             ds.setUnderlineText(true);
-        } else if (type == Type.SPOILER) {
+        } else if (type == SPOILER) {
             ds.bgColor = theme.spoilerColor;
             ds.setUnderlineText(false);
             if (!spoilerVisible) {
@@ -86,7 +100,29 @@ public class PostLinkable extends ClickableSpan {
         }
     }
 
-    public boolean getSpoilerState() {
+    public boolean isSpoilerVisible() {
         return spoilerVisible;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        for (char c : key.toString().toCharArray()) {
+            result += c;
+        }
+        result = 31 * result;
+        for (char c : value.toString().toCharArray()) {
+            result += c;
+        }
+        result = 31 * result + type.ordinal();
+        return result;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) return false;
+        if (!(obj instanceof PostLinkable)) return false;
+        PostLinkable linkable = (PostLinkable) obj;
+        return linkable.key.equals(this.key) && linkable.value.equals(this.value) && linkable.type.equals(this.type);
     }
 }

@@ -26,6 +26,8 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
@@ -44,7 +46,6 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,19 +54,22 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
-public class BrowseController extends ThreadController implements
-        ThreadLayout.ThreadLayoutCallback,
-        BrowsePresenter.Callback,
-        BrowseBoardsFloatingMenu.ClickCallback {
+public class BrowseController
+        extends ThreadController
+        implements ThreadLayout.ThreadLayoutCallback, BrowsePresenter.Callback, BrowseBoardsFloatingMenu.ClickCallback,
+                   ThreadSlideController.SlideChangeListener {
     private static final int VIEW_MODE_ID = 1;
     private static final int ARCHIVE_ID = 2;
 
     @Inject
     BrowsePresenter presenter;
 
-    private ChanSettings.PostViewMode postViewMode;
     private PostsFilter.Order order;
+    public String searchQuery = null;
 
     public BrowseController(Context context) {
         super(context);
@@ -77,9 +81,8 @@ public class BrowseController extends ThreadController implements
         inject(this);
 
         // Initialization
-        postViewMode = ChanSettings.boardViewMode.get();
         order = PostsFilter.Order.find(ChanSettings.boardOrder.get());
-        threadLayout.setPostViewMode(postViewMode);
+        threadLayout.setPostViewMode(ChanSettings.boardViewMode.get());
         threadLayout.getPresenter().setOrder(order);
 
         // Navigation
@@ -97,8 +100,9 @@ public class BrowseController extends ThreadController implements
     public void showSitesNotSetup() {
         super.showSitesNotSetup();
 
-        HintPopup hint = HintPopup.show(context, getToolbar(), R.string.thread_empty_setup_hint);
-        hint.alignLeft();
+        View hintView = getToolbar().findViewById(R.id.title_container);
+        HintPopup hint = HintPopup.show(context, hintView, R.string.thread_empty_setup_hint);
+        hint.alignCenter();
         hint.wiggle();
     }
 
@@ -129,15 +133,18 @@ public class BrowseController extends ThreadController implements
         }
 
         overflowBuilder.withSubItem(VIEW_MODE_ID,
-                postViewMode == ChanSettings.PostViewMode.LIST ?
-                        R.string.action_switch_catalog : R.string.action_switch_board,
-                this::viewModeClicked);
+                ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST
+                        ? R.string.action_switch_catalog
+                        : R.string.action_switch_board,
+                this::viewModeClicked
+        );
 
-        overflowBuilder
-                .withSubItem(ARCHIVE_ID, R.string.thread_view_archive, this::archiveClicked)
+        overflowBuilder.withSubItem(ARCHIVE_ID, R.string.thread_view_archive, this::archiveClicked)
                 .withSubItem(R.string.action_sort, this::orderClicked)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
+                .withSubItem(R.string.action_scroll_to_top, this::upClicked)
+                .withSubItem(R.string.action_scroll_to_bottom, this::downClicked)
                 .build()
                 .build();
 
@@ -177,7 +184,13 @@ public class BrowseController extends ThreadController implements
             View refreshView = item.getView();
             //Disable the ripple effect until the animation ends, but turn it back on so tap/hold ripple works
             refreshView.setBackgroundResource(0);
-            Animation animation = new RotateAnimation(0, 360, RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+            Animation animation = new RotateAnimation(0,
+                    360,
+                    RotateAnimation.RELATIVE_TO_SELF,
+                    0.5f,
+                    RotateAnimation.RELATIVE_TO_SELF,
+                    0.5f
+            );
             animation.setDuration(500L);
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
@@ -221,11 +234,18 @@ public class BrowseController extends ThreadController implements
         handleShareAndOpenInBrowser(threadLayout.getPresenter(), true);
     }
 
+    private void upClicked(ToolbarMenuSubItem item) {
+        threadLayout.getPresenter().scrollTo(0, false);
+    }
+
+    private void downClicked(ToolbarMenuSubItem item) {
+        threadLayout.getPresenter().scrollTo(-1, false);
+    }
+
     private void setupMiddleNavigation() {
         navigation.setMiddleMenu(anchor -> {
             BrowseBoardsFloatingMenu boardsFloatingMenu = new BrowseBoardsFloatingMenu(context);
-            boardsFloatingMenu.show(view, anchor, BrowseController.this,
-                    presenter.currentBoard());
+            boardsFloatingMenu.show(view, anchor, BrowseController.this, presenter.currentBoard());
         });
     }
 
@@ -237,6 +257,16 @@ public class BrowseController extends ThreadController implements
     @Override
     public void onSiteClicked(Site site) {
         presenter.onBoardsFloatingMenuSiteClicked(site);
+    }
+
+    @Override
+    public void openSetup() {
+        SitesSetupController setupController = new SitesSetupController(context);
+        if (doubleNavigationController != null) {
+            doubleNavigationController.pushController(setupController);
+        } else {
+            navigationController.pushController(setupController);
+        }
     }
 
     private void openArchive() {
@@ -257,18 +287,24 @@ public class BrowseController extends ThreadController implements
 
     private void handleShareAndOpenInBrowser(ThreadPresenter presenter, boolean share) {
         if (presenter.isBound()) {
+            if (presenter.getChanThread() == null) {
+                showToast(R.string.cannot_open_in_browser_already_deleted);
+                return;
+            }
+
             Loadable loadable = presenter.getLoadable();
-            String link = loadable.site.resolvable().desktopUrl(loadable, presenter.getChanThread().op);
+            String link = loadable.site.resolvable().desktopUrl(loadable, presenter.getChanThread().getOp());
 
             if (share) {
-                AndroidUtils.shareLink(link);
+                shareLink(link);
             } else {
-                AndroidUtils.openLinkInBrowser((Activity) context, link);
+                openLinkInBrowser((Activity) context, link);
             }
         }
     }
 
     private void handleViewMode(ToolbarMenuSubItem item) {
+        ChanSettings.PostViewMode postViewMode = ChanSettings.boardViewMode.get();
         if (postViewMode == ChanSettings.PostViewMode.LIST) {
             postViewMode = ChanSettings.PostViewMode.CARD;
         } else {
@@ -277,9 +313,10 @@ public class BrowseController extends ThreadController implements
 
         ChanSettings.boardViewMode.set(postViewMode);
 
-        int viewModeText = postViewMode == ChanSettings.PostViewMode.LIST ?
-                R.string.action_switch_catalog : R.string.action_switch_board;
-        item.text = context.getString(viewModeText);
+        int viewModeText = postViewMode == ChanSettings.PostViewMode.LIST
+                ? R.string.action_switch_catalog
+                : R.string.action_switch_board;
+        item.text = getString(viewModeText);
 
         threadLayout.setPostViewMode(postViewMode);
     }
@@ -387,6 +424,13 @@ public class BrowseController extends ThreadController implements
         setBoard(catalogLoadable.board);
     }
 
+    @Override
+    public void showBoardAndSearch(Loadable catalogLoadable, String searchQuery) {
+        //we don't actually need to do anything here because you can't tap board links in the browse controller
+        //set the board just in case?
+        setBoard(catalogLoadable.board);
+    }
+
     // Creates or updates the target ThreadViewController
     // This controller can be in various places depending on the layout
     // We dynamically search for it
@@ -410,7 +454,8 @@ public class BrowseController extends ThreadController implements
         if (splitNav != null) {
             // Create a threadview inside a toolbarnav in the right part of the split layout
             if (splitNav.getRightController() instanceof StyledToolbarNavigationController) {
-                StyledToolbarNavigationController navigationController = (StyledToolbarNavigationController) splitNav.getRightController();
+                StyledToolbarNavigationController navigationController =
+                        (StyledToolbarNavigationController) splitNav.getRightController();
 
                 if (navigationController.getTop() instanceof ViewThreadController) {
                     ((ViewThreadController) navigationController.getTop()).loadThread(threadLoadable);
@@ -440,5 +485,20 @@ public class BrowseController extends ThreadController implements
             viewThreadController.setLoadable(threadLoadable);
             navigationController.pushController(viewThreadController, animated);
         }
+    }
+
+    @Override
+    public void onSlideChanged() {
+        super.onSlideChanged();
+        if (getToolbar() != null && searchQuery != null) {
+            getToolbar().openSearch();
+            getToolbar().searchInput(searchQuery);
+            searchQuery = null;
+        }
+    }
+
+    @Override
+    public Post getPostForPostImage(PostImage postImage) {
+        return threadLayout.getPresenter().getPostFromPostImage(postImage);
     }
 }

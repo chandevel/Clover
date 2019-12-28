@@ -20,19 +20,15 @@ import java.io.File;
 
 public class StorageHelper {
     public static boolean canNavigate(File file) {
-        return file != null && !isDirectoryBlacklisted(file) && file.exists()
-                && file.isDirectory() && file.canRead();
+        return file != null && !isDirectoryBlacklisted(file) && file.exists() && file.isDirectory() && file.canRead();
     }
 
     public static boolean isDirectoryBlacklisted(File file) {
         String absolutePath = file.getAbsolutePath();
         switch (absolutePath) {
             case "/storage":
-                return true;
             case "/storage/emulated":
-                return true;
             case "/storage/emulated/0/0":
-                return true;
             case "/storage/emulated/legacy":
                 return true;
         }

@@ -19,17 +19,23 @@ package com.github.adamantcheese.chan.ui.settings;
 import android.view.View;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
-public class LinkSettingView extends SettingView {
+public class LinkSettingView
+        extends SettingView {
     private final View.OnClickListener clickListener;
     private String description;
     private boolean built = false;
 
-    public LinkSettingView(SettingsController settingsController, int name, int description, View.OnClickListener clickListener) {
+    public LinkSettingView(
+            SettingsController settingsController, int name, int description, View.OnClickListener clickListener
+    ) {
         this(settingsController, getString(name), getString(description), clickListener);
     }
 
-    public LinkSettingView(SettingsController settingsController, String name, String description, View.OnClickListener clickListener) {
+    public LinkSettingView(
+            SettingsController settingsController, String name, String description, View.OnClickListener clickListener
+    ) {
         super(settingsController, name);
         this.description = description;
         this.clickListener = clickListener;

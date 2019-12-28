@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
-
 import android.annotation.SuppressLint;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -39,8 +38,7 @@ public class ChanReaderProcessingQueue {
     public ChanReaderProcessingQueue(List<Post> toReuse, Loadable loadable) {
         this.loadable = loadable;
 
-        for (int i = 0; i < toReuse.size(); i++) {
-            Post cache = toReuse.get(i);
+        for (Post cache : toReuse) {
             cachedByNo.put(cache.no, cache);
         }
     }

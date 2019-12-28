@@ -16,6 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.widget.Toast;
+
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -29,7 +32,11 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
-public class SitesSetupPresenter implements Observer {
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+
+public class SitesSetupPresenter
+        implements Observer {
     private static final String TAG = "SitesSetupPresenter";
 
     private final SiteService siteService;
@@ -43,8 +50,7 @@ public class SitesSetupPresenter implements Observer {
     private List<Site> sitesShown = new ArrayList<>();
 
     @Inject
-    public SitesSetupPresenter(SiteService siteService, SiteRepository siteRepository,
-                               BoardManager boardManager) {
+    public SitesSetupPresenter(SiteService siteService, SiteRepository siteRepository, BoardManager boardManager) {
         this.siteService = siteService;
         this.siteRepository = siteRepository;
         this.boardManager = boardManager;
@@ -149,7 +155,8 @@ public class SitesSetupPresenter implements Observer {
             callback.onSiteDeleted(site);
         } catch (Throwable error) {
             Logger.e(TAG, "Could not delete site: " + site.name(), error);
-            callback.onErrorWhileTryingToDeleteSite(site, error);
+            String message = getString(R.string.could_not_remove_site_error_message, site.name(), error.getMessage());
+            showToast(message, Toast.LENGTH_LONG);
         }
     }
 
@@ -173,8 +180,6 @@ public class SitesSetupPresenter implements Observer {
         void openSiteConfiguration(Site site);
 
         void onSiteDeleted(Site site);
-
-        void onErrorWhileTryingToDeleteSite(Site site, Throwable error);
     }
 
     public interface AddCallback {

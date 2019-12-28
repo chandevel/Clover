@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.ui.view.ViewPagerAdapter;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -28,19 +29,24 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImageViewerAdapter extends ViewPagerAdapter {
+public class ImageViewerAdapter
+        extends ViewPagerAdapter {
     private static final String TAG = "ImageViewerAdapter";
 
     private final Context context;
     private final List<PostImage> images;
+    private final Loadable loadable;
     private final MultiImageView.Callback multiImageViewCallback;
 
     private List<MultiImageView> loadedViews = new ArrayList<>(3);
     private List<ModeChange> pendingModeChanges = new ArrayList<>();
 
-    public ImageViewerAdapter(Context context, List<PostImage> images, MultiImageView.Callback multiImageViewCallback) {
+    public ImageViewerAdapter(
+            Context context, List<PostImage> images, Loadable loadable, MultiImageView.Callback multiImageViewCallback
+    ) {
         this.context = context;
         this.images = images;
+        this.loadable = loadable;
         this.multiImageViewCallback = multiImageViewCallback;
     }
 
@@ -75,7 +81,7 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
             if (view == null) {
                 Logger.w(TAG, "finishUpdate setMode view still not found");
             } else {
-                view.setMode(change.mode, change.center);
+                view.setMode(loadable, change.mode, change.center);
             }
         }
         pendingModeChanges.clear();
@@ -86,7 +92,7 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
         if (view == null) {
             pendingModeChanges.add(new ModeChange(mode, postImage, center));
         } else {
-            view.setMode(mode, center);
+            view.setMode(loadable, mode, center);
         }
     }
 
@@ -119,9 +125,10 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
         MultiImageView view = find(postImage);
         view.toggleTransparency();
     }
-    public void rotateImage(PostImage postImage, boolean CW) {
+
+    public void rotateImage(PostImage postImage, int degrees) {
         MultiImageView view = find(postImage);
-        view.rotateImage(CW);
+        view.rotateImage(degrees);
     }
 
     private static class ModeChange {

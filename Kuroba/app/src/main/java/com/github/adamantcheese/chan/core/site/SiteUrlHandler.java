@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -31,7 +30,7 @@ public interface SiteUrlHandler {
 
     boolean respondsTo(HttpUrl url);
 
-    String desktopUrl(Loadable loadable, @Nullable Post post);
+    String desktopUrl(Loadable loadable, @Nullable final Post post);
 
     Loadable resolveLoadable(Site site, HttpUrl url);
 }

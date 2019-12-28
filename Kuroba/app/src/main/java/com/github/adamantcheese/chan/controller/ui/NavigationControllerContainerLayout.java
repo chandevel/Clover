@@ -21,7 +21,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -29,16 +28,25 @@ import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
 
+import androidx.core.view.ViewCompat;
+
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class NavigationControllerContainerLayout extends FrameLayout {
+public class NavigationControllerContainerLayout
+        extends FrameLayout {
     private NavigationController navigationController;
 
     private int slopPixels;
-    private int minimalMovedPixels;
+
+    /**
+     * How many pixels we should move a finger to the right before we start moving the whole
+     * controller to the right when in Phone layout. (The lower it is the easier it is to start
+     * moving the controller which may make it harder to click other views)
+     */
+    private int minimalMovedPixels = dp(10);
     private int maxFlingPixels;
 
     private boolean swipeEnabled = true;
@@ -94,7 +102,6 @@ public class NavigationControllerContainerLayout extends FrameLayout {
     private void init() {
         ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
         slopPixels = viewConfiguration.getScaledTouchSlop();
-        minimalMovedPixels = dp(3);
         maxFlingPixels = viewConfiguration.getScaledMaximumFlingVelocity();
 
         scroller = new Scroller(getContext());
@@ -112,7 +119,8 @@ public class NavigationControllerContainerLayout extends FrameLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (!swipeEnabled || tracking || navigationController.isBlockingInput() || !navigationController.getTop().navigation.swipeable || getBelowTop() == null) {
+        if (!swipeEnabled || tracking || navigationController.isBlockingInput()
+                || !navigationController.getTop().navigation.swipeable || getBelowTop() == null) {
             return false;
         }
 
@@ -193,7 +201,8 @@ public class NavigationControllerContainerLayout extends FrameLayout {
                 if (translationX > 0) {
                     boolean doFlingAway = false;
 
-                    if ((velocity > 0 && Math.abs(velocity) > dp(800) && Math.abs(velocity) < maxFlingPixels) || translationX >= getWidth() * 3 / 4) {
+                    if ((velocity > 0 && Math.abs(velocity) > dp(800) && Math.abs(velocity) < maxFlingPixels)
+                            || translationX >= getWidth() * 3 / 4) {
                         velocity = Math.max(dp(2000), velocity);
 
                         scroller.fling(translationX, 0, velocity, 0, 0, Integer.MAX_VALUE, 0, 0);

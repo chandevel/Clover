@@ -16,12 +16,15 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
+import android.text.style.UnderlineSpan;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
@@ -39,7 +42,8 @@ import java.util.List;
 public class StyleRule {
     public enum ForegroundColor {
         INLINE_QUOTE,
-        QUOTE
+        QUOTE,
+        RED
     }
 
     public enum BackgroundColor {
@@ -60,6 +64,7 @@ public class StyleRule {
     private ForegroundColor foregroundColor = null;
     private BackgroundColor backgroundColor = null;
     private boolean strikeThrough;
+    private boolean underline;
     private boolean bold;
     private boolean italic;
     private boolean monospace;
@@ -122,6 +127,11 @@ public class StyleRule {
         return this;
     }
 
+    public StyleRule underline() {
+        this.underline = true;
+        return this;
+    }
+
     public StyleRule bold() {
         bold = true;
         return this;
@@ -175,11 +185,9 @@ public class StyleRule {
         return false;
     }
 
-    public CharSequence apply(Theme theme,
-                              PostParser.Callback callback,
-                              Post.Builder post,
-                              CharSequence text,
-                              Element element) {
+    public CharSequence apply(
+            Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element element
+    ) {
         if (nullify) {
             return null;
         }
@@ -205,6 +213,10 @@ public class StyleRule {
 
         if (strikeThrough) {
             spansToApply.add(new StrikethroughSpan());
+        }
+
+        if (underline) {
+            spansToApply.add(new UnderlineSpan());
         }
 
         if (bold && italic) {
@@ -251,6 +263,8 @@ public class StyleRule {
                 return theme.inlineQuoteColor;
             case QUOTE:
                 return theme.quoteColor;
+            case RED:
+                return Color.RED;
             default:
                 return 0;
         }
@@ -265,22 +279,19 @@ public class StyleRule {
 
     private SpannableString applySpan(CharSequence text, List<Object> spans) {
         SpannableString result = new SpannableString(text);
-        int l = result.length();
-
         for (Object span : spans) {
             if (span != null) {
-                result.setSpan(span, 0, l, 0);
+                //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
+                //we use 1000 here for to go above everything else
+                result.setSpan(span, 0, result.length(), (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
             }
         }
-
         return result;
     }
 
     public interface Action {
-        CharSequence execute(Theme theme,
-                             PostParser.Callback callback,
-                             Post.Builder post,
-                             CharSequence text,
-                             Element element);
+        CharSequence execute(
+                Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element element
+        );
     }
 }

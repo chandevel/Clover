@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.core.site.common;
 
-
 import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -12,9 +11,10 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 
+import org.jsoup.parser.Parser;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +22,8 @@ import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
 
-public class FutabaChanReader implements ChanReader {
+public class FutabaChanReader
+        implements ChanReader {
     private final PostParser postParser;
 
     public FutabaChanReader() {
@@ -37,7 +38,8 @@ public class FutabaChanReader implements ChanReader {
     }
 
     @Override
-    public void loadThread(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+    public void loadThread(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception {
         reader.beginObject();
         // Page object
         while (reader.hasNext()) {
@@ -58,7 +60,8 @@ public class FutabaChanReader implements ChanReader {
     }
 
     @Override
-    public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+    public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception {
         reader.beginArray(); // Array of pages
 
         while (reader.hasNext()) {
@@ -85,7 +88,8 @@ public class FutabaChanReader implements ChanReader {
     }
 
     @Override
-    public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+    public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception {
         Post.Builder builder = new Post.Builder();
         builder.board(queue.getLoadable().board);
 
@@ -223,14 +227,12 @@ public class FutabaChanReader implements ChanReader {
 
         // The file from between the other values.
         if (fileId != null && fileName != null && fileExt != null) {
-            Map<String, String> args = makeArgument("tim", fileId,
-                    "ext", fileExt);
-            PostImage image = new PostImage.Builder()
-                    .originalName(fileId)
+            Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
+            PostImage image = new PostImage.Builder().serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
-                    .filename(org.jsoup.parser.Parser.unescapeEntities(fileName, false))
+                    .filename(Parser.unescapeEntities(fileName, false))
                     .extension(fileExt)
                     .imageWidth(fileWidth)
                     .imageHeight(fileHeight)
@@ -264,16 +266,13 @@ public class FutabaChanReader implements ChanReader {
         }
 
         if (countryCode != null && countryName != null) {
-            Map<String, String> arg = new HashMap<>(1);
-            HttpUrl countryUrl = endpoints.icon("country",
-                    makeArgument("country_code", countryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
+            HttpUrl countryUrl = endpoints.icon("country", makeArgument("country_code", countryCode));
+            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/" + countryCode));
         }
 
         if (trollCountryCode != null && countryName != null) {
-            HttpUrl countryUrl = endpoints.icon("troll_country",
-                    makeArgument("troll_country_code", trollCountryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
+            HttpUrl countryUrl = endpoints.icon("troll_country", makeArgument("troll_country_code", trollCountryCode));
+            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/t_" + trollCountryCode));
         }
 
         if (since4pass != 0) {
@@ -284,8 +283,8 @@ public class FutabaChanReader implements ChanReader {
         queue.addForParse(builder);
     }
 
-    private PostImage readPostImage(JsonReader reader, Post.Builder builder,
-                                    SiteEndpoints endpoints) throws IOException {
+    private PostImage readPostImage(JsonReader reader, Post.Builder builder, SiteEndpoints endpoints)
+            throws IOException {
         reader.beginObject();
 
         String fileId = null;
@@ -329,14 +328,12 @@ public class FutabaChanReader implements ChanReader {
         reader.endObject();
 
         if (fileId != null && fileName != null && fileExt != null) {
-            Map<String, String> args = makeArgument("tim", fileId,
-                    "ext", fileExt);
-            return new PostImage.Builder()
-                    .originalName(fileId)
+            Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
+            return new PostImage.Builder().serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
-                    .filename(org.jsoup.parser.Parser.unescapeEntities(fileName, false))
+                    .filename(Parser.unescapeEntities(fileName, false))
                     .extension(fileExt)
                     .imageWidth(fileWidth)
                     .imageHeight(fileHeight)

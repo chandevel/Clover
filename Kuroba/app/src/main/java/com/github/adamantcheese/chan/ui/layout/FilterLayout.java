@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.layout;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.text.Editable;
 import android.text.Html;
@@ -29,7 +30,6 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -39,24 +39,25 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatCheckBox;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
+import com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction;
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
-import com.github.adamantcheese.chan.ui.controller.FiltersController;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ColorPickerView;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -65,7 +66,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class FilterLayout extends LinearLayout implements View.OnClickListener {
+public class FilterLayout
+        extends LinearLayout
+        implements View.OnClickListener {
     private TextView typeText;
     private TextView boardsSelector;
     private boolean patternContainerErrorShowing = false;
@@ -78,6 +81,8 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private LinearLayout colorContainer;
     private View colorPreview;
     private AppCompatCheckBox applyToReplies;
+    private AppCompatCheckBox onlyOnOP;
+    private AppCompatCheckBox applyToSaved;
 
     @Inject
     BoardManager boardManager;
@@ -143,24 +148,50 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         patternPreviewStatus = findViewById(R.id.pattern_preview_status);
         enabled = findViewById(R.id.enabled);
         help = findViewById(R.id.help);
-        Chan.injector().instance(ThemeHelper.class).getTheme().helpDrawable.apply(help);
+        ThemeHelper.getTheme().helpDrawable.apply(help);
         help.setOnClickListener(this);
         colorContainer = findViewById(R.id.color_container);
         colorContainer.setOnClickListener(this);
         colorPreview = findViewById(R.id.color_preview);
         applyToReplies = findViewById(R.id.apply_to_replies_checkbox);
+        onlyOnOP = findViewById(R.id.only_on_op_checkbox);
+        applyToSaved = findViewById(R.id.apply_to_saved_checkbox);
 
         typeText.setOnClickListener(this);
-        typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
-                getAttrColor(getContext(), R.attr.dropdown_dark_color), getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)), null);
+        typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
+                dp(12),
+                dp(12),
+                true,
+                getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
+        ), null);
 
         boardsSelector.setOnClickListener(this);
-        boardsSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
-                getAttrColor(getContext(), R.attr.dropdown_dark_color), getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)), null);
+        boardsSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
+                dp(12),
+                dp(12),
+                true,
+                getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
+        ), null);
 
         actionText.setOnClickListener(this);
-        actionText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
-                getAttrColor(getContext(), R.attr.dropdown_dark_color), getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)), null);
+        actionText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
+                dp(12),
+                dp(12),
+                true,
+                getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
+        ), null);
+
+        enabled.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        enabled.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        applyToReplies.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        applyToReplies.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        onlyOnOP.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        onlyOnOP.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        applyToSaved.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+        applyToSaved.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
     }
 
     public void setFilter(Filter filter) {
@@ -169,9 +200,9 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         pattern.setText(filter.pattern);
 
         updateFilterValidity();
-        updateCheckboxes();
         updateFilterType();
         updateFilterAction();
+        updateCheckboxes();
         updateBoardsSummary();
         updatePatternPreview();
     }
@@ -183,6 +214,8 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     public Filter getFilter() {
         filter.enabled = enabled.isChecked();
         filter.applyToReplies = applyToReplies.isChecked();
+        filter.onlyOnOP = onlyOnOP.isChecked();
+        filter.applyToSaved = applyToSaved.isChecked();
 
         return filter;
     }
@@ -190,25 +223,21 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (v == typeText) {
-            @SuppressWarnings("unchecked") final SelectLayout<FilterType> selectLayout =
-                    (SelectLayout<FilterType>) LayoutInflater.from(getContext())
-                            .inflate(R.layout.layout_select, null);
+            @SuppressWarnings("unchecked")
+            final SelectLayout<FilterType> selectLayout =
+                    (SelectLayout<FilterType>) AndroidUtils.inflate(getContext(), R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
             for (FilterType filterType : FilterType.values()) {
-                String name = FiltersController.filterTypeName(filterType);
-                String description = getString(filterType.isRegex ? R.string.filter_type_regex_matching : R.string.filter_type_string_matching);
+                String name = FilterType.filterTypeName(filterType);
                 boolean checked = filter.hasFilter(filterType);
 
-                items.add(new SelectLayout.SelectItem<>(
-                        filterType, filterType.flag, name, description, name, checked
-                ));
+                items.add(new SelectLayout.SelectItem<>(filterType, filterType.flag, name, null, name, checked));
             }
 
             selectLayout.setItems(items);
 
-            new AlertDialog.Builder(getContext())
-                    .setView(selectLayout)
+            new AlertDialog.Builder(getContext()).setView(selectLayout)
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         List<SelectLayout.SelectItem<FilterType>> items12 = selectLayout.getItems();
                         int flags = 0;
@@ -224,9 +253,10 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
                     })
                     .show();
         } else if (v == boardsSelector) {
-            @SuppressLint("InflateParams") @SuppressWarnings("unchecked") final SelectLayout<Board> selectLayout =
-                    (SelectLayout<Board>) LayoutInflater.from(getContext())
-                            .inflate(R.layout.layout_select, null);
+            @SuppressLint("InflateParams")
+            @SuppressWarnings("unchecked")
+            final SelectLayout<Board> selectLayout =
+                    (SelectLayout<Board>) AndroidUtils.inflate(getContext(), R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
 
@@ -239,15 +269,12 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
                 String name = BoardHelper.getName(board);
                 boolean checked = filterEngine.matchesBoard(filter, board);
 
-                items.add(new SelectLayout.SelectItem<>(
-                        board, board.id, name, "", name, checked
-                ));
+                items.add(new SelectLayout.SelectItem<>(board, board.id, name, "", name, checked));
             }
 
             selectLayout.setItems(items);
 
-            new AlertDialog.Builder(getContext())
-                    .setView(selectLayout)
+            new AlertDialog.Builder(getContext()).setView(selectLayout)
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         List<SelectLayout.SelectItem<Board>> items1 = selectLayout.getItems();
                         boolean all = selectLayout.areAllChecked();
@@ -271,17 +298,16 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         } else if (v == actionText) {
             List<FloatingMenuItem> menuItems = new ArrayList<>(6);
 
-            for (FilterEngine.FilterAction action : FilterEngine.FilterAction.values()) {
-                menuItems.add(new FloatingMenuItem(action, FiltersController.actionName(action)));
+            for (FilterAction action : FilterAction.values()) {
+                menuItems.add(new FloatingMenuItem(action, FilterAction.actionName(action)));
             }
 
             FloatingMenu menu = new FloatingMenu(v.getContext());
             menu.setAnchor(v, Gravity.LEFT, -dp(5), -dp(5));
-            menu.setPopupWidth(dp(150));
             menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
                 @Override
                 public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                    FilterEngine.FilterAction action = (FilterEngine.FilterAction) item.getId();
+                    FilterAction action = (FilterAction) item.getId();
                     filter.action = action.id;
                     updateFilterAction();
                 }
@@ -312,8 +338,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
                 }
             }
 
-            new AlertDialog.Builder(getContext())
-                    .setTitle(R.string.filter_help_title)
+            new AlertDialog.Builder(getContext()).setTitle(R.string.filter_help_title)
                     .setMessage(message)
                     .setPositiveButton(R.string.ok, null)
                     .show();
@@ -321,8 +346,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             final ColorPickerView colorPickerView = new ColorPickerView(getContext());
             colorPickerView.setColor(filter.color);
 
-            AlertDialog dialog = new AlertDialog.Builder(getContext())
-                    .setTitle(R.string.filter_color_pick)
+            AlertDialog dialog = new AlertDialog.Builder(getContext()).setTitle(R.string.filter_color_pick)
                     .setView(colorPickerView)
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog1, which) -> {
@@ -335,7 +359,8 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     }
 
     private void updateFilterValidity() {
-        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern) != null;
+        int extraFlags = (filter.type & FilterType.COUNTRY_CODE.flag) != 0 ? Pattern.CASE_INSENSITIVE : 0;
+        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, extraFlags) != null;
 
         if (valid != patternContainerErrorShowing) {
             patternContainerErrorShowing = valid;
@@ -361,26 +386,44 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private void updateCheckboxes() {
         enabled.setChecked(filter.enabled);
         applyToReplies.setChecked(filter.applyToReplies);
-        if (filter.action == FilterEngine.FilterAction.WATCH.id) {
+        onlyOnOP.setChecked(filter.onlyOnOP);
+        applyToSaved.setChecked(filter.applyToSaved);
+        if (filter.action == FilterAction.WATCH.id) {
             applyToReplies.setEnabled(false);
+            onlyOnOP.setChecked(true);
+            onlyOnOP.setEnabled(false);
+            applyToSaved.setEnabled(false);
         }
     }
 
     private void updateFilterAction() {
-        FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
-        actionText.setText(FiltersController.actionName(action));
-        colorContainer.setVisibility(action == FilterEngine.FilterAction.COLOR ? VISIBLE : GONE);
+        FilterAction action = FilterAction.forId(filter.action);
+        actionText.setText(FilterAction.actionName(action));
+        colorContainer.setVisibility(action == FilterAction.COLOR ? VISIBLE : GONE);
         if (filter.color == 0) {
             filter.color = 0xffff0000;
         }
         colorPreview.setBackgroundColor(filter.color);
-        if (filter.action != FilterEngine.FilterAction.WATCH.id) {
+        if (filter.action != FilterAction.WATCH.id) {
             applyToReplies.setEnabled(true);
+            onlyOnOP.setEnabled(true);
+            onlyOnOP.setChecked(false);
+            applyToSaved.setEnabled(true);
         } else {
             applyToReplies.setEnabled(false);
+            onlyOnOP.setEnabled(false);
+            applyToSaved.setEnabled(false);
             if (applyToReplies.isChecked()) {
                 applyToReplies.toggle();
                 filter.applyToReplies = false;
+            }
+            if (!onlyOnOP.isChecked()) {
+                onlyOnOP.toggle();
+                filter.onlyOnOP = true;
+            }
+            if (applyToSaved.isChecked()) {
+                applyToSaved.toggle();
+                filter.applyToSaved = false;
             }
         }
     }
@@ -393,7 +436,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updatePatternPreview() {
         String text = patternPreview.getText().toString();
-        boolean matches = text.length() > 0 && filterEngine.matches(filter, true, text, true);
+        boolean matches = text.length() > 0 && filterEngine.matches(filter, text, true);
         patternPreviewStatus.setText(matches ? R.string.filter_matches : R.string.filter_no_matches);
     }
 

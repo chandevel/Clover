@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.toolbar;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -29,7 +28,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackg
 /**
  * The container view for the list of ToolbarMenuItems, a list of ImageViews.
  */
-public class ToolbarMenuView extends LinearLayout {
+public class ToolbarMenuView
+        extends LinearLayout {
     private ToolbarMenu menu;
 
     public ToolbarMenuView(Context context) {
@@ -65,11 +65,11 @@ public class ToolbarMenuView extends LinearLayout {
         for (ToolbarMenuItem item : menu.items) {
             ImageView imageView = new ImageView(getContext());
 
-            imageView.setOnClickListener((v) -> handleClick(item));
+            imageView.setOnClickListener(v -> handleClick(item));
             imageView.setFocusable(true);
             imageView.setScaleType(ImageView.ScaleType.CENTER);
 
-            imageView.setVisibility(item.visible ? View.VISIBLE : View.GONE);
+            imageView.setVisibility(item.visible ? VISIBLE : GONE);
 
             if (item.overflowStyle) {
                 imageView.setLayoutParams(new LayoutParams(dp(44), dp(56)));

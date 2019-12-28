@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -79,12 +78,13 @@ public class SiteResolver {
             for (SiteUrlHandler siteUrlHandler : siteUrlHandlers) {
                 if (siteUrlHandler.matchesName(url)) {
                     return new SiteResolverResult(SiteResolverResult.Match.BUILTIN,
-                            siteUrlHandler.getSiteClass(), null);
+                            siteUrlHandler.getSiteClass(),
+                            null
+                    );
                 }
             }
 
-            return new SiteResolverResult(SiteResolverResult.Match.NONE,
-                    null, null);
+            return new SiteResolverResult(SiteResolverResult.Match.NONE, null, null);
         }
 
         if (!httpUrl.scheme().equals("https")) {
@@ -93,8 +93,7 @@ public class SiteResolver {
 
         for (SiteUrlHandler siteUrlHandler : siteUrlHandlers) {
             if (siteUrlHandler.respondsTo(httpUrl)) {
-                return new SiteResolverResult(SiteResolverResult.Match.BUILTIN,
-                        siteUrlHandler.getSiteClass(), null);
+                return new SiteResolverResult(SiteResolverResult.Match.BUILTIN, siteUrlHandler.getSiteClass(), null);
             }
         }
 
@@ -115,6 +114,7 @@ public class SiteResolver {
                     Loadable resolved = databaseManager.getDatabaseLoadableManager().get(resolvedLoadable);
 
                     if (resolved != null) {
+                        resolved.markedNo = resolvedLoadable.markedNo;
                         return new LoadableResult(resolved);
                     }
                 }

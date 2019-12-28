@@ -17,10 +17,8 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import android.content.res.ColorStateList;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -29,10 +27,17 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.AddCallback, View.OnClickListener {
+public class BoardAddLayout
+        extends LinearLayout
+        implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.AddCallback, View.OnClickListener {
     private BoardSetupPresenter presenter;
 
     private SuggestionsAdapter suggestionsAdapter;
@@ -114,7 +119,8 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         presenter.onAddDialogPositiveClicked();
     }
 
-    private class SuggestionsAdapter extends RecyclerView.Adapter<SuggestionCell> {
+    private class SuggestionsAdapter
+            extends RecyclerView.Adapter<SuggestionCell> {
         public SuggestionsAdapter() {
             setHasStableIds(true);
         }
@@ -131,9 +137,11 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
 
         @Override
         public SuggestionCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new SuggestionCell(
-                    LayoutInflater.from(parent.getContext())
-                            .inflate(R.layout.cell_board_suggestion, parent, false));
+            return new SuggestionCell(AndroidUtils.inflate(parent.getContext(),
+                    R.layout.cell_board_suggestion,
+                    parent,
+                    false
+            ));
         }
 
         @Override
@@ -145,7 +153,9 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         }
     }
 
-    private class SuggestionCell extends RecyclerView.ViewHolder implements OnClickListener, CompoundButton.OnCheckedChangeListener {
+    private class SuggestionCell
+            extends RecyclerView.ViewHolder
+            implements OnClickListener, CompoundButton.OnCheckedChangeListener {
         private TextView text;
         private TextView description;
         private CheckBox check;
@@ -161,6 +171,8 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
             description = itemView.findViewById(R.id.description);
             check = itemView.findViewById(R.id.check);
             check.setOnCheckedChangeListener(this);
+            check.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
+            check.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
 
             itemView.setOnClickListener(this);
         }

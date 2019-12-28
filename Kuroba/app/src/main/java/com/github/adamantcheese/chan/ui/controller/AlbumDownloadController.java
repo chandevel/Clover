@@ -18,64 +18,78 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.saver.ImageSaveTask;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import javax.inject.Inject;
 
-public class AlbumDownloadController extends Controller implements View.OnClickListener {
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+
+public class AlbumDownloadController
+        extends Controller
+        implements View.OnClickListener {
     private GridRecyclerView recyclerView;
     private FloatingActionButton download;
 
     private List<AlbumDownloadItem> items = new ArrayList<>();
     private Loadable loadable;
 
+    @Inject
+    ImageSaver imageSaver;
+
     private boolean allChecked = true;
 
     public AlbumDownloadController(Context context) {
         super(context);
+
+        inject(this);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.controller_album_download);
+        view = inflate(context, R.layout.controller_album_download);
 
         updateTitle();
 
-        navigation.buildMenu()
-                .withItem(R.drawable.ic_select_all_white_24dp, this::onCheckAllClicked)
-                .build();
+        navigation.buildMenu().withItem(R.drawable.ic_select_all_white_24dp, this::onCheckAllClicked).build();
 
         download = view.findViewById(R.id.download);
         download.setOnClickListener(this);
-        Chan.injector().instance(ThemeHelper.class).getTheme().applyFabColor(download);
+        ThemeHelper.getTheme().applyFabColor(download);
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);
@@ -91,34 +105,50 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
         if (v == download) {
             int checkCount = getCheckCount();
             if (checkCount == 0) {
-                new AlertDialog.Builder(context)
-                        .setMessage(R.string.album_download_none_checked)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
+                showToast(R.string.album_download_none_checked);
             } else {
-                final String folderForAlbum = Chan.injector().instance(ImageSaver.class).getSubFolder(loadable.title);
+                String subFolder = ChanSettings.saveBoardFolder.get() ? (ChanSettings.saveThreadFolder.get()
+                        ? appendAdditionalSubDirectories(items.get(0).postImage)
+                        : loadable.site.name() + File.separator + loadable.boardCode) : null;
+                String message = getString(
+                        R.string.album_download_confirm,
+                        getQuantityString(R.plurals.image, checkCount, checkCount),
+                        (subFolder != null ? subFolder : "your base saved files location") + "."
+                );
 
-                String message = context.getString(R.string.album_download_confirm,
-                        context.getResources().getQuantityString(R.plurals.image, checkCount, checkCount),
-                        folderForAlbum);
+                //generate tasks before prompting
+                List<ImageSaveTask> tasks = new ArrayList<>(items.size());
+                for (AlbumDownloadItem item : items) {
+                    if (item.checked) {
+                        ImageSaveTask imageTask = new ImageSaveTask(loadable, item.postImage);
+                        if (subFolder != null) {
+                            imageTask.setSubFolder(subFolder);
+                        }
+                        tasks.add(imageTask);
+                    }
+                }
 
-                new AlertDialog.Builder(context)
-                        .setMessage(message)
+                new AlertDialog.Builder(context).setMessage(message)
                         .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.ok, (dialog, which) -> {
-                            List<ImageSaveTask> tasks = new ArrayList<>(items.size());
-                            for (AlbumDownloadItem item : items) {
-                                if (item.checked) {
-                                    tasks.add(new ImageSaveTask(item.postImage));
-                                }
-                            }
-
-                            if (Chan.injector().instance(ImageSaver.class).startBundledTask(context, folderForAlbum, tasks)) {
-                                navigationController.popController();
-                            }
-                        })
+                        .setPositiveButton(R.string.ok, (dialog, which) -> handleDownloadResult(tasks))
                         .show();
             }
+        }
+    }
+
+    private void handleDownloadResult(List<ImageSaveTask> tasks) {
+        ImageSaver.BundledImageSaveResult result = imageSaver.startBundledTask(context, tasks);
+
+        switch (result) {
+            case Ok:
+                navigationController.popController();
+                break;
+            case BaseDirectoryDoesNotExist:
+                showToast(R.string.files_base_dir_does_not_exist);
+                break;
+            case UnknownError:
+                showToast(R.string.album_download_could_not_save_one_or_more_images);
+                break;
         }
     }
 
@@ -148,7 +178,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
     }
 
     private void updateTitle() {
-        navigation.title = context.getString(R.string.album_download_screen, getCheckCount(), items.size());
+        navigation.title = getString(R.string.album_download_screen, getCheckCount(), items.size());
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
     }
 
@@ -166,6 +196,22 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
         return checkCount;
     }
 
+    //This method and the one in ImageViewerController should be roughly equivalent in function
+    @NonNull
+    private String appendAdditionalSubDirectories(PostImage postImage) {
+        // save to op no appended with the first 50 characters of the subject
+        // should be unique and perfectly understandable title wise
+        String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(loadable.site.name()) + File.separator
+                + StringUtils.dirNameRemoveBadCharacters(loadable.boardCode) + File.separator + loadable.no + "_";
+
+        String tempTitle = (loadable.no == 0 ? "catalog" : loadable.title);
+
+        String sanitizedFileName = StringUtils.dirNameRemoveBadCharacters(tempTitle);
+        String truncatedFileName = sanitizedFileName.substring(0, Math.min(sanitizedFileName.length(), 50));
+
+        return sanitizedSubFolderName + truncatedFileName;
+    }
+
     private static class AlbumDownloadItem {
         public PostImage postImage;
         public boolean checked;
@@ -178,21 +224,24 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
         }
     }
 
-    private class AlbumAdapter extends RecyclerView.Adapter<AlbumDownloadCell> {
+    private class AlbumAdapter
+            extends RecyclerView.Adapter<AlbumDownloadCell> {
         public AlbumAdapter() {
             setHasStableIds(true);
         }
 
         @Override
         public AlbumDownloadCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new AlbumDownloadCell(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_album_download, parent, false));
+            View view = inflate(parent.getContext(), R.layout.cell_album_download, parent, false);
+
+            return new AlbumDownloadCell(view);
         }
 
         @Override
         public void onBindViewHolder(AlbumDownloadCell holder, int position) {
             AlbumDownloadItem item = items.get(position);
 
-            holder.thumbnailView.setPostImage(item.postImage, dp(100), dp(100));
+            holder.thumbnailView.setPostImage(loadable, item.postImage, true, dp(100), dp(100));
             setItemChecked(holder, item.checked, false);
         }
 
@@ -207,7 +256,9 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
         }
     }
 
-    private class AlbumDownloadCell extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class AlbumDownloadCell
+            extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         private ImageView checkbox;
         private PostImageThumbnailView thumbnailView;
 
@@ -216,7 +267,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
             itemView.getLayoutParams().height = recyclerView.getRealSpanWidth();
             checkbox = itemView.findViewById(R.id.checkbox);
             thumbnailView = itemView.findViewById(R.id.thumbnail_view);
-            itemView.setOnClickListener(this);
+            thumbnailView.setOnClickListener(this);
         }
 
         @Override
@@ -233,22 +284,16 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
     private void setItemChecked(AlbumDownloadCell cell, boolean checked, boolean animated) {
         float scale = checked ? 0.75f : 1f;
         if (animated) {
-            cell.thumbnailView.animate().scaleX(scale).scaleY(scale)
-                    .setInterpolator(new DecelerateInterpolator(3f)).setDuration(500).start();
+            Interpolator slowdown = new DecelerateInterpolator(3f);
+            cell.thumbnailView.animate().scaleX(scale).scaleY(scale).setInterpolator(slowdown).setDuration(500).start();
         } else {
             cell.thumbnailView.setScaleX(scale);
             cell.thumbnailView.setScaleY(scale);
         }
 
-        Drawable drawable = context.getDrawable(checked ? R.drawable.ic_check_circle_white_24dp :
-                R.drawable.ic_radio_button_unchecked_white_24dp);
-
-        if (checked) {
-            Drawable wrapped = DrawableCompat.wrap(drawable);
-            DrawableCompat.setTint(wrapped, ThemeHelper.PrimaryColor.BLUE.color);
-            cell.checkbox.setImageDrawable(wrapped);
-        } else {
-            cell.checkbox.setImageDrawable(drawable);
-        }
+        Drawable drawable = context.getDrawable(checked
+                ? R.drawable.ic_blue_checkmark_24dp
+                : R.drawable.ic_radio_button_unchecked_white_24dp);
+        cell.checkbox.setImageDrawable(drawable);
     }
 }

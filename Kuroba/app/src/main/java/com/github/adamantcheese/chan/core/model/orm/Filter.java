@@ -16,13 +16,13 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
+import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import com.github.adamantcheese.chan.core.manager.FilterType;
-
 @DatabaseTable(tableName = "filter")
-public class Filter implements Cloneable {
+public class Filter
+        implements Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -51,6 +51,15 @@ public class Filter implements Cloneable {
     @DatabaseField(columnName = "apply_to_replies", canBeNull = false)
     public boolean applyToReplies;
 
+    @DatabaseField(canBeNull = false)
+    public int order = -1;
+
+    @DatabaseField(canBeNull = false)
+    public boolean onlyOnOP;
+
+    @DatabaseField(canBeNull = false)
+    public boolean applyToSaved;
+
     public boolean hasFilter(FilterType filterType) {
         return (type & filterType.flag) != 0;
     }
@@ -65,10 +74,21 @@ public class Filter implements Cloneable {
     }
 
     public Filter() {
-
     }
 
-    public Filter(boolean enabled, int type, String pattern, boolean allBoards, String boards, int action, int color, boolean applyToReplies) {
+    public Filter(
+            boolean enabled,
+            int type,
+            String pattern,
+            boolean allBoards,
+            String boards,
+            int action,
+            int color,
+            boolean applyToReplies,
+            int order,
+            boolean onlyOnOP,
+            boolean applyToSaved
+    ) {
         this.enabled = enabled;
         this.type = type;
         this.pattern = pattern;
@@ -77,6 +97,9 @@ public class Filter implements Cloneable {
         this.action = action;
         this.color = color;
         this.applyToReplies = applyToReplies;
+        this.order = order;
+        this.onlyOnOP = onlyOnOP;
+        this.applyToSaved = applyToSaved;
     }
 
     public void apply(Filter filter) {
@@ -88,8 +111,11 @@ public class Filter implements Cloneable {
         action = filter.action;
         color = filter.color;
         applyToReplies = filter.applyToReplies;
+        order = filter.order;
+        onlyOnOP = filter.onlyOnOP;
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Filter clone() {
         return new Filter(
                 enabled,
@@ -99,7 +125,10 @@ public class Filter implements Cloneable {
                 boards,
                 action,
                 color,
-                applyToReplies
+                applyToReplies,
+                order,
+                onlyOnOP,
+                applyToSaved
         );
     }
 }

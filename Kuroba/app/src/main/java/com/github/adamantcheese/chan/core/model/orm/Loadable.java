@@ -34,7 +34,8 @@ import com.j256.ormlite.table.DatabaseTable;
  * references the same loadable and that the loadable is properly saved in the database.
  */
 @DatabaseTable(tableName = "loadable")
-public class Loadable implements Cloneable {
+public class Loadable
+        implements Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -82,6 +83,12 @@ public class Loadable implements Cloneable {
     public boolean dirty = false;
 
     /**
+     * Tells us whether this loadable (when in THREAD mode) contains information about
+     * a live thread or the local saved copy of a thread (which may be already deleted from the server)
+     */
+    public transient LoadableDownloadingState loadableDownloadingState = LoadableDownloadingState.NotDownloading;
+
+    /**
      * Constructs an empty loadable. The mode is INVALID.
      */
     protected Loadable() {
@@ -118,7 +125,7 @@ public class Loadable implements Cloneable {
 
     public static Loadable forCatalog(Board board) {
         Loadable loadable = new Loadable();
-        loadable.siteId = board.site.id();
+        loadable.siteId = board.siteId;
         loadable.site = board.site;
         loadable.board = board;
         loadable.boardCode = board.code;
@@ -186,12 +193,11 @@ public class Loadable implements Cloneable {
      */
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof Loadable))
-            return false;
+        if (!(object instanceof Loadable)) return false;
 
         Loadable other = (Loadable) object;
 
-        if (site.id() != other.site.id()) {
+        if (site.id() != other.siteId) {
             return false;
         }
 
@@ -226,19 +232,9 @@ public class Loadable implements Cloneable {
 
     @Override
     public String toString() {
-        return "Loadable{" +
-                "id=" + id +
-                ", mode=" + mode +
-                ", board='" + boardCode + '\'' +
-                ", no=" + no +
-                ", title='" + title + '\'' +
-                ", listViewIndex=" + listViewIndex +
-                ", listViewTop=" + listViewTop +
-                ", lastViewed=" + lastViewed +
-                ", lastLoaded=" + lastLoaded +
-                ", markedNo=" + markedNo +
-                ", dirty=" + dirty +
-                '}';
+        return "Loadable{id=" + id + ", mode=" + mode + ", board='" + boardCode + '\'' + ", no=" + no + ", title='"
+                + title + '\'' + ", listViewIndex=" + listViewIndex + ", listViewTop=" + listViewTop + ", lastViewed="
+                + lastViewed + ", lastLoaded=" + lastLoaded + ", markedNo=" + markedNo + ", dirty=" + dirty + '}';
     }
 
     public boolean isThreadMode() {
@@ -252,6 +248,22 @@ public class Loadable implements Cloneable {
     // TODO(multi-site) remove
     public boolean isFromDatabase() {
         return id > 0;
+    }
+
+    /**
+     * Thread is either fully downloaded or it is still being downloaded BUT we are currently
+     * viewing the local copy of the thread
+     */
+    public boolean isLocal() {
+        return loadableDownloadingState == LoadableDownloadingState.DownloadingAndViewable
+                || loadableDownloadingState == LoadableDownloadingState.AlreadyDownloaded;
+    }
+
+    /**
+     * Thread is being downloaded but we are not currently viewing the local copy
+     */
+    public boolean isDownloading() {
+        return loadableDownloadingState == LoadableDownloadingState.DownloadingAndNotViewable;
     }
 
     public static Loadable readFromParcel(Parcel parcel) {
@@ -281,6 +293,7 @@ public class Loadable implements Cloneable {
         parcel.writeInt(listViewTop);
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Loadable clone() {
         Loadable copy = new Loadable();
         copy.id = id;
@@ -304,5 +317,29 @@ public class Loadable implements Cloneable {
         public static final int INVALID = -1;
         public static final int THREAD = 0;
         public static final int CATALOG = 1;
+    }
+
+    /**
+     * Only for Loadable.Mode == THREAD
+     */
+    public enum LoadableDownloadingState {
+        /**
+         * We are not downloading a thread associated with this loadable
+         */
+        NotDownloading,
+        /**
+         * We are downloading this thread, but we are not viewing it at the current time.
+         * (We are viewing the live thread)
+         */
+        DownloadingAndNotViewable,
+        /**
+         * We are downloading this thread and we are currently viewing it (We are viewing the local
+         * thread)
+         */
+        DownloadingAndViewable,
+        /**
+         * Thread has been fully downloaded so it's always a local thread
+         */
+        AlreadyDownloaded,
     }
 }
