@@ -53,6 +53,7 @@ import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.file.RawFile;
@@ -84,7 +85,6 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
 
 public class MultiImageView
@@ -118,15 +118,15 @@ public class MultiImageView
     private Callback callback;
     private Mode mode = Mode.UNLOADED;
 
-    private boolean hasContent = false;
     private ImageContainer thumbnailRequest;
     private CancelableDownload bigImageRequest;
     private CancelableDownload gifRequest;
     private CancelableDownload videoRequest;
-
     private SimpleExoPlayer exoPlayer;
-    private boolean mediaSourceCancel = false;
+    private CancellableToast cancellableToast;
 
+    private boolean hasContent = false;
+    private boolean mediaSourceCancel = false;
     private boolean backgroundToggle;
 
     public MultiImageView(Context context) {
@@ -140,6 +140,7 @@ public class MultiImageView
     public MultiImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         this.context = context;
+        this.cancellableToast = new CancellableToast();
 
         inject(this);
         setOnClickListener(this);
@@ -633,7 +634,7 @@ public class MultiImageView
 
     private void setOther(Loadable loadable, PostImage image) {
         if (image.type == PostImage.Type.PDF) {
-            showToast(R.string.pdf_not_viewable);
+            cancellableToast.showToast(context, R.string.pdf_not_viewable);
         }
     }
 
@@ -719,24 +720,24 @@ public class MultiImageView
                     reason
             );
 
-            showToast(message);
+            cancellableToast.showToast(context, message);
             callback.hideProgress(MultiImageView.this);
         }
     }
 
     private void onNotFoundError() {
-        showToast(R.string.image_not_found);
+        cancellableToast.showToast(context, R.string.image_not_found);
         callback.hideProgress(MultiImageView.this);
     }
 
     private void onOutOfMemoryError() {
-        showToast(R.string.image_preview_failed_oom);
+        cancellableToast.showToast(context, R.string.image_preview_failed_oom);
         callback.hideProgress(MultiImageView.this);
     }
 
     private void onBigImageError(boolean wasInitial) {
         if (wasInitial) {
-            showToast(R.string.image_failed_big_image);
+            cancellableToast.showToast(context, R.string.image_failed_big_image);
             callback.hideProgress(MultiImageView.this);
         }
     }
