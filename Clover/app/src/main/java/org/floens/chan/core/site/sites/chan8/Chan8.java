@@ -29,7 +29,7 @@ public class Chan8 extends CommonSite {
 
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https://8ch.net/");
+            return HttpUrl.parse("https://8kun.top/");
         }
 
         @Override
