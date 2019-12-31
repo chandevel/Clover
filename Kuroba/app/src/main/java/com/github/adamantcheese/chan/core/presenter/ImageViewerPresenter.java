@@ -109,6 +109,22 @@ public class ImageViewerPresenter
         this.selectedPosition = Math.max(0, Math.min(images.size() - 1, position));
         this.progress = new HashMap<>(images.size());
 
+        int chunksCount = ChanSettings.ConcurrentFileDownloadingChunks.toChunkCount(
+                ChanSettings.concurrentFileDownloadingChunksCount.get()
+        );
+
+        for (int i = 0; i < images.size(); ++i) {
+            List<Float> initialProgress = new ArrayList<>(chunksCount);
+
+            for (int j = 0; j < chunksCount; ++j) {
+                initialProgress.add(.1f);
+            }
+
+            // Always use a little bit of progress so it's obvious that we have started downloading
+            // the image
+            progress.put(i, initialProgress);
+        }
+
         // Do this before the view is measured, to avoid it to always loading the first two pages
         callback.setPagerItems(loadable, images, selectedPosition);
         callback.setImageMode(images.get(selectedPosition), LOWRES, true);
@@ -455,13 +471,16 @@ public class ImageViewerPresenter
         BackgroundUtils.ensureMainThread();
 
         if (chunksCount <= 0) {
-            throw new IllegalArgumentException("chunksCount must be 1 or greater than 1");
+            throw new IllegalArgumentException("chunksCount must be 1 or greater than 1 " +
+                    "(actual = " + chunksCount + ")");
         }
 
         List<Float> initialProgress = new ArrayList<>(chunksCount);
 
         for (int i = 0; i < chunksCount; ++i) {
-            initialProgress.add(0f);
+            // Always use a little bit of progress so it's obvious that we have started downloading
+            // the image
+            initialProgress.add(.1f);
         }
 
         for (int i = 0; i < images.size(); i++) {
@@ -473,7 +492,6 @@ public class ImageViewerPresenter
         }
 
         if (multiImageView.getPostImage() == images.get(selectedPosition)) {
-            callback.setChunksCount(chunksCount);
             callback.showProgress(true);
             callback.onLoadProgress(initialProgress);
         }
@@ -507,6 +525,7 @@ public class ImageViewerPresenter
 
         if (multiImageView.getPostImage() == images.get(selectedPosition)
                 && progress.get(selectedPosition) != null) {
+            callback.showProgress(true);
             callback.onLoadProgress(progress.get(selectedPosition));
         }
     }
@@ -590,8 +609,6 @@ public class ImageViewerPresenter
         void scrollToImage(PostImage postImage);
 
         MultiImageView.Mode getImageMode(PostImage postImage);
-
-        void setChunksCount(int chunksCount);
 
         void showProgress(boolean show);
 

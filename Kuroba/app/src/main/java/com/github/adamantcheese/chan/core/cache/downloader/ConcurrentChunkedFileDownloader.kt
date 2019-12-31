@@ -76,12 +76,8 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                         partialContentCheckResult,
                         output
                 )
-                .doOnSubscribe {
-                    log(TAG, "Starting downloading (${url})")
-                }
-                .doOnComplete {
-                    log(TAG, "Completed downloading (${url})")
-                }
+                .doOnSubscribe { log(TAG, "Starting downloading (${url})") }
+                .doOnComplete { log(TAG, "Completed downloading (${url})") }
                 .doOnError { error ->
                     logError(TAG, "Error while trying to download (${url}) " +
                             "error name = ${error.javaClass.simpleName}")

@@ -65,7 +65,7 @@ public class ExperimentalSettingsController
                         new ListSettingView<>(
                                 this,
                                 ChanSettings.concurrentFileDownloadingChunksCount,
-                                "Try to download files concurrently in chunks",
+                                context.getString(R.string.settings_concurrent_file_downloading_chunks_count_description),
                                 items)
                 )
         );

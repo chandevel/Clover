@@ -404,11 +404,12 @@ public class ImageViewerController
         imageViewerCallback.scrollToImage(postImage);
     }
 
-    public void setChunksCount(int chunksCount) {
-        loadingBar.setChunksCount(chunksCount);
-    }
-
     public void showProgress(boolean show) {
+        int visibility = loadingBar.getVisibility();
+        if ((visibility == VISIBLE && show) || (visibility == GONE && !show)) {
+            return;
+        }
+
         loadingBar.setVisibility(show ? VISIBLE : GONE);
     }
 
