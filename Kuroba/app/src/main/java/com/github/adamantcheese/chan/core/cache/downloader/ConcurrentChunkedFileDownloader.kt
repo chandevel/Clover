@@ -76,6 +76,16 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                         partialContentCheckResult,
                         output
                 )
+                .doOnSubscribe {
+                    log(TAG, "Starting downloading (${url})")
+                }
+                .doOnComplete {
+                    log(TAG, "Completed downloading (${url})")
+                }
+                .doOnError { error ->
+                    logError(TAG, "Error while trying to download (${url}) " +
+                            "error name = ${error.javaClass.simpleName}")
+                }
         )
     }
 
@@ -235,6 +245,10 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                 .observeOn(workerScheduler)
                 .map { response -> ChunkResponse(chunk, response) }
                 .flatMap { chunkResponse ->
+                    if (chunkResponse.response.code == NOT_FOUND_STATUS_CODE) {
+                        throwCancellationException(url)
+                    }
+
                     // Here is where the most fun is happening. At this point we have sent multiple
                     // requests to the server and got responses. Now we need to read the bodies of
                     // those responses each into it's own chunk file. Then, after we have read
@@ -345,9 +359,11 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             val chunk = chunkResponse.chunk
 
             try {
-                log(TAG,
-                        "pipeChunk($chunkIndex) ($url) called for chunk ${chunk.start}..${chunk.end}"
-                )
+                if (ChanSettings.verboseLogs.get()) {
+                    log(TAG,
+                            "pipeChunk($chunkIndex) ($url) called for chunk ${chunk.start}..${chunk.end}"
+                    )
+                }
 
                 if (chunk.isWholeFile() && totalChunksCount > 1) {
                     throw IllegalStateException("pipeChunk($chunkIndex) Bad amount of chunks, " +
@@ -405,13 +421,36 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     throw error
                 }
             } catch (error: Throwable) {
-                if (totalChunksCount > 1 && error !is IOException) {
+                val isStoppedOrCanceled = activeDownloads.get(url)
+                        ?.cancelableDownload
+                        ?.isRunning() != true
+
+                if (isStoppedOrCanceled || totalChunksCount > 1 && error !is IOException) {
+                    val state = getState(url)
                     canceled.set(true)
-                    activeDownloads.get(url)?.cancelableDownload?.cancel()
+
+                    when (state) {
+                        DownloadState.Canceled -> {
+                            activeDownloads.get(url)?.cancelableDownload?.cancel()
+                        }
+                        DownloadState.Stopped -> {
+                            activeDownloads.get(url)?.cancelableDownload?.stop()
+                        }
+                        else -> {
+                            throw RuntimeException("Expected Canceled or Stopped but " +
+                                    "actual state is Running")
+                        }
+                    }
+
+                    log(TAG, "pipeChunk($chunkIndex) ($url) cancel" +
+                            " for chunk ${chunk.start}..${chunk.end}")
+                    emitter.tryOnError(FileCacheException.CancellationException(state, url))
+                    return@create
                 }
 
                 emitter.tryOnError(error)
-                log(TAG, "pipeChunk($chunkIndex) ($url) fail for chunk ${chunk.start}..${chunk.end}")
+                log(TAG, "pipeChunk($chunkIndex) ($url) fail " +
+                        "for chunk ${chunk.start}..${chunk.end}")
             }
         }, BackpressureStrategy.BUFFER)
     }
@@ -526,9 +565,11 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             )
             emitter.onComplete()
 
-            log(TAG,
-                    "pipeChunk($chunkIndex) ($url) SUCCESS for chunk ${chunk.start}..${chunk.end}"
-            )
+            if (ChanSettings.verboseLogs.get()) {
+                log(TAG,
+                        "pipeChunk($chunkIndex) ($url) SUCCESS for chunk ${chunk.start}..${chunk.end}"
+                )
+            }
         } finally {
             buffer.closeQuietly()
         }
@@ -557,7 +598,9 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     "should be only one but actual = $totalChunksCount")
         }
 
-        log(TAG, "Start downloading ($url), chunk ${chunk.start}..${chunk.end}")
+        if (ChanSettings.verboseLogs.get()) {
+            log(TAG, "Start downloading ($url), chunk ${chunk.start}..${chunk.end}")
+        }
 
         val builder = Request.Builder()
                 .url(url)
@@ -630,8 +673,10 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    val diff = System.currentTimeMillis() - startTime
-                    log(TAG, "Got chunk response in ($url) ${chunk.start}..${chunk.end} in ${diff}ms")
+                    if (ChanSettings.verboseLogs.get()) {
+                        val diff = System.currentTimeMillis() - startTime
+                        log(TAG, "Got chunk response in ($url) ${chunk.start}..${chunk.end} in ${diff}ms")
+                    }
 
                     emitter.onNext(response)
                     emitter.onComplete()
@@ -656,5 +701,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
         private const val TAG = "ConcurrentChunkedFileDownloader"
         private const val RANGE_HEADER = "Range"
         private const val RANGE_HEADER_VALUE_FORMAT = "bytes=%d-%d"
+        private const val NOT_FOUND_STATUS_CODE = 404
     }
 }

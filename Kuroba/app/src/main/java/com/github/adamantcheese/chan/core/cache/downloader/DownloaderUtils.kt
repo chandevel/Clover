@@ -15,6 +15,11 @@ internal object DownloaderUtils {
             return true
         }
 
+        // Thrown by OkHttp when cancelling a call
+        if (error.message?.contains("Canceled") == true) {
+            return true
+        }
+
         return false
     }
 

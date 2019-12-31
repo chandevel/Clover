@@ -4,7 +4,6 @@ import android.util.LruCache
 import com.github.adamantcheese.chan.core.cache.FileCacheV2
 import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
 import com.github.adamantcheese.chan.core.di.NetModule
-import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.Logger
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
@@ -96,6 +95,15 @@ internal class PartialContentSupportChecker(
         // we assume that cloudflare doesn't have this file cached so we just download it normally
         // without using Partial Content
         .timeout(MAX_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        .doOnSuccess {
+            val diff = System.currentTimeMillis() - startTime
+            Logger.d(TAG, "HEAD request to url ($url) has succeeded, time = ${diff}ms")
+        }
+        .doOnError { error ->
+            val diff = System.currentTimeMillis() - startTime
+            Logger.e(TAG, "HEAD request to url ($url) has failed " +
+                    "because of \"${error.javaClass.simpleName}\" exception, time = ${diff}ms")
+        }
         .onErrorReturn { error ->
             if (error !is TimeoutException) {
                 throw error
@@ -110,15 +118,6 @@ internal class PartialContentSupportChecker(
             return@onErrorReturn PartialContentCheckResult(
                     supportsPartialContentDownload = false
             )
-        }
-        .doOnSuccess {
-            val diff = System.currentTimeMillis() - startTime
-            Logger.d(TAG, "HEAD request to url ($url) has succeeded, time = ${diff}ms")
-        }
-        .doOnError { error ->
-            val diff = System.currentTimeMillis() - startTime
-            Logger.e(TAG, "HEAD request to url ($url) has failed " +
-                    "because of ${error.javaClass.name} exception, time = ${diff}ms")
         }
     }
 
@@ -144,28 +143,35 @@ internal class PartialContentSupportChecker(
 
         val acceptsRangesValue = response.header(ACCEPT_RANGES_HEADER)
         if (acceptsRangesValue == null) {
+            log(TAG, "($url) does not support partial content (ACCEPT_RANGES_HEADER is null")
             emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
             return
         }
 
         if (!acceptsRangesValue.equals(ACCEPT_RANGES_HEADER_VALUE, true)) {
+            log(TAG, "($url) does not support partial content " +
+                    "(bad ACCEPT_RANGES_HEADER = ${acceptsRangesValue})")
             emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
             return
         }
 
         val contentLengthValue = response.header(CONTENT_LENGTH_HEADER)
         if (contentLengthValue == null) {
+            log(TAG, "($url) does not support partial content (CONTENT_LENGTH_HEADER is null")
             emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
             return
         }
 
         val length = contentLengthValue.toLongOrNull()
         if (length == null) {
+            log(TAG, "($url) does not support partial content " +
+                    "(bad CONTENT_LENGTH_HEADER = ${contentLengthValue})")
             emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
             return
         }
 
         if (length < FileCacheV2.MIN_CHUNK_SIZE) {
+            log(TAG, "($url) download file normally (file length < MIN_CHUNK_SIZE, length = $length)")
             // Download tiny files normally, no need to chunk them
             emitter.onSuccess(cache(url, PartialContentCheckResult(false, length = length)))
             return
@@ -174,10 +180,8 @@ internal class PartialContentSupportChecker(
         val cfCacheStatusHeader = response.header(CF_CACHE_STATUS_HEADER)
         val diff = System.currentTimeMillis() - startTime
 
-        if (ChanSettings.verboseLogs.get()) {
-            log(TAG, "url = $url, fileSize = $length, " +
-                    "cfCacheStatusHeader = $cfCacheStatusHeader, took = ${diff}ms")
-        }
+        log(TAG, "url = $url, fileSize = $length, " +
+                "cfCacheStatusHeader = $cfCacheStatusHeader, took = ${diff}ms")
 
         val result = PartialContentCheckResult(
                 supportsPartialContentDownload = true,
@@ -203,7 +207,7 @@ internal class PartialContentSupportChecker(
         private const val CF_CACHE_STATUS_HEADER = "CF-Cache-Status"
         private const val ACCEPT_RANGES_HEADER_VALUE = "bytes"
 
-        const val NOT_FOUND_STATUS_CODE = 404
+        private const val NOT_FOUND_STATUS_CODE = 404
         private const val MAX_TIMEOUT_MS = 1000L
     }
 
