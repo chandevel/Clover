@@ -137,7 +137,7 @@ internal class PartialContentSupportChecker(
             )
             cache(url, result)
 
-            emitter.onError(FileCacheException.HttpCodeException(statusCode))
+            emitter.onError(FileCacheException.FileNotFoundOnTheServerException())
             return
         }
 

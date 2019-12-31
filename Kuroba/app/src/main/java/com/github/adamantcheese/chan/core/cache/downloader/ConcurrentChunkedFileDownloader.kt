@@ -241,10 +241,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                 .observeOn(workerScheduler)
                 .map { response -> ChunkResponse(chunk, response) }
                 .flatMap { chunkResponse ->
-                    if (chunkResponse.response.code == NOT_FOUND_STATUS_CODE) {
-                        throwCancellationException(url)
-                    }
-
                     // Here is where the most fun is happening. At this point we have sent multiple
                     // requests to the server and got responses. Now we need to read the bodies of
                     // those responses each into it's own chunk file. Then, after we have read
@@ -367,6 +363,10 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                 }
 
                 if (!chunkResponse.response.isSuccessful) {
+                    if (chunkResponse.response.code == NOT_FOUND_STATUS_CODE) {
+                        throwCancellationException(url)
+                    }
+
                     throw FileCacheException.HttpCodeException(chunkResponse.response.code)
                 }
 
