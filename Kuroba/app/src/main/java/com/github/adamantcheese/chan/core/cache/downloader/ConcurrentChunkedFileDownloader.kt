@@ -501,7 +501,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
         try {
             if (chunkSize <= 0) {
-                throw IOException("chunkSize <= 0 ($chunkSize)")
+                throw RuntimeException("chunkSize <= 0 ($chunkSize)")
             }
 
             while (true) {

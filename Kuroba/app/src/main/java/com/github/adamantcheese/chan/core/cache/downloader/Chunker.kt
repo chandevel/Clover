@@ -26,16 +26,19 @@ fun chunkLong(value: Long, chunksCount: Int, minChunkSize: Long): List<Chunk> {
     return chunks
 }
 
-data class Chunk(val start: Long, private val _end: Long) {
+/**
+ * [realEnd] is only being used in tests.
+ * */
+data class Chunk(val start: Long, val realEnd: Long) {
     // Must be 1 less than actual _end
     val end: Long
-        get() = _end - 1
+        get() = realEnd - 1
 
     fun isWholeFile(): Boolean {
         return start == 0L && end == Long.MAX_VALUE
     }
 
-    fun chunkSize(): Long = _end - start
+    fun chunkSize(): Long = realEnd - start
 
     override fun toString(): String {
         return "Chunk(start=$start, end=$end)"

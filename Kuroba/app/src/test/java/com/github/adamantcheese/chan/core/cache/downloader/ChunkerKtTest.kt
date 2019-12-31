@@ -11,15 +11,15 @@ class ChunkerKtTest {
 
         assertEquals(5, chunks.size)
         assertEquals(0, chunks[0].start)
-        assertEquals(1, chunks[0].end)
+        assertEquals(1, chunks[0].realEnd)
         assertEquals(1, chunks[1].start)
-        assertEquals(2, chunks[1].end)
+        assertEquals(2, chunks[1].realEnd)
         assertEquals(2, chunks[2].start)
-        assertEquals(3, chunks[2].end)
+        assertEquals(3, chunks[2].realEnd)
         assertEquals(3, chunks[3].start)
-        assertEquals(4, chunks[3].end)
+        assertEquals(4, chunks[3].realEnd)
         assertEquals(4, chunks[4].start)
-        assertEquals(5, chunks[4].end)
+        assertEquals(5, chunks[4].realEnd)
     }
 
     @Test
@@ -28,15 +28,15 @@ class ChunkerKtTest {
 
         assertEquals(5, chunks.size)
         assertEquals(0, chunks[0].start)
-        assertEquals(2, chunks[0].end)
+        assertEquals(2, chunks[0].realEnd)
         assertEquals(2, chunks[1].start)
-        assertEquals(4, chunks[1].end)
+        assertEquals(4, chunks[1].realEnd)
         assertEquals(4, chunks[2].start)
-        assertEquals(6, chunks[2].end)
+        assertEquals(6, chunks[2].realEnd)
         assertEquals(6, chunks[3].start)
-        assertEquals(8, chunks[3].end)
+        assertEquals(8, chunks[3].realEnd)
         assertEquals(8, chunks[4].start)
-        assertEquals(10, chunks[4].end)
+        assertEquals(10, chunks[4].realEnd)
     }
 
     @Test
@@ -45,11 +45,11 @@ class ChunkerKtTest {
 
         assertEquals(3, chunks.size)
         assertEquals(0, chunks[0].start)
-        assertEquals(3, chunks[0].end)
+        assertEquals(3, chunks[0].realEnd)
         assertEquals(3, chunks[1].start)
-        assertEquals(6, chunks[1].end)
+        assertEquals(6, chunks[1].realEnd)
         assertEquals(6, chunks[2].start)
-        assertEquals(10, chunks[2].end)
+        assertEquals(10, chunks[2].realEnd)
     }
 
     @Test
@@ -58,6 +58,6 @@ class ChunkerKtTest {
 
         assertEquals(1, chunks.size)
         assertEquals(0, chunks[0].start)
-        assertEquals(10, chunks[0].end)
+        assertEquals(10, chunks[0].realEnd)
     }
 }
