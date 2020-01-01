@@ -364,6 +364,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
                 if (!chunkResponse.response.isSuccessful) {
                     if (chunkResponse.response.code == NOT_FOUND_STATUS_CODE) {
+                        // TODO: probably should throw the FileNotFoundOnTheServer exception here
                         throwCancellationException(url)
                     }
 
@@ -387,13 +388,16 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                             throw IOException("Unknown response body size, chunkSize = $chunkSize")
                         }
 
+                        if (totalChunksCount == 1) {
+                            // When downloading the whole file in a single chunk we can only know
+                            // for sure the whole size of the file at this point since we probably
+                            // didn't send the HEAD request
+                            activeDownloads.updateTotalLength(url, chunkSize)
+                        }
+
                         responseBody.source().use { bufferedSource ->
                             if (!bufferedSource.isOpen) {
                                 throwCancellationException(url)
-                            }
-
-                            if (totalChunksCount == 1) {
-                                activeDownloads.updateTotalLength(url, chunkSize)
                             }
 
                             chunkCacheFile.useAsBufferedSink { bufferedSink ->
@@ -421,6 +425,8 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                         ?.cancelableDownload
                         ?.isRunning() != true
 
+                // TODO: if canceled is true, instead of emitting another error emit onComplete
+                //  event instead
                 if (isStoppedOrCanceled || totalChunksCount > 1 && error !is IOException) {
                     val state = getState(url)
                     canceled.set(true)
@@ -433,7 +439,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                             activeDownloads.get(url)?.cancelableDownload?.stop()
                         }
                         else -> {
-                            throw RuntimeException("Expected Canceled or Stopped but " +
+                            throw RuntimeException("Expected: Canceled or Stopped, but " +
                                     "actual state is Running")
                         }
                     }
@@ -495,7 +501,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
     ) {
         var downloaded = 0L
         var notifyTotal = 0L
-        var read = 0L
         val buffer = Buffer()
         val notifySize = chunkSize / 10
 
@@ -513,14 +518,14 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     throwCancellationException(url)
                 }
 
-                read = bufferedSource.read(buffer, BUFFER_SIZE)
+                val read = bufferedSource.read(buffer, BUFFER_SIZE)
                 if (read == -1L) {
                     break
                 }
 
+                downloaded += read
                 bufferedSink.write(buffer, read)
 
-                downloaded += read
                 val total = totalDownloaded.addAndGet(read)
                 activeDownloads.updateDownloaded(url, total)
 
@@ -553,6 +558,12 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                 throwCancellationException(url)
             }
 
+            if (ChanSettings.verboseLogs.get()) {
+                log(TAG,
+                        "pipeChunk($chunkIndex) ($url) SUCCESS for chunk ${chunk.start}..${chunk.end}"
+                )
+            }
+
             emitter.onNext(
                     ChunkDownloadEvent.ChunkSuccess(
                             chunkCacheFile,
@@ -560,12 +571,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     )
             )
             emitter.onComplete()
-
-            if (ChanSettings.verboseLogs.get()) {
-                log(TAG,
-                        "pipeChunk($chunkIndex) ($url) SUCCESS for chunk ${chunk.start}..${chunk.end}"
-                )
-            }
         } finally {
             buffer.closeQuietly()
         }
