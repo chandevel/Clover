@@ -34,6 +34,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
@@ -117,8 +118,13 @@ public class ImagePickDelegate
                             clipboardURL.toString(),
                             new FileCacheListener() {
                                 @Override
-                                public void onSuccess(RawFile file) {
+                                public void onSuccess(AbstractFile file) {
                                     BackgroundUtils.ensureMainThread();
+
+                                    if (!(file instanceof RawFile)) {
+                                        throw new RuntimeException(
+                                                "Only RawFiles are supported in ImagePickDelegate");
+                                    }
 
                                     showToast(R.string.image_url_get_success);
                                     Uri imageURL = Uri.parse(finalClipboardURL.toString());

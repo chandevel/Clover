@@ -260,7 +260,12 @@ dependencies {
     implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha18'
     implementation 'joda-time:joda-time:2.10.5'
 
-    testImplementation 'junit:junit:4.12'
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.robolectric:robolectric:4.3.1"
+    testImplementation "com.squareup.okhttp3:mockwebserver:4.3.0"
+    testImplementation "org.mockito:mockito-core:3.2.4"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
+
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 }
 

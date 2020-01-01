@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.cache;
 
-import com.github.k1rakishou.fsaf.file.RawFile;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
 
 public abstract class FileCacheListener {
 
@@ -37,7 +37,7 @@ public abstract class FileCacheListener {
     /**
      * Called when the file download was completed.
      */
-    public void onSuccess(RawFile file) {
+    public void onSuccess(AbstractFile file) {
     }
 
     /**
@@ -60,7 +60,7 @@ public abstract class FileCacheListener {
      * for the WebmStreaming so there is no need to override this. But if you need to stop (not
      * cancel) a download then you probably should override this.
      */
-    public void onStop(RawFile file) {
+    public void onStop(AbstractFile file) {
 
     }
 

@@ -7,6 +7,7 @@ import com.github.adamantcheese.chan.core.di.NetModule
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.k1rakishou.fsaf.FileManager
+import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -89,7 +90,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             url: String,
             chunks: List<Chunk>,
             partialContentCheckResult: PartialContentCheckResult,
-            output: RawFile
+            output: AbstractFile
     ): Flowable<FileDownloadResult> {
         if (ChanSettings.verboseLogs.get()) {
             log(TAG, "File (${url}) was split into chunks: ${chunks}")
@@ -275,7 +276,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
     private fun writeChunksToCacheFile(
             url: String,
             chunkSuccessEvents: List<ChunkDownloadEvent.ChunkSuccess>,
-            output: RawFile,
+            output: AbstractFile,
             requestStartTime: Long
     ): Flowable<ChunkDownloadEvent> {
         return Flowable.fromCallable {
@@ -687,7 +688,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
     }
 
     private sealed class ChunkDownloadEvent {
-        class Success(val output: RawFile, val requestTime: Long) : ChunkDownloadEvent()
+        class Success(val output: AbstractFile, val requestTime: Long) : ChunkDownloadEvent()
         class ChunkSuccess(val chunkCacheFile: RawFile, val chunk: Chunk) : ChunkDownloadEvent()
         class ChunkError(val error: Throwable) : ChunkDownloadEvent()
         class Progress(val downloaderIndex: Int, val downloaded: Long, val chunkSize: Long) : ChunkDownloadEvent()

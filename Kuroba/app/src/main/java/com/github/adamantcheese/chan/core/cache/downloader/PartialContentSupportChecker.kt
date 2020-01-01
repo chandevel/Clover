@@ -21,7 +21,8 @@ import java.util.concurrent.TimeoutException
  * */
 internal class PartialContentSupportChecker(
         private val okHttpClient: OkHttpClient,
-        private val activeDownloads: ActiveDownloads
+        private val activeDownloads: ActiveDownloads,
+        private val maxTimeoutMs: Long
 ) {
     private val cachedResults = LruCache<String, PartialContentCheckResult>(1024)
 
@@ -76,16 +77,31 @@ internal class PartialContentSupportChecker(
 
             call.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
+                    if (emitter.isDisposed) {
+                        return
+                    }
+
                     if (!isCancellationError(e)) {
                         emitter.onError(e)
                     } else {
+                        val state = activeDownloads.get(url)?.cancelableDownload?.getState()
+                                ?: DownloadState.Canceled
+
+                        if (state == DownloadState.Running) {
+                            throw RuntimeException("Expected Cancelled or Stopped but got Running")
+                        }
+
                         emitter.onError(
-                                FileCacheException.CancellationException(DownloadState.Canceled, url)
+                                FileCacheException.CancellationException(state, url)
                         )
                     }
                 }
 
                 override fun onResponse(call: Call, response: Response) {
+                    if (emitter.isDisposed) {
+                        return
+                    }
+
                     handleResponse(response, url, emitter, startTime)
                 }
             })
@@ -94,7 +110,7 @@ internal class PartialContentSupportChecker(
         // is not cached by the cloudflare so if a request takes more than [MAX_TIMEOUT_MS]
         // we assume that cloudflare doesn't have this file cached so we just download it normally
         // without using Partial Content
-        .timeout(MAX_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        .timeout(maxTimeoutMs, TimeUnit.MILLISECONDS)
         .doOnSuccess {
             val diff = System.currentTimeMillis() - startTime
             Logger.d(TAG, "HEAD request to url ($url) has succeeded, time = ${diff}ms")
@@ -200,6 +216,13 @@ internal class PartialContentSupportChecker(
         return partialContentCheckResult
     }
 
+    /**
+     * For tests
+     * */
+    fun clear() {
+        cachedResults.evictAll()
+    }
+
     companion object {
         private const val TAG = "PartialContentSupportChecker"
         private const val ACCEPT_RANGES_HEADER = "Accept-Ranges"
@@ -208,7 +231,6 @@ internal class PartialContentSupportChecker(
         private const val ACCEPT_RANGES_HEADER_VALUE = "bytes"
 
         private const val NOT_FOUND_STATUS_CODE = 404
-        private const val MAX_TIMEOUT_MS = 1000L
     }
 
 }

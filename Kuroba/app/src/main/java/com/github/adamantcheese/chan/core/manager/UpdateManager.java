@@ -46,8 +46,9 @@ import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
@@ -80,6 +81,9 @@ public class UpdateManager {
 
     @Inject
     FileCacheV2 fileCacheV2;
+
+    @Inject
+    FileManager fileManager;
 
     private ProgressDialog updateDownloadDialog;
     private Context context;
@@ -276,7 +280,7 @@ public class UpdateManager {
             }
 
             @Override
-            public void onSuccess(RawFile file) {
+            public void onSuccess(AbstractFile file) {
                 BackgroundUtils.ensureMainThread();
 
                 updateDownloadDialog.dismiss();
@@ -286,13 +290,15 @@ public class UpdateManager {
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                         getApplicationLabel() + "_" + response.versionCodeString + ".apk"
                 );
-                File updateAPK = new File(file.getFullPath());
-                try {
-                    IOUtils.copyFile(updateAPK, downloadAPKcopy);
-                } catch (Exception ignored) { //if we fail to move the downloaded file, just ignore it
+
+                AbstractFile copyFile = fileManager.fromRawFile(downloadAPKcopy);
+
+                if (!fileManager.copyFileContents(file, copyFile)) {
+                    Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory");
                 }
+
                 //install from the filecache rather than downloads, as the Environment.DIRECTORY_DOWNLOADS may not be "Download"
-                installApk(updateAPK);
+                installApk(file);
             }
 
             @Override
@@ -331,7 +337,7 @@ public class UpdateManager {
         });
     }
 
-    private void installApk(File apk) {
+    private void installApk(AbstractFile apk) {
         // First open the dialog that asks to retry and calls this method again.
         new AlertDialog.Builder(context).setTitle(R.string.update_retry_title)
                 .setMessage(getString(R.string.update_retry, getApplicationLabel()))
@@ -342,7 +348,15 @@ public class UpdateManager {
         // Then launch the APK install intent.
         Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        Uri apkURI = FileProvider.getUriForFile(context, getAppFileProvider(), apk);
+        Uri apkURI;
+
+        if (apk instanceof RawFile) {
+            File apkFile = new File(apk.getFullPath());
+            apkURI = FileProvider.getUriForFile(context, getAppFileProvider(), apkFile);
+        } else {
+            throw new RuntimeException("Only RawFiles are supported for apk updates");
+        }
+
         intent.setDataAndType(apkURI, "application/vnd.android.package-archive");
 
         // The installer wants a content scheme from android N and up,

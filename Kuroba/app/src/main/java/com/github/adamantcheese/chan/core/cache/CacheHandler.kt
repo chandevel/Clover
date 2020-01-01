@@ -213,7 +213,7 @@ class CacheHandler(
      * Marks the file as a downloaded (sets a flag in it's meta info). If meta info cannot be read
      * deletes the file so it can be re-downloaded again.
      * */
-    fun markFileDownloaded(output: RawFile): Boolean {
+    fun markFileDownloaded(output: AbstractFile): Boolean {
         return try {
             if (!fileManager.exists(output)) {
                 Logger.e(TAG, "File does not exist! file = ${output.getFullPath()}")
@@ -357,7 +357,7 @@ class CacheHandler(
         return false
     }
 
-    private fun getCacheFileMetaByCacheFile(cacheFile: RawFile): AbstractFile? {
+    private fun getCacheFileMetaByCacheFile(cacheFile: AbstractFile): AbstractFile? {
         val fileNameWithExtension = fileManager.getName(cacheFile)
         if (!fileNameWithExtension.endsWith(CACHE_EXTENSION)) {
             Logger.e(TAG, "Bad file (not a cache file), file = ${cacheFile.getFullPath()}")

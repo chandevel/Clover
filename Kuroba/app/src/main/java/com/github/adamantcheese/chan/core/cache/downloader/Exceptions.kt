@@ -1,6 +1,6 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
-import com.github.k1rakishou.fsaf.file.RawFile
+import com.github.k1rakishou.fsaf.file.AbstractFile
 
 internal sealed class FileCacheException(message: String) : Exception(message) {
 
@@ -11,7 +11,7 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
     internal class FileNotFoundOnTheServerException
         : FileCacheException("FileNotFoundOnTheServerException")
 
-    internal class CouldNotMarkFileAsDownloaded(val output: RawFile)
+    internal class CouldNotMarkFileAsDownloaded(val output: AbstractFile)
         : FileCacheException("Couldn't mark file as downloaded, file path = ${output.getFullPath()}")
 
     internal class NoResponseBodyException

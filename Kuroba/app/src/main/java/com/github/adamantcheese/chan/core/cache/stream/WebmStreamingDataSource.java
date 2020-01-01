@@ -17,9 +17,9 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 
 import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -280,24 +280,16 @@ public class WebmStreamingDataSource extends BaseDataSource {
         prepared = true;
     }
 
-    public void fillCache(RawFile file) throws IOException {
-        if (!fileManager.exists(file)) {
-            throw new IllegalStateException("File does not exist!");
-        }
-
-        File innerFile = new File(file.getFullPath());
-
-        try (FileInputStream fis = new FileInputStream(innerFile)) {
-            dataToFillCache = new byte[(int) innerFile.length()];
-            dataToFillCacheLength = fis.read(dataToFillCache);
-            // If it's null, this means we're not prepared yet (i.e. we don't know the real size
-            // of the video, which is required by partialFileCache). Just leave it here and wait
-            // until we're prepared.
-            if (partialFileCache != null) {
-                partialFileCache.write(dataToFillCache, 0, dataToFillCacheLength);
-                partialFileCache.seek(0);
-                dataToFillCache = null;
-            }
+    public void fillCache(long length, InputStream inputStream) throws IOException {
+        dataToFillCache = new byte[(int) length];
+        dataToFillCacheLength = inputStream.read(dataToFillCache);
+        // If it's null, this means we're not prepared yet (i.e. we don't know the real size
+        // of the video, which is required by partialFileCache). Just leave it here and wait
+        // until we're prepared.
+        if (partialFileCache != null) {
+            partialFileCache.write(dataToFillCache, 0, dataToFillCacheLength);
+            partialFileCache.seek(0);
+            dataToFillCache = null;
         }
     }
 

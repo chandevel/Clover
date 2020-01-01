@@ -31,7 +31,6 @@ import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.ExternalFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.inject.Inject;
@@ -124,10 +123,10 @@ public class ImageSaveTask
     }
 
     @Override
-    public void onSuccess(RawFile file) {
+    public void onSuccess(AbstractFile file) {
         BackgroundUtils.ensureMainThread();
 
-        if (copyToDestination(new File(file.getFullPath()))) {
+        if (copyToDestination(file)) {
             onDestination();
         } else {
             deleteDestination();
@@ -175,7 +174,7 @@ public class ImageSaveTask
         }
     }
 
-    private boolean copyToDestination(File source) {
+    private boolean copyToDestination(AbstractFile source) {
         boolean result = false;
 
         try {
@@ -188,7 +187,7 @@ public class ImageSaveTask
                 throw new IOException("Destination file is already a directory");
             }
 
-            if (!fileManager.copyFileContents(fileManager.fromRawFile(source), createdDestinationFile)) {
+            if (!fileManager.copyFileContents(source, createdDestinationFile)) {
                 throw new IOException("Could not copy source file into destination");
             }
 

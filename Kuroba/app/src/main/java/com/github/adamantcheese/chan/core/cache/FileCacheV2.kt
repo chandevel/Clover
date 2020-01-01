@@ -70,7 +70,8 @@ class FileCacheV2(
 
     private val partialContentSupportChecker = PartialContentSupportChecker(
             okHttpClient,
-            activeDownloads
+            activeDownloads,
+            MAX_TIMEOUT_MS
     )
     private val concurrentChunkedFileDownloader = ConcurrentChunkedFileDownloader(
             okHttpClient,
@@ -848,7 +849,7 @@ class FileCacheV2(
         return exceptions.first()
     }
 
-    private fun purgeOutput(url: String, output: RawFile) {
+    private fun purgeOutput(url: String, output: AbstractFile) {
         BackgroundUtils.ensureBackgroundThread()
 
         val request = checkNotNull(activeDownloads.get(url)) {
@@ -871,6 +872,8 @@ class FileCacheV2(
     companion object {
         private const val TAG = "FileCacheV2"
         private const val THREAD_NAME_FORMAT = "FileCacheV2Thread-%d"
+        private const val MAX_TIMEOUT_MS = 1000L
+
         const val MIN_CHUNK_SIZE = 1024L * 8L // 8 KB
     }
 }
