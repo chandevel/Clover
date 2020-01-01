@@ -596,7 +596,7 @@ class FileCacheV2(
                 // Cancel
                 is FileDownloadResult.Canceled,
                 // Stop (called by WebmStreamingSource to stop downloading a file via FileCache and
-                // continue downloading it via FileCacheDataSource)
+                // continue downloading it via WebmStreamingDataSource)
                 is FileDownloadResult.Stopped -> {
                     val (downloaded, total, output) = synchronized(activeDownloads) {
                         val activeDownload =  activeDownloads.get(url)

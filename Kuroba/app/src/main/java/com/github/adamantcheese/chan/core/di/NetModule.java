@@ -21,7 +21,7 @@ import com.android.volley.toolbox.Volley;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
-import com.github.adamantcheese.chan.core.cache.WebmStreamingSource;
+import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;

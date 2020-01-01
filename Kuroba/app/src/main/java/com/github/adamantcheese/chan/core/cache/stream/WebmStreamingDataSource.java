@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.core.cache;
+package com.github.adamantcheese.chan.core.cache.stream;
 
 import android.net.Uri;
 import android.util.Range;
@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileCacheDataSource extends BaseDataSource {
-    private final String TAG = "FileCacheDataSource";
+public class WebmStreamingDataSource extends BaseDataSource {
+    private final String TAG = "WebmStreamingDataSource";
 
     class PartialFileCache {
         class RegionStats {
@@ -244,9 +244,9 @@ public class FileCacheDataSource extends BaseDataSource {
     private boolean prepared = false;
     private boolean opened = false;
 
-    public FileCacheDataSource(@Nullable Uri uri, RawFile file, FileManager fileManager) {
+    public WebmStreamingDataSource(@Nullable Uri uri, RawFile file, FileManager fileManager) {
         super(/* isNetwork= */ true);
-        Logger.i(TAG, "FileCacheDataSource");
+        Logger.i(TAG, "WebmStreamingDataSource");
 
         this.dataSource = new DefaultHttpDataSourceFactory(NetModule.USER_AGENT)
                 .createDataSource();

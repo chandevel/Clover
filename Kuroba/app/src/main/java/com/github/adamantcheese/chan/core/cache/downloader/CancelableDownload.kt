@@ -1,8 +1,8 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
-import com.github.adamantcheese.chan.core.cache.FileCacheDataSource
 import com.github.adamantcheese.chan.core.cache.FileCacheListener
-import com.github.adamantcheese.chan.core.cache.WebmStreamingSource
+import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingDataSource
+import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource
 import com.github.adamantcheese.chan.utils.Logger
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
@@ -74,7 +74,7 @@ class CancelableDownload(
     /**
      * Similar to [cancel] but does not delete the output file. Used by [WebmStreamingSource]
      * to stop the download without deleting the output which is then getting transferred into
-     * [FileCacheDataSource]
+     * [WebmStreamingDataSource]
      * */
     fun stop() {
         if (!state.compareAndSet(DownloadState.Running, DownloadState.Stopped)) {

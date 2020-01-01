@@ -1,6 +1,10 @@
-package com.github.adamantcheese.chan.core.cache
+package com.github.adamantcheese.chan.core.cache.stream
 
 import android.net.Uri
+import com.github.adamantcheese.chan.core.cache.CacheHandler
+import com.github.adamantcheese.chan.core.cache.FileCacheListener
+import com.github.adamantcheese.chan.core.cache.FileCacheV2
+import com.github.adamantcheese.chan.core.cache.MediaSourceCallback
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
@@ -19,7 +23,7 @@ class WebmStreamingSource(
         val uri = Uri.parse(videoUrl)
         val alreadyExists = cacheHandler.exists(videoUrl)
         val rawFile = cacheHandler.getOrCreateCacheFile(videoUrl)
-        val fileCacheSource = FileCacheDataSource(uri, rawFile, fileManager)
+        val fileCacheSource = WebmStreamingDataSource(uri, rawFile, fileManager)
         val callbackRef = AtomicReference(callback)
 
         fileCacheSource.addListener { file ->
@@ -51,7 +55,7 @@ class WebmStreamingSource(
 
                     override fun onStop(file: RawFile) {
                         // The webm file is either partially downloaded or is not downloaded at all.
-                        // We take whethever there is and load it into the FileCacheDataSource so
+                        // We take whethever there is and load it into the WebmStreamingDataSource so
                         // we don'n need to redownload the bytes that have already been downloaded
                         val exists = fileManager.exists(file)
                         val fileLength = fileManager.getLength(file)
