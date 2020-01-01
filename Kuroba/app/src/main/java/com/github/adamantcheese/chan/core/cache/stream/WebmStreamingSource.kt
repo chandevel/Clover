@@ -84,7 +84,6 @@ class WebmStreamingSource(
                         callbackRef.get()?.onError(exception)
                     }
 
-                    // FIXME: this won't be called. Should come up with a better way to do this
                     override fun onCancel() {
                         super.onCancel()
 

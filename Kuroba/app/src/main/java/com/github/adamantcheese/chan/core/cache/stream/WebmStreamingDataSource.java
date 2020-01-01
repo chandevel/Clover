@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Original implementation by https://github.com/ekisu
+ * */
 public class WebmStreamingDataSource extends BaseDataSource {
     private final String TAG = "WebmStreamingDataSource";
 
