@@ -75,7 +75,12 @@ public class NetModule {
         RawFile cacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CACHE_DIR));
         RawFile chunksCacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CHUNKS_CACHE_DIR));
 
-        return new CacheHandler(fileManager, cacheDirFile, chunksCacheDirFile);
+        return new CacheHandler(
+                fileManager,
+                cacheDirFile,
+                chunksCacheDirFile,
+                ChanSettings.autoLoadThreadImages.get()
+        );
     }
 
     @Provides

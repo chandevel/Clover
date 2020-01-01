@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.cache
 
 import android.text.TextUtils
-import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.ConversionUtils.charArrayToInt
 import com.github.adamantcheese.chan.utils.ConversionUtils.intToCharArray
@@ -62,7 +61,8 @@ import java.util.concurrent.atomic.AtomicLong
 class CacheHandler(
         private val fileManager: FileManager,
         private val cacheDirFile: RawFile,
-        private val chunksCacheDirFile: RawFile
+        private val chunksCacheDirFile: RawFile,
+        private val autoLoadThreadImages: Boolean
 ) {
     private val pool = Executors.newSingleThreadExecutor()
     /**
@@ -73,6 +73,11 @@ class CacheHandler(
     private val lastTrimTime = AtomicLong(0)
     private val trimRunning = AtomicBoolean(false)
     private val recalculationRunning = AtomicBoolean(false)
+    private val fileCacheDiskSize = if (autoLoadThreadImages) {
+        PREFETCH_CACHE_SIZE
+    } else {
+        DEFAULT_CACHE_SIZE
+    }
 
     init {
         createDirectories()
@@ -124,7 +129,7 @@ class CacheHandler(
 
             cacheFile
         } catch (error: IOException) {
-            Logger.e(TAG, "Unknown error", error)
+            Logger.e(TAG, "Error while trying to get or create cache file", error)
             deleteCacheFile(cacheFile)
             null
         }
@@ -176,6 +181,7 @@ class CacheHandler(
                         TAG, "Couldn't get cache file meta by cache file, " +
                         "file = ${file.getFullPath()}"
                 )
+                deleteCacheFile(file)
                 return false
             }
 
@@ -203,7 +209,7 @@ class CacheHandler(
 
             cacheFileMeta.isDownloaded
         } catch (error: Throwable) {
-            Logger.e(TAG, "Unknown error", error)
+            Logger.e(TAG, "Error while trying to check whether the file is already downloaded", error)
             deleteCacheFile(file)
             false
         }
@@ -227,14 +233,20 @@ class CacheHandler(
                 return false
             }
 
-            updateCacheFileMeta(
+            val updateResult = updateCacheFileMeta(
                     cacheFileMeta,
                     false,
                     null,
                     true
             )
+
+            if (!updateResult) {
+                deleteCacheFile(output)
+            }
+
+            updateResult
         } catch (error: Throwable) {
-            Logger.e(TAG, "Unknown error", error)
+            Logger.e(TAG, "Error while trying to mark file as downloaded", error)
             deleteCacheFile(output)
             false
         }
@@ -257,7 +269,7 @@ class CacheHandler(
         val now = System.currentTimeMillis()
 
         if (
-                totalSize > FILE_CACHE_DISK_SIZE
+                totalSize > fileCacheDiskSize
                 // If the user scrolls through high-res images very fast we may end up in a situation
                 // where the cache limit is hit but all the files in it were created earlier than
                 // MIN_CACHE_FILE_LIFE_TIME ago. So in such case trim() will be called on EVERY
@@ -442,83 +454,65 @@ class CacheHandler(
         }
     }
 
+    @Throws(IOException::class)
     private fun readCacheFileMeta(
-            file: AbstractFile
+            cacheFileMate: AbstractFile
     ): CacheFileMeta? {
-        if (!fileManager.exists(file)) {
-            Logger.e(TAG, "Cache file meta does not exist, path = ${file.getFullPath()}")
+        if (!fileManager.exists(cacheFileMate)) {
+            throw IOException("Cache file meta does not exist, path = ${cacheFileMate.getFullPath()}")
+        }
+
+        if (!fileManager.isFile(cacheFileMate)) {
+            throw IOException("Input file is not a file!")
+        }
+
+        if (!fileManager.canRead(cacheFileMate)) {
+            throw IOException("Couldn't read cache file meta")
+        }
+
+        if (fileManager.getLength(cacheFileMate) <= 0) {
+            // This is a valid case
             return null
         }
 
-        if (!fileManager.isFile(file)) {
-            Logger.e(TAG, "Input file is not a file!")
-            return null
+        if (!fileManager.getName(cacheFileMate).endsWith(CACHE_META_EXTENSION)) {
+            throw IOException("Not a cache file meta! file = ${cacheFileMate.getFullPath()}")
         }
 
-        if (!fileManager.canRead(file)) {
-            Logger.e(TAG, "Couldn't read cache file meta")
-            return null
-        }
+        return fileManager.withFileDescriptor(cacheFileMate, FileDescriptorMode.Read) { fd ->
+            return@withFileDescriptor FileReader(fd).use { reader ->
+                val lengthBuffer = CharArray(CACHE_FILE_META_HEADER_SIZE)
 
-        if (fileManager.getLength(file) <= 0) {
-            // File is empty
-            return null
-        }
-
-        if (!fileManager.getName(file).endsWith(CACHE_META_EXTENSION)) {
-            Logger.e(TAG, "Not a cache file meta! file = ${file.getFullPath()}")
-            return null
-        }
-
-        val inputStream = fileManager.getInputStream(file)
-        if (inputStream == null) {
-            Logger.e(TAG, "Couldn't create input stream for file = ${file.getFullPath()}")
-            return null
-        }
-
-        return fileManager.withFileDescriptor(file, FileDescriptorMode.Read) { fd ->
-            try {
-                return@withFileDescriptor FileReader(fd).use { reader ->
-                    val lengthBuffer = CharArray(CACHE_FILE_META_HEADER_SIZE)
-
-                    var read = reader.read(lengthBuffer)
-                    if (read != CACHE_FILE_META_HEADER_SIZE) {
-                        throw IOException(
-                                "Couldn't read content size of cache file meta, read $read"
-                        )
-                    }
-
-                    val length = charArrayToInt(lengthBuffer)
-                    val contentBuffer = CharArray(length)
-
-                    read = reader.read(contentBuffer)
-                    if (read != length) {
-                        throw IOException(
-                                "Couldn't read content cache file meta, " +
-                                        "read = $read, expected = $length"
-                        )
-                    }
-
-                    val content = String(contentBuffer)
-                    val split = content.split(",").toTypedArray()
-                    if (split.size != 2) {
-                        throw IOException(
-                                "Couldn't split meta content ($content), split.size = ${split.size}"
-                        )
-                    }
-
-                    return@use CacheFileMeta(
-                            split[0].toLong(),
-                            split[1].toBoolean()
+                var read = reader.read(lengthBuffer)
+                if (read != CACHE_FILE_META_HEADER_SIZE) {
+                    throw IOException(
+                            "Couldn't read content size of cache file meta, read $read"
                     )
                 }
-            } catch (error: Throwable) {
-                Logger.e(
-                        TAG,
-                        "Error while trying to read info from cache file meta",
-                        error
+
+                val length = charArrayToInt(lengthBuffer)
+                val contentBuffer = CharArray(length)
+
+                read = reader.read(contentBuffer)
+                if (read != length) {
+                    throw IOException(
+                            "Couldn't read content cache file meta, " +
+                                    "read = $read, expected = $length"
+                    )
+                }
+
+                val content = String(contentBuffer)
+                val split = content.split(",").toTypedArray()
+                if (split.size != 2) {
+                    throw IOException(
+                            "Couldn't split meta content ($content), split.size = ${split.size}"
+                    )
+                }
+
+                return@use CacheFileMeta(
+                        split[0].toLong(),
+                        split[1].toBoolean()
                 )
-                return@withFileDescriptor null
             }
         }
     }
@@ -537,11 +531,11 @@ class CacheHandler(
         return chunksCacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
-    private fun getCacheFileMetaInternal(key: String): RawFile {
+    internal fun getCacheFileMetaInternal(url: String): RawFile {
         createDirectories()
 
         // AbstractFile expects all file names to have extensions
-        val fileName = formatCacheFileMetaName(key.hashCode().toString())
+        val fileName = formatCacheFileMetaName(hashUrl(url))
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
@@ -709,7 +703,12 @@ class CacheHandler(
         val cacheFiles = ArrayList<CacheFile>(groupedCacheFiles.size)
 
         for ((abstractFile, abstractFileMeta) in groupedCacheFiles) {
-            val cacheFileMeta = readCacheFileMeta(abstractFileMeta)
+            val cacheFileMeta = try {
+                readCacheFileMeta(abstractFileMeta)
+            } catch (error: IOException) {
+                null
+            }
+
             if (cacheFileMeta == null) {
                 Logger.e(TAG, "Couldn't read cache meta for file = $abstractFile.getFullPath()")
 
@@ -819,7 +818,7 @@ class CacheHandler(
 
     }
 
-    private class CacheFileMeta(
+    internal class CacheFileMeta(
             val createdOn: Long,
             val isDownloaded: Boolean
     ) {
@@ -868,12 +867,6 @@ class CacheHandler(
 
         private val CACHE_FILE_COMPARATOR = Comparator<CacheFile> { cacheFile1, cacheFile2 ->
             cacheFile1.createdOn.compareTo(cacheFile2.createdOn)
-        }
-
-        private val FILE_CACHE_DISK_SIZE = if (ChanSettings.autoLoadThreadImages.get()) {
-            PREFETCH_CACHE_SIZE
-        } else {
-            DEFAULT_CACHE_SIZE
         }
     }
 }
