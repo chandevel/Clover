@@ -94,6 +94,22 @@ internal class ActiveDownloads {
     }
 
     /**
+     * Marks current CancelableDownload as canceled and throws CancellationException
+     * */
+    fun throwCancellationException(url: String): Nothing {
+        activeDownloads[url]?.cancelableDownload?.cancel()
+        throw FileCacheException.CancellationException(
+                DownloadState.Canceled,
+                url
+        )
+    }
+
+    fun getState(url: String): DownloadState {
+        return activeDownloads[url]?.cancelableDownload?.getState()
+                ?: DownloadState.Canceled
+    }
+
+    /**
      * Use only in tests!
      * */
     fun getAll(): List<FileDownloadRequest> {

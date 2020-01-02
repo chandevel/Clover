@@ -23,11 +23,6 @@ internal abstract class FileDownloader(
         return !request.cancelableDownload.isRunning()
     }
 
-    protected fun getState(url: String): DownloadState {
-        return activeDownloads.get(url)?.cancelableDownload?.getState()
-                ?: DownloadState.Canceled
-    }
-
     protected fun markFileAsDownloaded(url: String) {
         val request = checkNotNull(activeDownloads.get(url)) {
             "Active downloads does not have url: ${url} even though " +

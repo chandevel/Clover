@@ -73,9 +73,16 @@ class FileCacheV2(
             activeDownloads,
             MAX_TIMEOUT_MS
     )
-    private val concurrentChunkedFileDownloader = ConcurrentChunkedFileDownloader(
+
+    private val chunkDownloader = ChunkDownloader(
             okHttpClient,
+            activeDownloads,
+            ChanSettings.verboseLogs.get()
+    )
+
+    private val concurrentChunkedFileDownloader = ConcurrentChunkedFileDownloader(
             fileManager,
+            chunkDownloader,
             workerScheduler,
             ChanSettings.verboseLogs.get(),
             activeDownloads,

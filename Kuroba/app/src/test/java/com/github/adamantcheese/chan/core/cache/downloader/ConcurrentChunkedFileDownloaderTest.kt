@@ -73,9 +73,11 @@ class ConcurrentChunkedFileDownloaderTest {
 
         testScheduler = TestScheduler()
 
+        val chunkDownloader = ChunkDownloader(okHttpClient, activeDownloads, false)
+
         concurrentChunkedFileDownloader = ConcurrentChunkedFileDownloader(
-                okHttpClient,
                 fileManager,
+                chunkDownloader,
                 Schedulers.single(),
                 false,
                 activeDownloads,
