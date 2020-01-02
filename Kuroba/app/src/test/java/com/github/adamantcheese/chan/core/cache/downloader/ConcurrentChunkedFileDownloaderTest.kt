@@ -230,7 +230,7 @@ class ConcurrentChunkedFileDownloaderTest {
             val allRequests = activeDownloads.getAll()
 
             resultDataList.forEach { (events, errors, completes, extraInfo) ->
-                val canceled = toCancelObservers.any { (observer, info) ->
+                val canceled = toCancelObservers.any { (_, info) ->
                     info.url == extraInfo.url
                 }
 
@@ -349,7 +349,7 @@ class ConcurrentChunkedFileDownloaderTest {
                 stream.available()
             }
 
-            multiChunkTestProlog(server, fileSize.toLong(), 4, imageName) { url, output, request, testObserver ->
+            multiChunkTestPrologue(server, fileSize.toLong(), 4, imageName) { url, output, request, testObserver ->
                 val (events, errors, completes) = testObserver
                         .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
                         .events
@@ -387,7 +387,7 @@ class ConcurrentChunkedFileDownloaderTest {
         assertNotNull(activeDownloads.get(url))
     }
 
-    private fun multiChunkTestProlog(
+    private fun multiChunkTestPrologue(
             server: MockWebServer,
             fileSize: Long,
             chunksCount: Int,
