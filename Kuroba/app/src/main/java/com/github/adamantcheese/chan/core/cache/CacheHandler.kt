@@ -64,7 +64,7 @@ class CacheHandler(
         private val chunksCacheDirFile: RawFile,
         private val autoLoadThreadImages: Boolean
 ) {
-    private val pool = Executors.newSingleThreadExecutor()
+    private val executor = Executors.newSingleThreadExecutor()
     /**
      * An estimation of the current size of the directory. Used to check if trim must be run
      * because the folder exceeds the maximum size.
@@ -278,7 +278,7 @@ class CacheHandler(
                 && now - trimTime > MIN_TRIM_INTERVAL
                 && trimRunning.compareAndSet(false, true)
         ) {
-            pool.execute {
+            executor.execute {
                 try {
                     trim()
                 } catch (e: Exception) {
@@ -348,24 +348,29 @@ class CacheHandler(
         val cacheFile = cacheDirFile.clone(FileSegment(cacheFileName)) as RawFile
         val cacheMetaFile = cacheDirFile.clone(FileSegment(cacheMetaFileName)) as RawFile
 
-        if (fileManager.delete(cacheFile)) {
-            if (fileManager.delete(cacheMetaFile)) {
-                val cacheFileSize = fileManager.getLength(cacheFile)
-
-                size.getAndAdd(-cacheFileSize)
-                if (size.get() < 0L) {
-                    size.set(0L)
-                }
-
-                Logger.d(TAG, "Deleted $cacheFileName and it's meta $cacheMetaFileName")
-                return true
-            } else {
-                Logger.e(TAG, "Failed to delete cache file meta = ${cacheMetaFile.getFullPath()}")
-            }
-        } else {
+        val deleteCacheFileResult = fileManager.delete(cacheFile)
+        if (!deleteCacheFileResult) {
             Logger.e(TAG, "Failed to delete cache file, fileName = ${cacheFile.getFullPath()}")
         }
 
+        val deleteCacheFileMetaResult = fileManager.delete(cacheMetaFile)
+        if (!deleteCacheFileMetaResult) {
+            Logger.e(TAG, "Failed to delete cache file meta = ${cacheMetaFile.getFullPath()}")
+        }
+
+        if (deleteCacheFileResult && deleteCacheFileMetaResult) {
+            val cacheFileSize = fileManager.getLength(cacheFile)
+
+            size.getAndAdd(-cacheFileSize)
+            if (size.get() < 0L) {
+                size.set(0L)
+            }
+
+            Logger.d(TAG, "Deleted $cacheFileName and it's meta $cacheMetaFileName")
+            return true
+        }
+
+        // Only one of the files could be deleted
         return false
     }
 
@@ -387,6 +392,7 @@ class CacheHandler(
         )
     }
 
+    @Throws(IOException::class)
     private fun updateCacheFileMeta(
             file: AbstractFile,
             overwrite: Boolean,
@@ -419,9 +425,11 @@ class CacheHandler(
                     )
                 }
                 else -> {
-                    require(!(createdOn == null || fileDownloaded == null)) {
-                        "Both parameters must not be null when writing! " +
-                                "(Probably prevCacheFileMeta couldn't be read, check the logs)"
+                    if (createdOn == null || fileDownloaded == null) {
+                        throw IOException(
+                                "Both parameters must not be null when writing! " +
+                                        "(Probably prevCacheFileMeta couldn't be read, check the logs)"
+                        )
                     }
 
                     return@let CacheFileMeta(createdOn, fileDownloaded)
@@ -455,9 +463,7 @@ class CacheHandler(
     }
 
     @Throws(IOException::class)
-    private fun readCacheFileMeta(
-            cacheFileMate: AbstractFile
-    ): CacheFileMeta? {
+    private fun readCacheFileMeta(cacheFileMate: AbstractFile): CacheFileMeta? {
         if (!fileManager.exists(cacheFileMate)) {
             throw IOException("Cache file meta does not exist, path = ${cacheFileMate.getFullPath()}")
         }
@@ -599,7 +605,7 @@ class CacheHandler(
             return
         }
 
-        pool.submit { recalculateSize() }
+        executor.submit { recalculateSize() }
     }
 
     private fun recalculateSize() {
@@ -710,13 +716,13 @@ class CacheHandler(
             }
 
             if (cacheFileMeta == null) {
-                Logger.e(TAG, "Couldn't read cache meta for file = $abstractFile.getFullPath()")
+                Logger.e(TAG, "Couldn't read cache meta for file = ${abstractFile.getFullPath()}")
 
                 if (!deleteCacheFile(abstractFile)) {
                     Logger.e(
                             TAG,
                             "Couldn't delete cache file with " +
-                            "meta for file = ${abstractFile.getFullPath()}"
+                                    "meta for file = ${abstractFile.getFullPath()}"
                     )
                 }
                 continue
@@ -812,7 +818,7 @@ class CacheHandler(
         override fun toString(): String {
             return "CacheFile{" +
                     "file=${file.getFullPath()}" +
-                    ", cacheFileMeta=${cacheFileMeta }" +
+                    ", cacheFileMeta=${cacheFileMeta}" +
                     "}"
         }
 

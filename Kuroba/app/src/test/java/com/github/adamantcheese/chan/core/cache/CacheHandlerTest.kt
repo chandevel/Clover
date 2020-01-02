@@ -78,7 +78,7 @@ class CacheHandlerTest {
 
             checkNotNull(fileManager.getOutputStream(cacheFileMeta)).use { outputStream ->
                 // Malform the "True/False" boolean parameter by replacing it's last character with
-                // comma
+                // a comma
                 array[array.lastIndex] = ','.toByte()
 
                 outputStream.write(array)
@@ -88,6 +88,22 @@ class CacheHandlerTest {
 
         assertFalse(cacheHandler.markFileDownloaded(cacheFile))
         assertFalse(cacheHandler.isAlreadyDownloaded(cacheFile))
+        assertTrue(fileManager.listFiles(cacheDirFile).isEmpty())
+    }
+
+    @Test
+    fun `clearCache method should delete all cache files with their meta from the cache dir`() {
+        repeat(10) { index ->
+            val url = "http://4chan.org/image$index.jpg"
+            val cacheFile = checkNotNull(cacheHandler.getOrCreateCacheFile(url))
+            assertFalse(cacheHandler.isAlreadyDownloaded(cacheFile))
+
+            assertTrue(cacheHandler.markFileDownloaded(cacheFile))
+            assertTrue(cacheHandler.isAlreadyDownloaded(cacheFile))
+        }
+
+        cacheHandler.clearCache()
+
         assertTrue(fileManager.listFiles(cacheDirFile).isEmpty())
     }
 }

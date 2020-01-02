@@ -687,7 +687,7 @@ class FileCacheV2(
 
             for ((index, exception) in error.exceptions.withIndex()) {
                 sb.append(
-                        "Unknown exception ($index), " +
+                        "Exception ($index), " +
                                 "class = ${exception.javaClass.name}, " +
                                 "message = ${exception.message}"
                 ).append("; ")
@@ -695,7 +695,7 @@ class FileCacheV2(
 
             sb.toString()
         } else {
-            val msg = "Unknown exception, class = ${error.javaClass.name}, message = ${error.message}"
+            val msg = "Exception, class = ${error.javaClass.name}, message = ${error.message}"
             logError(TAG, msg)
 
             msg
