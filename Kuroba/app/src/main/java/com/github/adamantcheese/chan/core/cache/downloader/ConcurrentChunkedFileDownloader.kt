@@ -4,7 +4,6 @@ import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.cache.FileCacheV2
 import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
 import com.github.adamantcheese.chan.core.di.NetModule
-import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
@@ -26,6 +25,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
         private val okHttpClient: OkHttpClient,
         private val fileManager: FileManager,
         private val workerScheduler: Scheduler,
+        private val verboseLogs: Boolean,
         activeDownloads: ActiveDownloads,
         cacheHandler: CacheHandler
 ) : FileDownloader(activeDownloads, cacheHandler) {
@@ -35,8 +35,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             url: String,
             chunked: Boolean
     ): Flowable<FileDownloadResult> {
-        BackgroundUtils.ensureBackgroundThread()
-
         val output = activeDownloads.get(url)
                 ?.output
                 ?: throwCancellationException(url)
@@ -71,18 +69,21 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
         return Flowable.concat(
                 Flowable.just(FileDownloadResult.Start(chunksCount)),
-                downloadInternal(
-                        url,
-                        chunks,
-                        partialContentCheckResult,
-                        output
-                )
+                Flowable.defer {
+                    return@defer downloadInternal(
+                            url,
+                            chunks,
+                            partialContentCheckResult,
+                            output
+                    )
+                }
                 .doOnSubscribe { log(TAG, "Starting downloading (${url})") }
                 .doOnComplete { log(TAG, "Completed downloading (${url})") }
                 .doOnError { error ->
                     logError(TAG, "Error while trying to download (${url}) " +
                             "error name = ${error.javaClass.simpleName}")
                 }
+                .subscribeOn(workerScheduler)
         )
     }
 
@@ -92,7 +93,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             partialContentCheckResult: PartialContentCheckResult,
             output: AbstractFile
     ): Flowable<FileDownloadResult> {
-        if (ChanSettings.verboseLogs.get()) {
+        if (verboseLogs) {
             log(TAG, "File (${url}) was split into chunks: ${chunks}")
         }
 
@@ -280,7 +281,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             requestStartTime: Long
     ): Flowable<ChunkDownloadEvent> {
         return Flowable.fromCallable {
-            if (ChanSettings.verboseLogs.get()) {
+            if (verboseLogs) {
                 log(TAG, "writeChunksToCacheFile called ($url), chunks count = ${chunkSuccessEvents.size}")
             }
 
@@ -352,7 +353,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             val chunk = chunkResponse.chunk
 
             try {
-                if (ChanSettings.verboseLogs.get()) {
+                if (verboseLogs) {
                     log(TAG,
                             "pipeChunk($chunkIndex) ($url) called for chunk ${chunk.start}..${chunk.end}"
                     )
@@ -559,7 +560,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                 throwCancellationException(url)
             }
 
-            if (ChanSettings.verboseLogs.get()) {
+            if (verboseLogs) {
                 log(TAG,
                         "pipeChunk($chunkIndex) ($url) SUCCESS for chunk ${chunk.start}..${chunk.end}"
                 )
@@ -600,7 +601,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     "should be only one but actual = $totalChunksCount")
         }
 
-        if (ChanSettings.verboseLogs.get()) {
+        if (verboseLogs) {
             log(TAG, "Start downloading ($url), chunk ${chunk.start}..${chunk.end}")
         }
 
@@ -675,7 +676,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    if (ChanSettings.verboseLogs.get()) {
+                    if (verboseLogs) {
                         val diff = System.currentTimeMillis() - startTime
                         log(TAG, "Got chunk response in ($url) ${chunk.start}..${chunk.end} in ${diff}ms")
                     }

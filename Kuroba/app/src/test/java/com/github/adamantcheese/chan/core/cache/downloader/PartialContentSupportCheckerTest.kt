@@ -1,13 +1,11 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
+import com.github.adamantcheese.chan.core.cache.createFileDownloadRequest
+import com.github.adamantcheese.chan.core.cache.withServer
 import com.github.adamantcheese.chan.utils.AndroidUtils
-import com.github.k1rakishou.fsaf.file.AbstractFile
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.spy
 import io.reactivex.plugins.RxJavaPlugins
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -16,10 +14,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
 
 
 @RunWith(RobolectricTestRunner::class)
@@ -57,7 +52,7 @@ class PartialContentSupportCheckerTest {
     @Test
     fun `test check for batch request should return supportsPartialContentDownload == false`() {
         val url = "http://4chan.org/image1.jpg"
-        val request = createRequest(url, isBatchDownload = true)
+        val request = createFileDownloadRequest(url, isBatchDownload = true)
         activeDownloads.put(url, request)
 
         partialContentSupportChecker.check(url)
@@ -85,7 +80,7 @@ class PartialContentSupportCheckerTest {
             server.start()
 
             val url = server.url("/image1.jpg").toString()
-            val request = createRequest(url)
+            val request = createFileDownloadRequest(url)
             activeDownloads.put(url, request)
 
             partialContentSupportChecker.check(url)
@@ -122,7 +117,7 @@ class PartialContentSupportCheckerTest {
             server.start()
 
             val url = server.url("/image1.jpg").toString()
-            val request = createRequest(url)
+            val request = createFileDownloadRequest(url)
             activeDownloads.put(url, request)
 
 
@@ -156,7 +151,7 @@ class PartialContentSupportCheckerTest {
             server.start()
 
             val url = server.url("/image1.jpg").toString()
-            val request = createRequest(url)
+            val request = createFileDownloadRequest(url)
             activeDownloads.put(url, request)
 
             val testObserver = partialContentSupportChecker.check(url)
@@ -196,7 +191,7 @@ class PartialContentSupportCheckerTest {
             server.start()
 
             val url = server.url("/image1.jpg").toString()
-            val request = createRequest(url)
+            val request = createFileDownloadRequest(url)
             activeDownloads.put(url, request)
 
             val testObserver = partialContentSupportChecker.check(url)
@@ -221,6 +216,33 @@ class PartialContentSupportCheckerTest {
     }
 
     @Test
+    fun `test when server returns 404`() {
+        withServer { server ->
+            server.enqueue(
+                    MockResponse().setResponseCode(404)
+            )
+
+            server.start()
+
+            val url = server.url("/image1.jpg").toString()
+            val request = createFileDownloadRequest(url)
+            activeDownloads.put(url, request)
+
+            partialContentSupportChecker.check(url)
+                    .test()
+                    .awaitCount(1)
+                    .assertError { error ->
+                        assertTrue(error is FileCacheException.FileNotFoundOnTheServerException)
+                        true
+                    }
+                    .assertNotComplete()
+                    .assertNoTimeout()
+                    .assertNoValues()
+                    .await()
+        }
+    }
+
+    @Test
     fun `test everything ok`() {
         withServer { server ->
             server.enqueue(
@@ -234,7 +256,7 @@ class PartialContentSupportCheckerTest {
             server.start()
 
             val url = server.url("/image1.jpg").toString()
-            val request = createRequest(url)
+            val request = createFileDownloadRequest(url)
             activeDownloads.put(url, request)
 
             partialContentSupportChecker.check(url)
@@ -253,39 +275,4 @@ class PartialContentSupportCheckerTest {
         }
     }
 
-    private fun withServer(func: (MockWebServer) -> Unit) {
-        val server = MockWebServer()
-
-        try {
-            func(server)
-        } finally {
-            server.shutdown()
-        }
-    }
-
-    private fun createRequest(
-            url: String,
-            chunksCount: Int = 1,
-            isBatchDownload: Boolean = false
-    ): FileDownloadRequest {
-        val file = mock<AbstractFile>()
-        val executor = mock<ExecutorService>()
-
-        val cancelableDownload = CancelableDownload(
-                url,
-                executor,
-                AtomicBoolean(isBatchDownload)
-        )
-
-        return spy(
-                FileDownloadRequest(
-                        url,
-                        file,
-                        chunksCount,
-                        AtomicLong(0),
-                        AtomicLong(0),
-                        cancelableDownload
-                )
-        )
-    }
 }

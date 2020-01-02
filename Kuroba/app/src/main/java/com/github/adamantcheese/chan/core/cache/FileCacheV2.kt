@@ -77,6 +77,7 @@ class FileCacheV2(
             okHttpClient,
             fileManager,
             workerScheduler,
+            ChanSettings.verboseLogs.get(),
             activeDownloads,
             cacheHandler
     )

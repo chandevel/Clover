@@ -32,15 +32,11 @@ import com.github.k1rakishou.fsaf.file.RawFile;
 import org.codejargon.feather.Provides;
 
 import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import okhttp3.ConnectionPool;
-import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -134,19 +130,11 @@ public class NetModule {
     @Named(DOWNLOADER_OKHTTP_CLIENT_NAME)
     public OkHttpClient provideOkHttpClient() {
         Logger.d(AppModule.DI_TAG, "DownloaderOkHttp client");
-        Dispatcher dispatcher = new Dispatcher(
-                createExecutorServiceForOkHttpClient(4)
-        );
 
         return new OkHttpClient.Builder()
                 .connectTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .readTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .writeTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .dispatcher(dispatcher)
-                // This seems to help with the random OkHttpClient hangups. Maybe the same thing
-                // should be used for other OkHttpClients as well.
-                // https://github.com/square/okhttp/issues/3146#issuecomment-311158567
-                .connectionPool(new ConnectionPool(0, 1, TimeUnit.NANOSECONDS))
                 .build();
     }
 
@@ -156,25 +144,11 @@ public class NetModule {
     public OkHttpClient provideOkHttpClientForThreadSaveManager() {
         Logger.d(AppModule.DI_TAG, "ThreadSaverOkHttp client");
 
-        Dispatcher dispatcher = new Dispatcher(
-                createExecutorServiceForOkHttpClient(4)
-        );
-
         return new OkHttpClient().newBuilder()
                 .connectTimeout(THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .writeTimeout(THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .readTimeout(THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .dispatcher(dispatcher)
                 .build();
-    }
-
-    private ExecutorService createExecutorServiceForOkHttpClient(int minThreadsCount) {
-        int threadsCount = Runtime.getRuntime().availableProcessors();
-        if (threadsCount < minThreadsCount) {
-            threadsCount = minThreadsCount;
-        }
-
-        return Executors.newFixedThreadPool(threadsCount);
     }
 
     //this is basically the same as OkHttpClient, but with a singleton for a proxy instance
@@ -184,14 +158,12 @@ public class NetModule {
 
         public OkHttpClient getProxiedClient() {
             if (proxiedClient == null) {
-                Dispatcher dispatcher = new Dispatcher(createExecutorServiceForOkHttpClient(4));
 
                 proxiedClient = newBuilder().proxy(ChanSettings.getProxy())
                         // Proxies are usually slow, so they have increased timeouts
                         .connectTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                         .readTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                         .writeTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                        .dispatcher(dispatcher)
                         .callTimeout(2, MINUTES)
                         .build();
             }

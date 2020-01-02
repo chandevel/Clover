@@ -93,4 +93,10 @@ internal class ActiveDownloads {
         }
     }
 
+    /**
+     * Use only in tests!
+     * */
+    fun getAll(): List<FileDownloadRequest> {
+        return synchronized(activeDownloads) { activeDownloads.values.toList() }
+    }
 }

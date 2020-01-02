@@ -120,9 +120,9 @@ internal class PartialContentSupportChecker(
             Logger.e(TAG, "HEAD request to url ($url) has failed " +
                     "because of \"${error.javaClass.simpleName}\" exception, time = ${diff}ms")
         }
-        .onErrorReturn { error ->
+        .onErrorResumeNext { error ->
             if (error !is TimeoutException) {
-                throw error
+                return@onErrorResumeNext Single.error(error)
             }
 
             val diff = System.currentTimeMillis() - startTime
@@ -131,8 +131,10 @@ internal class PartialContentSupportChecker(
 
             // Do not cache this result because after this request the file should be cached by the
             // cloudflare, so the next time we open it, it should load way faster
-            return@onErrorReturn PartialContentCheckResult(
-                    supportsPartialContentDownload = false
+            return@onErrorResumeNext Single.just(
+                    PartialContentCheckResult(
+                            supportsPartialContentDownload = false
+                    )
             )
         }
     }

@@ -161,27 +161,29 @@ class CacheHandler(
      * Checks whether this file is already downloaded by reading it's meta info. If a file has no
      * meta info or it cannot be read - deletes the file so it can be re-downloaded again with all
      * necessary information
+     *
+     * [cacheFile] must be the cache file, not cache file meta!
      * */
-    fun isAlreadyDownloaded(file: RawFile): Boolean {
+    fun isAlreadyDownloaded(cacheFile: RawFile): Boolean {
         return try {
-            if (!fileManager.exists(file)) {
-                deleteCacheFile(file)
+            if (!fileManager.exists(cacheFile)) {
+                deleteCacheFile(cacheFile)
                 return false
             }
 
-            if (!fileManager.getName(file).endsWith(CACHE_EXTENSION)) {
-                Logger.e(TAG, "Not a cache file! file = " + file.getFullPath())
-                deleteCacheFile(file)
+            if (!fileManager.getName(cacheFile).endsWith(CACHE_EXTENSION)) {
+                Logger.e(TAG, "Not a cache file! file = " + cacheFile.getFullPath())
+                deleteCacheFile(cacheFile)
                 return false
             }
 
-            val cacheFileMetaFile = getCacheFileMetaByCacheFile(file)
+            val cacheFileMetaFile = getCacheFileMetaByCacheFile(cacheFile)
             if (cacheFileMetaFile == null) {
                 Logger.e(
                         TAG, "Couldn't get cache file meta by cache file, " +
-                        "file = ${file.getFullPath()}"
+                        "file = ${cacheFile.getFullPath()}"
                 )
-                deleteCacheFile(file)
+                deleteCacheFile(cacheFile)
                 return false
             }
 
@@ -191,26 +193,26 @@ class CacheHandler(
                         "cacheFileMetaFile = ${cacheFileMetaFile.getFullPath()}"
                 )
 
-                deleteCacheFile(file)
+                deleteCacheFile(cacheFile)
                 return false
             }
 
             if (fileManager.getLength(cacheFileMetaFile) <= 0) {
                 // File is empty
-                deleteCacheFile(file)
+                deleteCacheFile(cacheFile)
                 return false
             }
 
             val cacheFileMeta = readCacheFileMeta(cacheFileMetaFile)
             if (cacheFileMeta == null) {
-                deleteCacheFile(file)
+                deleteCacheFile(cacheFile)
                 return false
             }
 
             cacheFileMeta.isDownloaded
         } catch (error: Throwable) {
             Logger.e(TAG, "Error while trying to check whether the file is already downloaded", error)
-            deleteCacheFile(file)
+            deleteCacheFile(cacheFile)
             false
         }
     }
@@ -328,8 +330,8 @@ class CacheHandler(
      * Deletes a cache file with it's meta. Also decreases the total cache size variable by the size
      * of the file.
      * */
-    fun deleteCacheFile(file: AbstractFile): Boolean {
-        val fileName = fileManager.getName(file)
+    fun deleteCacheFile(cacheFile: AbstractFile): Boolean {
+        val fileName = fileManager.getName(cacheFile)
 
         return deleteCacheFile(fileName)
     }
@@ -545,7 +547,7 @@ class CacheHandler(
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
-    private fun hashUrl(url: String): String {
+    internal fun hashUrl(url: String): String {
         return url.hashCode().toString()
     }
 
@@ -864,9 +866,9 @@ class CacheHandler(
         private const val CACHE_FILE_NAME_FORMAT = "%s.%s"
         private const val CHUNK_CACHE_FILE_NAME_FORMAT = "%s_%d_%d.%s"
         private const val CACHE_FILE_META_CONTENT_FORMAT = "%d,%b"
-        private const val CACHE_EXTENSION = "cache"
-        private const val CACHE_META_EXTENSION = "cache_meta"
-        private const val CHUNK_CACHE_EXTENSION = "chunk"
+        internal const val CACHE_EXTENSION = "cache"
+        internal const val CACHE_META_EXTENSION = "cache_meta"
+        internal const val CHUNK_CACHE_EXTENSION = "chunk"
 
         private val MIN_CACHE_FILE_LIFE_TIME = TimeUnit.MINUTES.toMillis(5)
         private val MIN_TRIM_INTERVAL = TimeUnit.MINUTES.toMillis(1)
