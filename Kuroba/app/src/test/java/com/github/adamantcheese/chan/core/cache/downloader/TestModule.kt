@@ -21,12 +21,40 @@ class TestModule {
     private var activeDownloads: ActiveDownloads? = null
     private var concurrentChunkedFileDownloader: ConcurrentChunkedFileDownloader? = null
     private var partialContentSupportChecker: PartialContentSupportChecker? = null
+    private var chunkReader: ChunkReader? = null
+    private var chunkPersister: ChunkPersister? = null
 
     private var cacheDirFile: RawFile? = null
     private var chunksCacheDirFile: RawFile? = null
 
     fun provideApplication() = RuntimeEnvironment.application
     fun provideContext() = provideApplication().applicationContext
+
+    internal fun provideChunkReader(): ChunkReader {
+        if (chunkReader == null) {
+            chunkReader = ChunkReader(
+                    provideFileManager(),
+                    provideCacheHandler(),
+                    provideActiveDownloads(),
+                    false
+            )
+        }
+
+        return chunkReader!!
+    }
+
+    internal fun provideChunkPersister(): ChunkPersister {
+        if (chunkPersister == null) {
+            chunkPersister = ChunkPersister(
+                    provideFileManager(),
+                    provideCacheHandler(),
+                    provideActiveDownloads(),
+                    false
+            )
+        }
+
+        return chunkPersister!!
+    }
 
     internal fun providePartialContentSupportChecker(): PartialContentSupportChecker {
         if (partialContentSupportChecker == null) {
@@ -45,6 +73,8 @@ class TestModule {
             concurrentChunkedFileDownloader = ConcurrentChunkedFileDownloader(
                     provideFileManager(),
                     provideChunkDownloader(),
+                    provideChunkReader(),
+                    provideChunkPersister(),
                     Schedulers.single(),
                     false,
                     provideActiveDownloads(),

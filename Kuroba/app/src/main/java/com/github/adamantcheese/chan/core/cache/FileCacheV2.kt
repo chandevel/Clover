@@ -57,6 +57,7 @@ class FileCacheV2(
     )
     private val threadsCount = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(4)
     private val requestCancellationThread = Executors.newSingleThreadExecutor()
+    private val verboseLogs = ChanSettings.verboseLogs.get()
 
     private val threadIndex = AtomicInteger(0)
     private val workerScheduler = Schedulers.from(
@@ -77,14 +78,30 @@ class FileCacheV2(
     private val chunkDownloader = ChunkDownloader(
             okHttpClient,
             activeDownloads,
-            ChanSettings.verboseLogs.get()
+            verboseLogs
+    )
+
+    private val chunkReader = ChunkReader(
+            fileManager,
+            cacheHandler,
+            activeDownloads,
+            verboseLogs
+    )
+
+    private val chunkPersister = ChunkPersister(
+            fileManager,
+            cacheHandler,
+            activeDownloads,
+            verboseLogs
     )
 
     private val concurrentChunkedFileDownloader = ConcurrentChunkedFileDownloader(
             fileManager,
             chunkDownloader,
+            chunkReader,
+            chunkPersister,
             workerScheduler,
-            ChanSettings.verboseLogs.get(),
+            verboseLogs,
             activeDownloads,
             cacheHandler
     )

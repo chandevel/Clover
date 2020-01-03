@@ -23,17 +23,6 @@ internal abstract class FileDownloader(
         return !request.cancelableDownload.isRunning()
     }
 
-    protected fun markFileAsDownloaded(url: String) {
-        val request = checkNotNull(activeDownloads.get(url)) {
-            "Active downloads does not have url: ${url} even though " +
-                    "it was just downloaded"
-        }
-
-        if (!cacheHandler.markFileDownloaded(request.output)) {
-            throw FileCacheException.CouldNotMarkFileAsDownloaded(request.output)
-        }
-    }
-
     companion object {
         internal const val BUFFER_SIZE: Long = 8192L
         internal const val MAX_RETRIES = 5L
