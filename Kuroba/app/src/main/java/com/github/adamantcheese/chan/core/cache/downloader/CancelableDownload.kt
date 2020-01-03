@@ -20,7 +20,7 @@ class CancelableDownload(
         val isPartOfBatchDownload: AtomicBoolean = AtomicBoolean(false)
 ) {
     private val state: AtomicReference<DownloadState> = AtomicReference(DownloadState.Running)
-    private val callbacks: MutableSet<FileCacheListener> = mutableSetOf()
+    private val callbacks: MutableMap<Class<*>, FileCacheListener> = mutableMapOf()
     /**
      * These callbacks are used to cancel a lot of things, like the HEAD request, the get response
      * body request and response body read loop.
@@ -36,12 +36,16 @@ class CancelableDownload(
             return
         }
 
-        callbacks.add(callback)
+        if (callbacks.containsKey(callback::class.java)) {
+            return
+        }
+
+        callbacks[callback::class.java] = callback
     }
 
     @Synchronized
     fun forEachCallback(func: FileCacheListener.() -> Unit) {
-        callbacks.forEach { callback ->
+        callbacks.values.forEach { callback ->
             func(callback)
         }
     }

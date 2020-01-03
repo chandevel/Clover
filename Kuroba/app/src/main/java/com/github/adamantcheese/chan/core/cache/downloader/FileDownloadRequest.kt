@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
 internal open class FileDownloadRequest(
@@ -9,7 +10,7 @@ internal open class FileDownloadRequest(
         val output: AbstractFile,
         // A file will be split into [chunksCount] chunks which will be downloaded in parallel.
         // Must be 1 or greater than 1.
-        val chunksCount: Int,
+        val chunksCount: AtomicInteger,
         // How many bytes were downloaded across all chunks
         val downloaded: AtomicLong,
         // How many bytes a file we download takes in total
@@ -21,7 +22,7 @@ internal open class FileDownloadRequest(
 ) {
 
     init {
-        check(chunksCount >= 1) {
+        check(chunksCount.get() >= 1) {
             "chunksCount is zero or less than zero! chunksCount = $chunksCount"
         }
     }

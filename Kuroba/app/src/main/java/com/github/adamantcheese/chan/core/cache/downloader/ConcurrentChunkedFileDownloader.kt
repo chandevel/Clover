@@ -41,8 +41,12 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
         val chunksCount = if (chunked && partialContentCheckResult.couldDetermineFileSize()) {
             activeDownloads.get(url)
                     ?.chunksCount
+                    ?.get()
                     ?: activeDownloads.throwCancellationException(url)
         } else {
+            // Update the chunksCount because it changed due to HEAD request failure or some other
+            // kind of problem
+            activeDownloads.get(url)?.chunksCount?.set(1)
             1
         }
 
@@ -77,8 +81,12 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     removeChunksFromDisk(url)
                 }
                 .doOnError { error ->
-                    logError(TAG, "Error while trying to download (${url}) " +
-                            "error name = ${error.javaClass.simpleName}")
+                    logErrorsAndExtractErrorMessage(
+                            TAG,
+                            "Error while trying to download",
+                            error
+                    )
+
                     removeChunksFromDisk(url)
                 }
                 .subscribeOn(workerScheduler)

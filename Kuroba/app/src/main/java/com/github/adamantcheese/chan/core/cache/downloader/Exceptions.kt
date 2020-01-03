@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.k1rakishou.fsaf.file.AbstractFile
+import io.reactivex.exceptions.CompositeException
 
 internal sealed class FileCacheException(message: String) : Exception(message) {
 
@@ -49,4 +50,28 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
             val isFile: Boolean,
             val canWrite: Boolean
     ) : FileCacheException("Bad output file, exists = $exists, isFile = $isFile, canWrite = $canWrite, path = $path")
+}
+
+internal fun logErrorsAndExtractErrorMessage(tag: String, prefix: String, error: Throwable): String {
+    return if (error is CompositeException) {
+        val sb = StringBuilder()
+
+        for ((index, exception) in error.exceptions.withIndex()) {
+            sb.append(
+                    "$prefix ($index), " +
+                            "class = ${exception.javaClass.simpleName}, " +
+                            "message = ${exception.message}"
+            ).append(";\n")
+        }
+
+        val result = sb.toString()
+        logError(tag, result)
+
+        result
+    } else {
+        val msg = "$prefix, class = ${error.javaClass.simpleName}, message = ${error.message}"
+        logError(tag, msg)
+
+        msg
+    }
 }

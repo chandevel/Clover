@@ -59,12 +59,22 @@ class FileCacheV2(
     private val requestCancellationThread = Executors.newSingleThreadExecutor()
     private val verboseLogs = ChanSettings.verboseLogs.get()
 
-    private val threadIndex = AtomicInteger(0)
+    private val normalThreadIndex = AtomicInteger(0)
+    private val batchThreadIndex = AtomicInteger(0)
+
+    private val batchScheduler = Schedulers.from(
+            Executors.newFixedThreadPool(1) { runnable ->
+                return@newFixedThreadPool Thread(
+                        runnable,
+                        String.format(BATCH_THREAD_NAME_FORMAT, batchThreadIndex.getAndIncrement())
+                )
+            }
+    )
     private val workerScheduler = Schedulers.from(
             Executors.newFixedThreadPool(threadsCount) { runnable ->
                 return@newFixedThreadPool Thread(
                         runnable,
-                        String.format(THREAD_NAME_FORMAT, threadIndex.getAndIncrement())
+                        String.format(NORMAL_THREAD_NAME_FORMAT, normalThreadIndex.getAndIncrement())
                 )
             }
     )
@@ -142,13 +152,13 @@ class FileCacheV2(
     @SuppressLint("CheckResult")
     private fun initBatchRequestQueue() {
         batchRequestQueue
-                .observeOn(workerScheduler)
+                .observeOn(batchScheduler)
                 .onBackpressureBuffer()
-                .flatMap { urlList ->
-                    return@flatMap Flowable.fromIterable(urlList)
-                        .subscribeOn(workerScheduler)
-                        .flatMap { url ->
-                            return@flatMap handleFileDownload(url)
+                .concatMap { urlList ->
+                    return@concatMap Flowable.fromIterable(urlList)
+                        .subscribeOn(batchScheduler)
+                        .concatMap { url ->
+                            return@concatMap handleFileDownload(url)
                                 .onErrorReturn { throwable -> processErrors(throwable) }
                                 .map { result -> Pair(url, result) }
                                 .doOnNext { (url, result) ->
@@ -398,7 +408,7 @@ class FileCacheV2(
             val request = FileDownloadRequest(
                     url,
                     file,
-                    chunksCount,
+                    AtomicInteger(chunksCount),
                     AtomicLong(0L),
                     AtomicLong(0L),
                     cancelableDownload
@@ -698,7 +708,11 @@ class FileCacheV2(
                     }
                 }
                 is FileDownloadResult.UnknownException -> {
-                    val message = logErrorsAndExtractErrorMessage(result.error)
+                    val message = logErrorsAndExtractErrorMessage(
+                            TAG,
+                            "Unknown exception",
+                            result.error
+                    )
 
                     resultHandler(url, request, true) {
                         onFail(IOException(message))
@@ -708,27 +722,6 @@ class FileCacheV2(
             }.exhaustive
         } catch (error: Throwable) {
             Logger.e(TAG, "An error in result handler", error)
-        }
-    }
-
-    private fun logErrorsAndExtractErrorMessage(error: Throwable): String {
-        return if (error is CompositeException) {
-            val sb = StringBuilder()
-
-            for ((index, exception) in error.exceptions.withIndex()) {
-                sb.append(
-                        "Exception ($index), " +
-                                "class = ${exception.javaClass.name}, " +
-                                "message = ${exception.message}"
-                ).append("; ")
-            }
-
-            sb.toString()
-        } else {
-            val msg = "Exception, class = ${error.javaClass.name}, message = ${error.message}"
-            logError(TAG, msg)
-
-            msg
         }
     }
 
@@ -882,7 +875,8 @@ class FileCacheV2(
 
     companion object {
         private const val TAG = "FileCacheV2"
-        private const val THREAD_NAME_FORMAT = "FileCacheV2Thread-%d"
+        private const val NORMAL_THREAD_NAME_FORMAT = "NormalFileCacheV2Thread-%d"
+        private const val BATCH_THREAD_NAME_FORMAT = "BatchFileCacheV2Thread-%d"
         private const val MAX_TIMEOUT_MS = 1000L
 
         const val MIN_CHUNK_SIZE = 1024L * 8L // 8 KB

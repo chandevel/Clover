@@ -68,10 +68,6 @@ internal class ChunkPersister(
                 try {
                     chunkResponse.response.useAsResponseBody { responseBody ->
                         val chunkSize = responseBody.contentLength()
-                        if (chunkSize <= 0L) {
-                            throw IOException("Unknown response body size, chunkSize = $chunkSize")
-                        }
-
                         if (totalChunksCount == 1) {
                             // When downloading the whole file in a single chunk we can only know
                             // for sure the whole size of the file at this point since we probably
@@ -211,13 +207,14 @@ internal class ChunkPersister(
         var downloaded = 0L
         var notifyTotal = 0L
         val buffer = Buffer()
-        val notifySize = chunkSize / 10
+
+        val notifySize = if (chunkSize <= 0) {
+            FileDownloader.BUFFER_SIZE
+        } else {
+            chunkSize / 10
+        }
 
         try {
-            if (chunkSize <= 0) {
-                throw RuntimeException("chunkSize <= 0 ($chunkSize)")
-            }
-
             while (true) {
                 if (canceled.get()) {
                     activeDownloads.throwCancellationException(url)
@@ -254,17 +251,19 @@ internal class ChunkPersister(
             bufferedSink.flush()
 
             // So that we have 100% progress for every chunk
-            emitter.onNext(
-                    ChunkDownloadEvent.Progress(
-                            chunkIndex,
-                            chunkSize,
-                            chunkSize
-                    )
-            )
+            if (chunkSize >= 0) {
+                emitter.onNext(
+                        ChunkDownloadEvent.Progress(
+                                chunkIndex,
+                                chunkSize,
+                                chunkSize
+                        )
+                )
 
-            if (downloaded != chunkSize) {
-                logError(TAG, "downloaded (${downloaded}) != chunkSize (${chunkSize})")
-                activeDownloads.throwCancellationException(url)
+                if (downloaded != chunkSize) {
+                    logError(TAG, "downloaded (${downloaded}) != chunkSize (${chunkSize})")
+                    activeDownloads.throwCancellationException(url)
+                }
             }
 
             if (verboseLogs) {
