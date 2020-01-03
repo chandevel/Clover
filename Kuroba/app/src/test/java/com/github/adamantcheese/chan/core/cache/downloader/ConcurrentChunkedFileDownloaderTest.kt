@@ -96,8 +96,6 @@ class ConcurrentChunkedFileDownloaderTest {
             val response = MockResponse().setResponseCode(404)
 
             singleChunkTestProlog(server, response) { url, output, request, testObserver ->
-                request.cancelableDownload.cancel()
-
                 val (events, errors, completes) = testObserver
                         .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
                         .events
@@ -107,7 +105,7 @@ class ConcurrentChunkedFileDownloaderTest {
                 assertTrue(completes.isEmpty())
 
                 assertTrue(events.first() is FileDownloadResult.Start)
-                assertTrue(errors.first() is FileCacheException.CancellationException)
+                assertTrue(errors.first() is FileCacheException.FileNotFoundOnTheServerException)
 
                 val cacheFiles = fileManager.listFiles(cacheDirFile)
                 assertTrue(fileManager.getName(cacheFiles[0]).endsWith(CacheHandler.CACHE_EXTENSION))

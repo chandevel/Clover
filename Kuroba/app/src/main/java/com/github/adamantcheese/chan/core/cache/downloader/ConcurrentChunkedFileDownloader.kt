@@ -72,13 +72,37 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     )
                 }
                 .doOnSubscribe { log(TAG, "Starting downloading (${url})") }
-                .doOnComplete { log(TAG, "Completed downloading (${url})") }
+                .doOnComplete {
+                    log(TAG, "Completed downloading (${url})")
+                    removeChunksFromDisk(url)
+                }
                 .doOnError { error ->
                     logError(TAG, "Error while trying to download (${url}) " +
                             "error name = ${error.javaClass.simpleName}")
+                    removeChunksFromDisk(url)
                 }
                 .subscribeOn(workerScheduler)
         )
+    }
+
+    private fun removeChunksFromDisk(url: String) {
+        val chunks = activeDownloads.getChunks(url)
+        if (chunks.isEmpty()) {
+            return
+        }
+
+        for (chunk in chunks) {
+            val chunkFile = cacheHandler.getChunkCacheFileOrNull(chunk.start, chunk.end, url)
+                    ?: continue
+
+            if (fileManager.delete(chunkFile)) {
+                log(TAG, "Deleted chunk file ${chunkFile.getFullPath()}")
+            } else {
+                logError(TAG, "Couldn't delete chunk file ${chunkFile.getFullPath()}")
+            }
+        }
+
+        activeDownloads.clearChunks(url)
     }
 
     private fun downloadInternal(

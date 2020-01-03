@@ -109,8 +109,6 @@ class ChunkPersisterTest {
         assertTrue(errors.first() is IOException)
         assertEquals("BAM!!!", (errors.first() as IOException).message)
 
-        assertEquals(12, events.size)
-        assertEquals(11, events.filterIsInstance<ChunkDownloadEvent.Progress>().size)
         assertTrue(events.last() is ChunkDownloadEvent.ChunkSuccess)
         assertEquals(1, fileManager.listFiles(chunksCacheDirFile).size)
 

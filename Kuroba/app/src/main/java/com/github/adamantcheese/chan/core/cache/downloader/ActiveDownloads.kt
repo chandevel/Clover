@@ -87,6 +87,10 @@ internal open class ActiveDownloads {
         return synchronized(activeDownloads) { activeDownloads[url]?.chunks?.toSet() ?: emptySet() }
     }
 
+    fun clearChunks(url: String) {
+        synchronized(activeDownloads) { activeDownloads[url]?.chunks?.clear() }
+    }
+
     fun addChunks(url: String, chunks: List<Chunk>) {
         synchronized(activeDownloads) {
             activeDownloads[url]?.chunks?.addAll(chunks)
