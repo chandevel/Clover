@@ -81,14 +81,14 @@ class FileCacheV2(
             verboseLogs
     )
 
-    private val chunkReader = ChunkReader(
+    private val chunkReader = ChunkPersister(
             fileManager,
             cacheHandler,
             activeDownloads,
             verboseLogs
     )
 
-    private val chunkPersister = ChunkPersister(
+    private val chunkPersister = ChunkMerger(
             fileManager,
             cacheHandler,
             activeDownloads,

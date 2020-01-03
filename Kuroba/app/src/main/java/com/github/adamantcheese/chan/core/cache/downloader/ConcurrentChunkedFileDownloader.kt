@@ -16,8 +16,8 @@ import javax.inject.Inject
 internal class ConcurrentChunkedFileDownloader @Inject constructor(
         private val fileManager: FileManager,
         private val chunkDownloader: ChunkDownloader,
-        private val chunkReader: ChunkReader,
         private val chunkPersister: ChunkPersister,
+        private val chunkMerger: ChunkMerger,
         private val workerScheduler: Scheduler,
         private val verboseLogs: Boolean,
         activeDownloads: ActiveDownloads,
@@ -179,7 +179,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     }
 
                     @Suppress("UNCHECKED_CAST")
-                    return@flatMap chunkPersister.writeChunksToCacheFile(
+                    return@flatMap chunkMerger.mergeChunksIntoCacheFile(
                             url,
                             chunkEvents as List<ChunkDownloadEvent.ChunkSuccess>,
                             output,
@@ -243,7 +243,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                     // them all, we need to sort them and write all chunks into the resulting
                     // file - cache file. After that we need to do clean up: delete chunk files
                     // (we also need to delete them in case of an error)
-                    return@flatMap chunkReader.readChunk(
+                    return@flatMap chunkPersister.storeChunkInFile(
                             url,
                             chunkResponse,
                             totalDownloaded,
