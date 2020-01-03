@@ -5,7 +5,7 @@ import androidx.annotation.GuardedBy
 /**
  * ThreadSafe
  * */
-internal class ActiveDownloads {
+internal open class ActiveDownloads {
 
     @GuardedBy("itself")
     private val activeDownloads = hashMapOf<String, FileDownloadRequest>()
@@ -57,7 +57,7 @@ internal class ActiveDownloads {
         }
     }
 
-    fun updateDownloaded(url: String, downloaded: Long) {
+    open fun updateDownloaded(url: String, downloaded: Long) {
         synchronized(activeDownloads) {
             activeDownloads[url]?.downloaded?.set(downloaded)
         }

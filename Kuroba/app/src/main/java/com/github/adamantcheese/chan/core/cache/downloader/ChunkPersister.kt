@@ -275,6 +275,7 @@ internal class ChunkPersister(
 
             emitter.onNext(
                     ChunkDownloadEvent.ChunkSuccess(
+                            chunkIndex,
                             chunkCacheFile,
                             chunk
                     )

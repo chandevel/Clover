@@ -204,7 +204,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                         }
                         is ChunkDownloadEvent.Progress -> {
                             FileDownloadResult.Progress(
-                                    cde.downloaderIndex,
+                                    cde.chunkIndex,
                                     cde.downloaded,
                                     cde.chunkSize
                             )
