@@ -28,29 +28,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
-/**
- * A file downloader with two reactive queues:
- * - One queue is for viewing images/webms/gifs in the gallery
- * - Second queue is for downloading image albums in huge batches (or for the media prefetching feature).
- *
- * This should prevent normal image viewing getting stuck when using media prefetching.
- * In the future this thing will be made 100% reactive (right now it still uses callbacks) as well
- * as the MultiImageView/ImageViewPresenter.
- * */
 class FileCacheV2(
         private val fileManager: FileManager,
         private val cacheHandler: CacheHandler,
         private val okHttpClient: OkHttpClient
 ) {
     private val activeDownloads = ActiveDownloads()
-
-    /**
-     * We use two rx queues here. One for the normal file/image downloading (like when user clicks a
-     * image thumbnail to view a full-size image) and the other queue for when user downloads full
-     * image albums or for media-prefetching etc.
-     * */
-    private val normalRequestQueue = PublishProcessor.create<String>()
-    private val batchRequestQueue = PublishProcessor.create<List<String>>()
+    private val requestQueue = PublishProcessor.create<String>()
 
     private val chunksCount = ChanSettings.ConcurrentFileDownloadingChunks.toChunkCount(
             ChanSettings.concurrentFileDownloadingChunksCount.get()
@@ -110,13 +94,12 @@ class FileCacheV2(
         require(chunksCount > 0) { "Chunks count is zero or less ${chunksCount}" }
         log(TAG, "chunksCount = $chunksCount")
 
-        initNormalRxWorkerQueue()
-        initBatchRequestQueue()
+        initRxWorkerQueue()
     }
 
     @SuppressLint("CheckResult")
-    private fun initNormalRxWorkerQueue() {
-        normalRequestQueue
+    private fun initRxWorkerQueue() {
+        requestQueue
                 .observeOn(workerScheduler)
                 .onBackpressureBuffer()
                 .flatMap { url ->
@@ -125,36 +108,6 @@ class FileCacheV2(
                         .onErrorReturn { throwable -> processErrors(throwable) }
                         .map { result -> Pair(url, result) }
                         .doOnNext { (url, result) -> handleResults(url, result) }
-                }
-                .subscribe({
-                    // Do nothing
-                }, { error ->
-                    throw RuntimeException("Uncaught exception!!! " +
-                            "workerQueue is in error state now!!! " +
-                            "This should not happen!!!, original error = " + error.message)
-                }, {
-                    throw RuntimeException(
-                            "workerQueue stream has completed!!! This should not happen!!!"
-                    )
-                })
-    }
-
-    @SuppressLint("CheckResult")
-    private fun initBatchRequestQueue() {
-        batchRequestQueue
-                .observeOn(workerScheduler)
-                .onBackpressureBuffer()
-                .flatMap { urlList ->
-                    return@flatMap Flowable.fromIterable(urlList)
-                        .subscribeOn(workerScheduler)
-                        .flatMap { url ->
-                            return@flatMap handleFileDownload(url)
-                                .onErrorReturn { throwable -> processErrors(throwable) }
-                                .map { result -> Pair(url, result) }
-                                .doOnNext { (url, result) ->
-                                    handleResults(url, result)
-                                }
-                        }
                 }
                 .subscribe({
                     // Do nothing
@@ -209,7 +162,7 @@ class FileCacheV2(
         }
 
         log(TAG, "Prefetching ${urls.size} files")
-        batchRequestQueue.onNext(urls)
+        urls.forEach { url -> requestQueue.onNext(url) }
 
         return cancelableDownloads
     }
@@ -261,7 +214,7 @@ class FileCacheV2(
             }
 
             return try {
-                handleLoadThreadFile(loadable, postImage, callback)
+                handleLocalThreadFile(loadable, postImage, callback)
             } catch (error: Throwable) {
                 logError(TAG, "Error while trying to load local thread file", error)
 
@@ -321,7 +274,7 @@ class FileCacheV2(
         }
 
         log(TAG, "Downloading a file, url = $url")
-        normalRequestQueue.onNext(url)
+        requestQueue.onNext(url)
 
         return cancelableDownload
     }
@@ -348,11 +301,11 @@ class FileCacheV2(
         return true
     }
 
-    // FIXME: if add a new request then immediately cancel it and add another one, in case of the
-    //  previous one not getting cancelled before we add another one - the two requests will merge
-    //  and get canceled together. Maybe I could add a new flag and right in the end when handling
-    //  terminal events I could check whether this flag is true or not and if it is readd this
-    //  request again?
+    // FIXME: if a request is added, then immediately canceled, and after that another one is added,
+    //  then in case of the first one not being fast enough to get cancelled before the second one
+    //  is added - the two of them will get merged and get canceled together.
+    //  Maybe I could add a new flag and right in the end when handling terminal events
+    //  I could check whether this flag is true or not and if it is re-add this request again?
     private fun getOrCreateCancelableDownload(
             url: String,
             callback: FileCacheListener?,
@@ -409,7 +362,7 @@ class FileCacheV2(
         }
     }
 
-    private fun handleLoadThreadFile(
+    private fun handleLocalThreadFile(
             loadable: Loadable,
             postImage: PostImage,
             callback: FileCacheListener
@@ -420,7 +373,7 @@ class FileCacheV2(
         )
 
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory::class.java)) {
-            logError(TAG, "handleLoadThreadFile() Base local threads directory does not exist")
+            logError(TAG, "handleLocalThreadFile() Base local threads directory does not exist")
 
             callback.onFail(IOException("Base local threads directory does not exist"))
             callback.onEnd()
@@ -433,7 +386,7 @@ class FileCacheV2(
         )
 
         if (baseDirFile == null) {
-            logError(TAG, "handleLoadThreadFile() fileManager.newLocalThreadFile() returned null")
+            logError(TAG, "handleLocalThreadFile() fileManager.newLocalThreadFile() returned null")
 
             callback.onFail(IOException("Couldn't create a file inside local threads base directory"))
             callback.onEnd()

@@ -71,12 +71,12 @@ class WebmStreamingSource(
                             }
                         }
 
-                        // TODO: delete the file?
-
                         callbackRef.get()?.onMediaSourceReady(
                                 ProgressiveMediaSource.Factory(DataSource.Factory { fileCacheSource })
                                         .createMediaSource(uri)
                         )
+
+                        fileManager.delete(file)
                     }
 
                     override fun onNotFound() {
