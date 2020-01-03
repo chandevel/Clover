@@ -28,13 +28,29 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
+/**
+ * A file downloader with two reactive queues:
+ * - One queue is for viewing images/webms/gifs in the gallery
+ * - Second queue is for downloading image albums in huge batches (or for the media prefetching feature).
+ *
+ * This should prevent normal image viewing getting stuck when using media prefetching.
+ * In the future this thing will be made 100% reactive (right now it still uses callbacks) as well
+ * as the MultiImageView/ImageViewPresenter.
+ * */
 class FileCacheV2(
         private val fileManager: FileManager,
         private val cacheHandler: CacheHandler,
         private val okHttpClient: OkHttpClient
 ) {
     private val activeDownloads = ActiveDownloads()
-    private val requestQueue = PublishProcessor.create<String>()
+
+    /**
+     * We use two rx queues here. One for the normal file/image downloading (like when user clicks a
+     * image thumbnail to view a full-size image) and the other queue for when user downloads full
+     * image albums or for media-prefetching etc.
+     * */
+    private val normalRequestQueue = PublishProcessor.create<String>()
+    private val batchRequestQueue = PublishProcessor.create<List<String>>()
 
     private val chunksCount = ChanSettings.ConcurrentFileDownloadingChunks.toChunkCount(
             ChanSettings.concurrentFileDownloadingChunksCount.get()
@@ -94,12 +110,13 @@ class FileCacheV2(
         require(chunksCount > 0) { "Chunks count is zero or less ${chunksCount}" }
         log(TAG, "chunksCount = $chunksCount")
 
-        initRxWorkerQueue()
+        initNormalRxWorkerQueue()
+        initBatchRequestQueue()
     }
 
     @SuppressLint("CheckResult")
-    private fun initRxWorkerQueue() {
-        requestQueue
+    private fun initNormalRxWorkerQueue() {
+        normalRequestQueue
                 .observeOn(workerScheduler)
                 .onBackpressureBuffer()
                 .flatMap { url ->
@@ -108,6 +125,36 @@ class FileCacheV2(
                         .onErrorReturn { throwable -> processErrors(throwable) }
                         .map { result -> Pair(url, result) }
                         .doOnNext { (url, result) -> handleResults(url, result) }
+                }
+                .subscribe({
+                    // Do nothing
+                }, { error ->
+                    throw RuntimeException("Uncaught exception!!! " +
+                            "workerQueue is in error state now!!! " +
+                            "This should not happen!!!, original error = " + error.message)
+                }, {
+                    throw RuntimeException(
+                            "workerQueue stream has completed!!! This should not happen!!!"
+                    )
+                })
+    }
+
+    @SuppressLint("CheckResult")
+    private fun initBatchRequestQueue() {
+        batchRequestQueue
+                .observeOn(workerScheduler)
+                .onBackpressureBuffer()
+                .flatMap { urlList ->
+                    return@flatMap Flowable.fromIterable(urlList)
+                        .subscribeOn(workerScheduler)
+                        .flatMap { url ->
+                            return@flatMap handleFileDownload(url)
+                                .onErrorReturn { throwable -> processErrors(throwable) }
+                                .map { result -> Pair(url, result) }
+                                .doOnNext { (url, result) ->
+                                    handleResults(url, result)
+                                }
+                        }
                 }
                 .subscribe({
                     // Do nothing
@@ -162,7 +209,7 @@ class FileCacheV2(
         }
 
         log(TAG, "Prefetching ${urls.size} files")
-        urls.forEach { url -> requestQueue.onNext(url) }
+        batchRequestQueue.onNext(urls)
 
         return cancelableDownloads
     }
@@ -274,7 +321,7 @@ class FileCacheV2(
         }
 
         log(TAG, "Downloading a file, url = $url")
-        requestQueue.onNext(url)
+        normalRequestQueue.onNext(url)
 
         return cancelableDownload
     }
