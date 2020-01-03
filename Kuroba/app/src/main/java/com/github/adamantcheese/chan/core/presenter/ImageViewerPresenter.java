@@ -84,6 +84,8 @@ public class ImageViewerPresenter
     private Loadable loadable;
 
     private Set<CancelableDownload> preloadingImages = new HashSet<>();
+
+    // TODO: does it need to be synchronized?
     @GuardedBy("itself")
     private final Set<String> nonCancelableImages = new HashSet<>();
 

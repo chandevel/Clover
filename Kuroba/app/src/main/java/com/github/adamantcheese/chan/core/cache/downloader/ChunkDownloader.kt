@@ -19,8 +19,6 @@ internal class ChunkDownloader(
             chunk: Chunk,
             totalChunksCount: Int
     ): Flowable<Response> {
-        BackgroundUtils.ensureBackgroundThread()
-
         val request = activeDownloads.get(url)
                 ?: activeDownloads.throwCancellationException(url)
 
@@ -38,10 +36,11 @@ internal class ChunkDownloader(
                 .header("User-Agent", NetModule.USER_AGENT)
 
         if (!chunk.isWholeFile()) {
-            // If chunk.isWholeFile == true that means that either the file size is too small to use
-            // chunked downloading (less than [FileCacheV2.MIN_CHUNK_SIZE]) or the server does not
-            // support Partial Content or the user turned off chunked file downloading, or we
-            // couldn't send HEAD request (it was timed out) so we should download it normally.
+            // If chunk.isWholeFile == true that means that either the file size is too small (
+            // and there is no reason to download it in chunks) (it should be less than
+            // [FileCacheV2.MIN_CHUNK_SIZE]) or that the server does not support Partial Content
+            // or the user turned off chunked file downloading, or we couldn't send HEAD request
+            // (it was timed out) so we should download it normally.
             val rangeHeader = String.format(RANGE_HEADER_VALUE_FORMAT, chunk.start, chunk.end)
             builder.header(RANGE_HEADER, rangeHeader)
         }

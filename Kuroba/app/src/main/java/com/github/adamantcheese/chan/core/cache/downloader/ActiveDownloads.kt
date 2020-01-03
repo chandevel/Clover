@@ -94,7 +94,8 @@ internal class ActiveDownloads {
     }
 
     /**
-     * Marks current CancelableDownload as canceled and throws CancellationException
+     * Marks current CancelableDownload as canceled and throws CancellationException to terminate
+     * the reactive stream
      * */
     fun throwCancellationException(url: String): Nothing {
         activeDownloads[url]?.cancelableDownload?.cancel()

@@ -117,6 +117,9 @@ public class NetModule {
         return new HttpCallManager(okHttpClient);
     }
 
+    /**
+     * This okHttpClient is for posting.
+     * */
     // TODO(FileCacheV2): make this @Named as well instead of using hacks
     @Provides
     @Singleton
@@ -125,6 +128,9 @@ public class NetModule {
         return new ProxiedOkHttpClient();
     }
 
+    /**
+     * This okHttpClient is for images/file/apk updates/ downloading, prefetching, etc.
+     * */
     @Provides
     @Singleton
     @Named(DOWNLOADER_OKHTTP_CLIENT_NAME)
@@ -138,6 +144,9 @@ public class NetModule {
                 .build();
     }
 
+    /**
+     * This okHttpClient is for local threads downloading.
+     * */
     @Provides
     @Singleton
     @Named(THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME)

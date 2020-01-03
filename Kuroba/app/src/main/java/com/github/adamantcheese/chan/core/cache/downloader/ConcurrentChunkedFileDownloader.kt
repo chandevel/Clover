@@ -193,7 +193,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                 }
 
         // So why are we splitting a reactive stream in two? Because we need to do some
-        // additional handling of ChunkedSuccess events but we don't want to do that
+        // additional handling of ChunkSuccess events but we don't want to do that
         // for Progress event (We want to pass them downstream right away).
 
         // Merge them back into a single stream

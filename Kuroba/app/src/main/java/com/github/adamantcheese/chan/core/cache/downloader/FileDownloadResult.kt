@@ -6,8 +6,6 @@ internal sealed class FileDownloadResult {
     class Start(val chunksCount: Int) : FileDownloadResult()
     class Success(val file: AbstractFile, val requestTime: Long) : FileDownloadResult()
     class Progress(val chunkIndex: Int, val downloaded: Long, val chunkSize: Long) : FileDownloadResult()
-
-    // Errors
     object Canceled : FileDownloadResult()
     object Stopped : FileDownloadResult()
     class KnownException(val fileCacheException: FileCacheException) : FileDownloadResult()

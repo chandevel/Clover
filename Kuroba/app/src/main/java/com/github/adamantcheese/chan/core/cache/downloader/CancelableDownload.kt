@@ -22,7 +22,7 @@ class CancelableDownload(
     private val state: AtomicReference<DownloadState> = AtomicReference(DownloadState.Running)
     private val callbacks: MutableSet<FileCacheListener> = mutableSetOf()
     /**
-     * This callbacks are used to cancel a lot of things like the HEAD request, the get response
+     * These callbacks are used to cancel a lot of things, like the HEAD request, the get response
      * body request and response body read loop.
      * */
     private val disposeFuncList: MutableList<() -> Unit> = mutableListOf()
@@ -58,7 +58,9 @@ class CancelableDownload(
 
     /**
      * Use this to cancel prefetches. You can't cancel them via the regular cancel() method
-     * to avoid canceling prefetches when swiping through the images in the album viewer.
+     * to avoid canceling prefetches when swiping through the images in the album viewer. This
+     * will also cancel a regular download if it's not a prefetch download too. But it's preferred
+     * to use a regular [cancel] for that.
      * */
     fun cancelPrefetch() {
         cancel(true)
@@ -73,7 +75,7 @@ class CancelableDownload(
 
     /**
      * Similar to [cancel] but does not delete the output file. Used by [WebmStreamingSource]
-     * to stop the download without deleting the output which is then getting transferred into
+     * to stop the download without deleting the output which we will then use in
      * [WebmStreamingDataSource]
      * */
     fun stop() {
@@ -82,7 +84,11 @@ class CancelableDownload(
             return
         }
 
-        // TODO(FileCacheV2): wtf do I do in case of this file/image being prefetched?
+        if (isPartOfBatchDownload.get()) {
+            // Do not stop the request in case of it being prefetch/batch download. Just wait until
+            // it downloads normally.
+            return
+        }
 
         dispose()
     }
@@ -131,8 +137,10 @@ class CancelableDownload(
             // We use timeout here just in case to not get deadlocked
             .get(MAX_CANCELLATION_WAIT_TIME_SECONDS, TimeUnit.SECONDS)
         } catch (error: Throwable) {
-            // Catch all the exceptions so we can clear this request afterwards
-            Logger.e(TAG, "Error while trying to dispose of a request for url = ($url)")
+            // Catch all the exceptions. Otherwise some request info won't be cleared when an error
+            // occurs.
+            Logger.e(TAG, "Error while trying to dispose of a request for " +
+                    "url = ($url), error = ${error.javaClass.simpleName}")
         }
     }
 

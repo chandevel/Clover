@@ -1,53 +1,34 @@
 package com.github.adamantcheese.chan.core.cache
 
+import com.github.adamantcheese.chan.core.cache.downloader.TestModule
 import com.github.adamantcheese.chan.utils.AndroidUtils
-import com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
-import com.github.k1rakishou.fsaf.manager.base_directory.DirectoryManager
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class CacheHandlerTest {
+    private val testModule = TestModule()
+
     private lateinit var cacheHandler: CacheHandler
     private lateinit var fileManager: FileManager
     private lateinit var cacheDirFile: RawFile
-    private lateinit var chunksCacheDirFile: RawFile
 
     @Before
     fun init() {
-        val context = RuntimeEnvironment.application.applicationContext
-        AndroidUtils.init(RuntimeEnvironment.application)
+        AndroidUtils.init(testModule.provideApplication())
 
-        fileManager = FileManager(
-                context,
-                BadPathSymbolResolutionStrategy.ThrowAnException,
-                DirectoryManager()
-        )
-
-        cacheDirFile = fileManager.fromRawFile(File(context.cacheDir, "cache_dir"))
-        assertNotNull(fileManager.create(cacheDirFile))
-        assertTrue(fileManager.deleteContent(cacheDirFile))
-
-        chunksCacheDirFile = fileManager.fromRawFile(File(context.cacheDir, "chunks_cache_dir"))
-        assertNotNull(fileManager.create(chunksCacheDirFile))
-        assertTrue(fileManager.deleteContent(chunksCacheDirFile))
-
-        cacheHandler = CacheHandler(
-                fileManager,
-                cacheDirFile,
-                chunksCacheDirFile,
-                false
-        )
+        fileManager = testModule.provideFileManager()
+        cacheHandler = testModule.provideCacheHandler()
+        cacheDirFile = testModule.provideCacheDirFile()
     }
 
     @After

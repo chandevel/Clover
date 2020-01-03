@@ -13,11 +13,11 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 /**
- * This class is used to figure out whether an image or file can be downloaded from the server in
+ * This class is used to figure out whether an image or a file can be downloaded from the server in
  * separate chunks concurrently using HTTP Partial-Content. For batched image downloading and
- * media prefetching immediately returns false because we can just download them normally. Chunked
+ * media prefetching this method returns false because we should download them normally. Chunked
  * downloading should only be used for high priority files/images like in the gallery when the user
- * is viewing them.
+ * is viewing them. Everything else should be downloaded in a singe chunk.
  * */
 internal class PartialContentSupportChecker(
         private val okHttpClient: OkHttpClient,
@@ -106,8 +106,8 @@ internal class PartialContentSupportChecker(
                 }
             })
         }
-        // Some HEAD requests to 4chan may take a lot of time (like 2 or more seconds) when a file
-        // is not cached by the cloudflare so if a request takes more than [MAX_TIMEOUT_MS]
+        // Some HEAD requests on 4chan may take a lot of time (like 2 seconds or even more) when
+        // a file is not cached by the cloudflare so if a request takes more than [MAX_TIMEOUT_MS]
         // we assume that cloudflare doesn't have this file cached so we just download it normally
         // without using Partial Content
         .timeout(maxTimeoutMs, TimeUnit.MILLISECONDS)
@@ -147,7 +147,7 @@ internal class PartialContentSupportChecker(
     ) {
         val statusCode = response.code
         if (statusCode == NOT_FOUND_STATUS_CODE) {
-            // Fast path: the server returned 404 so that mean we don't have to do any
+            // Fast path: the server returned 404 so that mean we don't have to do any other GET
             // requests since the file does not exist
             val result = PartialContentCheckResult(
                     supportsPartialContentDownload = false,

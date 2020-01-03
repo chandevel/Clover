@@ -5,13 +5,8 @@ import com.github.adamantcheese.chan.core.cache.PartialContentOkHttpDispatcher
 import com.github.adamantcheese.chan.core.cache.createFileDownloadRequest
 import com.github.adamantcheese.chan.core.cache.withServer
 import com.github.adamantcheese.chan.utils.AndroidUtils
-import com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
-import com.github.k1rakishou.fsaf.manager.base_directory.DirectoryManager
-import io.reactivex.plugins.RxJavaPlugins
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.schedulers.TestScheduler
 import io.reactivex.subscribers.TestSubscriber
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -23,9 +18,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 
@@ -41,54 +34,22 @@ class ConcurrentChunkedFileDownloaderTest {
     private lateinit var concurrentChunkedFileDownloader: ConcurrentChunkedFileDownloader
     private lateinit var cacheDirFile: RawFile
     private lateinit var chunksCacheDirFile: RawFile
-    private lateinit var testScheduler: TestScheduler
 
     @Before
     fun setUp() {
-        val context = RuntimeEnvironment.application.applicationContext
-        AndroidUtils.init(RuntimeEnvironment.application)
+        AndroidUtils.init(testModule.provideApplication())
 
-        fileManager = FileManager(
-                context,
-                BadPathSymbolResolutionStrategy.ThrowAnException,
-                DirectoryManager()
-        )
-
-        cacheDirFile = fileManager.fromRawFile(File(context.cacheDir, "cache_dir"))
-        assertNotNull(fileManager.create(cacheDirFile))
-        assertTrue(fileManager.deleteContent(cacheDirFile))
-
-        chunksCacheDirFile = fileManager.fromRawFile(File(context.cacheDir, "chunks_cache_dir"))
-        assertNotNull(fileManager.create(chunksCacheDirFile))
-        assertTrue(fileManager.deleteContent(chunksCacheDirFile))
-
+        activeDownloads = testModule.provideActiveDownloads()
+        fileManager = testModule.provideFileManager()
         okHttpClient = testModule.provideOkHttpClient()
-        activeDownloads = ActiveDownloads()
-        cacheHandler = CacheHandler(
-                fileManager,
-                cacheDirFile,
-                chunksCacheDirFile,
-                false
-        )
-
-        testScheduler = TestScheduler()
-
-        val chunkDownloader = ChunkDownloader(okHttpClient, activeDownloads, false)
-
-        concurrentChunkedFileDownloader = ConcurrentChunkedFileDownloader(
-                fileManager,
-                chunkDownloader,
-                Schedulers.single(),
-                false,
-                activeDownloads,
-                cacheHandler
-        )
+        cacheHandler = testModule.provideCacheHandler()
+        cacheDirFile = testModule.provideCacheDirFile()
+        chunksCacheDirFile = testModule.provideChunksCacheDirFile()
+        concurrentChunkedFileDownloader = testModule.provideConcurrentChunkDownloader()
     }
 
     @After
     fun tearDown() {
-        RxJavaPlugins.reset()
-
         okHttpClient.dispatcher.cancelAll()
         activeDownloads.clear()
         cacheHandler.clearCache()

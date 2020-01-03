@@ -331,6 +331,11 @@ class FileCacheV2(
         return true
     }
 
+    // FIXME: if add a new request then immediately cancel it and add another one, in case of the
+    //  previous one not getting cancelled before we add another one - the two requests will merge
+    //  and get canceled together. Maybe I could add a new flag and right in the end when handling
+    //  terminal events I could check whether this flag is true or not and if it is readd this
+    //  request again?
     private fun getOrCreateCancelableDownload(
             url: String,
             callback: FileCacheListener?,
@@ -351,13 +356,15 @@ class FileCacheV2(
                             "Apparently it's not thread-safe anymore"
                 }
 
-                log(TAG, "Request ${url} is already active, subscribing to it")
+                log(TAG, "Request ${url} is already active, re-subscribing to it")
 
                 val prevCancelableDownload = prevRequest.cancelableDownload
                 if (callback != null) {
                     prevCancelableDownload.addCallback(callback)
                 }
 
+                // true means that this request has already been started before and hasn't yet
+                // completed so we can just resubscribe to it instead of creating a new one
                 return@synchronized true to prevCancelableDownload
             }
 
@@ -687,9 +694,7 @@ class FileCacheV2(
         }
     }
 
-    private fun logErrorsAndExtractErrorMessage(
-            error: Throwable
-    ): String {
+    private fun logErrorsAndExtractErrorMessage(error: Throwable): String {
         return if (error is CompositeException) {
             val sb = StringBuilder()
 
@@ -731,6 +736,8 @@ class FileCacheV2(
         }
     }
 
+    // TODO: this thing should be moved into ConcurrentChunkedFileDownloader so it can be tested
+    //  alongside it
     private fun removeChunksFromDisk(url: String) {
         val chunks = activeDownloads.getChunks(url)
         if (chunks.isEmpty()) {
@@ -768,7 +775,6 @@ class FileCacheV2(
         }
 
         val fullPath = request.output.getFullPath()
-
         if (outputFile == null) {
             return Flowable.error(
                     FileCacheException.CouldNotCreateOutputFileException(fullPath)
@@ -866,7 +872,8 @@ class FileCacheV2(
         }
 
         if (request.cancelableDownload.getState() != DownloadState.Canceled) {
-            // Not canceled, only purge output when canceled
+            // Not canceled, only purge output when canceled. Do not purge the output file when
+            // the state stopped too, because we are gonna use the file for the webm streaming cache.
             return
         }
 

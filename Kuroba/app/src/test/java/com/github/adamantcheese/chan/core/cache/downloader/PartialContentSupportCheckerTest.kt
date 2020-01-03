@@ -12,7 +12,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.util.concurrent.TimeUnit
 
@@ -28,16 +27,11 @@ class PartialContentSupportCheckerTest {
 
     @Before
     fun setUp() {
-        AndroidUtils.init(RuntimeEnvironment.application)
+        AndroidUtils.init(testModule.provideApplication())
 
         okHttpClient = testModule.provideOkHttpClient()
-        activeDownloads = ActiveDownloads()
-
-        partialContentSupportChecker = PartialContentSupportChecker(
-                okHttpClient,
-                activeDownloads,
-                250L
-        )
+        activeDownloads = testModule.provideActiveDownloads()
+        partialContentSupportChecker = testModule.providePartialContentSupportChecker()
     }
 
     @After

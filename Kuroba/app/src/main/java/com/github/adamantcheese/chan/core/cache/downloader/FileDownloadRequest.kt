@@ -16,6 +16,7 @@ internal open class FileDownloadRequest(
         val total: AtomicLong,
         // A handle to cancel the current download
         val cancelableDownload: CancelableDownload,
+        // Chunks to delete from the disk upon download success or error
         val chunks: MutableSet<Chunk> = mutableSetOf()
 ) {
 

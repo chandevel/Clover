@@ -55,8 +55,8 @@ class WebmStreamingSource(
 
                     override fun onStop(file: AbstractFile) {
                         // The webm file is either partially downloaded or is not downloaded at all.
-                        // We take whethever there is and load it into the WebmStreamingDataSource so
-                        // we don'n need to redownload the bytes that have already been downloaded
+                        // We take whatever there is and load it into the WebmStreamingDataSource so
+                        // we don't need to redownload the bytes that have already been downloaded
                         val exists = fileManager.exists(file)
                         val fileLength = fileManager.getLength(file)
 
@@ -98,6 +98,8 @@ class WebmStreamingSource(
             return
         }
 
+        // Trigger the onStop() callback so that we can load everything we have managed to download
+        // via FileCache into the WebmStreamingDataSource
         cancelableDownload.stop()
     }
 

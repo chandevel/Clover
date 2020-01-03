@@ -6,6 +6,6 @@ internal data class PartialContentCheckResult(
         val length: Long = -1L
 ) {
 
-    fun couldDetermineFileSize(): Boolean = length > 0
+    fun couldDetermineFileSize(): Boolean = length >= 0
 
 }
