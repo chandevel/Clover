@@ -374,7 +374,7 @@ public class MultiImageView
                     toggleTransparency();
                 }
 
-                callback.onDownloaded();
+                callback.onDownloaded(postImage);
             }
 
             @Override
@@ -449,7 +449,7 @@ public class MultiImageView
                     }
                 }
 
-                callback.onDownloaded();
+                callback.onDownloaded(postImage);
             }
 
             @Override
@@ -601,7 +601,7 @@ public class MultiImageView
                     setVideoFile(new File(file.getFullPath()));
                 }
 
-                callback.onDownloaded();
+                callback.onDownloaded(postImage);
             }
 
             @Override
@@ -843,7 +843,7 @@ public class MultiImageView
 
         void onProgress(MultiImageView multiImageView, int chunkIndex, long current, long total);
 
-        void onDownloaded();
+        void onDownloaded(PostImage postImage);
 
         void onVideoLoaded(MultiImageView multiImageView);
 

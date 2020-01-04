@@ -508,10 +508,12 @@ public class ImageViewerPresenter
     }
 
     @Override
-    public void onDownloaded() {
+    public void onDownloaded(PostImage postImage) {
         BackgroundUtils.ensureMainThread();
 
-        callback.showDownloadMenuItem(true);
+        if (getCurrentPostImage().equalUrl(postImage)) {
+            callback.showDownloadMenuItem(true);
+        }
     }
 
     @Override
