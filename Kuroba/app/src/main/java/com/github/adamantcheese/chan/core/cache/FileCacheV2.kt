@@ -179,6 +179,12 @@ class FileCacheV2(
                 })
     }
 
+    fun isRunning(url: String): Boolean {
+        return synchronized(activeDownloads) {
+            activeDownloads.getState(url) == DownloadState.Running
+        }
+    }
+
     fun enqueueMediaPrefetchRequestBatch(
             loadable: Loadable,
             postImageList: List<PostImage>

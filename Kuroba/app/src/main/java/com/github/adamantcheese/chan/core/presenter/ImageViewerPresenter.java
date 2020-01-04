@@ -605,6 +605,11 @@ public class ImageViewerPresenter
     public void forceReload() {
         PostImage currentImage = getCurrentPostImage();
 
+        if (fileCacheV2.isRunning(currentImage.imageUrl.toString())) {
+            showToast("Image is not yet downloaded");
+            return;
+        }
+
         if (!cacheHandler.deleteCacheFileByUrl(currentImage.imageUrl.toString())) {
             showToast("Can't force reload because couldn't delete cached image");
             return;
