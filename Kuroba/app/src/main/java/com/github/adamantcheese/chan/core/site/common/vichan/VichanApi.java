@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
+import android.text.TextUtils;
 import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -8,6 +9,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jsoup.parser.Parser;
 
@@ -196,6 +198,14 @@ public class VichanApi
                     }
 
                     reader.endArray();
+                    break;
+                case "md5":
+                    String decodedMd5 = StringUtils.decodeBase64(reader.nextString());
+
+                    if (!TextUtils.isEmpty(decodedMd5)) {
+                        builder.addFileHash(decodedMd5);
+                    }
+
                     break;
                 default:
                     // Unknown/ignored key

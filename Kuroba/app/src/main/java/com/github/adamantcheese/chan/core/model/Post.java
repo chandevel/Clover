@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.model;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
 
@@ -105,6 +106,15 @@ public class Post
      */
     public final List<Integer> repliesFrom = new ArrayList<>();
 
+    /**
+     * List of hashes for post files. Maybe empty (post has no files), has one entry (4chan) or more
+     * than one entry (other chans that support multiple attached files like 2ch.hk). Entries are
+     * stored the way they were received in json so it's up to server to provide the correct order
+     * so that the images match the hashes.
+     */
+    @NonNull
+    public final List<String> filesHashList;
+
     // These members may only mutate on the main thread.
     private boolean sticky;
     private boolean closed;
@@ -164,12 +174,12 @@ public class Post
         filterSaved = builder.filterSaved;
 
         isSavedReply = builder.isSavedReply;
-
         subjectSpan = builder.subjectSpan;
         nameTripcodeIdCapcodeSpan = builder.nameTripcodeIdCapcodeSpan;
 
         linkables = Collections.unmodifiableList(new ArrayList<>(builder.linkables));
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
+        filesHashList = Collections.unmodifiableList(new ArrayList<>(builder.filesHashList));
     }
 
     @AnyThread
@@ -345,7 +355,6 @@ public class Post
         public boolean filterReplies;
         public boolean filterOnlyOP;
         public boolean filterSaved;
-
         public boolean isSavedReply;
 
         public CharSequence subjectSpan;
@@ -353,6 +362,7 @@ public class Post
 
         private Set<PostLinkable> linkables = new HashSet<>();
         private Set<Integer> repliesToIds = new HashSet<>();
+        private List<String> filesHashList = new ArrayList<>();
 
         public Builder() {
         }
@@ -545,6 +555,14 @@ public class Post
 
         public Builder repliesTo(Set<Integer> repliesToIds) {
             this.repliesToIds = repliesToIds;
+            return this;
+        }
+
+        public Builder addFileHash(String fileHash) {
+            if (!this.filesHashList.contains(fileHash)) {
+                this.filesHashList.add(fileHash);
+            }
+
             return this;
         }
 
