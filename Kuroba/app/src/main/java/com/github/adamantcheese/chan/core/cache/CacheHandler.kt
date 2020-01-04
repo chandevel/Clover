@@ -20,6 +20,7 @@ import android.text.TextUtils
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.ConversionUtils.charArrayToInt
 import com.github.adamantcheese.chan.utils.ConversionUtils.intToCharArray
+import com.github.adamantcheese.chan.utils.HashingUtil
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils
 import com.github.k1rakishou.fsaf.FileManager
@@ -73,6 +74,7 @@ class CacheHandler(
     private val lastTrimTime = AtomicLong(0)
     private val trimRunning = AtomicBoolean(false)
     private val recalculationRunning = AtomicBoolean(false)
+    private val trimChunksRunning = AtomicBoolean(false)
     private val fileCacheDiskSize = if (autoLoadThreadImages) {
         PREFETCH_CACHE_SIZE
     } else {
@@ -82,6 +84,19 @@ class CacheHandler(
     init {
         createDirectories()
         backgroundRecalculateSize()
+        clearChunksCacheDir()
+    }
+
+    private fun clearChunksCacheDir() {
+        if (trimChunksRunning.compareAndSet(false, true)) {
+            executor.execute {
+                try {
+                    fileManager.deleteContent(chunksCacheDirFile)
+                } finally {
+                    trimChunksRunning.set(false)
+                }
+            }
+        }
     }
 
     fun exists(key: String): Boolean {
@@ -557,7 +572,7 @@ class CacheHandler(
     }
 
     internal fun hashUrl(url: String): String {
-        return url.hashCode().toString()
+        return HashingUtil.stringHash(url)
     }
 
     private fun formatChunkCacheFileName(
@@ -655,6 +670,7 @@ class CacheHandler(
         }
 
         Logger.d(TAG, "trim() started")
+
         // LastModified doesn't work on some platforms/phones
         // (https://issuetracker.google.com/issues/36930892)
         // so we have to use a workaround. When creating a cache file for a download we also create a
@@ -694,14 +710,6 @@ class CacheHandler(
             }
 
             val fileSize = fileManager.getLength(file)
-            val fileName = fileManager.getName(file)
-
-            if (fileSize == 0L) {
-                // This may be the case where we are deleting a cache file for not yet completed
-                // download
-                Logger.e(TAG, "Attempt to delete a file with length == 0! fileName = $fileName")
-                continue
-            }
 
             if (deleteCacheFile(file)) {
                 totalDeleted += fileSize

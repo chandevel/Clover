@@ -138,7 +138,15 @@ class CancelableDownload(
                     disposeFuncList.clear()
                 }
 
-                Logger.d(TAG, "Cancelling file download request, url = $url")
+                val action = when (state.get()) {
+                    DownloadState.Running -> {
+                        throw RuntimeException("Expected Stopped or Canceled but got Running!")
+                    }
+                    DownloadState.Stopped -> "Stopping"
+                    DownloadState.Canceled -> "Cancelling"
+                }
+
+                Logger.d(TAG, "$action file download request, url = $url")
             }
             // We use timeout here just in case to not get deadlocked
             .get(MAX_CANCELLATION_WAIT_TIME_SECONDS, TimeUnit.SECONDS)

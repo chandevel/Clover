@@ -21,7 +21,8 @@ public class PostImageMapper {
                 postImage.imageWidth,
                 postImage.imageHeight,
                 postImage.spoiler,
-                postImage.size
+                postImage.size,
+                postImage.fileHash
         );
     }
 
@@ -52,6 +53,7 @@ public class PostImageMapper {
                 .imageHeight(serializablePostImage.getImageHeight())
                 .spoiler(serializablePostImage.isSpoiler())
                 .size(serializablePostImage.getSize())
+                .fileHash(serializablePostImage.getFileHash())
                 .build();
     }
 

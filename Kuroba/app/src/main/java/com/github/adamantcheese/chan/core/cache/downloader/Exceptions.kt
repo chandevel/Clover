@@ -57,7 +57,7 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
             val expectedFileHash: String,
             val actualFileHash: String
     ) : FileCacheException("Downloaded file's hash differs from the one we got from the server!" +
-            "\nSomething is wrong with the file reload it manually!" +
+            "\nSomething is wrong with the file, use force reload!" +
             "\nexpected = \"$expectedFileHash\", actual = \"$actualFileHash\", url = ${url}, file name = ${fileName}")
 }
 
