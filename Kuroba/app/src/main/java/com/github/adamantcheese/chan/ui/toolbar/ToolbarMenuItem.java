@@ -44,8 +44,8 @@ public class ToolbarMenuItem {
     public Object id;
 
     public boolean overflowStyle = false;
-
     public boolean visible = true;
+    public boolean enabled = true;
 
     public Drawable drawable;
 
@@ -109,6 +109,22 @@ public class ToolbarMenuItem {
 
         if (view != null) {
             view.setVisibility(visible ? VISIBLE : GONE);
+        }
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+
+        if (view != null) {
+            if (!enabled) {
+                view.setClickable(false);
+                view.setFocusable(false);
+                view.setAlpha(.5f);
+            } else {
+                view.setClickable(true);
+                view.setFocusable(true);
+                view.setAlpha(1f);
+            }
         }
     }
 

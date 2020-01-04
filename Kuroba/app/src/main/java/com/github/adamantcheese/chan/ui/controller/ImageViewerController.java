@@ -192,6 +192,11 @@ public class ImageViewerController
         }
 
         waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
+            ToolbarMenuItem saveMenuItem = navigation.findItem(SAVE_ID);
+            if (saveMenuItem != null) {
+                saveMenuItem.setEnabled(false);
+            }
+
             presenter.onViewMeasured();
             return true;
         });
@@ -222,8 +227,7 @@ public class ImageViewerController
     }
 
     private void saveClicked(ToolbarMenuItem item) {
-        item.setCallback(null);
-        item.getView().getDrawable().setTint(Color.GRAY);
+        item.setEnabled(false);
         saveShare(false, presenter.getCurrentPostImage());
     }
 
@@ -425,14 +429,13 @@ public class ImageViewerController
     }
 
     @Override
-    public void resetDownloadButtonState() {
+    public void showDownloadMenuItem(boolean show) {
         ToolbarMenuItem saveItem = navigation.findItem(SAVE_ID);
         if (saveItem == null) {
             return;
         }
 
-        saveItem.getView().getDrawable().setTintList(null);
-        saveItem.setCallback(this::saveClicked);
+        saveItem.setEnabled(show);
     }
 
     @Override

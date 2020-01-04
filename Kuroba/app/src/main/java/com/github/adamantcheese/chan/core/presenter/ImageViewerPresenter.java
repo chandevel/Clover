@@ -158,7 +158,7 @@ public class ImageViewerPresenter
             callback.setImageMode(postImage, LOWRES, true);
         }
 
-        callback.resetDownloadButtonState();
+        callback.showDownloadMenuItem(false);
         callback.setPagerVisiblity(false);
         callback.setPreviewVisibility(true);
         callback.startPreviewOutTransition(loadable, postImage);
@@ -259,7 +259,7 @@ public class ImageViewerPresenter
         callback.showVolumeMenuItem(false, true);
 
         //Reset the save icon
-        callback.resetDownloadButtonState();
+        callback.showDownloadMenuItem(false);
 
         PostImage postImage = images.get(selectedPosition);
         setTitle(postImage, position);
@@ -507,6 +507,13 @@ public class ImageViewerPresenter
     }
 
     @Override
+    public void onDownloaded() {
+        BackgroundUtils.ensureMainThread();
+
+        callback.showDownloadMenuItem(true);
+    }
+
+    @Override
     public void hideProgress(MultiImageView multiImageView) {
         BackgroundUtils.ensureMainThread();
 
@@ -625,7 +632,7 @@ public class ImageViewerPresenter
 
         void showVolumeMenuItem(boolean show, boolean muted);
 
-        void resetDownloadButtonState();
+        void showDownloadMenuItem(boolean show);
 
         boolean isImmersive();
 

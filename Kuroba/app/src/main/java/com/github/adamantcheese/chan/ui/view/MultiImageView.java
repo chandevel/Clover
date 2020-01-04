@@ -373,6 +373,8 @@ public class MultiImageView
                 if (!ChanSettings.transparencyOn.get() && !backgroundToggle) {
                     toggleTransparency();
                 }
+
+                callback.onDownloaded();
             }
 
             @Override
@@ -446,6 +448,8 @@ public class MultiImageView
                         toggleTransparency();
                     }
                 }
+
+                callback.onDownloaded();
             }
 
             @Override
@@ -596,6 +600,8 @@ public class MultiImageView
                 if (!hasContent || mode == Mode.VIDEO) {
                     setVideoFile(new File(file.getFullPath()));
                 }
+
+                callback.onDownloaded();
             }
 
             @Override
@@ -836,6 +842,8 @@ public class MultiImageView
         void onStartDownload(MultiImageView multiImageView, int chunksCount);
 
         void onProgress(MultiImageView multiImageView, int chunkIndex, long current, long total);
+
+        void onDownloaded();
 
         void onVideoLoaded(MultiImageView multiImageView);
 
