@@ -171,6 +171,10 @@ public class ImageViewerController
         overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
         overflowBuilder.withSubItem(R.string.action_image_rotate, this::rotateImage);
 
+        if (!loadable.isLocal()) {
+            overflowBuilder.withSubItem(R.string.action_reload_file, this::forceReload);
+        }
+
         overflowBuilder.build().build();
 
         hideSystemUI();
@@ -277,6 +281,15 @@ public class ImageViewerController
         });
 
         dialog.show();
+    }
+
+    private void forceReload(ToolbarMenuSubItem item) {
+        ToolbarMenuItem menuItem = navigation.findItem(SAVE_ID);
+        if (menuItem != null) {
+            menuItem.setEnabled(false);
+        }
+
+        presenter.forceReload();
     }
 
     @Override

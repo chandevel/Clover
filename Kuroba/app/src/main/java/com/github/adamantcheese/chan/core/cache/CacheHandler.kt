@@ -336,6 +336,10 @@ class CacheHandler(
         return deleteCacheFile(fileName)
     }
 
+    fun deleteCacheFileByUrl(url: String): Boolean {
+        return deleteCacheFile(hashUrl(url))
+    }
+
     private fun deleteCacheFile(fileName: String): Boolean {
         val originalFileName = StringUtils.removeExtensionFromFileName(fileName)
 
@@ -349,6 +353,7 @@ class CacheHandler(
 
         val cacheFile = cacheDirFile.clone(FileSegment(cacheFileName)) as RawFile
         val cacheMetaFile = cacheDirFile.clone(FileSegment(cacheMetaFileName)) as RawFile
+        val cacheFileSize = fileManager.getLength(cacheFile)
 
         val deleteCacheFileResult = fileManager.delete(cacheFile)
         if (!deleteCacheFileResult) {
@@ -360,10 +365,14 @@ class CacheHandler(
             Logger.e(TAG, "Failed to delete cache file meta = ${cacheMetaFile.getFullPath()}")
         }
 
-        if (deleteCacheFileResult) {
-            val cacheFileSize = fileManager.getLength(cacheFile)
+        if (deleteCacheFileResult && deleteCacheFileMetaResult) {
+            val fileSize = if (cacheFileSize < 0) {
+                0
+            } else {
+                cacheFileSize
+            }
 
-            size.getAndAdd(-cacheFileSize)
+            size.getAndAdd(-fileSize)
             if (size.get() < 0L) {
                 size.set(0L)
             }

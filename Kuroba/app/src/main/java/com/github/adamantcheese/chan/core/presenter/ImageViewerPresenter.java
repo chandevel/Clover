@@ -57,6 +57,7 @@ import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.OTHER;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageViewerPresenter
         implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
@@ -597,6 +598,17 @@ public class ImageViewerPresenter
             other.add(images.get(position + 1));
         }
         return other;
+    }
+
+    public void forceReload() {
+        PostImage currentImage = getCurrentPostImage();
+
+        if (!cacheHandler.deleteCacheFileByUrl(currentImage.imageUrl.toString())) {
+            showToast("Can't force reload because couldn't delete cached image");
+            return;
+        }
+
+        callback.setImageMode(currentImage, LOWRES, false);
     }
 
     private enum SwipeDirection {
