@@ -21,15 +21,19 @@ import com.github.k1rakishou.fsaf.file.AbstractFile;
 public abstract class FileCacheListener {
 
     /**
-     * Called before the download has been started to prepare for progress updates.
+     * Called before the download has been started to prepare for progress updates. This usually
+     * happens after we have received a response for the HEAD request that we send before starting
+     * downloading anything, which may take up to 1 second. In some cases we won't send the HEAD
+     * request (like when the setting to chunk downloads is set to 1 chunk) so this callback will
+     * be called immediately.
      * */
     public void onStart(int chunksCount) {
-
     }
 
     /**
      * In case of the file being downloaded in chunks [chunkIndex] will be representing the chunk
      * index. Otherwise it will always be 0.
+     * The amount of chunks is being passed into the [onStart] event.
      * */
     public void onProgress(int chunkIndex, long downloaded, long total) {
     }
@@ -45,7 +49,6 @@ public abstract class FileCacheListener {
      * onFail won't be called!
      * */
     public void onNotFound() {
-
     }
 
     /**

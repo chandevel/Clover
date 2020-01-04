@@ -360,7 +360,7 @@ class CacheHandler(
             Logger.e(TAG, "Failed to delete cache file meta = ${cacheMetaFile.getFullPath()}")
         }
 
-        if (deleteCacheFileResult && deleteCacheFileMetaResult) {
+        if (deleteCacheFileResult) {
             val cacheFileSize = fileManager.getLength(cacheFile)
 
             size.getAndAdd(-cacheFileSize)

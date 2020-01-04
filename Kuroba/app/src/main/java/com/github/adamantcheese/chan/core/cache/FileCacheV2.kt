@@ -132,7 +132,7 @@ class FileCacheV2(
                 .flatMap { url ->
                     return@flatMap Flowable.defer { handleFileDownload(url) }
                         .subscribeOn(workerScheduler)
-                        .onErrorReturn { throwable -> processErrors(throwable) }
+                        .onErrorReturn { throwable -> processErrors(url, throwable) }
                         .map { result -> Pair(url, result) }
                         .doOnNext { (url, result) -> handleResults(url, result) }
                 }
@@ -159,7 +159,7 @@ class FileCacheV2(
                         .subscribeOn(batchScheduler)
                         .concatMap { url ->
                             return@concatMap handleFileDownload(url)
-                                .onErrorReturn { throwable -> processErrors(throwable) }
+                                .onErrorReturn { throwable -> processErrors(url, throwable) }
                                 .map { result -> Pair(url, result) }
                                 .doOnNext { (url, result) ->
                                     handleResults(url, result)
@@ -505,8 +505,11 @@ class FileCacheV2(
             try {
                 val resultFile = cacheHandler.getOrCreateCacheFile(postImage.imageUrl.toString())
                 if (resultFile == null) {
-                    callback?.onFail(IOException("Couldn't get or create cache file"))
-                    callback?.onEnd()
+                    BackgroundUtils.runOnUiThread {
+                        callback?.onFail(IOException("Couldn't get or create cache file"))
+                        callback?.onEnd()
+                    }
+
                     return
                 }
 
@@ -521,14 +524,20 @@ class FileCacheV2(
                                     ", resultFile = " + resultFile.getFullPath()
                     )
 
-                    callback?.onFail(error)
-                    callback?.onEnd()
+                    BackgroundUtils.runOnUiThread {
+                        callback?.onFail(error)
+                        callback?.onEnd()
+                    }
+
                     return
                 }
 
                 if (!cacheHandler.markFileDownloaded(resultFile)) {
-                    callback?.onFail(FileCacheException.CouldNotMarkFileAsDownloaded(resultFile))
-                    callback?.onEnd()
+                    BackgroundUtils.runOnUiThread {
+                        callback?.onFail(FileCacheException.CouldNotMarkFileAsDownloaded(resultFile))
+                        callback?.onEnd()
+                    }
+
                     return
                 }
 
@@ -795,7 +804,13 @@ class FileCacheV2(
                 }
     }
 
-    private fun processErrors(throwable: Throwable): FileDownloadResult? {
+    private fun processErrors(url: String, throwable: Throwable): FileDownloadResult? {
+        // CompositeException is a RxJava type of exception that is being thrown when multiple
+        // exceptions are being thrown concurrently from multiple threads (e.g. You have a reactive
+        // stream that splits into multiple streams and all those streams throw an exceptions).
+        // RxJava accumulates all those exceptions and stores them all in the CompositeException.
+        // It's pain in the ass to deal with because you have to log them all and then figure
+        // out which one of them is the most important to you to do some kind of handling.
         val error = if (throwable is CompositeException) {
             require(throwable.exceptions.size > 0) {
                 "Got CompositeException without exceptions!"
@@ -821,7 +836,13 @@ class FileCacheV2(
         }
 
         if (isCancellationError(error)) {
-            return FileDownloadResult.Canceled
+            return when (activeDownloads.getState(url)) {
+                DownloadState.Running -> {
+                    throw RuntimeException("Got cancellation exception but the state is still running!")
+                }
+                DownloadState.Stopped -> FileDownloadResult.Stopped
+                else -> FileDownloadResult.Canceled
+            }
         }
 
         if (error is FileCacheException) {

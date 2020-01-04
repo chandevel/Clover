@@ -12,7 +12,6 @@ import okhttp3.ResponseBody
 import okhttp3.internal.closeQuietly
 import okio.*
 import java.io.IOException
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
 internal class ChunkPersister(
@@ -27,8 +26,7 @@ internal class ChunkPersister(
             chunkResponse: ChunkResponse,
             totalDownloaded: AtomicLong,
             chunkIndex: Int,
-            totalChunksCount: Int,
-            canceled: AtomicBoolean
+            totalChunksCount: Int
     ): Flowable<ChunkDownloadEvent> {
         return Flowable.create<ChunkDownloadEvent>({ emitter ->
             BackgroundUtils.ensureBackgroundThread()
@@ -83,7 +81,6 @@ internal class ChunkPersister(
                             chunkCacheFile.useAsBufferedSink { bufferedSink ->
                                 readBodyLoop(
                                         chunkSize,
-                                        canceled,
                                         url,
                                         bufferedSource,
                                         bufferedSink,
@@ -105,7 +102,6 @@ internal class ChunkPersister(
                         url,
                         totalChunksCount,
                         error,
-                        canceled,
                         chunkIndex,
                         chunk,
                         emitter
@@ -118,7 +114,6 @@ internal class ChunkPersister(
             url: String,
             totalChunksCount: Int,
             error: Throwable,
-            canceled: AtomicBoolean,
             chunkIndex: Int,
             chunk: Chunk,
             emitter: FlowableEmitter<ChunkDownloadEvent>
@@ -130,8 +125,6 @@ internal class ChunkPersister(
         // If totalChunksCount == 1 then there is nothing else to stop so we can just emit
         // one error
         if (isStoppedOrCanceled || totalChunksCount > 1 && error !is IOException) {
-            canceled.set(true)
-
             when (state) {
                 DownloadState.Canceled -> {
                     activeDownloads.get(url)?.cancelableDownload?.cancel()
@@ -194,7 +187,6 @@ internal class ChunkPersister(
 
     private fun readBodyLoop(
             chunkSize: Long,
-            canceled: AtomicBoolean,
             url: String,
             bufferedSource: BufferedSource,
             bufferedSink: BufferedSink,
@@ -216,10 +208,6 @@ internal class ChunkPersister(
 
         try {
             while (true) {
-                if (canceled.get()) {
-                    activeDownloads.throwCancellationException(url)
-                }
-
                 if (isRequestStoppedOrCanceled(url)) {
                     activeDownloads.throwCancellationException(url)
                 }

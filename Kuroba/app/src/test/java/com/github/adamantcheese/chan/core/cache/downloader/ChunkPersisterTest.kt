@@ -26,7 +26,6 @@ import org.mockito.ArgumentMatchers.anyString
 import org.robolectric.RobolectricTestRunner
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
@@ -73,7 +72,6 @@ class ChunkPersisterTest {
         val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
         val request = createFileDownloadRequest(url, chunksCount, file = output)
         val chunkIndex = AtomicInteger(0)
-        val canceled = AtomicBoolean(false)
         val timesCalled = AtomicInteger(0)
 
         activeDownloads.put(url, request)
@@ -93,8 +91,7 @@ class ChunkPersisterTest {
                             chunkResponse,
                             AtomicLong(),
                             chunkIndex.getAndIncrement(),
-                            chunksCount,
-                            canceled
+                            chunksCount
                     ).subscribeOn(Schedulers.newThread())
                 }
                 .test()
@@ -140,8 +137,7 @@ class ChunkPersisterTest {
                             chunkResponse,
                             AtomicLong(),
                             chunkIndex.getAndIncrement(),
-                            chunksCount,
-                            AtomicBoolean(false)
+                            chunksCount
                     ).subscribeOn(Schedulers.newThread())
                 }.test()
 

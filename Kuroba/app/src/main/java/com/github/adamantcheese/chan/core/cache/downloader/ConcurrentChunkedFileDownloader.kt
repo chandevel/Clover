@@ -8,7 +8,6 @@ import com.github.k1rakishou.fsaf.file.AbstractFile
 import io.reactivex.Flowable
 import io.reactivex.Scheduler
 import java.io.IOException
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
@@ -132,13 +131,11 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             activeDownloads.throwCancellationException(url)
         }
 
-        val startTime = System.currentTimeMillis()
-        val canceled = AtomicBoolean(false)
-
         if (partialContentCheckResult.couldDetermineFileSize()) {
             activeDownloads.updateTotalLength(url, partialContentCheckResult.length)
         }
 
+        val startTime = System.currentTimeMillis()
         val totalDownloaded = AtomicLong(0L)
         val chunkIndex = AtomicInteger(0)
 
@@ -152,7 +149,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                             url,
                             totalDownloaded,
                             chunkIndex.getAndIncrement(),
-                            canceled,
                             chunk,
                             chunks.size
                     )
@@ -253,7 +249,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             url: String,
             totalDownloaded: AtomicLong,
             chunkIndex: Int,
-            canceled: AtomicBoolean,
             chunk: Chunk,
             totalChunksCount: Int
     ): Flowable<ChunkDownloadEvent> {
@@ -280,8 +275,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                             chunkResponse,
                             totalDownloaded,
                             chunkIndex,
-                            totalChunksCount,
-                            canceled
+                            totalChunksCount
                     )
                 }
                 // Retry on IO error mechanism. Apply it to each chunk individually

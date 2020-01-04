@@ -79,7 +79,7 @@ internal open class ActiveDownloads {
                     ?.cancelableDownload
                     ?.addDisposeFuncList(disposeFunc)
 
-            return@synchronized state
+            return@synchronized DownloadState.Running
         }
     }
 

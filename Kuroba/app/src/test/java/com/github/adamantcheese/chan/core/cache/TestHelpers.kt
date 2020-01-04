@@ -8,6 +8,7 @@ import com.nhaarman.mockitokotlin2.spy
 import okhttp3.mockwebserver.MockWebServer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
 internal fun withServer(func: (MockWebServer) -> Unit) {
@@ -38,7 +39,7 @@ internal fun createFileDownloadRequest(
             FileDownloadRequest(
                     url,
                     file,
-                    chunksCount,
+                    AtomicInteger(chunksCount),
                     AtomicLong(0),
                     AtomicLong(0),
                     cancelableDownload
