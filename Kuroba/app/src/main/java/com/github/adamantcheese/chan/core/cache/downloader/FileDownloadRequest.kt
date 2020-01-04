@@ -17,6 +17,7 @@ internal open class FileDownloadRequest(
         val total: AtomicLong,
         // A handle to cancel the current download
         val cancelableDownload: CancelableDownload,
+        val extraInfo: DownloadRequestExtraInfo,
         // Chunks to delete from the disk upon download success or error
         val chunks: MutableSet<Chunk> = mutableSetOf()
 ) {
@@ -33,3 +34,8 @@ internal open class FileDownloadRequest(
                 "outputFileName = ${File(output.getFullPath()).name}]"
     }
 }
+
+class DownloadRequestExtraInfo(
+        val fileSize: Long = -1L,
+        val fileHash: String? = null
+)

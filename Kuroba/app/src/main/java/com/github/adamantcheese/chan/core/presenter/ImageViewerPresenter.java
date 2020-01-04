@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
+import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -360,6 +361,11 @@ public class ImageViewerPresenter
         }
 
         if (load) {
+            DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(
+                    postImage.size,
+                    postImage.fileHash
+            );
+
             // If downloading, remove from preloadingImages if it finished.
             // Array to allow access from within the callback (the callback should really
             // pass the filecachedownloader itself).
@@ -367,6 +373,7 @@ public class ImageViewerPresenter
             preloadDownload[0] = fileCacheV2.enqueueChunkedDownloadFileRequest(
                     loadable,
                     postImage,
+                    extraInfo,
                     new FileCacheListener() {
                         @Override
                         public void onEnd() {

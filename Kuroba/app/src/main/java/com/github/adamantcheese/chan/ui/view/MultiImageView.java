@@ -47,6 +47,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.MediaSourceCallback;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
+import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo;
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
@@ -339,7 +340,12 @@ public class MultiImageView
             return;
         }
 
-        bigImageRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, new FileCacheListener() {
+        DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(
+                postImage.size,
+                postImage.fileHash
+        );
+
+        bigImageRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, extraInfo, new FileCacheListener() {
 
             @Override
             public void onStart(int chunksCount) {
@@ -405,7 +411,12 @@ public class MultiImageView
             return;
         }
 
-        gifRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, new FileCacheListener() {
+        DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(
+                postImage.size,
+                postImage.fileHash
+        );
+
+        gifRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, extraInfo, new FileCacheListener() {
 
             @Override
             public void onStart(int chunksCount) {
@@ -552,7 +563,13 @@ public class MultiImageView
             return;
         }
 
-        videoRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, new FileCacheListener() {
+
+        DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(
+                postImage.size,
+                postImage.fileHash
+        );
+
+        videoRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, extraInfo, new FileCacheListener() {
 
             @Override
             public void onStart(int chunksCount) {

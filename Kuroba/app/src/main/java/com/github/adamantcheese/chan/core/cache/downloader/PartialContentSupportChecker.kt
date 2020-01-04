@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
 import android.util.LruCache
+import androidx.annotation.GuardedBy
 import com.github.adamantcheese.chan.core.cache.FileCacheV2
 import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
 import com.github.adamantcheese.chan.core.di.NetModule
@@ -8,6 +9,7 @@ import com.github.adamantcheese.chan.utils.Logger
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
 import okhttp3.*
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -24,11 +26,37 @@ internal class PartialContentSupportChecker(
         private val activeDownloads: ActiveDownloads,
         private val maxTimeoutMs: Long
 ) {
+    // Thread safe
     private val cachedResults = LruCache<String, PartialContentCheckResult>(1024)
+    @GuardedBy("itself")
+    private val checkedChanHosts = mutableMapOf<String, Boolean>()
 
     fun check(url: String): Single<PartialContentCheckResult> {
         if (activeDownloads.isBatchDownload(url)) {
             return Single.just(PartialContentCheckResult(false))
+        }
+
+        val fileSize = activeDownloads.get(url)?.extraInfo?.fileSize ?: -1L
+        if (fileSize > 0) {
+            val host = url.toHttpUrlOrNull()?.host
+
+            if (host != null) {
+                val supportsPartialContent = synchronized(checkedChanHosts) {
+                    checkedChanHosts[host] ?: false
+                }
+
+                if (supportsPartialContent) {
+                    // Fast path: we already had a file size and already checked whether this chan
+                    // supports Partial Content. So we don't need to send HEAD request.
+                    return Single.just(PartialContentCheckResult(
+                            supportsPartialContentDownload = true,
+                            // We are not sure about this one but it doesn't matter because we have
+                            // another similar check in the downloader.
+                            notFoundOnServer = false,
+                            length = fileSize
+                    ))
+                }
+            }
         }
 
         val cached = cachedResults.get(url)
@@ -200,6 +228,11 @@ internal class PartialContentSupportChecker(
 
         log(TAG, "url = $url, fileSize = $length, " +
                 "cfCacheStatusHeader = $cfCacheStatusHeader, took = ${diff}ms")
+
+        val host = url.toHttpUrlOrNull()?.host
+        if (host != null) {
+            synchronized(checkedChanHosts) { checkedChanHosts.put(host, true) }
+        }
 
         val result = PartialContentCheckResult(
                 supportsPartialContentDownload = true,

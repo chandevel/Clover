@@ -4,6 +4,11 @@ import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import io.reactivex.Flowable
+import okio.HashingSource
+import okio.blackholeSink
+import okio.buffer
+import okio.source
+
 
 internal class ChunkMerger(
         private val fileManager: FileManager,
@@ -67,12 +72,41 @@ internal class ChunkMerger(
                 }
             }
 
+            val expectedFileHash = activeDownloads.get(url)?.extraInfo?.fileHash
+            if (expectedFileHash != null) {
+                compareFileHashes(output, expectedFileHash)
+            }
+
             // Mark file as downloaded
             markFileAsDownloaded(url)
 
             val requestTime = System.currentTimeMillis() - requestStartTime
             return@fromCallable ChunkDownloadEvent.Success(output, requestTime)
         }
+    }
+
+    private fun compareFileHashes(output: AbstractFile, expectedFileHash: String) {
+        fileManager.getInputStream(output)?.use { inputStream ->
+            HashingSource.md5(inputStream.source()).use { hashingSource ->
+                hashingSource.buffer().use { source ->
+                    source.readAll(blackholeSink())
+                    val actualFileHash = hashingSource.hash.hex()
+
+                    if (!expectedFileHash.equals(actualFileHash, ignoreCase = true)) {
+                        throw FileCacheException.FileHashesAreDifferent(
+                                output.getFullPath(),
+                                expectedFileHash,
+                                actualFileHash
+                        )
+                    }
+                }
+            }
+        } ?: throw FileCacheException.CouldNotGetInputStreamException(
+                output.getFullPath(),
+                true,
+                fileManager.isFile(output),
+                fileManager.canRead(output)
+        )
     }
 
     private fun markFileAsDownloaded(url: String) {

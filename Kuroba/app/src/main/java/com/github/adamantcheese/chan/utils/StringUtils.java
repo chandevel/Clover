@@ -5,12 +5,15 @@ import android.util.Base64;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
     private static final Pattern IMAGE_THUMBNAIL_EXTRACTOR_PATTERN = Pattern.compile("/(\\d{12,32}+)s.(.*)");
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF"
+            .toLowerCase(Locale.US)
+            .toCharArray();
 
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
@@ -79,6 +82,7 @@ public class StringUtils {
     @Nullable
     public static String decodeBase64(String base64Encoded) {
         byte[] bytes;
+
 
         try {
             bytes = Base64.decode(base64Encoded, Base64.DEFAULT);

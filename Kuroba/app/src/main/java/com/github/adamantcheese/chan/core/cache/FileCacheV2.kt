@@ -203,7 +203,9 @@ class FileCacheV2(
                     // Always 1 for media prefetching
                     chunksCount = 1,
                     isBatchDownload = true,
-                    isPrefetch = true
+                    isPrefetch = true,
+                    // Prefetch downloads always have default extra info (no file size, no file hash)
+                    extraInfo = DownloadRequestExtraInfo()
             )
 
             if (alreadyActive) {
@@ -227,11 +229,13 @@ class FileCacheV2(
     fun enqueueChunkedDownloadFileRequest(
             loadable: Loadable,
             postImage: PostImage,
+            extraInfo: DownloadRequestExtraInfo,
             callback: FileCacheListener?
     ): CancelableDownload? {
         return enqueueDownloadFileRequest(
                 loadable,
                 postImage,
+                extraInfo,
                 chunksCount,
                 false,
                 callback
@@ -247,6 +251,9 @@ class FileCacheV2(
         return enqueueDownloadFileRequest(
                 loadable,
                 postImage,
+                // Normal downloads (not chunked) always have default extra info
+                // (no file size, no file hash)
+                DownloadRequestExtraInfo(),
                 1,
                 isBatchDownload,
                 callback
@@ -256,6 +263,7 @@ class FileCacheV2(
     private fun enqueueDownloadFileRequest(
             loadable: Loadable,
             postImage: PostImage,
+            extraInfo: DownloadRequestExtraInfo,
             chunksCount: Int,
             isBatchDownload: Boolean,
             callback: FileCacheListener?
@@ -282,27 +290,30 @@ class FileCacheV2(
             }
         }
 
-        return enqueueDownloadFileRequest(url, chunksCount, isBatchDownload, callback)
+        return enqueueDownloadFileRequest(url, chunksCount, isBatchDownload, extraInfo, callback)
     }
 
     fun enqueueChunkedDownloadFileRequest(
             url: String,
+            extraInfo: DownloadRequestExtraInfo,
             callback: FileCacheListener?
     ): CancelableDownload? {
-        return enqueueDownloadFileRequest(url, chunksCount, false, callback)
+        return enqueueDownloadFileRequest(url, chunksCount, false, extraInfo, callback)
     }
 
     fun enqueueNormalDownloadFileRequest(
             url: String,
             callback: FileCacheListener?
     ): CancelableDownload? {
-        return enqueueDownloadFileRequest(url, 1, false, callback)
+        // Normal downloads (not chunked) always have default extra info (no file size, no file hash)
+        return enqueueDownloadFileRequest(url, 1, false, DownloadRequestExtraInfo(), callback)
     }
 
     private fun enqueueDownloadFileRequest(
             url: String,
             chunksCount: Int,
             isBatchDownload: Boolean,
+            extraInfo: DownloadRequestExtraInfo,
             callback: FileCacheListener?
     ): CancelableDownload? {
         val file: RawFile? = cacheHandler.getOrCreateCacheFile(url)
@@ -319,7 +330,8 @@ class FileCacheV2(
                 file,
                 chunksCount = chunksCount,
                 isBatchDownload = isBatchDownload,
-                isPrefetch = false
+                isPrefetch = false,
+                extraInfo = extraInfo
         )
 
         if (alreadyActive) {
@@ -369,7 +381,8 @@ class FileCacheV2(
             file: RawFile,
             chunksCount: Int,
             isBatchDownload: Boolean,
-            isPrefetch: Boolean
+            isPrefetch: Boolean,
+            extraInfo: DownloadRequestExtraInfo
     ): Pair<Boolean, CancelableDownload> {
         if (chunksCount > 1 && (isBatchDownload || isPrefetch)) {
             throw IllegalArgumentException("Cannot download file in chunks for media " +
@@ -411,7 +424,8 @@ class FileCacheV2(
                     AtomicInteger(chunksCount),
                     AtomicLong(0L),
                     AtomicLong(0L),
-                    cancelableDownload
+                    cancelableDownload,
+                    extraInfo
             )
 
             activeDownloads.put(url, request)
@@ -695,6 +709,7 @@ class FileCacheV2(
                             is FileCacheException.FileNotFoundOnTheServerException -> {
                                 onNotFound()
                             }
+                            is FileCacheException.FileHashesAreDifferent,
                             is FileCacheException.CouldNotMarkFileAsDownloaded,
                             is FileCacheException.NoResponseBodyException,
                             is FileCacheException.CouldNotCreateOutputFileException,
@@ -711,7 +726,7 @@ class FileCacheV2(
 
                                 onFail(IOException(result.fileCacheException.message))
                             }
-                        }
+                        }.exhaustive
 
                         onEnd()
                     }
