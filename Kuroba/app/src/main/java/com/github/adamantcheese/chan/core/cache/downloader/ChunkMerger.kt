@@ -74,7 +74,7 @@ internal class ChunkMerger(
 
             val expectedFileHash = activeDownloads.get(url)?.extraInfo?.fileHash
             if (expectedFileHash != null) {
-                compareFileHashes(output, expectedFileHash)
+                compareFileHashes(url, output, expectedFileHash)
             }
 
             // Mark file as downloaded
@@ -85,7 +85,7 @@ internal class ChunkMerger(
         }
     }
 
-    private fun compareFileHashes(output: AbstractFile, expectedFileHash: String) {
+    private fun compareFileHashes(url: String, output: AbstractFile, expectedFileHash: String) {
         fileManager.getInputStream(output)?.use { inputStream ->
             HashingSource.md5(inputStream.source()).use { hashingSource ->
                 hashingSource.buffer().use { source ->
@@ -94,7 +94,8 @@ internal class ChunkMerger(
 
                     if (!expectedFileHash.equals(actualFileHash, ignoreCase = true)) {
                         throw FileCacheException.FileHashesAreDifferent(
-                                output.getFullPath(),
+                                url,
+                                fileManager.getName(output),
                                 expectedFileHash,
                                 actualFileHash
                         )

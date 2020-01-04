@@ -65,7 +65,7 @@ public class LoadingBar
 
         for (int i = 0; i < updatedProgress.size(); i++) {
             float updatedChunkProgress = updatedProgress.get(i);
-            float clampedProgress = Math.min(Math.max(updatedChunkProgress, 0f), 1f);
+            float clampedProgress = Math.min(Math.max(updatedChunkProgress, .1f), 1f);
 
             chunkLoadingProgress.set(i, clampedProgress);
         }
