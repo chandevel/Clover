@@ -602,20 +602,21 @@ public class ImageViewerPresenter
         return other;
     }
 
-    public void forceReload() {
+    public boolean forceReload() {
         PostImage currentImage = getCurrentPostImage();
 
         if (fileCacheV2.isRunning(currentImage.imageUrl.toString())) {
             showToast("Image is not yet downloaded");
-            return;
+            return false;
         }
 
         if (!cacheHandler.deleteCacheFileByUrl(currentImage.imageUrl.toString())) {
             showToast("Can't force reload because couldn't delete cached image");
-            return;
+            return false;
         }
 
         callback.setImageMode(currentImage, LOWRES, false);
+        return true;
     }
 
     private enum SwipeDirection {

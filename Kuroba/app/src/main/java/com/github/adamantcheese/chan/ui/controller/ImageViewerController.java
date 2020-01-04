@@ -285,11 +285,9 @@ public class ImageViewerController
 
     private void forceReload(ToolbarMenuSubItem item) {
         ToolbarMenuItem menuItem = navigation.findItem(SAVE_ID);
-        if (menuItem != null) {
+        if (menuItem != null && presenter.forceReload()) {
             menuItem.setEnabled(false);
         }
-
-        presenter.forceReload();
     }
 
     @Override
