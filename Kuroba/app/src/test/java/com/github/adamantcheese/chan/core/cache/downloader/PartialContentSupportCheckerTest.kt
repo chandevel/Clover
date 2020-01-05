@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.core.cache.downloader
 import com.github.adamantcheese.chan.core.cache.createFileDownloadRequest
 import com.github.adamantcheese.chan.core.cache.withServer
 import com.github.adamantcheese.chan.utils.AndroidUtils
-import io.reactivex.plugins.RxJavaPlugins
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import org.junit.After
@@ -36,8 +35,6 @@ class PartialContentSupportCheckerTest {
 
     @After
     fun tearDown() {
-        RxJavaPlugins.reset()
-
         okHttpClient.dispatcher.cancelAll()
         activeDownloads.clear()
         partialContentSupportChecker.clear()
