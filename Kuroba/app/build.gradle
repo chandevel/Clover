@@ -8,7 +8,7 @@ android {
     // don't forget to also update travis.yml config
     // !!! IMPORTANT !!!
 
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     def getCommitHash = { ->
         def stdout = new ByteArrayOutputStream()
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
 
         /**
          * ------------------------------------------------------------
