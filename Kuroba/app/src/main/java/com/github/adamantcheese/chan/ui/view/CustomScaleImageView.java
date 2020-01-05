@@ -74,7 +74,7 @@ public class CustomScaleImageView
     }
 
     public boolean isZoomedIn() {
-        return Math.abs(defaultScale - getScale()) > 0.00001f;
+        return Math.abs(defaultScale - getScale()) >= 0.1f;
     }
 
     public void setCallback(Callback callback) {
