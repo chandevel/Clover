@@ -74,6 +74,7 @@ import pl.droidsonroids.gif.GifImageView;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
@@ -114,6 +115,10 @@ public class MultiImageView
     private boolean backgroundToggle;
     private boolean imageAlreadySaved = false;
 
+    private static final float FLING_DIFF_Y_THRESHOLD = dp(60f);
+    private static final float FLING_VELOCITY_Y_THRESHOLD = dp(200f);
+    private static final float FLING_DIST_X_THRESHOLD = dp(100f);
+
     private GestureDetector swipeDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
@@ -128,7 +133,11 @@ public class MultiImageView
             float diffY = e2.getY() - e1.getY();
             float diffX = e2.getX() - e1.getX();
 
-            if (Math.abs(diffY) > 150 && Math.abs(vy) > 500 && Math.abs(diffX) < 300) {
+            if (
+                    Math.abs(diffY) > FLING_DIFF_Y_THRESHOLD
+                            && Math.abs(vy) > FLING_VELOCITY_Y_THRESHOLD
+                            && Math.abs(diffX) < FLING_DIST_X_THRESHOLD
+            ) {
                 if (diffY <= 0) {
                     callback.onSwipeTop();
                 } else {

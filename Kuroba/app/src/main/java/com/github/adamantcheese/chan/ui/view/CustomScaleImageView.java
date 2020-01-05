@@ -35,12 +35,11 @@ public class CustomScaleImageView
             public void onReady() {
                 Logger.d(TAG, "onReady");
                 float scale = Math.min(getWidth() / (float) getSWidth(), getHeight() / (float) getSHeight());
+                defaultScale = scale;
 
                 if (getMaxScale() < scale * 2f) {
                     setMaxScale(scale * 2f);
                 }
-
-                defaultScale = getScale();
 
                 setMinimumScaleType(SCALE_TYPE_CUSTOM);
                 if (callback != null) {
