@@ -119,9 +119,9 @@ public class MultiImageView
         public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
             CustomScaleImageView customScaleImageView = findScaleImageView();
             if (customScaleImageView != null && (customScaleImageView.isZoomedIn())) {
-                // When CustomScaleImageView we need to check whether it's zoomed in and if it is
-                // then don't accept this motion event. Otherwise, when zoomed in, the image will
-                // loose the fling inertia.
+                // When CustomScaleImageView is added we need to check whether it's zoomed in and
+                // if it is then don't accept this motion event. Otherwise, when zoomed in,
+                // the image will lose the fling inertia.
                 return false;
             }
 
