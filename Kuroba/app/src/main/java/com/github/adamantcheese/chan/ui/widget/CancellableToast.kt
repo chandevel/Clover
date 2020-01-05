@@ -7,15 +7,6 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils
 class CancellableToast {
     private var toast: Toast? = null
 
-    fun showToast(context: Context?, msgResId: Int) {
-        if (context == null) {
-            return
-        }
-
-        BackgroundUtils.ensureMainThread()
-        showToast(context, context.getString(msgResId))
-    }
-
     fun showToast(context: Context?, message: String) {
         if (context == null) {
             return
@@ -23,6 +14,24 @@ class CancellableToast {
 
         BackgroundUtils.ensureMainThread()
         showToast(context, message, Duration.Short)
+    }
+
+    fun showToast(context: Context?, msgResId: Int) {
+        if (context == null) {
+            return
+        }
+
+        BackgroundUtils.ensureMainThread()
+        showToast(context, context.getString(msgResId), Duration.Short)
+    }
+
+    fun showToast(context: Context?, msgResId: Int, duration: Duration) {
+        if (context == null) {
+            return
+        }
+
+        BackgroundUtils.ensureMainThread()
+        showToast(context, context.getString(msgResId), duration)
     }
 
     fun showToast(context: Context?, message: String, duration: Duration) {

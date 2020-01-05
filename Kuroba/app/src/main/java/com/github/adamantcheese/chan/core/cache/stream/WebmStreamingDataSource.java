@@ -6,6 +6,7 @@ import android.util.Range;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.di.NetModule;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.RawFile;
@@ -398,9 +399,11 @@ public class WebmStreamingDataSource extends BaseDataSource {
             return;
         }
 
-        for (Callback c : listeners) {
-            c.dataSourceAddedFile(innerFile);
-        }
+        BackgroundUtils.runOnUiThread(() -> {
+            for (Callback c : listeners) {
+                c.dataSourceAddedFile(innerFile);
+            }
+        });
 
         listeners.clear();
         partialFileCache.clearListeners();

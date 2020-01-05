@@ -102,11 +102,28 @@ internal open class ActiveDownloads {
      * the reactive stream
      * */
     fun throwCancellationException(url: String): Nothing {
-        activeDownloads[url]?.cancelableDownload?.cancel()
-        throw FileCacheException.CancellationException(
-                DownloadState.Canceled,
-                url
-        )
+        val prevState = synchronized(activeDownloads) {
+            val prevState = activeDownloads[url]?.cancelableDownload?.getState()
+                    ?: DownloadState.Canceled
+
+            if (prevState == DownloadState.Running) {
+                activeDownloads[url]?.cancelableDownload?.cancel()
+            }
+
+            prevState
+        }
+
+        if (prevState == DownloadState.Running || prevState == DownloadState.Canceled) {
+            throw FileCacheException.CancellationException(
+                    DownloadState.Canceled,
+                    url
+            )
+        } else {
+            throw FileCacheException.CancellationException(
+                    DownloadState.Stopped,
+                    url
+            )
+        }
     }
 
     fun getState(url: String): DownloadState {

@@ -355,36 +355,61 @@ public class ImageViewerPresenter
 
     private void doPreloading(PostImage postImage) {
         boolean load = false;
+        boolean loadChunked = true;
+
         if (postImage.type == STATIC || postImage.type == GIF) {
             load = imageAutoLoad(loadable, postImage);
         } else if (postImage.type == MOVIE) {
             load = videoAutoLoad(loadable, postImage);
         }
 
-        if (load) {
-            DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(
-                    postImage.size,
-                    postImage.fileHash
-            );
+        /**
+         * If the file is a webm file and webm streaming is turned on we don't want to download the
+         * webm chunked because it will most likely corrupt the file since we will forcefully stop
+         * it.
+         * */
+        if (postImage.type == MOVIE && ChanSettings.videoStream.get()) {
+            loadChunked = false;
+        }
 
+        if (load) {
             // If downloading, remove from preloadingImages if it finished.
             // Array to allow access from within the callback (the callback should really
             // pass the filecachedownloader itself).
             final CancelableDownload[] preloadDownload = new CancelableDownload[1];
-            preloadDownload[0] = fileCacheV2.enqueueChunkedDownloadFileRequest(
-                    loadable,
-                    postImage,
-                    extraInfo,
-                    new FileCacheListener() {
-                        @Override
-                        public void onEnd() {
-                            BackgroundUtils.ensureMainThread();
 
-                            if (preloadDownload[0] != null) {
-                                preloadingImages.remove(preloadDownload[0]);
-                            }
-                        }
-                    });
+            final FileCacheListener fileCacheListener = new FileCacheListener() {
+                @Override
+                public void onEnd() {
+                    BackgroundUtils.ensureMainThread();
+
+                    if (preloadDownload[0] != null) {
+                        preloadingImages.remove(preloadDownload[0]);
+                    }
+                }
+            };
+
+
+            if (loadChunked) {
+                DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(
+                        postImage.size,
+                        postImage.fileHash
+                );
+
+                preloadDownload[0] = fileCacheV2.enqueueChunkedDownloadFileRequest(
+                        loadable,
+                        postImage,
+                        extraInfo,
+                        fileCacheListener
+                );
+            } else {
+                preloadDownload[0] = fileCacheV2.enqueueNormalDownloadFileRequest(
+                        loadable,
+                        postImage,
+                        false,
+                        fileCacheListener
+                );
+            }
 
             if (preloadDownload[0] != null) {
                 preloadingImages.add(preloadDownload[0]);

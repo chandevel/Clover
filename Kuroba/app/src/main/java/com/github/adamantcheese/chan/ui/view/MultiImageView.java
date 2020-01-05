@@ -509,7 +509,6 @@ public class MultiImageView
 
     private void setVideo(Loadable loadable, PostImage postImage) {
         BackgroundUtils.ensureMainThread();
-
         if (ChanSettings.videoStream.get()) {
             openVideoInternalStream(postImage.imageUrl.toString());
         } else {
@@ -521,6 +520,8 @@ public class MultiImageView
         webmStreamingSource.createMediaSource(videoUrl, new MediaSourceCallback() {
             @Override
             public void onMediaSourceReady(@Nullable MediaSource source) {
+                BackgroundUtils.ensureMainThread();
+
                 synchronized (MultiImageView.this) {
                     if (mediaSourceCancel) {
                         return;
@@ -542,6 +543,7 @@ public class MultiImageView
                         exoPlayer.setPlayWhenReady(true);
                         onModeLoaded(Mode.VIDEO, exoVideoView);
                         callback.onVideoLoaded(MultiImageView.this);
+                        callback.onDownloaded(postImage);
                     }
                 }
             }
@@ -549,6 +551,7 @@ public class MultiImageView
             @Override
             public void onError(@NotNull Throwable error) {
                 Logger.e(TAG, "Error while trying to stream a webm", error);
+                BackgroundUtils.ensureMainThread();
 
                 if (context != null) {
                     String message = "Couldn't open webm in streaming mode, error = "

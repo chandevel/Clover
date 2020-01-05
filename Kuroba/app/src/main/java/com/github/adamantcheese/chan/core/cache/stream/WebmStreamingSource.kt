@@ -5,6 +5,7 @@ import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.cache.FileCacheListener
 import com.github.adamantcheese.chan.core.cache.FileCacheV2
 import com.github.adamantcheese.chan.core.cache.MediaSourceCallback
+import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
@@ -12,7 +13,6 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.FileDataSource
 import java.io.IOException
-import java.util.concurrent.atomic.AtomicReference
 
 class WebmStreamingSource(
         private val fileManager: FileManager,
@@ -24,9 +24,9 @@ class WebmStreamingSource(
         val alreadyExists = cacheHandler.exists(videoUrl)
         val rawFile = cacheHandler.getOrCreateCacheFile(videoUrl)
         val fileCacheSource = WebmStreamingDataSource(uri, rawFile, fileManager)
-        val callbackRef = AtomicReference(callback)
 
         fileCacheSource.addListener { file ->
+            BackgroundUtils.ensureMainThread()
             cacheHandler.fileWasAdded(file.length())
         }
 
@@ -35,7 +35,9 @@ class WebmStreamingSource(
                 && cacheHandler.isAlreadyDownloaded(rawFile)) {
             val fileUri = Uri.parse(rawFile.getFullPath())
 
-            callbackRef.get()?.onMediaSourceReady(
+            Logger.d(TAG, "Loading already downloaded file from the disk")
+
+            callback.onMediaSourceReady(
                     ProgressiveMediaSource.Factory(DataSource.Factory { FileDataSource() })
                             .createMediaSource(fileUri)
             )
@@ -46,19 +48,26 @@ class WebmStreamingSource(
                 videoUrl,
                 object : FileCacheListener() {
                     override fun onSuccess(file: AbstractFile?) {
+                        Logger.d(TAG, "Loading just downloaded file after stop()")
+                        BackgroundUtils.ensureMainThread()
+
                         // The webm file is already completely downloaded, just use it from the disk
-                        callbackRef.get()?.onMediaSourceReady(
+                        callback.onMediaSourceReady(
                                 ProgressiveMediaSource.Factory(DataSource.Factory { fileCacheSource })
                                         .createMediaSource(uri)
                         )
                     }
 
                     override fun onStop(file: AbstractFile) {
+                        BackgroundUtils.ensureMainThread()
+
                         // The webm file is either partially downloaded or is not downloaded at all.
                         // We take whatever there is and load it into the WebmStreamingDataSource so
                         // we don't need to redownload the bytes that have already been downloaded
                         val exists = fileManager.exists(file)
                         val fileLength = fileManager.getLength(file)
+
+                        Logger.d(TAG, "Loading partially downloaded file after stop(), fileLength = $fileLength")
 
                         if (exists && fileLength > 0L) {
                             try {
@@ -71,30 +80,27 @@ class WebmStreamingSource(
                             }
                         }
 
-                        callbackRef.get()?.onMediaSourceReady(
+                        callback.onMediaSourceReady(
                                 ProgressiveMediaSource.Factory(DataSource.Factory { fileCacheSource })
                                         .createMediaSource(uri)
                         )
-
-                        fileManager.delete(file)
                     }
 
                     override fun onNotFound() {
-                        callbackRef.get()?.onError(IOException("Not found"))
+                        BackgroundUtils.ensureMainThread()
+                        callback.onError(IOException("Not found"))
                     }
 
                     override fun onFail(exception: Exception) {
-                        callbackRef.get()?.onError(exception)
-                    }
+                        Logger.d(TAG, "onFail ${exception}")
 
-                    override fun onCancel() {
-                        super.onCancel()
-
-                        callbackRef.set(null)
+                        BackgroundUtils.ensureMainThread()
+                        callback.onError(exception)
                     }
                 })
 
         if (cancelableDownload == null) {
+            Logger.d(TAG, "cancelableDownload == null")
             return
         }
 
