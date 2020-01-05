@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.cache
 
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload
+import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo
 import com.github.adamantcheese.chan.core.cache.downloader.FileDownloadRequest
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.nhaarman.mockitokotlin2.mock
@@ -42,7 +43,8 @@ internal fun createFileDownloadRequest(
                     AtomicInteger(chunksCount),
                     AtomicLong(0),
                     AtomicLong(0),
-                    cancelableDownload
+                    cancelableDownload,
+                    DownloadRequestExtraInfo()
             )
     )
 }
