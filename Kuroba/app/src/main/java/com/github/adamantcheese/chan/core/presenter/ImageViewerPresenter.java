@@ -342,11 +342,6 @@ public class ImageViewerPresenter
     }
 
     @Override
-    public void onDoubleTap() {
-        onExit();
-    }
-
-    @Override
     public void onSwipeTop() {
         onExit();
     }

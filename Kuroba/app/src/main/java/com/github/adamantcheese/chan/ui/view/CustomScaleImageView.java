@@ -26,6 +26,7 @@ public class CustomScaleImageView
     private static final String TAG = "CustomScaleImageView";
 
     private Callback callback;
+    private float defaultScale = 1f;
 
     public CustomScaleImageView(Context context) {
         super(context);
@@ -38,6 +39,9 @@ public class CustomScaleImageView
                 if (getMaxScale() < scale * 2f) {
                     setMaxScale(scale * 2f);
                 }
+
+                defaultScale = getScale();
+
                 setMinimumScaleType(SCALE_TYPE_CUSTOM);
                 if (callback != null) {
                     callback.onReady();
@@ -68,6 +72,10 @@ public class CustomScaleImageView
                 }
             }
         });
+    }
+
+    public boolean isZoomedIn() {
+        return Math.abs(defaultScale - getScale()) > 0.00001f;
     }
 
     public void setCallback(Callback callback) {
