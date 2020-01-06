@@ -26,4 +26,8 @@ public class CounterSetting
         set(get() + 1);
         return get();
     }
+
+    public void reset() {
+        set(0);
+    }
 }

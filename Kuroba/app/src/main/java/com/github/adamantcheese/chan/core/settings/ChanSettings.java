@@ -318,7 +318,7 @@ public class ChanSettings {
             shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
             enableEmoji = new BooleanSetting(p, "enable_emoji", false);
             highResCells = new BooleanSetting(p, "high_res_cells", false);
-            incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", false);
+            incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", true);
             fullUserRotationEnable = new BooleanSetting(p, "full_user_rotation_enable", true);
 
             drawerAutoOpenCount = new IntegerSetting(p, "drawer_auto_open_count", 0);

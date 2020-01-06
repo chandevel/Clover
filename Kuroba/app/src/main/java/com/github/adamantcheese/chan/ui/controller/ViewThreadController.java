@@ -592,6 +592,16 @@ public class ViewThreadController
                     HintPopup.show(context, view, getString(R.string.thread_pin_hint), -dp(1), 0);
                 }
             }, 600);
+        } else if (counter == 4) {
+            view.postDelayed(() -> {
+                ToolbarMenuItem saveThreadItem = navigation.findItem(SAVE_THREAD_ID);
+                if (saveThreadItem != null) {
+                    View view = saveThreadItem.getView();
+                    if (view != null) {
+                        HintPopup.show(context, view, getString(R.string.thread_save_hint), -dp(1), 0);
+                    }
+                }
+            }, 600);
         }
     }
 
@@ -696,7 +706,6 @@ public class ViewThreadController
                 menuItem.setImage(downloadIconOutline, animated);
                 break;
             case DownloadInProgress:
-                // FIXME: shit is broken
                 menuItem.setImage(downloadAnimation, animated);
                 downloadAnimation.start();
 

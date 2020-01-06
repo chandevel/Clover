@@ -191,6 +191,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_empty_select">Please select a thread</string>
     <string name="thread_up_down_hint">Scroll to top/bottom</string>
     <string name="thread_pin_hint">Bookmark this thread</string>
+    <string name="thread_save_hint">Save this thread as a local copy</string>
 
     <string name="thread_view_archive">Archive</string>
     <string name="thread_show_archives">Archives</string>
@@ -680,7 +681,7 @@ Don't have a 4chan Pass?<br>
     <string name="settings_experimental_settings_title">⚠ EXPERIMENTAL ⚠</string>
     <string name="settings_experimental_settings_description">These settings may be in an unstable state. They are for testing. They may break the app and you may have to reset the app data. Use them at your own risk if you are really interested in some feature. Backup everything beforehand.</string>
     <string name="incremental_thread_downloading_title">Incremental thread downloading</string>
-    <string name="incremental_thread_downloading_description">Allows you to download threads to view them after the original thread dies</string>
+    <string name="incremental_thread_downloading_description">Allows you to download threads to view them after the original thread dies or when you have no internet connection. Basically, this thread will be stored locally along with all the files.</string>
     <string name="cannot_open_in_browser_already_deleted">Can\'t open this thread in your browser, it\'s probably already been deleted</string>
     <string name="cannot_send_thread_via_nfc_already_deleted">Can\'t send thread via NFC, it\'s already been deleted</string>
     <string name="cannot_shared_thread_already_deleted">Can\'t share this thread, it\'s already been deleted</string>
