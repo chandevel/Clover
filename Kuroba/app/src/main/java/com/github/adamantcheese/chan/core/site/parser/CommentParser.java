@@ -246,7 +246,7 @@ public class CommentParser {
             Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element deadlink
     ) {
         // html looks like <span class="deadlink">&gt;&gt;number</span>
-        // Or like this &gt;&gt;&gt;/int/116000000 in case of a dead crossboard line
+        // Or like this &gt;&gt;&gt;/int/116000000 in case of a dead crossboard link
 
         String deadlinkText = deadlink.text();
         int postNo = -1;
