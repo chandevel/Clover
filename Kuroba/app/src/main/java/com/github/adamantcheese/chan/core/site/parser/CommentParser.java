@@ -253,7 +253,7 @@ public class CommentParser {
 
         try {
             // Handle the crossboard dead link first, because otherwise the condition will be always
-            // true. Otherwise the order of conditions matters!
+            // true. The order of conditions matters!
             if (deadlinkText.startsWith(">>>")) {
                 Matcher matcher = crossBoardDeadLink.matcher(deadlinkText);
                 if (matcher.matches()) {
