@@ -754,4 +754,16 @@ Don't have a 4chan Pass?<br>
     <string name="image_saver_could_not_figure_out_save_location">Couldn\'t figure out save location</string>
     <string name="settings_captcha_setup">Captcha Settings</string>
     <string name="settings_captcha_setup_description">Captcha settings are per-site configurable. Tap for site setup.</string>
+
+    <string name="lorem_ipsum">
+        The standard Lorem Ipsum passage, used since the 1500s
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    </string>
+    <string name="report_activity_report_an_error_problem">Report an error/crash or other problem</string>
+    <string name="report_activity_i_have_a_problem_with">I have a problem with:</string>
+    <string name="report_activity_problem_description">Problem description:</string>
+    <string name="report_activity_attach_logs">Attach logs (You can edit them and cut out what you don\'t want to send):</string>
+    <string name="report_activity_no_logs">No logs</string>
+    <string name="report_activity_cancel">Cancel</string>
+    <string name="report_activity_send_report">Send report</string>
 </resources>

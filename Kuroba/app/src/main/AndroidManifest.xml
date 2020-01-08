@@ -88,6 +88,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         </activity>
 
+        <activity android:name=".report.ReportActivity"
+            android:windowSoftInputMode="adjustResize"/>
+
         <service
             android:name=".ui.service.WatchNotification"
             android:exported="false" />

@@ -22,6 +22,7 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.SettingsPresenter;
+import com.github.adamantcheese.chan.report.ReportActivity;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
 import com.github.adamantcheese.chan.ui.controller.LicensesController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
@@ -159,6 +160,15 @@ public class MainSettingsController
                 "Tap to check for updates",
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
         ));
+
+        about.add(
+                new LinkSettingView(
+                        this,
+                        "Report",
+                        "Report a problem/crash",
+                        v -> ReportActivity.startActivity(context)
+                )
+        );
 
         about.add(new LinkSettingView(this,
                 "Find " + getApplicationLabel() + " on GitHub",
