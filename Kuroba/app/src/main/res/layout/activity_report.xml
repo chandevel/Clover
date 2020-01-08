@@ -50,24 +50,17 @@
                 android:layout_marginBottom="8dp"
                 android:orientation="vertical">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/report_activity_problem_title_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:text="@string/report_activity_i_have_a_problem_with"
-                    android:textColor="?attr/text_color_primary"
-                    android:textSize="18sp" />
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="512">
 
-                    <androidx.appcompat.widget.AppCompatEditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/report_activity_problem_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:hint="@string/report_activity_i_have_a_problem_with"
                         android:maxLength="512"
                         android:scrollbars="vertical"
                         android:textSize="16sp"
@@ -84,24 +77,17 @@
                 android:layout_marginBottom="8dp"
                 android:orientation="vertical">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/report_activity_problem_description_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:text="@string/report_activity_problem_description"
-                    android:textColor="?attr/text_color_primary"
-                    android:textSize="18sp" />
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="8192">
 
-                    <androidx.appcompat.widget.AppCompatEditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/report_activity_problem_description"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:hint="@string/report_activity_problem_description"
                         android:importantForAutofill="no"
                         android:maxLength="8192"
                         android:scrollbars="vertical"
@@ -123,18 +109,20 @@
                     android:id="@+id/report_activity_attach_logs_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:checked="true"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
-                    android:checked="true"
                     android:text="@string/report_activity_attach_logs"
                     android:textColor="?attr/text_color_primary"
                     android:textSize="18sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="65535">
 
-                    <androidx.appcompat.widget.AppCompatEditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/report_activity_logs_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

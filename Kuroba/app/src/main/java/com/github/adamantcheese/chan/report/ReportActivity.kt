@@ -8,7 +8,6 @@ import android.os.PersistableBundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckBox
-import androidx.appcompat.widget.AppCompatEditText
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.base.MResult
@@ -16,6 +15,7 @@ import com.github.adamantcheese.chan.ui.controller.LogsController
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper
 import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
 import com.github.adamantcheese.chan.utils.Logger
+import com.google.android.material.textfield.TextInputEditText
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -29,10 +29,10 @@ class ReportActivity : AppCompatActivity() {
     private val presenter: ReportActivityPresenter = ReportActivityPresenter()
 
     private lateinit var compositeDisposable: CompositeDisposable
-    private lateinit var reportActivityProblemTitle: AppCompatEditText
-    private lateinit var reportActivityProblemDescription: AppCompatEditText
+    private lateinit var reportActivityProblemTitle: TextInputEditText
+    private lateinit var reportActivityProblemDescription: TextInputEditText
     private lateinit var reportActivityAttachLogsButton: AppCompatCheckBox
-    private lateinit var reportActivityLogsText: AppCompatEditText
+    private lateinit var reportActivityLogsText: TextInputEditText
     private lateinit var reportActivityCancel: AppCompatButton
     private lateinit var reportActivitySendReport: AppCompatButton
 
@@ -86,17 +86,17 @@ class ReportActivity : AppCompatActivity() {
         val logs = reportActivityLogsText.text?.toString() ?: ""
 
         if (title.isEmpty()) {
-            showToast("Title is a required parameter and cannot be empty!")
+            reportActivityProblemTitle.error = "Title cannot be empty!"
             return
         }
 
         if (description.isEmpty()) {
-            showToast("Description is a required parameter and cannot be empty!")
+            reportActivityProblemDescription.error = "Description cannot be empty!"
             return
         }
 
         if (reportActivityAttachLogsButton.isChecked && logs.isEmpty()) {
-            showToast("You attached, but the logs are empty!")
+            reportActivityLogsText.error = "You attached, but the logs are empty!"
             return
         }
 
