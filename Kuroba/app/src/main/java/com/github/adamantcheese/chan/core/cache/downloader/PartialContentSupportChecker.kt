@@ -30,6 +30,12 @@ internal class PartialContentSupportChecker(
     private val cachedResults = LruCache<String, PartialContentCheckResult>(1024)
     @GuardedBy("itself")
     private val checkedChanHosts = mutableMapOf<String, Boolean>()
+    private val badSites = setOf(
+            // 2ch.hk send file size in KB which after converting into bytes sometimes may give us
+            // incorrect file size, so we can't use the size we get in the json for concurrent
+            // downloading, thus we need to send the HEAD request every time.
+            "2ch.hk"
+    )
 
     fun check(url: String): Single<PartialContentCheckResult> {
         if (activeDownloads.isBatchDownload(url)) {
@@ -40,7 +46,11 @@ internal class PartialContentSupportChecker(
         if (fileSize > 0) {
             val host = url.toHttpUrlOrNull()?.host
 
-            if (host != null) {
+            val hostAlreadyChecked = synchronized(checkedChanHosts) {
+                checkedChanHosts.containsKey(host)
+            }
+
+            if (host != null && hostAlreadyChecked && host !in badSites) {
                 val supportsPartialContent = synchronized(checkedChanHosts) {
                     checkedChanHosts[host] ?: false
                 }
@@ -48,13 +58,20 @@ internal class PartialContentSupportChecker(
                 if (supportsPartialContent) {
                     // Fast path: we already had a file size and already checked whether this chan
                     // supports Partial Content. So we don't need to send HEAD request.
-                    return Single.just(PartialContentCheckResult(
-                            supportsPartialContentDownload = true,
-                            // We are not sure about this one but it doesn't matter because we have
-                            // another similar check in the downloader.
-                            notFoundOnServer = false,
-                            length = fileSize
-                    ))
+                    return Single.just(
+                            PartialContentCheckResult(
+                                    supportsPartialContentDownload = true,
+                                    // We are not sure about this one but it doesn't matter because we have
+                                    // another similar check in the downloader.
+                                    notFoundOnServer = false,
+                                    length = fileSize)
+                    )
+                } else {
+                    return Single.just(
+                            PartialContentCheckResult(
+                                    supportsPartialContentDownload = false
+                            )
+                    )
                 }
             }
         }

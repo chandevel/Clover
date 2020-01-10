@@ -490,12 +490,12 @@ public class MultiImageView
                 return;
             }
         } catch (IOException e) {
-            Logger.e(TAG, "Error while trying to set a get file", e);
+            Logger.e(TAG, "Error while trying to set a gif file", e);
             onError(e);
             return;
         } catch (OutOfMemoryError e) {
             Runtime.getRuntime().gc();
-            Logger.e(TAG, "OOM while trying to set a get file", e);
+            Logger.e(TAG, "OOM while trying to set a gif file", e);
             onOutOfMemoryError();
             return;
         }
