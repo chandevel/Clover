@@ -762,7 +762,7 @@ Don't have a 4chan Pass?<br>
     <string name="report_activity_report_an_error_problem">Report an error/crash or other problem</string>
     <string name="report_activity_i_have_a_problem_with">I have a problem with:</string>
     <string name="report_activity_problem_description">Problem description:</string>
-    <string name="report_activity_attach_logs">Attach logs (You can edit them and cut out what you don\'t want to send):</string>
+    <string name="report_activity_attach_logs">Attach logs (You can remove some parts of them you don\'t want to send):</string>
     <string name="report_activity_no_logs">No logs</string>
     <string name="report_activity_cancel">Cancel</string>
     <string name="report_activity_send_report">Send report</string>

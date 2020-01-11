@@ -63,13 +63,15 @@ public class SiteModel {
 
     public void storeUserSettings(JsonSettings userSettings) {
         this.userSettings = gson.toJson(userSettings);
-        Logger.test("userSettings = " + this.userSettings);
     }
 
     public Pair<SiteConfig, JsonSettings> loadConfigFields() {
         SiteConfig config = gson.fromJson(this.configuration, SiteConfig.class);
         JsonSettings settings = gson.fromJson(this.userSettings, JsonSettings.class);
-        Logger.d("SiteModel", "Config: " + configuration + ", Settings: " + userSettings);
+        // We don't really want to print user settings to the logcat because it may contain sensitive
+        // information like passcode and other stuff.
+
+        Logger.d("SiteModel", "Config: " + configuration);
         return Pair.create(config, settings);
     }
 }
