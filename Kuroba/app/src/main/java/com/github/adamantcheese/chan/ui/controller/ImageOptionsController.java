@@ -129,11 +129,11 @@ public class ImageOptionsController
             changeImageChecksum.setChecked(lastSettings.getChangeImageChecksum());
             fixExif.setChecked(lastSettings.getFixExif());
             ImageReencodingPresenter.ReencodeSettings lastReencode = lastSettings.getReencodeSettings();
-            if (lastReencode != null) {
+            if (lastReencode != null && presenter.hasAttachedFile()) {
                 removeMetadata.setChecked(!lastReencode.isDefault());
                 removeMetadata.setEnabled(!lastReencode.isDefault());
                 reencode.setChecked(!lastReencode.isDefault());
-                reencode.setText("Re-encode " + lastReencode.prettyPrint(presenter.getImageFormat()));
+                reencode.setText(String.format("Re-encode %s", lastReencode.prettyPrint(presenter.getImageFormat())));
             } else {
                 removeMetadata.setChecked(lastSettings.getRemoveMetadata());
             }
@@ -256,7 +256,7 @@ public class ImageOptionsController
         removeMetadata.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
         removeMetadata.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
 
-        reencode.setText("Re-encode " + reencodeSettings.prettyPrint(presenter.getImageFormat()));
+        reencode.setText(String.format("Re-encode %s", reencodeSettings.prettyPrint(presenter.getImageFormat())));
 
         presenter.setReencode(reencodeSettings);
     }
