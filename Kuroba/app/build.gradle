@@ -266,9 +266,14 @@ dependencies {
 }
 
 // Download the current archives.json file for the build
-task downloadArchives(type: Download) {
-    src 'https://nstepien.github.io/archives.json/archives.json'
-    dest projectDir.path + File.separator + "src" + File.separator + "main" + File.separator + "assets"
+task downloadArchives {
+    try {
+        download {
+            src 'https://nstepien.github.io/archives.json/archives.json'
+            dest projectDir.path + File.separator + "src" + File.separator + "main" + File.separator + "assets"
+        }
+    } catch (Exception ignored) {
+    }
 }
 preBuild.dependsOn downloadArchives
 
