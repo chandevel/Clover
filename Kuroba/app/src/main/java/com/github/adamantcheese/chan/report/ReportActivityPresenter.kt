@@ -71,8 +71,10 @@ class ReportActivityPresenter : BasePresenter<ReportActivity>() {
 
                 override fun onResponse(call: Call, response: Response) {
                     if (!response.isSuccessful) {
-                        Logger.e(TAG, "Response is not successful, status = ${response.code}")
-                        emitter.onSuccess(MResult.value(false))
+                        val message = "Response is not successful, status = ${response.code}"
+                        Logger.e(TAG, message)
+
+                        emitter.onSuccess(MResult.error(IOException(message)))
                         return
                     }
 

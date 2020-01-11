@@ -86,17 +86,19 @@ class ReportActivity : AppCompatActivity() {
         val logs = reportActivityLogsText.text?.toString() ?: ""
 
         if (title.isEmpty()) {
-            reportActivityProblemTitle.error = "Title cannot be empty!"
+            reportActivityProblemTitle.error =
+                    getString(R.string.report_activity_title_cannot_be_empty_error)
             return
         }
 
         if (description.isEmpty()) {
-            reportActivityProblemDescription.error = "Description cannot be empty!"
+            reportActivityProblemDescription.error =
+                    getString(R.string.report_activity_description_cannot_be_empty_error)
             return
         }
 
         if (reportActivityAttachLogsButton.isChecked && logs.isEmpty()) {
-            reportActivityLogsText.error = "You attached, but the logs are empty!"
+            reportActivityLogsText.error = getString(R.string.report_activity_logs_are_empty_error)
             return
         }
 
@@ -118,7 +120,10 @@ class ReportActivity : AppCompatActivity() {
                     Logger.e(TAG, "Error", error)
 
                     val errorMessage = error.message ?: "No error message"
-                    showToast("Error while trying to send report: $errorMessage")
+                    showToast(
+                            getString(R.string.report_activity_error_while_trying_to_send_report,
+                                    errorMessage)
+                    )
                 })
                 .also { disposable -> compositeDisposable.add(disposable) }
     }
@@ -126,12 +131,15 @@ class ReportActivity : AppCompatActivity() {
     private fun handleResult(result: MResult<Boolean>) {
         when (result) {
             is MResult.Value -> {
-                showToast("Sent")
+                showToast(getString(R.string.report_activity_report_sent_message))
                 finish()
             }
             is MResult.Error -> {
                 val errorMessage = result.error.message ?: "No error message"
-                showToast("Error while trying to send report: $errorMessage")
+                showToast(
+                        getString(R.string.report_activity_error_while_trying_to_send_report,
+                                errorMessage)
+                )
             }
         }
     }
@@ -143,7 +151,7 @@ class ReportActivity : AppCompatActivity() {
         }
 
         progressDialog = ProgressDialog(this).apply {
-            setMessage("Sending report...")
+            setMessage(getString(R.string.report_activity_sending_report_message))
             show()
         }
     }
