@@ -18,10 +18,13 @@ package com.github.adamantcheese.chan.ui.helper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
+import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCache;
@@ -38,6 +41,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -45,6 +50,7 @@ import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
@@ -82,53 +88,84 @@ public class ImagePickDelegate
             this.callback = callback;
 
             if (longPressed) {
-                showToast(R.string.image_url_get_attempt);
-                HttpUrl clipboardURL = null;
-                try {
-                    clipboardURL =
-                            HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
-                } catch (Exception ignored) {
-                    showToast(R.string.image_url_get_failed);
-                    callback.onFilePickError(true);
-                    reset();
-                }
-                if (clipboardURL != null) {
-                    HttpUrl finalClipboardURL = clipboardURL;
-                    instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
-                        @Override
-                        public void onSuccess(RawFile file) {
-                            BackgroundUtils.ensureMainThread();
-
-                            showToast(R.string.image_url_get_success);
-                            Uri imageURL = Uri.parse(finalClipboardURL.toString());
-                            callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
-                            reset();
-                        }
-
-                        @Override
-                        public void onFail(boolean notFound) {
-                            BackgroundUtils.ensureMainThread();
-
-                            showToast(R.string.image_url_get_failed);
-                            callback.onFilePickError(true);
-                            reset();
-                        }
-                    });
-                }
+                pickRemoteFile(callback);
             } else {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
-
-                if (intent.resolveActivity(activity.getPackageManager()) != null) {
-                    activity.startActivityForResult(intent, IMAGE_PICK_RESULT);
-                } else {
-                    Logger.e(TAG, "No activity found to get file with");
-                    callback.onFilePickError(false);
-                    reset();
-                }
+                pickLocalFile(callback);
             }
         }
+    }
+
+    private void pickLocalFile(ImagePickCallback callback) {
+        PackageManager pm = getAppContext().getPackageManager();
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+
+        List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
+        List<Intent> intents = new ArrayList<>(resolveInfos.size());
+
+        for (ResolveInfo info : resolveInfos) {
+            Intent newIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            newIntent.addCategory(Intent.CATEGORY_OPENABLE);
+            newIntent.setPackage(info.activityInfo.packageName);
+            newIntent.setType("*/*");
+
+            intents.add(newIntent);
+        }
+
+        if (intents.size() == 1) {
+            activity.startActivityForResult(intents.get(0), IMAGE_PICK_RESULT);
+        } else if (intents.size() > 1) {
+            Intent chooser = Intent.createChooser(
+                    intents.remove(intents.size() - 1),
+                    activity.getString(R.string.image_pick_delegate_select_file_picker)
+            );
+
+            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new Intent[0]));
+            activity.startActivityForResult(chooser, IMAGE_PICK_RESULT);
+        } else {
+            showToast(R.string.open_file_picker_failed, Toast.LENGTH_LONG);
+            callback.onFilePickError(false);
+            reset();
+        }
+    }
+
+    private void pickRemoteFile(ImagePickCallback callback) {
+        showToast(R.string.image_url_get_attempt);
+        HttpUrl clipboardURL = null;
+        try {
+            clipboardURL =
+                    HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
+        } catch (Exception ignored) {
+            showToast(R.string.image_url_get_failed);
+            callback.onFilePickError(true);
+            reset();
+
+            return;
+        }
+
+        HttpUrl finalClipboardURL = clipboardURL;
+        instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
+            @Override
+            public void onSuccess(RawFile file) {
+                BackgroundUtils.ensureMainThread();
+
+                showToast(R.string.image_url_get_success);
+                Uri imageURL = Uri.parse(finalClipboardURL.toString());
+                callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
+                reset();
+            }
+
+            @Override
+            public void onFail(boolean notFound) {
+                BackgroundUtils.ensureMainThread();
+
+                showToast(R.string.image_url_get_failed);
+                callback.onFilePickError(true);
+                reset();
+            }
+        });
     }
 
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
