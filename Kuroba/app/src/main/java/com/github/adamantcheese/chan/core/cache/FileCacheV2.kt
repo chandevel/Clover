@@ -23,10 +23,12 @@ import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.collections.ArrayList
 
 /**
  * A file downloader with two reactive queues:
@@ -66,7 +68,11 @@ class FileCacheV2(
             Executors.newFixedThreadPool(1) { runnable ->
                 return@newFixedThreadPool Thread(
                         runnable,
-                        String.format(BATCH_THREAD_NAME_FORMAT, batchThreadIndex.getAndIncrement())
+                        String.format(
+                                Locale.US,
+                                BATCH_THREAD_NAME_FORMAT,
+                                batchThreadIndex.getAndIncrement()
+                        )
                 )
             }
     )
@@ -74,7 +80,11 @@ class FileCacheV2(
             Executors.newFixedThreadPool(threadsCount) { runnable ->
                 return@newFixedThreadPool Thread(
                         runnable,
-                        String.format(NORMAL_THREAD_NAME_FORMAT, normalThreadIndex.getAndIncrement())
+                        String.format(
+                                Locale.US,
+                                NORMAL_THREAD_NAME_FORMAT,
+                                normalThreadIndex.getAndIncrement()
+                        )
                 )
             }
     )
@@ -124,6 +134,10 @@ class FileCacheV2(
         initBatchRequestQueue()
     }
 
+    /**
+     * This is a singleton class so we don't care about the disposable since we will never should
+     * dispose of this stream
+     * */
     @SuppressLint("CheckResult")
     private fun initNormalRxWorkerQueue() {
         normalRequestQueue
@@ -149,6 +163,10 @@ class FileCacheV2(
                 })
     }
 
+    /**
+     * This is a singleton class so we don't care about the disposable since we will never should
+     * dispose of this stream
+     * */
     @SuppressLint("CheckResult")
     private fun initBatchRequestQueue() {
         batchRequestQueue
@@ -169,12 +187,12 @@ class FileCacheV2(
                 .subscribe({
                     // Do nothing
                 }, { error ->
-                    throw RuntimeException("Uncaught exception!!! " +
+                    throw RuntimeException("$TAG Uncaught exception!!! " +
                             "workerQueue is in error state now!!! " +
                             "This should not happen!!!, original error = " + error.message)
                 }, {
                     throw RuntimeException(
-                            "workerQueue stream has completed!!! This should not happen!!!"
+                            "$TAG workerQueue stream has completed!!! This should not happen!!!"
                     )
                 })
     }

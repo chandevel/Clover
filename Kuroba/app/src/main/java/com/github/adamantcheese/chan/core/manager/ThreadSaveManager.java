@@ -135,12 +135,12 @@ public class ThreadSaveManager {
                 .subscribe(res -> {},
                         // OK
                         error -> {
-                                throw new RuntimeException("Uncaught exception!!! " +
+                                throw new RuntimeException(TAG + " Uncaught exception!!! " +
                                           "workerQueue is in error state now!!! " +
                                           "This should not happen!!!, original error = " + error.getMessage());
                               }, () -> {
                                 throw new RuntimeException(
-                                        "workerQueue stream has completed!!! This should not happen!!!"
+                                        TAG + " workerQueue stream has completed!!! This should not happen!!!"
                                 );
                            }
                    );

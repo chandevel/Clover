@@ -359,15 +359,15 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="album_download_screen">Select images (%1$d / %2$d)</string>
     <string name="album_download_none_checked">Please select images to download</string>
     <string name="album_download_confirm">%1$s will be downloaded to %2$s</string>
-    <string name="album_download_success">Finished saving images; downloaded to %1$s</string>
+    <string name="image_saver_album_download_success">Finished saving images; downloaded to %1$s</string>
 
     <string name="report_screen">Report %1$s</string>
 
     <string name="image_save_notification_downloading">Downloading images…</string>
     <string name="image_save_notification_cancel">Tap to cancel</string>
     <string name="image_save_saved">Image saved</string>
-    <string name="image_save_as">Saved as \"%1$s\"</string>
-    <string name="image_save_failed">Saving image failed</string>
+    <string name="image_saver_saved_as_message">Saved as \"%1$s\"</string>
+    <string name="image_saver_failed_to_save_image_message">Saving image failed</string>
 
     <string name="thread_page_limit">Thread hit last page</string>
 
@@ -760,4 +760,10 @@ Don't have a 4chan Pass?<br>
     <string name="settings_captcha_setup">Captcha Settings</string>
     <string name="settings_captcha_setup_description">Captcha settings are per-site configurable. Tap for site setup.</string>
     <string name="settings_concurrent_file_downloading_chunks_count_description">Split images/gifs/webms into chunks and download them concurrently (When it\'s possible. It doesn\'t work with 4chan servers, only when the file is cached by the cloudflare) to make the loading times shorter when viewing them in the gallery.\n\nHow many chunks a file will be split into:</string>
+    <string name="image_saver_canceled_by_user_message">Canceled by user</string>
+    <string name="image_saver_save_location_is_null_message">Save location is null!</string>
+    <string name="image_saver_unknown_location_message">Unknown location</string>
+    <string name="image_saver_failed_to_save_image">Failed to save the image. Reason</string>
+    <string name="image_saver_no_write_permission_message">Cannot start saving images without WRITE permission</string>
+    <string name="album_download_batch_image_processed_message">Downloaded %1$d out of %2$d (failed %3$d)</string>
 </resources>
