@@ -43,6 +43,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -55,8 +57,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManag
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
-public class ImagePickDelegate
-        implements Runnable {
+public class ImagePickDelegate {
     private static final String TAG = "ImagePickActivity";
 
     private static final int IMAGE_PICK_RESULT = 2;
@@ -69,12 +70,11 @@ public class ImagePickDelegate
     FileManager fileManager;
 
     private Activity activity;
-
     private ImagePickCallback callback;
     private Uri uri;
     private String fileName;
     private boolean success = false;
-    private RawFile cacheFile;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public ImagePickDelegate(Activity activity) {
         this.activity = activity;
@@ -204,7 +204,7 @@ public class ImagePickDelegate
                 fileName = DEFAULT_FILE_NAME;
             }
 
-            new Thread(this).start();
+            executor.execute(this::run);
             ok = true;
         } else if (resultCode == Activity.RESULT_CANCELED) {
             canceled = true;
@@ -218,9 +218,8 @@ public class ImagePickDelegate
         return true;
     }
 
-    @Override
-    public void run() {
-        cacheFile = fileManager.fromRawFile(replyManager.getPickFile());
+    private void run() {
+        RawFile cacheFile = fileManager.fromRawFile(replyManager.getPickFile());
 
         InputStream is = null;
         OutputStream os = null;
@@ -266,7 +265,6 @@ public class ImagePickDelegate
 
     private void reset() {
         callback = null;
-        cacheFile = null;
         success = false;
         fileName = null;
         uri = null;
