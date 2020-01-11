@@ -99,6 +99,10 @@ public class ImageReencodingPresenter {
         );
     }
 
+    public boolean hasAttachedFile() {
+        return replyManager.getReply(loadable).file != null;
+    }
+
     @Nullable
     public Bitmap.CompressFormat getImageFormat() {
         try {
@@ -345,6 +349,11 @@ public class ImageReencodingPresenter {
 
         public String prettyPrint(Bitmap.CompressFormat currentFormat) {
             String type = "Unknown";
+            if (currentFormat == null) {
+                Logger.e(TAG, "currentFormat == null");
+                return type;
+            }
+
             switch (reencodeType) {
                 case AS_IS:
                     type = "As-is";

@@ -16,19 +16,38 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import android.content.res.AssetManager;
+import android.util.JsonReader;
+
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
+import com.github.adamantcheese.chan.utils.Logger;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+
 public class ArchivesManager
         implements SiteActions.ArchiveRequestListener {
+    private final String TAG = "ArchivesManager";
     private List<Archives> archivesList;
 
     public ArchivesManager(Site s) {
+        //setup the archives list from the internal file, populated when you build the application
+        AssetManager assetManager = getAppContext().getAssets();
+        try {
+            InputStream json = assetManager.open("archives.json");
+            JsonReader reader = new JsonReader(new InputStreamReader(json));
+            archivesList = parseArchives(reader);
+        } catch (Exception e) {
+            Logger.d(TAG, "Unable to load/parse internal archives list");
+        }
+        //request a live version of the archives
         s.actions().archives(this);
     }
 
@@ -44,6 +63,45 @@ public class ArchivesManager
             }
         }
         return result;
+    }
+
+    public static List<Archives> parseArchives(JsonReader reader)
+            throws Exception {
+        List<ArchivesManager.Archives> archives = new ArrayList<>();
+
+        reader.beginArray();
+        while (reader.hasNext()) {
+            ArchivesManager.Archives a = new ArchivesManager.Archives();
+
+            reader.beginObject();
+            while (reader.hasNext()) {
+                switch (reader.nextName()) {
+                    case "name":
+                        a.name = reader.nextString();
+                        break;
+                    case "domain":
+                        a.domain = reader.nextString();
+                        break;
+                    case "boards":
+                        List<String> b = new ArrayList<>();
+                        reader.beginArray();
+                        while (reader.hasNext()) {
+                            b.add(reader.nextString());
+                        }
+                        reader.endArray();
+                        a.boards = b;
+                        break;
+                    default:
+                        reader.skipValue();
+                        break;
+                }
+            }
+            reader.endObject();
+            archives.add(a);
+        }
+        reader.endArray();
+
+        return archives;
     }
 
     @Override
