@@ -264,6 +264,13 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 }
 
+// Download the current archives.json file for the build
+task downloadArchives(type: Download) {
+    src 'https://nstepien.github.io/archives.json/archives.json'
+    dest projectDir.path + File.separator + "src" + File.separator + "main" + File.separator + "assets"
+}
+preBuild.dependsOn downloadArchives
+
 //====================================================================
 // All of the below functions are being used by the upload_apk script
 //====================================================================

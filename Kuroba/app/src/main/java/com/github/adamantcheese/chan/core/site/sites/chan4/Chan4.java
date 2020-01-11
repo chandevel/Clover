@@ -318,51 +318,14 @@ public class Chan4
         @Override
         public void archives(ArchiveRequestListener archivesListener) {
             requestQueue.add(new JsonReaderRequest<List<ArchivesManager.Archives>>(
-                    "https://mayhemydg.github.io/archives.json/archives.json",
+                    "https://nstepien.github.io/archives.json/archives.json",
                     archivesListener::onArchivesReceived,
-                    error -> {
-                        Logger.e(TAG, "Failed to get archives for 4Chan");
-                        archivesListener.onArchivesReceived(new ArrayList<>());
-                    }
+                    error -> Logger.e(TAG, "Failed to get archives for 4Chan, using builtins")
             ) {
                 @Override
                 public List<ArchivesManager.Archives> readJson(JsonReader reader)
                         throws Exception {
-                    List<ArchivesManager.Archives> archives = new ArrayList<>();
-
-                    reader.beginArray();
-                    while (reader.hasNext()) {
-                        ArchivesManager.Archives a = new ArchivesManager.Archives();
-
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            switch (reader.nextName()) {
-                                case "name":
-                                    a.name = reader.nextString();
-                                    break;
-                                case "domain":
-                                    a.domain = reader.nextString();
-                                    break;
-                                case "boards":
-                                    List<String> b = new ArrayList<>();
-                                    reader.beginArray();
-                                    while (reader.hasNext()) {
-                                        b.add(reader.nextString());
-                                    }
-                                    reader.endArray();
-                                    a.boards = b;
-                                    break;
-                                default:
-                                    reader.skipValue();
-                                    break;
-                            }
-                        }
-                        reader.endObject();
-                        archives.add(a);
-                    }
-                    reader.endArray();
-
-                    return archives;
+                    return ArchivesManager.parseArchives(reader);
                 }
             });
         }
