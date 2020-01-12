@@ -23,12 +23,15 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
+import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesEditorController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
+
+import kotlin.Unit;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
@@ -110,6 +113,22 @@ public class BehaviourSettingsController
                     R.string.settings_captcha_setup_description,
                     v -> navigationController.pushController(new SitesSetupController(context))
             ));
+            general.add(
+                    new LinkSettingView(this,
+                            R.string.settings_js_captcha_cookies_title,
+                            R.string.settings_js_captcha_cookies_description,
+                            v -> {
+                                JsCaptchaCookiesEditorController controller
+                                        = new JsCaptchaCookiesEditorController(context);
+
+                                controller.setOnFinishedCallback(() -> {
+                                    navigationController.popController();
+                                    return Unit.INSTANCE;
+                                });
+                                navigationController.pushController(controller);
+                            }
+                    )
+            );
 
             setupClearThreadHidesSetting(general);
 

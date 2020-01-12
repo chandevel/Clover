@@ -754,4 +754,15 @@ Don't have a 4chan Pass?<br>
     <string name="image_saver_could_not_figure_out_save_location">Couldn\'t figure out save location</string>
     <string name="settings_captcha_setup">Captcha Settings</string>
     <string name="settings_captcha_setup_description">Captcha settings are per-site configurable. Tap for site setup.</string>
+    <string name="js_captcha_cookies_editor_hsid_cookie_text">HSID</string>
+    <string name="js_captcha_cookies_editor_ssid_cookie_text">SSID</string>
+    <string name="js_captcha_cookies_editor_sid_cookie_text">SID</string>
+    <string name="js_captcha_cookies_editor_nid_cookie_text">NID</string>
+    <string name="js_captcha_cookies_editor_reset">Reset</string>
+    <string name="js_captcha_cookies_editor_save_and_apply_text">Save and apply</string>
+    <string name="js_captcha_cookies_editor_make_sure_to_double_check_all_the_parameters_message">Make sure to double check all the parameters!</string>
+    <string name="js_captcha_cookies_editor_format_hint_message">Enter the values. No need to prepend them with \"HSID=…\", \"SSID=…\" etc</string>
+    <string name="js_captcha_cookies_editor_controller_title">JS Captcha cookies editor</string>
+    <string name="settings_js_captcha_cookies_title">JS captcha cookies</string>
+    <string name="settings_js_captcha_cookies_description">By selling your soul to the Google botnet you will be granted with easy captcha</string>
 </resources>

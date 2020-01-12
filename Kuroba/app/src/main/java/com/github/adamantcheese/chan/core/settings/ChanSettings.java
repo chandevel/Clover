@@ -25,7 +25,9 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.base_dir.LocalThreadsBaseDirSetting;
 import com.github.adamantcheese.chan.core.settings.base_dir.SavedFilesBaseDirSetting;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
+import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesJar;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,6 +44,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ChanSettings {
+    private static final String TAG = "ChanSettings";
+
     public enum MediaAutoLoadMode
             implements OptionSettingItem {
         // ALways auto load, either wifi or mobile
@@ -213,6 +217,7 @@ public class ChanSettings {
 
     public static final StringSetting youtubeTitleCache;
     public static final StringSetting youtubeDurationCache;
+    public static final StringSetting jsCaptchaCookies;
 
     static {
         try {
@@ -343,11 +348,21 @@ public class ChanSettings {
 
             youtubeTitleCache = new StringSetting(p, "yt_title_cache", "{}");
             youtubeDurationCache = new StringSetting(p, "yt_dur_cache", "{}");
+            jsCaptchaCookies = new StringSetting(p, "js_captcha_cookies", "{}");
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.
             Logger.e("ChanSettings", "Error while initializing the settings", error);
             throw error;
+        }
+    }
+
+    public static JsCaptchaCookiesJar getJsCaptchaCookieJar(Gson gson) {
+        try {
+            return gson.fromJson(ChanSettings.jsCaptchaCookies.get(), JsCaptchaCookiesJar.class);
+        } catch (Throwable error) {
+            Logger.e(TAG, "Error while trying to deserialize JsCaptchaCookiesJar", error);
+            return JsCaptchaCookiesJar.empty();
         }
     }
 

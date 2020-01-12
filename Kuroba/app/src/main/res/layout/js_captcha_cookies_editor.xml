@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?backcolor">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:text="@string/js_captcha_cookies_editor_make_sure_to_double_check_all_the_parameters_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:textColor="?attr/text_color_primary"
+            android:textSize="24sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/js_captcha_cookies_editor_format_hint_message"
+            android:textColor="?attr/text_color_primary"
+            android:layout_marginTop="16dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/js_captcha_cookies_editor_hsid_cookie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/js_captcha_cookies_editor_hsid_cookie_text"
+                android:importantForAutofill="no"
+                android:maxLines="4" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/js_captcha_cookies_editor_ssid_cookie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/js_captcha_cookies_editor_ssid_cookie_text"
+                android:importantForAutofill="no"
+                android:maxLines="4" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/js_captcha_cookies_editor_sid_cookie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/js_captcha_cookies_editor_sid_cookie_text"
+                android:importantForAutofill="no"
+                android:maxLines="4" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/js_captcha_cookies_editor_nid_cookie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/js_captcha_cookies_editor_nid_cookie_text"
+                android:importantForAutofill="no"
+                android:maxLines="4" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="32dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/js_captcha_cookies_editor_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/js_captcha_cookies_editor_reset" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/js_captcha_cookies_editor_save_and_apply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/js_captcha_cookies_editor_save_and_apply_text" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

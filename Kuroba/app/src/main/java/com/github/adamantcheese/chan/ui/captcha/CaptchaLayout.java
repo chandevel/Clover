@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.ConsoleMessage;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -29,12 +30,18 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
+import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesJar;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.Gson;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -50,6 +57,13 @@ public class CaptchaLayout
     private static final String TAG = "CaptchaLayout";
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
+    private static final String COOKIE_DOMAIN = "google.com";
+    private static final String COOKIE_APPENDIX = "; path=/; domain=.google.com";
+    private static final String HSID_FORMAT = "HSID=%s";
+    private static final String SSID_FORMAT = "SSID=%s";
+    private static final String SID_FORMAT = "SID=%s";
+    private static final String NID_FORMAT = "NID=%s";
+
     private AuthenticationLayoutCallback callback;
     private boolean loaded = false;
     private String baseUrl;
@@ -59,6 +73,8 @@ public class CaptchaLayout
 
     @Inject
     CaptchaHolder captchaHolder;
+    @Inject
+    Gson gson;
 
     public CaptchaLayout(Context context) {
         super(context);
@@ -91,10 +107,13 @@ public class CaptchaLayout
         this.baseUrl = authentication.baseUrl;
 
         requestDisallowInterceptTouchEvent(true);
-
         hideKeyboard(this);
-
         getSettings().setJavaScriptEnabled(true);
+
+        JsCaptchaCookiesJar jsCaptchaCookiesJar = ChanSettings.getJsCaptchaCookieJar(gson);
+        if (jsCaptchaCookiesJar.isValid()) {
+            setUpJsCaptchaCookies(jsCaptchaCookiesJar);
+        }
 
         setWebChromeClient(new WebChromeClient() {
             @Override
@@ -121,6 +140,28 @@ public class CaptchaLayout
         setBackgroundColor(0x00000000);
 
         addJavascriptInterface(new CaptchaInterface(this), "CaptchaCallback");
+    }
+
+    private void setUpJsCaptchaCookies(JsCaptchaCookiesJar jsCaptchaCookiesJar) {
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeAllCookie();
+
+        List<String> cookies = Arrays.asList(
+                String.format(Locale.US, HSID_FORMAT, jsCaptchaCookiesJar.getHsidCookie()),
+                String.format(Locale.US, SSID_FORMAT, jsCaptchaCookiesJar.getSsidCookie()),
+                String.format(Locale.US, SID_FORMAT, jsCaptchaCookiesJar.getSidCookie()),
+                String.format(Locale.US, NID_FORMAT, jsCaptchaCookiesJar.getNidCookie())
+        );
+
+        cookieManager.setAcceptCookie(true);
+        cookieManager.setAcceptThirdPartyCookies(this, true);
+
+        for (String cookie : cookies) {
+            cookieManager.setCookie(
+                    COOKIE_DOMAIN,
+                    String.format(Locale.US, "%s%s", cookie, COOKIE_APPENDIX)
+            );
+        }
     }
 
     public void reset() {
