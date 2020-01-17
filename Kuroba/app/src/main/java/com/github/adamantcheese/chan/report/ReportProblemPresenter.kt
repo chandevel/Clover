@@ -14,21 +14,17 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import javax.inject.Inject
 
-class ReportActivityPresenter : BasePresenter<ReportActivity>() {
+class ReportProblemPresenter : BasePresenter<ReportProblemController>() {
 
     @Inject
     lateinit var okHttpClient: OkHttpClient
     @Inject
     lateinit var gson: Gson
 
-    override fun onCreate(view: ReportActivity) {
+    override fun onCreate(view: ReportProblemController) {
         super.onCreate(view)
 
         inject(this)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     fun sendReport(title: String, description: String, logs: String?): Single<MResult<Boolean>> {

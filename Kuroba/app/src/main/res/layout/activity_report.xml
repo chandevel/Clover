@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/backcolor"
-    android:orientation="vertical"
-    tools:context="com.github.adamantcheese.chan.report.ReportActivity">
+    android:orientation="vertical">
 
     <ScrollView
         android:id="@+id/report_activity_scrollable_part_view"
@@ -62,7 +61,6 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/report_activity_i_have_a_problem_with"
                         android:maxLength="512"
-                        android:scrollbars="vertical"
                         android:textSize="16sp"
                         tools:text="@string/lorem_ipsum" />
 
@@ -90,7 +88,6 @@
                         android:hint="@string/report_activity_problem_description"
                         android:importantForAutofill="no"
                         android:maxLength="8192"
-                        android:scrollbars="vertical"
                         android:textSize="16sp"
                         tools:text="@string/lorem_ipsum" />
 
@@ -126,11 +123,9 @@
                         android:id="@+id/report_activity_logs_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:enabled="false"
                         android:importantForAutofill="no"
                         android:inputType="none"
                         android:maxLength="65535"
-                        android:scrollbars="vertical"
                         android:text="@string/report_activity_no_logs"
                         android:textSize="14sp"
                         tools:text="@string/lorem_ipsum" />
