@@ -110,11 +110,9 @@ public class ChanSettings {
     }
 
     public enum ConcurrentFileDownloadingChunks implements OptionSettingItem {
-        Default("One chunk (Default)"),
+        One("One chunk"),
         Two("Two chunks"),
-        Four("Four chunks"),
-        Six("Six chunks"),
-        Eight("Eight chunks");
+        Four("Four chunks");
 
         String name;
 
@@ -129,16 +127,12 @@ public class ChanSettings {
 
         public static int toChunkCount(ConcurrentFileDownloadingChunks item) {
             switch (item) {
-                case Default:
+                case One:
                     return 1;
                 case Two:
                     return 2;
                 case Four:
                     return 4;
-                case Six:
-                    return 6;
-                case Eight:
-                    return 8;
                 default:
                     throw new RuntimeException("Not implemented for " + item.getClass().getName());
             }
@@ -383,7 +377,7 @@ public class ChanSettings {
                     p,
                     "concurrent_file_downloading_chunks_count",
                     ConcurrentFileDownloadingChunks.class,
-                    ConcurrentFileDownloadingChunks.Default
+                    ConcurrentFileDownloadingChunks.Two
             );
             verboseLogs = new BooleanSetting(
                     p,
