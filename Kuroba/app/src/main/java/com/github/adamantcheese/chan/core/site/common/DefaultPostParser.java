@@ -245,6 +245,7 @@ public class DefaultPostParser
                 return allInnerText;
             }
         } else {
+            Logger.e(TAG, "Unknown node instance: " + node.getClass().getName());
             return ""; // ?
         }
     }

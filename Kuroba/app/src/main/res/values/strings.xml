@@ -754,4 +754,5 @@ Don't have a 4chan Pass?<br>
     <string name="image_saver_could_not_figure_out_save_location">Couldn\'t figure out save location</string>
     <string name="settings_captcha_setup">Captcha Settings</string>
     <string name="settings_captcha_setup_description">Captcha settings are per-site configurable. Tap for site setup.</string>
+    <string name="mock_reply">Mock reply</string>
 </resources>

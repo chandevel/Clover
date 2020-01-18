@@ -23,6 +23,9 @@ import android.content.Intent;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.utils.Logger;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
@@ -40,7 +43,7 @@ public class WakeUpdateReceiver
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Logger.d(TAG, "Alarm trigger");
+        Logger.d(TAG, "Alarm trigger at " + DateFormat.getTimeInstance().format(new Date()));
         wakeManager.onBroadcastReceived();
     }
 }

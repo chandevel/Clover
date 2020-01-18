@@ -132,6 +132,7 @@ public class WatchNotification
             return;
         }
 
+        // Do not remove this or the app will blow up on Android.Oreo and above
         startForeground(NOTIFICATION_ID, notification);
     }
 

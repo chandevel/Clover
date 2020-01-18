@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.ServerError;
@@ -714,7 +715,11 @@ public class WatchManager
         // Do not start the service when all pins are either stopped or fully downloaded
         // or archived/404ed
         if (watchEnabled && backgroundEnabled && hasAtLeastOneActivePin) {
-            getAppContext().startService(WATCH_NOTIFICATION_INTENT);
+            // To make sure than we won't blow up when starting a service while the app is in
+            // background we have to use this method which will call context.startForegroundService()
+            // that allows an app to start a service (which must then call StartForeground in it's
+            // onCreate method) while being in background.
+            ContextCompat.startForegroundService(getAppContext(), WATCH_NOTIFICATION_INTENT);
         } else {
             getAppContext().stopService(WATCH_NOTIFICATION_INTENT);
         }
@@ -722,6 +727,7 @@ public class WatchManager
 
     private boolean updatePinWatchers() {
         boolean hasAtLeastOneActivePin = false;
+        boolean hasAtLeastOnePinWithUnreadPosts = false;
         List<Pin> pinsToUpdateInDatabase = new ArrayList<>();
 
         for (Pin pin : pins) {
@@ -747,6 +753,12 @@ public class WatchManager
             // If pin is not archived/404ed and we are watching it - it is active
             if (!pin.isError && !pin.archived && pin.watching) {
                 hasAtLeastOneActivePin = true;
+
+                // This check is here so we can stop the foreground service when the user has read
+                // every post in every active pin.
+                if (pin.watchLastCount != pin.watchNewCount || pin.quoteLastCount != pin.quoteNewCount) {
+                    hasAtLeastOnePinWithUnreadPosts = true;
+                }
             }
 
             if (ChanSettings.watchEnabled.get()) {
@@ -760,7 +772,7 @@ public class WatchManager
             updatePins(pinsToUpdateInDatabase, false);
         }
 
-        return hasAtLeastOneActivePin;
+        return hasAtLeastOnePinWithUnreadPosts && hasAtLeastOneActivePin;
     }
 
     private void updateIntervals(boolean watchEnabled, boolean backgroundEnabled) {

@@ -165,6 +165,7 @@ public class DatabaseManager {
             o += "History rows: " + helper.historyDao.countOf() + "\n";
             o += "Filter rows: " + helper.filterDao.countOf() + "\n";
             o += "Site rows: " + helper.siteDao.countOf() + "\n";
+            o += "Local thread rows: " + helper.savedThreadDao.countOf() + "\n";
         } catch (SQLException e) {
             e.printStackTrace();
         }

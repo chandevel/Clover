@@ -54,6 +54,7 @@ import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.MockReplyManager;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -112,6 +113,7 @@ public class ThreadPresenter
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
     private static final int POST_OPTION_EXTRA = 15;
     private static final int POST_OPTION_REMOVE = 16;
+    private static final int POST_OPTION_MOCK_REPLY = 17;
 
     private final WatchManager watchManager;
     private final DatabaseManager databaseManager;
@@ -119,6 +121,7 @@ public class ThreadPresenter
     private final PageRequestManager pageRequestManager;
     private final ThreadSaveManager threadSaveManager;
     private final FileManager fileManager;
+    private final MockReplyManager mockReplyManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
@@ -138,7 +141,8 @@ public class ThreadPresenter
             ChanLoaderFactory chanLoaderFactory,
             PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
-            FileManager fileManager
+            FileManager fileManager,
+            MockReplyManager mockReplyManager
     ) {
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
@@ -146,6 +150,7 @@ public class ThreadPresenter
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
         this.fileManager = fileManager;
+        this.mockReplyManager = mockReplyManager;
     }
 
     public void create(ThreadPresenterCallback threadPresenterCallback) {
@@ -874,6 +879,8 @@ public class ThreadPresenter
         if (!loadable.isLocal()) {
             boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
             extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, isSaved ? R.string.unsave : R.string.save));
+
+            extraMenu.add(new FloatingMenuItem(POST_OPTION_MOCK_REPLY, R.string.mock_reply));
         }
 
         return POST_OPTION_EXTRA;
@@ -977,6 +984,14 @@ public class ThreadPresenter
                         );
                     }
                 }
+                break;
+            case POST_OPTION_MOCK_REPLY:
+                if (chanLoader == null || chanLoader.getThread() == null) {
+                    break;
+                }
+
+                int opNo = chanLoader.getThread().getOp().no;
+                mockReplyManager.addMockReply(post.board.siteId, post.board.code, opNo, post.no);
                 break;
         }
     }
