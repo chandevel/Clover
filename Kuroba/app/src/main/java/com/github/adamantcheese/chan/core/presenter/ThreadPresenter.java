@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -880,7 +881,9 @@ public class ThreadPresenter
             boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
             extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, isSaved ? R.string.unsave : R.string.save));
 
-            extraMenu.add(new FloatingMenuItem(POST_OPTION_MOCK_REPLY, R.string.mock_reply));
+            if (BuildConfig.DEV_BUILD) {
+                extraMenu.add(new FloatingMenuItem(POST_OPTION_MOCK_REPLY, R.string.mock_reply));
+            }
         }
 
         return POST_OPTION_EXTRA;
