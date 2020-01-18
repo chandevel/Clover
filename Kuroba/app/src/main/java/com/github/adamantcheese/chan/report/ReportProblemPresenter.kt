@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.report
 
+import android.os.Build
 import com.github.adamantcheese.chan.BuildConfig
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.core.base.BasePresenter
@@ -43,10 +44,17 @@ class ReportProblemPresenter : BasePresenter<ReportProblemController>() {
         }
 
         val reportUrl = "${BuildConfig.DEV_API_ENDPOINT}/report"
+        val osInfo = String.format(
+                "Android %s, sdk version: %d",
+                Build.VERSION.RELEASE,
+                Build.VERSION.SDK_INT
+        )
+
         val json = gson.toJson(
                 ReportRequest(
                         BuildConfig.FLAVOR,
                         BuildConfig.VERSION_NAME,
+                        osInfo,
                         title,
                         description,
                         logs
@@ -85,6 +93,8 @@ class ReportProblemPresenter : BasePresenter<ReportProblemController>() {
             val buildFlavor: String,
             @SerializedName("version_name")
             val versionName: String,
+            @SerializedName("os_info")
+            val osInfo: String,
             @SerializedName("report_title")
             val title: String,
             @SerializedName("report_description")
