@@ -279,8 +279,6 @@ class CacheHandler(
      * is executed in a background thread.
      * */
     fun fileWasAdded(fileLen: Long) {
-        BackgroundUtils.ensureBackgroundThread()
-
         val totalSize = size.addAndGet(fileLen)
         val trimTime = lastTrimTime.get()
         val now = System.currentTimeMillis()
