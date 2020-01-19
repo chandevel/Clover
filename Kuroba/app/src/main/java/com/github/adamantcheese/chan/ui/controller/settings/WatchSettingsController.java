@@ -29,6 +29,8 @@ import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ALL_POSTS;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ONLY_QUOTES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -165,14 +167,14 @@ public class WatchSettingsController
                 ChanSettings.watchNotifyMode,
                 R.string.setting_watch_notify_mode,
                 context.getResources().getStringArray(R.array.setting_watch_notify_modes),
-                new String[]{"all", "quotes"}
+                new String[]{NOTIFY_ALL_POSTS, NOTIFY_ONLY_QUOTES}
         ));
 
         soundMode = settings.add(new ListSettingView<>(this,
                 ChanSettings.watchSound,
                 R.string.setting_watch_sound,
                 context.getResources().getStringArray(R.array.setting_watch_sounds),
-                new String[]{"all", "quotes"}
+                new String[]{NOTIFY_ALL_POSTS, NOTIFY_ONLY_QUOTES}
         ));
 
         peekMode = settings.add(new BooleanSettingView(this,

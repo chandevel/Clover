@@ -64,6 +64,7 @@ import javax.inject.Inject;
 
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ONLY_QUOTES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 
 public class WatchNotification
@@ -162,8 +163,8 @@ public class WatchNotification
 
     @Nullable
     private Notification createNotification() {
-        boolean notifyQuotesOnly = ChanSettings.watchNotifyMode.get().equals("quotes");
-        boolean soundQuotesOnly = ChanSettings.watchSound.get().equals("quotes");
+        boolean notifyQuotesOnly = ChanSettings.watchNotifyMode.get().equals(NOTIFY_ONLY_QUOTES);
+        boolean soundQuotesOnly = ChanSettings.watchSound.get().equals(NOTIFY_ONLY_QUOTES);
 
         //A set of unviewed posts
         Set<Post> unviewedPosts = new HashSet<>();

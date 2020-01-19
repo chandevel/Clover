@@ -67,6 +67,8 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.BACKGROUND;
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.FOREGROUND;
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.NONE;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ALL_POSTS;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ONLY_QUOTES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.isInForeground;
@@ -754,10 +756,18 @@ public class WatchManager
             if (!pin.isError && !pin.archived && pin.watching) {
                 hasAtLeastOneActivePin = true;
 
-                // This check is here so we can stop the foreground service when the user has read
-                // every post in every active pin.
-                if (pin.watchLastCount != pin.watchNewCount || pin.quoteLastCount != pin.quoteNewCount) {
-                    hasAtLeastOnePinWithUnreadPosts = true;
+                if (ChanSettings.watchNotifyMode.get().equals(NOTIFY_ALL_POSTS)) {
+                    // This check is here so we can stop the foreground service when the user has read
+                    // every post in every active pin.
+                    if (pin.watchLastCount != pin.watchNewCount || pin.quoteLastCount != pin.quoteNewCount) {
+                        hasAtLeastOnePinWithUnreadPosts = true;
+                    }
+                } else if (ChanSettings.watchNotifyMode.get().equals(NOTIFY_ONLY_QUOTES)) {
+                    // Only check for quotes in case of the watchNotifyMode setting being set to
+                    // only quotes
+                    if (pin.quoteLastCount != pin.quoteNewCount) {
+                        hasAtLeastOnePinWithUnreadPosts = true;
+                    }
                 }
             }
 

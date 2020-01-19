@@ -42,6 +42,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ChanSettings {
+    public static final String NOTIFY_ALL_POSTS = "all";
+    public static final String NOTIFY_ONLY_QUOTES = "quotes";
+
     public enum MediaAutoLoadMode
             implements OptionSettingItem {
         // ALways auto load, either wifi or mobile
@@ -287,7 +290,7 @@ public class ChanSettings {
                     new IntegerSetting(p, "preference_watch_background_interval", (int) MINUTES.toMillis(15));
             watchBackgroundInterval.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(
                     watchBackgroundInterval)));
-            watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
+            watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", NOTIFY_ALL_POSTS);
             watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
             watchPeek = new BooleanSetting(p, "preference_watch_peek", true);
             watchLastCount = new IntegerSetting(p, "preference_watch_last_count", 0);
