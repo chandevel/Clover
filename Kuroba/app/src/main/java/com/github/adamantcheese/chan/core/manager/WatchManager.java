@@ -711,13 +711,13 @@ public class WatchManager
         updateIntervals(watchEnabled, backgroundEnabled);
 
         // Update pin watchers
-        boolean hasAtLeastOneActivePin = updatePinWatchers();
+        boolean hasAtLeastOneActivePinOrPinWithUnreadPosts = updatePinWatchers();
 
         // Update notification state
         // Do not start the service when all pins are either stopped or fully downloaded
         // or archived/404ed
-        if (watchEnabled && backgroundEnabled && hasAtLeastOneActivePin) {
-            // To make sure than we won't blow up when starting a service while the app is in
+        if (watchEnabled && backgroundEnabled && hasAtLeastOneActivePinOrPinWithUnreadPosts) {
+            // To make sure that we won't blow up when starting a service while the app is in
             // background we have to use this method which will call context.startForegroundService()
             // that allows an app to start a service (which must then call StartForeground in it's
             // onCreate method) while being in background.
