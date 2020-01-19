@@ -749,6 +749,16 @@ public class WatchManager
                 // If pin is still downloading posts - it is active
                 if (savedThread != null && (!savedThread.isStopped && !savedThread.isFullyDownloaded)) {
                     hasAtLeastOneActivePin = true;
+
+                    // FIXME: This is a hack for ThreadSaveManager. Without this hack, when the user
+                    //  selects to only notify him about quotes to his posts, ThreadSaveManager will
+                    //  never be started when the app is in background. That's because the service
+                    //  will only be started when somebody quotes the user. So in this case we
+                    //  need to ignore the ChanSettings.watchNotifyMode setting. So, when you have
+                    //  watchNotifyMode set to only notify you about quotes to your posts and you
+                    //  have at least one thread being downloaded, the watchNotifyMode setting will
+                    //  be ignored and it will behave the same as if it was set to NOTIFY_ALL_POSTS.
+                    hasAtLeastOnePinWithUnreadPosts = true;
                 }
             }
 
