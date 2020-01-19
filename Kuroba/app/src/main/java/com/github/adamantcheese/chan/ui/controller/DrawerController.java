@@ -160,7 +160,10 @@ public class DrawerController
                         if (savedThread.isFullyDownloaded) {
                             state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
                         } else {
-                            if (!isConnected(ConnectivityManager.TYPE_MOBILE)) {
+                            boolean hasNoNetwork = !isConnected(ConnectivityManager.TYPE_MOBILE)
+                                    && !isConnected(ConnectivityManager.TYPE_WIFI);
+
+                            if (hasNoNetwork) {
                                 // No internet connection, but we have a local copy of this thread,
                                 // so show it instead of an empty screen.
                                 state = Loadable.LoadableDownloadingState.DownloadingAndViewable;
