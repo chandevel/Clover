@@ -98,6 +98,11 @@ public class Chan420BoardsRequest extends JsonReaderRequest<List<Board>> {
 
         reader.endObject();
 
+        if (board.hasMissingInfo()) {
+            // Invalid data, ignore
+            return null;
+        }
+
         return board;
     }
 }
