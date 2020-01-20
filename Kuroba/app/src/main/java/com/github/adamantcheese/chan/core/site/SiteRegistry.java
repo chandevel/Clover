@@ -24,7 +24,7 @@ import com.github.adamantcheese.chan.core.site.sites.Sushichan;
 import com.github.adamantcheese.chan.core.site.sites.Wired7;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.core.site.sites.dvach.Dvach;
-import com.github.adamantcheese.chan.core.site.sites.Chan420;
+import com.github.adamantcheese.chan.core.site.sites.chan420.Chan420;
 
 import java.util.ArrayList;
 import java.util.List;
