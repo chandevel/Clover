@@ -24,6 +24,7 @@ import com.github.adamantcheese.chan.core.site.sites.Sushichan;
 import com.github.adamantcheese.chan.core.site.sites.Wired7;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.core.site.sites.dvach.Dvach;
+import com.github.adamantcheese.chan.core.site.sites.Chan420;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class SiteRegistry {
         URL_HANDLERS.add(Dvach.URL_HANDLER);
         URL_HANDLERS.add(Wired7.URL_HANDLER);
         //chan55 was here but was removed
+		URL_HANDLERS.add(Chan420.URL_HANDLER);
     }
 
     static {
@@ -59,5 +61,6 @@ public class SiteRegistry {
         SITE_CLASSES.put(5, Dvach.class);
         SITE_CLASSES.put(6, Wired7.class);
         //chan55 was here but was removed; don't use ID 7
+		SITE_CLASSES.put(8, Chan420.class);
     }
 }
