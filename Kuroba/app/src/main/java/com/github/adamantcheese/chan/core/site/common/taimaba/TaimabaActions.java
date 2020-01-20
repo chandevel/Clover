@@ -47,9 +47,7 @@ public class TaimabaActions extends CommonSite.CommonActions {
             call.parameter("thread", String.valueOf(reply.loadable.no));
         }
 
-        // Added with TaimabaAntispam.
-        //call.parameter("post", "Post");
-
+        //call.parameter("task", "post");
         call.parameter("password", reply.password);
         call.parameter("name", reply.name);
         call.parameter("email", reply.options);
@@ -74,7 +72,7 @@ public class TaimabaActions extends CommonSite.CommonActions {
         return false;
     }
 
-    @Override
+    /*@Override
     public void prepare(MultipartHttpCall call, Reply reply, ReplyResponse replyResponse) {
         TaimabaAntispam antispam = new TaimabaAntispam(
                 HttpUrl.parse(site.resolvable().desktopUrl(reply.loadable, null)));
@@ -82,7 +80,7 @@ public class TaimabaActions extends CommonSite.CommonActions {
         for (Map.Entry<String, String> e : antispam.get().entrySet()) {
             call.parameter(e.getKey(), e.getValue());
         }
-    }
+    }*/
 
     @Override
     public void handlePost(ReplyResponse replyResponse, Response response, String result) {
@@ -110,28 +108,6 @@ public class TaimabaActions extends CommonSite.CommonActions {
             } catch (NumberFormatException ignored) {
                 replyResponse.errorMessage = "Error posting: could not find posted thread.";
             }
-        }
-    }
-
-    @Override
-    public void setupDelete(DeleteRequest deleteRequest, MultipartHttpCall call) {
-        call.parameter("board", deleteRequest.post.board.code);
-        call.parameter("delete", "Delete");
-        call.parameter("delete_" + deleteRequest.post.no, "on");
-        call.parameter("password", deleteRequest.savedReply.password);
-
-        if (deleteRequest.imageOnly) {
-            call.parameter("file", "on");
-        }
-    }
-
-    @Override
-    public void handleDelete(DeleteResponse response, Response httpResponse, String responseBody) {
-        Matcher err = errorPattern().matcher(responseBody);
-        if (err.find()) {
-            response.errorMessage = Jsoup.parse(err.group(1)).body().text();
-        } else {
-            response.deleted = true;
         }
     }
 

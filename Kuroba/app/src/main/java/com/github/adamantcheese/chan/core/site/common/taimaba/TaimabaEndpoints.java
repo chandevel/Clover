@@ -81,10 +81,4 @@ public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
     public HttpUrl reply(Loadable loadable) {
         return sys.builder().s(loadable.board.code).s("taimaba.pl").url();
     }
-
-	//https://cdn.420chan.org:8443/narcbot/ajaxReport.jsp
-    @Override
-    public HttpUrl delete(Post post) {
-        return sys.builder().s("post.php").url();
-    }
 }
