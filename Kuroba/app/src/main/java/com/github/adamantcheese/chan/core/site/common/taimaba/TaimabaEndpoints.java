@@ -42,6 +42,11 @@ public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
     }
 
     @Override
+    public HttpUrl boards() {
+        return root.builder().s("boards.json").url();
+    }
+
+    @Override
     public HttpUrl thread(Board board, Loadable loadable) {
         return root.builder().s(board.code).s("res").s(loadable.no + ".json").url();
     }
