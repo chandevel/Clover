@@ -163,6 +163,11 @@ public class TaimabaApi extends CommonSite.CommonApi {
                     postcom = reader.nextString();
                     postcom = postcom.replaceAll("\r", "");
                     postcom = postcom.replace("\n", "<br />");
+                    postcom = postcom.replaceAll("(?i)\\[b\\](.*?)\\[/b\\]", "<b>$1</b>");
+                    postcom = postcom.replaceAll("(?i)\\[i\\](.*?)\\[/i\\]", "<i>$1</i>");
+                    postcom = postcom.replaceAll("(?i)\\[spoiler\\](.*?)\\[/spoiler\\]", "<span class=\"spoiler\">$1</span>");
+                    postcom = postcom.replaceAll("(?i)\\[s\\](.*?)\\[/s\\]", "<s>$1</s>");
+                    postcom = postcom.replaceAll("(?i)\\[pre\\](.*?)\\[/pre\\]", "<pre>$1</pre>");
                     builder.comment(postcom);
                     break;
                 case "filename":

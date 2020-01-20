@@ -16,15 +16,26 @@
  */
 package com.github.adamantcheese.chan.core.site.common.taimaba;
 
+import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.StyleRule;
 
 import java.util.regex.Pattern;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+
 public class TaimabaCommentParser extends CommentParser {
     public TaimabaCommentParser() {
-        addDefaultRules();		
+        //addDefaultRules();
+		//not sure if the quote patterns are even correct
         setQuotePattern(Pattern.compile(".*(\\d+)"));
         setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\w+)/(\\d+)#(\\d+)"));
+		//from default
+		rule(StyleRule.tagRule("span").cssClass("spoiler").link(PostLinkable.Type.SPOILER));
+		rule(StyleRule.tagRule("i").italic());
+		rule(StyleRule.tagRule("b").bold());
+		//custom
+		rule(StyleRule.tagRule("s").strikeThrough());
+		rule(StyleRule.tagRule("pre").monospace().size(sp(12f)));
     }
 }
