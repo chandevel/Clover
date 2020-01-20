@@ -106,7 +106,7 @@ public class Chan420 extends CommonSite {
                     listener.onBoardsReceived(new Boards(list));
                 }));
             }
-		});
+        });
         setApi(new TaimabaApi(this));
         setParser(new TaimabaCommentParser());
     }

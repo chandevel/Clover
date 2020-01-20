@@ -31,7 +31,7 @@ public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
     protected final CommonSite.SimpleHttpUrl sys;
 
     public TaimabaEndpoints(CommonSite commonSite, String rootUrl, String sysUrl) {
-        super(commonSite); 
+        super(commonSite);
         root = new CommonSite.SimpleHttpUrl(rootUrl);
         sys = new CommonSite.SimpleHttpUrl(sysUrl);
     }
@@ -72,7 +72,7 @@ public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
         return stat.url();
     }
 
-	@Override
+    @Override
     public HttpUrl pages(Board board) {
         return root.builder().s(board.code).s("threads.json").url();
     }

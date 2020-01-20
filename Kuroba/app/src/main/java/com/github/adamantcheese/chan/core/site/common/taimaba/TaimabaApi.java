@@ -8,6 +8,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
+
 import org.jsoup.parser.Parser;
 
 import java.io.IOException;
@@ -109,7 +110,7 @@ public class TaimabaApi extends CommonSite.CommonApi {
             String key = reader.nextName();
 
             switch (key) {
-				case "no":
+                case "no":
                     builder.id(reader.nextInt());
                     break;
                 case "resto":
@@ -144,7 +145,7 @@ public class TaimabaApi extends CommonSite.CommonApi {
                 case "time":
                     builder.setUnixTimestampSeconds(reader.nextLong());
                     break;
-               case "name":
+                case "name":
                     builder.name(reader.nextString());
                     break;
                 case "trip":
