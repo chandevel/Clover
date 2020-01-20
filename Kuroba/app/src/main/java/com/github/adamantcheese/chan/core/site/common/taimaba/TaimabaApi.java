@@ -88,8 +88,7 @@ public class TaimabaApi extends CommonSite.CommonApi {
         boolean fileSpoiler = false;
         String fileName = null;
 
-		/* prevent API parse error
-
+        /* prevent API parse error
            resto is not available on opening board overview the first time
            so, we manually set the opId to 0, builder.op to true and builder.opId to 0 */
         int opId = 0;
@@ -161,11 +160,10 @@ public class TaimabaApi extends CommonSite.CommonApi {
                     builder.subject(reader.nextString());
                     break;
                 case "com":
-				    postcom = reader.nextString();
-					postcom = postcom.replaceAll("\r", "");
-					postcom = postcom.replace("\n", "<br />");
+                    postcom = reader.nextString();
+                    postcom = postcom.replaceAll("\r", "");
+                    postcom = postcom.replace("\n", "<br />");
                     builder.comment(postcom);
-//					}
                     break;
                 case "filename":
                     fileName = reader.nextString();

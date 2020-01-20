@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 public class TaimabaCommentParser extends CommentParser {
     public TaimabaCommentParser() {
         addDefaultRules();		
-		setQuotePattern(Pattern.compile(".*(\\d+)"));
+        setQuotePattern(Pattern.compile(".*(\\d+)"));
         setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\w+)/(\\d+)#(\\d+)"));
     }
 }
