@@ -124,24 +124,6 @@ public class TaimabaApi extends CommonSite.CommonApi {
                 case "closed":
                     builder.closed(reader.nextInt() == 1);
                     break;
-                /*case "closedby":
-                    closedBy = reader.nextString();
-                    break;*/
-                /*case "closedreason":
-                    closedReason = reader.nextString();
-                    break;*/
-                /*case "banned":
-                    builder.banned(reader.nextInt() == 1);
-                    break;*/
-                /*case "bannedby":
-                    builder.bannedby(reader.nextString());
-                    break;*/
-                /*case "bannedreason":
-                    builder.bannedreason(reader.nextString());
-                    break;*/
-                /*case "now":
-                    post.date = reader.nextString();
-                    break;*/
                 case "time":
                     builder.setUnixTimestampSeconds(reader.nextLong());
                     break;
@@ -151,9 +133,6 @@ public class TaimabaApi extends CommonSite.CommonApi {
                 case "trip":
                     builder.tripcode(reader.nextString());
                     break;
-                /*case "staff":
-                    builder.staff(reader.nextInt() == 1);
-                    break;*/
                 case "id":
                     builder.posterId(reader.nextString());
                     break;
@@ -180,36 +159,12 @@ public class TaimabaApi extends CommonSite.CommonApi {
                 case "fsize":
                     fileSize = reader.nextLong();
                     break;
-                /*case "md5":
-                    fileMd5 = reader.nextString();
-                    break;*/
                 case "w":
                     fileWidth = reader.nextInt();
                     break;
                 case "h":
                     fileHeight = reader.nextInt();
                     break;
-                /*case "tn_w":
-                    thumbnailWidth = reader.nextInt();
-                    break;*/
-                /*case "tn_h":
-                    thumbnailHeight = reader.nextInt();
-                    break;*/
-                /*case "filedeleted":
-                    builder.filedeleted(reader.nextInt() == 1);
-                    break;*/
-                /*case "spoiler":
-                    fileSpoiler = reader.nextInt() == 1;
-                    break;*/
-                /*case "omitted_posts":
-                    builder.ommitedposts(reader.nextInt() == 1);
-                    break;*/
-                /*case "omitted_images":
-                    builder.ommitedimages(reader.nextInt() == 1);
-                    break;*/
-                /*case "bumplimit":
-                    builder.bumplimit(reader.nextInt() == 1);
-                    break;*/
                 case "country":
                     countryCode = reader.nextString();
                     break;

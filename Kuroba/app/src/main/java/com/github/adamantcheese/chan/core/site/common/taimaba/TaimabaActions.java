@@ -73,45 +73,6 @@ public class TaimabaActions extends CommonSite.CommonActions {
         return false;
     }
 
-    /*@Override
-    public void prepare(MultipartHttpCall call, Reply reply, ReplyResponse replyResponse) {
-        TaimabaAntispam antispam = new TaimabaAntispam(
-                HttpUrl.parse(site.resolvable().desktopUrl(reply.loadable, null)));
-        antispam.addDefaultIgnoreFields();
-        for (Map.Entry<String, String> e : antispam.get().entrySet()) {
-            call.parameter(e.getKey(), e.getValue());
-        }
-    }*/
-
-    @Override
-    public void handlePost(ReplyResponse replyResponse, Response response, String result) {
-        Matcher auth = Pattern.compile("\"captcha\": ?true").matcher(result);
-        Matcher err = errorPattern().matcher(result);
-        if (auth.find()) {
-            replyResponse.requireAuthentication = true;
-            replyResponse.errorMessage = result;
-        } else if (err.find()) {
-            replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
-        } else {
-            HttpUrl url = response.request().url();
-            Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+)").matcher(url.encodedPath());
-            try {
-                if (m.find()) {
-                    replyResponse.threadNo = Integer.parseInt(m.group(1));
-                    String fragment = url.encodedFragment();
-                    if (fragment != null) {
-                        replyResponse.postNo = Integer.parseInt(fragment);
-                    } else {
-                        replyResponse.postNo = replyResponse.threadNo;
-                    }
-                    replyResponse.posted = true;
-                }
-            } catch (NumberFormatException ignored) {
-                replyResponse.errorMessage = "Error posting: could not find posted thread.";
-            }
-        }
-    }
-
     public Pattern errorPattern() {
         return Pattern.compile("<h1[^>]*>Error</h1>.*<h2[^>]*>(.*?)</h2>");
     }

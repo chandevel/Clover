@@ -75,9 +75,6 @@ public class Chan420BoardsRequest extends JsonReaderRequest<List<Board>> {
             String key = reader.nextName();
 
             switch (key) {
-                /*case "category":
-                    board.category = reader.nextInt();
-                    break;*/
                 case "board":
                     board.code = reader.nextString();
                     break;
