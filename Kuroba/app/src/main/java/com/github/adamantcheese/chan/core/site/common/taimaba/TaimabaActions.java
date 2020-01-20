@@ -36,6 +36,8 @@ import okhttp3.Response;
 import static android.text.TextUtils.isEmpty;
 
 public class TaimabaActions extends CommonSite.CommonActions {
+    private static final Pattern errorPattern = Pattern.compile("<h1[^>]*>Error</h1>.*<h2[^>]*>(.*?)</h2>");
+
     public TaimabaActions(CommonSite commonSite) {
         super(commonSite);
     }
@@ -74,7 +76,7 @@ public class TaimabaActions extends CommonSite.CommonActions {
     }
 
     public Pattern errorPattern() {
-        return Pattern.compile("<h1[^>]*>Error</h1>.*<h2[^>]*>(.*?)</h2>");
+        return errorPattern;
     }
 
     @Override
