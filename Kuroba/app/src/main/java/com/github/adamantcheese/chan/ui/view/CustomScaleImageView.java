@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
+import android.graphics.RectF;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -26,7 +27,6 @@ public class CustomScaleImageView
     private static final String TAG = "CustomScaleImageView";
 
     private Callback callback;
-    private float defaultScale = 1f;
 
     public CustomScaleImageView(Context context) {
         super(context);
@@ -35,7 +35,6 @@ public class CustomScaleImageView
             public void onReady() {
                 Logger.d(TAG, "onReady");
                 float scale = Math.min(getWidth() / (float) getSWidth(), getHeight() / (float) getSHeight());
-                defaultScale = scale;
 
                 if (getMaxScale() < scale * 2f) {
                     setMaxScale(scale * 2f);
@@ -73,8 +72,20 @@ public class CustomScaleImageView
         });
     }
 
-    public boolean isZoomedIn() {
-        return Math.abs(defaultScale - getScale()) >= 0.1f;
+    public boolean canUseSwipeUpGesture() {
+        RectF rectF = new RectF();
+        getPanRemaining(rectF);
+
+        // Should be the opposite of the gesture name
+        return Math.signum(rectF.bottom) == 0f;
+    }
+
+    public boolean canUseSwipeBottomGesture() {
+        RectF rectF = new RectF();
+        getPanRemaining(rectF);
+
+        // Should be the opposite of the gesture name
+        return Math.signum(rectF.top) == 0f;
     }
 
     public void setCallback(Callback callback) {

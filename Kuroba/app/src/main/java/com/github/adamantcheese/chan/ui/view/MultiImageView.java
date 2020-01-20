@@ -123,10 +123,7 @@ public class MultiImageView
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
             CustomScaleImageView customScaleImageView = findScaleImageView();
-            if (customScaleImageView != null && (customScaleImageView.isZoomedIn())) {
-                // When CustomScaleImageView is added we need to check whether it's zoomed in and
-                // if it is then don't accept this motion event. Otherwise, when zoomed in,
-                // the image will lose the fling inertia.
+            if (customScaleImageView == null) {
                 return false;
             }
 
@@ -139,17 +136,32 @@ public class MultiImageView
                             && Math.abs(diffX) < FLING_DIST_X_THRESHOLD
             ) {
                 if (diffY <= 0) {
+                    if (!customScaleImageView.canUseSwipeUpGesture()) {
+                        // Can't use swipe up because the image is zoomed in and we are not touching
+                        // the bottom bound of the zoomed in image
+                        return false;
+                    }
+
                     callback.onSwipeTop();
+                    return true;
                 } else {
                     if (imageAlreadySaved) {
                         return false;
                     }
 
+                    if (!customScaleImageView.canUseSwipeBottomGesture()) {
+                        // Can't use swipe bottom because the image is zoomed in and we are not
+                        // touching the top bound of the zoomed in image
+                        return false;
+                    }
+
                     callback.onSwipeBottom();
                     imageAlreadySaved = true;
+                    return true;
                 }
             }
-            return true;
+
+            return false;
         }
     });
 
