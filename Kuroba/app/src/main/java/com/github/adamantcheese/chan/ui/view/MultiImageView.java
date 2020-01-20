@@ -63,6 +63,8 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -122,10 +124,7 @@ public class MultiImageView
     private GestureDetector swipeDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
-            CustomScaleImageView customScaleImageView = findScaleImageView();
-            if (customScaleImageView == null) {
-                return false;
-            }
+            @Nullable CustomScaleImageView customScaleImageView = findScaleImageView();
 
             float diffY = e2.getY() - e1.getY();
             float diffX = e2.getX() - e1.getX();
@@ -136,7 +135,9 @@ public class MultiImageView
                             && Math.abs(diffX) < FLING_DIST_X_THRESHOLD
             ) {
                 if (diffY <= 0) {
-                    if (!customScaleImageView.canUseSwipeUpGesture()) {
+                    // This check is only for images. We can't zoom in into videos/gifs yet, so it
+                    // doesn't event need this check
+                    if (customScaleImageView != null && !customScaleImageView.canUseSwipeUpGesture()) {
                         // Can't use swipe up because the image is zoomed in and we are not touching
                         // the bottom bound of the zoomed in image
                         return false;
@@ -149,7 +150,7 @@ public class MultiImageView
                         return false;
                     }
 
-                    if (!customScaleImageView.canUseSwipeBottomGesture()) {
+                    if (customScaleImageView != null && !customScaleImageView.canUseSwipeBottomGesture()) {
                         // Can't use swipe bottom because the image is zoomed in and we are not
                         // touching the top bound of the zoomed in image
                         return false;
