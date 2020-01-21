@@ -37,5 +37,6 @@ public class TaimabaCommentParser extends CommentParser {
         //custom
         rule(StyleRule.tagRule("s").strikeThrough());
         rule(StyleRule.tagRule("pre").monospace().size(sp(12f)));
+        rule(StyleRule.tagRule("blockquote").cssClass("unkfunc").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE).linkify());
     }
 }
