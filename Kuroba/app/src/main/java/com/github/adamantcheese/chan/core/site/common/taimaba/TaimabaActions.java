@@ -45,28 +45,24 @@ public class TaimabaActions extends CommonSite.CommonActions {
     @Override
     public void setupPost(Reply reply, MultipartHttpCall call) {
         call.parameter("board", reply.loadable.board.code);
+        call.parameter("task", "post");
 
         if (reply.loadable.isThreadMode()) {
-            call.parameter("thread", String.valueOf(reply.loadable.no));
+            call.parameter("parent", String.valueOf(reply.loadable.no));
         }
 
-        //call.parameter("task", "post");
         call.parameter("password", reply.password);
-        call.parameter("name", reply.name);
-        call.parameter("email", reply.options);
+        call.parameter("field1", reply.name);
+        //call.parameter("email", reply.options);
 
         if (!isEmpty(reply.subject)) {
-            call.parameter("subject", reply.subject);
+            call.parameter("field3", reply.subject);
         }
 
-        call.parameter("body", reply.comment);
+        call.parameter("field4", reply.comment);
 
         if (reply.file != null) {
             call.fileParameter("file", reply.fileName, reply.file);
-        }
-
-        if (reply.spoilerImage) {
-            call.parameter("spoiler", "on");
         }
     }
 
