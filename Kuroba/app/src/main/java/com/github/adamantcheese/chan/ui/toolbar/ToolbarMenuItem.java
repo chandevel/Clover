@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
@@ -119,11 +120,11 @@ public class ToolbarMenuItem {
             if (!enabled) {
                 view.setClickable(false);
                 view.setFocusable(false);
-                view.setAlpha(.5f);
+                view.getDrawable().setTint(Color.GRAY);
             } else {
                 view.setClickable(true);
                 view.setFocusable(true);
-                view.setAlpha(1f);
+                view.getDrawable().setTint(Color.WHITE);
             }
         }
     }
