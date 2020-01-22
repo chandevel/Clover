@@ -46,7 +46,7 @@ internal class ChunkPersister(
                 }
 
                 if (!chunkResponse.response.isSuccessful) {
-                    if (chunkResponse.response.code == NOT_FOUND_STATUS_CODE) {
+                    if (chunkResponse.response.code == 404) {
                         throw FileCacheException.FileNotFoundOnTheServerException()
                     }
 
@@ -290,6 +290,5 @@ internal class ChunkPersister(
 
     companion object {
         private const val TAG = "ChunkReader"
-        private const val NOT_FOUND_STATUS_CODE = 404
     }
 }

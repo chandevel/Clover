@@ -191,7 +191,7 @@ internal class PartialContentSupportChecker(
             startTime: Long
     ) {
         val statusCode = response.code
-        if (statusCode == NOT_FOUND_STATUS_CODE) {
+        if (statusCode == 404) {
             // Fast path: the server returned 404 so that mean we don't have to do any other GET
             // requests since the file does not exist
             val result = PartialContentCheckResult(
@@ -281,8 +281,6 @@ internal class PartialContentSupportChecker(
         private const val CONTENT_LENGTH_HEADER = "Content-Length"
         private const val CF_CACHE_STATUS_HEADER = "CF-Cache-Status"
         private const val ACCEPT_RANGES_HEADER_VALUE = "bytes"
-
-        private const val NOT_FOUND_STATUS_CODE = 404
     }
 
 }
