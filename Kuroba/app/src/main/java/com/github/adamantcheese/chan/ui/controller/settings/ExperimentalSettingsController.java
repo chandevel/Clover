@@ -62,11 +62,18 @@ public class ExperimentalSettingsController
 
         requiresRestart.add(
                 group.add(
-                        new ListSettingView<>(
+                        new ListSettingView<ChanSettings.ConcurrentFileDownloadingChunks>(
                                 this,
                                 ChanSettings.concurrentFileDownloadingChunksCount,
-                                context.getString(R.string.settings_concurrent_file_downloading_chunks_count_description),
-                                items)
+                                context.getString(R.string.settings_concurrent_file_downloading_name),
+                                items
+                        ) {
+                            @Override
+                            public String getBottomDescription() {
+                                return getString(R.string.settings_concurrent_file_downloading_description)
+                                        + "\n\n" + items.get(selected).name;
+                            }
+                        }
                 )
         );
     }
