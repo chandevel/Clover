@@ -115,7 +115,6 @@ public class ImageSaveTask
         try {
             if (fileManager.exists(destination)) {
                 onDestination();
-                // Manually call postFinished()
                 onEnd();
             } else {
                 CancelableDownload cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(
