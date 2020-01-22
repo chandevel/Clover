@@ -172,7 +172,7 @@ public class ImageViewerController
         overflowBuilder.withSubItem(R.string.action_image_rotate, this::rotateImage);
 
         if (!loadable.isLocal()) {
-            overflowBuilder.withSubItem(R.string.action_reload_file, this::forceReload);
+            overflowBuilder.withSubItem(R.string.action_reload, this::forceReload);
         }
 
         overflowBuilder.build().build();
