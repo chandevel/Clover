@@ -1,10 +1,10 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
-import com.github.k1rakishou.fsaf.file.AbstractFile
+import com.github.k1rakishou.fsaf.file.RawFile
 
 internal sealed class FileDownloadResult {
     class Start(val chunksCount: Int) : FileDownloadResult()
-    class Success(val file: AbstractFile, val requestTime: Long) : FileDownloadResult()
+    class Success(val file: RawFile, val requestTime: Long) : FileDownloadResult()
     class Progress(val chunkIndex: Int, val downloaded: Long, val chunkSize: Long) : FileDownloadResult()
     object Canceled : FileDownloadResult()
     object Stopped : FileDownloadResult()

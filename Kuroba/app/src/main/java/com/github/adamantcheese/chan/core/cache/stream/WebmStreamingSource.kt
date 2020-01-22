@@ -9,6 +9,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
+import com.github.k1rakishou.fsaf.file.RawFile
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.FileDataSource
@@ -47,7 +48,7 @@ class WebmStreamingSource(
         val cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(
                 videoUrl,
                 object : FileCacheListener() {
-                    override fun onSuccess(file: AbstractFile?) {
+                    override fun onSuccess(file: RawFile?) {
                         Logger.d(TAG, "Loading just downloaded file after stop()")
                         BackgroundUtils.ensureMainThread()
 

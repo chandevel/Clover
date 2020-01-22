@@ -4,6 +4,7 @@ import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.utils.HashingUtil
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
+import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.Flowable
 
 
@@ -17,7 +18,7 @@ internal class ChunkMerger(
     fun mergeChunksIntoCacheFile(
             url: String,
             chunkSuccessEvents: List<ChunkDownloadEvent.ChunkSuccess>,
-            output: AbstractFile,
+            output: RawFile,
             requestStartTime: Long
     ): Flowable<ChunkDownloadEvent> {
         return Flowable.fromCallable {

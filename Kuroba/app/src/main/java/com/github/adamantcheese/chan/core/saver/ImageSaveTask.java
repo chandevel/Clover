@@ -141,7 +141,7 @@ public class ImageSaveTask
     }
 
     @Override
-    public void onSuccess(AbstractFile file) {
+    public void onSuccess(RawFile file) {
         BackgroundUtils.ensureMainThread();
 
         if (copyToDestination(file)) {
@@ -194,7 +194,7 @@ public class ImageSaveTask
         }
     }
 
-    private boolean copyToDestination(AbstractFile source) {
+    private boolean copyToDestination(RawFile source) {
         boolean result = false;
 
         try {

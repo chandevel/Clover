@@ -281,7 +281,7 @@ public class UpdateManager {
             }
 
             @Override
-            public void onSuccess(AbstractFile file) {
+            public void onSuccess(RawFile file) {
                 BackgroundUtils.ensureMainThread();
 
                 updateDownloadDialog.dismiss();
@@ -348,7 +348,7 @@ public class UpdateManager {
         });
     }
 
-    private void installApk(AbstractFile apk) {
+    private void installApk(RawFile apk) {
         // First open the dialog that asks to retry and calls this method again.
         new AlertDialog.Builder(context).setTitle(R.string.update_retry_title)
                 .setMessage(getString(R.string.update_retry, getApplicationLabel()))
@@ -359,14 +359,9 @@ public class UpdateManager {
         // Then launch the APK install intent.
         Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        Uri apkURI;
 
-        if (apk instanceof RawFile) {
-            File apkFile = new File(apk.getFullPath());
-            apkURI = FileProvider.getUriForFile(context, getAppFileProvider(), apkFile);
-        } else {
-            throw new RuntimeException("Only RawFiles are supported for apk updates");
-        }
+        File apkFile = new File(apk.getFullPath());
+        Uri apkURI = FileProvider.getUriForFile(context, getAppFileProvider(), apkFile);
 
         intent.setDataAndType(apkURI, "application/vnd.android.package-archive");
 

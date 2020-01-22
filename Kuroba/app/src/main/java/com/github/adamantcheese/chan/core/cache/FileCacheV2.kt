@@ -912,7 +912,7 @@ class FileCacheV2(
         return exceptions.first()
     }
 
-    private fun purgeOutput(url: String, output: AbstractFile) {
+    private fun purgeOutput(url: String, output: RawFile) {
         BackgroundUtils.ensureBackgroundThread()
 
         val request = checkNotNull(activeDownloads.get(url)) {

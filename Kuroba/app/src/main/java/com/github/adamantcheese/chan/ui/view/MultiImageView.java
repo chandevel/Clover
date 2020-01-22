@@ -57,7 +57,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
@@ -362,12 +361,8 @@ public class MultiImageView
             }
 
             @Override
-            public void onSuccess(AbstractFile file) {
+            public void onSuccess(RawFile file) {
                 BackgroundUtils.ensureMainThread();
-
-                if (!(file instanceof RawFile)) {
-                    throw new RuntimeException("Only RawFiles are supported in MultiImageView");
-                }
 
                 setBitImageFileInternal(new File(file.getFullPath()), true, Mode.BIGIMAGE);
                 if (!ChanSettings.transparencyOn.get() && !backgroundToggle) {
@@ -435,12 +430,8 @@ public class MultiImageView
             }
 
             @Override
-            public void onSuccess(AbstractFile file) {
+            public void onSuccess(RawFile file) {
                 BackgroundUtils.ensureMainThread();
-
-                if (!(file instanceof RawFile)) {
-                    throw new RuntimeException("Only RawFiles are supported in MultiImageView");
-                }
 
                 if (!hasContent || mode == Mode.GIFIMAGE) {
                     setGifFile(new File(file.getFullPath()));
@@ -593,12 +584,8 @@ public class MultiImageView
             }
 
             @Override
-            public void onSuccess(AbstractFile file) {
+            public void onSuccess(RawFile file) {
                 BackgroundUtils.ensureMainThread();
-
-                if (!(file instanceof RawFile)) {
-                    throw new RuntimeException("Only RawFiles are supported in MultiImageView");
-                }
 
                 if (!hasContent || mode == Mode.VIDEO) {
                     setVideoFile(new File(file.getFullPath()));

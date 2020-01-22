@@ -1,13 +1,13 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
-import com.github.k1rakishou.fsaf.file.AbstractFile
+import com.github.k1rakishou.fsaf.file.RawFile
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
 internal open class FileDownloadRequest(
         val url: String,
-        val output: AbstractFile,
+        val output: RawFile,
         // A file will be split into [chunksCount] chunks which will be downloaded in parallel.
         // Must be 1 or greater than 1.
         val chunksCount: AtomicInteger,

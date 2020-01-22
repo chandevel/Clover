@@ -4,7 +4,7 @@ import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.cache.FileCacheV2
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.k1rakishou.fsaf.FileManager
-import com.github.k1rakishou.fsaf.file.AbstractFile
+import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.Flowable
 import io.reactivex.Scheduler
 import java.io.IOException
@@ -116,7 +116,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             url: String,
             chunks: List<Chunk>,
             partialContentCheckResult: PartialContentCheckResult,
-            output: AbstractFile
+            output: RawFile
     ): Flowable<FileDownloadResult> {
         if (verboseLogs) {
             log(TAG, "File (${url}) was split into chunks: ${chunks}")
