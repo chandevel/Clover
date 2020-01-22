@@ -44,6 +44,8 @@ import io.reactivex.subjects.SingleSubject;
 import kotlin.NotImplementedError;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Failure;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
@@ -161,11 +163,7 @@ public class ImageSaveTask
     public void onEnd() {
         BackgroundUtils.ensureMainThread();
 
-        if (success) {
-            imageSaveTaskAsyncResult.onSuccess(ImageSaver.BundledDownloadResult.Success);
-        } else {
-            imageSaveTaskAsyncResult.onSuccess(ImageSaver.BundledDownloadResult.Failure);
-        }
+        imageSaveTaskAsyncResult.onSuccess(success ? Success : Failure);
     }
 
     private void deleteDestination() {
