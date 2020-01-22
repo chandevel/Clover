@@ -18,24 +18,23 @@ package com.github.adamantcheese.chan.core.model;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class ChanThread {
     private Loadable loadable;
-    private List<Post> posts;
     // Unmodifiable list of posts. We need it to make this class "thread-safe" (it's actually
     // still not fully thread-safe because Loadable and the Post classes are not thread-safe but
     // there is no easy way to fix them right now) and to avoid copying the whole list of posts
     // every time it is needed somewhere.
-    private List<Post> postsReadonly;
+    private List<Post> posts;
     private boolean closed = false;
     private boolean archived = false;
 
     public ChanThread(Loadable loadable, List<Post> posts) {
         this.loadable = loadable;
-        this.posts = posts;
-        this.postsReadonly = Collections.unmodifiableList(this.posts);
+        this.posts = Collections.unmodifiableList(new ArrayList<>(posts));
     }
 
     public synchronized int getPostsCount() {
@@ -67,17 +66,12 @@ public class ChanThread {
         this.archived = archived;
     }
 
-    /**
-     * Returns an unmodifiable list of posts. Any attempt to add a new post to the list will throw
-     * an exception
-     */
     public synchronized List<Post> getPosts() {
-        return postsReadonly;
+        return posts;
     }
 
     public synchronized void setNewPosts(List<Post> newPosts) {
-        posts.clear();
-        posts.addAll(newPosts);
+        this.posts = Collections.unmodifiableList(new ArrayList<>(newPosts));
     }
 
     public synchronized int getLoadableId() {
