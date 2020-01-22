@@ -49,6 +49,7 @@ import okhttp3.HttpUrl;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
@@ -140,7 +141,7 @@ public class ImagePickDelegate
                                 public void onFail(Exception exception) {
                                     BackgroundUtils.ensureMainThread();
 
-                                    String message = getAppContext().getString(
+                                    String message = getString(
                                             R.string.image_url_get_failed,
                                             exception.getMessage()
                                     );
