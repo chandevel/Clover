@@ -65,7 +65,7 @@ public class ExperimentalSettingsController
                         new ListSettingView<ChanSettings.ConcurrentFileDownloadingChunks>(
                                 this,
                                 ChanSettings.concurrentFileDownloadingChunksCount,
-                                context.getString(R.string.settings_concurrent_file_downloading_name),
+                                getString(R.string.settings_concurrent_file_downloading_name),
                                 items
                         ) {
                             @Override

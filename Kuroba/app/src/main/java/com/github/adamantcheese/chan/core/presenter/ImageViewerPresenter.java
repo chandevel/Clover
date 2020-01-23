@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.presenter;
 import android.annotation.SuppressLint;
 import android.media.AudioManager;
 
-import androidx.annotation.GuardedBy;
 import androidx.viewpager.widget.ViewPager;
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
@@ -84,11 +83,7 @@ public class ImageViewerPresenter
     private int selectedPosition = 0;
     private SwipeDirection swipeDirection = SwipeDirection.Default;
     private Loadable loadable;
-
     private Set<CancelableDownload> preloadingImages = new HashSet<>();
-
-    // TODO: does it need to be synchronized?
-    @GuardedBy("itself")
     private final Set<String> nonCancelableImages = new HashSet<>();
 
     // Disables swiping until the view pager is visible
@@ -169,10 +164,7 @@ public class ImageViewerPresenter
             preloadingImage.cancel();
         }
 
-        synchronized (nonCancelableImages) {
-            nonCancelableImages.clear();
-        }
-
+        nonCancelableImages.clear();
         preloadingImages.clear();
     }
 
@@ -270,10 +262,8 @@ public class ImageViewerPresenter
             callback.setImageMode(other, LOWRES, false);
         }
 
-        synchronized (nonCancelableImages) {
-            nonCancelableImages.clear();
-            nonCancelableImages.addAll(getNonCancelableImages(position));
-        }
+        nonCancelableImages.clear();
+        nonCancelableImages.addAll(getNonCancelableImages(position));
 
         if (swipeDirection == SwipeDirection.Forward) {
             cancelPreviousFromStartImageDownload(position);
@@ -304,10 +294,27 @@ public class ImageViewerPresenter
             }
         }
 
+        ChanSettings.ImageClickPreloadStrategy strategy = ChanSettings.imageClickPreloadStrategy.get();
+
         if (swipeDirection == SwipeDirection.Forward) {
             preloadNext();
         } else if (swipeDirection == SwipeDirection.Backward) {
             preloadPrevious();
+        } else {
+            switch (strategy) {
+                case PreloadNext:
+                    preloadNext();
+                    break;
+                case PreloadPrevious:
+                    preloadPrevious();
+                    break;
+                case PreloadBoth:
+                    preloadNext();
+                    preloadPrevious();
+                    break;
+                case PreloadNeither:
+                    break;
+            }
         }
     }
 
@@ -440,14 +447,12 @@ public class ImageViewerPresenter
     }
 
     private boolean cancelImageDownload(int position, CancelableDownload downloader) {
-        synchronized (nonCancelableImages) {
-            if (nonCancelableImages.contains(downloader.getUrl())) {
-                Logger.d(TAG,
-                        "Attempt to cancel non cancelable download for image with url: "
-                                + downloader.getUrl()
-                );
-                return false;
-            }
+        if (nonCancelableImages.contains(downloader.getUrl())) {
+            Logger.d(TAG,
+                    "Attempt to cancel non cancelable download for image with url: "
+                            + downloader.getUrl()
+            );
+            return false;
         }
 
         PostImage previousImage = images.get(position);

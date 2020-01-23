@@ -766,4 +766,6 @@ Don't have a 4chan Pass?<br>
     <string name="image_saver_failed_to_save_image">Failed to save the image. Reason</string>
     <string name="image_saver_no_write_permission_message">Cannot start saving images without WRITE permission</string>
     <string name="album_download_batch_image_processed_message">Downloaded %1$d out of %2$d (failed %3$d)</string>
+    <string name="media_settings_image_click_preload_strategy_name">Image click preload strategy</string>
+    <string name="media_settings_image_click_preload_strategy_description">When clicking an image what image should be preloaded next:</string>
 </resources>

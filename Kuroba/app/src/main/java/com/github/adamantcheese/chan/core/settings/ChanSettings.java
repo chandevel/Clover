@@ -139,6 +139,25 @@ public class ChanSettings {
         }
     }
 
+    public enum ImageClickPreloadStrategy implements OptionSettingItem {
+        PreloadNext("Preload next image"),
+        PreloadPrevious("Preload previous image"),
+        PreloadBoth("Preload next and previous images"),
+        PreloadNeither("Do not preload any images");
+
+        String name;
+
+        ImageClickPreloadStrategy(String name) {
+            this.name = name;
+        }
+
+
+        @Override
+        public String getKey() {
+            return name;
+        }
+    }
+
     private static Proxy proxy;
     private static final String sharedPrefsFile = "shared_prefs/" + BuildConfig.APPLICATION_ID + "_preferences.xml";
 
@@ -244,6 +263,7 @@ public class ChanSettings {
     public static final StringSetting youtubeDurationCache;
     public static final OptionsSetting<ConcurrentFileDownloadingChunks> concurrentFileDownloadingChunksCount;
     public static final BooleanSetting verboseLogs;
+    public static final OptionsSetting<ImageClickPreloadStrategy> imageClickPreloadStrategy;
 
     static {
         try {
@@ -383,6 +403,12 @@ public class ChanSettings {
                     p,
                     "verbose_logs",
                     false
+            );
+            imageClickPreloadStrategy = new OptionsSetting<>(
+                    p,
+                    "image_click_preload_strategy",
+                    ImageClickPreloadStrategy.class,
+                    ImageClickPreloadStrategy.PreloadNext
             );
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
