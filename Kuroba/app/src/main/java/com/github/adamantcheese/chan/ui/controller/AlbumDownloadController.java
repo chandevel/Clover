@@ -202,10 +202,7 @@ public class AlbumDownloadController
         loadingViewController.stopPresenting();
         loadingViewController = null;
 
-        if (navigationController.shown) {
-            // Pop this controller
-            navigationController.popController();
-        }
+        navigationController.popController();
     }
 
     private void onCheckAllClicked(ToolbarMenuItem menuItem) {
