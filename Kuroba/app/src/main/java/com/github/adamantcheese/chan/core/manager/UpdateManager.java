@@ -47,7 +47,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
@@ -287,10 +286,7 @@ public class UpdateManager {
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
 
-                // We need to remove all the dots from the file name because FSAF won't allow that.
-                String fileName = StringUtils.dirNameRemoveBadCharacters(
-                        getApplicationLabel() + "_" + response.versionCodeString
-                ) + ".apk";
+                String fileName = getApplicationLabel() + "_" + response.versionCodeString + ".apk";
 
                 //put a copy into the Downloads folder, for archive/rollback purposes
                 File downloadAPKcopy = new File(
