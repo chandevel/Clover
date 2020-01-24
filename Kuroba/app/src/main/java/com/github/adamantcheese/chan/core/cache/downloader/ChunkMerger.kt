@@ -1,16 +1,19 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler
+import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.utils.HashingUtil
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.Flowable
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 
 internal class ChunkMerger(
         private val fileManager: FileManager,
         private val cacheHandler: CacheHandler,
+        private val siteResolver: SiteResolver,
         private val activeDownloads: ActiveDownloads,
         private val verboseLogs: Boolean
 ) {
@@ -70,9 +73,11 @@ internal class ChunkMerger(
                 }
             }
 
-            val expectedFileHash = activeDownloads.get(url)?.extraInfo?.fileHash
-            if (expectedFileHash != null) {
-                compareFileHashes(url, output, expectedFileHash)
+            if (canSiteFileHashBeTrusted(url)) {
+                val expectedFileHash = activeDownloads.get(url)?.extraInfo?.fileHash
+                if (expectedFileHash != null) {
+                    compareFileHashes(url, output, expectedFileHash)
+                }
             }
 
             // Mark file as downloaded
@@ -81,6 +86,22 @@ internal class ChunkMerger(
             val requestTime = System.currentTimeMillis() - requestStartTime
             return@fromCallable ChunkDownloadEvent.Success(output, requestTime)
         }
+    }
+
+    /**
+     * Some sites may sometimes send us incorrect file md5 hashes, just skip the hash check for them
+     * */
+    private fun canSiteFileHashBeTrusted(url: String): Boolean {
+        val host = url.toHttpUrlOrNull()?.host
+        if (host == null) {
+            logError(TAG, "Bad url, can't extract host: $url")
+            return false
+        }
+
+        return siteResolver.findSiteForUrl(host)
+                ?.chunkDownloaderSiteProperties
+                ?.canFileHashBeTrusted
+                ?: false
     }
 
     private fun compareFileHashes(url: String, output: AbstractFile, expectedFileHash: String) {

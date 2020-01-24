@@ -35,7 +35,7 @@ data class Chunk(val start: Long, val realEnd: Long) {
         get() = realEnd - 1
 
     fun isWholeFile(): Boolean {
-        return start == 0L && end == Long.MAX_VALUE
+        return start == 0L && realEnd == Long.MAX_VALUE
     }
 
     fun chunkSize(): Long = realEnd - start

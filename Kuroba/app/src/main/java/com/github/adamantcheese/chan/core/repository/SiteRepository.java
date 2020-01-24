@@ -26,7 +26,6 @@ public class SiteRepository {
     private static final String TAG = "SiteRepository";
 
     private DatabaseManager databaseManager;
-
     private Sites sitesObservable = new Sites();
 
     public Site forId(int id) {

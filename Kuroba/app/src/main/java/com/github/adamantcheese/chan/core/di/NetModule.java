@@ -24,6 +24,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -84,10 +85,11 @@ public class NetModule {
     public FileCacheV2 provideFileCacheV2(
             FileManager fileManager,
             CacheHandler cacheHandler,
+            SiteResolver siteResolver,
             @Named(DOWNLOADER_OKHTTP_CLIENT_NAME) OkHttpClient okHttpClient
     ) {
         Logger.d(AppModule.DI_TAG, "File cache V2");
-        return new FileCacheV2(fileManager, cacheHandler, okHttpClient);
+        return new FileCacheV2(fileManager, cacheHandler, siteResolver, okHttpClient);
     }
 
     @Provides

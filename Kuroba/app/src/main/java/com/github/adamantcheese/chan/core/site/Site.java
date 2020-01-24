@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -178,4 +180,7 @@ public interface Site {
      * @return the created board.
      */
     Board createBoard(String name, String code);
+
+    @NonNull
+    ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties();
 }

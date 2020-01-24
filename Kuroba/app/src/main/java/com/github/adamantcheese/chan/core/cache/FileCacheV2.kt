@@ -8,6 +8,7 @@ import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
 import com.github.adamantcheese.chan.core.model.PostImage
 import com.github.adamantcheese.chan.core.model.orm.Loadable
 import com.github.adamantcheese.chan.core.settings.ChanSettings
+import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
@@ -42,6 +43,7 @@ import kotlin.collections.ArrayList
 class FileCacheV2(
         private val fileManager: FileManager,
         private val cacheHandler: CacheHandler,
+        private val siteResolver: SiteResolver,
         private val okHttpClient: OkHttpClient
 ) {
     private val activeDownloads = ActiveDownloads()
@@ -92,6 +94,7 @@ class FileCacheV2(
     private val partialContentSupportChecker = PartialContentSupportChecker(
             okHttpClient,
             activeDownloads,
+            siteResolver,
             MAX_TIMEOUT_MS
     )
 
@@ -111,6 +114,7 @@ class FileCacheV2(
     private val chunkPersister = ChunkMerger(
             fileManager,
             cacheHandler,
+            siteResolver,
             activeDownloads,
             verboseLogs
     )
