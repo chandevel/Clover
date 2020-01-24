@@ -77,6 +77,13 @@ public class ThemeHelper {
                 ROBOTO_MEDIUM,
                 ROBOTO_CONDENSED
         ));
+        themes.add(new DarkTheme("Tomorrow Black",
+                "tomorrow_black",
+                R.style.Chan_Theme_TomorrowBlack,
+                PrimaryColor.BLACK,
+                ROBOTO_MEDIUM,
+                ROBOTO_CONDENSED
+        ));
         themes.add(new Theme("Yotsuba",
                 "yotsuba",
                 R.style.Chan_Theme_Yotsuba,
