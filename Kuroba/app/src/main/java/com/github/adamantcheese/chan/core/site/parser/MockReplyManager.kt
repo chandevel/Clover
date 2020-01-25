@@ -32,17 +32,22 @@ class MockReplyManager {
         }
     }
 
-    fun hasMockReply(): Boolean {
-        return synchronized(this) { mockReplyQueue.peekLast() != null }
-    }
-
-    fun getMockReply(): MockReply? {
+    fun getLastMockReplyOrNull(siteId: Int, code: String, opNo: Int): MockReply? {
         return synchronized(this) {
-            val mockReply = mockReplyQueue.pollLast()
-            Logger.d(TAG, "getMockReply() mock replies count = ${mockReplyQueue.size}")
+            val mockReply = mockReplyQueue.peekLast()
+                    ?: return@synchronized null
 
+            // The post we are about to add a new reply to must be from the same site, board
+            // and thread as the post it will be replying to. Basically, both posts must be
+            // in the same thread.
+            if (!mockReply.isSuitablePost(siteId, code, opNo)) {
+                return@synchronized null
+            }
 
-            return@synchronized mockReply
+            val lastElement = mockReplyQueue.removeLast()
+            Logger.d(TAG, "getLastMockReplyOrNull() mock replies count = ${mockReplyQueue.size}")
+
+            return@synchronized lastElement
         }
     }
 

@@ -348,10 +348,12 @@ public class WatchManager
 
         for (SavedThread savedThread : savedThreads) {
             if (savedThread.loadableId == loadableId) {
+                // Found in cache
                 return savedThread;
             }
         }
 
+        // Not found in cache, add to cache if exists
         SavedThread savedThread =
                 databaseManager.runTask(databaseSavedThreadManager.getSavedThreadByLoadableId(loadableId));
 
@@ -728,8 +730,6 @@ public class WatchManager
     }
 
     private boolean updatePinWatchers() {
-        boolean hasAtLeastOneActivePin = false;
-        boolean hasAtLeastOnePinWithUnreadPosts = false;
         List<Pin> pinsToUpdateInDatabase = new ArrayList<>();
 
         for (Pin pin : pins) {
@@ -745,7 +745,28 @@ public class WatchManager
                 pinsToUpdateInDatabase.add(pin);
             }
 
+            if (ChanSettings.watchEnabled.get()) {
+                createPinWatcher(pin);
+            } else {
+                destroyPinWatcher(pin);
+            }
+        }
+
+        if (pinsToUpdateInDatabase.size() > 0) {
+            updatePins(pinsToUpdateInDatabase, false);
+        }
+
+        return hasActiveOrUnreadPins();
+    }
+
+    private boolean hasActiveOrUnreadPins() {
+        boolean hasAtLeastOneActivePin = false;
+        boolean hasAtLeastOnePinWithUnreadPosts = false;
+        boolean hasActiveLocalThread = false;
+
+        for (Pin pin : pins) {
             if (PinType.hasDownloadFlag(pin.pinType)) {
+                SavedThread savedThread = findSavedThreadByLoadableId(pin.loadable.id);
                 // If pin is still downloading posts - it is active
                 if (savedThread != null && (!savedThread.isStopped && !savedThread.isFullyDownloaded)) {
                     hasAtLeastOneActivePin = true;
@@ -758,7 +779,11 @@ public class WatchManager
                     //  watchNotifyMode set to only notify you about quotes to your posts and you
                     //  have at least one thread being downloaded, the watchNotifyMode setting will
                     //  be ignored and it will behave the same as if it was set to NOTIFY_ALL_POSTS.
-                    hasAtLeastOnePinWithUnreadPosts = true;
+                    //  To fix this we will have to move ThreadSaveManager into a separate service.
+                    //  Or move it out from WatchNotification service to WatchManager.
+                    if (!pin.isError && !pin.archived) {
+                        hasActiveLocalThread = true;
+                    }
                 }
             }
 
@@ -781,18 +806,12 @@ public class WatchManager
                 }
             }
 
-            if (ChanSettings.watchEnabled.get()) {
-                createPinWatcher(pin);
-            } else {
-                destroyPinWatcher(pin);
+            if ((hasAtLeastOneActivePin && hasAtLeastOnePinWithUnreadPosts) || hasActiveLocalThread) {
+                return true;
             }
         }
 
-        if (pinsToUpdateInDatabase.size() > 0) {
-            updatePins(pinsToUpdateInDatabase, false);
-        }
-
-        return hasAtLeastOnePinWithUnreadPosts && hasAtLeastOneActivePin;
+        return false;
     }
 
     private void updateIntervals(boolean watchEnabled, boolean backgroundEnabled) {

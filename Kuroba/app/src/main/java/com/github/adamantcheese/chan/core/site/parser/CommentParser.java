@@ -171,11 +171,14 @@ public class CommentParser {
                 int postNo = (int) handlerLink.value;
                 post.addReplyTo(postNo);
 
-                if (mockReplyManager.hasMockReply()) {
-                    MockReplyManager.MockReply mockReply = mockReplyManager.getMockReply();
-                    if (mockReply != null) {
-                        addMockReply(theme, post, spannableStringBuilder, postNo, mockReply);
-                    }
+                MockReplyManager.MockReply mockReply = mockReplyManager.getLastMockReplyOrNull(
+                        post.board.siteId,
+                        post.board.code,
+                        post.opId
+                );
+
+                if (mockReply != null) {
+                    addMockReply(theme, post, spannableStringBuilder, postNo, mockReply);
                 }
 
                 // Append (OP) when it's a reply to OP
@@ -212,45 +215,35 @@ public class CommentParser {
             int postNo,
             MockReplyManager.MockReply mockReply
     ) {
-        int siteId = post.board.siteId;
-        String code = post.board.code;
-        int opNo = post.opId;
+        Logger.d(TAG, "Adding a new mock reply (replyTo: " + mockReply.getPostNo() + ", replyFrom: " + postNo + ")");
+        post.addReplyTo(mockReply.getPostNo());
 
-        // The post we are about to add a new reply to must be from the same site, board
-        // and thread as the post it will be replying to. Basically, both posts must be
-        // in the same thread.
-        if (mockReply.isSuitablePost(siteId, code, opNo)) {
-            Logger.d(TAG, "Adding a new mock reply " +
-                    "(replyTo: " + mockReply.getPostNo() + ", replyFrom: " + postNo + ")");
-            post.addReplyTo(mockReply.getPostNo());
+        CharSequence replyText = String.format(
+                Locale.US,
+                ">>%d%s",
+                mockReply.getPostNo(),
+                MOCK_REPLY_SUFFIX
+        );
 
-            CharSequence replyText = String.format(
-                    Locale.US,
-                    ">>%d%s",
-                    mockReply.getPostNo(),
-                    MOCK_REPLY_SUFFIX
-            );
+        SpannableString res = new SpannableString(replyText);
 
-            SpannableString res = new SpannableString(replyText);
+        PostLinkable pl = new PostLinkable(
+                theme,
+                replyText,
+                mockReply.getPostNo(),
+                PostLinkable.Type.QUOTE
+        );
 
-            PostLinkable pl = new PostLinkable(
-                    theme,
-                    replyText,
-                    mockReply.getPostNo(),
-                    PostLinkable.Type.QUOTE
-            );
+        res.setSpan(
+                pl,
+                0,
+                res.length(),
+                (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+        );
 
-            res.setSpan(
-                    pl,
-                    0,
-                    res.length(),
-                    (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
-            );
-
-            post.addLinkable(pl);
-            spannableStringBuilder.append(res);
-            spannableStringBuilder.append('\n');
-        }
+        post.addLinkable(pl);
+        spannableStringBuilder.append(res);
+        spannableStringBuilder.append('\n');
     }
 
     private CharSequence handleFortune(
