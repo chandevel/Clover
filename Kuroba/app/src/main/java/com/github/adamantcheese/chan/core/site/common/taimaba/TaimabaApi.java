@@ -141,13 +141,14 @@ public class TaimabaApi extends CommonSite.CommonApi {
                     break;
                 case "com":
                     postcom = reader.nextString();
-                    postcom = postcom.replaceAll("\r", "");
+                    postcom = postcom.replaceAll(">>(\\d+)", "<a href=\"#$1\">&gt;$1</a>");
                     postcom = postcom.replaceAll(">(.*+)", "<blockquote class=\"unkfunc\">&gt;$1</blockquote>");
-                    postcom = postcom.replace("\n", "<br/ >");
+                    postcom = postcom.replaceAll("\n", "<br/>");
                     postcom = postcom.replaceAll("(?i)\\[b\\](.*?)\\[/b\\]", "<b>$1</b>");
+                    postcom = postcom.replaceAll("\\[\\*\\*\\](.*?)\\[/\\*\\*\\]", "<b>$1</b>");
                     postcom = postcom.replaceAll("(?i)\\[i\\](.*?)\\[/i\\]", "<i>$1</i>");
                     postcom = postcom.replaceAll("(?i)\\[spoiler\\](.*?)\\[/spoiler\\]", "<span class=\"spoiler\">$1</span>");
-                    postcom = postcom.replaceAll("(?i)\\[s\\](.*?)\\[/s\\]", "<s>$1</s>");
+                    postcom = postcom.replaceAll("(?i)\\[s\\](.*?)\\[/s\\]", "<strike>$1</strike>");
                     postcom = postcom.replaceAll("(?i)\\[pre\\](.*?)\\[/pre\\]", "<pre>$1</pre>");
                     builder.comment(postcom);
                     break;
