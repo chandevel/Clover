@@ -334,6 +334,8 @@ public class PostCell
 
         setPostLinkableListener(post, true);
 
+        options.setImageTintList(ColorStateList.valueOf(theme.textSecondary));
+
         replies.setClickable(threadMode);
         repliesAdditionalArea.setClickable(threadMode);
 
@@ -439,6 +441,9 @@ public class PostCell
 
         if (post.httpIcons != null) {
             icons.setHttpIcons(post.httpIcons, theme, iconSizePx);
+            comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
+        } else {
+            comment.setPadding(paddingPx, paddingPx / 2, paddingPx, 0);
         }
 
         icons.apply();
@@ -457,6 +462,8 @@ public class PostCell
         if (theme.altFontIsMain) {
             comment.setTypeface(ChanSettings.fontAlternate.get() ? Typeface.DEFAULT : theme.altFont);
         }
+
+        comment.setTextColor(theme.textPrimary);
 
         if (ChanSettings.shiftPostFormat.get()) {
             comment.setVisibility(isEmpty(commentText) ? GONE : VISIBLE);
