@@ -54,7 +54,7 @@ public class ImagePickDelegate
     private static final String TAG = "ImagePickActivity";
 
     private static final int IMAGE_PICK_RESULT = 2;
-    private static final long MAX_FILE_SIZE = 15 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
     private static final String DEFAULT_FILE_NAME = "file";
 
     @Inject
@@ -200,10 +200,7 @@ public class ImagePickDelegate
                         "Could not get OutputStream from the cacheFile, cacheFile = " + cacheFile.getFullPath());
             }
 
-            boolean fullyCopied = IOUtils.copy(is, os, MAX_FILE_SIZE);
-            if (fullyCopied) {
-                success = true;
-            }
+            success = IOUtils.copy(is, os, MAX_FILE_SIZE);
         } catch (IOException | SecurityException e) {
             Logger.e(TAG, "Error copying file from the file descriptor", e);
         } finally {

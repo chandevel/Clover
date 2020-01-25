@@ -182,7 +182,7 @@ public class ThemeSettingsController
             }
         }, 0, changeAccentColor.length(), 0);
 
-        textView.setText(TextUtils.concat(getString(R.string.setting_theme_explanation), changeAccentColor));
+        textView.setText(TextUtils.concat(getString(R.string.setting_theme_explanation), "\n", changeAccentColor));
         textView.setMovementMethod(LinkMovementMethod.getInstance());
 
         Adapter adapter = new Adapter();
@@ -290,7 +290,7 @@ public class ThemeSettingsController
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
-            linearLayout.setBackgroundColor(getAttrColor(themeContext, R.attr.backcolor));
+            linearLayout.setBackgroundColor(theme.backColor);
 
             final Toolbar toolbar = new Toolbar(themeContext);
             final View.OnClickListener colorClick = v -> {
