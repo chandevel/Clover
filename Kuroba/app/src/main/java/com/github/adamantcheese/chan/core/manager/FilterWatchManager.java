@@ -203,28 +203,36 @@ public class FilterWatchManager
             synchronized (this) {
                 numBoardsChecked--;
                 Logger.d(TAG, "Filter loader processed, left " + numBoardsChecked);
-                if (numBoardsChecked <= 0) {
-                    numBoardsChecked = 0;
-                    Set<Integer> lastCheckedPostNumbers = new HashSet<>();
-                    for (Post post : lastCheckedPosts) {
-                        lastCheckedPostNumbers.add(post.no);
-                    }
-                    ignoredPosts.retainAll(lastCheckedPostNumbers);
-                    ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
-                    lastCheckedPosts.clear();
-                    processing = false;
-                    Logger.i(TAG,
-                            "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance()
-                                    .format(new Date())
-                    );
-                    wakeManager.manageLock(false, FilterWatchManager.this);
-                }
+                checkComplete();
             }
         }
 
         @Override
         public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
-            //ignore all errors
+            synchronized (this) {
+                numBoardsChecked--;
+                Logger.d(TAG, "Filter loader failed, left " + numBoardsChecked);
+                checkComplete();
+            }
+        }
+
+        private void checkComplete() {
+            if (numBoardsChecked <= 0) {
+                numBoardsChecked = 0;
+                Set<Integer> lastCheckedPostNumbers = new HashSet<>();
+                for (Post post : lastCheckedPosts) {
+                    lastCheckedPostNumbers.add(post.no);
+                }
+                ignoredPosts.retainAll(lastCheckedPostNumbers);
+                ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
+                lastCheckedPosts.clear();
+                processing = false;
+                Logger.i(TAG,
+                        "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance()
+                                .format(new Date())
+                );
+                wakeManager.manageLock(false, FilterWatchManager.this);
+            }
         }
     }
 }
