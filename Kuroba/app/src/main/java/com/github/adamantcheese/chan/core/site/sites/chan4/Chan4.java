@@ -60,6 +60,7 @@ import java.util.Random;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
+import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2JS;
 import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2NOJS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
@@ -473,7 +474,7 @@ public class Chan4
     public void initializeSettings() {
         super.initializeSettings();
 
-        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type", CaptchaType.class, V2NOJS);
+        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, V2JS);
     }
 
     @Override

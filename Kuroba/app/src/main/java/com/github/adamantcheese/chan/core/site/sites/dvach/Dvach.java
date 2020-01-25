@@ -75,7 +75,7 @@ public class Dvach
     @Override
     public void initializeSettings() {
         super.initializeSettings();
-        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type", Chan4.CaptchaType.class, V2JS);
+        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type_dvach", Chan4.CaptchaType.class, V2JS);
     }
 
     @Override
