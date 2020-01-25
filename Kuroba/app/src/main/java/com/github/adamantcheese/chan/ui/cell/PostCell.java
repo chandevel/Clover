@@ -101,7 +101,7 @@ import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class PostCell
         extends LinearLayout
-        implements PostCellInterface, View.OnTouchListener {
+        implements PostCellInterface {
     private static final String TAG = "PostCell";
     private static final int COMMENT_MAX_LENGTH_BOARD = 350;
 
@@ -127,24 +127,13 @@ public class PostCell
     private Loadable loadable;
     private Post post;
     private PostCellCallback callback;
-    private boolean selectable;
+    private boolean inPopup;
     private boolean highlighted;
     private boolean selected;
     private int markedNo;
     private boolean showDivider;
 
     private GestureDetector gestureDetector;
-
-    private OnClickListener selfClicked = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (ignoreNextOnClick) {
-                ignoreNextOnClick = false;
-            } else {
-                callback.onPostClicked(post);
-            }
-        }
-    };
 
     private PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
     private PostViewFastMovementMethod titleMovementMethod = new PostViewFastMovementMethod();
@@ -223,8 +212,13 @@ public class PostCell
             showOptions(v, items, extraItems, extraOption);
         });
 
-        setOnClickListener(selfClicked);
-        setOnTouchListener(this);
+        setOnClickListener(v -> {
+            if (ignoreNextOnClick) {
+                ignoreNextOnClick = false;
+            } else {
+                callback.onPostClicked(post);
+            }
+        });
 
         gestureDetector = new GestureDetector(getContext(), new DoubleTapGestureListener());
     }
@@ -277,7 +271,7 @@ public class PostCell
             Loadable loadable,
             final Post post,
             PostCellInterface.PostCellCallback callback,
-            boolean selectable,
+            boolean inPopup,
             boolean highlighted,
             boolean selected,
             int markedNo,
@@ -286,8 +280,8 @@ public class PostCell
             boolean compact,
             Theme theme
     ) {
-        if (this.post == post && this.selectable == selectable && this.highlighted == highlighted
-                && this.selected == selected && this.markedNo == markedNo && this.showDivider == showDivider) {
+        if (this.post == post && this.inPopup == inPopup && this.highlighted == highlighted && this.selected == selected
+                && this.markedNo == markedNo && this.showDivider == showDivider) {
             return;
         }
 
@@ -299,7 +293,7 @@ public class PostCell
         this.loadable = loadable;
         this.post = post;
         this.callback = callback;
-        this.selectable = selectable;
+        this.inPopup = inPopup;
         this.highlighted = highlighted;
         this.selected = selected;
         this.markedNo = markedNo;
@@ -474,77 +468,64 @@ public class PostCell
         }
 
         if (threadMode) {
-            if (selectable) {
-                // Setting the text to selectable creates an editor, sets up a bunch of click
-                // handlers and sets a movementmethod.
-                // Required for the isTextSelectable check.
-                // We override the test and movementmethod settings.
-                comment.setTextIsSelectable(true);
+            comment.setTextIsSelectable(true);
+            comment.setText(commentText, TextView.BufferType.SPANNABLE);
+            comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                private MenuItem quoteMenuItem;
+                private MenuItem webSearchItem;
+                private boolean processed;
 
-                comment.setText(commentText, TextView.BufferType.SPANNABLE);
+                @Override
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote, 0, R.string.post_quote);
+                    webSearchItem = menu.add(Menu.NONE, R.id.post_selection_action_search, 1, R.string.post_web_search);
+                    return true;
+                }
 
-                comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
-                    private MenuItem quoteMenuItem;
-                    private MenuItem webSearchItem;
-                    private boolean processed;
+                @Override
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return true;
+                }
 
-                    @Override
-                    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                        quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote, 0, R.string.post_quote);
-                        webSearchItem =
-                                menu.add(Menu.NONE, R.id.post_selection_action_search, 1, R.string.post_web_search);
+                @Override
+                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                    CharSequence selection =
+                            comment.getText().subSequence(comment.getSelectionStart(), comment.getSelectionEnd());
+                    if (item == quoteMenuItem) {
+                        callback.onPostSelectionQuoted(post, selection);
+                        processed = true;
+                    } else if (item == webSearchItem) {
+                        Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                        searchIntent.putExtra(SearchManager.QUERY, selection.toString());
+                        openIntent(searchIntent);
+                        processed = true;
+                    }
+
+                    if (processed) {
+                        mode.finish();
+                        processed = false;
                         return true;
+                    } else {
+                        return false;
                     }
+                }
 
-                    @Override
-                    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                        CharSequence selection =
-                                comment.getText().subSequence(comment.getSelectionStart(), comment.getSelectionEnd());
-                        if (item == quoteMenuItem) {
-                            callback.onPostSelectionQuoted(post, selection);
-                            processed = true;
-                        } else if (item == webSearchItem) {
-                            Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
-                            searchIntent.putExtra(SearchManager.QUERY, selection.toString());
-                            openIntent(searchIntent);
-                            processed = true;
-                        }
-
-                        if (processed) {
-                            mode.finish();
-                            processed = false;
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-
-                    @Override
-                    public void onDestroyActionMode(ActionMode mode) {
-                    }
-                });
-            } else {
-                comment.setText(commentText);
-            }
+                @Override
+                public void onDestroyActionMode(ActionMode mode) {
+                }
+            });
 
             // Sets focusable to auto, clickable and longclickable to true.
             comment.setMovementMethod(commentMovementMethod);
 
             // And this sets clickable to appropriate values again.
-            comment.setOnClickListener(selfClicked);
-            comment.setOnTouchListener(this);
+            comment.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
 
             if (ChanSettings.tapNoReply.get()) {
                 title.setMovementMethod(titleMovementMethod);
             }
         } else {
             comment.setText(commentText);
-            comment.setOnClickListener(null);
             comment.setOnTouchListener(null);
             comment.setClickable(false);
 
@@ -727,11 +708,6 @@ public class PostCell
     }
 
     private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return gestureDetector.onTouchEvent(event);
-    }
 
     /**
      * A MovementMethod that searches for PostLinkables.<br>
@@ -1082,8 +1058,10 @@ public class PostCell
             extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            callback.onPostDoubleClicked(post);
-            return true;
+            if (inPopup) {
+                callback.onPopupPostDoubleClicked(post);
+            }
+            return inPopup;
         }
     }
 }

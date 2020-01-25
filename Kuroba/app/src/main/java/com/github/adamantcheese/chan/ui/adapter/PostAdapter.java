@@ -132,7 +132,7 @@ public class PostAdapter
                         loadable,
                         post,
                         postCellCallback,
-                        true,
+                        false,
                         highlight,
                         post.no == selectedPost,
                         -1,

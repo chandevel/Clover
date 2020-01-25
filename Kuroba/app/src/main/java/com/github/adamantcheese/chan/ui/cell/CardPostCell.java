@@ -155,7 +155,7 @@ public class CardPostCell
             Loadable loadable,
             final Post post,
             PostCellInterface.PostCellCallback callback,
-            boolean selectable,
+            boolean inPopup,
             boolean highlighted,
             boolean selected,
             int markedNo,
