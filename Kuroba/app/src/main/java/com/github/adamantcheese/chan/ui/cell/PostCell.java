@@ -881,6 +881,7 @@ public class PostCell
     private static Bitmap closedIcon = BitmapFactory.decodeResource(getRes(), R.drawable.closed_icon);
     private static Bitmap trashIcon = BitmapFactory.decodeResource(getRes(), R.drawable.trash_icon);
     private static Bitmap archivedIcon = BitmapFactory.decodeResource(getRes(), R.drawable.archived_icon);
+    private static Bitmap errorIcon = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
 
     public static class PostIcons
             extends View {
@@ -1072,6 +1073,8 @@ public class PostCell
 
         @Override
         public void onErrorResponse(VolleyError error) {
+            bitmap = errorIcon;
+            postIcons.invalidate();
         }
     }
 
