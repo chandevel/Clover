@@ -25,8 +25,10 @@ import com.github.adamantcheese.chan.utils.Logger;
 public class CustomScaleImageView
         extends SubsamplingScaleImageView {
     private static final String TAG = "CustomScaleImageView";
+    private static final float EPSILON = 0.00001f;
 
     private Callback callback;
+    private final RectF panRectF = new RectF();
 
     public CustomScaleImageView(Context context) {
         super(context);
@@ -72,20 +74,18 @@ public class CustomScaleImageView
         });
     }
 
-    public boolean canUseSwipeUpGesture() {
-        RectF rectF = new RectF();
-        getPanRemaining(rectF);
+    public boolean isViewportTouchingImageBottom() {
+        panRectF.set(0f, 0f, 0f, 0f);
+        getPanRemaining(panRectF);
 
-        // Should be the opposite of the gesture name
-        return Math.signum(rectF.bottom) == 0f;
+        return Math.abs(panRectF.bottom) < EPSILON;
     }
 
-    public boolean canUseSwipeBottomGesture() {
-        RectF rectF = new RectF();
-        getPanRemaining(rectF);
+    public boolean isViewportTouchingImageTop() {
+        panRectF.set(0f, 0f, 0f, 0f);
+        getPanRemaining(panRectF);
 
-        // Should be the opposite of the gesture name
-        return Math.signum(rectF.top) == 0f;
+        return Math.abs(panRectF.top) < EPSILON;
     }
 
     public void setCallback(Callback callback) {

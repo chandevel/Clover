@@ -225,6 +225,8 @@ public class ImageViewerController
         item.setCallback(null);
         item.getView().getDrawable().setTint(Color.GRAY);
         saveShare(false, presenter.getCurrentPostImage());
+
+        ((ImageViewerAdapter) pager.getAdapter()).onImageSaved(presenter.getCurrentPostImage());
     }
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
@@ -572,7 +574,7 @@ public class ImageViewerController
     private void doPreviewOutAnimation(PostImage postImage, Bitmap bitmap) {
         // Find translation and scale if the current displayed image was a bigimage
         MultiImageView multiImageView = ((ImageViewerAdapter) pager.getAdapter()).find(postImage);
-        CustomScaleImageView customScaleImageView = multiImageView.findScaleImageView();
+        CustomScaleImageView customScaleImageView = multiImageView.findBigImageView();
         if (customScaleImageView != null) {
             ImageViewState state = customScaleImageView.getState();
             if (state != null) {
