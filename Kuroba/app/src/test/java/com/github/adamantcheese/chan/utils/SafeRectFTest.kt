@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.utils
 
+import com.github.adamantcheese.chan.features.gesture_editor.SafeRectF
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

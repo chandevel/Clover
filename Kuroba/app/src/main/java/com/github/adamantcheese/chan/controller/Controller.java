@@ -25,13 +25,14 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.transition.FadeInTransition;
 import com.github.adamantcheese.chan.controller.transition.FadeOutTransition;
 import com.github.adamantcheese.chan.ui.controller.DoubleNavigationController;
-import com.github.adamantcheese.chan.ui.controller.ImageViewerNavigationController;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import kotlin.jvm.functions.Function1;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -210,8 +211,8 @@ public abstract class Controller {
         ((StartActivity) context).addController(controller);
     }
 
-    public boolean isAlreadyPresenting() {
-        return ((StartActivity) context).isControllerAdded(c -> c instanceof ImageViewerNavigationController);
+    public boolean isAlreadyPresenting(Function1<Controller, Boolean> predicate) {
+        return ((StartActivity) context).isControllerAdded(predicate);
     }
 
     public void stopPresenting() {
@@ -262,9 +263,5 @@ public abstract class Controller {
         view.setLayoutParams(params);
 
         parentView.addView(view, view.getLayoutParams());
-    }
-
-    public interface ControllerPredicate {
-        boolean test(Controller controller);
     }
 }

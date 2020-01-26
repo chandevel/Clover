@@ -29,6 +29,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.Signature;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -37,6 +38,7 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -463,5 +465,43 @@ public class AndroidUtils {
 
     public static void postToEventBus(Object message) {
         EventBus.getDefault().post(message);
+    }
+
+    public static boolean isAndroid10() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
+    }
+
+    public static int getScreenOrientation() {
+        int screenOrientation = getAppContext().getResources().getConfiguration().orientation;
+        if (
+                screenOrientation != Configuration.ORIENTATION_LANDSCAPE
+                        && screenOrientation != Configuration.ORIENTATION_PORTRAIT
+        ) {
+            throw new IllegalStateException("Illegal screen orientation value! value = "
+                    + screenOrientation);
+        }
+
+        return screenOrientation;
+    }
+
+    /**
+     * These two method get the screen size ignoring the current screen orientation.
+     * */
+    public static int getMinScreenSize() {
+        WindowManager windowManager = (WindowManager) getAppContext().getSystemService(Context.WINDOW_SERVICE);
+
+        Point point = new Point();
+        windowManager.getDefaultDisplay().getRealSize(point);
+
+        return Math.min(point.x, point.y);
+    }
+
+    public static int getMaxScreenSize() {
+        WindowManager windowManager = (WindowManager) getAppContext().getSystemService(Context.WINDOW_SERVICE);
+
+        Point point = new Point();
+        windowManager.getDefaultDisplay().getRealSize(point);
+
+        return Math.max(point.x, point.y);
     }
 }

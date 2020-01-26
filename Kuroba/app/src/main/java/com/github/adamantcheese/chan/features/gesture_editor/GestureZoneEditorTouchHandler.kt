@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.ui.view.gesture_editor
+package com.github.adamantcheese.chan.features.gesture_editor
 
 import android.graphics.PointF
 import android.view.MotionEvent
@@ -28,7 +28,7 @@ class GestureZoneEditorTouchHandler(
                 val dx = event.x - prevMovePosition.x
                 val dy = event.y - prevMovePosition.y
 
-                callbacks.onMoving(event.x, event.y, dx, dy)
+                callbacks.onTouchInProgress(event.x, event.y, dx, dy)
                 prevMovePosition.set(event.x, event.y)
             }
             MotionEvent.ACTION_UP,
@@ -45,6 +45,6 @@ class GestureZoneEditorTouchHandler(
 
 interface GestureZoneEditorTouchHandlerCallbacks {
     fun onTouchStart(x: Float, y: Float)
-    fun onMoving(x: Float, y: Float, dx: Float, dy: Float)
+    fun onTouchInProgress(x: Float, y: Float, dx: Float, dy: Float)
     fun onTouchEnd()
 }

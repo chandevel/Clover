@@ -1,24 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.github.adamantcheese.chan.ui.view.gesture_editor.AdjustAndroid10GestureZonesView
+    <com.github.adamantcheese.chan.features.gesture_editor.AdjustAndroid10GestureZonesView
         android:id="@+id/adjust_gesture_zones_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/add_zone_button"
-        android:layout_width="128dp"
+        android:layout_width="192dp"
         android:layout_height="48dp"
-        android:layout_marginBottom="16dp"
-        android:text="Add zone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_centerHorizontal="true"
+        android:text="@string/add_new_zone" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

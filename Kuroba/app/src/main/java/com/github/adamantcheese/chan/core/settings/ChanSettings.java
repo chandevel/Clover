@@ -42,6 +42,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ChanSettings {
+    public static final String EMPTY_JSON = "{}";
+
     public enum MediaAutoLoadMode
             implements OptionSettingItem {
         // ALways auto load, either wifi or mobile
@@ -342,9 +344,9 @@ public class ChanSettings {
             addDubs = new BooleanSetting(p, "add_dubs", false);
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
 
-            youtubeTitleCache = new StringSetting(p, "yt_title_cache", "{}");
-            youtubeDurationCache = new StringSetting(p, "yt_dur_cache", "{}");
-            androidTenGestureZones = new StringSetting(p, "android_ten_gesture_zones", "{}");
+            youtubeTitleCache = new StringSetting(p, "yt_title_cache", EMPTY_JSON);
+            youtubeDurationCache = new StringSetting(p, "yt_dur_cache", EMPTY_JSON);
+            androidTenGestureZones = new StringSetting(p, "android_ten_gesture_zones", EMPTY_JSON);
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.

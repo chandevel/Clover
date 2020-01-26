@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.controller.ui;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -32,8 +33,20 @@ import androidx.core.view.ViewCompat;
 
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
+import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
+import com.github.adamantcheese.chan.features.gesture_editor.ExclusionZone;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 
 public class NavigationControllerContainerLayout
         extends FrameLayout {
@@ -84,6 +97,9 @@ public class NavigationControllerContainerLayout
     private Rect shadowRect = new Rect();
     private int shadowPosition;
 
+    @Inject
+    Android10GesturesExclusionZonesHolder exclusionZonesHolder;
+
     public NavigationControllerContainerLayout(Context context) {
         super(context);
         init();
@@ -100,12 +116,12 @@ public class NavigationControllerContainerLayout
     }
 
     private void init() {
+        inject(this);
+
         ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
         slopPixels = viewConfiguration.getScaledTouchSlop();
         maxFlingPixels = viewConfiguration.getScaledMaximumFlingVelocity();
-
         scroller = new Scroller(getContext());
-
         shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     }
 
@@ -115,6 +131,16 @@ public class NavigationControllerContainerLayout
 
     public void setNavigationController(NavigationController navigationController) {
         this.navigationController = navigationController;
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (AndroidUtils.isAndroid10()) {
+            // To trigger onLayout() which will call provideAndroid10GesturesExclusionZones()
+            requestLayout();
+        }
     }
 
     @Override
@@ -246,6 +272,35 @@ public class NavigationControllerContainerLayout
             shadowPaint.setColor(Color.argb((int) (alpha * 255f), 0, 0, 0));
             shadowRect.set(0, 0, shadowPosition, getHeight());
             canvas.drawRect(shadowRect, shadowPaint);
+        }
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+
+        if (isAndroid10() && changed) {
+            // This shouldn't be called very often (like once per configuration change or even
+            // less often) so it's okay to allocate lists. Just to not use this method in onDraw
+            provideAndroid10GesturesExclusionZones();
+        }
+    }
+
+    private void provideAndroid10GesturesExclusionZones() {
+        Map<Integer, Set<ExclusionZone>> zonesMap = exclusionZonesHolder.getZones();
+        if (zonesMap.size() > 0) {
+            int orientation = getContext().getResources().getConfiguration().orientation;
+            Set<ExclusionZone> zones = zonesMap.get(orientation);
+
+            if (zones != null && zones.size() > 0) {
+                List<Rect> rects = new ArrayList<>();
+
+                for (ExclusionZone exclusionZone : zones) {
+                    rects.add(exclusionZone.getZoneRect());
+                }
+
+                setSystemGestureExclusionRects(rects);
+            }
         }
     }
 

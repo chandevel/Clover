@@ -25,6 +25,7 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
+import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
@@ -34,12 +35,15 @@ import com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.manager.base_directory.DirectoryManager;
+import com.google.gson.Gson;
 
 import org.codejargon.feather.Provides;
 
 import javax.inject.Singleton;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getMaxScreenSize;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getMinScreenSize;
 import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ReplaceBadSymbols;
 import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ThrowAnException;
 
@@ -125,5 +129,13 @@ public class AppModule {
     @Singleton
     public FileChooser provideFileChooser() {
         return new FileChooser(applicationContext);
+    }
+
+    @Provides
+    @Singleton
+    public Android10GesturesExclusionZonesHolder provideAndroid10GesturesHolder(Gson gson) {
+        Logger.d(DI_TAG, "Android10GesturesExclusionZonesHolder");
+
+        return new Android10GesturesExclusionZonesHolder(gson, getMinScreenSize(), getMaxScreenSize());
     }
 }

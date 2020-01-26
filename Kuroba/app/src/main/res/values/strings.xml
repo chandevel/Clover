@@ -756,4 +756,5 @@ Don't have a 4chan Pass?<br>
     <string name="settings_captcha_setup_description">Captcha settings are per-site configurable. Tap for site setup.</string>
     <string name="setting_enable_image_link_loading">Enable image link loading</string>
     <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
+    <string name="add_new_zone">Add new zone</string>
 </resources>
