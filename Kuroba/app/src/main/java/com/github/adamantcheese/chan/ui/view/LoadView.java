@@ -27,16 +27,17 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.utils.AndroidUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
  * Container for a view with an ProgressBar. Toggles between the view and a
  * ProgressBar.
  */
-public class LoadView extends FrameLayout {
+public class LoadView
+        extends FrameLayout {
     private int fadeDuration = 200;
     private Listener listener;
 
@@ -123,7 +124,7 @@ public class LoadView extends FrameLayout {
 
             if (newView.getParent() != this) {
                 if (newView.getParent() != null) {
-                    AndroidUtils.removeFromParentView(newView);
+                    removeFromParentView(newView);
                 }
                 addView(newView);
             }

@@ -72,8 +72,7 @@ public class DatabaseFilterManager {
     public Callable<List<Filter>> getFilters() {
         return () -> {
             List<Filter> filters = helper.filterDao.queryForAll();
-            Collections.sort(filters,
-                    (lhs, rhs) -> lhs.order - rhs.order);
+            Collections.sort(filters, (lhs, rhs) -> lhs.order - rhs.order);
             updateFilters(filters);
             return filters;
         };
@@ -97,8 +96,9 @@ public class DatabaseFilterManager {
             int deletedCount = builder.delete();
 
             if (deletedCount != filterIdSet.size()) {
-                throw new IllegalStateException("Deleted count didn't equal filterIdList.size(). (deletedCount = "
-                        + deletedCount + "), " + "(filterIdSet = " + filterIdSet.size() + ")");
+                throw new IllegalStateException(
+                        "Deleted count didn't equal filterIdList.size(). (deletedCount = " + deletedCount + "), "
+                                + "(filterIdSet = " + filterIdSet.size() + ")");
             }
 
             return null;

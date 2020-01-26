@@ -33,7 +33,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-public class PageRequestManager implements SiteActions.PagesListener {
+public class PageRequestManager
+        implements SiteActions.PagesListener {
     private static final String TAG = "PageRequestManager";
 
     private Set<String> requestedBoards = Collections.synchronizedSet(new HashSet<>());

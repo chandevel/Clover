@@ -24,12 +24,14 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
 import com.github.adamantcheese.chan.controller.ControllerTransition;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-public class PushControllerTransition extends ControllerTransition {
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
+
+public class PushControllerTransition
+        extends ControllerTransition {
     @Override
     public void perform() {
-        AndroidUtils.waitForMeasure(to.view, view -> {
+        waitForMeasure(to.view, view -> {
             Animator toAlpha = ObjectAnimator.ofFloat(to.view, View.ALPHA, 0f, 1f);
             toAlpha.setDuration(200);
             toAlpha.setInterpolator(new DecelerateInterpolator(2f));

@@ -19,7 +19,8 @@ package com.github.adamantcheese.chan.ui.view;
 import android.content.Context;
 import android.util.AttributeSet;
 
-public class FixedRatioThumbnailView extends ThumbnailView {
+public class FixedRatioThumbnailView
+        extends ThumbnailView {
     private float ratio;
 
     public FixedRatioThumbnailView(Context context) {
@@ -41,7 +42,8 @@ public class FixedRatioThumbnailView extends ThumbnailView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED || heightMode == MeasureSpec.AT_MOST)) {
+        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED
+                || heightMode == MeasureSpec.AT_MOST)) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
 
             super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec((int) (width / ratio), MeasureSpec.EXACTLY));

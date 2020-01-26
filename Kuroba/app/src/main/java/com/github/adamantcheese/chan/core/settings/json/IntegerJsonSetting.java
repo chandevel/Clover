@@ -18,7 +18,8 @@ package com.github.adamantcheese.chan.core.settings.json;
 
 import com.google.gson.annotations.SerializedName;
 
-public class IntegerJsonSetting extends JsonSetting {
+public class IntegerJsonSetting
+        extends JsonSetting {
     @SerializedName("value")
     public int value;
 }

@@ -29,13 +29,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.requestKeyboardFocus;
 
-public class SearchLayout extends LinearLayout {
+public class SearchLayout
+        extends LinearLayout {
     private EditText searchView;
     private ImageView clearButton;
 
@@ -79,7 +82,7 @@ public class SearchLayout extends LinearLayout {
         });
         searchView.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                AndroidUtils.hideKeyboard(searchView);
+                hideKeyboard(searchView);
                 callback.onSearchEntered(getText());
                 return true;
             }
@@ -87,9 +90,9 @@ public class SearchLayout extends LinearLayout {
         });
         searchView.setOnFocusChangeListener((view, focused) -> {
             if (!focused) {
-                view.postDelayed(() -> AndroidUtils.hideKeyboard(view), 100);
+                view.postDelayed(() -> hideKeyboard(view), 100);
             } else {
-                view.postDelayed(() -> AndroidUtils.requestKeyboardFocus(view), 100);
+                view.postDelayed(() -> requestKeyboardFocus(view), 100);
             }
         });
         LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(36), 1);
@@ -104,9 +107,9 @@ public class SearchLayout extends LinearLayout {
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
         clearButton.setOnClickListener(v -> {
             searchView.setText("");
-            AndroidUtils.requestKeyboardFocus(searchView);
+            requestKeyboardFocus(searchView);
         });
-        addView(clearButton, dp(48), LayoutParams.MATCH_PARENT);
+        addView(clearButton, dp(48), MATCH_PARENT);
     }
 
     public void setText(String text) {

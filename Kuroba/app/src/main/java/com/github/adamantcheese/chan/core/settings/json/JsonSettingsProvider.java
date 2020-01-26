@@ -18,7 +18,8 @@ package com.github.adamantcheese.chan.core.settings.json;
 
 import com.github.adamantcheese.chan.core.settings.SettingProvider;
 
-public class JsonSettingsProvider implements SettingProvider {
+public class JsonSettingsProvider
+        implements SettingProvider {
     public final JsonSettings jsonSettings;
     private Callback callback;
 
@@ -130,6 +131,11 @@ public class JsonSettingsProvider implements SettingProvider {
 
     @Override
     public void removeSync(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void putIntSync(String key, Integer value) {
         throw new UnsupportedOperationException();
     }
 }

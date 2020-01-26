@@ -84,7 +84,8 @@ public class WakeManager {
 
     @Subscribe
     public void onEvent(ChanSettings.SettingChanged<?> settingChanged) {
-        if (settingChanged.setting == ChanSettings.watchBackground || settingChanged.setting == ChanSettings.watchEnabled) {
+        if (settingChanged.setting == ChanSettings.watchBackground
+                || settingChanged.setting == ChanSettings.watchEnabled) {
             if (ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()) {
                 startAlarm();
             } else {
@@ -107,8 +108,15 @@ public class WakeManager {
     }
 
     private void startAlarm() {
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, ChanSettings.watchBackgroundInterval.get(), pendingIntent);
-        Logger.i(TAG, "Started background alarm with an interval of " + MILLISECONDS.toMinutes(ChanSettings.watchBackgroundInterval.get()) + " minutes");
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                0,
+                ChanSettings.watchBackgroundInterval.get(),
+                pendingIntent
+        );
+        Logger.i(TAG,
+                "Started background alarm with an interval of "
+                        + MILLISECONDS.toMinutes(ChanSettings.watchBackgroundInterval.get()) + " minutes"
+        );
     }
 
     private void stopAlarm() {
@@ -132,7 +140,9 @@ public class WakeManager {
                 wakeLocks.remove(locker);
             }
 
-            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getApplicationLabel() + ":WakeManagerUpdateLock:" + Object.class.getSimpleName());
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    getApplicationLabel() + ":WakeManagerUpdateLock:" + Object.class.getSimpleName()
+            );
             wakeLock.setReferenceCounted(false);
             wakeLock.acquire(MINUTES.toMillis(1));
             wakeLocks.put(locker, wakeLock);

@@ -29,14 +29,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Chan4BoardsRequest extends JsonReaderRequest<List<Board>> {
-    public static List<String> BLOCKED = Collections.singletonList(
-            "f"
-    );
-
-//    public static List<String> TREAT_AS_NOT_WORKSAFE = Arrays.asList(
-//            "a", "c", "w", "cm", "jp", "mlp", "lgbt"
-//    );
+public class Chan4BoardsRequest
+        extends JsonReaderRequest<List<Board>> {
+    public static List<String> BLOCKED = Collections.singletonList("f");
 
     private final Site site;
 
@@ -46,7 +41,8 @@ public class Chan4BoardsRequest extends JsonReaderRequest<List<Board>> {
     }
 
     @Override
-    public List<Board> readJson(JsonReader reader) throws Exception {
+    public List<Board> readJson(JsonReader reader)
+            throws Exception {
         List<Board> list = new ArrayList<>();
 
         reader.beginObject();
@@ -72,7 +68,8 @@ public class Chan4BoardsRequest extends JsonReaderRequest<List<Board>> {
         return list;
     }
 
-    private Board readBoardEntry(JsonReader reader) throws IOException {
+    private Board readBoardEntry(JsonReader reader)
+            throws IOException {
         reader.beginObject();
 
         Board board = new Board();
@@ -178,10 +175,6 @@ public class Chan4BoardsRequest extends JsonReaderRequest<List<Board>> {
         if (BLOCKED.contains(board.code)) {
             return null;
         }
-
-//        if (TREAT_AS_NOT_WORKSAFE.contains(board.code)) {
-//            board.workSafe = false;
-//        }
 
         return board;
     }

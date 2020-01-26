@@ -1,18 +1,16 @@
 package com.github.adamantcheese.chan.core.model.save.spans.linkable;
 
-import com.github.adamantcheese.chan.core.model.save.spans.SerializablePostLinkableSpan;
+import com.github.adamantcheese.chan.core.model.save.spans.SerializablePostLinkableSpan.PostLinkableType;
 import com.google.gson.annotations.SerializedName;
 
-public class PostLinkableSearchLinkValue extends PostLinkableValue {
+public class PostLinkableSearchLinkValue
+        extends PostLinkableValue {
     @SerializedName("board")
     private String board;
     @SerializedName("search")
     private String search;
 
-    public PostLinkableSearchLinkValue(
-            SerializablePostLinkableSpan.PostLinkableType type,
-            String board,
-            String search) {
+    public PostLinkableSearchLinkValue(PostLinkableType type, String board, String search) {
         super(type);
 
         this.board = board;

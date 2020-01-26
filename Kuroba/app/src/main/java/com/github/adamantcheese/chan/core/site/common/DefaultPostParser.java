@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.common;
 
-
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
@@ -48,7 +47,8 @@ import java.util.List;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
-public class DefaultPostParser implements PostParser {
+public class DefaultPostParser
+        implements PostParser {
     private static final String TAG = "DefaultPostParser";
 
     private CommentParser commentParser;
@@ -120,7 +120,8 @@ public class DefaultPostParser implements PostParser {
             }
         }
 
-        if (!TextUtils.isEmpty(builder.name) && (!builder.name.equals(defaultName) || ChanSettings.showAnonymousName.get())) {
+        if (!TextUtils.isEmpty(builder.name) && (!builder.name.equals(defaultName)
+                || ChanSettings.showAnonymousName.get())) {
             nameSpan = new SpannableString(builder.name);
             nameSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, nameSpan.length(), 0);
         }
@@ -172,9 +173,6 @@ public class DefaultPostParser implements PostParser {
 
         try {
             String comment = commentRaw.toString().replace("<wbr>", "");
-            if (ChanSettings.enableEmoji.get()) {
-                comment = EmojiParser.parseToUnicode(comment);
-            }
 
             Document document = Jsoup.parseBodyFragment(comment);
 
@@ -201,6 +199,11 @@ public class DefaultPostParser implements PostParser {
     private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
+            if (ChanSettings.enableEmoji.get() && !( //emoji parse disable for [code] and [eqn]
+                    (node.parent() instanceof Element && (((Element) node.parent()).hasClass("prettyprint")))
+                            || text.startsWith("[eqn]"))) {
+                text = processEmojiMath(text);
+            }
             //we need to replace youtube links with their titles before linkifying anything else
             //because the string itself changes as a result of the titles shrinking/expanding the string length
             //this would mess up the rest of the spans if we did it afterwards, so we do it as the first step
@@ -232,16 +235,10 @@ public class DefaultPostParser implements PostParser {
                 }
             }
 
-            CharSequence allInnerText = TextUtils.concat(
-                    texts.toArray(new CharSequence[0]));
+            CharSequence allInnerText = TextUtils.concat(texts.toArray(new CharSequence[0]));
 
-            CharSequence result = commentParser.handleTag(
-                    callback,
-                    theme,
-                    post,
-                    nodeName,
-                    allInnerText,
-                    (Element) node);
+            CharSequence result =
+                    commentParser.handleTag(callback, theme, post, nodeName, allInnerText, (Element) node);
             if (result != null) {
                 return result;
             } else {
@@ -250,5 +247,29 @@ public class DefaultPostParser implements PostParser {
         } else {
             return ""; // ?
         }
+    }
+
+    //This method parses emoji but only as long as the text isn't in a [math] block; this can be extended as necessary
+    //
+    //Text with math not at the start is "offset", so the loop processes alternating items starting at index 0
+    //  This covers the case when there are no math tags as well, as the split will return a single item array and the loop runs once
+    //Text with math at the start is not "offset", so the loop processes alternating items starting at index 1, as index 0 is covered by [3]
+    //  This covers the case when there are only math tags as well, as the split returns a single item array processed by [3] and the loop is skipped
+    private String processEmojiMath(String text) {
+        String[] split = text.split("\\[/?math]");
+        StringBuilder rebuilder = new StringBuilder();
+        boolean offset = true;
+        if (text.startsWith("[math]")) {
+            rebuilder.append("[math]").append(split[0]).append("[/math]"); //[3]
+            offset = false;
+        }
+        for (int i = (offset ? 0 : 1); i < split.length; i++) {
+            if ((i - (offset ? 0 : 1)) % 2 == 0) {
+                rebuilder.append(EmojiParser.parseToUnicode(split[i])); //[1]
+            } else {
+                rebuilder.append("[math]").append(split[i]).append("[/math]"); //[2]
+            }
+        }
+        return rebuilder.toString();
     }
 }

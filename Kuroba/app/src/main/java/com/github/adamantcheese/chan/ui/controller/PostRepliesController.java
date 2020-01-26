@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -40,7 +39,10 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.List;
 
-public class PostRepliesController extends BaseFloatingController {
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+
+public class PostRepliesController
+        extends BaseFloatingController {
     private PostPopupHelper postPopupHelper;
     private ThreadPresenter presenter;
 
@@ -112,9 +114,9 @@ public class PostRepliesController extends BaseFloatingController {
 
         View dataView;
         if (ChanSettings.repliesButtonsBottom.get()) {
-            dataView = inflateRes(R.layout.layout_post_replies_bottombuttons);
+            dataView = inflate(context, R.layout.layout_post_replies_bottombuttons);
         } else {
-            dataView = inflateRes(R.layout.layout_post_replies);
+            dataView = inflate(context, R.layout.layout_post_replies);
         }
 
         listView = dataView.findViewById(R.id.post_list);
@@ -142,7 +144,7 @@ public class PostRepliesController extends BaseFloatingController {
                 if (convertView instanceof PostCellInterface && !ChanSettings.shiftPostFormat.get()) {
                     postCell = (PostCellInterface) convertView;
                 } else {
-                    postCell = (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
+                    postCell = (PostCellInterface) inflate(context, R.layout.cell_post, parent, false);
                 }
 
                 final Post p = getItem(position);
@@ -158,7 +160,8 @@ public class PostRepliesController extends BaseFloatingController {
                         showDivider,
                         ChanSettings.PostViewMode.LIST,
                         false,
-                        ThemeHelper.getTheme());
+                        ThemeHelper.getTheme()
+                );
 
                 return (View) postCell;
             }

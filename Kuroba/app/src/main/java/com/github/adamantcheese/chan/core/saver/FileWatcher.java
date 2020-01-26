@@ -28,7 +28,8 @@ import java.util.List;
 public class FileWatcher {
     private static final String TAG = "FileWatcher";
 
-    private static final Comparator<FileItem> FILE_COMPARATOR = (a, b) -> a.file.getName().compareToIgnoreCase(b.file.getName());
+    private static final Comparator<FileItem> FILE_COMPARATOR =
+            (a, b) -> a.file.getName().compareToIgnoreCase(b.file.getName());
 
     private final FileWatcherCallback callback;
     private File startingPath;
@@ -72,10 +73,10 @@ public class FileWatcher {
         }
 
         // TODO: fileobserver is broken
-//        int mask = FileObserver.CREATE | FileObserver.DELETE;
-//        fileObserver = new AFileObserver(to.getAbsolutePath(), mask);
-//        fileObserver = new AFileObserver("/sdcard/");
-//        fileObserver.startWatching();
+        //  int mask = FileObserver.CREATE | FileObserver.DELETE;
+        //  fileObserver = new AFileObserver(to.getAbsolutePath(), mask);
+        //  fileObserver = new AFileObserver("/sdcard/");
+        //  fileObserver.startWatching();
 
         currentPath = to;
 

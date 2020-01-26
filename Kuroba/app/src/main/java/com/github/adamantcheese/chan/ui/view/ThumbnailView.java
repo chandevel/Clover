@@ -44,7 +44,6 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -53,10 +52,13 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
-public class ThumbnailView extends View implements ImageListener {
+public class ThumbnailView
+        extends View
+        implements ImageListener {
     private ImageContainer container;
 
     private boolean circular = false;
@@ -107,9 +109,7 @@ public class ThumbnailView extends View implements ImageListener {
     }
 
     public void setUrl(String url, int maxWidth, int maxHeight) {
-        if (container != null &&
-                container.getRequestUrl() != null &&
-                container.getRequestUrl().equals(url)) {
+        if (container != null && container.getRequestUrl() != null && container.getRequestUrl().equals(url)) {
             return;
         }
 
@@ -121,7 +121,7 @@ public class ThumbnailView extends View implements ImageListener {
         }
 
         if (!TextUtils.isEmpty(url)) {
-            container = Chan.injector().instance(ImageLoaderV2.class).get(url, this, maxWidth, maxHeight);
+            container = instance(ImageLoaderV2.class).get(url, this, maxWidth, maxHeight);
         }
     }
 
@@ -129,13 +129,8 @@ public class ThumbnailView extends View implements ImageListener {
         setUrl(url, 0, 0);
     }
 
-    public void setUrlFromDisk(
-            Loadable loadable,
-            String filename,
-            boolean isSpoiler,
-            int width,
-            int height) {
-        container = imageLoaderV2.getFromDisk(loadable, filename, isSpoiler, this, width, height);
+    public void setUrlFromDisk(Loadable loadable, String filename, boolean isSpoiler, int width, int height) {
+        container = imageLoaderV2.getFromDisk(loadable, filename, isSpoiler, this, width, height, null);
     }
 
     public void setCircular(boolean circular) {
@@ -157,7 +152,10 @@ public class ThumbnailView extends View implements ImageListener {
             if (clickable) {
                 TypedValue rippleAttrForThemeValue = new TypedValue();
                 getContext().getTheme().resolveAttribute(R.attr.colorControlHighlight, rippleAttrForThemeValue, true);
-                foreground = new RippleDrawable(ColorStateList.valueOf(rippleAttrForThemeValue.data), null, new ColorDrawable(Color.WHITE));
+                foreground = new RippleDrawable(ColorStateList.valueOf(rippleAttrForThemeValue.data),
+                        null,
+                        new ColorDrawable(Color.WHITE)
+                );
                 foreground.setCallback(this);
                 if (foreground.isStateful()) {
                     foreground.setState(getDrawableState());
@@ -187,7 +185,8 @@ public class ThumbnailView extends View implements ImageListener {
     public void onErrorResponse(VolleyError e) {
         error = true;
 
-        if (e instanceof NetworkError || e instanceof TimeoutError || e instanceof ParseError || e instanceof AuthFailureError) {
+        if (e instanceof NetworkError || e instanceof TimeoutError || e instanceof ParseError
+                || e instanceof AuthFailureError) {
             errorText = getString(R.string.thumbnail_load_failed_network);
         } else {
             errorText = getString(R.string.thumbnail_load_failed_server);
@@ -248,9 +247,7 @@ public class ThumbnailView extends View implements ImageListener {
             if (calculate) {
                 calculate = false;
                 bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
-                float scale = Math.max(
-                        (float) width / (float) bitmap.getWidth(),
-                        (float) height / (float) bitmap.getHeight());
+                float scale = Math.max(width / (float) bitmap.getWidth(), height / (float) bitmap.getHeight());
                 float scaledX = bitmap.getWidth() * scale;
                 float scaledY = bitmap.getHeight() * scale;
                 float offsetX = (scaledX - width) * 0.5f;
@@ -259,7 +256,11 @@ public class ThumbnailView extends View implements ImageListener {
                 drawRect.set(-offsetX, -offsetY, scaledX - offsetX, scaledY - offsetY);
                 drawRect.offset(getPaddingLeft(), getPaddingTop());
 
-                outputRect.set(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight() - getPaddingBottom());
+                outputRect.set(getPaddingLeft(),
+                        getPaddingTop(),
+                        getWidth() - getPaddingRight(),
+                        getHeight() - getPaddingBottom()
+                );
 
                 matrix.setRectToRect(bitmapRect, drawRect, Matrix.ScaleToFit.FILL);
 

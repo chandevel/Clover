@@ -45,10 +45,14 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.BaseDirectoryDoesNotExist;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.Ok;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.UnknownError;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
+public class ImageSaver
+        implements ImageSaveTask.ImageSaveTaskCallback {
     private static final String TAG = "ImageSaver";
     private static final int MAX_NAME_LENGTH = 50;
 
@@ -64,10 +68,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         EventBus.getDefault().register(this);
     }
 
-    public void startDownloadTask(
-            Context context,
-            final ImageSaveTask task,
-            DownloadTaskCallbacks callbacks) {
+    public void startDownloadTask(Context context, final ImageSaveTask task, DownloadTaskCallbacks callbacks) {
         if (hasPermission(context)) {
             startDownloadTaskInternal(task, callbacks);
             return;
@@ -83,12 +84,15 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         });
     }
 
-    private void startDownloadTaskInternal(
-            ImageSaveTask task,
-            DownloadTaskCallbacks callbacks) {
+    private void startDownloadTaskInternal(ImageSaveTask task, DownloadTaskCallbacks callbacks) {
+        if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
+            callbacks.onError(getString(R.string.files_base_dir_does_not_exist));
+            return;
+        }
+
         AbstractFile saveLocation = getSaveLocation(task);
         if (saveLocation == null) {
-            callbacks.onError("Couldn't figure out save location");
+            callbacks.onError(getString(R.string.image_saver_could_not_figure_out_save_location));
             return;
         }
 
@@ -100,16 +104,21 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         updateNotification();
     }
 
-    public boolean startBundledTask(Context context, final String subFolder, final List<ImageSaveTask> tasks) {
+    public BundledImageSaveResult startBundledTask(Context context, final List<ImageSaveTask> tasks) {
+        if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
+            return BaseDirectoryDoesNotExist;
+        }
+
         if (hasPermission(context)) {
-            return startBundledTaskInternal(subFolder, tasks);
+            boolean result = startBundledTaskInternal(tasks);
+            return result ? Ok : UnknownError;
         }
 
         // This does not request the permission when another request is pending.
         // This is ok and will drop the tasks.
         requestPermission(context, granted -> {
             if (granted) {
-                if (startBundledTaskInternal(subFolder, tasks)) {
+                if (startBundledTaskInternal(tasks)) {
                     return;
                 }
             }
@@ -117,14 +126,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             showToast(null, false, false);
         });
 
-        // TODO: uhh not sure about this one
-        return true;
-    }
-
-    public String getSubFolder(String name) {
-        String filtered = filterName(name, false);
-        filtered = filtered.substring(0, Math.min(filtered.length(), MAX_NAME_LENGTH));
-        return filtered;
+        return Ok;
     }
 
     @Nullable
@@ -199,13 +201,12 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         executor.execute(task);
     }
 
-    private boolean startBundledTaskInternal(String subFolder, List<ImageSaveTask> tasks) {
+    private boolean startBundledTaskInternal(List<ImageSaveTask> tasks) {
         boolean allSuccess = true;
 
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
 
-            task.setSubFolder(subFolder);
             AbstractFile deduplicateFile = deduplicateFile(postImage, task);
             if (deduplicateFile == null) {
                 allSuccess = false;
@@ -241,8 +242,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     }
 
     private void showToast(ImageSaveTask task, boolean success, boolean wasAlbumSave) {
-        if (task == null && success)
-            throw new IllegalArgumentException("Task succeeded but is null");
+        if (task == null && success) throw new IllegalArgumentException("Task succeeded but is null");
 
         if (toast != null) {
             toast.cancel();
@@ -269,13 +269,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
                     location = locationFile.getFullPath();
                 }
 
-                text = getAppContext().getString(
-                        R.string.album_download_success,
-                        location);
+                text = getString(R.string.album_download_success, location);
             } else {
-                text = getAppContext().getString(
-                        R.string.image_save_as,
-                        fileManager.getName(task.getDestination()));
+                text = getString(R.string.image_save_as, fileManager.getName(task.getDestination()));
             }
         } else {
             text = getString(R.string.image_save_failed);
@@ -290,7 +286,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
      *                   directory names should not have '.' characters (well they actually can but
      *                   let's filter them anyway). If it's false then it is implied that the "name"
      *                   param is a directory segment name.
-     * */
+     */
     private String filterName(String name, boolean isFileName) {
         String filteredName;
 
@@ -306,8 +302,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         // and if it equals to 0 that means that the whole file name consists of bad characters
         // (e.g. the whole filename consists of japanese characters) so we need to generate a new
         // file name
-        boolean isOnlyExtensionLeft
-                = (extension != null && (filteredName.length() - extension.length() - 1) == 0);
+        boolean isOnlyExtensionLeft = (extension != null && (filteredName.length() - extension.length() - 1) == 0);
 
         // filteredName.length() == 0 will only be true when "name" parameter does not have an
         // extension
@@ -329,9 +324,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     @Nullable
     private AbstractFile deduplicateFile(PostImage postImage, ImageSaveTask task) {
-        String name = ChanSettings.saveServerFilename.get()
-                ? postImage.serverFilename
-                : postImage.filename;
+        String name = ChanSettings.saveServerFilename.get() ? postImage.serverFilename : postImage.filename;
 
         String fileName = filterName(name + "." + postImage.extension, true);
 
@@ -341,30 +334,37 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             return null;
         }
 
-        AbstractFile saveFile = saveLocation
-                .clone(new FileSegment(fileName));
+        AbstractFile saveFile = saveLocation.clone(new FileSegment(fileName));
 
         while (fileManager.exists(saveFile)) {
+            String currentTimeHash = Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX);
             String resultFileName = name + "_"
                     //dedupe shared files to have their own file name; ok to overwrite, prevents lots of downloads for multiple shares
-                    + (task.getShare() ? "shared" : Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX))
-                    + "." + postImage.extension;
+                    + (task.getShare() ? "shared" : currentTimeHash) + "." + postImage.extension;
 
             fileName = filterName(resultFileName, true);
-            saveFile = saveLocation
-                    .clone(new FileSegment(fileName));
-            if(task.getShare()) break; //otherwise we'd get stuck in the loop, because the file would always be the same
+            saveFile = saveLocation.clone(new FileSegment(fileName));
+            if (task.getShare())
+                break; //otherwise we'd get stuck in the loop, because the file would always be the same
         }
 
         return saveFile;
     }
 
     private boolean hasPermission(Context context) {
-        return ((StartActivity) context).getRuntimePermissionsHelper().hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        return ((StartActivity) context).getRuntimePermissionsHelper()
+                .hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     private void requestPermission(Context context, RuntimePermissionsHelper.Callback callback) {
-        ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
+        ((StartActivity) context).getRuntimePermissionsHelper()
+                .requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
+    }
+
+    public enum BundledImageSaveResult {
+        Ok,
+        BaseDirectoryDoesNotExist,
+        UnknownError
     }
 
     public interface DownloadTaskCallbacks {

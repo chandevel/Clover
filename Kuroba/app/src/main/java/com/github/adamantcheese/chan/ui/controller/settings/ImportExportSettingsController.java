@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.controller;
+package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -26,13 +26,13 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.controller.LoadingViewController;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -46,9 +46,14 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
-public class ImportExportSettingsController extends SettingsController implements
-        ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
+public class ImportExportSettingsController
+        extends SettingsController
+        implements ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
     private static final String TAG = "ImportExportSettingsController";
     public static final String EXPORT_FILE_NAME = getApplicationLabel() + "_exported_settings.json";
 
@@ -56,6 +61,8 @@ public class ImportExportSettingsController extends SettingsController implement
     FileManager fileManager;
     @Inject
     FileChooser fileChooser;
+    @Inject
+    DatabaseManager databaseManager;
 
     private ImportExportSettingsPresenter presenter;
 
@@ -98,77 +105,90 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     protected void setupLayout() {
-        view = inflateRes(R.layout.settings_layout);
+        view = inflate(context, R.layout.settings_layout);
         content = view.findViewById(R.id.scrollview_content);
     }
 
     private void populatePreferences() {
         // Import/export settings group
         {
-            SettingsGroup group = new SettingsGroup(context.getString(R.string.import_or_export_settings));
+            SettingsGroup group = new SettingsGroup(getString(R.string.import_or_export_settings));
 
-            group.add(new LinkSettingView(this,
-                    context.getString(R.string.export_settings),
-                    context.getString(R.string.export_settings_to_a_file),
-                    v -> onExportClicked()));
+            group.add(new LinkSettingView(
+                    this,
+                    getString(R.string.export_settings),
+                    getString(R.string.export_settings_to_a_file),
+                    v -> onExportClicked()
+            ));
 
-            group.add(new LinkSettingView(this,
-                    context.getString(R.string.import_settings),
-                    context.getString(R.string.import_settings_from_a_file),
-                    v -> onImportClicked()));
+            group.add(new LinkSettingView(
+                    this,
+                    getString(R.string.import_settings),
+                    getString(R.string.import_settings_from_a_file),
+                    v -> onImportClicked()
+            ));
 
             groups.add(group);
         }
     }
 
     private void onExportClicked() {
-        boolean localThreadsLocationIsSAFBacked = !ChanSettings.localThreadsLocationUri.get().isEmpty();
-        boolean savedFilesLocationIsSAFBacked = !ChanSettings.saveLocationUri.get().isEmpty();
+        boolean localThreadsLocationIsSAFBacked = ChanSettings.localThreadLocation.isSafDirActive();
+        boolean savedFilesLocationIsSAFBacked = ChanSettings.saveLocation.isSafDirActive();
 
         if (localThreadsLocationIsSAFBacked || savedFilesLocationIsSAFBacked) {
-            showSomeBaseDirectoriesWillBeResetToDefaultDialog(
-                    localThreadsLocationIsSAFBacked,
-                    savedFilesLocationIsSAFBacked
-            );
+            showDirectoriesWillBeResetToDefaultDialog(localThreadsLocationIsSAFBacked, savedFilesLocationIsSAFBacked);
             return;
         }
 
         showCreateNewOrOverwriteDialog();
     }
 
-    private void showSomeBaseDirectoriesWillBeResetToDefaultDialog(
-            boolean localThreadsLocationIsSAFBacked,
-            boolean savedFilesLocationIsSAFBacked
+    private void showDirectoriesWillBeResetToDefaultDialog(
+            boolean localThreadsLocationIsSAFBacked, boolean savedFilesLocationIsSAFBacked
     ) {
         if (!localThreadsLocationIsSAFBacked && !savedFilesLocationIsSAFBacked) {
             throw new IllegalStateException("Both variables are false, wtf?");
         }
 
         String localThreadsString = localThreadsLocationIsSAFBacked
-                ? context.getString(R.string.import_or_export_warning_local_threads_base_dir)
+                ? getString(R.string.import_or_export_warning_local_threads_base_dir)
                 : "";
         String andString = localThreadsLocationIsSAFBacked && savedFilesLocationIsSAFBacked
-                ? context.getString(R.string.import_or_export_warning_and)
+                ? getString(R.string.import_or_export_warning_and)
                 : "";
-        String savedFilesString = savedFilesLocationIsSAFBacked
-                ? context.getString(R.string.import_or_export_warning_saved_files_base_dir)
-                : "";
+        String savedFilesString =
+                savedFilesLocationIsSAFBacked ? getString(R.string.import_or_export_warning_saved_files_base_dir) : "";
 
-        String message = context.getString(
-                R.string.import_or_export_warning_super_long_message,
+        String messagePartOne = getString(
+                R.string.import_or_export_warning_super_long_message_part_one,
                 localThreadsString,
                 andString,
                 savedFilesString
         );
 
-        AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.import_or_export_warning))
-                .setMessage(message)
-                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    dialog.dismiss();
-                    showCreateNewOrOverwriteDialog();
-                })
-                .create();
+        String messagePartTwo = "";
+
+        if (localThreadsLocationIsSAFBacked) {
+            long downloadingThreadsCount = databaseManager.runTask(() -> databaseManager.getDatabaseSavedThreadManager()
+                    .countDownloadingThreads()
+                    .call());
+
+            if (downloadingThreadsCount > 0) {
+                messagePartTwo = getString(R.string.import_or_export_warning_super_long_message_part_two);
+            }
+        }
+
+        String fullMessage = String.format("%s %s", messagePartOne, messagePartTwo);
+
+        AlertDialog alertDialog =
+                new AlertDialog.Builder(context).setTitle(getString(R.string.import_or_export_warning))
+                        .setMessage(fullMessage)
+                        .setPositiveButton(R.string.ok, (dialog, which) -> {
+                            dialog.dismiss();
+                            showCreateNewOrOverwriteDialog();
+                        })
+                        .create();
 
         alertDialog.show();
     }
@@ -183,14 +203,9 @@ public class ImportExportSettingsController extends SettingsController implement
         int positiveButtonId = R.string.import_or_export_dialog_positive_button_text;
         int negativeButtonId = R.string.import_or_export_dialog_negative_button_text;
 
-        AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.import_or_export_dialog_title)
-                .setPositiveButton(positiveButtonId, (dialog, which) -> {
-                    overwriteExisting();
-                })
-                .setNegativeButton(negativeButtonId, (dialog, which) -> {
-                    createNew();
-                })
+        AlertDialog alertDialog = new AlertDialog.Builder(context).setTitle(R.string.import_or_export_dialog_title)
+                .setPositiveButton(positiveButtonId, (dialog, which) -> overwriteExisting())
+                .setNegativeButton(negativeButtonId, (dialog, which) -> createNew())
                 .create();
 
         alertDialog.show();
@@ -208,7 +223,7 @@ public class ImportExportSettingsController extends SettingsController implement
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showMessage(reason);
+                showToast(reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -227,7 +242,7 @@ public class ImportExportSettingsController extends SettingsController implement
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showMessage(reason);
+                showToast(reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -240,7 +255,7 @@ public class ImportExportSettingsController extends SettingsController implement
             String message = "onFileChosen() fileManager.fromUri() returned null, uri = " + uri;
 
             Logger.d(TAG, message);
-            showMessage(message);
+            showToast(message, Toast.LENGTH_LONG);
             return;
         }
 
@@ -257,7 +272,7 @@ public class ImportExportSettingsController extends SettingsController implement
                     String message = "onImportClicked() fileManager.fromUri() returned null, uri = " + uri;
 
                     Logger.d(TAG, message);
-                    showMessage(message);
+                    showToast(message, Toast.LENGTH_LONG);
                     return;
                 }
 
@@ -267,7 +282,7 @@ public class ImportExportSettingsController extends SettingsController implement
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showMessage(reason);
+                showToast(reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -276,12 +291,12 @@ public class ImportExportSettingsController extends SettingsController implement
     public void onSuccess(ImportExportRepository.ImportExport importExport) {
         // called on background thread
         if (context instanceof StartActivity) {
-            AndroidUtils.runOnUiThread(() -> {
+            runOnUiThread(() -> {
                 if (importExport == ImportExportRepository.ImportExport.Import) {
                     ((StartActivity) context).restartApp();
                 } else {
                     clearAllChildControllers();
-                    showMessage(context.getString(R.string.successfully_exported_text));
+                    showToast(R.string.successfully_exported_text, Toast.LENGTH_LONG);
 
                     if (callbacks != null) {
                         callbacks.finish();
@@ -291,18 +306,13 @@ public class ImportExportSettingsController extends SettingsController implement
         }
     }
 
-
     @Override
     public void onError(String message) {
         // may be called on background thread
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             clearAllChildControllers();
-            showMessage(message);
+            showToast(message, Toast.LENGTH_LONG);
         });
-    }
-
-    private void showMessage(String message) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
 
     private void clearAllChildControllers() {

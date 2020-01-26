@@ -20,6 +20,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
@@ -27,7 +28,9 @@ import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-public class HidingFloatingActionButton extends FloatingActionButton implements Toolbar.ToolbarCollapseCallback {
+public class HidingFloatingActionButton
+        extends FloatingActionButton
+        implements Toolbar.ToolbarCollapseCallback {
     private boolean attachedToWindow;
     private Toolbar toolbar;
     private boolean attachedToToolbar;
@@ -95,7 +98,8 @@ public class HidingFloatingActionButton extends FloatingActionButton implements 
             currentCollapseTranslation = translation;
             float diff = Math.abs(translation - getTranslationY());
             if (diff >= getHeight()) {
-                animate().translationY(translation).setDuration(300).setStartDelay(0).setInterpolator(new DecelerateInterpolator(2f)).start();
+                Interpolator slowdown = new DecelerateInterpolator(2f);
+                animate().translationY(translation).setDuration(300).setStartDelay(0).setInterpolator(slowdown).start();
             } else {
                 setTranslationY(translation);
             }
@@ -112,7 +116,8 @@ public class HidingFloatingActionButton extends FloatingActionButton implements 
         int translation = collapse ? getTotalHeight() : 0;
         if (translation != currentCollapseTranslation) {
             currentCollapseTranslation = translation;
-            animate().translationY(translation).setDuration(300).setStartDelay(0).setInterpolator(new DecelerateInterpolator(2f)).start();
+            Interpolator slowdown = new DecelerateInterpolator(2f);
+            animate().translationY(translation).setDuration(300).setStartDelay(0).setInterpolator(slowdown).start();
         }
     }
 

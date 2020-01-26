@@ -27,21 +27,28 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.Setting;
+import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 /**
  * Created by Zetsubou on 02.07.2015
  */
-public class IntegerSettingView extends SettingView implements View.OnClickListener {
+public class IntegerSettingView
+        extends SettingView
+        implements View.OnClickListener {
     private final Setting<Integer> setting;
     private final String dialogTitle;
 
-    public IntegerSettingView(SettingsController settingsController, Setting<Integer> setting, int name, int dialogTitle) {
-        this(settingsController, setting, getString(name), getString(dialogTitle));
+    public IntegerSettingView(SettingsController controller, Setting<Integer> setting, int name, int dialogTitle) {
+        this(controller, setting, getString(name), getString(dialogTitle));
     }
 
-    public IntegerSettingView(SettingsController settingsController, Setting<Integer> setting, String name, String dialogTitle) {
+    public IntegerSettingView(
+            SettingsController settingsController, Setting<Integer> setting, String name, String dialogTitle
+    ) {
         super(settingsController, name);
         this.setting = setting;
         this.dialogTitle = dialogTitle;
@@ -70,22 +77,17 @@ public class IntegerSettingView extends SettingView implements View.OnClickListe
         editText.setSingleLine(true);
         editText.setSelection(editText.getText().length());
 
-        container.addView(editText, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        container.addView(editText, MATCH_PARENT, WRAP_CONTENT);
 
-        AlertDialog dialog = new AlertDialog.Builder(v.getContext())
-                .setPositiveButton(R.string.ok, (d, which) -> {
-                    try {
-                        setting.set(Integer.parseInt(editText.getText().toString()));
-                    } catch (Exception e) {
-                        setting.set(setting.getDefault());
-                    }
+        AlertDialog dialog = new AlertDialog.Builder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
+            try {
+                setting.set(Integer.parseInt(editText.getText().toString()));
+            } catch (Exception e) {
+                setting.set(setting.getDefault());
+            }
 
-                    settingsController.onPreferenceChange(IntegerSettingView.this);
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .setTitle(dialogTitle)
-                .setView(container)
-                .create();
+            settingsController.onPreferenceChange(IntegerSettingView.this);
+        }).setNegativeButton(R.string.cancel, null).setTitle(dialogTitle).setView(container).create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();
     }

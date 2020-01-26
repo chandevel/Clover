@@ -32,8 +32,7 @@ public class SavedReply {
         this.password = password;
     }
 
-    public static SavedReply fromSiteBoardNoPassword(Site site, Board board, int no,
-                                                     String password) {
+    public static SavedReply fromSiteBoardNoPassword(Site site, Board board, int no, String password) {
         SavedReply savedReply = new SavedReply();
         savedReply.siteId = site.id();
         savedReply.site = site;

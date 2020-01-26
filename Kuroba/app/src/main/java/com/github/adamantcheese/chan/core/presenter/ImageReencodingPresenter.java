@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.presenter;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Pair;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -28,7 +27,6 @@ import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
@@ -42,8 +40,13 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_IS;
+import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_JPEG;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageReencodingPresenter {
     private final static String TAG = "ImageReencodingPresenter";
@@ -57,7 +60,9 @@ public class ImageReencodingPresenter {
     private ImageOptions imageOptions;
     private BackgroundUtils.Cancelable cancelable;
 
-    public ImageReencodingPresenter(ImageReencodingPresenterCallback callback, Loadable loadable, ImageOptions lastOptions) {
+    public ImageReencodingPresenter(
+            ImageReencodingPresenterCallback callback, Loadable loadable, ImageOptions lastOptions
+    ) {
         inject(this);
 
         this.loadable = loadable;
@@ -80,19 +85,22 @@ public class ImageReencodingPresenter {
 
     public void loadImagePreview() {
         Reply reply = replyManager.getReply(loadable);
-        Point displaySize = AndroidUtils.getDisplaySize();
-        ImageDecoder.decodeFileOnBackgroundThread(
-                reply.file,
-                dp(displaySize.x > displaySize.y ? displaySize.y : displaySize.x), //decode to the device width/height, whatever is smaller
-                0,
-                (bitmap) -> {
+        Point displaySize = getDisplaySize();
+        ImageDecoder.decodeFileOnBackgroundThread(reply.file,
+                //decode to the device width/height, whatever is smaller
+                dp(displaySize.x > displaySize.y ? displaySize.y : displaySize.x), 0, bitmap -> {
                     if (bitmap == null) {
-                        Toast.makeText(getAppContext(), getAppContext().getString(R.string.could_not_decode_image_bitmap), Toast.LENGTH_SHORT).show();
+                        showToast(R.string.could_not_decode_image_bitmap);
                         return;
                     }
 
                     callback.showImagePreview(bitmap);
-                });
+                }
+        );
+    }
+
+    public boolean hasAttachedFile() {
+        return replyManager.getReply(loadable).file != null;
     }
 
     @Nullable
@@ -152,26 +160,20 @@ public class ImageReencodingPresenter {
             reply = replyManager.getReply(loadable);
         }
 
-        ChanSettings.lastImageOptions.set(new Gson().toJson(imageOptions));
+        ChanSettings.lastImageOptions.set(instance(Gson.class).toJson(imageOptions));
         Logger.d(TAG, "imageOptions: [" + imageOptions.toString() + "]");
 
         //all options are default - do nothing
-        if (!imageOptions.getRemoveFilename()
-                && !imageOptions.getFixExif()
-                && !imageOptions.getRemoveMetadata()
-                && !imageOptions.getChangeImageChecksum()
-                && imageOptions.getReencodeSettings() == null) {
+        if (!imageOptions.getRemoveFilename() && !imageOptions.getFixExif() && !imageOptions.getRemoveMetadata()
+                && !imageOptions.getChangeImageChecksum() && imageOptions.getReencodeSettings() == null) {
             callback.onImageOptionsApplied(reply, false);
             return;
         }
 
         //only the "remove filename" option is selected
-        if (imageOptions.getRemoveFilename()
-                && !imageOptions.getFixExif()
-                && !imageOptions.getRemoveMetadata()
-                && !imageOptions.getChangeImageChecksum()
-                && imageOptions.getReencodeSettings() == null) {
-            reply.fileName = getNewImageName(reply.fileName, ReencodeType.AS_IS);
+        if (imageOptions.getRemoveFilename() && !imageOptions.getFixExif() && !imageOptions.getRemoveMetadata()
+                && !imageOptions.getChangeImageChecksum() && imageOptions.getReencodeSettings() == null) {
+            reply.fileName = getNewImageName(reply.fileName, AS_IS);
             callback.onImageOptionsApplied(reply, true);
             return;
         }
@@ -182,11 +184,12 @@ public class ImageReencodingPresenter {
                 callback.disableOrEnableButtons(false);
 
                 if (imageOptions.getRemoveFilename()) {
-                    reply.fileName = getNewImageName(reply.fileName, imageOptions.reencodeSettings != null ? imageOptions.reencodeSettings.reencodeType : ReencodeType.AS_IS);
+                    reply.fileName = getNewImageName(reply.fileName,
+                            imageOptions.reencodeSettings != null ? imageOptions.reencodeSettings.reencodeType : AS_IS
+                    );
                 }
 
-                reply.file = BitmapUtils.reencodeBitmapFile(
-                        reply.file,
+                reply.file = BitmapUtils.reencodeBitmapFile(reply.file,
                         imageOptions.getFixExif(),
                         imageOptions.getRemoveMetadata(),
                         imageOptions.getChangeImageChecksum(),
@@ -195,7 +198,7 @@ public class ImageReencodingPresenter {
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to re-encode bitmap file", error);
                 callback.disableOrEnableButtons(true);
-                callback.showFailedToReencodeImage(error);
+                showToast(getString(R.string.could_not_apply_image_options, error.getMessage()));
                 cancelable = null;
                 return;
             } finally {
@@ -294,8 +297,8 @@ public class ImageReencodingPresenter {
         public String toString() {
             String reencodeStr = reencodeSettings != null ? reencodeSettings.toString() : "null";
 
-            return "fixExif = " + fixExif + ", removeMetadata = " + removeMetadata + ", removeFilename = " + removeFilename +
-                    ", changeImageChecksum = " + changeImageChecksum + ", " + reencodeStr;
+            return "fixExif = " + fixExif + ", removeMetadata = " + removeMetadata + ", removeFilename = "
+                    + removeFilename + ", changeImageChecksum = " + changeImageChecksum + ", " + reencodeStr;
         }
     }
 
@@ -335,17 +338,22 @@ public class ImageReencodingPresenter {
         }
 
         public boolean isDefault() {
-            return reencodeType == ReencodeType.AS_IS && reencodeQuality == 100 && reducePercent == 0;
+            return reencodeType == AS_IS && reencodeQuality == 100 && reducePercent == 0;
         }
 
         @Override
         public String toString() {
-            return "reencodeType = " + reencodeType + ", reencodeQuality = " + reencodeQuality +
-                    ", reducePercent = " + reducePercent;
+            return "reencodeType = " + reencodeType + ", reencodeQuality = " + reencodeQuality + ", reducePercent = "
+                    + reducePercent;
         }
 
         public String prettyPrint(Bitmap.CompressFormat currentFormat) {
             String type = "Unknown";
+            if (currentFormat == null) {
+                Logger.e(TAG, "currentFormat == null");
+                return type;
+            }
+
             switch (reencodeType) {
                 case AS_IS:
                     type = "As-is";
@@ -357,9 +365,10 @@ public class ImageReencodingPresenter {
                     type = "JPEG";
                     break;
             }
-            return "(" + type + ", " + (reencodeType == ReencodeType.AS_JPEG ||
-                    (reencodeType == ReencodeType.AS_IS && currentFormat == Bitmap.CompressFormat.JPEG) ?
-                    reencodeQuality + ", " : "") + (100 - reducePercent) + "%)";
+            boolean isJpeg =
+                    reencodeType == AS_JPEG || (reencodeType == AS_IS && currentFormat == Bitmap.CompressFormat.JPEG);
+            String quality = isJpeg ? reencodeQuality + ", " : "";
+            return "(" + type + ", " + quality + (100 - reducePercent) + "%)";
         }
     }
 
@@ -387,7 +396,5 @@ public class ImageReencodingPresenter {
         void disableOrEnableButtons(boolean enabled);
 
         void onImageOptionsApplied(Reply reply, boolean filenameRemoved);
-
-        void showFailedToReencodeImage(Throwable error);
     }
 }

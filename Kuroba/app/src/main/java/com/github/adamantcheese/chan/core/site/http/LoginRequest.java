@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.http;
 
-
 public class LoginRequest {
     public final String user;
     public final String pass;

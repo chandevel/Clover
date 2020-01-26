@@ -30,20 +30,14 @@ public class SiteModule {
 
     @Provides
     @Singleton
-    public SiteResolver provideSiteResolver(
-            SiteRepository siteRepository,
-            DatabaseManager databaseManager
-    ) {
+    public SiteResolver provideSiteResolver(SiteRepository siteRepository, DatabaseManager databaseManager) {
         Logger.d(AppModule.DI_TAG, "Site resolver");
         return new SiteResolver(siteRepository, databaseManager);
     }
 
     @Provides
     @Singleton
-    public SiteService provideSiteService(
-            SiteRepository siteRepository,
-            SiteResolver siteResolver
-    ) {
+    public SiteService provideSiteService(SiteRepository siteRepository, SiteResolver siteResolver) {
         Logger.d(AppModule.DI_TAG, "Site service");
         return new SiteService(siteRepository, siteResolver);
     }

@@ -32,38 +32,58 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
-public class CaptchaLayout extends WebView implements AuthenticationLayoutInterface {
+import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+
+public class CaptchaLayout
+        extends WebView
+        implements AuthenticationLayoutInterface {
     private static final String TAG = "CaptchaLayout";
+    private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
     private AuthenticationLayoutCallback callback;
     private boolean loaded = false;
     private String baseUrl;
     private String siteKey;
 
+    private boolean isAutoReply = true;
+
+    @Inject
+    CaptchaHolder captchaHolder;
+
     public CaptchaLayout(Context context) {
         super(context);
+        init();
     }
 
     public CaptchaLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public CaptchaLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        init();
     }
 
-    /**
-     * TODO: add support for the Captcha queueing {@link CaptchaHolder}
-     */
+    private void init() {
+        inject(this);
+    }
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
-    public void initialize(Site site, AuthenticationLayoutCallback callback, boolean ignored) {
+    public void initialize(Site site, AuthenticationLayoutCallback callback, boolean autoReply) {
         this.callback = callback;
+        this.isAutoReply = autoReply;
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
 
@@ -72,15 +92,17 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
 
         requestDisallowInterceptTouchEvent(true);
 
-        AndroidUtils.hideKeyboard(this);
+        hideKeyboard(this);
 
         getSettings().setJavaScriptEnabled(true);
 
         setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(@NonNull ConsoleMessage consoleMessage) {
-                Logger.i(TAG, consoleMessage.lineNumber() + ":" + consoleMessage.message()
-                        + " " + consoleMessage.sourceId());
+                Logger.i(
+                        TAG,
+                        consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId()
+                );
                 return true;
             }
         });
@@ -91,7 +113,7 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
                 if (Uri.parse(url).getHost().equals(Uri.parse(CaptchaLayout.this.baseUrl).getHost())) {
                     return false;
                 } else {
-                    AndroidUtils.openLink(url);
+                    openLink(url);
                     return true;
                 }
             }
@@ -105,6 +127,11 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
         if (loaded) {
             loadUrl("javascript:grecaptcha.reset()");
         } else {
+            if (captchaHolder.hasToken() && isAutoReply) {
+                callback.onAuthenticationComplete(this, null, captchaHolder.getToken(), true);
+                return;
+            }
+
             hardReset();
         }
     }
@@ -124,7 +151,17 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
         if (TextUtils.isEmpty(response)) {
             reset();
         } else {
-            callback.onAuthenticationComplete(this, challenge, response, true);
+            captchaHolder.addNewToken(response, RECAPTCHA_TOKEN_LIVE_TIME);
+
+            String token;
+
+            if (isAutoReply) {
+                token = captchaHolder.getToken();
+            } else {
+                token = response;
+            }
+
+            callback.onAuthenticationComplete(this, challenge, token, isAutoReply);
         }
     }
 
@@ -137,12 +174,12 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
 
         @JavascriptInterface
         public void onCaptchaEntered(final String response) {
-            AndroidUtils.runOnUiThread(() -> layout.onCaptchaEntered(null, response));
+            runOnUiThread(() -> layout.onCaptchaEntered(null, response));
         }
 
         @JavascriptInterface
         public void onCaptchaEnteredv1(final String challenge, final String response) {
-            AndroidUtils.runOnUiThread(() -> layout.onCaptchaEntered(challenge, response));
+            runOnUiThread(() -> layout.onCaptchaEntered(challenge, response));
         }
     }
 }

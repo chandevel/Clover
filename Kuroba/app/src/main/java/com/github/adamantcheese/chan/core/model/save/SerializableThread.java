@@ -28,9 +28,7 @@ public class SerializableThread {
      * Merge old posts with new posts avoiding duplicates and then sort merged list
      */
     public SerializableThread merge(List<Post> posts) {
-        if (BackgroundUtils.isMainThread()) {
-            throw new RuntimeException("Cannot be executed on the main thread!");
-        }
+        BackgroundUtils.ensureBackgroundThread();
 
         Set<SerializablePost> postsSet = new HashSet<>(posts.size() + postList.size());
         postsSet.addAll(postList);
@@ -50,6 +48,7 @@ public class SerializableThread {
         return this;
     }
 
-    private static final Comparator<SerializablePost> postComparator
-            = (o1, o2) -> Integer.compare(o1.getNo(), o2.getNo());
+    // Must be static
+    private static final Comparator<SerializablePost> postComparator =
+            (o1, o2) -> Integer.compare(o1.getNo(), o2.getNo());
 }

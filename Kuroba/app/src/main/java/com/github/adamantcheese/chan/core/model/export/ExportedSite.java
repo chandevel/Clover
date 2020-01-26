@@ -39,11 +39,9 @@ public class ExportedSite {
 
     public ExportedSite(
             int siteId,
-            @NonNull
-                    String configuration,
+            @NonNull String configuration,
             int order,
-            @NonNull
-                    String userSettings,
+            @NonNull String userSettings,
             List<ExportedPin> exportedPins
     ) {
         this.siteId = siteId;

@@ -16,12 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
-
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.text.Html;
@@ -43,7 +43,6 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -58,7 +57,11 @@ import javax.inject.Inject;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 /**
@@ -87,19 +90,17 @@ public class UpdateManager {
      * Runs every time onCreate is called on the StartActivity.
      */
     public void autoUpdateCheck() {
-        if (ChanSettings.previousVersion.get() < BuildConfig.VERSION_CODE
-                && ChanSettings.previousVersion.get() != 0) {
-            Spanned text = Html.fromHtml("<h3>" + getApplicationLabel() + " was updated to " + BuildConfig.VERSION_NAME + "</h3>");
-            final AlertDialog dialog = new AlertDialog.Builder(context)
-                    .setMessage(text)
-                    .setPositiveButton(R.string.ok, null)
-                    .create();
+        if (ChanSettings.previousVersion.get() < BuildConfig.VERSION_CODE && ChanSettings.previousVersion.get() != 0) {
+            Spanned text = Html.fromHtml(
+                    "<h3>" + getApplicationLabel() + " was updated to " + BuildConfig.VERSION_NAME + "</h3>");
+            final AlertDialog dialog =
+                    new AlertDialog.Builder(context).setMessage(text).setPositiveButton(R.string.ok, null).create();
             dialog.setCanceledOnTouchOutside(false);
             dialog.show();
 
             final Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             button.setEnabled(false);
-            AndroidUtils.runOnUiThread(() -> {
+            runOnUiThread(() -> {
                 dialog.setCanceledOnTouchOutside(true);
                 button.setEnabled(true);
             }, 1500);
@@ -112,8 +113,8 @@ public class UpdateManager {
         }
 
         if (BuildConfig.DEV_BUILD && !ChanSettings.previousDevHash.get().equals(BuildConfig.COMMIT_HASH)) {
-            final AlertDialog dialog = new AlertDialog.Builder(context)
-                    .setMessage(getApplicationLabel() + " was updated to the latest commit.")
+            final AlertDialog dialog = new AlertDialog.Builder(context).setMessage(
+                    getApplicationLabel() + " was updated to the latest commit.")
                     .setPositiveButton(R.string.ok, null)
                     .create();
             dialog.setCanceledOnTouchOutside(true);
@@ -147,8 +148,7 @@ public class UpdateManager {
             //region Release build
             volleyRequestQueue.add(new UpdateApiRequest(response -> {
                 if (!processUpdateApiResponse(response) && manual) {
-                    new AlertDialog.Builder(context)
-                            .setTitle(context.getString(R.string.update_none, getApplicationLabel()))
+                    new AlertDialog.Builder(context).setTitle(getString(R.string.update_none, getApplicationLabel()))
                             .setPositiveButton(R.string.ok, null)
                             .show();
                 }
@@ -156,8 +156,7 @@ public class UpdateManager {
                 Logger.e(TAG, "Failed to process stable API call for updating", error);
 
                 if (manual) {
-                    new AlertDialog.Builder(context)
-                            .setTitle(R.string.update_check_failed)
+                    new AlertDialog.Builder(context).setTitle(R.string.update_check_failed)
                             .setPositiveButton(R.string.ok, null)
                             .show();
                 }
@@ -165,59 +164,80 @@ public class UpdateManager {
             //endregion
         } else {
             //region Dev build
-            JsonObjectRequest request = new JsonObjectRequest(BuildConfig.DEV_API_ENDPOINT + "/latest_apk_uuid", null,
-                    (response) -> {
-                        try {
-                            int versionCode = response.getInt("apk_version");
-                            String commitHash = response.getString("commit_hash");
-                            if (versionCode == BuildConfig.VERSION_CODE && commitHash.equals(BuildConfig.COMMIT_HASH) && manual) {
-                                //same version and commit, no update needed
-                                new AlertDialog.Builder(context)
-                                        .setTitle(context.getString(R.string.update_none, getApplicationLabel()))
-                                        .setPositiveButton(R.string.ok, null)
-                                        .show();
-                            } else {
-                                //new version or commit, update
-                                Matcher versionCodeStringMatcher = Pattern.compile("(\\d+)(\\d{2})(\\d{2})").matcher(String.valueOf(versionCode));
-                                if (versionCodeStringMatcher.matches()) {
-                                    UpdateApiRequest.UpdateApiResponse fauxResponse = new UpdateApiRequest.UpdateApiResponse();
-                                    fauxResponse.versionCode = versionCode;
-                                    fauxResponse.versionCodeString = "v" +
-                                            Integer.valueOf(versionCodeStringMatcher.group(1)) + "." +
-                                            Integer.valueOf(versionCodeStringMatcher.group(2)) + "." +
-                                            Integer.valueOf(versionCodeStringMatcher.group(3)) + "-" + commitHash.substring(0, 7);
-                                    fauxResponse.apkURL = HttpUrl.parse(BuildConfig.DEV_API_ENDPOINT + "/apk/" + versionCode + "_" + commitHash + ".apk");
-                                    fauxResponse.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
-                                    processUpdateApiResponse(fauxResponse);
-                                } else {
-                                    throw new Exception(); // to reuse the failed code below
-                                }
-                            }
-                        } catch (Exception e) { // any exceptions just fail out
-                            Logger.e(TAG, "Failed to process API call for updating");
-                            new AlertDialog.Builder(context)
-                                    .setTitle(R.string.update_check_failed)
-                                    .setPositiveButton(R.string.ok, null)
-                                    .show();
-                        }
-                    },
-                    (response) -> {
-                        Logger.e(TAG, "Failed to process dev API call for updating");
-                        new AlertDialog.Builder(context)
-                                .setTitle(R.string.update_check_failed)
-                                .setPositiveButton(R.string.ok, null)
-                                .show();
-                    });
+            //@formatter:off
+            JsonObjectRequest request =
+                    new JsonObjectRequest(BuildConfig.DEV_API_ENDPOINT + "/latest_apk_uuid",
+                                          null,
+                                          response -> {
+                                              try {
+                                                  int versionCode = response.getInt("apk_version");
+                                                  String commitHash = response.getString("commit_hash");
+                                                  if (versionCode == BuildConfig.VERSION_CODE
+                                                          && commitHash.equals(BuildConfig.COMMIT_HASH)
+                                                          && manual)
+                                                  {
+                                                      //same version and commit, no update needed
+                                                      new AlertDialog.Builder(context)
+                                                              .setTitle(getString(R.string.update_none,
+                                                                                          getApplicationLabel()
+                                                              ))
+                                                              .setPositiveButton(R.string.ok, null)
+                                                              .show();
+                                                  } else {
+                                                      //new version or commit, update
+                                                      Matcher versionCodeStringMatcher =
+                                                              Pattern.compile("(\\d+)(\\d{2})(\\d{2})")
+                                                              .matcher(String.valueOf(versionCode));
+                                                      if (versionCodeStringMatcher.matches()) {
+                                                          UpdateApiRequest.UpdateApiResponse fauxResponse
+                                                                  = new UpdateApiRequest.UpdateApiResponse();
+                                                          fauxResponse.versionCode = versionCode;
+                                                          fauxResponse.versionCodeString =
+                                                                  "v" + Integer.valueOf(versionCodeStringMatcher.group(1))
+                                                                  + "." + Integer.valueOf(versionCodeStringMatcher.group(2))
+                                                                  + "." + Integer.valueOf(versionCodeStringMatcher.group(3))
+                                                                  + "-" + commitHash.substring(0, 7);
+                                                          fauxResponse.apkURL = HttpUrl.parse(
+                                                                  BuildConfig.DEV_API_ENDPOINT
+                                                                          + "/apk/" + versionCode
+                                                                          + "_" + commitHash
+                                                                          + ".apk");
+                                                          fauxResponse.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
+                                                          processUpdateApiResponse(fauxResponse);
+                                                      } else {
+                                                          throw new Exception(); // to reuse the failed code below
+                                                      }
+                                                  }
+                                              } catch (Exception e) { // any exceptions just fail out
+                                                  Logger.e(TAG, "Failed to process API call for updating");
+                                                  new AlertDialog.Builder(context)
+                                                          .setTitle(R.string.update_check_failed)
+                                                          .setPositiveButton(R.string.ok, null)
+                                                          .show();
+                                              }
+                                          },
+                                          response -> {
+                                              Logger.e(TAG, "Failed to process dev API call for updating");
+                                              new AlertDialog.Builder(context)
+                                                      .setTitle(R.string.update_check_failed)
+                                                      .setPositiveButton(R.string.ok, null)
+                                                      .show();
+                                          }
+            );
             volleyRequestQueue.add(request);
+            //@formatter:on
             //endregion
         }
     }
 
     private boolean processUpdateApiResponse(UpdateApiRequest.UpdateApiResponse response) {
         if (response.versionCode > BuildConfig.VERSION_CODE || BuildConfig.DEV_BUILD) {
-            AlertDialog dialog = new AlertDialog.Builder(context)
-                    .setTitle(getApplicationLabel() + " " + response.versionCodeString + " available")
-                    .setMessage(!response.updateTitle.isEmpty() ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body)
+            boolean concat = !response.updateTitle.isEmpty();
+            CharSequence updateMessage =
+                    concat ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body;
+            AlertDialog dialog = new AlertDialog.Builder(context).setTitle(
+                    getApplicationLabel() + " " + response.versionCodeString + " available")
+                    .setMessage(updateMessage)
                     .setNegativeButton(R.string.update_later, null)
                     .setPositiveButton(R.string.update_install, (dialog1, which) -> updateInstallRequested(response))
                     .create();
@@ -251,9 +271,10 @@ public class UpdateManager {
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
                 //put a copy into the Downloads folder, for archive/rollback purposes
-                File downloadAPKcopy = new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS),
-                        getApplicationLabel() + "_" + response.versionCodeString + ".apk");
+                File downloadAPKcopy = new File(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                        getApplicationLabel() + "_" + response.versionCodeString + ".apk"
+                );
                 File updateAPK = new File(file.getFullPath());
                 try {
                     IOUtils.copyFile(updateAPK, downloadAPKcopy);
@@ -269,8 +290,7 @@ public class UpdateManager {
 
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
-                new AlertDialog.Builder(context)
-                        .setTitle(R.string.update_install_download_failed)
+                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
                         .setPositiveButton(R.string.ok, null)
                         .show();
             }
@@ -281,8 +301,7 @@ public class UpdateManager {
 
                 updateDownloadDialog.dismiss();
                 updateDownloadDialog = null;
-                new AlertDialog.Builder(context)
-                        .setTitle(R.string.update_install_download_failed)
+                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
                         .setPositiveButton(R.string.ok, null)
                         .show();
             }
@@ -291,9 +310,8 @@ public class UpdateManager {
 
     private void installApk(File apk) {
         // First open the dialog that asks to retry and calls this method again.
-        new AlertDialog.Builder(context)
-                .setTitle(R.string.update_retry_title)
-                .setMessage(context.getString(R.string.update_retry, getApplicationLabel()))
+        new AlertDialog.Builder(context).setTitle(R.string.update_retry_title)
+                .setMessage(getString(R.string.update_retry, getApplicationLabel()))
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.update_retry_button, (dialog, which) -> installApk(apk))
                 .show();
@@ -301,8 +319,8 @@ public class UpdateManager {
         // Then launch the APK install intent.
         Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.setDataAndType(FileProvider.getUriForFile(context, context.getPackageName() + ".fileprovider", apk),
-                "application/vnd.android.package-archive");
+        Uri apkURI = FileProvider.getUriForFile(context, getAppFileProvider(), apk);
+        intent.setDataAndType(apkURI, "application/vnd.android.package-archive");
 
         // The installer wants a content scheme from android N and up,
         // but I don't feel like implementing a content provider just for this feature.
@@ -310,7 +328,7 @@ public class UpdateManager {
         StrictMode.VmPolicy vmPolicy = StrictMode.getVmPolicy();
         StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
 
-        AndroidUtils.openIntent(intent);
+        openIntent(intent);
 
         StrictMode.setVmPolicy(vmPolicy);
     }
@@ -328,10 +346,12 @@ public class UpdateManager {
                 updateDownloadDialog.show();
                 doUpdate(response);
             } else {
-                runtimePermissionsHelper.showPermissionRequiredDialog(context,
-                        context.getString(R.string.update_storage_permission_required_title),
-                        context.getString(R.string.update_storage_permission_required),
-                        () -> updateInstallRequested(response));
+                runtimePermissionsHelper.showPermissionRequiredDialog(
+                        context,
+                        getString(R.string.update_storage_permission_required_title),
+                        getString(R.string.update_storage_permission_required),
+                        () -> updateInstallRequested(response)
+                );
             }
         });
     }

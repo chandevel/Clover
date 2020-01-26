@@ -29,31 +29,24 @@ public class DatabaseSavedThreadManager {
     }
 
     public Callable<Long> countDownloadingThreads() {
-        return () -> {
-            return helper.savedThreadDao.queryBuilder()
-                    .where()
-                    .eq(SavedThread.IS_STOPPED, false)
-                    .and()
-                    .eq(SavedThread.IS_FULLY_DOWNLOADED, false)
-                    .countOf();
-        };
+        return () -> helper.savedThreadDao.queryBuilder()
+                .where()
+                .eq(SavedThread.IS_STOPPED, false)
+                .and()
+                .eq(SavedThread.IS_FULLY_DOWNLOADED, false)
+                .countOf();
     }
 
     public Callable<List<SavedThread>> getSavedThreads() {
         return () -> {
             // We don't need fully downloaded threads here
-            return helper.savedThreadDao.queryBuilder()
-                    .where()
-                    .eq(SavedThread.IS_FULLY_DOWNLOADED, false)
-                    .query();
+            return helper.savedThreadDao.queryBuilder().where().eq(SavedThread.IS_FULLY_DOWNLOADED, false).query();
         };
     }
 
     public Callable<Boolean> hasSavedThreads() {
         return () -> {
-            SavedThread savedThread = helper.savedThreadDao
-                    .queryBuilder()
-                    .queryForFirst();
+            SavedThread savedThread = helper.savedThreadDao.queryBuilder().queryForFirst();
 
             return savedThread != null;
         };
@@ -74,9 +67,9 @@ public class DatabaseSavedThreadManager {
 
     private SavedThread merge(SavedThread prevSavedThread, SavedThread savedThread) {
         if (prevSavedThread.loadableId != savedThread.loadableId) {
-            throw new RuntimeException("Cannot merge threads with different loadableIds " +
-                    "(prevLoadableId = " + prevSavedThread.loadableId +
-                    ", currLoadableId = " + savedThread.loadableId + ")");
+            throw new RuntimeException(
+                    "Cannot merge threads with different loadableIds (prevLoadableId = " + prevSavedThread.loadableId
+                            + ", currLoadableId = " + savedThread.loadableId + ")");
         }
 
         return new SavedThread(
@@ -185,21 +178,16 @@ public class DatabaseSavedThreadManager {
         };
     }
 
-    // TODO: may not work, but in theory it should
     public void deleteThreadFromDisk(Loadable loadable) {
-        AbstractFile localThreadsDir = fileManager.newBaseDirectoryFile(
-                LocalThreadsBaseDirectory.class
-        );
+        AbstractFile localThreadsDir = fileManager.newBaseDirectoryFile(LocalThreadsBaseDirectory.class);
 
-        if (localThreadsDir == null
-                || !fileManager.exists(localThreadsDir)
+        if (localThreadsDir == null || !fileManager.exists(localThreadsDir)
                 || !fileManager.isDirectory(localThreadsDir)) {
             // Probably already deleted
             return;
         }
 
-        AbstractFile threadDir = localThreadsDir
-                .clone(ThreadSaveManager.getThreadSubDir(loadable));
+        AbstractFile threadDir = localThreadsDir.clone(ThreadSaveManager.getThreadSubDir(loadable));
 
         if (!fileManager.exists(threadDir) || !fileManager.isDirectory(threadDir)) {
             // Probably already deleted
@@ -207,8 +195,7 @@ public class DatabaseSavedThreadManager {
         }
 
         if (!fileManager.delete(threadDir)) {
-            Logger.d(TAG, "deleteThreadFromDisk() Could not delete SAF directory "
-                    + threadDir.getFullPath());
+            Logger.d(TAG, "deleteThreadFromDisk() Could not delete SAF directory " + threadDir.getFullPath());
         }
     }
 

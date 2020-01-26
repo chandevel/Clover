@@ -31,11 +31,10 @@ import androidx.annotation.NonNull;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class ColorPickerView extends View {
-    private static final int[] COLORS = new int[]{
-            0xFFFF0000, 0xFFFF00FF, 0xFF0000FF, 0xFF00FFFF, 0xFF00FF00,
-            0xFFFFFF00, 0xFFFF0000
-    };
+public class ColorPickerView
+        extends View {
+    private static final int[] COLORS =
+            new int[]{Color.RED, Color.MAGENTA, Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW, Color.RED};
 
     private Paint paint;
     private Paint centerPaint;

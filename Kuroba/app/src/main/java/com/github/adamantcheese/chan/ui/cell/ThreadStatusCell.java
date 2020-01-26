@@ -34,11 +34,15 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
-public class ThreadStatusCell extends LinearLayout implements View.OnClickListener {
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.AlreadyDownloaded;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
+public class ThreadStatusCell
+        extends LinearLayout
+        implements View.OnClickListener {
     private static final int UPDATE_INTERVAL = 1000;
     private static final int MESSAGE_INVALIDATE = 1;
 
@@ -89,8 +93,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
     @SuppressLint("SetTextI18n")
     public boolean update() {
         if (error != null) {
-            text.setText(error + "\n" + getContext()
-                    .getString(R.string.thread_refresh_bar_inactive));
+            text.setText(error + "\n" + getString(R.string.thread_refresh_bar_inactive));
             return false;
         } else {
             ChanThread chanThread = callback.getChanThread();
@@ -105,30 +108,30 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
             SpannableStringBuilder builder = new SpannableStringBuilder();
 
             if (chanThread.getLoadable().isLocal()) {
-                builder.append(getContext().getString(R.string.local_thread_text));
+                builder.append(getString(R.string.local_thread_text));
             } else {
                 if (chanThread.isArchived()) {
-                    builder.append(getContext().getString(R.string.thread_archived));
+                    builder.append(getString(R.string.thread_archived));
                 } else if (chanThread.isClosed()) {
-                    builder.append(getContext().getString(R.string.thread_closed));
+                    builder.append(getString(R.string.thread_closed));
                 }
             }
 
-            if (!chanThread.isArchived()
-                    && !chanThread.isClosed()
-                    && chanThread.getLoadable().loadableDownloadingState != Loadable.LoadableDownloadingState.AlreadyDownloaded) {
-                if (chanThread.getLoadable().isLocal() && chanThread.getLoadable().loadableDownloadingState != Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+            if (!chanThread.isArchived() && !chanThread.isClosed()
+                    && chanThread.getLoadable().loadableDownloadingState != AlreadyDownloaded) {
+                if (chanThread.getLoadable().isLocal()
+                        && chanThread.getLoadable().loadableDownloadingState != AlreadyDownloaded) {
                     // To split Local Thread and (Loading Time | Loading) rows
                     builder.append('\n');
                 }
 
                 long time = callback.getTimeUntilLoadMore() / 1000L;
                 if (!callback.isWatching()) {
-                    builder.append(getContext().getString(R.string.thread_refresh_bar_inactive));
+                    builder.append(getString(R.string.thread_refresh_bar_inactive));
                 } else if (time <= 0) {
-                    builder.append(getContext().getString(R.string.thread_refresh_now));
+                    builder.append(getString(R.string.thread_refresh_now));
                 } else {
-                    builder.append(getContext().getString(R.string.thread_refresh_countdown, time));
+                    builder.append(getString(R.string.thread_refresh_countdown, time));
                 }
                 update = true;
             }
@@ -144,12 +147,14 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     boolean hasBumpLimit = board.bumpLimit > 0;
                     boolean hasImageLimit = board.imageLimit > 0;
 
-                    SpannableString replies = new SpannableString((op.getReplies() >= 0 ? op.getReplies() : chanThread.getPostsCount() - 1) + "R");
+                    SpannableString replies = new SpannableString(
+                            (op.getReplies() >= 0 ? op.getReplies() : chanThread.getPostsCount() - 1) + "R");
                     if (hasBumpLimit && op.getReplies() >= board.bumpLimit) {
                         replies.setSpan(new StyleSpan(Typeface.ITALIC), 0, replies.length(), 0);
                     }
 
-                    SpannableString images = new SpannableString((op.getImagesCount() >= 0 ? op.getImagesCount() : chanThread.getImagesCount()) + "I");
+                    SpannableString images = new SpannableString(
+                            (op.getImagesCount() >= 0 ? op.getImagesCount() : chanThread.getImagesCount()) + "I");
                     if (hasImageLimit && op.getImagesCount() >= board.imageLimit) {
                         images.setSpan(new StyleSpan(Typeface.ITALIC), 0, images.length(), 0);
                     }
@@ -168,7 +173,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                             if (p.page >= board.pages) {
                                 page.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
                             }
-                            builder.append(" / ").append(getContext().getString(R.string.thread_page_no)).append(' ').append(page);
+                            builder.append(" / ").append(getString(R.string.thread_page_no)).append(' ').append(page);
                         }
                     }
                 }

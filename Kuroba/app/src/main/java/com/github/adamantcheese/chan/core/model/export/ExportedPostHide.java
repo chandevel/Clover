@@ -38,7 +38,15 @@ public class ExportedPostHide {
     @SerializedName("threadNo")
     private int threadNo;
 
-    public ExportedPostHide(int site, @NonNull String board, int no, boolean wholeThread, boolean hide, boolean hideRepliesToThisPost, int threadNo) {
+    public ExportedPostHide(
+            int site,
+            @NonNull String board,
+            int no,
+            boolean wholeThread,
+            boolean hide,
+            boolean hideRepliesToThisPost,
+            int threadNo
+    ) {
         this.site = site;
         this.board = board;
         this.no = no;

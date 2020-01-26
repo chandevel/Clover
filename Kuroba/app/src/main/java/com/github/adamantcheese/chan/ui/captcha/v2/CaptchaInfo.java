@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.ui.captcha.v2.CaptchaInfo.CaptchaType.UNKNOWN;
+
 public class CaptchaInfo {
     CaptchaType captchaType;
     @NonNull
@@ -37,7 +39,7 @@ public class CaptchaInfo {
     CaptchaTitle captchaTitle;
 
     public CaptchaInfo() {
-        captchaType = CaptchaType.UNKNOWN;
+        captchaType = UNKNOWN;
         checkboxes = new ArrayList<>();
         cParameter = null;
         challengeImages = Collections.emptyList();

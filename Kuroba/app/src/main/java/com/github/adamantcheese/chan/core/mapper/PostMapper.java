@@ -68,12 +68,10 @@ public class PostMapper {
     }
 
     public static Post fromSerializedPost(Loadable loadable, SerializablePost serializablePost) {
-        CharSequence subject = SpannableStringMapper.deserializeSpannableString(
-                serializablePost.getSubject());
+        CharSequence subject = SpannableStringMapper.deserializeSpannableString(serializablePost.getSubject());
         CharSequence subjectSpans = subject.length() == 0 ? null : subject;
 
-        Post.Builder postBuilder = new Post.Builder()
-                .board(loadable.board)
+        Post.Builder postBuilder = new Post.Builder().board(loadable.board)
                 .id(serializablePost.getNo())
                 .op(serializablePost.isOP())
                 .name(serializablePost.getName())
@@ -99,8 +97,7 @@ public class PostMapper {
                 .repliesTo(serializablePost.getRepliesTo())
                 .spans(
                         subjectSpans,
-                        SpannableStringMapper.deserializeSpannableString(
-                                serializablePost.getNameTripcodeIdCapcodeSpan())
+                        SpannableStringMapper.deserializeSpannableString(serializablePost.getNameTripcodeIdCapcodeSpan())
                 )
                 .sticky(serializablePost.isSticky())
                 .archived(serializablePost.isArchived())
@@ -116,9 +113,7 @@ public class PostMapper {
         return post;
     }
 
-    public static List<Post> fromSerializedPostList(
-            Loadable loadable,
-            List<SerializablePost> serializablePostList) {
+    public static List<Post> fromSerializedPostList(Loadable loadable, List<SerializablePost> serializablePostList) {
         List<Post> posts = new ArrayList<>(serializablePostList.size());
         Throwable firstException = null;
 
@@ -136,8 +131,7 @@ public class PostMapper {
         }
 
         if (firstException != null) {
-            Logger.e(TAG, "There were at least one exception thrown while trying to deserialize posts",
-                    firstException);
+            Logger.e(TAG, "There were at least one exception thrown while trying to deserialize posts", firstException);
         }
 
         Collections.sort(posts, POST_COMPARATOR);

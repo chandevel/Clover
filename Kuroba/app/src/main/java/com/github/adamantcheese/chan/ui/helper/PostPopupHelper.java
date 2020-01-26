@@ -68,9 +68,7 @@ public class PostPopupHelper {
                 throw new IllegalStateException("Thread loadable cannot be null");
             }
 
-            presentingController.setPostRepliesData(
-                    presenter.getLoadable(),
-                    dataQueue.get(dataQueue.size() - 1));
+            presentingController.setPostRepliesData(presenter.getLoadable(), dataQueue.get(dataQueue.size() - 1));
         } else {
             dismiss();
         }

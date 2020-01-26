@@ -27,12 +27,13 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
+import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
-public class AlbumViewCell extends FrameLayout {
+public class AlbumViewCell
+        extends FrameLayout {
     private PostImage postImage;
     private PostImageThumbnailView thumbnailView;
     private TextView text;
@@ -59,13 +60,18 @@ public class AlbumViewCell extends FrameLayout {
     public void setPostImage(Loadable loadable, PostImage postImage) {
         this.postImage = postImage;
 
-        int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
-        thumbnailView.setPostImage(loadable, postImage, true,
+        int thumbnailSize = getDimen(R.dimen.cell_post_thumbnail_size);
+        thumbnailView.setPostImage(
+                loadable,
+                postImage,
+                true,
                 ChanSettings.autoLoadThreadImages.get() ? 500 : thumbnailSize,
-                ChanSettings.autoLoadThreadImages.get() ? 500 : thumbnailSize);
+                ChanSettings.autoLoadThreadImages.get() ? 500 : thumbnailSize
+        );
 
-        String details = postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight +
-                " " + AndroidUtils.getReadableFileSize(postImage.size, false);
+        String details =
+                postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight + " "
+                        + getReadableFileSize(postImage.size);
         text.setText(postImage.size == -1 ? postImage.extension.toUpperCase() : details); //if -1, linked image, no info
     }
 
@@ -80,7 +86,8 @@ public class AlbumViewCell extends FrameLayout {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED || heightMode == MeasureSpec.AT_MOST)) {
+        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED
+                || heightMode == MeasureSpec.AT_MOST)) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
 
             int height = width + dp(32);

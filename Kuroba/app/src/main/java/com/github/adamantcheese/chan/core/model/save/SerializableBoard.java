@@ -21,13 +21,8 @@ public class SerializableBoard {
     public String code;
 
     public SerializableBoard(
-            int id,
-            int siteId,
-            SerializableSite site,
-            boolean saved,
-            int order,
-            String name,
-            String code) {
+            int id, int siteId, SerializableSite site, boolean saved, int order, String name, String code
+    ) {
         this.id = id;
         this.siteId = siteId;
         this.site = site;
@@ -39,9 +34,7 @@ public class SerializableBoard {
 
     @Override
     public int hashCode() {
-        return 31 * siteId +
-                31 * name.hashCode() +
-                31 * code.hashCode();
+        return 31 * siteId + 31 * name.hashCode() + 31 * code.hashCode();
     }
 
     @Override
@@ -59,8 +52,7 @@ public class SerializableBoard {
         }
 
         SerializableBoard otherBoard = (SerializableBoard) other;
-        return this.siteId == otherBoard.siteId
-                && this.name.equals(otherBoard.name)
+        return this.siteId == otherBoard.siteId && this.name.equals(otherBoard.name)
                 && this.code.equals(otherBoard.code);
     }
 }

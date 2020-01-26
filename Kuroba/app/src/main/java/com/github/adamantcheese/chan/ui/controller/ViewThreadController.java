@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
@@ -54,7 +53,6 @@ import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.AnimationUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -71,8 +69,15 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
-public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback {
+public class ViewThreadController
+        extends ThreadController
+        implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback {
     private static final String TAG = "ViewThreadController";
 
     private static final int PIN_ID = 1;
@@ -119,8 +124,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         super.onCreate();
         inject(this);
 
-        downloadAnimation = (AnimatedVectorDrawableCompat)
-                AnimationUtils.createAnimatedDownloadIcon(context, Color.WHITE).mutate();
+        downloadAnimation =
+                (AnimatedVectorDrawableCompat) AnimationUtils.createAnimatedDownloadIcon(context, Color.WHITE).mutate();
 
         downloadIconOutline = context.getDrawable(R.drawable.ic_download_anim0);
         downloadIconOutline.setTint(Color.WHITE);
@@ -157,8 +162,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             menuOverflowBuilder.withSubItem(R.string.action_reply, this::replyClicked);
         }
 
-        menuOverflowBuilder
-                .withSubItem(R.string.action_search, this::searchClicked)
+        menuOverflowBuilder.withSubItem(R.string.action_search, this::searchClicked)
                 .withSubItem(R.string.action_reload, this::reloadClicked)
                 .withSubItem(R.string.thread_show_archives, this::showArchives)
                 .withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
@@ -168,23 +172,22 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .withSubItem(R.string.action_scroll_to_bottom, this::downClicked);
 
         // These items are dynamic; create them here by default if settings permit
-        if (ChanSettings.incrementalThreadDownloadingEnabled.get() &&
-                getThreadDownloadState() != DownloadThreadState.Default) {
-            menuOverflowBuilder.withSubItem(
-                    VIEW_LOCAL_COPY_SUBMENU_ID,
+        if (ChanSettings.incrementalThreadDownloadingEnabled.get()
+                && getThreadDownloadState() != DownloadThreadState.Default) {
+            menuOverflowBuilder.withSubItem(VIEW_LOCAL_COPY_SUBMENU_ID,
                     R.string.view_local_version,
                     false,
-                    this::handleClickViewLocalVersion);
+                    this::handleClickViewLocalVersion
+            );
 
-            menuOverflowBuilder.withSubItem(
-                    VIEW_LIVE_COPY_SUBMENU_ID,
+            menuOverflowBuilder.withSubItem(VIEW_LIVE_COPY_SUBMENU_ID,
                     R.string.view_view_version,
                     false,
-                    this::handleClickViewLiveVersion);
+                    this::handleClickViewLiveVersion
+            );
         }
 
-        menuOverflowBuilder.build()
-                .build();
+        menuOverflowBuilder.build().build();
     }
 
     private void albumClicked(ToolbarMenuItem item) {
@@ -212,48 +215,35 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             return;
         }
 
-        runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, (granted) -> {
+        runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
             if (granted) {
                 saveClickedInternal();
             } else {
-                Toast.makeText(
-                        context,
-                        context.getString(R.string.view_thread_controller_thread_downloading_requires_write_permission),
-                        Toast.LENGTH_LONG).show();
+                showToast(R.string.view_thread_controller_thread_downloading_requires_write_permission,
+                        Toast.LENGTH_LONG
+                );
             }
         });
     }
 
     private void saveClickedInternal() {
-        AbstractFile baseLocalThreadsDir = fileManager.newBaseDirectoryFile(
-                LocalThreadsBaseDirectory.class
-        );
+        AbstractFile baseLocalThreadsDir = fileManager.newBaseDirectoryFile(LocalThreadsBaseDirectory.class);
 
         if (baseLocalThreadsDir == null) {
             Logger.e(TAG, "saveClickedInternal() fileManager.newLocalThreadFile() returned null");
-            Toast.makeText(
-                    context,
-                    R.string.base_local_threads_dir_not_exists,
-                    Toast.LENGTH_LONG).show();
+            showToast(R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
             return;
         }
 
-        if (!fileManager.exists(baseLocalThreadsDir)
-                && fileManager.create(baseLocalThreadsDir) == null) {
+        if (!fileManager.exists(baseLocalThreadsDir) && fileManager.create(baseLocalThreadsDir) == null) {
             Logger.e(TAG, "saveClickedInternal() Couldn't create baseLocalThreadsDir");
-            Toast.makeText(
-                    context,
-                    R.string.could_not_create_base_local_threads_dir,
-                    Toast.LENGTH_LONG).show();
+            showToast(R.string.could_not_create_base_local_threads_dir, Toast.LENGTH_LONG);
             return;
         }
 
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
             Logger.e(TAG, "Base local threads directory does not exist");
-            Toast.makeText(
-                    context,
-                    R.string.base_local_threads_dir_not_exists,
-                    Toast.LENGTH_LONG).show();
+            showToast(R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
             return;
         }
 
@@ -279,16 +269,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     public void showArchives(ToolbarMenuSubItem item) {
-        @SuppressLint("InflateParams") final ArchivesLayout dialogView =
-                (ArchivesLayout) LayoutInflater.from(context)
-                        .inflate(R.layout.layout_archives, null);
+        @SuppressLint("InflateParams")
+        final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
         dialogView.setBoard(threadLayout.getPresenter().getLoadable().board);
         dialogView.setCallback(this);
 
-        AlertDialog dialog = new AlertDialog.Builder(context)
-                .setView(dialogView)
-                .setTitle(R.string.thread_show_archives)
-                .create();
+        AlertDialog dialog =
+                new AlertDialog.Builder(context).setView(dialogView).setTitle(R.string.thread_show_archives).create();
         dialog.setCanceledOnTouchOutside(true);
         dialog.show();
     }
@@ -299,34 +286,26 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            Toast.makeText(
-                    context,
-                    R.string.cannot_open_thread_in_browser_already_deleted,
-                    Toast.LENGTH_SHORT).show();
+            showToast(R.string.cannot_open_in_browser_already_deleted);
             return;
         }
 
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.site.resolvable().desktopUrl(
-                loadable,
-                threadLayout.getPresenter().getChanThread().getOp());
-        AndroidUtils.openLinkInBrowser((Activity) context, link);
+        String link =
+                loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
+        openLinkInBrowser((Activity) context, link);
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            Toast.makeText(
-                    context,
-                    R.string.cannot_shared_thread_already_deleted,
-                    Toast.LENGTH_SHORT).show();
+            showToast(R.string.cannot_shared_thread_already_deleted);
             return;
         }
 
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.site.resolvable().desktopUrl(
-                loadable,
-                threadLayout.getPresenter().getChanThread().getOp());
-        AndroidUtils.shareLink(link);
+        String link =
+                loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
+        shareLink(link);
     }
 
     private void upClicked(ToolbarMenuSubItem item) {
@@ -437,8 +416,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     @Override
     public void showThread(final Loadable threadLoadable) {
-        new AlertDialog.Builder(context)
-                .setNegativeButton(R.string.cancel, null)
+        new AlertDialog.Builder(context).setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     threadFollowerpool.addFirst(new Pair<>(loadable, threadLoadable.hashCode()));
                     loadThread(threadLoadable);
@@ -459,16 +437,19 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void showBoardInternal(Loadable catalogLoadable, String searchQuery) {
-        if (doubleNavigationController != null && doubleNavigationController.getLeftController() instanceof BrowseController) {
+        if (doubleNavigationController != null
+                && doubleNavigationController.getLeftController() instanceof BrowseController) {
             //slide layout
             doubleNavigationController.switchToController(true);
             ((BrowseController) doubleNavigationController.getLeftController()).setBoard(catalogLoadable.board);
             if (searchQuery != null) {
                 ((BrowseController) doubleNavigationController.getLeftController()).searchQuery = searchQuery;
             }
-        } else if (doubleNavigationController != null && doubleNavigationController.getLeftController() instanceof StyledToolbarNavigationController) {
+        } else if (doubleNavigationController != null
+                && doubleNavigationController.getLeftController() instanceof StyledToolbarNavigationController) {
             //split layout
-            ((BrowseController) doubleNavigationController.getLeftController().childControllers.get(0)).setBoard(catalogLoadable.board);
+            ((BrowseController) doubleNavigationController.getLeftController().childControllers.get(0)).setBoard(
+                    catalogLoadable.board);
             if (searchQuery != null) {
                 Toolbar toolbar = doubleNavigationController.getLeftController().childControllers.get(0).getToolbar();
                 if (toolbar != null) {
@@ -533,12 +514,21 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private void populateLocalOrLiveVersionMenu() {
         //setup the extra items if they're needed, or remove as necessary
-        if (ChanSettings.incrementalThreadDownloadingEnabled.get() &&
-                getThreadDownloadState() != DownloadThreadState.Default) {
+        if (ChanSettings.incrementalThreadDownloadingEnabled.get()
+                && getThreadDownloadState() != DownloadThreadState.Default) {
             ToolbarMenuItem overflowMenu = navigation.findItem(OVERFLOW_ID);
-            if(navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID) == null && navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID) == null) {
-                overflowMenu.addSubItem(new ToolbarMenuSubItem(VIEW_LOCAL_COPY_SUBMENU_ID, R.string.view_local_version, true, this::handleClickViewLocalVersion));
-                overflowMenu.addSubItem(new ToolbarMenuSubItem(VIEW_LIVE_COPY_SUBMENU_ID, R.string.view_view_version, true, this::handleClickViewLiveVersion));
+            if (navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID) == null
+                    && navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID) == null) {
+                overflowMenu.addSubItem(new ToolbarMenuSubItem(VIEW_LOCAL_COPY_SUBMENU_ID,
+                        R.string.view_local_version,
+                        true,
+                        this::handleClickViewLocalVersion
+                ));
+                overflowMenu.addSubItem(new ToolbarMenuSubItem(VIEW_LIVE_COPY_SUBMENU_ID,
+                        R.string.view_view_version,
+                        true,
+                        this::handleClickViewLiveVersion
+                ));
             }
         } else {
             ToolbarMenuItem overflowMenu = navigation.findItem(OVERFLOW_ID);
@@ -558,10 +548,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             }
 
             SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
-            if (savedThread == null ||
-                    savedThread.isFullyDownloaded ||
-                    loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded ||
-                    loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.NotDownloading) {
+            if (savedThread == null || savedThread.isFullyDownloaded
+                    || loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded
+                    || loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.NotDownloading) {
                 // No saved thread.
                 // Saved thread fully downloaded.
                 // Not downloading thread currently.
@@ -593,14 +582,14 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             view.postDelayed(() -> {
                 View view = navigation.findItem(OVERFLOW_ID).getView();
                 if (view != null) {
-                    HintPopup.show(context, view, context.getString(R.string.thread_up_down_hint), -dp(1), 0);
+                    HintPopup.show(context, view, getString(R.string.thread_up_down_hint), -dp(1), 0);
                 }
             }, 600);
         } else if (counter == 3) {
             view.postDelayed(() -> {
                 View view = navigation.findItem(PIN_ID).getView();
                 if (view != null) {
-                    HintPopup.show(context, view, context.getString(R.string.thread_pin_hint), -dp(1), 0);
+                    HintPopup.show(context, view, getString(R.string.thread_pin_hint), -dp(1), 0);
                 }
             }, 600);
         }
@@ -686,8 +675,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void setSaveIconStateDrawable(
-            DownloadThreadState downloadThreadState,
-            boolean animated
+            DownloadThreadState downloadThreadState, boolean animated
     ) {
         if (downloadThreadState == prevState) {
             return;
@@ -736,10 +724,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         pinItemPinned = pinned;
 
-        Drawable outline = context.getDrawable(
-                R.drawable.ic_bookmark_outline_white_24dp);
-        Drawable white = context.getDrawable(
-                R.drawable.ic_bookmark_white_24dp);
+        Drawable outline = context.getDrawable(R.drawable.ic_bookmark_outline_white_24dp);
+        Drawable white = context.getDrawable(R.drawable.ic_bookmark_white_24dp);
 
         Drawable drawable = pinned ? white : outline;
         menuItem.setImage(drawable, animated);
@@ -748,10 +734,15 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void openArchive(Pair<String, String> domainNamePair) {
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        Post tempOP = new Post.Builder().board(loadable.board).id(loadable.no).opId(loadable.no).setUnixTimestampSeconds(1).comment("").build();
+        Post tempOP = new Post.Builder().board(loadable.board)
+                .id(loadable.no)
+                .opId(loadable.no)
+                .setUnixTimestampSeconds(1)
+                .comment("")
+                .build();
         String link = loadable.site.resolvable().desktopUrl(loadable, tempOP);
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
-        AndroidUtils.openLinkInBrowser((Activity) context, link);
+        openLinkInBrowser((Activity) context, link);
     }
 
     @Override

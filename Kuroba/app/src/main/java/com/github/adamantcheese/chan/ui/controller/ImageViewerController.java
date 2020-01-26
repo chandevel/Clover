@@ -72,7 +72,6 @@ import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.ui.view.OptionalSwipeViewPager;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.ui.view.TransitionImageView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -85,13 +84,23 @@ import javax.inject.Inject;
 
 import okhttp3.HttpUrl;
 
+import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
-public class ImageViewerController extends Controller implements ImageViewerPresenter.Callback,
-        ToolbarMenuItem.ToobarThreedotMenuCallback {
+public class ImageViewerController
+        extends Controller
+        implements ImageViewerPresenter.Callback, ToolbarMenuItem.ToobarThreedotMenuCallback {
     private static final String TAG = "ImageViewerController";
     private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
@@ -169,7 +178,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         // View setup
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        view = inflateRes(R.layout.controller_image_viewer);
+        view = inflate(context, R.layout.controller_image_viewer);
         previewImage = view.findViewById(R.id.preview_image);
         pager = view.findViewById(R.id.pager);
         pager.addOnPageChangeListener(presenter);
@@ -182,7 +191,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             throw new IllegalArgumentException("parentController.view not attached");
         }
 
-        AndroidUtils.waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
+        waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
             presenter.onViewMeasured();
             return true;
         });
@@ -195,7 +204,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             // hax: we need to wait for the recyclerview to do a layout before we know
             // where the new thumbnails are to get the bounds from to animate to
             this.imageViewerCallback = imageViewerCallback;
-            AndroidUtils.waitForLayout(view, view -> {
+            waitForLayout(view, view -> {
                 showSystemUI();
                 mainHandler.removeCallbacks(uiHideCall);
                 presenter.onExit();
@@ -221,9 +230,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private void openBrowserClicked(ToolbarMenuSubItem item) {
         PostImage postImage = presenter.getCurrentPostImage();
         if (ChanSettings.openLinkBrowser.get()) {
-            AndroidUtils.openLink(postImage.imageUrl.toString());
+            openLink(postImage.imageUrl.toString());
         } else {
-            AndroidUtils.openLinkInBrowser((Activity) context, postImage.imageUrl.toString());
+            openLinkInBrowser((Activity) context, postImage.imageUrl.toString());
         }
     }
 
@@ -252,14 +261,14 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         Integer[] rotateInts = {90, 180, -90};
         ListView rotateImageList = new ListView(context);
 
-        AlertDialog dialog = new AlertDialog.Builder(context)
-                .setView(rotateImageList)
-                .create();
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(rotateImageList).create();
         dialog.setCanceledOnTouchOutside(true);
 
         rotateImageList.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, rotateOptions));
         rotateImageList.setOnItemClickListener((parent, view, position, id) -> {
-            ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(), rotateInts[position]);
+            ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(),
+                    rotateInts[position]
+            );
             dialog.dismiss();
         });
 
@@ -277,7 +286,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     private void saveShare(boolean share, PostImage postImage) {
         if (share && ChanSettings.shareUrl.get()) {
-            AndroidUtils.shareLink(postImage.imageUrl.toString());
+            shareLink(postImage.imageUrl.toString());
         } else {
             ImageSaveTask task = new ImageSaveTask(loadable, postImage);
             task.setShare(share);
@@ -287,22 +296,18 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 if (ChanSettings.saveThreadFolder.get()) {
                     subFolderName = appendAdditionalSubDirectories(postImage);
                 } else {
-                    subFolderName = presenter.getLoadable().site.name()
-                            + File.separator
-                            + presenter.getLoadable().boardCode;
+                    subFolderName =
+                            presenter.getLoadable().site.name() + File.separator + presenter.getLoadable().boardCode;
                 }
 
                 task.setSubFolder(subFolderName);
             }
 
             imageSaver.startDownloadTask(context, task, message -> {
-                String errorMessage = String.format(
-                        Locale.US,
-                        "%s, error message = %s",
-                        "Couldn't start download task",
-                        message);
+                String errorMessage =
+                        String.format(Locale.US, "%s, error message = %s", "Couldn't start download task", message);
 
-                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
+                showToast(errorMessage, Toast.LENGTH_LONG);
             });
         }
     }
@@ -322,22 +327,16 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 ? imageViewerCallback.getPostForPostImage(postImage).no
                 : presenter.getLoadable().no;
 
-        String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(siteName)
-                + File.separator
-                + StringUtils.dirNameRemoveBadCharacters(presenter.getLoadable().boardCode)
-                + File.separator
-                + postNoString
-                + "_";
+        String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(siteName) + File.separator
+                + StringUtils.dirNameRemoveBadCharacters(presenter.getLoadable().boardCode) + File.separator
+                + postNoString + "_";
 
         String tempTitle = (presenter.getLoadable().no == 0
                 ? PostHelper.getTitle(imageViewerCallback.getPostForPostImage(postImage), null)
                 : presenter.getLoadable().title);
 
         String sanitizedFileName = StringUtils.dirNameRemoveBadCharacters(tempTitle);
-        String truncatedFileName = sanitizedFileName.substring(
-                0,
-                Math.min(sanitizedFileName.length(), 50)
-        );
+        String truncatedFileName = sanitizedFileName.substring(0, Math.min(sanitizedFileName.length(), 50));
 
         return sanitizedSubFolderName + truncatedFileName;
     }
@@ -363,11 +362,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     public void setPreviewVisibility(boolean visible) {
-        previewImage.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        previewImage.setVisibility(visible ? VISIBLE : INVISIBLE);
     }
 
     public void setPagerVisiblity(boolean visible) {
-        pager.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        pager.setVisibility(visible ? VISIBLE : INVISIBLE);
         pager.setSwipingEnabled(visible);
     }
 
@@ -392,7 +391,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     public void setTitle(PostImage postImage, int index, int count, boolean spoiler) {
         if (spoiler) {
-            navigation.title = getString(R.string.image_spoiler_filename) + " (" + postImage.extension.toUpperCase() + ")";
+            navigation.title =
+                    getString(R.string.image_spoiler_filename) + " (" + postImage.extension.toUpperCase() + ")";
         } else {
             navigation.title = postImage.filename + "." + postImage.extension;
         }
@@ -405,7 +405,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     public void showProgress(boolean show) {
-        loadingBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        loadingBar.setVisibility(show ? VISIBLE : GONE);
     }
 
     public void onLoadProgress(float progress) {
@@ -416,8 +416,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     public void showVolumeMenuItem(boolean show, boolean muted) {
         ToolbarMenuItem volumeMenuItem = navigation.findItem(VOLUME_ID);
         volumeMenuItem.setVisible(show);
-        volumeMenuItem.setImage(
-                muted ? R.drawable.ic_volume_off_white_24dp : R.drawable.ic_volume_up_white_24dp);
+        volumeMenuItem.setImage(muted ? R.drawable.ic_volume_off_white_24dp : R.drawable.ic_volume_up_white_24dp);
     }
 
     @Override
@@ -460,7 +459,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 for (ImageSearch imageSearch : ImageSearch.engines) {
                     if (((Integer) item.getId()) == imageSearch.getId()) {
                         final HttpUrl searchImageUrl = getSearchImageUrl(presenter.getCurrentPostImage());
-                        AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageUrl.toString()));
+                        openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageUrl.toString()));
                         break;
                     }
                 }
@@ -504,8 +503,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             }
         });
 
-        imageLoaderV2.getImage(
-                true,
+        imageLoaderV2.getImage(true,
                 loadable,
                 postImage,
                 previewImage.getWidth(),
@@ -513,7 +511,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 new ImageListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
+                        Log.e(
+                                TAG,
+                                "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap"
+                        );
                         startAnimation.start();
                     }
 
@@ -524,7 +525,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                             startAnimation.start();
                         }
                     }
-                });
+                }
+        );
     }
 
     public void startPreviewOutTransition(Loadable loadable, final PostImage postImage) {
@@ -532,9 +534,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             return;
         }
 
-
-        imageLoaderV2.getImage(
-                true,
+        imageLoaderV2.getImage(true,
                 loadable,
                 postImage,
                 previewImage.getWidth(),
@@ -542,7 +542,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 new ImageListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");
+                        Log.e(
+                                TAG,
+                                "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap"
+                        );
                         doPreviewOutAnimation(postImage, null);
                     }
 
@@ -579,11 +582,13 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             ValueAnimator backgroundAlpha = ValueAnimator.ofFloat(1f, 0f);
             backgroundAlpha.addUpdateListener(animation -> setBackgroundAlpha((float) animation.getAnimatedValue()));
 
-            endAnimation
-                    .play(ObjectAnimator.ofFloat(previewImage, View.Y, previewImage.getTop(), previewImage.getTop() + dp(20)))
+            endAnimation.play(ObjectAnimator.ofFloat(previewImage,
+                    View.Y,
+                    previewImage.getTop(),
+                    previewImage.getTop() + dp(20)
+            ))
                     .with(ObjectAnimator.ofFloat(previewImage, View.ALPHA, 1f, 0f))
                     .with(backgroundAlpha);
-
         } else {
             ValueAnimator progress = ValueAnimator.ofFloat(1f, 0f);
             progress.addUpdateListener(animation -> {
@@ -628,7 +633,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     private void setBackgroundAlpha(float alpha) {
-        navigationController.view.setBackgroundColor(Color.argb((int) (alpha * TRANSITION_FINAL_ALPHA * 255f), 0, 0, 0));
+        navigationController.view.setBackgroundColor(Color.argb((int) (alpha * TRANSITION_FINAL_ALPHA * 255f),
+                0,
+                0,
+                0
+        ));
 
         if (alpha == 0f) {
             getWindow().setStatusBarColor(statusBarColorPrevious);
@@ -659,13 +668,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         isInImmersiveMode = true;
 
         View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
 
         decorView.setOnSystemUiVisibilityChangeListener(visibility -> {
             if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0 && isInImmersiveMode) {
@@ -674,7 +679,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             }
         });
 
-        //setting this to 0 because View.GONE doesn't seem to work?
+        //setting this to 0 because GONE doesn't seem to work?
         ViewGroup.LayoutParams params = navigationController.getToolbar().getLayoutParams();
         params.height = 0;
         navigationController.getToolbar().setLayoutParams(params);
@@ -701,9 +706,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         decorView.setOnSystemUiVisibilityChangeListener(null);
         decorView.setSystemUiVisibility(0);
 
-        //setting this to the toolbar height because View.VISIBLE doesn't seem to work?
+        //setting this to the toolbar height because VISIBLE doesn't seem to work?
         ViewGroup.LayoutParams params = navigationController.getToolbar().getLayoutParams();
-        params.height = getDimen(context, R.dimen.toolbar_height);
+        params.height = getDimen(R.dimen.toolbar_height);
         navigationController.getToolbar().setLayoutParams(params);
     }
 

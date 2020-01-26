@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.http;
 
-
 public class DeleteResponse {
     public boolean deleted;
     public String errorMessage;

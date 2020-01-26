@@ -17,16 +17,12 @@
 package com.github.adamantcheese.chan.ui.helper;
 
 import android.app.Activity;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
-import android.widget.Toast;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
@@ -48,10 +44,13 @@ import javax.inject.Inject;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
-public class ImagePickDelegate implements Runnable {
+public class ImagePickDelegate
+        implements Runnable {
     private static final String TAG = "ImagePickActivity";
 
     private static final int IMAGE_PICK_RESULT = 2;
@@ -83,24 +82,24 @@ public class ImagePickDelegate implements Runnable {
             this.callback = callback;
 
             if (longPressed) {
-                Toast.makeText(activity, activity.getString(R.string.image_url_get_attempt), Toast.LENGTH_SHORT).show();
+                showToast(R.string.image_url_get_attempt);
                 HttpUrl clipboardURL = null;
                 try {
-                    ClipboardManager manager = (ClipboardManager) getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                    clipboardURL = HttpUrl.get(manager.getPrimaryClip().getItemAt(0).getText().toString());
+                    clipboardURL =
+                            HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
                 } catch (Exception ignored) {
-                    Toast.makeText(activity, activity.getString(R.string.image_url_get_failed), Toast.LENGTH_SHORT).show();
+                    showToast(R.string.image_url_get_failed);
                     callback.onFilePickError(true);
                     reset();
                 }
                 if (clipboardURL != null) {
                     HttpUrl finalClipboardURL = clipboardURL;
-                    Chan.injector().instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
+                    instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
                         @Override
                         public void onSuccess(RawFile file) {
                             BackgroundUtils.ensureMainThread();
 
-                            Toast.makeText(activity, activity.getString(R.string.image_url_get_success), Toast.LENGTH_SHORT).show();
+                            showToast(R.string.image_url_get_success);
                             Uri imageURL = Uri.parse(finalClipboardURL.toString());
                             callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
                             reset();
@@ -110,7 +109,7 @@ public class ImagePickDelegate implements Runnable {
                         public void onFail(boolean notFound) {
                             BackgroundUtils.ensureMainThread();
 
-                            Toast.makeText(activity, activity.getString(R.string.image_url_get_failed), Toast.LENGTH_SHORT).show();
+                            showToast(R.string.image_url_get_failed);
                             callback.onFilePickError(true);
                             reset();
                         }
@@ -197,8 +196,8 @@ public class ImagePickDelegate implements Runnable {
             os = fileManager.getOutputStream(cacheFile);
 
             if (os == null) {
-                throw new IOException("Could not get OutputStream from the cacheFile, " +
-                        "cacheFile = " + cacheFile.getFullPath());
+                throw new IOException(
+                        "Could not get OutputStream from the cacheFile, cacheFile = " + cacheFile.getFullPath());
             }
 
             boolean fullyCopied = IOUtils.copy(is, os, MAX_FILE_SIZE);

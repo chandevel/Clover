@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.database;
 
 import androidx.annotation.AnyThread;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
@@ -36,6 +35,7 @@ import java.util.concurrent.Callable;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 
 /**
  * Saved replies are posts-password combinations used to track what posts are posted by the app,
@@ -84,15 +84,17 @@ public class DatabaseSavedReplyManager {
 
     public Callable<Void> load() {
         return () -> {
-            Chan.injector().provider(DatabaseManager.class).get().trimTable(helper.savedDao, "savedreply",
-                    SAVED_REPLY_TRIM_TRIGGER, SAVED_REPLY_TRIM_COUNT);
-
+            instance(DatabaseManager.class).trimTable(helper.savedDao,
+                    "savedreply",
+                    SAVED_REPLY_TRIM_TRIGGER,
+                    SAVED_REPLY_TRIM_COUNT
+            );
             final List<SavedReply> all = helper.savedDao.queryForAll();
 
             synchronized (savedRepliesByNo) {
                 savedRepliesByNo.clear();
                 for (SavedReply savedReply : all) {
-                    savedReply.site = Chan.injector().instance(SiteRepository.class).forId(savedReply.siteId);
+                    savedReply.site = instance(SiteRepository.class).forId(savedReply.siteId);
 
                     List<SavedReply> list = savedRepliesByNo.get(savedReply.no);
                     if (list == null) {
@@ -153,10 +155,8 @@ public class DatabaseSavedReplyManager {
     public Callable<SavedReply> findSavedReply(final Board board, final int no) {
         return () -> {
             QueryBuilder<SavedReply, Integer> builder = helper.savedDao.queryBuilder();
-            List<SavedReply> query = builder.where()
-                    .eq("site", board.siteId)
-                    .and().eq("board", board.code)
-                    .and().eq("no", no).query();
+            List<SavedReply> query =
+                    builder.where().eq("site", board.siteId).and().eq("board", board.code).and().eq("no", no).query();
             return query.isEmpty() ? null : query.get(0);
         };
     }

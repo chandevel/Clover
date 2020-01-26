@@ -22,8 +22,6 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.widget.Toast;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -41,7 +39,6 @@ import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
@@ -50,14 +47,15 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
-public abstract class ThreadController extends Controller implements
-        ThreadLayout.ThreadLayoutCallback,
-        ImageViewerController.ImageViewerCallback,
-        SwipeRefreshLayout.OnRefreshListener,
-        ToolbarNavigationController.ToolbarSearchCallback,
-        NfcAdapter.CreateNdefMessageCallback,
-        ThreadSlideController.SlideChangeListener {
+public abstract class ThreadController
+        extends Controller
+        implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.ImageViewerCallback,
+                   SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback,
+                   NfcAdapter.CreateNdefMessageCallback, ThreadSlideController.SlideChangeListener {
     private static final String TAG = "ThreadController";
 
     protected ThreadLayout threadLayout;
@@ -75,7 +73,7 @@ public abstract class ThreadController extends Controller implements
 
         navigation.handlesToolbarInset = true;
 
-        threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
+        threadLayout = (ThreadLayout) inflate(context, R.layout.layout_thread, null);
         threadLayout.create(this);
 
         swipeRefreshLayout = new SwipeRefreshLayout(context) {
@@ -149,10 +147,7 @@ public abstract class ThreadController extends Controller implements
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            Toast.makeText(
-                    context,
-                    R.string.cannot_send_thread_via_nfc_already_deleted,
-                    Toast.LENGTH_SHORT).show();
+            showToast(R.string.cannot_send_thread_via_nfc_already_deleted);
             return null;
         }
 
@@ -161,9 +156,7 @@ public abstract class ThreadController extends Controller implements
         NdefMessage message = null;
 
         if (loadable != null) {
-            url = loadable.site.resolvable().desktopUrl(
-                    loadable,
-                    threadLayout.getPresenter().getChanThread().getOp());
+            url = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
         }
 
         if (url != null) {
@@ -192,9 +185,9 @@ public abstract class ThreadController extends Controller implements
     public void showImages(List<PostImage> images, int index, Loadable loadable, final ThumbnailView thumbnail) {
         // Just ignore the showImages request when the image is not loaded
         if (thumbnail.getBitmap() != null && !isAlreadyPresenting()) {
-            final ImageViewerNavigationController imageViewerNavigationController = new ImageViewerNavigationController(context);
-            presentController(imageViewerNavigationController, false);
-            imageViewerNavigationController.showImages(images, index, loadable, this);
+            final ImageViewerNavigationController imagerViewer = new ImageViewerNavigationController(context);
+            presentController(imagerViewer, false);
+            imagerViewer.showImages(images, index, loadable, this);
         }
     }
 
@@ -246,7 +239,7 @@ public abstract class ThreadController extends Controller implements
 
     @Override
     public boolean shouldToolbarCollapse() {
-        return !AndroidUtils.isTablet(context) && !ChanSettings.neverHideToolbar.get();
+        return !isTablet() && !ChanSettings.neverHideToolbar.get();
     }
 
     @Override
@@ -270,7 +263,7 @@ public abstract class ThreadController extends Controller implements
         // TODO cleanup
         Filter filter = new Filter();
         filter.type = FilterType.TRIPCODE.flag;
-        filter.pattern = tripcode;
+        filter.pattern = String.format("/%s/", tripcode);
         filtersController.showFilterDialog(filter);
     }
 

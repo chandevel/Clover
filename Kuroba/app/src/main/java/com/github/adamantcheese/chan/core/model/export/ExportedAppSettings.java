@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 public class ExportedAppSettings {
     @SerializedName("exported_sites")
     private List<ExportedSite> exportedSites;
@@ -61,8 +60,7 @@ public class ExportedAppSettings {
     }
 
     public static ExportedAppSettings empty() {
-        return new ExportedAppSettings(
-                new ArrayList<>(),
+        return new ExportedAppSettings(new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
@@ -76,9 +74,7 @@ public class ExportedAppSettings {
      * (probably only settings)
      */
     public boolean isEmpty() {
-        return exportedSites.isEmpty()
-                && exportedBoards.isEmpty()
-                && (settings == null || settings.isEmpty());
+        return exportedSites.isEmpty() && exportedBoards.isEmpty() && (settings == null || settings.isEmpty());
     }
 
     public List<ExportedSite> getExportedSites() {
@@ -131,7 +127,7 @@ public class ExportedAppSettings {
     }
 
     public void setSettings(String settings) {
-        throw new UnsupportedOperationException("Settings are only allowed to be set with the " +
-                "constructor, and must be from ChanSettings.serializeToString().");
+        throw new UnsupportedOperationException("Settings are only allowed to be set with the "
+                + "constructor, and must be from ChanSettings.serializeToString().");
     }
 }

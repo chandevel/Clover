@@ -3,7 +3,8 @@ package com.github.adamantcheese.chan.core.site.sites.dvach;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
 import com.github.adamantcheese.chan.core.site.parser.StyleRule;
 
-public class DvachCommentParser extends VichanCommentParser {
+public class DvachCommentParser
+        extends VichanCommentParser {
     @Override
     public void addDefaultRules() {
         super.addDefaultRules();

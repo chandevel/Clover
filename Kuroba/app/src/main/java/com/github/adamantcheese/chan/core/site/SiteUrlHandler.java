@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;

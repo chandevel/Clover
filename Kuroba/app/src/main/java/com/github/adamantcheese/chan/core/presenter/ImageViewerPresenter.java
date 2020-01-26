@@ -27,7 +27,6 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
@@ -39,9 +38,20 @@ import javax.inject.Inject;
 
 import static android.content.Context.AUDIO_SERVICE;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.PDF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
+import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.BIGIMAGE;
+import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.GIFIMAGE;
+import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
+import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.OTHER;
+import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
-public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
+public class ImageViewerPresenter
+        implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewerPresenter";
 
     private final Callback callback;
@@ -68,8 +78,9 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         this.callback = callback;
         inject(this);
 
-        AudioManager audioManager = (AudioManager) AndroidUtils.getAppContext().getSystemService(AUDIO_SERVICE);
-        muted = ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get() || !audioManager.isWiredHeadsetOn());
+        AudioManager audioManager = (AudioManager) getAppContext().getSystemService(AUDIO_SERVICE);
+        muted = ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get()
+                || !audioManager.isWiredHeadsetOn());
     }
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
@@ -84,7 +95,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         // Do this before the view is measured, to avoid it to always loading the first two pages
         callback.setPagerItems(loadable, images, selectedPosition);
-        callback.setImageMode(images.get(selectedPosition), MultiImageView.Mode.LOWRES, true);
+        callback.setImageMode(images.get(selectedPosition), LOWRES, true);
     }
 
     public void onViewMeasured() {
@@ -108,8 +119,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         exiting = true;
 
         PostImage postImage = images.get(selectedPosition);
-        if (postImage.type == PostImage.Type.MOVIE) {
-            callback.setImageMode(postImage, MultiImageView.Mode.LOWRES, true);
+        if (postImage.type == MOVIE) {
+            callback.setImageMode(postImage, LOWRES, true);
         }
 
         callback.resetDownloadButtonState();
@@ -165,7 +176,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     public void onModeLoaded(MultiImageView multiImageView, MultiImageView.Mode mode) {
         if (exiting) return;
 
-        if (mode == MultiImageView.Mode.LOWRES) {
+        if (mode == LOWRES) {
             // lowres is requested at the beginning of the transition,
             // the lowres is loaded before the in transition or after
             if (!viewPagerVisible) {
@@ -180,7 +191,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 }
                 // Transition ended or not, request loading the other side views to lowres
                 for (PostImage other : getOther(selectedPosition)) {
-                    callback.setImageMode(other, MultiImageView.Mode.LOWRES, false);
+                    callback.setImageMode(other, LOWRES, false);
                 }
                 onLowResInCenter();
             } else {
@@ -208,13 +219,13 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.scrollToImage(postImage);
 
         for (PostImage other : getOther(position)) {
-            callback.setImageMode(other, MultiImageView.Mode.LOWRES, false);
+            callback.setImageMode(other, LOWRES, false);
         }
 
         cancelPreviousImageDownload(position);
 
         // Already in LOWRES mode
-        if (callback.getImageMode(postImage) == MultiImageView.Mode.LOWRES) {
+        if (callback.getImageMode(postImage) == LOWRES) {
             onLowResInCenter();
         }
         // Else let onModeLoaded handle it
@@ -229,14 +240,14 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         PostImage postImage = images.get(selectedPosition);
 
         if (imageAutoLoad(loadable, postImage) && (!postImage.spoiler || ChanSettings.revealimageSpoilers.get())) {
-            if (postImage.type == PostImage.Type.STATIC) {
-                callback.setImageMode(postImage, MultiImageView.Mode.BIGIMAGE, true);
-            } else if (postImage.type == PostImage.Type.GIF) {
-                callback.setImageMode(postImage, MultiImageView.Mode.GIF, true);
-            } else if (postImage.type == PostImage.Type.MOVIE && videoAutoLoad(loadable, postImage)) {
-                callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
-            } else if (postImage.type == PostImage.Type.PDF) {
-                callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
+            if (postImage.type == STATIC) {
+                callback.setImageMode(postImage, BIGIMAGE, true);
+            } else if (postImage.type == GIF) {
+                callback.setImageMode(postImage, GIFIMAGE, true);
+            } else if (postImage.type == MOVIE && videoAutoLoad(loadable, postImage)) {
+                callback.setImageMode(postImage, VIDEO, true);
+            } else if (postImage.type == PDF) {
+                callback.setImageMode(postImage, OTHER, true);
             }
         }
 
@@ -252,9 +263,9 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
             PostImage next = images.get(selectedPosition + 1);
 
             boolean load = false;
-            if (next.type == PostImage.Type.STATIC || next.type == PostImage.Type.GIF) {
+            if (next.type == STATIC || next.type == GIF) {
                 load = imageAutoLoad(loadable, next);
-            } else if (next.type == PostImage.Type.MOVIE) {
+            } else if (next.type == MOVIE) {
                 load = videoAutoLoad(loadable, next);
             }
 
@@ -263,18 +274,16 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 // Array to allow access from within the callback (the callback should really
                 // pass the filecachedownloader itself).
                 final FileCacheDownloader[] preloadDownload = new FileCacheDownloader[1];
-                preloadDownload[0] = fileCache.downloadFile(loadable, next,
-                        new FileCacheListener() {
-                            @Override
-                            public void onEnd() {
-                                BackgroundUtils.ensureMainThread();
+                preloadDownload[0] = fileCache.downloadFile(loadable, next, new FileCacheListener() {
+                    @Override
+                    public void onEnd() {
+                        BackgroundUtils.ensureMainThread();
 
-                                if (preloadDownload[0] != null) {
-                                    preloadingImages.remove(preloadDownload[0]);
-                                }
-                            }
+                        if (preloadDownload[0] != null) {
+                            preloadingImages.remove(preloadDownload[0]);
                         }
-                );
+                    }
+                });
 
                 if (preloadDownload[0] != null) {
                     preloadingImages.add(preloadDownload[0]);
@@ -302,8 +311,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         if (viewPagerVisible) {
             PostImage postImage = images.get(selectedPosition);
             if (imageAutoLoad(loadable, postImage) && !postImage.spoiler) {
-                if (postImage.type == PostImage.Type.MOVIE) {
-                    callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
+                if (postImage.type == MOVIE) {
+                    callback.setImageMode(postImage, VIDEO, true);
                 } else {
                     if (callback.isImmersive()) {
                         callback.showSystemUI(true);
@@ -313,14 +322,14 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 }
             } else {
                 MultiImageView.Mode currentMode = callback.getImageMode(postImage);
-                if (postImage.type == PostImage.Type.STATIC && currentMode != MultiImageView.Mode.BIGIMAGE) {
-                    callback.setImageMode(postImage, MultiImageView.Mode.BIGIMAGE, true);
-                } else if (postImage.type == PostImage.Type.GIF && currentMode != MultiImageView.Mode.GIF) {
-                    callback.setImageMode(postImage, MultiImageView.Mode.GIF, true);
-                } else if (postImage.type == PostImage.Type.MOVIE && currentMode != MultiImageView.Mode.MOVIE) {
-                    callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
-                } else if (postImage.type == PostImage.Type.PDF && currentMode != MultiImageView.Mode.OTHER) {
-                    callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
+                if (postImage.type == STATIC && currentMode != BIGIMAGE) {
+                    callback.setImageMode(postImage, BIGIMAGE, true);
+                } else if (postImage.type == GIF && currentMode != GIFIMAGE) {
+                    callback.setImageMode(postImage, GIFIMAGE, true);
+                } else if (postImage.type == MOVIE && currentMode != VIDEO) {
+                    callback.setImageMode(postImage, VIDEO, true);
+                } else if (postImage.type == PDF && currentMode != OTHER) {
+                    callback.setImageMode(postImage, OTHER, true);
                 } else {
                     if (callback.isImmersive()) {
                         callback.showSystemUI(true);
@@ -405,8 +414,11 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     private void setTitle(PostImage postImage, int position) {
-        callback.setTitle(postImage, position, images.size(),
-                postImage.spoiler && callback.getImageMode(postImage) == MultiImageView.Mode.LOWRES);
+        callback.setTitle(postImage,
+                position,
+                images.size(),
+                postImage.spoiler && callback.getImageMode(postImage) == LOWRES
+        );
     }
 
     private List<PostImage> getOther(int position) {

@@ -33,9 +33,7 @@ public class ImportExportSettingsPresenter {
     @Inject
     ImportExportRepository importExportRepository;
 
-    public ImportExportSettingsPresenter(
-            @NonNull ImportExportSettingsCallbacks callbacks
-    ) {
+    public ImportExportSettingsPresenter(@NonNull ImportExportSettingsCallbacks callbacks) {
         inject(this);
         this.callbacks = callbacks;
     }

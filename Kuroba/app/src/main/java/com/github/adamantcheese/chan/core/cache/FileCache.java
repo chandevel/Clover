@@ -38,7 +38,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class FileCache implements FileCacheDownloader.Callback {
+public class FileCache
+        implements FileCacheDownloader.Callback {
     private static final String TAG = "FileCache";
     private static final String FILE_CACHE_DIR = "filecache";
 
@@ -51,8 +52,7 @@ public class FileCache implements FileCacheDownloader.Callback {
     public FileCache(File cacheDir, FileManager fileManager) {
         this.fileManager = fileManager;
 
-        RawFile cacheDirFile = fileManager.fromRawFile(
-                new File(cacheDir, FILE_CACHE_DIR));
+        RawFile cacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CACHE_DIR));
 
         cacheHandler = new CacheHandler(fileManager, cacheDirFile);
     }
@@ -66,22 +66,17 @@ public class FileCache implements FileCacheDownloader.Callback {
     }
 
     public FileCacheDownloader downloadFile(
-            Loadable loadable,
-            @NonNull PostImage postImage,
-            FileCacheListener listener) {
+            Loadable loadable, @NonNull PostImage postImage, FileCacheListener listener
+    ) {
         if (loadable.isLocal()) {
-            String filename = ThreadSaveManager.formatOriginalImageName(
-                    postImage.serverFilename,
-                    postImage.extension);
+            String filename = ThreadSaveManager.formatOriginalImageName(postImage.serverFilename, postImage.extension);
 
             if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
                 Logger.e(TAG, "Base local threads directory does not exist");
                 return null;
             }
 
-            AbstractFile baseDirFile = fileManager.newBaseDirectoryFile(
-                    LocalThreadsBaseDirectory.class
-            );
+            AbstractFile baseDirFile = fileManager.newBaseDirectoryFile(LocalThreadsBaseDirectory.class);
 
             if (baseDirFile == null) {
                 Logger.e(TAG, "downloadFile() fileManager.newLocalThreadFile() returned null");
@@ -92,15 +87,13 @@ public class FileCache implements FileCacheDownloader.Callback {
             List<Segment> segments = new ArrayList<>(ThreadSaveManager.getImagesSubDir(loadable));
             segments.add(new FileSegment(filename));
 
-            AbstractFile imageOnDiskFile = baseDirFile.clone(segments);
+            AbstractFile localImgFile = baseDirFile.clone(segments);
 
-            if (fileManager.exists(imageOnDiskFile)
-                    && fileManager.isFile(imageOnDiskFile)
-                    && fileManager.canRead(imageOnDiskFile)) {
-                handleFileImmediatelyAvailable(listener, imageOnDiskFile);
+            if (fileManager.exists(localImgFile) && fileManager.isFile(localImgFile)
+                    && fileManager.canRead(localImgFile)) {
+                handleFileImmediatelyAvailable(listener, localImgFile);
             } else {
-                Logger.e(TAG, "Cannot load saved image from the disk, path: "
-                        + imageOnDiskFile.getFullPath());
+                Logger.e(TAG, "Cannot load saved image from the disk, path: " + localImgFile.getFullPath());
 
                 if (listener != null) {
                     listener.onFail(true);
@@ -193,9 +186,9 @@ public class FileCache implements FileCacheDownloader.Callback {
                 try {
                     RawFile resultFile = fileManager.fromRawFile(cacheHandler.randomCacheFile());
                     if (!fileManager.copyFileContents(file, resultFile)) {
-                        throw new IOException("Could not copy external SAF file into internal " +
-                                "cache file, externalFile = " + file.getFullPath() +
-                                ", resultFile = " + resultFile.getFullPath());
+                        throw new IOException(
+                                "Could not copy external SAF file into internal cache file, externalFile = "
+                                        + file.getFullPath() + ", resultFile = " + resultFile.getFullPath());
                     }
 
                     listener.onSuccess(resultFile);
@@ -209,12 +202,10 @@ public class FileCache implements FileCacheDownloader.Callback {
         }
     }
 
-    private FileCacheDownloader handleStartDownload(
-            FileCacheListener listener, RawFile file, String url) {
+    private FileCacheDownloader handleStartDownload(FileCacheListener listener, RawFile file, String url) {
         BackgroundUtils.ensureMainThread();
 
-        FileCacheDownloader downloader =
-                new FileCacheDownloader(fileManager, this, file, url);
+        FileCacheDownloader downloader = new FileCacheDownloader(fileManager, this, file, url);
 
         if (listener != null) {
             downloader.addListener(listener);

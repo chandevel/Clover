@@ -21,7 +21,8 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "filter")
-public class Filter implements Cloneable {
+public class Filter
+        implements Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -75,7 +76,19 @@ public class Filter implements Cloneable {
     public Filter() {
     }
 
-    public Filter(boolean enabled, int type, String pattern, boolean allBoards, String boards, int action, int color, boolean applyToReplies, int order, boolean onlyOnOP, boolean applyToSaved) {
+    public Filter(
+            boolean enabled,
+            int type,
+            String pattern,
+            boolean allBoards,
+            String boards,
+            int action,
+            int color,
+            boolean applyToReplies,
+            int order,
+            boolean onlyOnOP,
+            boolean applyToSaved
+    ) {
         this.enabled = enabled;
         this.type = type;
         this.pattern = pattern;

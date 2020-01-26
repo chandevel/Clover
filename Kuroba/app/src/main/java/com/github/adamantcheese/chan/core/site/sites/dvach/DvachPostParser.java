@@ -18,7 +18,8 @@ import org.jsoup.parser.Parser;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DvachPostParser extends DefaultPostParser {
+public class DvachPostParser
+        extends DefaultPostParser {
 
     private Pattern colorPattern = Pattern.compile("color:rgb\\((\\d+),(\\d+),(\\d+)\\);");
     private static final String TAG = "DvachPostParser";

@@ -21,7 +21,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -35,7 +34,6 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
@@ -47,7 +45,10 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,8 +64,10 @@ import javax.inject.Inject;
 
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 
-public class WatchNotification extends Service {
+public class WatchNotification
+        extends Service {
     private static final String TAG = "WatchNotification";
     private String NOTIFICATION_ID_STR = "1";
     private String NOTIFICATION_ID_ALERT_STR = "2";
@@ -80,12 +83,12 @@ public class WatchNotification extends Service {
 
     @Inject
     NotificationManager notificationManager;
-
     @Inject
     WatchManager watchManager;
-
     @Inject
     ThreadSaveManager threadSaveManager;
+    @Inject
+    FileManager fileManager;
 
     @Override
     public IBinder onBind(final Intent intent) {
@@ -101,14 +104,21 @@ public class WatchNotification extends Service {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //notification channel for non-alerts
-            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR, NOTIFICATION_NAME, NotificationManager.IMPORTANCE_MIN));
+            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR,
+                    NOTIFICATION_NAME,
+                    NotificationManager.IMPORTANCE_MIN
+            ));
             //notification channel for alerts
-            NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID_ALERT_STR, NOTIFICATION_NAME_ALERT, NotificationManager.IMPORTANCE_HIGH);
-            alert.setSound(DEFAULT_NOTIFICATION_URI, new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setLegacyStreamType(AudioManager.STREAM_NOTIFICATION)
-                    .build());
+            NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID_ALERT_STR,
+                    NOTIFICATION_NAME_ALERT,
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            alert.setSound(DEFAULT_NOTIFICATION_URI,
+                    new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .setLegacyStreamType(AudioManager.STREAM_NOTIFICATION)
+                            .build()
+            );
             alert.enableLights(true);
             alert.setLightColor(0xff91e466);
             notificationManager.createNotificationChannel(alert);
@@ -227,7 +237,7 @@ public class WatchNotification extends Service {
             }
         }
 
-        if (((Chan) Chan.injector().instance(Context.class)).getApplicationInForeground()) {
+        if (BackgroundUtils.isInForeground()) {
             flags &= ~(NOTIFICATION_LIGHT);
             flags &= ~(NOTIFICATION_SOUND);
         }
@@ -245,17 +255,24 @@ public class WatchNotification extends Service {
             return null;
         }
 
-        return setupNotificationTextFields(
-                pins,
+        return setupNotificationTextFields(pins,
                 subjectPins,
                 threadDownloaderPins,
                 unviewedPosts,
                 listQuoting,
                 notifyQuotesOnly,
-                flags);
+                flags
+        );
     }
 
     private void updateSavedThreads(HashMap<SavedThread, Pair<Loadable, List<Post>>> allPostsByThread) {
+        if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
+            Logger.d(TAG, "updateSavedThreads() LocalThreadsBaseDirectory does not exist");
+
+            watchManager.stopSavingAllThread();
+            return;
+        }
+
         for (Map.Entry<SavedThread, Pair<Loadable, List<Post>>> entry : allPostsByThread.entrySet()) {
             Loadable loadable = entry.getValue().first;
             List<Post> posts = entry.getValue().second;
@@ -273,18 +290,19 @@ public class WatchNotification extends Service {
             Set<Post> unviewedPosts,
             Set<Post> listQuoting,
             boolean notifyQuotesOnly,
-            int flags) {
+            int flags
+    ) {
         if (unviewedPosts.isEmpty()) {
             // Idle notification
             ChanSettings.watchLastCount.set(0);
-            return buildNotification(
-                    formatNotificationTitle(pins.size(), threadDownloaderPins.size()),
+            return buildNotification(formatNotificationTitle(pins.size(), threadDownloaderPins.size()),
                     Collections.singletonList(getString(R.string.watch_idle)),
                     0,
                     false,
                     false,
                     pins.size() > 0 ? pins.get(0) : null,
-                    pins.size() > 0);
+                    pins.size() > 0
+            );
         } else {
             // New posts notification
             String message;
@@ -295,7 +313,10 @@ public class WatchNotification extends Service {
             } else {
                 postsForExpandedLines = unviewedPosts;
                 if (listQuoting.size() > 0) {
-                    message = formatNotificationTitleNewQuoting(unviewedPosts.size(), listQuoting.size(), threadDownloaderPins.size());
+                    message = formatNotificationTitleNewQuoting(unviewedPosts.size(),
+                            listQuoting.size(),
+                            threadDownloaderPins.size()
+                    );
                 } else {
                     message = formatNotificationTitleNewPosts(unviewedPosts.size(), threadDownloaderPins.size());
                 }
@@ -350,20 +371,19 @@ public class WatchNotification extends Service {
                     alert,
                     ChanSettings.watchLastCount.get() > 0,
                     subjectPins.size() == 1 ? subjectPins.get(0) : null,
-                    pins.size() > 0);
+                    pins.size() > 0
+            );
         }
     }
 
     private String formatNotificationTitleNewPosts(int unviewedPostsCount, int threadDownloaderPinsCount) {
-        String watchNewQuotesTitle = getResources().getQuantityString(
-                R.plurals.thread_new_posts,
+        String watchNewQuotesTitle = getQuantityString(R.plurals.thread_new_posts,
                 unviewedPostsCount,
                 unviewedPostsCount,
-                unviewedPostsCount);
-        String downloadTitle = getResources().getQuantityString(
-                R.plurals.download_title,
-                threadDownloaderPinsCount,
-                threadDownloaderPinsCount);
+                unviewedPostsCount
+        );
+        String downloadTitle =
+                getQuantityString(R.plurals.download_title, threadDownloaderPinsCount, threadDownloaderPinsCount);
 
         if (unviewedPostsCount != 0 && threadDownloaderPinsCount == 0) {
             return watchNewQuotesTitle;
@@ -375,15 +395,10 @@ public class WatchNotification extends Service {
     }
 
     private String formatNotificationTitleNewQuotes(int listQuotingCount, int threadDownloaderPinsCount) {
-        String watchNewQuotesTitle = getResources().getQuantityString(
-                R.plurals.watch_new_quotes,
-                listQuotingCount,
-                listQuotingCount,
-                listQuotingCount);
-        String downloadTitle = getResources().getQuantityString(
-                R.plurals.download_title,
-                threadDownloaderPinsCount,
-                threadDownloaderPinsCount);
+        String watchNewQuotesTitle =
+                getQuantityString(R.plurals.watch_new_quotes, listQuotingCount, listQuotingCount, listQuotingCount);
+        String downloadTitle =
+                getQuantityString(R.plurals.download_title, threadDownloaderPinsCount, threadDownloaderPinsCount);
 
         if (listQuotingCount != 0 && threadDownloaderPinsCount == 0) {
             return watchNewQuotesTitle;
@@ -395,18 +410,15 @@ public class WatchNotification extends Service {
     }
 
     private String formatNotificationTitleNewQuoting(
-            int unviewedPostsCount,
-            int listQuotingCount,
-            int threadDownloaderPinsCount) {
-        String watchNewTitle = getResources().getQuantityString(
-                R.plurals.watch_new_quoting,
+            int unviewedPostsCount, int listQuotingCount, int threadDownloaderPinsCount
+    ) {
+        String watchNewTitle = getQuantityString(R.plurals.watch_new_quoting,
                 unviewedPostsCount,
                 unviewedPostsCount,
-                listQuotingCount);
-        String downloadTitle = getResources().getQuantityString(
-                R.plurals.download_title,
-                threadDownloaderPinsCount,
-                threadDownloaderPinsCount);
+                listQuotingCount
+        );
+        String downloadTitle =
+                getQuantityString(R.plurals.download_title, threadDownloaderPinsCount, threadDownloaderPinsCount);
 
         if (unviewedPostsCount != 0 && threadDownloaderPinsCount == 0) {
             return watchNewTitle;
@@ -418,14 +430,9 @@ public class WatchNotification extends Service {
     }
 
     private String formatNotificationTitle(int pinsCount, int threadDownloaderPinsCount) {
-        String watchTitle = getResources().getQuantityString(
-                R.plurals.watch_title,
-                pinsCount,
-                pinsCount);
-        String downloadTitle = getResources().getQuantityString(
-                R.plurals.download_title,
-                threadDownloaderPinsCount,
-                threadDownloaderPinsCount);
+        String watchTitle = getQuantityString(R.plurals.watch_title, pinsCount, pinsCount);
+        String downloadTitle =
+                getQuantityString(R.plurals.download_title, threadDownloaderPinsCount, threadDownloaderPinsCount);
 
         if (pinsCount != 0 && threadDownloaderPinsCount == 0) {
             return watchTitle;
@@ -453,8 +460,10 @@ public class WatchNotification extends Service {
             boolean alertIcon,
             boolean alertIconOverride,
             Pin target,
-            boolean hasWatchPins) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, alertIcon ? NOTIFICATION_ID_ALERT_STR : NOTIFICATION_ID_STR);
+            boolean hasWatchPins
+    ) {
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this, alertIcon ? NOTIFICATION_ID_ALERT_STR : NOTIFICATION_ID_STR);
         builder.setContentTitle(title);
         builder.setContentText(TextUtils.join(", ", expandedLines));
         builder.setOngoing(true);
@@ -463,8 +472,8 @@ public class WatchNotification extends Service {
         Intent intent = new Intent(this, StartActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |
-                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         intent.putExtra("pin_id", target != null ? target.id : -1);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
@@ -493,8 +502,8 @@ public class WatchNotification extends Service {
             //setup the pause watch button
             Intent pauseWatching = new Intent(this, WatchNotification.class);
             pauseWatching.putExtra("pause_pins", true);
-            PendingIntent pauseWatchingPending = PendingIntent.getService(this, 0, pauseWatching,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pauseWatchingPending =
+                    PendingIntent.getService(this, 0, pauseWatching, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(R.drawable.ic_action_pause, getString(R.string.watch_pause_pins), pauseWatchingPending);
         }
 

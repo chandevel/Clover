@@ -35,12 +35,15 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
-public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationLayoutInterface, View.OnClickListener {
+public class LegacyCaptchaLayout
+        extends LinearLayout
+        implements AuthenticationLayoutInterface, View.OnClickListener {
     private FixedRatioThumbnailView image;
     private EditText input;
     private ImageView submit;
@@ -65,10 +68,6 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
         super(context, attrs, defStyleAttr);
     }
 
-    /**
-     * TODO: add support for the Captcha queueing {@link CaptchaHolder}
-     */
-
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
     protected void onFinishInflate() {
@@ -80,7 +79,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
         input = findViewById(R.id.input);
         input.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                AndroidUtils.hideKeyboard(input);
+                hideKeyboard(input);
                 submitCaptcha();
                 return true;
             }
@@ -141,7 +140,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
     }
 
     private void submitCaptcha() {
-        AndroidUtils.hideKeyboard(this);
+        hideKeyboard(this);
         callback.onAuthenticationComplete(this, challenge, input.getText().toString(), true);
     }
 
@@ -159,7 +158,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
 
         @JavascriptInterface
         public void onCaptchaLoaded(final String imageUrl, final String challenge) {
-            AndroidUtils.runOnUiThread(() -> layout.onCaptchaLoaded(imageUrl, challenge));
+            runOnUiThread(() -> layout.onCaptchaLoaded(imageUrl, challenge));
         }
     }
 }

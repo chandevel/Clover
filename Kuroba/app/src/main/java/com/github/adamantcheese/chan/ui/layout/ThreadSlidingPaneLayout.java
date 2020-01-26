@@ -25,11 +25,12 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.controller.ThreadSlideController;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
-public class ThreadSlidingPaneLayout extends SlidingPaneLayout {
+public class ThreadSlidingPaneLayout
+        extends SlidingPaneLayout {
     public ViewGroup leftPane;
     public ViewGroup rightPane;
 
@@ -60,7 +61,7 @@ public class ThreadSlidingPaneLayout extends SlidingPaneLayout {
 
         // Forces a relayout after it has already been layed out, because SlidingPaneLayout sucks and otherwise
         // gives the children too much room until they request a relayout.
-        AndroidUtils.waitForLayout(this, view -> {
+        waitForLayout(this, view -> {
             requestLayout();
             return false;
         });

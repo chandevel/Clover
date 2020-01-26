@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
-
 import android.annotation.SuppressLint;
 
 import com.github.adamantcheese.chan.core.model.Post;

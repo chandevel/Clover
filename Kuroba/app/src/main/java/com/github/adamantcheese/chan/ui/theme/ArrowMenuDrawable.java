@@ -30,7 +30,8 @@ import com.github.adamantcheese.chan.ui.helper.PinHelper;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class ArrowMenuDrawable extends Drawable {
+public class ArrowMenuDrawable
+        extends Drawable {
     private final Paint mPaint = new Paint();
 
     // The angle in degress that the arrow head is inclined at.
@@ -109,8 +110,7 @@ public class ArrowMenuDrawable extends Drawable {
 
         canvas.save();
         // Rotate the whole canvas if spinning.
-        canvas.rotate(canvasRotate * ((mVerticalMirror) ? -1 : 1),
-                bounds.centerX(), bounds.centerY());
+        canvas.rotate(canvasRotate * ((mVerticalMirror) ? -1 : 1), bounds.centerX(), bounds.centerY());
         canvas.translate(bounds.centerX(), bounds.centerY());
         canvas.drawPath(mPath, mPaint);
 
@@ -143,7 +143,11 @@ public class ArrowMenuDrawable extends Drawable {
             badgePaint.setColor(Color.WHITE);
             badgePaint.setTextSize(textSize);
             badgePaint.getTextBounds(badgeText, 0, badgeText.length(), badgeTextBounds);
-            canvas.drawText(badgeText, badgeX - badgeTextBounds.right / 2f, badgeY - badgeTextBounds.top / 2f, badgePaint);
+            canvas.drawText(badgeText,
+                    badgeX - badgeTextBounds.right / 2f,
+                    badgeY - badgeTextBounds.top / 2f,
+                    badgePaint
+            );
             canvas.restore();
         }
     }

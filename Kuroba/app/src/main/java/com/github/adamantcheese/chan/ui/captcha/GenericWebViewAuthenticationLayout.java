@@ -26,10 +26,19 @@ import android.webkit.WebView;
 
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-public class GenericWebViewAuthenticationLayout extends WebView implements AuthenticationLayoutInterface {
+import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+
+public class GenericWebViewAuthenticationLayout
+        extends WebView
+        implements AuthenticationLayoutInterface {
     public static final int CHECK_INTERVAL = 500;
+    private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
     private final Handler handler = new Handler();
     private boolean attachedToWindow = false;
@@ -37,24 +46,32 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
     private AuthenticationLayoutCallback callback;
     private SiteAuthentication authentication;
     private boolean resettingFromFoundText = false;
+    private boolean isAutoReply = true;
 
-    /**
-     * TODO: add support for the Captcha queueing {@link CaptchaHolder}
-     */
+    @Inject
+    CaptchaHolder captchaHolder;
 
     public GenericWebViewAuthenticationLayout(Context context) {
         this(context, null);
+        init();
     }
 
     public GenericWebViewAuthenticationLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
+        init();
     }
 
     public GenericWebViewAuthenticationLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
+        init();
         setFocusableInTouchMode(true);
     }
+
+    private void init() {
+        inject(this);
+    }
+
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
@@ -70,6 +87,11 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
 
     @Override
     public void reset() {
+        if (captchaHolder.hasToken() && isAutoReply) {
+            callback.onAuthenticationComplete(this, null, captchaHolder.getToken(), true);
+            return;
+        }
+
         loadUrl(authentication.url);
     }
 
@@ -94,7 +116,17 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
                 }, 1000);
             }
         } else if (success) {
-            callback.onAuthenticationComplete(this, "", "", true);
+            captchaHolder.addNewToken(text, RECAPTCHA_TOKEN_LIVE_TIME);
+
+            String token;
+
+            if (isAutoReply) {
+                token = captchaHolder.getToken();
+            } else {
+                token = text;
+            }
+
+            callback.onAuthenticationComplete(this, "", token, isAutoReply);
         }
     }
 
@@ -149,7 +181,7 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
 
         @JavascriptInterface
         public void onAllText(String text) {
-            AndroidUtils.runOnUiThread(() -> layout.onAllText(text));
+            runOnUiThread(() -> layout.onAllText(text));
         }
     }
 }

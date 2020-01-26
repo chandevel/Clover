@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -38,10 +37,12 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
-public class AlbumViewController extends Controller implements
-        ImageViewerController.ImageViewerCallback,
-        ImageViewerController.GoPostCallback {
+public class AlbumViewController
+        extends Controller
+        implements ImageViewerController.ImageViewerCallback, ImageViewerController.GoPostCallback {
     private GridRecyclerView recyclerView;
 
     private List<PostImage> postImages;
@@ -58,7 +59,7 @@ public class AlbumViewController extends Controller implements
         super.onCreate();
 
         // View setup
-        view = inflateRes(R.layout.controller_album_view);
+        view = inflate(context, R.layout.controller_album_view);
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);
@@ -77,13 +78,15 @@ public class AlbumViewController extends Controller implements
 
         if (!loadable.isLocal()) {
             // Navigation
-            navigation.buildMenu().withOverflow()
+            navigation.buildMenu()
+                    .withOverflow()
                     .withSubItem(R.string.action_download_album, this::downloadAlbumClicked)
-                    .build().build();
+                    .build()
+                    .build();
         }
 
         navigation.title = title;
-        navigation.subtitle = context.getResources().getQuantityString(R.plurals.image, postImages.size(), postImages.size());
+        navigation.subtitle = getQuantityString(R.plurals.image, postImages.size(), postImages.size());
         targetIndex = index;
     }
 
@@ -128,7 +131,8 @@ public class AlbumViewController extends Controller implements
             }
         } else if (previousSiblingController == null) {
             //split nav has no "sibling" to look at, so we go WAY back to find the view thread controller
-            SplitNavigationController splitNav = (SplitNavigationController) this.parentController.parentController.presentedByController;
+            SplitNavigationController splitNav =
+                    (SplitNavigationController) this.parentController.parentController.presentedByController;
             threadController = (ThreadController) splitNav.rightController.childControllers.get(0);
             threadController.selectPostImage(postImage);
             //clear the popup here because split nav is weirdly laid out in the stack
@@ -153,14 +157,15 @@ public class AlbumViewController extends Controller implements
     private void openImage(AlbumItemCellHolder albumItemCellHolder, PostImage postImage) {
         // Just ignore the showImages request when the image is not loaded
         if (albumItemCellHolder.thumbnailView.getBitmap() != null) {
-            final ImageViewerNavigationController imageViewerNavigationController = new ImageViewerNavigationController(context);
+            final ImageViewerNavigationController imageViewer = new ImageViewerNavigationController(context);
             int index = postImages.indexOf(postImage);
-            presentController(imageViewerNavigationController, false);
-            imageViewerNavigationController.showImages(postImages, index, loadable, this, this);
+            presentController(imageViewer, false);
+            imageViewer.showImages(postImages, index, loadable, this, this);
         }
     }
 
-    private class AlbumAdapter extends RecyclerView.Adapter<AlbumItemCellHolder> {
+    private class AlbumAdapter
+            extends RecyclerView.Adapter<AlbumItemCellHolder> {
         private Loadable loadable;
 
         public AlbumAdapter(Loadable loadable) {
@@ -171,8 +176,7 @@ public class AlbumViewController extends Controller implements
 
         @Override
         public AlbumItemCellHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.cell_album_view, parent, false);
+            View view = inflate(parent.getContext(), R.layout.cell_album_view, parent, false);
 
             return new AlbumItemCellHolder(view);
         }
@@ -194,7 +198,9 @@ public class AlbumViewController extends Controller implements
         }
     }
 
-    private class AlbumItemCellHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class AlbumItemCellHolder
+            extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         private AlbumViewCell cell;
         private PostImageThumbnailView thumbnailView;
 

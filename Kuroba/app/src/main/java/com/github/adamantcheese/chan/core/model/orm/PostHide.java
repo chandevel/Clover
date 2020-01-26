@@ -69,10 +69,7 @@ public class PostHide {
     }
 
     public static PostHide hidePost(
-            Post post,
-            Boolean wholeThread,
-            Boolean hide,
-            Boolean hideRepliesToThisPost
+            Post post, Boolean wholeThread, Boolean hide, Boolean hideRepliesToThisPost
     ) {
         PostHide postHide = new PostHide();
         postHide.board = post.board.code;

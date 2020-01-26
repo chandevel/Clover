@@ -185,11 +185,9 @@ public class StyleRule {
         return false;
     }
 
-    public CharSequence apply(Theme theme,
-                              PostParser.Callback callback,
-                              Post.Builder post,
-                              CharSequence text,
-                              Element element) {
+    public CharSequence apply(
+            Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element element
+    ) {
         if (nullify) {
             return null;
         }
@@ -292,10 +290,8 @@ public class StyleRule {
     }
 
     public interface Action {
-        CharSequence execute(Theme theme,
-                             PostParser.Callback callback,
-                             Post.Builder post,
-                             CharSequence text,
-                             Element element);
+        CharSequence execute(
+                Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element element
+        );
     }
 }

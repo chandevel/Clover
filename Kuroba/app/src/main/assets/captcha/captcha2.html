@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css">
     #captcha-container div {
-        margin: 0 auto;
+        margin: 0 auto 0 0;
     }
 
     #captcha-loading, #captcha-error {
@@ -33,6 +33,7 @@ window.globalOnCaptchaLoaded = function() {
     grecaptcha.render('captcha-container', {
         'sitekey': '__site_key__',
         'theme': '__theme__',
+        'size': 'compact',
         'callback': globalOnCaptchaEntered
     });
     document.getElementById('captcha-loading').style.display = 'none';

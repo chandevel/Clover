@@ -34,31 +34,30 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class PostsFilter {
-    private static final Comparator<Post> IMAGE_COMPARATOR =
-            (lhs, rhs) -> rhs.getImagesCount() - lhs.getImagesCount();
+    private static final Comparator<Post> IMAGE_COMPARATOR = (lhs, rhs) -> rhs.getImagesCount() - lhs.getImagesCount();
 
-    private static final Comparator<Post> REPLY_COMPARATOR =
-            (lhs, rhs) -> rhs.getReplies() - lhs.getReplies();
+    private static final Comparator<Post> REPLY_COMPARATOR = (lhs, rhs) -> rhs.getReplies() - lhs.getReplies();
 
-    private static final Comparator<Post> NEWEST_COMPARATOR =
-            (lhs, rhs) -> (int) (rhs.time - lhs.time);
+    private static final Comparator<Post> NEWEST_COMPARATOR = (lhs, rhs) -> (int) (rhs.time - lhs.time);
 
-    private static final Comparator<Post> OLDEST_COMPARATOR =
-            (lhs, rhs) -> (int) (lhs.time - rhs.time);
+    private static final Comparator<Post> OLDEST_COMPARATOR = (lhs, rhs) -> (int) (lhs.time - rhs.time);
 
     private static final Comparator<Post> MODIFIED_COMPARATOR =
             (lhs, rhs) -> (int) (rhs.getLastModified() - lhs.getLastModified());
 
-    private static final Comparator<Post> THREAD_ACTIVITY_COMPARATOR =
-            (lhs, rhs) -> {
-                long currentTimeSeconds = System.currentTimeMillis() / 1000;
+    private static final Comparator<Post> THREAD_ACTIVITY_COMPARATOR = (lhs, rhs) -> {
+        long currentTimeSeconds = System.currentTimeMillis() / 1000;
 
-                //we can't divide by zero, but we can divide by the smallest thing that's closest to 0 instead
-                long score1 = (long) ((currentTimeSeconds - lhs.time) / (lhs.getReplies() != 0 ? lhs.getReplies() : Float.MIN_NORMAL));
-                long score2 = (long) ((currentTimeSeconds - rhs.time) / (rhs.getReplies() != 0 ? rhs.getReplies() : Float.MIN_NORMAL));
+        //we can't divide by zero, but we can divide by the smallest thing that's closest to 0 instead
+        long score1 = (long) ((currentTimeSeconds - lhs.time) / (lhs.getReplies() != 0
+                ? lhs.getReplies()
+                : Float.MIN_NORMAL));
+        long score2 = (long) ((currentTimeSeconds - rhs.time) / (rhs.getReplies() != 0
+                ? rhs.getReplies()
+                : Float.MIN_NORMAL));
 
-                return Long.compare(score1, score2);
-            };
+        return Long.compare(score1, score2);
+    };
 
     @Inject
     DatabaseManager databaseManager;
@@ -124,8 +123,7 @@ public class PostsFilter {
                     add = true;
                 } else if (!item.images.isEmpty()) {
                     for (PostImage image : item.images) {
-                        if (image.filename != null && image.filename.toLowerCase(Locale.ENGLISH)
-                                .contains(lowerQuery)) {
+                        if (image.filename != null && image.filename.toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
                             add = true;
                         }
                     }
@@ -138,7 +136,6 @@ public class PostsFilter {
 
         // Process hidden by filter and post/thread hiding
         return databaseManager.getDatabaseHideManager().filterHiddenPosts(posts, siteId, board);
-
     }
 
     public enum Order {

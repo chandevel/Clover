@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
@@ -41,7 +40,8 @@ import androidx.recyclerview.widget.RecyclerView;
  *     recyclerView.addItemDecoration(mDividerItemDecoration);
  * </pre>
  */
-public class DividerItemDecoration extends RecyclerView.ItemDecoration {
+public class DividerItemDecoration
+        extends RecyclerView.ItemDecoration {
     public static final int HORIZONTAL = LinearLayout.HORIZONTAL;
     public static final int VERTICAL = LinearLayout.VERTICAL;
 
@@ -68,8 +68,11 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         final TypedArray a = context.obtainStyledAttributes(ATTRS);
         mDivider = a.getDrawable(0);
         if (mDivider == null) {
-            Log.w(TAG, "@android:attr/listDivider was not set in the theme used for this "
-                    + "DividerItemDecoration. Please set that attribute all call setDrawable()");
+            Log.w(
+                    TAG,
+                    "@android:attr/listDivider was not set in the theme used for this "
+                            + "DividerItemDecoration. Please set that attribute all call setDrawable()"
+            );
         }
         a.recycle();
         setOrientation(orientation);
@@ -83,8 +86,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
      */
     public void setOrientation(int orientation) {
         if (orientation != HORIZONTAL && orientation != VERTICAL) {
-            throw new IllegalArgumentException(
-                    "Invalid orientation. It should be either HORIZONTAL or VERTICAL");
+            throw new IllegalArgumentException("Invalid orientation. It should be either HORIZONTAL or VERTICAL");
         }
         mOrientation = orientation;
     }
@@ -139,8 +141,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         if (parent.getClipToPadding()) {
             top = parent.getPaddingTop();
             bottom = parent.getHeight() - parent.getPaddingBottom();
-            canvas.clipRect(parent.getPaddingLeft(), top,
-                    parent.getWidth() - parent.getPaddingRight(), bottom);
+            canvas.clipRect(parent.getPaddingLeft(), top, parent.getWidth() - parent.getPaddingRight(), bottom);
         } else {
             top = 0;
             bottom = parent.getHeight();
@@ -159,8 +160,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     }
 
     @Override
-    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                               RecyclerView.State state) {
+    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         if (mDivider == null) {
             outRect.set(0, 0, 0, 0);
             return;

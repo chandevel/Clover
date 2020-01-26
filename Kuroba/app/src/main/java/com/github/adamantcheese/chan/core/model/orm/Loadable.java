@@ -34,7 +34,8 @@ import com.j256.ormlite.table.DatabaseTable;
  * references the same loadable and that the loadable is properly saved in the database.
  */
 @DatabaseTable(tableName = "loadable")
-public class Loadable implements Cloneable {
+public class Loadable
+        implements Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -192,8 +193,7 @@ public class Loadable implements Cloneable {
      */
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof Loadable))
-            return false;
+        if (!(object instanceof Loadable)) return false;
 
         Loadable other = (Loadable) object;
 
@@ -232,19 +232,9 @@ public class Loadable implements Cloneable {
 
     @Override
     public String toString() {
-        return "Loadable{" +
-                "id=" + id +
-                ", mode=" + mode +
-                ", board='" + boardCode + '\'' +
-                ", no=" + no +
-                ", title='" + title + '\'' +
-                ", listViewIndex=" + listViewIndex +
-                ", listViewTop=" + listViewTop +
-                ", lastViewed=" + lastViewed +
-                ", lastLoaded=" + lastLoaded +
-                ", markedNo=" + markedNo +
-                ", dirty=" + dirty +
-                '}';
+        return "Loadable{id=" + id + ", mode=" + mode + ", board='" + boardCode + '\'' + ", no=" + no + ", title='"
+                + title + '\'' + ", listViewIndex=" + listViewIndex + ", listViewTop=" + listViewTop + ", lastViewed="
+                + lastViewed + ", lastLoaded=" + lastLoaded + ", markedNo=" + markedNo + ", dirty=" + dirty + '}';
     }
 
     public boolean isThreadMode() {
@@ -267,6 +257,13 @@ public class Loadable implements Cloneable {
     public boolean isLocal() {
         return loadableDownloadingState == LoadableDownloadingState.DownloadingAndViewable
                 || loadableDownloadingState == LoadableDownloadingState.AlreadyDownloaded;
+    }
+
+    /**
+     * Thread is being downloaded but we are not currently viewing the local copy
+     */
+    public boolean isDownloading() {
+        return loadableDownloadingState == LoadableDownloadingState.DownloadingAndNotViewable;
     }
 
     public static Loadable readFromParcel(Parcel parcel) {

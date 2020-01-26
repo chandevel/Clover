@@ -17,17 +17,18 @@
 package com.github.adamantcheese.chan.core.saver;
 
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.ExternalFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
@@ -35,9 +36,16 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.inject;
+import kotlin.NotImplementedError;
 
-public class ImageSaveTask extends FileCacheListener implements Runnable {
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+
+public class ImageSaveTask
+        extends FileCacheListener
+        implements Runnable {
     private static final String TAG = "ImageSaveTask";
 
     @Inject
@@ -100,9 +108,7 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
                 // Manually call postFinished()
                 postFinished(success);
             } else {
-                AndroidUtils.runOnUiThread(() -> {
-                    fileCache.downloadFile(loadable, postImage, this);
-                });
+                runOnUiThread(() -> fileCache.downloadFile(loadable, postImage, this));
             }
         } catch (Exception e) {
             Logger.e(TAG, "Uncaught exception", e);
@@ -145,12 +151,20 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     private void onDestination() {
         success = true;
-//        String[] paths = {destination.getFullPath()};
-//        FIXME: does not work
-//        MediaScannerConnection.scanFile(getAppContext(), paths, null, (path, uri) -> {
-//            // Runs on a binder thread
-//            AndroidUtils.runOnUiThread(() -> afterScan(uri));
-//        });
+        if (destination instanceof RawFile) {
+            String[] paths = {destination.getFullPath()};
+
+            MediaScannerConnection.scanFile(getAppContext(),
+                    paths,
+                    null,
+                    (path, uri) -> runOnUiThread(() -> afterScan(uri))
+            );
+        } else if (destination instanceof ExternalFile) {
+            Uri uri = Uri.parse(destination.getFullPath());
+            runOnUiThread(() -> afterScan(uri));
+        } else {
+            throw new NotImplementedError("Not implemented for " + destination.getClass().getName());
+        }
     }
 
     private boolean copyToDestination(File source) {
@@ -185,23 +199,21 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("image/*");
             intent.putExtra(Intent.EXTRA_STREAM, uri);
-            AndroidUtils.openIntent(intent);
+            openIntent(intent);
         }
     }
 
     private void postError(Throwable error) {
-        AndroidUtils.runOnUiThread(() -> {
-            callback.imageSaveTaskFailed(error);
-        });
+        runOnUiThread(() -> callback.imageSaveTaskFailed(error));
     }
 
     private void postFinished(final boolean success) {
-        AndroidUtils.runOnUiThread(() ->
-                callback.imageSaveTaskFinished(ImageSaveTask.this, success));
+        runOnUiThread(() -> callback.imageSaveTaskFinished(ImageSaveTask.this, success));
     }
 
     public interface ImageSaveTaskCallback {
         void imageSaveTaskFailed(Throwable error);
+
         void imageSaveTaskFinished(ImageSaveTask task, boolean success);
     }
 }

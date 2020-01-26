@@ -1,9 +1,7 @@
 package com.github.adamantcheese.chan.ui.captcha.v2;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.HapticFeedbackConstants;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -12,22 +10,24 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CaptchaNoJsV2Adapter extends BaseAdapter {
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AnimationUtils.animateViewScale;
+
+public class CaptchaNoJsV2Adapter
+        extends BaseAdapter {
     private static final int ANIMATION_DURATION = 50;
 
-    private LayoutInflater inflater;
     private int imageSize = 0;
 
     private List<ImageChallengeInfo> imageList = new ArrayList<>();
 
-    public CaptchaNoJsV2Adapter(Context context) {
-        this.inflater = LayoutInflater.from(context);
-    }
+    public CaptchaNoJsV2Adapter() { }
 
     public void setImages(List<Bitmap> imageList) {
         cleanUpImages();
@@ -57,22 +57,23 @@ public class CaptchaNoJsV2Adapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.layout_captcha_challenge_image, parent, false);
+            convertView = inflate(parent.getContext(), R.layout.layout_captcha_challenge_image, parent, false);
 
             AppCompatImageView imageView = convertView.findViewById(R.id.captcha_challenge_image);
-            ConstraintLayout blueCheckmarkHolder = convertView.findViewById(R.id.captcha_challenge_blue_checkmark_holder);
+            ConstraintLayout blueCheckmarkHolder =
+                    convertView.findViewById(R.id.captcha_challenge_blue_checkmark_holder);
 
             ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(imageSize, imageSize);
             imageView.setLayoutParams(layoutParams);
 
-            imageView.setOnClickListener((view) -> {
+            imageView.setOnClickListener(view -> {
                 view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
 
                 imageList.get(position).toggleChecked();
                 boolean isChecked = imageList.get(position).isChecked;
 
-                AndroidUtils.animateViewScale(imageView, isChecked, ANIMATION_DURATION);
-                blueCheckmarkHolder.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                animateViewScale(imageView, isChecked, ANIMATION_DURATION);
+                blueCheckmarkHolder.setVisibility(isChecked ? VISIBLE : GONE);
             });
 
             if (position >= 0 && position <= imageList.size()) {

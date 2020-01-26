@@ -22,20 +22,17 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -75,19 +72,23 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between a loading state
  * and the recycler view.
  */
-public class ThreadLayout extends CoordinatorLayout implements
-        ThreadPresenter.ThreadPresenterCallback,
-        PostPopupHelper.PostPopupHelperCallback,
-        ImageOptionsHelper.ImageReencodingHelperCallback,
-        RemovedPostsHelper.RemovedPostsCallbacks,
-        View.OnClickListener,
-        ThreadListLayout.ThreadListLayoutCallback {
+public class ThreadLayout
+        extends CoordinatorLayout
+        implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback,
+                   ImageOptionsHelper.ImageReencodingHelperCallback, RemovedPostsHelper.RemovedPostsCallbacks,
+                   View.OnClickListener, ThreadListLayout.ThreadListLayoutCallback {
     private enum Visible {
         EMPTY,
         LOADING,
@@ -143,20 +144,17 @@ public class ThreadLayout extends CoordinatorLayout implements
         loadView = findViewById(R.id.loadview);
         replyButton = findViewById(R.id.reply_button);
 
-        LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-
         // Inflate ThreadListLayout
-        threadListLayout = (ThreadListLayout) layoutInflater
-                .inflate(R.layout.layout_thread_list, this, false);
+        threadListLayout =
+                (ThreadListLayout) AndroidUtils.inflate(getContext(), R.layout.layout_thread_list, this, false);
 
         // Inflate error layout
-        errorLayout = (LinearLayout) layoutInflater
-                .inflate(R.layout.layout_thread_error, this, false);
+        errorLayout = (LinearLayout) AndroidUtils.inflate(getContext(), R.layout.layout_thread_error, this, false);
         errorText = errorLayout.findViewById(R.id.text);
         errorRetryButton = errorLayout.findViewById(R.id.button);
 
         // Inflate thread loading layout
-        progressLayout = layoutInflater.inflate(R.layout.layout_thread_progress, this, false);
+        progressLayout = AndroidUtils.inflate(getContext(), R.layout.layout_thread_progress, this, false);
 
         // View setup
         presenter.setContext(getContext());
@@ -170,7 +168,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         // Setup
         replyButtonEnabled = ChanSettings.enableReplyFab.get();
         if (!replyButtonEnabled) {
-            AndroidUtils.removeFromParentView(replyButton);
+            removeFromParentView(replyButton);
         } else {
             replyButton.setOnClickListener(this);
             replyButton.setToolbar(callback.getToolbar());
@@ -258,20 +256,26 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void showPosts(ChanThread thread, PostsFilter filter) {
+    public void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts) {
         if (thread.getLoadable().isLocal()) {
-            if (replyButton.getVisibility() == View.VISIBLE) {
+            if (replyButton.getVisibility() == VISIBLE) {
                 replyButton.hide();
             }
         } else {
-            if (replyButton.getVisibility() != View.VISIBLE) {
+            if (replyButton.getVisibility() != VISIBLE) {
                 replyButton.show();
             }
         }
 
         getPresenter().updateLoadable(thread.getLoadable().loadableDownloadingState);
 
-        threadListLayout.showPosts(thread, filter, visible != Visible.THREAD);
+        threadListLayout.showPosts(
+                thread,
+                filter,
+                visible != Visible.THREAD,
+                refreshAfterHideOrRemovePosts
+        );
+
         switchVisible(Visible.THREAD);
         callback.onShowPosts();
     }
@@ -312,8 +316,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     public void showPostInfo(String info) {
-        new AlertDialog.Builder(getContext())
-                .setTitle(R.string.post_info_title)
+        new AlertDialog.Builder(getContext()).setTitle(R.string.post_info_title)
                 .setMessage(info)
                 .setPositiveButton(R.string.ok, null)
                 .show();
@@ -326,23 +329,21 @@ public class ThreadLayout extends CoordinatorLayout implements
             keys[i] = linkables.get(i).key.toString();
         }
 
-        new AlertDialog.Builder(getContext())
-                .setItems(keys, (dialog, which) -> presenter.onPostLinkableClicked(post, linkables.get(which)))
-                .show();
+        new AlertDialog.Builder(getContext()).setItems(keys,
+                (dialog, which) -> presenter.onPostLinkableClicked(post, linkables.get(which))
+        ).show();
     }
 
     public void clipboardPost(Post post) {
-        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Post text", post.comment.toString());
-        clipboard.setPrimaryClip(clip);
-        Toast.makeText(getContext(), R.string.post_text_copied, Toast.LENGTH_SHORT).show();
+        getClipboardManager().setPrimaryClip(clip);
+        showToast(R.string.post_text_copied);
     }
 
     @Override
     public void openLink(final String link) {
         if (ChanSettings.openLinkConfirmation.get()) {
-            new AlertDialog.Builder(getContext())
-                    .setNegativeButton(R.string.cancel, null)
+            new AlertDialog.Builder(getContext()).setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog, which) -> openLinkConfirmed(link))
                     .setTitle(R.string.open_link_confirmation)
                     .setMessage(link)
@@ -356,7 +357,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         if (ChanSettings.openLinkBrowser.get()) {
             AndroidUtils.openLink(link);
         } else {
-            AndroidUtils.openLinkInBrowser((Activity) getContext(), link);
+            openLinkInBrowser((Activity) getContext(), link);
         }
     }
 
@@ -383,7 +384,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     public void showPostsPopup(Post forPost, List<Post> posts) {
         if (this.getFocusedChild() != null) {
             View currentFocus = this.getFocusedChild();
-            AndroidUtils.hideKeyboard(currentFocus);
+            hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
         postPopupHelper.showPosts(forPost, posts);
@@ -412,7 +413,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     public void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail) {
         if (this.getFocusedChild() != null) {
             View currentFocus = this.getFocusedChild();
-            AndroidUtils.hideKeyboard(currentFocus);
+            hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
         callback.showImages(images, index, loadable, thumbnail);
@@ -485,18 +486,17 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void confirmPostDelete(final Post post) {
-        @SuppressLint("InflateParams") final View view = LayoutInflater.from(getContext())
-                .inflate(R.layout.dialog_post_delete, null);
+        @SuppressLint("InflateParams")
+        final View view = AndroidUtils.inflate(getContext(), R.layout.dialog_post_delete, null);
         CheckBox checkBox = view.findViewById(R.id.image_only);
         checkBox.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
         checkBox.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-        new AlertDialog.Builder(getContext())
-                .setTitle(R.string.delete_confirm)
+        new AlertDialog.Builder(getContext()).setTitle(R.string.delete_confirm)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.delete, (dialog, which) -> {
-                    presenter.deletePostConfirmed(post, checkBox.isChecked());
-                })
+                .setPositiveButton(R.string.delete,
+                        (dialog, which) -> presenter.deletePostConfirmed(post, checkBox.isChecked())
+                )
                 .show();
     }
 
@@ -513,10 +513,7 @@ public class ThreadLayout extends CoordinatorLayout implements
             deletingDialog.dismiss();
             deletingDialog = null;
 
-            new AlertDialog.Builder(getContext())
-                    .setMessage(message)
-                    .setPositiveButton(R.string.ok, null)
-                    .show();
+            new AlertDialog.Builder(getContext()).setMessage(message).setPositiveButton(R.string.ok, null).show();
         }
     }
 
@@ -526,8 +523,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         // is no point in hiding replies to a thread
         final PostHide postHide = PostHide.hidePost(post, true, hide, false);
 
-        databaseManager.runTask(
-                databaseManager.getDatabaseHideManager().addThreadHide(postHide));
+        databaseManager.runTask(databaseManager.getDatabaseHideManager().addThreadHide(postHide));
 
         presenter.refreshUI();
 
@@ -535,8 +531,7 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         Snackbar snackbar = Snackbar.make(this, snackbarStringId, Snackbar.LENGTH_LONG);
         snackbar.setAction(R.string.undo, v -> {
-            databaseManager.runTask(
-                    databaseManager.getDatabaseHideManager().removePostHide(postHide));
+            databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostHide(postHide));
             presenter.refreshUI();
         }).show();
         fixSnackbarText(getContext(), snackbar);
@@ -554,27 +549,20 @@ public class ThreadLayout extends CoordinatorLayout implements
             }
         }
 
-        databaseManager.runTask(
-                databaseManager.getDatabaseHideManager().addPostsHide(hideList)
-        );
+        databaseManager.runTask(databaseManager.getDatabaseHideManager().addPostsHide(hideList));
 
         presenter.refreshUI();
 
         String formattedString;
         if (hide) {
-            formattedString = String.format(
-                    getResources().getQuantityString(R.plurals.post_hidden, posts.size()), posts.size()
-            );
+            formattedString = getQuantityString(R.plurals.post_hidden, posts.size(), posts.size());
         } else {
-            formattedString = String.format(
-                    getResources().getQuantityString(R.plurals.post_removed, posts.size()), posts.size()
-            );
+            formattedString = getQuantityString(R.plurals.post_removed, posts.size(), posts.size());
         }
 
         Snackbar snackbar = Snackbar.make(this, formattedString, Snackbar.LENGTH_LONG);
         snackbar.setAction(R.string.undo, v -> {
-            databaseManager.runTask(
-                    databaseManager.getDatabaseHideManager().removePostsHide(hideList));
+            databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostsHide(hideList));
             presenter.refreshUI();
         }).show();
         fixSnackbarText(getContext(), snackbar);
@@ -582,9 +570,7 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void unhideOrUnremovePost(Post post) {
-        databaseManager.runTask(
-                databaseManager.getDatabaseHideManager().removePostHide(PostHide.unhidePost(post))
-        );
+        databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostHide(PostHide.unhidePost(post)));
 
         presenter.refreshUI();
     }
@@ -595,11 +581,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void onRestoreRemovedPostsClicked(
-            int threadNo,
-            Site site,
-            String boardCode,
-            List<Integer> selectedPosts) {
+    public void onRestoreRemovedPostsClicked(int threadNo, Site site, String boardCode, List<Integer> selectedPosts) {
 
         List<PostHide> postsToRestore = new ArrayList<>();
 
@@ -607,35 +589,22 @@ public class ThreadLayout extends CoordinatorLayout implements
             postsToRestore.add(PostHide.unhidePost(site.id(), boardCode, postNo));
         }
 
-        databaseManager.runTask(
-                databaseManager.getDatabaseHideManager().removePostsHide(postsToRestore)
-        );
+        databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostsHide(postsToRestore));
 
         presenter.refreshUI();
 
-        Snackbar snackbar = Snackbar.make(
-                this,
-                getContext().getString(R.string.restored_n_posts, postsToRestore.size()),
-                Snackbar.LENGTH_LONG);
+        Snackbar snackbar =
+                Snackbar.make(this, getString(R.string.restored_n_posts, postsToRestore.size()), Snackbar.LENGTH_LONG);
 
         snackbar.show();
         fixSnackbarText(getContext(), snackbar);
     }
 
     @Override
-    public void showBackgroundWatcherIsDisabledToast() {
-        Toast.makeText(
-                getContext(),
-                R.string.thread_layout_background_watcher_is_disabled_message,
-                Toast.LENGTH_LONG).show();
-    }
-
-    @Override
     public void showNewPostsNotification(boolean show, int more) {
         if (show) {
             if (!threadListLayout.scrolledToBottom()) {
-                String text = getContext().getResources()
-                        .getQuantityString(R.plurals.thread_new_posts, more, more);
+                String text = getQuantityString(R.plurals.thread_new_posts, more, more);
 
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
                 newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
@@ -663,7 +632,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     public void showImageReencodingWindow(Loadable loadable, boolean supportsReencode) {
         if (this.getFocusedChild() != null) {
             View currentFocus = this.getFocusedChild();
-            AndroidUtils.hideKeyboard(currentFocus);
+            hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
         imageReencodingHelper.showController(loadable, supportsReencode);
@@ -737,7 +706,7 @@ public class ThreadLayout extends CoordinatorLayout implements
                     // TODO: cleanup
                     if (refreshedFromSwipe) {
                         refreshedFromSwipe = false;
-                        view.setVisibility(View.GONE);
+                        view.setVisibility(GONE);
                     }
 
                     showReplyButton(false);
@@ -758,7 +727,7 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @SuppressLint("InflateParams")
     private View inflateEmptyView() {
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.layout_empty_setup, null);
+        View view = AndroidUtils.inflate(getContext(), R.layout.layout_empty_setup, null);
         TextView tv = view.findViewById(R.id.feature);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -789,32 +758,23 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void noRemovedPostsFoundForThisThread() {
-        // called on background thread
-
-        AndroidUtils.runOnUiThread(() -> Toast.makeText(
-                getContext(),
-                getContext().getString(R.string.no_removed_posts_for_current_thread),
-                Toast.LENGTH_SHORT
-        ).show());
-    }
-
-    @Override
     public void showHideOrRemoveWholeChainDialog(boolean hide, Post post, int threadNo) {
         String positiveButtonText = hide
-                ? getContext().getString(R.string.thread_layout_hide_whole_chain)
-                : getContext().getString(R.string.thread_layout_remove_whole_chain);
-        String negativeButtonText = hide
-                ? getContext().getString(R.string.thread_layout_hide_post)
-                : getContext().getString(R.string.thread_layout_remove_post);
+                ? getString(R.string.thread_layout_hide_whole_chain)
+                : getString(R.string.thread_layout_remove_whole_chain);
+        String negativeButtonText =
+                hide ? getString(R.string.thread_layout_hide_post) : getString(R.string.thread_layout_remove_post);
         String message = hide
-                ? getContext().getString(R.string.thread_layout_hide_whole_chain_as_well)
-                : getContext().getString(R.string.thread_layout_remove_whole_chain_as_well);
+                ? getString(R.string.thread_layout_hide_whole_chain_as_well)
+                : getString(R.string.thread_layout_remove_whole_chain_as_well);
 
-        AlertDialog alertDialog = new AlertDialog.Builder(getContext())
-                .setMessage(message)
-                .setPositiveButton(positiveButtonText, (dialog, which) -> presenter.hideOrRemovePosts(hide, true, post, threadNo))
-                .setNegativeButton(negativeButtonText, (dialog, which) -> presenter.hideOrRemovePosts(hide, false, post, threadNo))
+        AlertDialog alertDialog = new AlertDialog.Builder(getContext()).setMessage(message)
+                .setPositiveButton(positiveButtonText,
+                        (dialog, which) -> presenter.hideOrRemovePosts(hide, true, post, threadNo)
+                )
+                .setNegativeButton(negativeButtonText,
+                        (dialog, which) -> presenter.hideOrRemovePosts(hide, false, post, threadNo)
+                )
                 .create();
 
         alertDialog.show();

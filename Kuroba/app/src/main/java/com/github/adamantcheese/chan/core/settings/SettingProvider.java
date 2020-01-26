@@ -36,4 +36,6 @@ public interface SettingProvider {
     void putStringSync(String key, String value);
 
     void removeSync(String key);
+
+    void putIntSync(String key, Integer value);
 }

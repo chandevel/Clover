@@ -23,6 +23,8 @@ import com.github.adamantcheese.chan.core.database.DatabaseManager
 import com.github.adamantcheese.chan.core.model.export.*
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig
 import com.github.adamantcheese.chan.core.model.orm.*
+import com.github.adamantcheese.chan.core.repository.ImportExportRepository.ImportExport.Export
+import com.github.adamantcheese.chan.core.repository.ImportExportRepository.ImportExport.Import
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileManager
@@ -50,7 +52,7 @@ constructor(
             try {
                 val appSettings = readSettingsFromDatabase()
                 if (appSettings.isEmpty) {
-                    callbacks.onNothingToImportExport(ImportExport.Export)
+                    callbacks.onNothingToImportExport(Export)
                     return@runTask
                 }
 
@@ -78,14 +80,14 @@ constructor(
                     }
 
                     Logger.d(TAG, "Exporting done!")
-                    callbacks.onSuccess(ImportExport.Export)
+                    callbacks.onSuccess(Export)
                 }
 
             } catch (error: Throwable) {
                 Logger.e(TAG, "Error while trying to export settings", error)
 
                 deleteExportFile(settingsFile)
-                callbacks.onError(error, ImportExport.Export)
+                callbacks.onError(error, Export)
             }
         }
     }
@@ -96,7 +98,7 @@ constructor(
                 if (!fileManager.exists(settingsFile)) {
                     Logger.i(TAG, "There is nothing to import, importFile does not exist "
                             + settingsFile.getFullPath())
-                    callbacks.onNothingToImportExport(ImportExport.Import)
+                    callbacks.onNothingToImportExport(Import)
                     return@runTask
                 }
 
@@ -116,20 +118,20 @@ constructor(
 
                         if (appSettings.isEmpty) {
                             Logger.i(TAG, "There is nothing to import, appSettings is empty")
-                            callbacks.onNothingToImportExport(ImportExport.Import)
+                            callbacks.onNothingToImportExport(Import)
                             return@use
                         }
 
                         writeSettingsToDatabase(appSettings)
 
                         Logger.d(TAG, "Importing done!")
-                        callbacks.onSuccess(ImportExport.Import)
+                        callbacks.onSuccess(Import)
                     }
                 }
 
             } catch (error: Throwable) {
                 Logger.e(TAG, "Error while trying to import settings", error)
-                callbacks.onError(error, ImportExport.Import)
+                callbacks.onError(error, Import)
             }
         }
     }
@@ -375,6 +377,19 @@ constructor(
                     loadable.title
             )
 
+            // When exporting a localThreadLocation that points to a directory located at places like
+            // sd-card we want to export pins without "download thread" flag because when
+            // importing settings back after app uninstall or when importing the on another
+            // phone all of the SAF base directories will become unavailable due to how SAF works.
+            // So the user will have to choose the base directories again and then resume threads
+            // downloading manually. We also need to set the "isStopped" flag to true for
+            // ExportedSavedThread.
+            val pinType = if (ChanSettings.localThreadLocation.isSafDirActive()) {
+                PinType.removeDownloadNewPostsFlag(pin.pinType)
+            } else {
+                pin.pinType
+            }
+
             val exportedPin = ExportedPin(
                     pin.archived,
                     pin.id,
@@ -388,7 +403,7 @@ constructor(
                     pin.watchNewCount,
                     pin.watching,
                     exportedLoadable,
-                    pin.pinType
+                    pinType
             )
 
             toExportMap[siteModel]!!.add(exportedPin)
@@ -475,11 +490,19 @@ constructor(
         val exportedSavedThreads = ArrayList<ExportedSavedThread>()
 
         for (savedThread in databaseHelper.savedThreadDao.queryForAll()) {
+            // Set the isStopped flag to true for ExportedSavedThread when localThreadLocation
+            // points to a directory that uses SAF
+            val isDownloadingStopped = if (ChanSettings.localThreadLocation.isSafDirActive()) {
+                true
+            } else {
+                savedThread.isStopped
+            }
+
             exportedSavedThreads.add(ExportedSavedThread(
                     savedThread.loadableId,
                     savedThread.lastSavedPostNo,
                     savedThread.isFullyDownloaded,
-                    savedThread.isStopped
+                    isDownloadingStopped
             ))
         }
 
@@ -529,9 +552,7 @@ constructor(
             val splitBoards = boards.split(",".toRegex()).dropLastWhile { it.isEmpty() }
 
             for (uniqueId in splitBoards) {
-                val split = uniqueId
-                        .split(":".toRegex())
-                        .dropLastWhile { it.isEmpty() }
+                val split = uniqueId.split(":".toRegex()).dropLastWhile { it.isEmpty() }
 
                 if (split.size == 2 && Integer.parseInt(split[0]) == site.siteId) {
                     filtersToDelete.add(filter)

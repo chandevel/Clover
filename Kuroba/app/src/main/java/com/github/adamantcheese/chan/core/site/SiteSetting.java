@@ -21,6 +21,8 @@ import com.github.adamantcheese.chan.core.settings.Setting;
 
 import java.util.List;
 
+import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
+
 /**
  * Hacky stuff to give the site settings a good UI.
  */
@@ -37,12 +39,11 @@ public class SiteSetting {
 
     private SiteSetting(String name, Setting<?> setting) {
         this.name = name;
-        this.type = Type.OPTIONS;
+        this.type = OPTIONS;
         this.setting = setting;
     }
 
-    public static SiteSetting forOption(OptionsSetting<?> options, String name,
-                                        List<String> optionNames) {
+    public static SiteSetting forOption(OptionsSetting<?> options, String name, List<String> optionNames) {
         SiteSetting setting = new SiteSetting(name, options);
         setting.optionNames = optionNames;
         return setting;

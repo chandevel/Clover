@@ -42,7 +42,8 @@ import okhttp3.Response;
 
 import static android.text.TextUtils.isEmpty;
 
-public class Wired7 extends CommonSite {
+public class Wired7
+        extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
@@ -65,7 +66,8 @@ public class Wired7 extends CommonSite {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
                 return getUrl().newBuilder()
-                        .addPathSegment(loadable.boardCode).addPathSegment("res")
+                        .addPathSegment(loadable.boardCode)
+                        .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
                         .toString();
             } else {
@@ -106,15 +108,14 @@ public class Wired7 extends CommonSite {
             }
         });
 
-        setEndpoints(new VichanEndpoints(this,
-                "https://wired-7.org",
-                "https://wired-7.org"));
+        setEndpoints(new VichanEndpoints(this, "https://wired-7.org", "https://wired-7.org"));
         setActions(new Wired7Actions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());
     }
 
-    private static class Wired7Actions extends VichanActions {
+    private static class Wired7Actions
+            extends VichanActions {
         Wired7Actions(CommonSite commonSite) {
             super(commonSite);
         }

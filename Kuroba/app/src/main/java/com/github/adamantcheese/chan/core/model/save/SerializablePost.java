@@ -106,7 +106,8 @@ public class SerializablePost {
             int imagesCount,
             int uniqueIps,
             long lastModified,
-            String title) {
+            String title
+    ) {
         this.boardId = boardId;
         this.board = board;
         this.no = no;
@@ -267,9 +268,7 @@ public class SerializablePost {
 
     @Override
     public int hashCode() {
-        return 31 * no +
-                31 * board.code.hashCode() +
-                31 * board.siteId;
+        return 31 * no + 31 * board.code.hashCode() + 31 * board.siteId;
     }
 
     @Override
@@ -288,8 +287,7 @@ public class SerializablePost {
 
         SerializablePost otherPost = (SerializablePost) other;
 
-        return this.no == otherPost.no
-                && this.board.code.equals(otherPost.board.code)
+        return this.no == otherPost.no && this.board.code.equals(otherPost.board.code)
                 && this.board.siteId == otherPost.board.siteId;
     }
 }

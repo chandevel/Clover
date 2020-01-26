@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.net;
 
+import android.os.Build;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.JsonReader;
@@ -32,14 +33,15 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
-public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateApiResponse> {
-    public UpdateApiRequest(Response.Listener<UpdateApiResponse> listener,
-                            Response.ErrorListener errorListener) {
+public class UpdateApiRequest
+        extends JsonReaderRequest<UpdateApiRequest.UpdateApiResponse> {
+    public UpdateApiRequest(Response.Listener<UpdateApiResponse> listener, Response.ErrorListener errorListener) {
         super(BuildConfig.UPDATE_API_ENDPOINT, listener, errorListener);
     }
 
     @Override
-    public UpdateApiResponse readJson(JsonReader reader) throws Exception {
+    public UpdateApiResponse readJson(JsonReader reader)
+            throws Exception {
         UpdateApiResponse response = new UpdateApiResponse();
         reader.beginObject();
         while (reader.hasNext()) {
@@ -50,9 +52,9 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                         Pattern versionPattern = Pattern.compile("v(\\d+?)\\.(\\d{1,2})\\.(\\d{1,2})");
                         Matcher versionMatcher = versionPattern.matcher(response.versionCodeString);
                         if (versionMatcher.matches()) {
-                            response.versionCode = Integer.parseInt(versionMatcher.group(3))
-                                    + (Integer.parseInt(versionMatcher.group(2)) * 100)
-                                    + (Integer.parseInt(versionMatcher.group(1)) * 10000);
+                            response.versionCode = Integer.parseInt(versionMatcher.group(3)) + (
+                                    Integer.parseInt(versionMatcher.group(2)) * 100) + (
+                                    Integer.parseInt(versionMatcher.group(1)) * 10000);
                         }
                     } catch (Exception e) {
                         throw new VolleyError("Tag name wasn't of the form v(major).(minor).(patch)!");
@@ -85,8 +87,14 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                     reader.endArray();
                     break;
                 case "body":
-                    Node updateLog = Parser.builder().build().parse(reader.nextString());
-                    response.body = Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        Node updateLog = Parser.builder().build().parse(reader.nextString());
+                        response.body =
+                                Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog));
+                    } else {
+                        response.body = Html.fromHtml("Changelog:\r\nSee the release on Github for details!\r\n"
+                                + " Your Android API is too low to properly render the changelog from the site, as a result of libraries used on the project.");
+                    }
                     break;
                 default:
                     reader.skipValue();
@@ -94,9 +102,7 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
             }
         }
         reader.endObject();
-        if (response.versionCode == 0
-                || response.apkURL == null
-                || response.body == null) {
+        if (response.versionCode == 0 || response.apkURL == null || response.body == null) {
             throw new VolleyError("Update API response is incomplete, issue with github release listing!");
         }
         return response;

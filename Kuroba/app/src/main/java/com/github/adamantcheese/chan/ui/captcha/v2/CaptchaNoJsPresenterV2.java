@@ -20,7 +20,6 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -40,10 +39,14 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+
 public class CaptchaNoJsPresenterV2 {
     private static final String TAG = "CaptchaNoJsPresenterV2";
-    private static final String userAgentHeader = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36";
-    private static final String acceptHeader = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
+    private static final String userAgentHeader =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36";
+    private static final String acceptHeader =
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
     private static final String acceptEncodingHeader = "deflate, br";
     private static final String acceptLanguageHeader = "en-US";
     private static final String recaptchaUrlBase = "https://www.google.com/recaptcha/api/fallback?k=";
@@ -55,7 +58,8 @@ public class CaptchaNoJsPresenterV2 {
     private static final long CAPTCHA_REQUEST_THROTTLE_MS = 3000L;
 
     // this cookie is taken from dashchan
-    private static final String defaultGoogleCookies = "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
+    private static final String defaultGoogleCookies =
+            "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final CaptchaNoJsHtmlParser parser;
@@ -84,9 +88,8 @@ public class CaptchaNoJsPresenterV2 {
     /**
      * Send challenge solution back to the recaptcha
      */
-    public VerifyError verify(
-            List<Integer> selectedIds
-    ) throws CaptchaNoJsV2Error {
+    public VerifyError verify(List<Integer> selectedIds)
+            throws CaptchaNoJsV2Error {
         if (!verificationInProgress.compareAndSet(false, true)) {
             Logger.d(TAG, "Verify captcha request is already in progress");
             return VerifyError.ALREADY_IN_PROGRESS;
@@ -119,8 +122,7 @@ public class CaptchaNoJsPresenterV2 {
 
                     Logger.d(TAG, "Verify called");
 
-                    Request request = new Request.Builder()
-                            .url(recaptchaUrl)
+                    Request request = new Request.Builder().url(recaptchaUrl)
                             .post(body)
                             .header("Referer", recaptchaUrl)
                             .header("User-Agent", userAgentHeader)
@@ -130,7 +132,7 @@ public class CaptchaNoJsPresenterV2 {
                             .header("Cookie", defaultGoogleCookies)
                             .build();
 
-                    try (Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute()) {
+                    try (Response response = instance(OkHttpClient.class).newCall(request).execute()) {
                         prevCaptchaInfo = handleGetRecaptchaResponse(response);
                     } finally {
                         verificationInProgress.set(false);
@@ -213,15 +215,13 @@ public class CaptchaNoJsPresenterV2 {
     }
 
     @Nullable
-    private CaptchaInfo getCaptchaInfo() throws IOException {
-        if (BackgroundUtils.isMainThread()) {
-            throw new RuntimeException("Must not be executed on the main thread");
-        }
+    private CaptchaInfo getCaptchaInfo()
+            throws IOException {
+        BackgroundUtils.ensureBackgroundThread();
 
         String recaptchaUrl = recaptchaUrlBase + siteKey;
 
-        Request request = new Request.Builder()
-                .url(recaptchaUrl)
+        Request request = new Request.Builder().url(recaptchaUrl)
                 .header("Referer", baseUrl)
                 .header("User-Agent", userAgentHeader)
                 .header("Accept", acceptHeader)
@@ -230,15 +230,13 @@ public class CaptchaNoJsPresenterV2 {
                 .header("Cookie", defaultGoogleCookies)
                 .build();
 
-        try (Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute()) {
+        try (Response response = instance(OkHttpClient.class).newCall(request).execute()) {
             return handleGetRecaptchaResponse(response);
         }
     }
 
-    private RequestBody createResponseBody(
-            CaptchaInfo prevCaptchaInfo,
-            List<Integer> selectedIds
-    ) throws UnsupportedEncodingException {
+    private RequestBody createResponseBody(CaptchaInfo prevCaptchaInfo, List<Integer> selectedIds)
+            throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
 
         sb.append(URLEncoder.encode("c", encoding));
@@ -261,9 +259,7 @@ public class CaptchaNoJsPresenterV2 {
             resultBody = sb.toString();
         }
 
-        return MultipartBody.create(
-                MediaType.parse(mediaType),
-                resultBody);
+        return MultipartBody.create(MediaType.parse(mediaType), resultBody);
     }
 
     @Nullable
@@ -271,8 +267,8 @@ public class CaptchaNoJsPresenterV2 {
         try {
             if (response.code() != SUCCESS_STATUS_CODE) {
                 if (callbacks != null) {
-                    callbacks.onCaptchaInfoParseError(
-                            new IOException("Bad status code for captcha request = " + response.code()));
+                    callbacks.onCaptchaInfoParseError(new IOException(
+                            "Bad status code for captcha request = " + response.code()));
                 }
 
                 return null;
@@ -281,8 +277,7 @@ public class CaptchaNoJsPresenterV2 {
             ResponseBody body = response.body();
             if (body == null) {
                 if (callbacks != null) {
-                    callbacks.onCaptchaInfoParseError(
-                            new IOException("Captcha response body is empty (null)"));
+                    callbacks.onCaptchaInfoParseError(new IOException("Captcha response body is empty (null)"));
                 }
 
                 return null;
@@ -360,7 +355,8 @@ public class CaptchaNoJsPresenterV2 {
         void onVerificationDone(String verificationToken);
     }
 
-    public static class CaptchaNoJsV2Error extends Exception {
+    public static class CaptchaNoJsV2Error
+            extends Exception {
         public CaptchaNoJsV2Error(String message) {
             super(message);
         }

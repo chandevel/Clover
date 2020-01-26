@@ -25,13 +25,15 @@ import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
 
-public class ProxiedHurlStack extends HurlStack {
+public class ProxiedHurlStack
+        extends HurlStack {
     public ProxiedHurlStack() {
         super();
     }
 
     @Override
-    protected HttpURLConnection createConnection(URL url) throws IOException {
+    protected HttpURLConnection createConnection(URL url)
+            throws IOException {
         // Start the connection by specifying a proxy server
         Proxy proxy = ChanSettings.getProxy();
         HttpURLConnection connection;

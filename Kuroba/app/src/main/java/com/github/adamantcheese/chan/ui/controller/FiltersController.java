@@ -21,7 +21,6 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,11 +44,8 @@ import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,13 +54,21 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
-public class FiltersController extends Controller implements
-        ToolbarNavigationController.ToolbarSearchCallback,
-        View.OnClickListener {
+public class FiltersController
+        extends Controller
+        implements ToolbarNavigationController.ToolbarSearchCallback, View.OnClickListener {
     @Inject
     DatabaseManager databaseManager;
 
@@ -79,32 +83,35 @@ public class FiltersController extends Controller implements
     private ItemTouchHelper itemTouchHelper;
     private boolean attached;
 
-    private ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-            ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
-    ) {
-        @Override
-        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-            int from = viewHolder.getAdapterPosition();
-            int to = target.getAdapterPosition();
+    private ItemTouchHelper.SimpleCallback touchHelperCallback =
+            new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                    ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
+            ) {
+                @Override
+                public boolean onMove(
+                        RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
+                ) {
+                    int from = viewHolder.getAdapterPosition();
+                    int to = target.getAdapterPosition();
 
-            if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION || !TextUtils.isEmpty(adapter.searchQuery)) {
-                //require that no search is going on while we do the sorting
-                return false;
-            }
+                    if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION
+                            || !TextUtils.isEmpty(adapter.searchQuery)) {
+                        //require that no search is going on while we do the sorting
+                        return false;
+                    }
 
-            adapter.move(from, to);
-            return true;
-        }
+                    adapter.move(from, to);
+                    return true;
+                }
 
-        @Override
-        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
-                int position = viewHolder.getAdapterPosition();
-                deleteFilter(adapter.displayList.get(position));
-            }
-        }
-    };
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                    if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
+                        int position = viewHolder.getAdapterPosition();
+                        deleteFilter(adapter.displayList.get(position));
+                    }
+                }
+            };
 
     public FiltersController(Context context) {
         super(context);
@@ -115,7 +122,7 @@ public class FiltersController extends Controller implements
         super.onCreate();
         inject(this);
 
-        view = inflateRes(R.layout.controller_filters);
+        view = inflate(context, R.layout.controller_filters);
 
         navigation.setTitle(R.string.filters_screen);
         navigation.swipeable = false;
@@ -163,13 +170,13 @@ public class FiltersController extends Controller implements
             List<Filter> enabledFilters = filterEngine.getEnabledFilters();
             List<Filter> allFilters = filterEngine.getAllFilters();
             if (enabledFilters.isEmpty()) {
-                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, true));
+                runOnUiThread(() -> setFilters(allFilters, true));
                 enableButton.setImageResource(R.drawable.ic_clear_white_24dp);
             } else if (enabledFilters.size() == allFilters.size()) {
-                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, false));
+                runOnUiThread(() -> setFilters(allFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             } else {
-                AndroidUtils.runOnUiThread(() -> setFilters(enabledFilters, false));
+                runOnUiThread(() -> setFilters(enabledFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
             ThemeHelper.getTheme().applyFabColor(enable);
@@ -192,39 +199,31 @@ public class FiltersController extends Controller implements
     }
 
     private void helpClicked(ToolbarMenuItem item) {
-        final AlertDialog dialog = new AlertDialog.Builder(context)
-                .setTitle("Help")
-                .setMessage(Html.fromHtml("You can use Regex101 for more comprehensive explanations " +
-                        "of your regular expressions, or as a playground for figuring out an expression. Use Javascript to test.<br><br>" +
-                        "Actions do the following:<br>" +
-                        "<b>Hide:</b> Replace the post with a stub. You can tap it to un-hide it.<br>" +
-                        "<b>Highlight:</b> A colored bar of your choosing will appear on the left hand side of this post.<br>" +
-                        "<b>Remove:</b> Remove this post. It won't be visible at all.<br>" +
-                        "<b>Watch:</b> If you have the thread watcher enabled and background watching on, and the watch filters option checked, " +
-                        "catalogs will be periodically checked based on your interval setting and any OP that matches the filter will be put into your bookmarks.<br><br>" +
-                        "Enabled filters have priority from top to bottom. Filter precedence for actions is as follows:<br>" +
-                        "1) Capcode or sticky<br>" +
-                        "2) OP<br>" +
-                        "3) Saved replies (your posts)<br>" +
-                        "4) Tripcode<br>" +
-                        "5) Name<br>" +
-                        "6) Comment<br>" +
-                        "7) ID<br>" +
-                        "8) Subject<br>" +
-                        "9) Country Code<br>" +
-                        "10) Filename"))
+        final AlertDialog dialog = new AlertDialog.Builder(context).setTitle("Help")
+                .setMessage(Html.fromHtml("You can use Regex101 for more comprehensive explanations "
+                        + "of your regular expressions, or as a playground for figuring out an expression. Use Javascript to test.<br><br>"
+                        + "Actions do the following:<br>"
+                        + "<b>Hide:</b> Replace the post with a stub. You can tap it to un-hide it.<br>"
+                        + "<b>Highlight:</b> A colored bar of your choosing will appear on the left hand side of this post.<br>"
+                        + "<b>Remove:</b> Remove this post. It won't be visible at all.<br>"
+                        + "<b>Watch:</b> If you have the thread watcher enabled and background watching on, "
+                        + "catalogs will be periodically checked based on your interval setting and any OP that matches the filter will be put into your bookmarks. "
+                        + "Any catalogs loaded by the you navigating to them from the board select popup will also be checked.<br><br>"
+                        + "Enabled filters have priority from top to bottom. Filter precedence for actions is as follows:<br>"
+                        + "1) Capcode or sticky<br>" + "2) OP<br>" + "3) Saved replies (your posts)<br>"
+                        + "4) Tripcode<br>" + "5) Name<br>" + "6) Comment<br>" + "7) ID<br>" + "8) Subject<br>"
+                        + "9) Country Code<br>" + "10) Filename"))
                 .setPositiveButton("Close", null)
-                .setNegativeButton("Open Regex101", (dialog1, which) -> AndroidUtils.openLink("https://regex101.com/"))
+                .setNegativeButton("Open Regex101", (dialog1, which) -> openLink("https://regex101.com/"))
                 .show();
         dialog.setCanceledOnTouchOutside(true);
     }
 
     public void showFilterDialog(final Filter filter) {
-        final FilterLayout filterLayout = (FilterLayout) LayoutInflater.from(context).inflate(R.layout.layout_filter, null);
+        final FilterLayout filterLayout = (FilterLayout) inflate(context, R.layout.layout_filter, null);
 
-        final AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setView(filterLayout)
-                .setPositiveButton("Save", (dialog, which) -> {
+        final AlertDialog alertDialog =
+                new AlertDialog.Builder(context).setView(filterLayout).setPositiveButton("Save", (dialog, which) -> {
                     filterEngine.createOrUpdateFilter(filterLayout.getFilter());
                     if (filterEngine.getEnabledFilters().isEmpty()) {
                         enable.setImageResource(R.drawable.ic_done_white_24dp);
@@ -232,10 +231,9 @@ public class FiltersController extends Controller implements
                         enable.setImageResource(R.drawable.ic_clear_white_24dp);
                     }
                     ThemeHelper.getTheme().applyFabColor(enable);
-                    EventBus.getDefault().post(new RefreshUIMessage("filters"));
+                    postToEventBus(new RefreshUIMessage("filters"));
                     adapter.reload();
-                })
-                .show();
+                }).show();
 
         filterLayout.setCallback(enabled -> alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled));
         filterLayout.setFilter(filter);
@@ -244,10 +242,10 @@ public class FiltersController extends Controller implements
     private void deleteFilter(Filter filter) {
         Filter clone = filter.clone();
         filterEngine.deleteFilter(filter);
-        EventBus.getDefault().post(new RefreshUIMessage("filters"));
+        postToEventBus(new RefreshUIMessage("filters"));
         adapter.reload();
 
-        Snackbar s = Snackbar.make(view, context.getString(R.string.filter_removed_undo, clone.pattern), Snackbar.LENGTH_LONG);
+        Snackbar s = Snackbar.make(view, getString(R.string.filter_removed_undo, clone.pattern), Snackbar.LENGTH_LONG);
         s.setAction(R.string.undo, v -> {
             filterEngine.createOrUpdateFilter(clone);
             adapter.reload();
@@ -263,14 +261,14 @@ public class FiltersController extends Controller implements
             //search off, turn on buttons and touch listener
             adapter.searchQuery = null;
             adapter.filter();
-            add.setVisibility(View.VISIBLE);
-            enable.setVisibility(View.VISIBLE);
+            add.setVisibility(VISIBLE);
+            enable.setVisibility(VISIBLE);
             itemTouchHelper.attachToRecyclerView(recyclerView);
             attached = true;
         } else {
             //search on, turn off buttons and touch listener
-            add.setVisibility(View.GONE);
-            enable.setVisibility(View.GONE);
+            add.setVisibility(GONE);
+            enable.setVisibility(GONE);
             itemTouchHelper.attachToRecyclerView(null);
             attached = false;
         }
@@ -282,7 +280,8 @@ public class FiltersController extends Controller implements
         adapter.filter();
     }
 
-    private class FilterAdapter extends RecyclerView.Adapter<FilterCell> {
+    private class FilterAdapter
+            extends RecyclerView.Adapter<FilterCell> {
         private List<Filter> sourceList = new ArrayList<>();
         private List<Filter> displayList = new ArrayList<>();
         private String searchQuery;
@@ -295,24 +294,28 @@ public class FiltersController extends Controller implements
 
         @Override
         public FilterCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new FilterCell(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_filter, parent, false));
+            return new FilterCell(inflate(parent.getContext(), R.layout.cell_filter, parent, false));
         }
 
         @Override
         public void onBindViewHolder(FilterCell holder, int position) {
             Filter filter = displayList.get(position);
             holder.text.setText(filter.pattern);
-            holder.text.setTextColor(getAttrColor(context, filter.enabled ? R.attr.text_color_primary : R.attr.text_color_hint));
-            holder.subtext.setTextColor(getAttrColor(context, filter.enabled ? R.attr.text_color_secondary : R.attr.text_color_hint));
+            holder.text.setTextColor(getAttrColor(context,
+                    filter.enabled ? R.attr.text_color_primary : R.attr.text_color_hint
+            ));
+            holder.subtext.setTextColor(getAttrColor(context,
+                    filter.enabled ? R.attr.text_color_secondary : R.attr.text_color_hint
+            ));
             int types = FilterType.forFlags(filter.type).size();
-            String subText = context.getResources().getQuantityString(R.plurals.type, types, types);
+            String subText = getQuantityString(R.plurals.type, types, types);
 
             subText += " \u2013 ";
             if (filter.allBoards) {
-                subText += context.getString(R.string.filter_summary_all_boards);
+                subText += getString(R.string.filter_summary_all_boards);
             } else {
                 int size = filterEngine.getFilterBoardCount(filter);
-                subText += context.getResources().getQuantityString(R.plurals.board, size, size);
+                subText += getQuantityString(R.plurals.board, size, size);
             }
 
             subText += " \u2013 " + FilterAction.actionName(FilterAction.forId(filter.action));
@@ -372,7 +375,9 @@ public class FiltersController extends Controller implements
         }
     }
 
-    private class FilterCell extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private class FilterCell
+            extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         private TextView text;
         private TextView subtext;
 

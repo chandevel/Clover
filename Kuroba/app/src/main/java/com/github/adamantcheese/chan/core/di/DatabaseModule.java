@@ -37,8 +37,7 @@ public class DatabaseModule {
 
     @Provides
     @Singleton
-    public DatabaseManager provideDatabaseManager(
-    ) {
+    public DatabaseManager provideDatabaseManager() {
         Logger.d(AppModule.DI_TAG, "Database manager");
         return new DatabaseManager();
     }

@@ -14,11 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.settings;
+package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -28,16 +27,30 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
+import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
+import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
+import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
+import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.SettingView;
+import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.findViewsById;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
-public class SettingsController extends Controller implements AndroidUtils.OnMeasuredCallback {
+public class SettingsController
+        extends Controller
+        implements AndroidUtils.OnMeasuredCallback {
     protected LinearLayout content;
     protected List<SettingsGroup> groups = new ArrayList<>();
 
@@ -56,7 +69,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     public void onShow() {
         super.onShow();
 
-        AndroidUtils.waitForLayout(view, this);
+        waitForLayout(view, this);
     }
 
     @Override
@@ -71,7 +84,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        AndroidUtils.waitForLayout(view, this);
+        waitForLayout(view, this);
     }
 
     @Override
@@ -81,34 +94,30 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     }
 
     public void onPreferenceChange(SettingView item) {
-        if ((item instanceof ListSettingView)
-                || (item instanceof StringSettingView)
-                || (item instanceof IntegerSettingView)
-                || (item instanceof LinkSettingView)) {
+        if ((item instanceof ListSettingView) || (item instanceof StringSettingView)
+                || (item instanceof IntegerSettingView) || (item instanceof LinkSettingView)) {
             setDescriptionText(item.view, item.getTopDescription(), item.getBottomDescription());
         }
 
         if (requiresUiRefresh.contains(item)) {
-            EventBus.getDefault().post(new RefreshUIMessage("SettingsController refresh"));
+            postToEventBus(new RefreshUIMessage("SettingsController refresh"));
         } else if (requiresRestart.contains(item)) {
             needRestart = true;
         }
     }
 
     private void setMargins() {
-        boolean tablet = AndroidUtils.isTablet(context);
-
         int margin = 0;
-        if (tablet) {
+        if (isTablet()) {
             margin = (int) (view.getWidth() * 0.1);
         }
 
         int itemMargin = 0;
-        if (tablet) {
+        if (isTablet()) {
             itemMargin = dp(16);
         }
 
-        List<View> groups = AndroidUtils.findViewsById(content, R.id.group);
+        List<View> groups = findViewsById(content, R.id.group);
         for (View group : groups) {
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) group.getLayoutParams();
             params.leftMargin = margin;
@@ -116,32 +125,31 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
             group.setLayoutParams(params);
         }
 
-        List<View> items = AndroidUtils.findViewsById(content, R.id.preference_item);
+        List<View> items = findViewsById(content, R.id.preference_item);
         for (View item : items) {
             item.setPadding(itemMargin, item.getPaddingTop(), itemMargin, item.getPaddingBottom());
         }
     }
 
     protected void setSettingViewVisibility(SettingView settingView, boolean visible) {
-        settingView.view.setVisibility(visible ? View.VISIBLE : View.GONE);
+        settingView.view.setVisibility(visible ? VISIBLE : GONE);
 
         if (settingView.divider != null) {
-            settingView.divider.setVisibility(visible ? View.VISIBLE : View.GONE);
+            settingView.divider.setVisibility(visible ? VISIBLE : GONE);
         }
     }
 
     protected void setupLayout() {
-        view = inflateRes(R.layout.settings_layout);
+        view = inflate(context, R.layout.settings_layout);
         content = view.findViewById(R.id.scrollview_content);
     }
 
     protected void buildPreferences() {
-        LayoutInflater inf = LayoutInflater.from(context);
         boolean firstGroup = true;
         content.removeAllViews();
 
         for (SettingsGroup group : groups) {
-            LinearLayout groupLayout = (LinearLayout) inf.inflate(R.layout.setting_group, content, false);
+            LinearLayout groupLayout = (LinearLayout) inflate(context, R.layout.setting_group, content, false);
             ((TextView) groupLayout.findViewById(R.id.header)).setText(group.name);
 
             if (firstGroup) {
@@ -157,28 +165,23 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                 ViewGroup preferenceView = null;
                 String topValue = settingView.getTopDescription();
                 String bottomValue = settingView.getBottomDescription();
-                boolean noDivider = false;
 
-                if ((settingView instanceof ListSettingView)
-                        || (settingView instanceof LinkSettingView)
-                        || (settingView instanceof StringSettingView)
-                        || (settingView instanceof IntegerSettingView)) {
-                    preferenceView = (ViewGroup) inf.inflate(R.layout.setting_link, groupLayout, false);
+                if ((settingView instanceof ListSettingView) || (settingView instanceof LinkSettingView)
+                        || (settingView instanceof StringSettingView) || (settingView instanceof IntegerSettingView)) {
+                    preferenceView = (ViewGroup) inflate(context, R.layout.setting_link, groupLayout, false);
                 } else if (settingView instanceof BooleanSettingView) {
-                    preferenceView = (ViewGroup) inf.inflate(R.layout.setting_boolean, groupLayout, false);
-                } else if (settingView instanceof TextSettingView) {
-                    preferenceView = (ViewGroup) inf.inflate(R.layout.setting_text, groupLayout, false);
-                    noDivider = true;
+                    preferenceView = (ViewGroup) inflate(context, R.layout.setting_boolean, groupLayout, false);
                 }
 
-                setDescriptionText(preferenceView, topValue, bottomValue);
+                if (preferenceView != null) {
+                    setDescriptionText(preferenceView, topValue, bottomValue);
 
-                groupLayout.addView(preferenceView);
+                    groupLayout.addView(preferenceView);
+                    settingView.setView(preferenceView);
+                }
 
-                settingView.setView(preferenceView);
-
-                if (i < group.settingViews.size() - 1 && !noDivider) {
-                    settingView.divider = inf.inflate(R.layout.setting_divider, groupLayout, false);
+                if (i < group.settingViews.size() - 1) {
+                    settingView.divider = inflate(context, R.layout.setting_divider, groupLayout, false);
                     groupLayout.addView(settingView.divider);
                 }
             }
@@ -191,7 +194,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
         final TextView bottom = view.findViewById(R.id.bottom);
         if (bottom != null) {
             bottom.setText(bottomText);
-            bottom.setVisibility(bottomText == null ? View.GONE : View.VISIBLE);
+            bottom.setVisibility(bottomText == null ? GONE : VISIBLE);
         }
     }
 }

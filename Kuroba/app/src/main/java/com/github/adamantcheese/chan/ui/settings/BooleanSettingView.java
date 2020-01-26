@@ -23,18 +23,27 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.Setting;
+import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
-public class BooleanSettingView extends SettingView implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+public class BooleanSettingView
+        extends SettingView
+        implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     private SwitchCompat switcher;
     private Setting<Boolean> setting;
     private String description;
     private boolean building = true;
 
-    public BooleanSettingView(SettingsController settingsController, Setting<Boolean> setting, int name, int description) {
-        this(settingsController, setting, getString(name), getString(description));
+    public BooleanSettingView(SettingsController controller, Setting<Boolean> setting, int name, int description) {
+        this(controller, setting, getString(name), getString(description));
     }
 
-    public BooleanSettingView(SettingsController settingsController, Setting<Boolean> setting, String name, String description) {
+    public BooleanSettingView(SettingsController controller, Setting<Boolean> setting, int name, String description) {
+        this(controller, setting, getString(name), description);
+    }
+
+    public BooleanSettingView(
+            SettingsController settingsController, Setting<Boolean> setting, String name, String description
+    ) {
         super(settingsController, name);
         this.setting = setting;
         this.description = description;

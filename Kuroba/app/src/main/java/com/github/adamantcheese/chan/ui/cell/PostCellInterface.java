@@ -28,17 +28,19 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import java.util.List;
 
 public interface PostCellInterface {
-    void setPost(Loadable loadable,
-                 Post post,
-                 PostCellCallback callback,
-                 boolean selectable,
-                 boolean highlighted,
-                 boolean selected,
-                 int markedNo,
-                 boolean showDivider,
-                 ChanSettings.PostViewMode postViewMode,
-                 boolean compact,
-                 Theme theme);
+    void setPost(
+            Loadable loadable,
+            Post post,
+            PostCellCallback callback,
+            boolean selectable,
+            boolean highlighted,
+            boolean selected,
+            int markedNo,
+            boolean showDivider,
+            ChanSettings.PostViewMode postViewMode,
+            boolean compact,
+            Theme theme
+    );
 
     Post getPost();
 
@@ -55,8 +57,7 @@ public interface PostCellInterface {
 
         void onShowPostReplies(Post post);
 
-        Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu,
-                                     List<FloatingMenuItem> extraMenu);
+        Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu, List<FloatingMenuItem> extraMenu);
 
         void onPostOptionClicked(Post post, Object id);
 

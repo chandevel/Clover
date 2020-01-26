@@ -73,10 +73,7 @@ public class DatabaseManager {
     public DatabaseManager() {
         inject(this);
 
-        backgroundExecutor = new ThreadPoolExecutor(
-                1, 1,
-                1000L, TimeUnit.DAYS,
-                new LinkedBlockingQueue<>());
+        backgroundExecutor = new ThreadPoolExecutor(1, 1, 1000L, TimeUnit.DAYS, new LinkedBlockingQueue<>());
 
         databaseLoadableManager = new DatabaseLoadableManager();
         databasePinManager = new DatabasePinManager(databaseLoadableManager);
@@ -187,7 +184,10 @@ public class DatabaseManager {
         try {
             long count = dao.countOf();
             if (count > trigger) {
-                dao.executeRaw("DELETE FROM " + table + " WHERE id IN (SELECT id FROM " + table + " ORDER BY id ASC LIMIT ?)", String.valueOf(trim));
+                dao.executeRaw(
+                        "DELETE FROM " + table + " WHERE id IN (SELECT id FROM " + table + " ORDER BY id ASC LIMIT ?)",
+                        String.valueOf(trim)
+                );
             }
         } catch (SQLException e) {
             Logger.e(TAG, "Error trimming table " + table, e);
@@ -247,7 +247,8 @@ public class DatabaseManager {
         }
     }
 
-    private class DatabaseCallable<T> implements Callable<T> {
+    private class DatabaseCallable<T>
+            implements Callable<T> {
         private final Callable<T> taskCallable;
         private final TaskResult<T> taskResult;
 

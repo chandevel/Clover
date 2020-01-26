@@ -16,15 +16,17 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
-
 import android.util.JsonReader;
 
 public interface ChanReader {
     PostParser getParser();
 
-    void loadThread(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception;
+    void loadThread(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception;
 
-    void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception;
+    void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception;
 
-    void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception;
+    void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception;
 }

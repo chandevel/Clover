@@ -22,7 +22,8 @@ import android.view.MotionEvent;
 
 import androidx.viewpager.widget.ViewPager;
 
-public class OptionalSwipeViewPager extends ViewPager {
+public class OptionalSwipeViewPager
+        extends ViewPager {
     private boolean swipingEnabled;
 
     public OptionalSwipeViewPager(Context context) {

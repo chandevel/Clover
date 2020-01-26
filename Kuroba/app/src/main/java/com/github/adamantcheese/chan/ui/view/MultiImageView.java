@@ -23,12 +23,12 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Lifecycle;
@@ -50,7 +50,6 @@ import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.file.RawFile;
@@ -73,12 +72,25 @@ import javax.inject.Inject;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
 
-public class MultiImageView extends FrameLayout implements View.OnClickListener, AudioListener, LifecycleObserver {
+public class MultiImageView
+        extends FrameLayout
+        implements View.OnClickListener, AudioListener, LifecycleObserver {
     public enum Mode {
-        UNLOADED, LOWRES, BIGIMAGE, GIF, MOVIE, OTHER
+        UNLOADED,
+        LOWRES,
+        BIGIMAGE,
+        GIFIMAGE,
+        VIDEO,
+        OTHER
     }
 
     private static final String TAG = "MultiImageView";
@@ -91,14 +103,14 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     private Context context;
     private ImageView playView;
-    private GestureDetector exoDoubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector exoDoubleTapDetector = new GestureDetector(context, new SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             callback.onDoubleTap();
             return true;
         }
     });
-    private GestureDetector gifDoubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector gifDoubleTapDetector = new GestureDetector(context, new SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             GifDrawable drawable = (GifDrawable) findGifImageView().getDrawable();
@@ -147,9 +159,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         setOnClickListener(this);
 
         playView = new ImageView(getContext());
-        playView.setVisibility(View.GONE);
+        playView.setVisibility(GONE);
         playView.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
-        addView(playView, new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+        addView(playView, new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER));
 
         if (context instanceof StartActivity) {
             ((StartActivity) context).getLifecycle().addObserver(this);
@@ -167,7 +179,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         this.postImage = postImage;
         this.callback = callback;
 
-        playView.setVisibility(postImage.type == PostImage.Type.MOVIE ? View.VISIBLE : View.GONE);
+        playView.setVisibility(postImage.type == PostImage.Type.MOVIE ? VISIBLE : GONE);
     }
 
     public PostImage getPostImage() {
@@ -176,18 +188,19 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     public void setMode(Loadable loadable, final Mode newMode, boolean center) {
         this.mode = newMode;
-        AndroidUtils.waitForMeasure(this, view -> {
+        waitForMeasure(this, view -> {
             switch (newMode) {
                 case LOWRES:
                     setThumbnail(loadable, postImage, center);
+                    backgroundToggle = false;
                     break;
                 case BIGIMAGE:
                     setBigImage(loadable, postImage);
                     break;
-                case GIF:
+                case GIFIMAGE:
                     setGif(loadable, postImage);
                     break;
-                case MOVIE:
+                case VIDEO:
                     setVideo(loadable, postImage);
                     break;
                 case OTHER:
@@ -259,13 +272,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             return;
         }
 
-        thumbnailRequest = imageLoaderV2.getImage(
-                true,
-                loadable,
-                postImage,
-                getWidth(),
-                getHeight(),
-                new ImageListener() {
+        thumbnailRequest =
+                imageLoaderV2.getImage(true, loadable, postImage, getWidth(), getHeight(), new ImageListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         thumbnailRequest = null;
@@ -320,10 +328,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             public void onSuccess(RawFile file) {
                 BackgroundUtils.ensureMainThread();
 
-                setBitImageFileInternal(
-                        new File(file.getFullPath()),
-                        true,
-                        Mode.BIGIMAGE);
+                setBitImageFileInternal(new File(file.getFullPath()), true, Mode.BIGIMAGE);
+                if (!ChanSettings.transparencyOn.get() && !backgroundToggle) {
+                    toggleTransparency();
+                }
             }
 
             @Override
@@ -372,8 +380,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             public void onSuccess(RawFile file) {
                 BackgroundUtils.ensureMainThread();
 
-                if (!hasContent || mode == Mode.GIF) {
+                if (!hasContent || mode == Mode.GIFIMAGE) {
                     setGifFile(new File(file.getFullPath()));
+                    if (!ChanSettings.transparencyOn.get() && !backgroundToggle) {
+                        toggleTransparency();
+                    }
                 }
             }
 
@@ -408,7 +419,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             // have to use the more memory intensive non tiling mode.
             if (drawable.getNumberOfFrames() == 1) {
                 drawable.recycle();
-                setBitImageFileInternal(file, false, Mode.GIF);
+                setBitImageFileInternal(file, false, Mode.GIFIMAGE);
                 return;
             }
         } catch (IOException e) {
@@ -426,7 +437,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         view.setImageDrawable(drawable);
         view.setOnClickListener(null);
         view.setOnTouchListener((view1, motionEvent) -> gifDoubleTapDetector.onTouchEvent(motionEvent));
-        onModeLoaded(Mode.GIF, view);
+        onModeLoaded(Mode.GIFIMAGE, view);
     }
 
     private void setVideo(Loadable loadable, PostImage postImage) {
@@ -449,7 +460,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             public void onSuccess(RawFile file) {
                 BackgroundUtils.ensureMainThread();
 
-                if (!hasContent || mode == Mode.MOVIE) {
+                if (!hasContent || mode == Mode.VIDEO) {
                     setVideoFile(new File(file.getFullPath()));
                 }
             }
@@ -479,28 +490,23 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         if (ChanSettings.videoOpenExternal.get()) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
 
-            Uri uriForFile = FileProvider.getUriForFile(
-                    getAppContext(),
-                    getAppContext().getPackageName() + ".fileprovider",
-                    file
-            );
+            Uri uriForFile = FileProvider.getUriForFile(getAppContext(), getAppFileProvider(), file);
 
             intent.setDataAndType(uriForFile, "video/*");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            AndroidUtils.openIntent(intent);
+            openIntent(intent);
 
-            onModeLoaded(Mode.MOVIE, null);
+            onModeLoaded(Mode.VIDEO, null);
         } else {
             PlayerView exoVideoView = new PlayerView(getContext());
             exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
             exoVideoView.setPlayer(exoPlayer);
-            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
-                    Util.getUserAgent(getContext(), NetModule.USER_AGENT));
-            MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(android.net.Uri.fromFile(file));
+            String userAgent = Util.getUserAgent(getAppContext(), NetModule.USER_AGENT);
+            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(), userAgent);
+            ProgressiveMediaSource.Factory progressiveFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
+            MediaSource videoSource = progressiveFactory.createMediaSource(Uri.fromFile(file));
 
-            exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
-                    Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
+            exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
             exoPlayer.prepare(videoSource);
             exoPlayer.addAudioListener(this);
@@ -508,7 +514,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
-            onModeLoaded(Mode.MOVIE, exoVideoView);
+            onModeLoaded(Mode.VIDEO, exoVideoView);
             callback.onVideoLoaded(this);
         }
     }
@@ -522,7 +528,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     private void setOther(Loadable loadable, PostImage image) {
         if (image.type == PostImage.Type.PDF) {
-            Toast.makeText(context, R.string.pdf_not_viewable, Toast.LENGTH_LONG).show();
+            showToast(R.string.pdf_not_viewable);
         }
     }
 
@@ -578,7 +584,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         final CustomScaleImageView image = new CustomScaleImageView(getContext());
         image.setImage(ImageSource.uri(file.getAbsolutePath()).tiling(tiling));
         image.setOnClickListener(MultiImageView.this);
-        addView(image, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        addView(image, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
         image.setCallback(new CustomScaleImageView.Callback() {
             @Override
             public void onReady() {
@@ -596,23 +602,23 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     }
 
     private void onError() {
-        Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_SHORT).show();
+        showToast(R.string.image_preview_failed);
         callback.showProgress(this, false);
     }
 
     private void onNotFoundError() {
+        showToast(R.string.image_not_found);
         callback.showProgress(this, false);
-        Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_SHORT).show();
     }
 
     private void onOutOfMemoryError() {
-        Toast.makeText(getContext(), R.string.image_preview_failed_oom, Toast.LENGTH_SHORT).show();
+        showToast(R.string.image_preview_failed_oom);
         callback.showProgress(this, false);
     }
 
     private void onBigImageError(boolean wasInitial) {
         if (wasInitial) {
-            Toast.makeText(getContext(), R.string.image_failed_big_image, Toast.LENGTH_SHORT).show();
+            showToast(R.string.image_failed_big_image);
             callback.showProgress(this, false);
         }
     }
@@ -655,7 +661,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             }
 
             if (!alreadyAttached) {
-                addView(view, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                addView(view, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
             }
         }
 

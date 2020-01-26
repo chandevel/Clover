@@ -16,11 +16,7 @@ public class ExportedSavedThread {
     @SerializedName("is_stopped")
     public boolean isStopped;
 
-    public ExportedSavedThread(
-            int loadableId,
-            int lastSavedPostNo,
-            boolean isFullyDownloaded,
-            boolean isStopped) {
+    public ExportedSavedThread(int loadableId, int lastSavedPostNo, boolean isFullyDownloaded, boolean isStopped) {
         this.loadableId = loadableId;
         this.lastSavedPostNo = lastSavedPostNo;
         this.isFullyDownloaded = isFullyDownloaded;
@@ -46,8 +42,13 @@ public class ExportedSavedThread {
     @NonNull
     @Override
     public String toString() {
-        return String.format(Locale.US,
+        return String.format(
+                Locale.US,
                 "loadableId: %d, lastSavedPostNo: %d, isFullyDownloaded: %b, isStopped: %b",
-                loadableId, lastSavedPostNo, isFullyDownloaded, isStopped);
+                loadableId,
+                lastSavedPostNo,
+                isFullyDownloaded,
+                isStopped
+        );
     }
 }

@@ -23,7 +23,8 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
-public class TouchBlockingLinearLayout extends LinearLayout {
+public class TouchBlockingLinearLayout
+        extends LinearLayout {
     public TouchBlockingLinearLayout(Context context) {
         super(context);
     }

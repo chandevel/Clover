@@ -27,8 +27,9 @@ import android.widget.ImageView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 /**
  * A Theme<br>
@@ -77,7 +78,14 @@ public class Theme {
     public ThemeDrawable helpDrawable = new ThemeDrawable(R.drawable.ic_help_outline_white_24dp, 0.54f);
     public ThemeDrawable refreshDrawable = new ThemeDrawable(R.drawable.ic_refresh_white_24dp, 0.54f);
 
-    public Theme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor, Typeface mainFont, Typeface altFont) {
+    public Theme(
+            String displayName,
+            String name,
+            int resValue,
+            ThemeHelper.PrimaryColor primaryColor,
+            Typeface mainFont,
+            Typeface altFont
+    ) {
         this.displayName = displayName;
         this.name = name;
         this.resValue = resValue;
@@ -109,33 +117,34 @@ public class Theme {
 
     @SuppressWarnings("ResourceType")
     private void resolveSpanColors() {
-        Resources.Theme theme = AndroidUtils.getAppContext().getResources().newTheme();
+        Resources.Theme theme = getRes().newTheme();
         theme.applyStyle(R.style.Chan_Theme, true);
         theme.applyStyle(resValue, true);
 
+        //@formatter:off
         TypedArray ta = theme.obtainStyledAttributes(new int[]{
-                R.attr.post_quote_color,
-                R.attr.post_highlight_quote_color,
-                R.attr.post_link_color,
-                R.attr.post_spoiler_color,
-                R.attr.post_inline_quote_color,
-                R.attr.post_subject_color,
-                R.attr.post_name_color,
-                R.attr.post_id_background_light,
-                R.attr.post_id_background_dark,
-                R.attr.post_capcode_color,
-                R.attr.post_details_color,
-                R.attr.post_highlighted_color,
-                R.attr.post_saved_reply_color,
-                R.attr.post_selected_color,
-                R.attr.text_color_primary,
-                R.attr.text_color_secondary,
-                R.attr.text_color_hint,
-                R.attr.text_color_reveal_spoiler,
-                R.attr.backcolor,
-                R.attr.backcolor_secondary
+            R.attr.post_quote_color,
+            R.attr.post_highlight_quote_color,
+            R.attr.post_link_color,
+            R.attr.post_spoiler_color,
+            R.attr.post_inline_quote_color,
+            R.attr.post_subject_color,
+            R.attr.post_name_color,
+            R.attr.post_id_background_light,
+            R.attr.post_id_background_dark,
+            R.attr.post_capcode_color,
+            R.attr.post_details_color,
+            R.attr.post_highlighted_color,
+            R.attr.post_saved_reply_color,
+            R.attr.post_selected_color,
+            R.attr.text_color_primary,
+            R.attr.text_color_secondary,
+            R.attr.text_color_hint,
+            R.attr.text_color_reveal_spoiler,
+            R.attr.backcolor,
+            R.attr.backcolor_secondary
         });
-
+        //@formatter:on
         quoteColor = ta.getColor(0, 0);
         highlightQuoteColor = ta.getColor(1, 0);
         linkColor = ta.getColor(2, 0);

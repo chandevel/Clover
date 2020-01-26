@@ -14,28 +14,19 @@ public class ThreadMapper {
     private static final String TAG = "ThreadMapper";
 
     public static SerializableThread toSerializableThread(List<Post> posts) {
-        return new SerializableThread(
-                PostMapper.toSerializablePostList(posts)
-        );
+        return new SerializableThread(PostMapper.toSerializablePostList(posts));
     }
 
     @Nullable
-    public static ChanThread fromSerializedThread(
-            Loadable loadable,
-            SerializableThread serializableThread) {
-        List<Post> posts = PostMapper.fromSerializedPostList(
-                loadable,
-                serializableThread.getPostList());
+    public static ChanThread fromSerializedThread(Loadable loadable, SerializableThread serializableThread) {
+        List<Post> posts = PostMapper.fromSerializedPostList(loadable, serializableThread.getPostList());
 
         if (posts.isEmpty()) {
             Logger.w(TAG, "PostMapper.fromSerializedPostList returned empty list");
             return null;
         }
 
-        ChanThread chanThread = new ChanThread(
-                loadable,
-                posts
-        );
+        ChanThread chanThread = new ChanThread(loadable, posts);
 
         chanThread.setArchived(true);
 

@@ -19,8 +19,6 @@ package com.github.adamantcheese.chan.controller;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.adamantcheese.chan.StartActivity;
@@ -30,11 +28,15 @@ import com.github.adamantcheese.chan.ui.controller.DoubleNavigationController;
 import com.github.adamantcheese.chan.ui.controller.ImageViewerNavigationController;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 public abstract class Controller {
     private static final boolean LOG_STATES = false;
@@ -84,7 +86,7 @@ public abstract class Controller {
             Logger.test(getClass().getSimpleName() + " onShow");
         }
 
-        view.setVisibility(View.VISIBLE);
+        view.setVisibility(VISIBLE);
 
         for (Controller controller : childControllers) {
             if (!controller.shown) {
@@ -99,7 +101,7 @@ public abstract class Controller {
             Logger.test(getClass().getSimpleName() + " onHide");
         }
 
-        view.setVisibility(View.GONE);
+        view.setVisibility(GONE);
 
         for (Controller controller : childControllers) {
             if (controller.shown) {
@@ -118,7 +120,7 @@ public abstract class Controller {
             removeChildController(childControllers.get(0));
         }
 
-        if (AndroidUtils.removeFromParentView(view)) {
+        if (removeFromParentView(view)) {
             if (LOG_STATES) {
                 Logger.test(getClass().getSimpleName() + " view removed onDestroy");
             }
@@ -147,7 +149,7 @@ public abstract class Controller {
             if (LOG_STATES) {
                 Logger.test(getClass().getSimpleName() + " view removed");
             }
-            AndroidUtils.removeFromParentView(view);
+            removeFromParentView(view);
         }
 
         if (parentView != null) {
@@ -243,10 +245,6 @@ public abstract class Controller {
         }
     }
 
-    public ViewGroup inflateRes(int resId) {
-        return (ViewGroup) LayoutInflater.from(context).inflate(resId, null);
-    }
-
     public Toolbar getToolbar() {
         return null;
     }
@@ -255,10 +253,10 @@ public abstract class Controller {
         ViewGroup.LayoutParams params = view.getLayoutParams();
 
         if (params == null) {
-            params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            params = new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT);
         } else {
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.width = MATCH_PARENT;
+            params.height = MATCH_PARENT;
         }
 
         view.setLayoutParams(params);

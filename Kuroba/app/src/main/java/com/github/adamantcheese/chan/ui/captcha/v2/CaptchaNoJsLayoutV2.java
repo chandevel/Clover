@@ -43,7 +43,6 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.List;
@@ -52,11 +51,14 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2_NOJS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
-public class CaptchaNoJsLayoutV2 extends FrameLayout
-        implements AuthenticationLayoutInterface,
-        CaptchaNoJsPresenterV2.AuthenticationCallbacks {
+public class CaptchaNoJsLayoutV2
+        extends FrameLayout
+        implements AuthenticationLayoutInterface, CaptchaNoJsPresenterV2.AuthenticationCallbacks {
     private static final String TAG = "CaptchaNoJsLayoutV2";
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
@@ -66,7 +68,6 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
 
     private CaptchaNoJsV2Adapter adapter;
     private CaptchaNoJsPresenterV2 presenter;
-    private Context context;
     private AuthenticationLayoutCallback callback;
 
     private boolean isAutoReply = true;
@@ -86,9 +87,8 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         super(context, attrs, defStyleAttr);
         inject(this);
 
-        this.context = context;
         this.presenter = new CaptchaNoJsPresenterV2(this, context);
-        this.adapter = new CaptchaNoJsV2Adapter(context);
+        this.adapter = new CaptchaNoJsV2Adapter();
 
         View view = inflate(context, R.layout.layout_captcha_nojs_v2, this);
 
@@ -120,7 +120,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         this.isAutoReply = autoReply;
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
-        if (authentication.type != SiteAuthentication.Type.CAPTCHA2_NOJS) {
+        if (authentication.type != CAPTCHA2_NOJS) {
             callback.onFallbackToV1CaptchaView(isAutoReply);
             return;
         }
@@ -147,19 +147,17 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
             case ALREADY_SHUTDOWN:
                 break;
             case HOLD_YOUR_HORSES:
-                showToast(getContext().getString(
-                        R.string.captcha_layout_v2_you_are_requesting_captcha_too_fast));
+                showToast(R.string.captcha_layout_v2_you_are_requesting_captcha_too_fast, Toast.LENGTH_LONG);
                 break;
             case ALREADY_IN_PROGRESS:
-                showToast(getContext().getString(
-                        R.string.captcha_layout_v2_captcha_request_is_already_in_progress));
+                showToast(R.string.captcha_layout_v2_captcha_request_is_already_in_progress, Toast.LENGTH_LONG);
                 break;
         }
     }
 
     @Override
     public void onCaptchaInfoParsed(CaptchaInfo captchaInfo) {
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             captchaVerifyButton.setEnabled(true);
             renderCaptchaWindow(captchaInfo);
         });
@@ -167,7 +165,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
 
     @Override
     public void onVerificationDone(String verificationToken) {
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             captchaHolder.addNewToken(verificationToken, RECAPTCHA_TOKEN_LIVE_TIME);
 
             String token;
@@ -186,16 +184,12 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     // Called when we got response from re-captcha but could not parse some part of it
     @Override
     public void onCaptchaInfoParseError(Throwable error) {
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             Logger.e(TAG, "CaptchaV2 error", error);
-            showToast(error.getMessage());
+            showToast(error.getMessage(), Toast.LENGTH_LONG);
             captchaVerifyButton.setEnabled(true);
             callback.onFallbackToV1CaptchaView(isAutoReply);
         });
-    }
-
-    private void showToast(String message) {
-        AndroidUtils.runOnUiThread(() -> Toast.makeText(context, message, Toast.LENGTH_LONG).show());
     }
 
     private void renderCaptchaWindow(CaptchaInfo captchaInfo) {
@@ -244,7 +238,8 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
                         new StyleSpan(Typeface.BOLD),
                         captchaInfo.getCaptchaTitle().getBoldStart(),
                         captchaInfo.getCaptchaTitle().getBoldEnd(),
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                );
 
                 captchaChallengeTitle.setText(spannableString);
             } else {
@@ -263,10 +258,10 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
                     captchaVerifyButton.setEnabled(false);
                     break;
                 case NO_IMAGES_SELECTED:
-                    showToast(getContext().getString(R.string.captcha_layout_v2_you_have_to_select_at_least_one_image));
+                    showToast(R.string.captcha_layout_v2_you_have_to_select_at_least_one_image, Toast.LENGTH_LONG);
                     break;
                 case ALREADY_IN_PROGRESS:
-                    showToast(getContext().getString(R.string.captcha_layout_v2_verification_already_in_progress));
+                    showToast(R.string.captcha_layout_v2_verification_already_in_progress, Toast.LENGTH_LONG);
                     break;
                 case ALREADY_SHUTDOWN:
                     // do nothing

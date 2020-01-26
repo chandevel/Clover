@@ -17,8 +17,8 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.text.TextUtils;
+import android.widget.Toast;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
@@ -41,10 +41,7 @@ import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
-import com.github.adamantcheese.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
-import com.github.adamantcheese.chan.ui.helper.PostHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -57,12 +54,15 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getReadableFileSize;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
-public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteActions.PostListener {
+public class ReplyPresenter
+        implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteActions.PostListener {
 
     public enum Page {
         INPUT,
@@ -93,10 +93,12 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     private int selectedQuote = -1;
 
     @Inject
-    public ReplyPresenter(ReplyManager replyManager,
-                          WatchManager watchManager,
-                          DatabaseManager databaseManager,
-                          LastReplyRepository lastReplyRepository) {
+    public ReplyPresenter(
+            ReplyManager replyManager,
+            WatchManager watchManager,
+            DatabaseManager databaseManager,
+            LastReplyRepository lastReplyRepository
+    ) {
         this.replyManager = replyManager;
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
@@ -124,7 +126,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         callback.loadDraftIntoViews(draft);
         callback.updateCommentCount(0, board.maxCommentChars, false);
-        callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread : R.string.reply_comment_board));
+        callback.setCommentHint(getString(loadable.isThreadMode()
+                ? R.string.reply_comment_thread
+                : R.string.reply_comment_board));
         callback.showCommentCounter(board.maxCommentChars > 0);
 
         if (draft.file != null) {
@@ -169,13 +173,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.openNameOptions(moreOpen);
         if (!loadable.isThreadMode()) {
             callback.openSubject(moreOpen);
-        }
-        callback.openCommentQuoteButton(moreOpen);
-        if (board.spoilers) {
-            callback.openCommentSpoilerButton(moreOpen);
-        }
-        if (board.site.name().equals("4chan") && board.code.equals("g")) {
-            callback.openCommentCodeButton(moreOpen);
         }
         if (previewOpen) {
             callback.openFileName(moreOpen);
@@ -227,15 +224,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         //only 4chan seems to have the post delay, this is a hack for that
         if (draft.loadable.site.name().equals("4chan")) {
             if (loadable.isThreadMode()) {
-                if (lastReplyRepository.canPostReply(
-                        draft.loadable.site,
-                        draft.loadable.board,
-                        draft.file != null)) {
+                if (lastReplyRepository.canPostReply(draft.loadable.site, draft.loadable.board, draft.file != null)) {
                     submitOrAuthenticate();
                 } else {
-                    long lastPostTime = lastReplyRepository.getLastReply(
-                            draft.loadable.site,
-                            draft.loadable.board);
+                    long lastPostTime = lastReplyRepository.getLastReply(draft.loadable.site, draft.loadable.board);
 
                     long waitTime = draft.file != null
                             ? draft.loadable.board.cooldownImages
@@ -246,19 +238,15 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                     }
 
                     long timeLeft = waitTime - ((System.currentTimeMillis() - lastPostTime) / 1000L);
-                    String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_reply, timeLeft);
+                    String errorMessage = getString(R.string.reply_error_message_timer_reply, timeLeft);
                     switchPage(Page.INPUT);
                     callback.openMessage(true, false, errorMessage, true);
                 }
             } else if (loadable.isCatalogMode()) {
-                if (lastReplyRepository.canPostThread(
-                        draft.loadable.site,
-                        draft.loadable.board)) {
+                if (lastReplyRepository.canPostThread(draft.loadable.site, draft.loadable.board)) {
                     submitOrAuthenticate();
                 } else {
-                    long lastThreadTime = lastReplyRepository.getLastThread(
-                            draft.loadable.site,
-                            draft.loadable.board);
+                    long lastThreadTime = lastReplyRepository.getLastThread(draft.loadable.site, draft.loadable.board);
 
                     long waitTime = draft.loadable.board.cooldownThreads;
                     if (draft.loadable.site.actions().isLoggedIn()) {
@@ -266,7 +254,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                     }
 
                     long timeLeft = waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
-                    String errorMessage = getAppContext().getString(R.string.reply_error_message_timer_thread, timeLeft);
+                    String errorMessage = getString(R.string.reply_error_message_timer_thread, timeLeft);
                     switchPage(Page.INPUT);
 
                     callback.openMessage(true, false, errorMessage, true);
@@ -291,7 +279,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.loadViewsIntoDraft(draft);
 
         if (!isAuthenticateOnly && (draft.comment.trim().isEmpty() && draft.file == null)) {
-            callback.openMessage(true, false, getAppContext().getString(R.string.reply_comment_empty), true);
+            callback.openMessage(true, false, getString(R.string.reply_comment_empty), true);
             return false;
         }
 
@@ -299,8 +287,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
         draft.captchaResponse = null;
         if (ChanSettings.enableEmoji.get()) {
-            draft.comment = EmojiParser.parseFromUnicode(draft.comment, e -> ":" + e.getEmoji().getAliases().get(0) +
-                    (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "") + ": ");
+            draft.comment = EmojiParser.parseFromUnicode(draft.comment,
+                    e -> ":" + e.getEmoji().getAliases().get(0) + (e.hasFitzpatrick()
+                            ? "|" + e.getFitzpatrickType()
+                            : "") + ": "
+            );
         }
 
         return true;
@@ -311,18 +302,18 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         if (replyResponse.posted) {
             //if the thread being presented has changed in the time waiting for this call to complete, the loadable field in
             //ReplyPresenter will be incorrect; reconstruct the loadable (local to this method) from the reply response
-            Site localSite = Chan.injector().instance(SiteRepository.class).forId(replyResponse.siteId);
-            Board localBoard = Chan.injector().instance(BoardRepository.class).getFromCode(localSite, replyResponse.boardCode);
-            Loadable localLoadable = databaseManager.getDatabaseLoadableManager().get(
-                    Loadable.forThread(localSite, localBoard, //this loadable is for the reply response's site and board
-                            replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo, //if the replyresponse's threadno is 0, then it's a new thread so use the post number
-                            PostHelper.getTitle(null, //get a title for the time being, will be updated later when the watchmanager updates
-                                    Loadable.forThread(localSite, localBoard,
-                                            replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo, ""))));
+            Site localSite = instance(SiteRepository.class).forId(replyResponse.siteId);
+            Board localBoard = instance(BoardRepository.class).getFromCode(localSite, replyResponse.boardCode);
+            Loadable localLoadable =
+                    databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(localSite, localBoard,
+                            //this loadable is for the reply response's site and board
+                            replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo,
+                            //for the time being, will be updated later when the watchmanager updates
+                            "/" + localBoard.code + "/"
+                    ));
 
-            if (localLoadable.isThreadMode()) {
-                lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
-            } else if (localLoadable.isCatalogMode()) {
+            lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
+            if (localLoadable.isCatalogMode()) {
                 lastReplyRepository.putLastThread(localLoadable.site, localLoadable.board);
             }
 
@@ -341,10 +332,12 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 }
             }
 
-            SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(
-                    localLoadable.site, localLoadable.board, replyResponse.postNo, replyResponse.password);
-            databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager()
-                    .saveReply(savedReply));
+            SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(localLoadable.site,
+                    localLoadable.board,
+                    replyResponse.postNo,
+                    replyResponse.password
+            );
+            databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
 
             switchPage(Page.INPUT);
             closeAll();
@@ -356,7 +349,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             callback.loadDraftIntoViews(draft);
             callback.onPosted();
 
-            if (bound && loadable.isCatalogMode()) { //special case for new threads, check if we were on the catalog with the nonlocal loadable
+            //special case for new threads, check if we were on the catalog with the nonlocal loadable
+            if (bound && loadable.isCatalogMode()) {
                 callback.showThread(localLoadable);
             }
         } else if (replyResponse.requireAuthentication) {
@@ -364,8 +358,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         } else {
             String errorMessage = getString(R.string.reply_error);
             if (replyResponse.errorMessage != null) {
-                errorMessage = getAppContext().getString(
-                        R.string.reply_error_message, replyResponse.errorMessage);
+                errorMessage = getString(R.string.reply_error_message, replyResponse.errorMessage);
             }
 
             Logger.e(TAG, "onPostComplete error", errorMessage);
@@ -377,8 +370,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     @Override
     public void onUploadingProgress(int percent) {
         //called on a background thread!
-
-        AndroidUtils.runOnUiThread(() -> callback.onUploadingProgress(percent));
+        runOnUiThread(() -> callback.onUploadingProgress(percent));
     }
 
     @Override
@@ -391,7 +383,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         if (exception != null) {
             String message = exception.getMessage();
             if (message != null) {
-                errorMessage = getAppContext().getString(R.string.reply_error_message, message);
+                errorMessage = getString(R.string.reply_error_message, message);
             }
         }
 
@@ -400,19 +392,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     @Override
     public void onAuthenticationComplete(
-            AuthenticationLayoutInterface authenticationLayout,
-            String challenge,
-            String response,
-            boolean autoReply) {
+            AuthenticationLayoutInterface authenticationLayout, String challenge, String response, boolean autoReply
+    ) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
-
-        // we don't need this to be called for new captcha window.
-        // Otherwise "Request captcha request is already in progress" message will be shown
-        if (!(authenticationLayout instanceof CaptchaNoJsLayoutV2)) {
-            // should this be called here?
-            authenticationLayout.reset();
-        }
 
         if (autoReply) {
             makeSubmitCall();
@@ -448,18 +431,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         return true;
     }
 
-    public void commentQuoteClicked() {
-        commentInsert(">");
-    }
-
-    public void commentSpoilerClicked() {
-        commentInsert("[spoiler]", "[/spoiler]");
-    }
-
-    public void commentCodeClicked() {
-        commentInsert("[code]", "[/code]");
-    }
-
     public void quote(Post post, boolean withText) {
         handleQuote(post, withText ? post.comment.toString() : null);
     }
@@ -472,8 +443,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.loadViewsIntoDraft(draft);
 
         String extraNewline = "";
-        if (draft.selectionStart - 1 >= 0 && draft.selectionStart - 1 < draft.comment.length() &&
-                draft.comment.charAt(draft.selectionStart - 1) != '\n') {
+        if (draft.selectionStart - 1 >= 0 && draft.selectionStart - 1 < draft.comment.length()
+                && draft.comment.charAt(draft.selectionStart - 1) != '\n') {
             extraNewline = "\n";
         }
 
@@ -497,26 +468,14 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             }
         }
 
-        commentInsert(extraNewline + postQuote + textQuoteResult.toString());
-
-        highlightQuotes();
-    }
-
-    private void commentInsert(String insertBefore) {
-        commentInsert(insertBefore, "");
-    }
-
-    private void commentInsert(String insertBefore, String insertAfter) {
-        draft.comment = new StringBuilder(draft.comment)
-                .insert(draft.selectionStart, insertBefore)
-                .insert(draft.selectionEnd + insertBefore.length(), insertAfter)
-                .toString();
-        /* Since this method is only used for quote insertion and spoilers,
-        both of which should set the cursor to right after the selected text for more typing,
-        set the selection start to the new end */
-        draft.selectionEnd += insertBefore.length();
+        String insert = extraNewline + postQuote + textQuoteResult.toString();
+        draft.comment = new StringBuilder(draft.comment).insert(draft.selectionStart, insert).toString();
+        // Set the selection start to the new end
+        draft.selectionEnd += insert.length();
         draft.selectionStart = draft.selectionEnd;
         callback.loadDraftIntoViews(draft);
+
+        highlightQuotes();
     }
 
     @Override
@@ -531,7 +490,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public void onFilePickError(boolean canceled) {
         pickingFile = false;
         if (!canceled) {
-            callback.onFilePickError();
+            showToast(R.string.reply_file_open_failed, Toast.LENGTH_LONG);
         }
     }
 
@@ -542,9 +501,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.openMessage(false, true, "", false);
         callback.setExpanded(false);
         callback.openSubject(false);
-        callback.openCommentQuoteButton(false);
-        callback.openCommentSpoilerButton(false);
-        callback.openCommentCodeButton(false);
         callback.openNameOptions(false);
         callback.openFileName(false);
         callback.openSpoiler(false, false);
@@ -622,12 +578,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         int maxSize = probablyWebm ? board.maxWebmSize : board.maxFileSize;
         //if the max size is undefined for the board, ignore this message
         if (file.length() > maxSize && maxSize != -1) {
-            String fileSize = getReadableFileSize(file.length(), false);
-            String maxSizeString = getReadableFileSize(maxSize, false);
+            String fileSize = getReadableFileSize(file.length());
+            String maxSizeString = getReadableFileSize(maxSize);
 
-            int stringResId = probablyWebm
-                    ? R.string.reply_webm_too_big
-                    : R.string.reply_file_too_big;
+            int stringResId = probablyWebm ? R.string.reply_webm_too_big : R.string.reply_file_too_big;
 
             String text = getRes().getString(stringResId, fileSize, maxSizeString);
             callback.openPreviewMessage(true, text);
@@ -661,11 +615,13 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         void setPage(Page page);
 
-        void initializeAuthentication(Site site,
-                                      SiteAuthentication authentication,
-                                      AuthenticationLayoutCallback callback,
-                                      boolean useV2NoJsCaptcha,
-                                      boolean autoReply);
+        void initializeAuthentication(
+                Site site,
+                SiteAuthentication authentication,
+                AuthenticationLayoutCallback callback,
+                boolean useV2NoJsCaptcha,
+                boolean autoReply
+        );
 
         void resetAuthentication();
 
@@ -683,12 +639,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         void openSubject(boolean open);
 
-        void openCommentQuoteButton(boolean open);
-
-        void openCommentSpoilerButton(boolean open);
-
-        void openCommentCodeButton(boolean open);
-
         void openFileName(boolean open);
 
         void setFileName(String fileName);
@@ -700,8 +650,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         void openPreviewMessage(boolean show, String message);
 
         void openSpoiler(boolean show, boolean checked);
-
-        void onFilePickError();
 
         void highlightPostNo(int no);
 

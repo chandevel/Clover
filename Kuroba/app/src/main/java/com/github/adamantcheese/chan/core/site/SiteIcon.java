@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
@@ -28,8 +27,8 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.Chan.injector;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 public class SiteIcon {
     private static final String TAG = "SiteIcon";
@@ -57,11 +56,11 @@ public class SiteIcon {
         if (drawable != null) {
             result.onSiteIcon(SiteIcon.this, drawable);
         } else if (url != null) {
-            injector().instance(ImageLoaderV2.class).get(url.toString(), new ImageListener() {
+            instance(ImageLoaderV2.class).get(url.toString(), new ImageListener() {
                 @Override
                 public void onResponse(ImageContainer response, boolean isImmediate) {
                     if (response.getBitmap() != null) {
-                        Drawable drawable = new BitmapDrawable(getAppContext().getResources(), response.getBitmap());
+                        Drawable drawable = new BitmapDrawable(getRes(), response.getBitmap());
                         result.onSiteIcon(SiteIcon.this, drawable);
                     }
                 }

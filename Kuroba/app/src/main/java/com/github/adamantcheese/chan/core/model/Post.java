@@ -32,7 +32,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Contains all data needed to represent a single post.<br>
  * All {@code final} fields are thread-safe.
  */
-public class Post implements Comparable<Post> {
+public class Post
+        implements Comparable<Post> {
     public final String boardId;
 
     public final Board board;
@@ -40,8 +41,6 @@ public class Post implements Comparable<Post> {
     public final int no;
 
     public final boolean isOP;
-
-//    public final String date;
 
     public final String name;
 
@@ -169,7 +168,7 @@ public class Post implements Comparable<Post> {
         subjectSpan = builder.subjectSpan;
         nameTripcodeIdCapcodeSpan = builder.nameTripcodeIdCapcodeSpan;
 
-        linkables = Collections.unmodifiableList(builder.linkables);
+        linkables = Collections.unmodifiableList(new ArrayList<>(builder.linkables));
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
     }
 
@@ -270,9 +269,12 @@ public class Post implements Comparable<Post> {
 
     @Override
     public int hashCode() {
-        return 31 * no +
-                31 * board.code.hashCode() +
-                31 * board.siteId;
+        int commentTotal = 0;
+        for (char c : comment.toString().toCharArray()) {
+            commentTotal += c;
+        }
+        return 31 * no + 31 * board.code.hashCode() + 31 * board.siteId + 31 * (deleted.get() ? 1 : 0)
+                + 31 * commentTotal;
     }
 
     @Override
@@ -291,17 +293,19 @@ public class Post implements Comparable<Post> {
 
         Post otherPost = (Post) other;
 
+        //@formatter:off
         return this.no == otherPost.no
                 && this.board.code.equals(otherPost.board.code)
-                && this.board.siteId == otherPost.board.siteId;
+                && this.board.siteId == otherPost.board.siteId
+                && this.deleted.get() == otherPost.deleted.get()
+                && this.comment.toString().equals(otherPost.comment.toString());
+        //@formatter:on
     }
 
     @Override
     public String toString() {
-        return "[no = " + no +
-                ", boardCode = " + board.code +
-                ", siteId = " + board.siteId +
-                ", comment = " + comment + "]";
+        return "[no = " + no + ", boardCode = " + board.code + ", siteId = " + board.siteId + ", comment = " + comment
+                + "]";
     }
 
     public static final class Builder {
@@ -347,7 +351,7 @@ public class Post implements Comparable<Post> {
         public CharSequence subjectSpan;
         public CharSequence nameTripcodeIdCapcodeSpan;
 
-        private List<PostLinkable> linkables = new ArrayList<>();
+        private Set<PostLinkable> linkables = new HashSet<>();
         private Set<Integer> repliesToIds = new HashSet<>();
 
         public Builder() {
@@ -434,11 +438,13 @@ public class Post implements Comparable<Post> {
         }
 
         public Builder images(List<PostImage> images) {
-            if (this.images == null) {
-                this.images = new ArrayList<>(images.size());
-            }
+            synchronized (this) {
+                if (this.images == null) {
+                    this.images = new ArrayList<>(images.size());
+                }
 
-            this.images.addAll(images);
+                this.images.addAll(images);
+            }
 
             return this;
         }
@@ -478,7 +484,15 @@ public class Post implements Comparable<Post> {
             return this;
         }
 
-        public Builder filter(int highlightedColor, boolean stub, boolean remove, boolean watch, boolean filterReplies, boolean onlyOnOp, boolean filterSaved) {
+        public Builder filter(
+                int highlightedColor,
+                boolean stub,
+                boolean remove,
+                boolean watch,
+                boolean filterReplies,
+                boolean onlyOnOp,
+                boolean filterSaved
+        ) {
             filterHighlightedColor = highlightedColor;
             filterStub = stub;
             filterRemove = remove;
@@ -501,17 +515,27 @@ public class Post implements Comparable<Post> {
         }
 
         public Builder addLinkable(PostLinkable linkable) {
-            linkables.add(linkable);
-            return this;
+            synchronized (this) {
+                linkables.add(linkable);
+                return this;
+            }
         }
 
         public Builder linkables(List<PostLinkable> linkables) {
-            this.linkables = linkables;
-            return this;
+            synchronized (this) {
+                this.linkables = new HashSet<>(linkables);
+                return this;
+            }
         }
 
         public List<PostLinkable> getLinkables() {
-            return linkables == null ? new ArrayList<>() : linkables;
+            synchronized (this) {
+                List<PostLinkable> result = new ArrayList<>();
+                if (linkables != null) {
+                    result.addAll(linkables);
+                }
+                return result;
+            }
         }
 
         public Builder addReplyTo(int postId) {

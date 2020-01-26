@@ -55,7 +55,8 @@ import static com.github.adamantcheese.chan.Chan.inject;
  * This class is highly multithreaded, take good care to not access models that are to be only
  * changed on the main thread.
  */
-public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
+public class ChanReaderRequest
+        extends JsonReaderRequest<ChanLoaderResponse> {
     private static final String TAG = "ChanReaderRequest";
     private static final int THREAD_COUNT;
     private static final ExecutorService EXECUTOR;
@@ -132,7 +133,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
     }
 
     @Override
-    public ChanLoaderResponse readJson(JsonReader reader) throws Exception {
+    public ChanLoaderResponse readJson(JsonReader reader)
+            throws Exception {
         ChanReaderProcessingQueue processing = new ChanReaderProcessingQueue(cached, loadable);
 
         if (loadable.isThreadMode()) {
@@ -148,7 +150,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
     }
 
     // Concurrently parses the new posts with an executor
-    private List<Post> parsePosts(ChanReaderProcessingQueue queue) throws InterruptedException, ExecutionException {
+    private List<Post> parsePosts(ChanReaderProcessingQueue queue)
+            throws InterruptedException, ExecutionException {
         List<Post> cached = queue.getToReuse();
         List<Post> total = new ArrayList<>(cached);
 
@@ -175,7 +178,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                     databaseSavedReplyManager,
                     post,
                     reader,
-                    internalIds));
+                    internalIds
+            ));
         }
 
         if (!tasks.isEmpty()) {

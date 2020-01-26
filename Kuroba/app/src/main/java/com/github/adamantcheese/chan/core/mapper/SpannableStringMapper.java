@@ -31,11 +31,10 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.google.gson.Gson;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+
 public class SpannableStringMapper {
     private static final String TAG = "SpannableStringMapper";
-    private static final Gson gson = new Gson()
-            .newBuilder()
-            .create();
 
     @Nullable
     public static SerializableSpannableString serializeSpannableString(@Nullable CharSequence charSequence) {
@@ -55,32 +54,34 @@ public class SpannableStringMapper {
             if (span instanceof ForegroundColorSpanHashed) {
                 ForegroundColorSpanHashed fcsh = (ForegroundColorSpanHashed) span;
 
-                SerializableForegroundColorSpan serializableForegroundColorSpan
-                        = new SerializableForegroundColorSpan(fcsh.getForegroundColor());
+                SerializableForegroundColorSpan serializableForegroundColorSpan =
+                        new SerializableForegroundColorSpan(fcsh.getForegroundColor());
 
                 SerializableSpannableString.SpanInfo spanInfo = new SerializableSpannableString.SpanInfo(
                         SerializableSpannableString.SpanType.ForegroundColorSpanHashedType,
                         spanStart,
                         spanEnd,
-                        flags);
+                        flags
+                );
 
-                spanInfo.setSpanData(gson.toJson(serializableForegroundColorSpan));
+                spanInfo.setSpanData(instance(Gson.class).toJson(serializableForegroundColorSpan));
                 serializableSpannableString.addSpanInfo(spanInfo);
             }
 
             if (span instanceof BackgroundColorSpanHashed) {
                 BackgroundColorSpanHashed bcsh = (BackgroundColorSpanHashed) span;
 
-                SerializableBackgroundColorSpan serializableBackgroundColorSpan
-                        = new SerializableBackgroundColorSpan(bcsh.getBackgroundColor());
+                SerializableBackgroundColorSpan serializableBackgroundColorSpan =
+                        new SerializableBackgroundColorSpan(bcsh.getBackgroundColor());
 
                 SerializableSpannableString.SpanInfo spanInfo = new SerializableSpannableString.SpanInfo(
                         SerializableSpannableString.SpanType.BackgroundColorSpanHashedType,
                         spanStart,
                         spanEnd,
-                        flags);
+                        flags
+                );
 
-                spanInfo.setSpanData(gson.toJson(serializableBackgroundColorSpan));
+                spanInfo.setSpanData(instance(Gson.class).toJson(serializableBackgroundColorSpan));
                 serializableSpannableString.addSpanInfo(spanInfo);
             }
 
@@ -89,7 +90,8 @@ public class SpannableStringMapper {
                         SerializableSpannableString.SpanType.StrikethroughSpanType,
                         spanStart,
                         spanEnd,
-                        flags);
+                        flags
+                );
 
                 spanInfo.setSpanData(null);
                 serializableSpannableString.addSpanInfo(spanInfo);
@@ -98,32 +100,32 @@ public class SpannableStringMapper {
             if (span instanceof StyleSpan) {
                 StyleSpan ss = (StyleSpan) span;
 
-                SerializableStyleSpan serializableStyleSpan = new SerializableStyleSpan(
-                        ss.getStyle());
+                SerializableStyleSpan serializableStyleSpan = new SerializableStyleSpan(ss.getStyle());
 
                 SerializableSpannableString.SpanInfo spanInfo = new SerializableSpannableString.SpanInfo(
                         SerializableSpannableString.SpanType.StyleSpanType,
                         spanStart,
                         spanEnd,
-                        flags);
+                        flags
+                );
 
-                spanInfo.setSpanData(gson.toJson(serializableStyleSpan));
+                spanInfo.setSpanData(instance(Gson.class).toJson(serializableStyleSpan));
                 serializableSpannableString.addSpanInfo(spanInfo);
             }
 
             if (span instanceof TypefaceSpan) {
                 TypefaceSpan ts = (TypefaceSpan) span;
 
-                SerializableTypefaceSpan serializableTypefaceSpan = new SerializableTypefaceSpan(
-                        ts.getFamily());
+                SerializableTypefaceSpan serializableTypefaceSpan = new SerializableTypefaceSpan(ts.getFamily());
 
                 SerializableSpannableString.SpanInfo spanInfo = new SerializableSpannableString.SpanInfo(
                         SerializableSpannableString.SpanType.TypefaceSpanType,
                         spanStart,
                         spanEnd,
-                        flags);
+                        flags
+                );
 
-                spanInfo.setSpanData(gson.toJson(serializableTypefaceSpan));
+                spanInfo.setSpanData(instance(Gson.class).toJson(serializableTypefaceSpan));
                 serializableSpannableString.addSpanInfo(spanInfo);
             }
 
@@ -137,9 +139,10 @@ public class SpannableStringMapper {
                         SerializableSpannableString.SpanType.AbsoluteSizeSpanHashed,
                         spanStart,
                         spanEnd,
-                        flags);
+                        flags
+                );
 
-                spanInfo.setSpanData(gson.toJson(serializableAbsoluteSizeSpan));
+                spanInfo.setSpanData(instance(Gson.class).toJson(serializableAbsoluteSizeSpan));
                 serializableSpannableString.addSpanInfo(spanInfo);
             }
 
@@ -158,86 +161,90 @@ public class SpannableStringMapper {
             PostLinkable postLinkable,
             int spanStart,
             int spanEnd,
-            int flags) {
+            int flags
+    ) {
         SerializableSpannableString.SpanInfo spanInfo = new SerializableSpannableString.SpanInfo(
                 SerializableSpannableString.SpanType.PostLinkable,
                 spanStart,
                 spanEnd,
-                flags);
-        SerializablePostLinkableSpan serializablePostLinkableSpan = new SerializablePostLinkableSpan(
-                postLinkable.key.toString());
+                flags
+        );
+        SerializablePostLinkableSpan serializablePostLinkableSpan =
+                new SerializablePostLinkableSpan(postLinkable.key.toString());
         String postLinkableValueJson;
 
         switch (postLinkable.type) {
             case QUOTE:
-                postLinkableValueJson = gson.toJson(new PostLinkableQuoteValue(
+                postLinkableValueJson = instance(Gson.class).toJson(new PostLinkableQuoteValue(
                         SerializablePostLinkableSpan.PostLinkableType.Quote,
-                        (int) postLinkable.value));
-                serializablePostLinkableSpan.setPostLinkableType(
-                        SerializablePostLinkableSpan.PostLinkableType.Quote.getTypeValue());
+                        (int) postLinkable.value
+                ));
+                serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Quote.getTypeValue());
                 break;
             case LINK:
-                postLinkableValueJson = gson.toJson(new PostLinkableLinkValue(
+                postLinkableValueJson = instance(Gson.class).toJson(new PostLinkableLinkValue(
                         SerializablePostLinkableSpan.PostLinkableType.Link,
-                        (String) postLinkable.value));
-                serializablePostLinkableSpan.setPostLinkableType(
-                        SerializablePostLinkableSpan.PostLinkableType.Link.getTypeValue());
+                        (String) postLinkable.value
+                ));
+                serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Link.getTypeValue());
                 break;
             case SPOILER:
-                postLinkableValueJson = gson.toJson(new PostLinkableSpoilerValue(
-                        SerializablePostLinkableSpan.PostLinkableType.Spoiler));
-                serializablePostLinkableSpan.setPostLinkableType(
-                        SerializablePostLinkableSpan.PostLinkableType.Spoiler.getTypeValue());
+                postLinkableValueJson =
+                        instance(Gson.class).toJson(new PostLinkableSpoilerValue(SerializablePostLinkableSpan.PostLinkableType.Spoiler));
+                serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Spoiler.getTypeValue());
                 break;
             case THREAD:
                 if (!(postLinkable.value instanceof CommentParser.ThreadLink)) {
-                    throw new RuntimeException("PostLinkable value is not of ThreadLink type, key = "
-                            + postLinkable.key + ", type = " + postLinkable.type.name());
+                    throw new RuntimeException(
+                            "PostLinkable value is not of ThreadLink type, key = " + postLinkable.key + ", type = "
+                                    + postLinkable.type.name());
                 }
 
                 CommentParser.ThreadLink threadLink = (CommentParser.ThreadLink) postLinkable.value;
-                postLinkableValueJson = gson.toJson(new PostLinkThreadLinkValue(
+                postLinkableValueJson = instance(Gson.class).toJson(new PostLinkThreadLinkValue(
                         SerializablePostLinkableSpan.PostLinkableType.Thread,
                         threadLink.board,
                         threadLink.threadId,
-                        threadLink.postId));
-                serializablePostLinkableSpan.setPostLinkableType(
-                        SerializablePostLinkableSpan.PostLinkableType.Thread.getTypeValue());
+                        threadLink.postId
+                ));
+                serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Thread.getTypeValue());
                 break;
             case BOARD:
-                postLinkableValueJson = gson.toJson(new PostLinkableBoardLinkValue(
+                postLinkableValueJson = instance(Gson.class).toJson(new PostLinkableBoardLinkValue(
                         SerializablePostLinkableSpan.PostLinkableType.Board,
-                        (String) postLinkable.value));
-                serializablePostLinkableSpan.setPostLinkableType(
-                        SerializablePostLinkableSpan.PostLinkableType.Board.getTypeValue());
+                        (String) postLinkable.value
+                ));
+                serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Board.getTypeValue());
                 break;
             case SEARCH:
                 if (!(postLinkable.value instanceof CommentParser.SearchLink)) {
-                    throw new RuntimeException("PostLinkable value is not of SearchLink type, key = "
-                            + postLinkable.key + ", type = " + postLinkable.type.name());
+                    throw new RuntimeException(
+                            "PostLinkable value is not of SearchLink type, key = " + postLinkable.key + ", type = "
+                                    + postLinkable.type.name());
                 }
 
                 CommentParser.SearchLink searchLink = (CommentParser.SearchLink) postLinkable.value;
-                postLinkableValueJson = gson.toJson(new PostLinkableSearchLinkValue(
+                postLinkableValueJson = instance(Gson.class).toJson(new PostLinkableSearchLinkValue(
                         SerializablePostLinkableSpan.PostLinkableType.Search,
                         searchLink.board,
-                        searchLink.search));
-                serializablePostLinkableSpan.setPostLinkableType(
-                        SerializablePostLinkableSpan.PostLinkableType.Search.getTypeValue());
+                        searchLink.search
+                ));
+                serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Search.getTypeValue());
                 break;
             default:
                 throw new IllegalArgumentException("Not implemented for type " + postLinkable.type.name());
         }
 
         serializablePostLinkableSpan.setPostLinkableValueJson(postLinkableValueJson);
-        spanInfo.setSpanData(gson.toJson(serializablePostLinkableSpan));
+        spanInfo.setSpanData(instance(Gson.class).toJson(serializablePostLinkableSpan));
 
         serializableSpannableString.addSpanInfo(spanInfo);
     }
 
     @NonNull
     public static CharSequence deserializeSpannableString(
-            @Nullable SerializableSpannableString serializableSpannableString) {
+            @Nullable SerializableSpannableString serializableSpannableString
+    ) {
         if (serializableSpannableString == null || serializableSpannableString.getText().isEmpty()) {
             return "";
         }
@@ -247,66 +254,67 @@ public class SpannableStringMapper {
         for (SerializableSpannableString.SpanInfo spanInfo : serializableSpannableString.getSpanInfoList()) {
             switch (SerializableSpannableString.SpanType.from(spanInfo.getSpanType())) {
                 case ForegroundColorSpanHashedType:
-                    SerializableForegroundColorSpan serializableForegroundColorSpan = gson.fromJson(
+                    SerializableForegroundColorSpan serializableForegroundColorSpan = instance(Gson.class).fromJson(
                             spanInfo.getSpanData(),
-                            SerializableForegroundColorSpan.class);
+                            SerializableForegroundColorSpan.class
+                    );
 
                     spannableString.setSpan(
                             new ForegroundColorSpanHashed(serializableForegroundColorSpan.getForegroundColor()),
                             spanInfo.getSpanStart(),
                             spanInfo.getSpanEnd(),
-                            spanInfo.getFlags());
+                            spanInfo.getFlags()
+                    );
                     break;
                 case BackgroundColorSpanHashedType:
-                    SerializableBackgroundColorSpan serializableBackgroundColorSpan = gson.fromJson(
+                    SerializableBackgroundColorSpan serializableBackgroundColorSpan = instance(Gson.class).fromJson(
                             spanInfo.getSpanData(),
-                            SerializableBackgroundColorSpan.class);
+                            SerializableBackgroundColorSpan.class
+                    );
 
                     spannableString.setSpan(
                             new BackgroundColorSpanHashed(serializableBackgroundColorSpan.getBackgroundColor()),
                             spanInfo.getSpanStart(),
                             spanInfo.getSpanEnd(),
-                            spanInfo.getFlags());
+                            spanInfo.getFlags()
+                    );
                     break;
                 case StrikethroughSpanType:
-                    spannableString.setSpan(
-                            new StrikethroughSpan(),
+                    spannableString.setSpan(new StrikethroughSpan(),
                             spanInfo.getSpanStart(),
                             spanInfo.getSpanEnd(),
-                            spanInfo.getFlags());
+                            spanInfo.getFlags()
+                    );
                     break;
                 case StyleSpanType:
-                    SerializableStyleSpan serializableStyleSpan = gson.fromJson(
-                            spanInfo.getSpanData(),
-                            SerializableStyleSpan.class);
+                    SerializableStyleSpan serializableStyleSpan =
+                            instance(Gson.class).fromJson(spanInfo.getSpanData(), SerializableStyleSpan.class);
 
-                    spannableString.setSpan(
-                            new StyleSpan(serializableStyleSpan.getStyle()),
+                    spannableString.setSpan(new StyleSpan(serializableStyleSpan.getStyle()),
                             spanInfo.getSpanStart(),
                             spanInfo.getSpanEnd(),
-                            spanInfo.getFlags());
+                            spanInfo.getFlags()
+                    );
                     break;
                 case TypefaceSpanType:
-                    SerializableTypefaceSpan serializableTypefaceSpan = gson.fromJson(
-                            spanInfo.getSpanData(),
-                            SerializableTypefaceSpan.class);
+                    SerializableTypefaceSpan serializableTypefaceSpan =
+                            instance(Gson.class).fromJson(spanInfo.getSpanData(), SerializableTypefaceSpan.class);
 
-                    spannableString.setSpan(
-                            new TypefaceSpan(serializableTypefaceSpan.getFamily()),
+                    spannableString.setSpan(new TypefaceSpan(serializableTypefaceSpan.getFamily()),
                             spanInfo.getSpanStart(),
                             spanInfo.getSpanEnd(),
-                            spanInfo.getFlags());
+                            spanInfo.getFlags()
+                    );
                     break;
                 case AbsoluteSizeSpanHashed:
-                    SerializableAbsoluteSizeSpan serializableAbsoluteSizeSpan = gson.fromJson(
-                            spanInfo.getSpanData(),
-                            SerializableAbsoluteSizeSpan.class);
+                    SerializableAbsoluteSizeSpan serializableAbsoluteSizeSpan =
+                            instance(Gson.class).fromJson(spanInfo.getSpanData(), SerializableAbsoluteSizeSpan.class);
 
-                    spannableString.setSpan(
-                            new AbsoluteSizeSpanHashed(serializableAbsoluteSizeSpan.getSize()),
+                    spannableString.setSpan(new AbsoluteSizeSpanHashed(serializableAbsoluteSizeSpan.getSize()),
                             spanInfo.getSpanStart(),
                             spanInfo.getSpanEnd(),
-                            spanInfo.getFlags());
+                            spanInfo.getFlags()
+                    );
                     break;
                 case PostLinkable:
                     deserializeAndApplyPostLinkableSpan(spannableString, spanInfo);
@@ -318,92 +326,88 @@ public class SpannableStringMapper {
     }
 
     private static void deserializeAndApplyPostLinkableSpan(
-            SpannableString spannableString,
-            SerializableSpannableString.SpanInfo spanInfo) {
+            SpannableString spannableString, SerializableSpannableString.SpanInfo spanInfo
+    ) {
 
-        SerializablePostLinkableSpan serializablePostLinkableSpan = gson.fromJson(
-                spanInfo.getSpanData(),
-                SerializablePostLinkableSpan.class);
+        SerializablePostLinkableSpan serializablePostLinkableSpan =
+                instance(Gson.class).fromJson(spanInfo.getSpanData(), SerializablePostLinkableSpan.class);
 
         Theme currentTheme = ThemeHelper.getTheme();
         PostLinkable postLinkable;
 
         switch (serializablePostLinkableSpan.getPostLinkableType()) {
             case Quote:
-                PostLinkableQuoteValue postLinkableQuoteValue = gson.fromJson(
+                PostLinkableQuoteValue postLinkableQuoteValue = instance(Gson.class).fromJson(
                         serializablePostLinkableSpan.getPostLinkableValueJson(),
-                        PostLinkableQuoteValue.class);
-                postLinkable = new PostLinkable(
-                        currentTheme,
+                        PostLinkableQuoteValue.class
+                );
+                postLinkable = new PostLinkable(currentTheme,
                         serializablePostLinkableSpan.getKey(),
                         postLinkableQuoteValue.getPostId(),
-                        PostLinkable.Type.QUOTE);
+                        PostLinkable.Type.QUOTE
+                );
                 break;
             case Link:
-                PostLinkableLinkValue postLinkableLinkValue = gson.fromJson(
-                        serializablePostLinkableSpan.getPostLinkableValueJson(),
-                        PostLinkableLinkValue.class);
-                postLinkable = new PostLinkable(
-                        currentTheme,
+                PostLinkableLinkValue postLinkableLinkValue =
+                        instance(Gson.class).fromJson(serializablePostLinkableSpan.getPostLinkableValueJson(),
+                                PostLinkableLinkValue.class
+                        );
+                postLinkable = new PostLinkable(currentTheme,
                         serializablePostLinkableSpan.getKey(),
                         postLinkableLinkValue.getLink(),
-                        PostLinkable.Type.LINK);
+                        PostLinkable.Type.LINK
+                );
                 break;
             case Spoiler:
-                postLinkable = new PostLinkable(
-                        currentTheme,
+                postLinkable = new PostLinkable(currentTheme,
                         serializablePostLinkableSpan.getKey(),
                         currentTheme.spoilerColor,
-                        PostLinkable.Type.SPOILER);
+                        PostLinkable.Type.SPOILER
+                );
                 break;
             case Thread:
-                PostLinkThreadLinkValue postLinkThreadLinkValue = gson.fromJson(
+                PostLinkThreadLinkValue postLinkThreadLinkValue = instance(Gson.class).fromJson(
                         serializablePostLinkableSpan.getPostLinkableValueJson(),
-                        PostLinkThreadLinkValue.class);
-                postLinkable = new PostLinkable(
-                        currentTheme,
+                        PostLinkThreadLinkValue.class
+                );
+                postLinkable = new PostLinkable(currentTheme,
                         serializablePostLinkableSpan.getKey(),
-                        new CommentParser.ThreadLink(
-                                postLinkThreadLinkValue.getBoard(),
+                        new CommentParser.ThreadLink(postLinkThreadLinkValue.getBoard(),
                                 postLinkThreadLinkValue.getThreadId(),
                                 postLinkThreadLinkValue.getPostId()
                         ),
-                        PostLinkable.Type.THREAD);
+                        PostLinkable.Type.THREAD
+                );
                 break;
             case Board:
-                PostLinkableBoardLinkValue postLinkableBoardLinkValue = gson.fromJson(
+                PostLinkableBoardLinkValue postLinkableBoardLinkValue = instance(Gson.class).fromJson(
                         serializablePostLinkableSpan.getPostLinkableValueJson(),
-                        PostLinkableBoardLinkValue.class);
-                postLinkable = new PostLinkable(
-                        currentTheme,
+                        PostLinkableBoardLinkValue.class
+                );
+                postLinkable = new PostLinkable(currentTheme,
                         serializablePostLinkableSpan.getKey(),
                         postLinkableBoardLinkValue.getBoardLink(),
-                        PostLinkable.Type.BOARD);
+                        PostLinkable.Type.BOARD
+                );
                 break;
             case Search:
-                PostLinkableSearchLinkValue postLinkableSearchLinkValue = gson.fromJson(
+                PostLinkableSearchLinkValue postLinkableSearchLinkValue = instance(Gson.class).fromJson(
                         serializablePostLinkableSpan.getPostLinkableValueJson(),
-                        PostLinkableSearchLinkValue.class);
-                postLinkable = new PostLinkable(
-                        currentTheme,
+                        PostLinkableSearchLinkValue.class
+                );
+                postLinkable = new PostLinkable(currentTheme,
                         serializablePostLinkableSpan.getKey(),
-                        new CommentParser.SearchLink(
-                                postLinkableSearchLinkValue.getBoard(),
+                        new CommentParser.SearchLink(postLinkableSearchLinkValue.getBoard(),
                                 postLinkableSearchLinkValue.getSearch()
                         ),
-                        PostLinkable.Type.SEARCH);
+                        PostLinkable.Type.SEARCH
+                );
                 break;
             default:
                 throw new IllegalArgumentException(
-                        "Not implemented for type " +
-                                serializablePostLinkableSpan.getPostLinkableType().name());
+                        "Not implemented for type " + serializablePostLinkableSpan.getPostLinkableType().name());
         }
 
-        spannableString.setSpan(
-                postLinkable,
-                spanInfo.getSpanStart(),
-                spanInfo.getSpanEnd(),
-                spanInfo.getFlags());
+        spannableString.setSpan(postLinkable, spanInfo.getSpanStart(), spanInfo.getSpanEnd(), spanInfo.getFlags());
     }
-
 }

@@ -1,9 +1,10 @@
 package com.github.adamantcheese.chan.core.model.save.spans.linkable;
 
-import com.github.adamantcheese.chan.core.model.save.spans.SerializablePostLinkableSpan;
+import com.github.adamantcheese.chan.core.model.save.spans.SerializablePostLinkableSpan.PostLinkableType;
 import com.google.gson.annotations.SerializedName;
 
-public class PostLinkThreadLinkValue extends PostLinkableValue {
+public class PostLinkThreadLinkValue
+        extends PostLinkableValue {
     @SerializedName("board")
     private String board;
     @SerializedName("thread_id")
@@ -11,11 +12,7 @@ public class PostLinkThreadLinkValue extends PostLinkableValue {
     @SerializedName("post_id")
     private int postId;
 
-    public PostLinkThreadLinkValue(
-            SerializablePostLinkableSpan.PostLinkableType type,
-            String board,
-            int threadId,
-            int postId) {
+    public PostLinkThreadLinkValue(PostLinkableType type, String board, int threadId, int postId) {
         super(type);
 
         this.board = board;

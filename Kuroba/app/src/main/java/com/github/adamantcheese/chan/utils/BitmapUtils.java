@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -23,6 +24,11 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Random;
 
+import static android.graphics.Bitmap.CompressFormat.JPEG;
+import static android.graphics.Bitmap.CompressFormat.PNG;
+import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_IS;
+import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_JPEG;
+import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_PNG;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class BitmapUtils {
@@ -47,10 +53,11 @@ public class BitmapUtils {
             boolean removeMetadata,
             boolean changeImageChecksum,
             @Nullable ImageReencodingPresenter.ReencodeSettings reencodeSettings
-    ) throws IOException {
+    )
+            throws IOException {
         int quality = MAX_QUALITY;
         int reduce = MIN_REDUCE;
-        ImageReencodingPresenter.ReencodeType reencodeType = ImageReencodingPresenter.ReencodeType.AS_IS;
+        ImageReencodingPresenter.ReencodeType reencodeType = AS_IS;
 
         if (reencodeSettings != null) {
             quality = reencodeSettings.getReencodeQuality();
@@ -75,22 +82,18 @@ public class BitmapUtils {
         }
 
         //all parameters are default - do nothing
-        if (quality == MAX_QUALITY
-                && reduce == MIN_REDUCE
-                && reencodeType == ImageReencodingPresenter.ReencodeType.AS_IS
-                && !fixExif
-                && !removeMetadata
+        if (quality == MAX_QUALITY && reduce == MIN_REDUCE && reencodeType == AS_IS && !fixExif && !removeMetadata
                 && !changeImageChecksum) {
             return inputBitmapFile;
         }
 
         Bitmap bitmap = null;
-        Bitmap.CompressFormat compressFormat = getImageFormat(inputBitmapFile);
+        CompressFormat compressFormat = getImageFormat(inputBitmapFile);
 
-        if (reencodeType == ImageReencodingPresenter.ReencodeType.AS_JPEG) {
-            compressFormat = Bitmap.CompressFormat.JPEG;
-        } else if (reencodeType == ImageReencodingPresenter.ReencodeType.AS_PNG) {
-            compressFormat = Bitmap.CompressFormat.PNG;
+        if (reencodeType == AS_JPEG) {
+            compressFormat = JPEG;
+        } else if (reencodeType == AS_PNG) {
+            compressFormat = PNG;
         }
 
         try {
@@ -112,9 +115,10 @@ public class BitmapUtils {
             }
 
             //fix exif
-            if (compressFormat == Bitmap.CompressFormat.JPEG && fixExif) {
+            if (compressFormat == JPEG && fixExif) {
                 ExifInterface exif = new ExifInterface(inputBitmapFile.getAbsolutePath());
-                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+                int orientation =
+                        exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
                 switch (orientation) {
                     case ExifInterface.ORIENTATION_ROTATE_270:
                         matrix.postRotate(270);
@@ -131,15 +135,7 @@ public class BitmapUtils {
                 }
             }
 
-            Bitmap newBitmap = Bitmap.createBitmap(
-                    bitmap,
-                    0,
-                    0,
-                    bitmap.getWidth(),
-                    bitmap.getHeight(),
-                    matrix,
-                    true
-            );
+            Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
             File tempFile = null;
 
@@ -171,7 +167,8 @@ public class BitmapUtils {
         }
     }
 
-    private static File getTempFilename() throws IOException {
+    private static File getTempFilename()
+            throws IOException {
         File outputDir = getAppContext().getCacheDir();
         deleteOldTempFiles(outputDir.listFiles());
 
@@ -213,21 +210,20 @@ public class BitmapUtils {
 
     public static boolean isFileSupportedForReencoding(File file) {
         try {
-            Bitmap.CompressFormat imageFormat = getImageFormat(file);
-            return imageFormat == Bitmap.CompressFormat.JPEG
-                    || imageFormat == Bitmap.CompressFormat.PNG;
+            CompressFormat imageFormat = getImageFormat(file);
+            return imageFormat == JPEG || imageFormat == PNG;
         } catch (IOException e) {
             // ignore
             return false;
         }
     }
 
-    public static Bitmap.CompressFormat getImageFormat(File file) throws IOException {
+    public static CompressFormat getImageFormat(File file)
+            throws IOException {
         if (!file.exists() || !file.isFile() || !file.canRead()) {
-            throw new IOException("File " + file.getAbsolutePath() + " is inaccessible " +
-                    "(exists = " + file.exists() +
-                    ", isFile = " + file.isFile() +
-                    ", canRead = " + file.canRead() + ")");
+            throw new IOException(
+                    "File " + file.getAbsolutePath() + " is inaccessible (exists = " + file.exists() + ", isFile = "
+                            + file.isFile() + ", canRead = " + file.canRead() + ")");
         }
 
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
@@ -246,7 +242,7 @@ public class BitmapUtils {
                 }
 
                 if (isPngHeader) {
-                    return Bitmap.CompressFormat.PNG;
+                    return PNG;
                 }
             }
 
@@ -262,7 +258,7 @@ public class BitmapUtils {
                 }
 
                 if (isJpegHeader) {
-                    return Bitmap.CompressFormat.JPEG;
+                    return JPEG;
                 }
             }
 
@@ -275,9 +271,11 @@ public class BitmapUtils {
      *
      * @param file image
      * @return a pair of dimensions, in WIDTH then HEIGHT order
+     *
      * @throws IOException if anything went wrong
      */
-    public static Pair<Integer, Integer> getImageDims(File file) throws IOException {
+    public static Pair<Integer, Integer> getImageDims(File file)
+            throws IOException {
         if (file == null) throw new IOException();
         Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
         return new Pair<>(bitmap.getWidth(), bitmap.getHeight());
@@ -285,19 +283,14 @@ public class BitmapUtils {
 
     @Nullable
     public static Bitmap getBitmapFromVectorDrawable(
-            Context context,
-            int width,
-            int height,
-            @DrawableRes int drawableId) {
+            Context context, int width, int height, @DrawableRes int drawableId
+    ) {
         Drawable originalDrawable = ContextCompat.getDrawable(context, drawableId);
         if (originalDrawable == null) {
             return null;
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(
-                width,
-                height,
-                Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
         Canvas canvas = new Canvas(bitmap);
         originalDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.controller;
+package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -25,7 +25,6 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -35,7 +34,6 @@ import android.widget.TextView;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.viewpager.widget.ViewPager;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -62,13 +60,20 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-public class ThemeSettingsController extends Controller implements View.OnClickListener {
+public class ThemeSettingsController
+        extends Controller
+        implements View.OnClickListener {
     private Board dummyBoard;
 
     {
@@ -159,9 +164,9 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
         navigation.setTitle(R.string.settings_screen_theme);
         navigation.swipeable = false;
-        view = inflateRes(R.layout.controller_theme);
+        view = inflate(context, R.layout.controller_theme);
 
-        themes = Chan.injector().instance(ThemeHelper.class).getThemes();
+        themes = instance(ThemeHelper.class).getThemes();
 
         pager = view.findViewById(R.id.pager);
         done = view.findViewById(R.id.add);
@@ -209,15 +214,16 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         int currentItem = pager.getCurrentItem();
         Theme selectedTheme = themes.get(currentItem);
         ThemeHelper.PrimaryColor selectedColor = selectedPrimaryColors.get(currentItem);
-        Chan.injector().instance(ThemeHelper.class).changeTheme(selectedTheme, selectedColor, selectedAccentColor);
+        instance(ThemeHelper.class).changeTheme(selectedTheme, selectedColor, selectedAccentColor);
         ((StartActivity) context).restartApp();
     }
 
     private void showAccentColorPicker() {
         List<FloatingMenuItem> items = new ArrayList<>();
         FloatingMenuItem selected = null;
-        for (ThemeHelper.PrimaryColor color : Chan.injector().instance(ThemeHelper.class).getColors()) {
-            FloatingMenuItem floatingMenuItem = new FloatingMenuItem(new ColorsAdapterItem(color, color.color), color.displayName);
+        for (ThemeHelper.PrimaryColor color : instance(ThemeHelper.class).getColors()) {
+            FloatingMenuItem floatingMenuItem =
+                    new FloatingMenuItem(new ColorsAdapterItem(color, color.color), color.displayName);
             items.add(floatingMenuItem);
             if (color == selectedAccentColor) {
                 selected = floatingMenuItem;
@@ -252,7 +258,8 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         return menu;
     }
 
-    private class Adapter extends ViewPagerAdapter {
+    private class Adapter
+            extends ViewPagerAdapter {
         public Adapter() {
         }
 
@@ -267,21 +274,16 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
             Context themeContext = new ContextThemeWrapper(context, theme.resValue);
 
-            Post.Builder builder = new Post.Builder()
-                    .board(dummyBoard)
+            Post.Builder builder = new Post.Builder().board(dummyBoard)
                     .id(123456789)
                     .opId(1)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .subject("Lorem ipsum")
-                    .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>" +
-                            "<br>" +
-                            "<span class=\"deadlink\">&gt;&gt;987654321</span><br>" +
-                            "http://example.com/" +
-                            "<br>" +
-                            "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim." +
-                            "<br>" +
-                            "<span class=\"quote\">&gt;Nam non hendrerit justo, venenatis bibendum arcu.</span>");
+                    .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>"
+                            + "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br><br>"
+                            + "<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
+                            + "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.<br>"
+                            + "<span class=\"quote\">&gt;Nam non hendrerit justo, venenatis bibendum arcu.</span>");
             CommentParser parser = new CommentParser();
             parser.addDefaultRules();
             Post post = new DefaultPostParser(parser).parse(theme, builder, parserCallback);
@@ -294,8 +296,9 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             final View.OnClickListener colorClick = v -> {
                 List<FloatingMenuItem> items = new ArrayList<>();
                 FloatingMenuItem selected = null;
-                for (ThemeHelper.PrimaryColor color : Chan.injector().instance(ThemeHelper.class).getColors()) {
-                    FloatingMenuItem floatingMenuItem = new FloatingMenuItem(new ColorsAdapterItem(color, color.color500), color.displayName);
+                for (ThemeHelper.PrimaryColor color : instance(ThemeHelper.class).getColors()) {
+                    FloatingMenuItem floatingMenuItem =
+                            new FloatingMenuItem(new ColorsAdapterItem(color, color.color500), color.displayName);
                     items.add(floatingMenuItem);
                     if (color == selectedPrimaryColors.get(position)) {
                         selected = floatingMenuItem;
@@ -338,10 +341,11 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             toolbar.setNavigationItem(false, true, item, theme);
             toolbar.setOnClickListener(colorClick);
 
-            linearLayout.addView(toolbar, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    themeContext.getResources().getDimensionPixelSize(R.dimen.toolbar_height)));
+            linearLayout.addView(toolbar,
+                    new LinearLayout.LayoutParams(MATCH_PARENT, getDimen(R.dimen.toolbar_height))
+            );
 
-            PostCell postCell = (PostCell) LayoutInflater.from(themeContext).inflate(R.layout.cell_post, null);
+            PostCell postCell = (PostCell) inflate(context, R.layout.cell_post, null);
             postCell.setPost(dummyLoadable,
                     post,
                     dummyPostCallback,
@@ -352,8 +356,9 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     true,
                     ChanSettings.PostViewMode.LIST,
                     false,
-                    theme);
-            linearLayout.addView(postCell, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                    theme
+            );
+            linearLayout.addView(postCell, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
             return linearLayout;
         }
@@ -364,7 +369,8 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         }
     }
 
-    private class ColorsAdapter extends BaseAdapter {
+    private class ColorsAdapter
+            extends BaseAdapter {
         private List<FloatingMenuItem> items;
 
         public ColorsAdapter(List<FloatingMenuItem> items) {
@@ -374,14 +380,16 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             @SuppressLint("ViewHolder")
-            TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.toolbar_menu_item, parent, false);
+            TextView textView = (TextView) inflate(parent.getContext(), R.layout.toolbar_menu_item, parent, false);
             textView.setText(getItem(position));
             textView.setTypeface(ThemeHelper.getTheme().mainFont);
 
             ColorsAdapterItem color = (ColorsAdapterItem) items.get(position).getId();
 
             textView.setBackgroundColor(color.bg);
-            boolean lightColor = (Color.red(color.bg) * 0.299f) + (Color.green(color.bg) * 0.587f) + (Color.blue(color.bg) * 0.114f) > 125f;
+            boolean lightColor =
+                    (Color.red(color.bg) * 0.299f) + (Color.green(color.bg) * 0.587f) + (Color.blue(color.bg) * 0.114f)
+                            > 125f;
             textView.setTextColor(lightColor ? Color.BLACK : Color.WHITE);
 
             return textView;

@@ -92,6 +92,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="undo">Undo</string>
     <string name="save">Mark as my post</string>
     <string name="unsave">Unmark as my post</string>
+    <string name="done">Done</string>
 
     <string name="continue_text">Continue</string>
     <string name="create">Create</string>
@@ -306,6 +307,7 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="post_report">Report</string>
     <string name="post_hide">Hide</string>
     <string name="post_remove">Remove</string>
+    <string name="post_web_search">Web search</string>
 
     <string name="thread_hidden">Thread hidden</string>
     <string name="thread_removed">Thread removed</string>
@@ -331,8 +333,10 @@ Note that for country code filtering, troll country codes should be prepended wi
 
     <string name="reply_captcha_text">Type the text</string>
     <string name="reply_comment_button_quote" translatable="false">&gt;</string>
-    <string name="reply_comment_button_spoiler">[s]</string>
-    <string name="reply_comment_button_code">[c]</string>
+    <string name="reply_comment_button_spoiler">Spoiler</string>
+    <string name="reply_comment_button_code">Code</string>
+    <string name="reply_comment_button_eqn">Eqn</string>
+    <string name="reply_comment_button_math">Math</string>
     <string name="delete_confirm">Delete your post?</string>
 
     <string name="delete_wait">Deleting post…</string>
@@ -352,7 +356,7 @@ Note that for country code filtering, troll country codes should be prepended wi
 
     <string name="album_download_screen">Select images (%1$d / %2$d)</string>
     <string name="album_download_none_checked">Please select images to download</string>
-    <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
+    <string name="album_download_confirm">%1$s will be downloaded to %2$s</string>
     <string name="album_download_success">Finished saving images; downloaded to %1$s</string>
 
     <string name="report_screen">Report %1$s</string>
@@ -392,8 +396,6 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
     <string name="setting_watch_enable_background">Enable in background</string>
     <string name="setting_watch_enable_background_description">Watch bookmarks when app is in the background</string>
-    <string name="setting_watch_enable_filter_watch">Enable filter watching</string>
-    <string name="setting_watch_enable_filter_watch_description">Watch posts that match filters marked as watch post</string>
     <string name="setting_watch_background_timeout">Background update interval</string>
     <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
     <string name="setting_thread_page_limit_notify">Last page notifications</string>
@@ -487,7 +489,7 @@ Note that for country code filtering, troll country codes should be prepended wi
     <!-- Behavior proxy group -->
     <string name="setting_proxy_port">Proxy server port</string>
     <string name="settings_screen_media">Media</string>
-    <string name="settings_group_media">Media</string>
+    <string name="settings_group_saving">Media saving</string>
     <string name="setting_save_board_folder">Save images in board folders</string>
 
 
@@ -679,7 +681,7 @@ Don't have a 4chan Pass?<br>
     <string name="settings_experimental_settings_description">These settings may be in an unstable state. They are for testing. They may break the app and you may have to reset the app data. Use them at your own risk if you are really interested in some feature. Backup everything beforehand.</string>
     <string name="incremental_thread_downloading_title">Incremental thread downloading</string>
     <string name="incremental_thread_downloading_description">Allows you to download threads to view them after the original thread dies</string>
-    <string name="cannot_open_thread_in_browser_already_deleted">Can\'t open this thread in your browser, it\'s probably already been deleted</string>
+    <string name="cannot_open_in_browser_already_deleted">Can\'t open this thread in your browser, it\'s probably already been deleted</string>
     <string name="cannot_send_thread_via_nfc_already_deleted">Can\'t send thread via NFC, it\'s already been deleted</string>
     <string name="cannot_shared_thread_already_deleted">Can\'t share this thread, it\'s already been deleted</string>
     <string name="view_local_version">View local version</string>
@@ -691,6 +693,8 @@ Don't have a 4chan Pass?<br>
     <string name="settings_image_long_url_description">Makes long-pressing on post images copy the image URL to the clipboard</string>
     <string name="setting_youtube_title">Enable Youtube titles</string>
     <string name="setting_youtube_title_description">Replaces Youtube links with their titles; do not enable if you have filter watching enabled, loading will fail eventually</string>
+    <string name="album_download_could_not_save_one_or_more_images">Could not save one or more images</string>
+    <string name="could_not_create_base_local_threads_dir">Could not create base local threads directory</string>
     <string-array name="setting_watch_notify_modes">
         <item>All posts</item>
         <item>Only posts quoting you</item>
@@ -700,13 +704,11 @@ Don't have a 4chan Pass?<br>
     <string name="import_or_export_dialog_positive_button_text">Overwrite</string>
     <string name="import_or_export_dialog_negative_button_text">Create new</string>
     <string name="import_or_export_warning">Warning!</string>
-    <string name="import_or_export_warning_super_long_message">You have %1$s %2$s %3$s set to be located in a directory that uses the Storage Access Framework. These directory locations cannot be exported; THEY WILL BE RESET TO DEFAULT in the exported settings file! Once you import them you will have to manually set those locations in Media Settings again.</string>
+    <string name="import_or_export_warning_super_long_message_part_one">You have %1$s %2$s %3$s set to be located in a directory that uses the Storage Access Framework. These directory locations cannot be exported; THEY WILL BE RESET TO DEFAULT in the exported settings file! Once you import them you will have to manually set those locations in Media Settings again.</string>
+    <string name="import_or_export_warning_super_long_message_part_two">You also have some actively downloading local threads which are located at some SAF directory. They will be marked as stopped in the exported settings too. So you will have to resume them manually after importing the settings file.</string>
     <string name="import_or_export_warning_local_threads_base_dir">\"local threads base directory\"</string>
     <string name="import_or_export_warning_and">and</string>
     <string name="import_or_export_warning_saved_files_base_dir">\"saved files base directory\"</string>
-    <string name="base_local_threads_dir_not_exists">Base local threads directory does not exist (or it was deleted). You need to manually set it again in Media settings.</string>
-    <string name="album_download_could_not_save_one_or_more_images">Could not save one or more images</string>
-    <string name="could_not_create_base_local_threads_dir">Could not create base local threads directory</string>
 
     <string name="media_settings_use_saf_for_save_location_dialog_title">Use the new Storage Access Framework API to choose images download directory?</string>
     <string name="media_settings_use_saf_for_local_threads_location_dialog_title">Use the new Storage Access Framework API to choose local threads download directory?</string>
@@ -718,9 +720,9 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_could_not_copy_files">Could not copy one directory\'s file into another one</string>
     <string name="media_settings_files_copied">Successfully copied files</string>
     <string name="media_settings_would_you_like_to_delete_file_in_old_dir">Would you like to delete files in the old directory?</string>
-    <string name="media_settings_file_have_been_copied">Files have been copied and now exist in two directories. You may want to remove files in the old directory since you won\'t need them anymore</string>
+    <string name="media_settings_file_have_been_copied">Files have been copied and now exist in two directories. You may want to remove files in the old directory since you won\'t need them anymore.</string>
     <string name="media_settings_could_not_delete_files_in_old_dir">Couldn\'t delete files in the old directory</string>
-    <string name="media_settings_old_dir_deleted">Successfully deleted old directory</string>
+    <string name="media_settings_old_files_deleted">Successfully deleted files in the old directory</string>
     <string name="media_settings_copy_files">Copy files</string>
     <string name="media_settings_do_you_want_to_copy_files">Do you want to copy %1$d files from old directory to the new one?"</string>
     <string name="media_settings_could_not_release_uri_permissions">Couldn\'t release uri permissions</string>
@@ -733,11 +735,12 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_new_saved_files_base_dir_not_registered">New saved files base directory is probably not registered</string>
     <string name="media_settings_no_files_to_copy">No files to copy</string>
     <string name="media_settings_copying_file">Copying file %1$d out of %2$d</string>
-    <string name="media_settings_you_are_trying_to_move_files_in_the_same_directory">You are trying to move files in the same directory. The directory was changed but the files were not touched.</string>
     <string name="media_settings_there_are_active_downloads">There are %1$d threads being downloaded</string>
     <string name="media_settings_you_have_to_stop_all_downloads">You have to stop all the threads that are being downloaded before changing local threads base directory!</string>
     <string name="media_settings_some_thread_downloads_are_still_processed">Some thread downloads are still being processed</string>
     <string name="media_settings_do_not_terminate_the_app_manually">You may have to wait for couple of minutes until all active downloads are complete. DO NOT TERMINATE THE APP MANUALLY!!! This will break your local threads.</string>
+    <string name="media_settings_cannot_continue_write_permission">Cannot continue without WRITE_EXTERNAL_STORAGE</string>
+    <string name="media_settings_base_directory_is_already_registered">Cannot use this directory because it is already in use</string>
     <string name="setting_image_link_loading_title">Enable image link loading</string>
     <string name="setting_image_link_loading_description">Adds any JPG, PNG, GIF, PDF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
     <string name="media_settings_dont_keep_activities_setting_is_probably_turned_on">MediaSettingsController was detached during some IO background operation, callbacks is null. This is probably because you have the \"Don\'t keep activities\" developer setting turned on. Disable it and try again.</string>
@@ -746,6 +749,11 @@ Don't have a 4chan Pass?<br>
     <string name="setting_youtube_dur_title">Enable Youtube durations</string>
     <string name="setting_youtube_dur_description">Adds duration parsing to Youtube titles; does not do anything with titles off</string>
     <string name="pdf_not_viewable">PDFs are not internally viewable; you can still download this file.</string>
+    <string name="files_base_dir_does_not_exist"><![CDATA[Base directory for files does not exist! Set it manually in the settings (Media -> Save location)]]></string>
+    <string name="local_threads_base_dir_does_not_exist"><![CDATA[Base directory for local threads does not exist! Set it manually in the settings (Media -> Local threads location). All active download has been stopped! Resume them manually after setting the base directory.]]></string>
+    <string name="image_saver_could_not_figure_out_save_location">Couldn\'t figure out save location</string>
+    <string name="settings_captcha_setup">Captcha Settings</string>
+    <string name="settings_captcha_setup_description">Captcha settings are per-site configurable. Tap for site setup.</string>
     <string name="setting_enable_image_link_loading">Enable image link loading</string>
     <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
 </resources>

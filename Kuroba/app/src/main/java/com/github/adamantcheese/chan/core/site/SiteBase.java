@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-
 import com.android.volley.RequestQueue;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
@@ -26,15 +25,14 @@ import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettingsProvider;
 import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
 
-import org.codejargon.feather.Feather;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.Chan.injector;
+import static com.github.adamantcheese.chan.Chan.instance;
 
-public abstract class SiteBase implements Site {
+public abstract class SiteBase
+        implements Site {
     protected int id;
     protected SiteConfig config;
 
@@ -61,13 +59,13 @@ public abstract class SiteBase implements Site {
 
     @Override
     public void postInitialize() {
-        Feather injector = injector();
-        httpCallManager = injector.instance(HttpCallManager.class);
-        requestQueue = injector.instance(RequestQueue.class);
-        boardManager = injector.instance(BoardManager.class);
-        SiteService siteService = injector.instance(SiteService.class);
+        httpCallManager = instance(HttpCallManager.class);
+        requestQueue = instance(RequestQueue.class);
+        boardManager = instance(BoardManager.class);
+        SiteService siteService = instance(SiteService.class);
 
-        settingsProvider = new JsonSettingsProvider(userSettings, () -> siteService.updateUserSettings(this, userSettings));
+        settingsProvider =
+                new JsonSettingsProvider(userSettings, () -> siteService.updateUserSettings(this, userSettings));
 
         initializeSettings();
 

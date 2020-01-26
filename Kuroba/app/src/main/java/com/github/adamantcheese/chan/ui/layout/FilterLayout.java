@@ -30,7 +30,6 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -48,13 +47,13 @@ import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ColorPickerView;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +66,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class FilterLayout extends LinearLayout implements View.OnClickListener {
+public class FilterLayout
+        extends LinearLayout
+        implements View.OnClickListener {
     private TextView typeText;
     private TextView boardsSelector;
     private boolean patternContainerErrorShowing = false;
@@ -157,16 +158,31 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         applyToSaved = findViewById(R.id.apply_to_saved_checkbox);
 
         typeText.setOnClickListener(this);
-        typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
-                getAttrColor(getContext(), R.attr.dropdown_dark_color), getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)), null);
+        typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
+                dp(12),
+                dp(12),
+                true,
+                getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
+        ), null);
 
         boardsSelector.setOnClickListener(this);
-        boardsSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
-                getAttrColor(getContext(), R.attr.dropdown_dark_color), getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)), null);
+        boardsSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
+                dp(12),
+                dp(12),
+                true,
+                getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
+        ), null);
 
         actionText.setOnClickListener(this);
-        actionText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
-                getAttrColor(getContext(), R.attr.dropdown_dark_color), getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)), null);
+        actionText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
+                dp(12),
+                dp(12),
+                true,
+                getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
+        ), null);
 
         enabled.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
         enabled.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
@@ -207,24 +223,21 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (v == typeText) {
-            @SuppressWarnings("unchecked") final SelectLayout<FilterType> selectLayout =
-                    (SelectLayout<FilterType>) LayoutInflater.from(getContext())
-                            .inflate(R.layout.layout_select, null);
+            @SuppressWarnings("unchecked")
+            final SelectLayout<FilterType> selectLayout =
+                    (SelectLayout<FilterType>) AndroidUtils.inflate(getContext(), R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
             for (FilterType filterType : FilterType.values()) {
                 String name = FilterType.filterTypeName(filterType);
                 boolean checked = filter.hasFilter(filterType);
 
-                items.add(new SelectLayout.SelectItem<>(
-                        filterType, filterType.flag, name, null, name, checked
-                ));
+                items.add(new SelectLayout.SelectItem<>(filterType, filterType.flag, name, null, name, checked));
             }
 
             selectLayout.setItems(items);
 
-            new AlertDialog.Builder(getContext())
-                    .setView(selectLayout)
+            new AlertDialog.Builder(getContext()).setView(selectLayout)
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         List<SelectLayout.SelectItem<FilterType>> items12 = selectLayout.getItems();
                         int flags = 0;
@@ -240,9 +253,10 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
                     })
                     .show();
         } else if (v == boardsSelector) {
-            @SuppressLint("InflateParams") @SuppressWarnings("unchecked") final SelectLayout<Board> selectLayout =
-                    (SelectLayout<Board>) LayoutInflater.from(getContext())
-                            .inflate(R.layout.layout_select, null);
+            @SuppressLint("InflateParams")
+            @SuppressWarnings("unchecked")
+            final SelectLayout<Board> selectLayout =
+                    (SelectLayout<Board>) AndroidUtils.inflate(getContext(), R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
 
@@ -255,15 +269,12 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
                 String name = BoardHelper.getName(board);
                 boolean checked = filterEngine.matchesBoard(filter, board);
 
-                items.add(new SelectLayout.SelectItem<>(
-                        board, board.id, name, "", name, checked
-                ));
+                items.add(new SelectLayout.SelectItem<>(board, board.id, name, "", name, checked));
             }
 
             selectLayout.setItems(items);
 
-            new AlertDialog.Builder(getContext())
-                    .setView(selectLayout)
+            new AlertDialog.Builder(getContext()).setView(selectLayout)
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         List<SelectLayout.SelectItem<Board>> items1 = selectLayout.getItems();
                         boolean all = selectLayout.areAllChecked();
@@ -288,8 +299,6 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             List<FloatingMenuItem> menuItems = new ArrayList<>(6);
 
             for (FilterAction action : FilterAction.values()) {
-                //don't display the watch action unless it's been enabled
-                if (action == FilterAction.WATCH && !ChanSettings.watchFilterWatch.get()) continue;
                 menuItems.add(new FloatingMenuItem(action, FilterAction.actionName(action)));
             }
 
@@ -329,8 +338,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
                 }
             }
 
-            new AlertDialog.Builder(getContext())
-                    .setTitle(R.string.filter_help_title)
+            new AlertDialog.Builder(getContext()).setTitle(R.string.filter_help_title)
                     .setMessage(message)
                     .setPositiveButton(R.string.ok, null)
                     .show();
@@ -338,8 +346,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             final ColorPickerView colorPickerView = new ColorPickerView(getContext());
             colorPickerView.setColor(filter.color);
 
-            AlertDialog dialog = new AlertDialog.Builder(getContext())
-                    .setTitle(R.string.filter_color_pick)
+            AlertDialog dialog = new AlertDialog.Builder(getContext()).setTitle(R.string.filter_color_pick)
                     .setView(colorPickerView)
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog1, which) -> {

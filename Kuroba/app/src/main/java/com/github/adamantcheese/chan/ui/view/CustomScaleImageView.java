@@ -21,7 +21,8 @@ import android.content.Context;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.github.adamantcheese.chan.utils.Logger;
 
-public class CustomScaleImageView extends SubsamplingScaleImageView {
+public class CustomScaleImageView
+        extends SubsamplingScaleImageView {
     private static final String TAG = "CustomScaleImageView";
 
     private Callback callback;

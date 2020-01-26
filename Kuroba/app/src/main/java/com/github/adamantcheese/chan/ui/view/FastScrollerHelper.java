@@ -25,16 +25,24 @@ public class FastScrollerHelper {
         final int margin = dp(0);
         final int thumbMinLength = dp(23);
 
-        return new FastScroller(recyclerView,
-                thumb, track, thumb, track,
-                defaultThickness, minimumRange, margin, thumbMinLength, targetWidth);
+        return new FastScroller(
+                recyclerView,
+                thumb,
+                track,
+                thumb,
+                track,
+                defaultThickness,
+                minimumRange,
+                margin,
+                thumbMinLength,
+                targetWidth
+        );
     }
 
     private static StateListDrawable getThumb() {
         StateListDrawable list = new StateListDrawable();
         Theme curTheme = ThemeHelper.getTheme();
-        list.addState(new int[]{android.R.attr.state_pressed},
-                new ColorDrawable(curTheme.accentColor.color));
+        list.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(curTheme.accentColor.color));
         list.addState(new int[]{}, new ColorDrawable(curTheme.textSecondary));
         return list;
     }
@@ -42,8 +50,7 @@ public class FastScrollerHelper {
     private static StateListDrawable getTrack() {
         StateListDrawable list = new StateListDrawable();
         Theme curTheme = ThemeHelper.getTheme();
-        list.addState(new int[]{android.R.attr.state_pressed},
-                new ColorDrawable(curTheme.textHint));
+        list.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(curTheme.textHint));
         list.addState(new int[]{}, new ColorDrawable(0));
         return list;
     }

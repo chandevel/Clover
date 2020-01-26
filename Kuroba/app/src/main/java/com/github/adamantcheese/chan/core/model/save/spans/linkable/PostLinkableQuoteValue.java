@@ -3,7 +3,8 @@ package com.github.adamantcheese.chan.core.model.save.spans.linkable;
 import com.github.adamantcheese.chan.core.model.save.spans.SerializablePostLinkableSpan;
 import com.google.gson.annotations.SerializedName;
 
-public class PostLinkableQuoteValue extends PostLinkableValue {
+public class PostLinkableQuoteValue
+        extends PostLinkableValue {
     @SerializedName("post_id")
     private int postId;
 

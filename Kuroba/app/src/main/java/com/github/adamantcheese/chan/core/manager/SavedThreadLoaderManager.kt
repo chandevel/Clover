@@ -19,9 +19,7 @@ class SavedThreadLoaderManager @Inject constructor(
 ) {
 
     fun loadSavedThread(loadable: Loadable): ChanThread? {
-        if (BackgroundUtils.isMainThread()) {
-            throw RuntimeException("Cannot be executed on the main thread!")
-        }
+        BackgroundUtils.ensureBackgroundThread()
 
         val baseDir = fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
         if (baseDir == null) {
@@ -29,8 +27,7 @@ class SavedThreadLoaderManager @Inject constructor(
             return null
         }
 
-        val threadSaveDir = baseDir
-                .clone(ThreadSaveManager.getThreadSubDir(loadable))
+        val threadSaveDir = baseDir.clone(ThreadSaveManager.getThreadSubDir(loadable))
 
         val threadSaveDirExists = fileManager.exists(threadSaveDir)
         val threadSaveDirIsDirectory = fileManager.isDirectory(threadSaveDir)
@@ -43,8 +40,7 @@ class SavedThreadLoaderManager @Inject constructor(
             return null
         }
 
-        val threadFile = threadSaveDir
-                .clone(FileSegment(SavedThreadLoaderRepository.THREAD_FILE_NAME))
+        val threadFile = threadSaveDir.clone(FileSegment(SavedThreadLoaderRepository.THREAD_FILE_NAME))
 
         val threadFileExists = fileManager.exists(threadFile)
         val threadFileIsFile = fileManager.isFile(threadFile)
@@ -59,8 +55,7 @@ class SavedThreadLoaderManager @Inject constructor(
             return null
         }
 
-        val threadSaveDirImages = threadSaveDir
-                .clone(DirectorySegment("images"))
+        val threadSaveDirImages = threadSaveDir.clone(DirectorySegment("images"))
 
         val imagesDirExists = fileManager.exists(threadSaveDirImages)
         val imagesDirIsDir = fileManager.isDirectory(threadSaveDirImages)
@@ -74,8 +69,7 @@ class SavedThreadLoaderManager @Inject constructor(
         }
 
         try {
-            val serializableThread = savedThreadLoaderRepository
-                    .loadOldThreadFromJsonFile(threadSaveDir)
+            val serializableThread = savedThreadLoaderRepository.loadOldThreadFromJsonFile(threadSaveDir)
             if (serializableThread == null) {
                 Logger.e(TAG, "Could not load thread from json")
                 return null

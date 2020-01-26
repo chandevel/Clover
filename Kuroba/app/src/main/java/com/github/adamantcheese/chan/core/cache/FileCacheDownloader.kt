@@ -21,7 +21,7 @@ import android.os.Looper
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
-import com.github.adamantcheese.chan.Chan
+import com.github.adamantcheese.chan.Chan.instance
 import com.github.adamantcheese.chan.core.di.NetModule
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
@@ -63,7 +63,6 @@ class FileCacheDownloader(
     // The reason is actually SocketTimeoutException is the server forcefully drops
     // the connection if it detects that we are downloading files?
     private val retryAttempts = AtomicInteger(3)
-    private val retryTimeoutsSeconds = arrayOf(5L, 2L, 1L)
 
     @MainThread
     fun addListener(callback: FileCacheListener) {
@@ -77,6 +76,7 @@ class FileCacheDownloader(
      */
     @MainThread
     fun cancel() {
+        log("cancel")
         BackgroundUtils.ensureMainThread()
 
         if (cancel.compareAndSet(false, true)) {
@@ -120,18 +120,6 @@ class FileCacheDownloader(
 
         try {
             BackgroundUtils.ensureBackgroundThread()
-            checkCancel()
-
-            val timeout = retryTimeoutsSeconds.getOrElse(retryAttempts.get()) { 0 }
-            if (timeout > 0) {
-                try {
-                    log("Sleeping for $timeout seconds")
-                    Thread.sleep(timeout * 1000L)
-                } catch (error: InterruptedException) {
-                    Thread.currentThread().interrupt()
-                }
-            }
-
             checkCancel()
 
             val startTime = System.currentTimeMillis()
@@ -277,14 +265,11 @@ class FileCacheDownloader(
     private fun getBody(): Pair<Call, ResponseBody?> {
         BackgroundUtils.ensureBackgroundThread()
 
-        val request = Request.Builder()
-                .url(url)
-                .header("User-Agent", NetModule.USER_AGENT)
-                .build()
+        val request = Request.Builder().url(url).header("User-Agent", NetModule.USER_AGENT).build()
 
         //we want to use the proxy instance here
-        val call = (Chan.injector().instance(OkHttpClient::class.java) as NetModule.ProxiedOkHttpClient)
-                .proxiedClient.newCall(request)
+        val call = (instance(OkHttpClient::class.java)
+                as NetModule.ProxiedOkHttpClient).proxiedClient.newCall(request)
 
         val response = call.execute()
         if (!response.isSuccessful) {

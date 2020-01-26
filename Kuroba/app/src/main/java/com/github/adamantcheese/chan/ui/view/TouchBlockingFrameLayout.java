@@ -23,7 +23,8 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 
-public class TouchBlockingFrameLayout extends FrameLayout {
+public class TouchBlockingFrameLayout
+        extends FrameLayout {
     public TouchBlockingFrameLayout(Context context) {
         super(context);
     }

@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.Jsoup;
@@ -37,6 +36,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+
 /**
  * Vichan applies garbage looking fields to the post form, to combat bots.
  * Load up the normal html, parse the form, and get these fields for our post.
@@ -54,19 +55,29 @@ public class VichanAntispam {
     }
 
     public void addDefaultIgnoreFields() {
-        fieldsToIgnore.addAll(Arrays.asList("board", "thread", "name", "email",
-                "subject", "body", "password", "file", "spoiler", "json_response",
-                "file_url1", "file_url2", "file_url3"));
+        fieldsToIgnore.addAll(Arrays.asList(
+                "board",
+                "thread",
+                "name",
+                "email",
+                "subject",
+                "body",
+                "password",
+                "file",
+                "spoiler",
+                "json_response",
+                "file_url1",
+                "file_url2",
+                "file_url3"
+        ));
     }
 
     public Map<String, String> get() {
         Map<String, String> res = new HashMap<>();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+        Request request = new Request.Builder().url(url).build();
         try {
-            Response response = Chan.injector().instance(OkHttpClient.class).newCall(request).execute();
+            Response response = instance(OkHttpClient.class).newCall(request).execute();
             ResponseBody body = response.body();
             if (body != null) {
                 Document document = Jsoup.parse(body.string());

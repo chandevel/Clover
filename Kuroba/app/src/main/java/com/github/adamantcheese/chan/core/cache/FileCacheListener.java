@@ -31,8 +31,8 @@ public abstract class FileCacheListener {
     }
 
     /**
-     *  @param error is an exception that terminated the downloading process
-     * */
+     * @param error is an exception that terminated the downloading process
+     */
     public void onNetworkError(IOException error) {
 
     }

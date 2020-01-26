@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.controller;
+package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -22,9 +22,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -32,6 +30,7 @@ import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
+import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.lang.reflect.Field;
@@ -42,10 +41,13 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
-public class DeveloperSettingsController extends Controller {
+public class DeveloperSettingsController
+        extends Controller {
     private static final String TAG = "DEV";
     @Inject
     DatabaseManager databaseManager;
@@ -66,11 +68,13 @@ public class DeveloperSettingsController extends Controller {
         LinearLayout wrapper = new LinearLayout(context);
         wrapper.setOrientation(LinearLayout.VERTICAL);
 
+        //VIEW LOGS
         Button logsButton = new Button(context);
         logsButton.setOnClickListener(v -> navigationController.pushController(new LogsController(context)));
         logsButton.setText(R.string.settings_open_logs);
         wrapper.addView(logsButton);
 
+        //CRASH APP
         Button crashButton = new Button(context);
         crashButton.setOnClickListener(v -> {
             throw new RuntimeException("Debug crash");
@@ -78,21 +82,24 @@ public class DeveloperSettingsController extends Controller {
         crashButton.setText("Crash the app");
         wrapper.addView(crashButton);
 
+        //CLEAR CACHE
         Button clearCacheButton = new Button(context);
-        FileCache cache = Chan.injector().instance(FileCache.class);
+        FileCache cache = instance(FileCache.class);
         clearCacheButton.setOnClickListener(v -> {
             cache.clearCache();
-            Toast.makeText(context, "Cleared image cache", Toast.LENGTH_SHORT).show();
+            showToast("Cleared image cache");
             clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize() / 1024 / 1024 + "MB)");
         });
         clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize() / 1024 / 1024 + "MB)");
         wrapper.addView(clearCacheButton);
 
+        //DATABASE SUMMARY
         TextView summaryText = new TextView(context);
         summaryText.setText("Database summary:\n" + databaseManager.getSummary());
         summaryText.setPadding(dp(15), dp(5), 0, 0);
         wrapper.addView(summaryText);
 
+        //DATABASE RESET
         Button resetDbButton = new Button(context);
         resetDbButton.setOnClickListener(v -> {
             databaseManager.reset();
@@ -101,10 +108,11 @@ public class DeveloperSettingsController extends Controller {
         resetDbButton.setText("Delete database");
         wrapper.addView(resetDbButton);
 
+        //FILTER WATCH IGNORE RESET
         Button clearFilterWatchIgnores = new Button(context);
         clearFilterWatchIgnores.setOnClickListener(v -> {
             try {
-                FilterWatchManager filterWatchManager = Chan.injector().instance(FilterWatchManager.class);
+                FilterWatchManager filterWatchManager = instance(FilterWatchManager.class);
                 Field ignoredField = filterWatchManager.getClass().getDeclaredField("ignoredPosts");
                 ignoredField.setAccessible(true);
                 ignoredField.set(filterWatchManager, Collections.synchronizedSet(new HashSet<Integer>()));
@@ -116,12 +124,14 @@ public class DeveloperSettingsController extends Controller {
         clearFilterWatchIgnores.setText("Clear ignored filter watches");
         wrapper.addView(clearFilterWatchIgnores);
 
+        //THREAD STACK DUMPER
         Button dumpAllThreadStacks = new Button(context);
         dumpAllThreadStacks.setOnClickListener(v -> {
             Set<Thread> activeThreads = Thread.getAllStackTraces().keySet();
             Logger.i("STACKDUMP-COUNT", String.valueOf(activeThreads.size()));
             for (Thread t : activeThreads) {
                 //ignore these threads as they aren't relevant (main will always be this button press)
+                //@formatter:off
                 if (t.getName().equalsIgnoreCase("main")
                         || t.getName().contains("Daemon")
                         || t.getName().equalsIgnoreCase("Signal Catcher")
@@ -133,6 +143,7 @@ public class DeveloperSettingsController extends Controller {
                         || t.getName().equalsIgnoreCase("Profile Saver")
                         || t.getName().contains("Okio")
                         || t.getName().contains("AsyncTask"))
+                //@formatter:on
                     continue;
                 StackTraceElement[] elements = t.getStackTrace();
                 Logger.i("STACKDUMP-HEADER", "Thread: " + t.getName());
@@ -145,23 +156,23 @@ public class DeveloperSettingsController extends Controller {
         dumpAllThreadStacks.setText("Dump active thread stack traces to log");
         wrapper.addView(dumpAllThreadStacks);
 
-        Button forceFilterWatch = new Button(context);
-        forceFilterWatch.setOnClickListener(v -> {
+        //FORCE WAKE
+        Button forceWake = new Button(context);
+        forceWake.setOnClickListener(v -> {
             try {
-                WakeManager wakeManager = Chan.injector().instance(WakeManager.class);
+                WakeManager wakeManager = instance(WakeManager.class);
                 Field wakeables = wakeManager.getClass().getDeclaredField("wakeableSet");
                 wakeables.setAccessible(true);
-                for(WakeManager.Wakeable wakeable : (Set<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
+                for (WakeManager.Wakeable wakeable : (Set<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
                     wakeable.onWake();
                 }
                 Logger.i(TAG, "Woke all wakeables");
-
             } catch (Exception e) {
                 Logger.i(TAG, "Failed to run wakeables");
             }
         });
-        forceFilterWatch.setText("Force wakemanager wake");
-        wrapper.addView(forceFilterWatch);
+        forceWake.setText("Force wakemanager wake");
+        wrapper.addView(forceWake);
 
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);

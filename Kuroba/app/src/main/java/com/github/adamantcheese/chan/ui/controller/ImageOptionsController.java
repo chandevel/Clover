@@ -23,12 +23,10 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Pair;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
@@ -43,15 +41,22 @@ import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
-public class ImageOptionsController extends Controller implements
-        View.OnClickListener,
-        CompoundButton.OnCheckedChangeListener,
-        ImageReencodingPresenter.ImageReencodingPresenterCallback {
+public class ImageOptionsController
+        extends Controller
+        implements View.OnClickListener, CompoundButton.OnCheckedChangeListener,
+                   ImageReencodingPresenter.ImageReencodingPresenterCallback {
     private final static String TAG = "ImageOptionsController";
     private static final int TRANSITION_DURATION = 200;
 
@@ -97,7 +102,7 @@ public class ImageOptionsController extends Controller implements
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.layout_image_options);
+        view = inflate(context, R.layout.layout_image_options);
 
         viewHolder = view.findViewById(R.id.image_options_view_holder);
         container = view.findViewById(R.id.container);
@@ -124,11 +129,11 @@ public class ImageOptionsController extends Controller implements
             changeImageChecksum.setChecked(lastSettings.getChangeImageChecksum());
             fixExif.setChecked(lastSettings.getFixExif());
             ImageReencodingPresenter.ReencodeSettings lastReencode = lastSettings.getReencodeSettings();
-            if (lastReencode != null) {
+            if (lastReencode != null && presenter.hasAttachedFile()) {
                 removeMetadata.setChecked(!lastReencode.isDefault());
                 removeMetadata.setEnabled(!lastReencode.isDefault());
                 reencode.setChecked(!lastReencode.isDefault());
-                reencode.setText("Re-encode " + lastReencode.prettyPrint(presenter.getImageFormat()));
+                reencode.setText(String.format("Re-encode %s", lastReencode.prettyPrint(presenter.getImageFormat())));
             } else {
                 removeMetadata.setChecked(lastSettings.getRemoveMetadata());
             }
@@ -163,11 +168,10 @@ public class ImageOptionsController extends Controller implements
 
         viewHolder.setOnClickListener(this);
         preview.setOnClickListener(v -> {
-            boolean isCurrentlyVisible = optionsHolder.getVisibility() == View.VISIBLE;
-            optionsHolder.setVisibility(isCurrentlyVisible ? View.GONE : View.VISIBLE);
-            Point p = new Point();
-            getWindow().getWindowManager().getDefaultDisplay().getSize(p);
-            int dimX1 = isCurrentlyVisible ? p.x : ViewGroup.LayoutParams.MATCH_PARENT;
+            boolean isCurrentlyVisible = optionsHolder.getVisibility() == VISIBLE;
+            optionsHolder.setVisibility(isCurrentlyVisible ? GONE : VISIBLE);
+            Point p = getDisplaySize();
+            int dimX1 = isCurrentlyVisible ? p.x : MATCH_PARENT;
             int dimY1 = isCurrentlyVisible ? p.y : dp(300);
             preview.setLayoutParams(new LinearLayout.LayoutParams(dimX1, dimY1, 0));
             ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) container.getLayoutParams();
@@ -182,7 +186,7 @@ public class ImageOptionsController extends Controller implements
 
         statusBarColorPrevious = getWindow().getStatusBarColor();
         if (statusBarColorPrevious != 0) {
-            AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -191,7 +195,7 @@ public class ImageOptionsController extends Controller implements
         super.stopPresenting();
 
         if (statusBarColorPrevious != 0) {
-            AndroidUtils.animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -241,7 +245,7 @@ public class ImageOptionsController extends Controller implements
         removeMetadata.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
         reencode.setChecked(false);
 
-        reencode.setText(context.getString(R.string.image_options_re_encode));
+        reencode.setText(getString(R.string.image_options_re_encode));
 
         presenter.setReencode(null);
     }
@@ -252,7 +256,7 @@ public class ImageOptionsController extends Controller implements
         removeMetadata.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
         removeMetadata.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
 
-        reencode.setText("Re-encode " + reencodeSettings.prettyPrint(presenter.getImageFormat()));
+        reencode.setText(String.format("Re-encode %s", reencodeSettings.prettyPrint(presenter.getImageFormat())));
 
         presenter.setReencode(reencodeSettings);
     }
@@ -266,19 +270,9 @@ public class ImageOptionsController extends Controller implements
     public void onImageOptionsApplied(Reply reply, boolean filenameRemoved) {
         //called on the background thread!
 
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             imageReencodingHelper.pop();
             callbacks.onImageOptionsApplied(reply, filenameRemoved);
-        });
-    }
-
-    @Override
-    public void showFailedToReencodeImage(Throwable error) {
-        //called on the background thread!
-
-        AndroidUtils.runOnUiThread(() -> {
-            String text = String.format(context.getString(R.string.could_not_apply_image_options), error.getMessage());
-            Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -286,7 +280,7 @@ public class ImageOptionsController extends Controller implements
     public void disableOrEnableButtons(boolean enabled) {
         //called on the background thread!
 
-        AndroidUtils.runOnUiThread(() -> {
+        runOnUiThread(() -> {
             fixExif.setEnabled(enabled);
             removeMetadata.setEnabled(enabled);
             removeFilename.setEnabled(enabled);
@@ -303,7 +297,9 @@ public class ImageOptionsController extends Controller implements
     }
 
     public interface ImageOptionsControllerCallbacks {
-        void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat, @Nullable Pair<Integer, Integer> dims);
+        void onReencodeOptionClicked(
+                @Nullable Bitmap.CompressFormat imageFormat, @Nullable Pair<Integer, Integer> dims
+        );
 
         void onImageOptionsApplied(Reply reply, boolean filenameRemoved);
     }

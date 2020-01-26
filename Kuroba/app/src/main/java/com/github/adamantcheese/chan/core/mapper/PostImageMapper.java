@@ -42,8 +42,7 @@ public class PostImageMapper {
             imageUrl = HttpUrl.parse(serializablePostImage.getImageUrl());
         }
 
-        return new PostImage.Builder()
-                .serverFilename(serializablePostImage.getOriginalName())
+        return new PostImage.Builder().serverFilename(serializablePostImage.getOriginalName())
                 .filename(serializablePostImage.getFilename())
                 .extension(serializablePostImage.getExtension())
                 .imageUrl(imageUrl)
@@ -56,8 +55,7 @@ public class PostImageMapper {
                 .build();
     }
 
-    public static List<PostImage> fromSerializablePostImageList(
-            List<SerializablePostImage> serializablePostImageList) {
+    public static List<PostImage> fromSerializablePostImageList(List<SerializablePostImage> serializablePostImageList) {
         List<PostImage> postImageList = new ArrayList<>(serializablePostImageList.size());
 
         for (SerializablePostImage serializablePostImage : serializablePostImageList) {

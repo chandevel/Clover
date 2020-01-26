@@ -21,7 +21,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -40,6 +39,7 @@ import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
+import com.github.adamantcheese.chan.ui.controller.settings.MainSettingsController;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -52,8 +52,14 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.adapter.DrawerAdapter.TYPE_PIN;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
-public class DrawerController extends Controller implements DrawerAdapter.Callback, View.OnClickListener {
+public class DrawerController
+        extends Controller
+        implements DrawerAdapter.Callback, View.OnClickListener {
     protected FrameLayout container;
     protected DrawerLayout drawerLayout;
     protected LinearLayout drawer;
@@ -74,7 +80,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
         EventBus.getDefault().register(this);
 
-        view = inflateRes(R.layout.controller_navigation_drawer);
+        view = inflate(context, R.layout.controller_navigation_drawer);
         container = view.findViewById(R.id.container);
         drawerLayout = view.findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.panel_shadow, Gravity.LEFT);
@@ -174,17 +180,21 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     @Override
     public void onHeaderClicked(DrawerAdapter.HeaderAction headerAction) {
         if (headerAction == DrawerAdapter.HeaderAction.CLEAR || headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL) {
-            final boolean all = headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
+            final boolean all =
+                    headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
             final boolean hasDownloadFlag = watchManager.hasAtLeastOnePinWithDownloadFlag();
 
             if (all && hasDownloadFlag) {
                 // Some pins may have threads that have saved copies on the disk. We want to warn the
                 // user that this action will delete them as well
-                new AlertDialog.Builder(context)
-                        .setTitle(R.string.warning)
+                new AlertDialog.Builder(context).setTitle(R.string.warning)
                         .setMessage(R.string.drawer_controller_at_least_one_pin_has_download_flag)
-                        .setNegativeButton(R.string.drawer_controller_do_not_delete, (dialog, which) -> dialog.dismiss())
-                        .setPositiveButton(R.string.drawer_controller_delete_all_pins, ((dialog, which) -> onHeaderClickedInternal(true, true)))
+                        .setNegativeButton(R.string.drawer_controller_do_not_delete,
+                                (dialog, which) -> dialog.dismiss()
+                        )
+                        .setPositiveButton(R.string.drawer_controller_delete_all_pins,
+                                ((dialog, which) -> onHeaderClickedInternal(true, true))
+                        )
                         .create()
                         .show();
                 return;
@@ -201,14 +211,16 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
                 // We can't undo this operation when there is at least one pin that downloads a thread
                 // because we will be deleting files from the disk. We don't want to warn the user
                 // every time he deletes one pin.
-                String text = context.getResources().getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
-                Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pins_cleared, text), 4000);
+                String text = getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
+                Snackbar snackbar = Snackbar.make(drawerLayout, getString(R.string.drawer_pins_cleared, text), 4000);
                 fixSnackbarText(context, snackbar);
                 snackbar.setAction(R.string.undo, v -> watchManager.addAll(pins));
                 snackbar.show();
             }
         } else {
-            int text = watchManager.getAllPins().isEmpty() ? R.string.drawer_pins_non_cleared : R.string.drawer_pins_non_cleared_try_all;
+            int text = watchManager.getAllPins().isEmpty()
+                    ? R.string.drawer_pins_non_cleared
+                    : R.string.drawer_pins_non_cleared_try_all;
             Snackbar snackbar = Snackbar.make(drawerLayout, text, Snackbar.LENGTH_LONG);
             fixSnackbarText(context, snackbar);
             snackbar.show();
@@ -223,17 +235,17 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         Snackbar snackbar;
 
         if (!PinType.hasDownloadFlag(pin.pinType)) {
-            snackbar = Snackbar.make(
-                    drawerLayout,
-                    context.getString(R.string.drawer_pin_removed, pin.loadable.title),
-                    Snackbar.LENGTH_LONG);
+            snackbar = Snackbar.make(drawerLayout,
+                    getString(R.string.drawer_pin_removed, pin.loadable.title),
+                    Snackbar.LENGTH_LONG
+            );
 
             snackbar.setAction(R.string.undo, v -> watchManager.createPin(undoPin));
         } else {
-            snackbar = Snackbar.make(
-                    drawerLayout,
-                    context.getString(R.string.drawer_pin_with_saved_thread_removed, pin.loadable.title),
-                    Snackbar.LENGTH_LONG);
+            snackbar = Snackbar.make(drawerLayout,
+                    getString(R.string.drawer_pin_with_saved_thread_removed, pin.loadable.title),
+                    Snackbar.LENGTH_LONG
+            );
         }
 
         fixSnackbarText(context, snackbar);
@@ -265,7 +277,8 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
             ChanSettings.drawerAutoOpenCount.set(curCount + 1 > 5 ? 5 : curCount + 1);
             if (ChanSettings.drawerAutoOpenCount.get() < 5 && !ChanSettings.alwaysOpenDrawer.get()) {
                 int countLeft = 5 - ChanSettings.drawerAutoOpenCount.get();
-                Toast.makeText(context, "Drawer will auto-show " + countLeft + " more time" + (countLeft == 1 ? "" : "s") + " as a reminder.", Toast.LENGTH_SHORT).show();
+                showToast("Drawer will auto-show " + countLeft + " more time" + (countLeft == 1 ? "" : "s")
+                        + " as a reminder.");
             }
         }
         updateBadge();
@@ -290,7 +303,9 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     }
 
     public void setDrawerEnabled(boolean enabled) {
-        drawerLayout.setDrawerLockMode(enabled ? DrawerLayout.LOCK_MODE_UNLOCKED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
+        drawerLayout.setDrawerLockMode(enabled ? DrawerLayout.LOCK_MODE_UNLOCKED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+                Gravity.LEFT
+        );
         if (!enabled) {
             drawerLayout.closeDrawer(drawer);
         }
@@ -355,8 +370,9 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         }
 
         if (navigationController == null) {
-            throw new IllegalStateException("The child controller of a DrawerController must either be StyledToolbarNavigationController" +
-                    "or an DoubleNavigationController that has a ToolbarNavigationController.");
+            throw new IllegalStateException(
+                    "The child controller of a DrawerController must either be StyledToolbarNavigationController"
+                            + "or an DoubleNavigationController that has a ToolbarNavigationController.");
         }
 
         return navigationController;

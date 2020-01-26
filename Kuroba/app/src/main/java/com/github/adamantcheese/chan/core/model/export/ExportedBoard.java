@@ -80,10 +80,8 @@ public class ExportedBoard {
             int siteId,
             boolean saved,
             int order,
-            @NonNull
-                    String name,
-            @NonNull
-                    String code,
+            @NonNull String name,
+            @NonNull String code,
             boolean workSafe,
             int perPage,
             int pages,
@@ -102,8 +100,7 @@ public class ExportedBoard {
             boolean preuploadCaptcha,
             boolean countryFlags,
             boolean mathTags,
-            @NonNull
-                    String description,
+            @NonNull String description,
             boolean archive
     ) {
         this.siteId = siteId;

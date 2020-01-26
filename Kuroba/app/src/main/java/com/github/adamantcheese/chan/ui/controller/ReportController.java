@@ -30,7 +30,10 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 
 import okhttp3.HttpUrl;
 
-public class ReportController extends Controller {
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
+public class ReportController
+        extends Controller {
     private Post post;
 
     public ReportController(Context context, Post post) {
@@ -42,7 +45,7 @@ public class ReportController extends Controller {
     @Override
     public void onCreate() {
         super.onCreate();
-        navigation.title = context.getString(R.string.report_screen, PostHelper.getTitle(post, null));
+        navigation.title = getString(R.string.report_screen, PostHelper.getTitle(post, null));
 
         Site site = post.board.getSite();
         HttpUrl url = site.endpoints().report(post);

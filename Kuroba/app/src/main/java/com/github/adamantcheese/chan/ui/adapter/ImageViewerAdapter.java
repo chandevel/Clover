@@ -29,7 +29,8 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImageViewerAdapter extends ViewPagerAdapter {
+public class ImageViewerAdapter
+        extends ViewPagerAdapter {
     private static final String TAG = "ImageViewerAdapter";
 
     private final Context context;
@@ -41,10 +42,8 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
     private List<ModeChange> pendingModeChanges = new ArrayList<>();
 
     public ImageViewerAdapter(
-            Context context,
-            List<PostImage> images,
-            Loadable loadable,
-            MultiImageView.Callback multiImageViewCallback) {
+            Context context, List<PostImage> images, Loadable loadable, MultiImageView.Callback multiImageViewCallback
+    ) {
         this.context = context;
         this.images = images;
         this.loadable = loadable;
