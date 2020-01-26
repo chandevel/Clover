@@ -6,6 +6,8 @@ import android.graphics.RectF
 
 /**
  * A non-retarded version of a RectF with additional safety checks.
+ * "It's so safe, it's like it was written in Rust" - (c) Anonymous.
+ *
  *
  *              SafeRectF               |             RectF                   |      Android Phone Screen
  * -------------------------------------+-------------------------------------+------------------------------------
