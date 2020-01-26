@@ -1,6 +1,8 @@
 package com.github.adamantcheese.chan.ui.controller
 
 import android.content.Context
+import android.view.View.inflate
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.controller.Controller
@@ -23,7 +25,7 @@ class AdjustAndroid10GestureZonesController(context: Context) : Controller(conte
         super.onCreate()
         presenting = true
 
-        view = inflateRes(R.layout.controller_adjust_android_ten_gesture_zones)
+        view = inflate(context, R.layout.controller_adjust_android_ten_gesture_zones, null) as ViewGroup
         adjustZonesView = view.findViewById(R.id.adjust_gesture_zones_view)
         adjustZonesView.viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
     }
