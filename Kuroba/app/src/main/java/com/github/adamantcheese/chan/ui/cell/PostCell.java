@@ -87,13 +87,19 @@ import java.util.List;
 import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
+import static android.view.View.MeasureSpec.AT_MOST;
+import static android.view.View.MeasureSpec.EXACTLY;
+import static android.view.View.MeasureSpec.UNSPECIFIED;
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -569,27 +575,26 @@ public class PostCell
             //display width, we don't care about height here
             Point displaySize = getDisplaySize();
 
-            //thumbnail size
             int thumbnailSize = getDimen(R.dimen.cell_post_thumbnail_size);
+            boolean isSplitMode =
+                    ChanSettings.layoutMode.get() == SPLIT || (ChanSettings.layoutMode.get() == AUTO && isTablet());
 
             //get the width of the cell for calculations, height we don't need but measure it anyways
-            this.measure(MeasureSpec.makeMeasureSpec(
-                    ChanSettings.layoutMode.get() == ChanSettings.LayoutMode.SPLIT ? displaySize.x / 2 : displaySize.x,
-                    MeasureSpec.AT_MOST
-            ), MeasureSpec.makeMeasureSpec(displaySize.y, MeasureSpec.AT_MOST));
+            //0.35 is from SplitNavigationControllerLayout; measure for the smaller of the two sides
+            this.measure(
+                    MeasureSpec.makeMeasureSpec(isSplitMode ? (int) (displaySize.x * 0.35) : displaySize.x, AT_MOST),
+                    MeasureSpec.makeMeasureSpec(displaySize.y, AT_MOST)
+            );
 
             //we want the heights here, but the widths must be the exact size between the thumbnail and view edge so that we calculate offsets right
-            title.measure(
-                    MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, UNSPECIFIED)
             );
-            icons.measure(
-                    MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            icons.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, UNSPECIFIED)
             );
-            comment.measure(
-                    MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, UNSPECIFIED)
             );
             int wrapHeight = title.getMeasuredHeight() + icons.getMeasuredHeight();
             int extraWrapHeight = wrapHeight + comment.getMeasuredHeight();
@@ -958,7 +963,7 @@ public class PostCell
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
             int measureHeight = icons == 0 ? 0 : (height + getPaddingTop() + getPaddingBottom());
 
-            setMeasuredDimension(widthMeasureSpec, MeasureSpec.makeMeasureSpec(measureHeight, MeasureSpec.EXACTLY));
+            setMeasuredDimension(widthMeasureSpec, MeasureSpec.makeMeasureSpec(measureHeight, EXACTLY));
         }
 
         @Override
