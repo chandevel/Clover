@@ -16,6 +16,10 @@
  */
 package com.github.adamantcheese.chan.core.site.common.taimaba;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
+
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
@@ -23,9 +27,14 @@ import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
+import com.github.adamantcheese.chan.utils.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import org.jsoup.Jsoup;
 
+import java.util.concurrent.TimeUnit;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +43,8 @@ import okhttp3.HttpUrl;
 import okhttp3.Response;
 
 import static android.text.TextUtils.isEmpty;
+
+import static com.github.adamantcheese.chan.Chan.instance;
 
 public class TaimabaActions extends CommonSite.CommonActions {
     private static final Pattern errorPattern = Pattern.compile("<h1[^>]*>Error</h1>.*<h2[^>]*>(.*?)</h2>");
@@ -44,6 +55,34 @@ public class TaimabaActions extends CommonSite.CommonActions {
 
     @Override
     public void setupPost(Reply reply, MultipartHttpCall call) {
+        RequestFuture<JSONObject> future = RequestFuture.newFuture();
+        //this must be a GET request, so the jsonRequest object is null per documentation
+        JsonObjectRequest request = new JsonObjectRequest(
+                "https://boards.420chan.org/bunker/",
+                null,
+                future,
+                future
+        );
+        instance(RequestQueue.class).add(request);
+
+        String fart = null;
+
+        try {
+            JSONObject response = future.get(2500, TimeUnit.MILLISECONDS);
+            try {
+                fart = response.getString("response");
+            } catch (JSONException e) {
+                Logger.e("TaimabaActions", "JSONException: " + e);
+            }
+        } catch (Exception e) {
+            fart = null;
+			Logger.e("TaimabaActions", "Exception: " + e);
+        }
+
+        if (fart != null) {
+            call.parameter("fart", fart);
+        }
+
         call.parameter("board", reply.loadable.board.code);
         call.parameter("task", "post");
 
