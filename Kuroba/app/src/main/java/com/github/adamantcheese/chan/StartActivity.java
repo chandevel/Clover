@@ -555,6 +555,8 @@ public class StartActivity
             return;
         }
 
+        updateManager.onDestroy();
+        imagePickDelegate.onDestroy();
         fileChooser.removeCallbacks();
 
         for (int i = stack.size() - 1; i >= 0; --i) {

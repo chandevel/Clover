@@ -41,7 +41,12 @@ import com.github.k1rakishou.fsaf.FileManager;
 
 import org.codejargon.feather.Provides;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
+
+import okhttp3.OkHttpClient;
+
+import static com.github.adamantcheese.chan.core.di.NetModule.THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME;
 
 public class ManagerModule {
 
@@ -143,11 +148,12 @@ public class ManagerModule {
     @Singleton
     public ThreadSaveManager provideSaveThreadManager(
             DatabaseManager databaseManager,
+            @Named(THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME) OkHttpClient okHttpClient,
             SavedThreadLoaderRepository savedThreadLoaderRepository,
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Thread save manager");
-        return new ThreadSaveManager(databaseManager, savedThreadLoaderRepository, fileManager);
+        return new ThreadSaveManager(databaseManager, okHttpClient, savedThreadLoaderRepository, fileManager);
     }
 
     @Provides

@@ -29,6 +29,7 @@ import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -134,7 +135,7 @@ public class WatchSettingsController
 
         ListSettingView.Item[] timeoutsItems = new ListSettingView.Item[timeouts.length];
         for (int i = 0; i < timeouts.length; i++) {
-            String name = content.getResources().getString(R.string.minutes, (int) MILLISECONDS.toMinutes(timeouts[i]));
+            String name = getString(R.string.minutes, (int) MILLISECONDS.toMinutes(timeouts[i]));
             timeoutsItems[i] = new ListSettingView.Item<>(name, (int) timeouts[i]);
         }
         backgroundTimeout = settings.add(new ListSettingView<Integer>(this,

@@ -201,7 +201,7 @@ public class AndroidUtils {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, link);
-        Intent chooser = Intent.createChooser(intent, getRes().getString(R.string.action_share));
+        Intent chooser = Intent.createChooser(intent, getString(R.string.action_share));
         openIntent(chooser);
     }
 

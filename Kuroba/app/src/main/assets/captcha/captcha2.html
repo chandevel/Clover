@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css">
     #captcha-container div {
-        margin: 0 auto 0 0;
+        position: absolute;
+        bottom: 0;
+        __positioning_horizontal__;
+        margin: 5px;
     }
 
     #captcha-loading, #captcha-error {
@@ -13,9 +15,6 @@
         text-align: center;
         margin: 40px auto 0 auto;
     }
-
-
-
     </style>
 </head>
 <body>
@@ -45,9 +44,6 @@ window.onerror = function(message, url, line) {
         'Captcha error at ' + line + ': ' + message + ' @ ' + url));
 }
 })();
-
-
-
 </script>
 
 <script src='https://www.google.com/recaptcha/api.js?onload=globalOnCaptchaLoaded&render=explicit'></script>

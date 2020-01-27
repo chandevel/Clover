@@ -189,7 +189,7 @@ public class ThumbnailView
                 || e instanceof AuthFailureError) {
             errorText = getString(R.string.thumbnail_load_failed_network);
         } else {
-            errorText = getString(R.string.thumbnail_load_failed_server);
+            errorText = "404";
         }
 
         onImageSet(false);
