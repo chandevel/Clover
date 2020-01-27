@@ -55,33 +55,7 @@ public class TaimabaActions extends CommonSite.CommonActions {
 
     @Override
     public void setupPost(Reply reply, MultipartHttpCall call) {
-        RequestFuture<JSONObject> future = RequestFuture.newFuture();
-        //this must be a GET request, so the jsonRequest object is null per documentation
-        JsonObjectRequest request = new JsonObjectRequest(
-                "https://boards.420chan.org/bunker/",
-                null,
-                future,
-                future
-        );
-        instance(RequestQueue.class).add(request);
-
-        String fart = null;
-
-        try {
-            JSONObject response = future.get(2500, TimeUnit.MILLISECONDS);
-            try {
-                fart = response.getString("response");
-            } catch (JSONException e) {
-                Logger.e("TaimabaActions", "JSONException: " + e);
-            }
-        } catch (Exception e) {
-            fart = null;
-			Logger.e("TaimabaActions", "Exception: " + e);
-        }
-
-        if (fart != null) {
-            call.parameter("fart", fart);
-        }
+        call.parameter("fart", Integer.toString((int) Math.random() * 15000 + 5000));
 
         call.parameter("board", reply.loadable.board.code);
         call.parameter("task", "post");
@@ -92,7 +66,6 @@ public class TaimabaActions extends CommonSite.CommonActions {
 
         call.parameter("password", reply.password);
         call.parameter("field1", reply.name);
-        //call.parameter("email", reply.options);
 
         if (!isEmpty(reply.subject)) {
             call.parameter("field3", reply.subject);
@@ -103,11 +76,10 @@ public class TaimabaActions extends CommonSite.CommonActions {
         if (reply.file != null) {
             call.fileParameter("file", reply.fileName, reply.file);
         }
-    }
 
-    @Override
-    public boolean requirePrepare() {
-        return false;
+        if (reply.options == "sage") {
+            call.parameter("sage", "on");
+        }
     }
 
     public Pattern errorPattern() {
