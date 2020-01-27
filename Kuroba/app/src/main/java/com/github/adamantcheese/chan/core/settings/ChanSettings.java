@@ -45,6 +45,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ChanSettings {
     private static final String TAG = "ChanSettings";
+    private static final String EMPTY_JSON = "{}";
 
     public enum MediaAutoLoadMode
             implements OptionSettingItem {
@@ -388,9 +389,9 @@ public class ChanSettings {
             previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
             addDubs = new BooleanSetting(p, "add_dubs", false);
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
-            youtubeTitleCache = new StringSetting(p, "yt_title_cache", "{}");
-            youtubeDurationCache = new StringSetting(p, "yt_dur_cache", "{}");
-            jsCaptchaCookies = new StringSetting(p, "js_captcha_cookies", "{}");
+            youtubeTitleCache = new StringSetting(p, "yt_title_cache", EMPTY_JSON);
+            youtubeDurationCache = new StringSetting(p, "yt_dur_cache", EMPTY_JSON);
+            jsCaptchaCookies = new StringSetting(p, "js_captcha_cookies", EMPTY_JSON);
             concurrentDownloadChunkCount = new OptionsSetting<>(p,
                     "concurrent_file_downloading_chunks_count",
                     ConcurrentFileDownloadingChunks.class,
