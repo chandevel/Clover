@@ -157,7 +157,7 @@ public class FilterWatchManager
         //Match filters and ignores
         List<Filter> filters = filterEngine.getEnabledWatchFilters();
         for (Filter f : filters) {
-            for (Post p : catalog.getPostsUnsafe()) {
+            for (Post p : catalog.getPosts()) {
                 if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
                     Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site,
                             p.board,
@@ -184,7 +184,7 @@ public class FilterWatchManager
             Set<Integer> toAdd = new HashSet<>();
             //Match filters and ignores
             for (Filter f : filters) {
-                for (Post p : result.getPostsUnsafe()) {
+                for (Post p : result.getPosts()) {
                     if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
                         Loadable pinLoadable = Loadable.forThread(result.getLoadable().site,
                                 p.board,
@@ -199,7 +199,7 @@ public class FilterWatchManager
             }
             //add all posts to ignore
             ignoredPosts.addAll(toAdd);
-            lastCheckedPosts.addAll(result.getPostsUnsafe());
+            lastCheckedPosts.addAll(result.getPosts());
             synchronized (this) {
                 numBoardsChecked--;
                 Logger.d(TAG, "Filter loader processed, left " + numBoardsChecked);

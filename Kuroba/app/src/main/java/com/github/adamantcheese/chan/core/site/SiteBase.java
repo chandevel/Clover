@@ -29,7 +29,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.HttpUrl;
+
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.site.SiteUrlHandler.WWW_PREFIX;
 
 public abstract class SiteBase
         implements Site {
@@ -39,10 +42,8 @@ public abstract class SiteBase
     protected HttpCallManager httpCallManager;
     protected RequestQueue requestQueue;
     protected BoardManager boardManager;
-
-    private JsonSettings userSettings;
     protected SettingProvider settingsProvider;
-
+    private JsonSettings userSettings;
     private boolean initialized = false;
 
     @Override
@@ -102,6 +103,25 @@ public abstract class SiteBase
         Board board = Board.fromSiteNameCode(this, name, code);
         boardManager.updateAvailableBoardsForSite(this, Collections.singletonList(board));
         return board;
+    }
+
+    public static boolean containsMediaHostUrl(HttpUrl diseredSiteUrl, String[] mediaHosts) {
+        String host = diseredSiteUrl.host();
+        if (host == null) {
+            return false;
+        }
+
+        for (String mediaHost : mediaHosts) {
+            if (host.equals(mediaHost)) {
+                return true;
+            }
+
+            if (host.equals(String.format("%s.%s", WWW_PREFIX, mediaHost))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static class Boards {

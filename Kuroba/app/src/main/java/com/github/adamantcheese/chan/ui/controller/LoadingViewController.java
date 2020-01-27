@@ -5,6 +5,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -29,6 +30,7 @@ public class LoadingViewController
         progressBar = view.findViewById(R.id.progress_bar);
     }
 
+    // Disable the back button for this controller
     @Override
     public boolean onBack() {
         return true;
@@ -38,6 +40,8 @@ public class LoadingViewController
      * Shows a progress bar with percentage in the center (cannot be used with indeterminate)
      */
     public void updateProgress(int percent) {
+        BackgroundUtils.ensureMainThread();
+
         if (indeterminate) {
             throw new IllegalStateException("Cannot be used with indeterminate flag");
         }
@@ -58,6 +62,8 @@ public class LoadingViewController
      * (cannot be used with indeterminate)
      */
     public void updateWithText(String text) {
+        BackgroundUtils.ensureMainThread();
+
         if (indeterminate) {
             throw new IllegalStateException("Cannot be used with indeterminate flag");
         }

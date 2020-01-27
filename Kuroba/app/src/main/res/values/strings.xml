@@ -114,6 +114,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_install_downloading">Downloading update…</string>
 
     <string name="update_install_download_failed">Download failed</string>
+    <string name="update_install_download_failed_description">Reason: %1$s</string>
 
     <string name="update_retry_title">Retry update</string>
 
@@ -357,15 +358,15 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="album_download_screen">Select images (%1$d / %2$d)</string>
     <string name="album_download_none_checked">Please select images to download</string>
     <string name="album_download_confirm">%1$s will be downloaded to %2$s</string>
-    <string name="album_download_success">Finished saving images; downloaded to %1$s</string>
+    <string name="image_saver_album_download_success">Finished saving images; downloaded to %1$s</string>
 
     <string name="report_screen">Report %1$s</string>
 
     <string name="image_save_notification_downloading">Downloading images…</string>
     <string name="image_save_notification_cancel">Tap to cancel</string>
     <string name="image_save_saved">Image saved</string>
-    <string name="image_save_as">Saved as \"%1$s\"</string>
-    <string name="image_save_failed">Saving image failed</string>
+    <string name="image_saver_saved_as_message">Saved as \"%1$s\"</string>
+    <string name="image_saver_failed_to_save_image_message">Saving image failed</string>
 
     <string name="thread_page_limit">Thread hit last page</string>
 
@@ -503,6 +504,8 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_save_server_filename">Save server filename</string>
     <string name="setting_save_server_filename_description">Save the image with the filename the site assigned. If disabled, save the image with the filename the uploader assigned.</string>
     <string name="setting_video_default_muted">Start videos muted</string>
+    <string name="setting_video_stream">Stream videos</string>
+    <string name="setting_video_stream_description">Attempt to stream videos, instead of downloading them completely. (Works really bad with 4chan servers)</string>
     <string name="setting_video_default_muted_description">If a video has audio, mute it by default</string>
     <string name="setting_headset_default_muted">Mute headset videos</string>
     <string name="setting_headset_default_muted_description">Mute the video even if a wired headset is connected</string>
@@ -552,7 +555,8 @@ Tap the toolbar menu to change its color."
     </string>
     <string name="setting_theme_accent">Tap here to change the FAB color.</string>
     <string name="settings_open_logs">View logs</string>
-
+    <string name="settings_enable_verbose_logs">Enable verbose logs</string>
+    <string name="settings_disable_verbose_logs">Disable verbose logs</string>
 
     <!-- Theme settings -->
     <string name="settings_logs_screen">Logs</string>
@@ -661,7 +665,7 @@ Don't have a 4chan Pass?<br>
     <string name="setting_bookmark_short_info_description">Shorter information in the bookmark menu for unread and quoted posts</string>
     <string name="filter_removed_undo">Removed filter %1$s</string>
     <string name="image_url_get_attempt">Getting image from clipboard URL…</string>
-    <string name="image_url_get_failed">Failed to get image from clipboard</string>
+    <string name="image_url_get_failed">Failed to get image from clipboard, reason = %1$s</string>
     <string name="image_url_get_success">Got image from clipboard</string>
     <string name="setting_shift_post">Shift post format</string>
     <string name="setting_shift_post_description">Shift the comment of long posts to start below the thumbnail</string>
@@ -754,4 +758,14 @@ Don't have a 4chan Pass?<br>
     <string name="image_saver_could_not_figure_out_save_location">Couldn\'t figure out save location</string>
     <string name="settings_captcha_setup">Captcha Settings</string>
     <string name="settings_captcha_setup_description">Captcha settings are per-site configurable. Tap for site setup.</string>
+    <string name="settings_concurrent_file_downloading_name">Concurrent chunked file downloading</string>
+    <string name="settings_concurrent_file_downloading_description">Split file downloads into chunks and download them concurrently, when possible; makes loading times shorter when viewing them in the gallery.\nHow many chunks a file will be split into:</string>
+    <string name="image_saver_canceled_by_user_message">Canceled by user</string>
+    <string name="image_saver_save_location_is_null_message">Save location is null!</string>
+    <string name="image_saver_unknown_location_message">Unknown location</string>
+    <string name="image_saver_failed_to_save_image">Failed to save the image. Reason</string>
+    <string name="image_saver_no_write_permission_message">Cannot start saving images without WRITE permission</string>
+    <string name="album_download_batch_image_processed_message">Downloaded %1$d out of %2$d (failed %3$d)</string>
+    <string name="media_settings_image_click_preload_strategy_name">Image click preload strategy</string>
+    <string name="media_settings_image_click_preload_strategy_description">When clicking an image what image should be preloaded next:</string>
 </resources>

@@ -58,7 +58,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.cache.FileCache;
+import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
@@ -660,7 +660,7 @@ public class PostCell
                 v.setPostImage(loadable, image, false, size, size);
                 v.setClickable(true);
                 //don't set a callback if the post is deleted, but if the file already exists in cache let it through
-                if (!post.deleted.get() || instance(FileCache.class).exists(image.imageUrl.toString())) {
+                if (!post.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl.toString())) {
                     v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 }
                 v.setRounding(dp(2));

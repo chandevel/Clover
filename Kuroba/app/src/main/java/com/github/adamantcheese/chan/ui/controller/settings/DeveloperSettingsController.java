@@ -22,14 +22,17 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.cache.FileCache;
+import com.github.adamantcheese.chan.core.cache.CacheHandler;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -51,6 +54,10 @@ public class DeveloperSettingsController
     private static final String TAG = "DEV";
     @Inject
     DatabaseManager databaseManager;
+    @Inject
+    FileCacheV2 fileCacheV2;
+    @Inject
+    CacheHandler cacheHandler;
 
     public DeveloperSettingsController(Context context) {
         super(context);
@@ -74,6 +81,9 @@ public class DeveloperSettingsController
         logsButton.setText(R.string.settings_open_logs);
         wrapper.addView(logsButton);
 
+        // Enable/Disable verbose logs
+        addVerboseLogsButton(wrapper);
+
         //CRASH APP
         Button crashButton = new Button(context);
         crashButton.setOnClickListener(v -> {
@@ -84,13 +94,13 @@ public class DeveloperSettingsController
 
         //CLEAR CACHE
         Button clearCacheButton = new Button(context);
-        FileCache cache = instance(FileCache.class);
+
         clearCacheButton.setOnClickListener(v -> {
-            cache.clearCache();
+            fileCacheV2.clearCache();
             showToast("Cleared image cache");
-            clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize() / 1024 / 1024 + "MB)");
+            clearCacheButton.setText("Clear image cache (currently " + cacheHandler.getSize() / 1024 / 1024 + "MB)");
         });
-        clearCacheButton.setText("Clear image cache (currently " + cache.getFileCacheSize() / 1024 / 1024 + "MB)");
+        clearCacheButton.setText("Clear image cache (currently " + cacheHandler.getSize() / 1024 / 1024 + "MB)");
         wrapper.addView(clearCacheButton);
 
         //DATABASE SUMMARY
@@ -178,5 +188,29 @@ public class DeveloperSettingsController
         scrollView.addView(wrapper);
         view = scrollView;
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
+    }
+
+    private void addVerboseLogsButton(LinearLayout wrapper) {
+        Button verboseLogsButton = new Button(context);
+
+        verboseLogsButton.setOnClickListener(v -> {
+            ChanSettings.verboseLogs.set(!ChanSettings.verboseLogs.get());
+
+            if (ChanSettings.verboseLogs.get()) {
+                Toast.makeText(context, "Verbose logs enabled", Toast.LENGTH_SHORT).show();
+                verboseLogsButton.setText(R.string.settings_disable_verbose_logs);
+            } else {
+                Toast.makeText(context, "Verbose logs disabled", Toast.LENGTH_SHORT).show();
+                verboseLogsButton.setText(R.string.settings_enable_verbose_logs);
+            }
+        });
+
+        if (ChanSettings.verboseLogs.get()) {
+            verboseLogsButton.setText(R.string.settings_disable_verbose_logs);
+        } else {
+            verboseLogsButton.setText(R.string.settings_enable_verbose_logs);
+        }
+
+        wrapper.addView(verboseLogsButton);
     }
 }

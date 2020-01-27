@@ -16,7 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
+import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import okhttp3.HttpUrl;
 
@@ -43,6 +48,8 @@ public class PostImage {
     public final int imageHeight;
     public final boolean spoiler;
     public final long size;
+    @Nullable
+    public final String fileHash;
 
     public final Type type;
 
@@ -57,6 +64,7 @@ public class PostImage {
         this.imageHeight = builder.imageHeight;
         this.spoiler = builder.spoiler;
         this.size = builder.size;
+        this.fileHash = builder.fileHash;
 
         switch (extension) {
             case "gif":
@@ -102,6 +110,8 @@ public class PostImage {
         private int imageHeight;
         private boolean spoiler;
         private long size;
+        @Nullable
+        private String fileHash;
 
         public Builder() {
         }
@@ -153,6 +163,14 @@ public class PostImage {
 
         public Builder size(long size) {
             this.size = size;
+            return this;
+        }
+
+        public Builder fileHash(String fileHash) {
+            if (!TextUtils.isEmpty(fileHash)) {
+                this.fileHash = StringUtils.decodeBase64(fileHash);
+            }
+
             return this;
         }
 

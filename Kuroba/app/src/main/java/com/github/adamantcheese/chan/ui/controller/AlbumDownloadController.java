@@ -25,6 +25,7 @@ import android.view.animation.Interpolator;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,6 +41,7 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -52,6 +54,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
@@ -59,12 +62,15 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class AlbumDownloadController
         extends Controller
-        implements View.OnClickListener {
+        implements View.OnClickListener, ImageSaver.BundledDownloadTaskCallbacks {
     private GridRecyclerView recyclerView;
     private FloatingActionButton download;
 
     private List<AlbumDownloadItem> items = new ArrayList<>();
     private Loadable loadable;
+
+    @Nullable
+    private LoadingViewController loadingViewController;
 
     @Inject
     ImageSaver imageSaver;
@@ -84,7 +90,6 @@ public class AlbumDownloadController
         view = inflate(context, R.layout.controller_album_download);
 
         updateTitle();
-
         navigation.buildMenu().withItem(R.drawable.ic_select_all_white_24dp, this::onCheckAllClicked).build();
 
         download = view.findViewById(R.id.download);
@@ -98,6 +103,15 @@ public class AlbumDownloadController
 
         AlbumAdapter adapter = new AlbumAdapter();
         recyclerView.setAdapter(adapter);
+
+        imageSaver.setBundledTaskCallback(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        imageSaver.removeBundleTaskCallback();
     }
 
     @Override
@@ -120,7 +134,7 @@ public class AlbumDownloadController
                 List<ImageSaveTask> tasks = new ArrayList<>(items.size());
                 for (AlbumDownloadItem item : items) {
                     if (item.checked) {
-                        ImageSaveTask imageTask = new ImageSaveTask(loadable, item.postImage);
+                        ImageSaveTask imageTask = new ImageSaveTask(loadable, item.postImage, true);
                         if (subFolder != null) {
                             imageTask.setSubFolder(subFolder);
                         }
@@ -141,7 +155,12 @@ public class AlbumDownloadController
 
         switch (result) {
             case Ok:
-                navigationController.popController();
+                if (loadingViewController != null) {
+                    throw new IllegalStateException("LoadingViewController is already set!");
+                }
+
+                loadingViewController = new LoadingViewController(context, false);
+                navigationController.presentController(loadingViewController);
                 break;
             case BaseDirectoryDoesNotExist:
                 showToast(R.string.files_base_dir_does_not_exist);
@@ -150,6 +169,40 @@ public class AlbumDownloadController
                 showToast(R.string.album_download_could_not_save_one_or_more_images);
                 break;
         }
+    }
+
+    @Override
+    public void onImageProcessed(int downloaded, int failed, int total) {
+        BackgroundUtils.ensureMainThread();
+
+        if (loadingViewController != null) {
+            String message = getAppContext().getString(
+                    R.string.album_download_batch_image_processed_message,
+                    downloaded,
+                    total,
+                    failed
+            );
+
+            loadingViewController.updateWithText(message);
+        }
+    }
+
+    @Override
+    public void onBundleDownloadCompleted() {
+        BackgroundUtils.ensureMainThread();
+
+        if (loadingViewController == null) {
+            throw new IllegalStateException("LoadingViewController is not set!");
+        }
+
+        if (!loadingViewController.shown) {
+            throw new IllegalStateException("LoadingViewController is not shown!");
+        }
+
+        loadingViewController.stopPresenting();
+        loadingViewController = null;
+
+        navigationController.popController();
     }
 
     private void onCheckAllClicked(ToolbarMenuItem menuItem) {

@@ -100,7 +100,7 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public FileManager provideFileManager(Context applicationContext) {
+    public FileManager provideFileManager() {
         DirectoryManager directoryManager = new DirectoryManager(applicationContext);
 
         // Add new base directories here
