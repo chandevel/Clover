@@ -32,7 +32,7 @@ public interface PostCellInterface {
             Loadable loadable,
             Post post,
             PostCellCallback callback,
-            boolean selectable,
+            boolean inPopup,
             boolean highlighted,
             boolean selected,
             int markedNo,
@@ -51,7 +51,7 @@ public interface PostCellInterface {
 
         void onPostClicked(Post post);
 
-        void onPostDoubleClicked(Post post);
+        void onPopupPostDoubleClicked(Post post);
 
         void onThumbnailClicked(PostImage image, ThumbnailView thumbnail);
 

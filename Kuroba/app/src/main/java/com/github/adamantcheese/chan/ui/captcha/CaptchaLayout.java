@@ -18,9 +18,12 @@ package com.github.adamantcheese.chan.ui.captcha;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Point;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -29,6 +32,7 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -39,8 +43,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import static android.view.View.MeasureSpec.AT_MOST;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
@@ -138,11 +147,30 @@ public class CaptchaLayout
 
     @Override
     public void hardReset() {
-        loaded = true;
-
         String html = IOUtils.assetAsString(getContext(), "captcha/captcha2.html");
         html = html.replace("__site_key__", siteKey);
         html = html.replace("__theme__", ThemeHelper.getTheme().isLightTheme ? "light" : "dark");
+
+        Point displaySize = getDisplaySize();
+        boolean isSplitMode =
+                ChanSettings.layoutMode.get() == SPLIT || (ChanSettings.layoutMode.get() == AUTO && isTablet());
+
+        measure(
+                //0.35 is from SplitNavigationControllerLayout for the smaller side; measure for the larger of the two sides to find left/right
+                MeasureSpec.makeMeasureSpec(isSplitMode ? (int) (displaySize.x * 0.65) : displaySize.x, AT_MOST),
+                MeasureSpec.makeMeasureSpec(displaySize.y, AT_MOST)
+        );
+        //for a 2560 wide screen, partitions in split layout are 896(equal) / 2(divider) / 1662 (devicewidth*0.65 - 2(divider))
+        //for some reason, the measurement of THIS view's width is larger than the parent view's width; makes no sense
+        //but once onDraw is called, the parent has the correct width, so we use that
+        int containerWidth = ((View) getParent()).getMeasuredWidth();
+
+        //if split, smaller side has captcha on the left, larger right; otherwise always on the left
+        html = html.replace(
+                "__positioning_horizontal__",
+                //equal is left, greater is right
+                (isSplitMode ? (containerWidth == displaySize.x * 0.35 ? "left: 0" : "right: 0") : "left: 0")
+        );
 
         loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
     }
@@ -163,6 +191,15 @@ public class CaptchaLayout
 
             callback.onAuthenticationComplete(this, challenge, token, isAutoReply);
         }
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        if (!loaded) {
+            loaded = true;
+            hardReset();
+        }
+        super.onDraw(canvas);
     }
 
     public static class CaptchaInterface {

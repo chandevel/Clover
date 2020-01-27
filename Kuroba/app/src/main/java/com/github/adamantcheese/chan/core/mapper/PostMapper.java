@@ -90,7 +90,6 @@ public class PostMapper {
                         // always false, doesn't make sense and may break everything otherwise
                         false,
                         serializablePost.isFilterReplies(),
-                        // TODO: should this be always false too? Won't this hide the whole thread?
                         serializablePost.isFilterOnlyOP(),
                         serializablePost.isFilterSaved()
                 )

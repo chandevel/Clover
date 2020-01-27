@@ -20,8 +20,11 @@ import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 
-import com.github.adamantcheese.chan.core.cache.FileCache;
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
+import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -31,41 +34,47 @@ import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.ExternalFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.inject.Inject;
 
+import io.reactivex.Single;
+import io.reactivex.functions.Action;
+import io.reactivex.subjects.SingleSubject;
 import kotlin.NotImplementedError;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Failure;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class ImageSaveTask
-        extends FileCacheListener
-        implements Runnable {
+        extends FileCacheListener {
     private static final String TAG = "ImageSaveTask";
 
     @Inject
-    FileCache fileCache;
+    FileCacheV2 fileCacheV2;
     @Inject
     FileManager fileManager;
 
     private PostImage postImage;
     private Loadable loadable;
-    private ImageSaveTaskCallback callback;
+    private boolean isBatchDownload;
     private AbstractFile destination;
     private boolean share;
     private String subFolder;
-
     private boolean success = false;
+    private SingleSubject<ImageSaver.BundledDownloadResult> imageSaveTaskAsyncResult;
 
-    public ImageSaveTask(Loadable loadable, PostImage postImage) {
+    public ImageSaveTask(Loadable loadable, PostImage postImage, boolean isBatchDownload) {
         inject(this);
+
         this.loadable = loadable;
         this.postImage = postImage;
+        this.isBatchDownload = isBatchDownload;
+        this.imageSaveTaskAsyncResult = SingleSubject.create();
     }
 
     public void setSubFolder(String boardName) {
@@ -76,12 +85,12 @@ public class ImageSaveTask
         return subFolder;
     }
 
-    public void setCallback(ImageSaveTaskCallback callback) {
-        this.callback = callback;
-    }
-
     public PostImage getPostImage() {
         return postImage;
+    }
+
+    public String getPostImageUrl() {
+        return postImage.imageUrl.toString();
     }
 
     public void setDestination(AbstractFile destination) {
@@ -100,26 +109,40 @@ public class ImageSaveTask
         return share;
     }
 
-    @Override
-    public void run() {
+    public Single<ImageSaver.BundledDownloadResult> run() {
+        @Nullable
+        Action onDisposeFunc = null;
+
         try {
             if (fileManager.exists(destination)) {
                 onDestination();
-                // Manually call postFinished()
-                postFinished(success);
+                onEnd();
             } else {
-                runOnUiThread(() -> fileCache.downloadFile(loadable, postImage, this));
+                CancelableDownload cancelableDownload =
+                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, isBatchDownload, this);
+
+                onDisposeFunc = () -> {
+                    if (cancelableDownload != null) {
+                        cancelableDownload.stopBatchDownload();
+                    }
+                };
             }
         } catch (Exception e) {
-            Logger.e(TAG, "Uncaught exception", e);
+            imageSaveTaskAsyncResult.onError(e);
         }
+
+        if (onDisposeFunc != null) {
+            return imageSaveTaskAsyncResult.doOnDispose(onDisposeFunc);
+        }
+
+        return imageSaveTaskAsyncResult;
     }
 
     @Override
     public void onSuccess(RawFile file) {
         BackgroundUtils.ensureMainThread();
 
-        if (copyToDestination(new File(file.getFullPath()))) {
+        if (copyToDestination(file)) {
             onDestination();
         } else {
             deleteDestination();
@@ -127,18 +150,16 @@ public class ImageSaveTask
     }
 
     @Override
-    public void onNetworkError(IOException error) {
-        super.onNetworkError(error);
+    public void onFail(Exception exception) {
         BackgroundUtils.ensureMainThread();
-
-        postError(error);
+        imageSaveTaskAsyncResult.onError(exception);
     }
 
     @Override
     public void onEnd() {
         BackgroundUtils.ensureMainThread();
 
-        postFinished(success);
+        imageSaveTaskAsyncResult.onSuccess(success ? Success : Failure);
     }
 
     private void deleteDestination() {
@@ -167,7 +188,7 @@ public class ImageSaveTask
         }
     }
 
-    private boolean copyToDestination(File source) {
+    private boolean copyToDestination(RawFile source) {
         boolean result = false;
 
         try {
@@ -180,7 +201,7 @@ public class ImageSaveTask
                 throw new IOException("Destination file is already a directory");
             }
 
-            if (!fileManager.copyFileContents(fileManager.fromRawFile(source), createdDestinationFile)) {
+            if (!fileManager.copyFileContents(source, createdDestinationFile)) {
                 throw new IOException("Could not copy source file into destination");
             }
 
@@ -201,19 +222,5 @@ public class ImageSaveTask
             intent.putExtra(Intent.EXTRA_STREAM, uri);
             openIntent(intent);
         }
-    }
-
-    private void postError(Throwable error) {
-        runOnUiThread(() -> callback.imageSaveTaskFailed(error));
-    }
-
-    private void postFinished(final boolean success) {
-        runOnUiThread(() -> callback.imageSaveTaskFinished(ImageSaveTask.this, success));
-    }
-
-    public interface ImageSaveTaskCallback {
-        void imageSaveTaskFailed(Throwable error);
-
-        void imageSaveTaskFinished(ImageSaveTask task, boolean success);
     }
 }

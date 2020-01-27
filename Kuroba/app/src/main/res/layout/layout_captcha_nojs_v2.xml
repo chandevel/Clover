@@ -64,7 +64,7 @@
             android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
-            android:text="@string/captcha_layout_v2_reload"
+            android:text="@string/action_reload"
             android:textColor="?attr/text_color_primary"
             app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
             app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_verify_button"

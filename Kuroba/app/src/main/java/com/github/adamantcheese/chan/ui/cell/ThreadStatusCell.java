@@ -224,7 +224,9 @@ public class ThreadStatusCell
     @Override
     public void onClick(View v) {
         error = null;
-        callback.onListStatusClicked();
+        if (callback.getChanThread() != null && !callback.getChanThread().isArchived()) {
+            callback.onListStatusClicked();
+        }
         update();
     }
 

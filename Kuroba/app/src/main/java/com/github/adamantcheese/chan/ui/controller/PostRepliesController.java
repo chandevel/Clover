@@ -153,7 +153,7 @@ public class PostRepliesController
                         loadable,
                         p,
                         presenter,
-                        false,
+                        true,
                         false,
                         false,
                         data.forPost.no,

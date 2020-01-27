@@ -26,9 +26,12 @@ import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
+import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
@@ -51,9 +54,9 @@ import javax.inject.Inject;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
@@ -61,13 +64,15 @@ public class ImagePickDelegate {
     private static final String TAG = "ImagePickActivity";
 
     private static final int IMAGE_PICK_RESULT = 2;
-    private static final long MAX_FILE_SIZE = 15 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
     private static final String DEFAULT_FILE_NAME = "file";
 
     @Inject
     ReplyManager replyManager;
     @Inject
     FileManager fileManager;
+    @Inject
+    FileCacheV2 fileCacheV2;
 
     private Activity activity;
     private ImagePickCallback callback;
@@ -75,6 +80,9 @@ public class ImagePickDelegate {
     private String fileName;
     private boolean success = false;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    @Nullable
+    private CancelableDownload cancelableDownload;
 
     public ImagePickDelegate(Activity activity) {
         this.activity = activity;
@@ -137,8 +145,8 @@ public class ImagePickDelegate {
         try {
             clipboardURL =
                     HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
-        } catch (Exception ignored) {
-            showToast(R.string.image_url_get_failed);
+        } catch (Exception exception) {
+            showToast(getString(R.string.image_url_get_failed, exception.getMessage()));
             callback.onFilePickError(true);
             reset();
 
@@ -146,7 +154,12 @@ public class ImagePickDelegate {
         }
 
         HttpUrl finalClipboardURL = clipboardURL;
-        instance(FileCache.class).downloadFile(clipboardURL.toString(), new FileCacheListener() {
+        if (cancelableDownload != null) {
+                        cancelableDownload.cancel();
+                        cancelableDownload = null;
+                    }
+
+                    cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(clipboardURL.toString(), new FileCacheListener() {
             @Override
             public void onSuccess(RawFile file) {
                 BackgroundUtils.ensureMainThread();
@@ -158,14 +171,21 @@ public class ImagePickDelegate {
             }
 
             @Override
-            public void onFail(boolean notFound) {
+            public void onNotFound() {
+                                    onFail(new IOException("Not found"));
+                                }
+
+                                @Override
+                                public void onFail(Exception exception) {
                 BackgroundUtils.ensureMainThread();
 
-                showToast(R.string.image_url_get_failed);
+                String message = getString(R.string.image_url_get_failed, exception.getMessage());
+
+                                    showToast(message);
                 callback.onFilePickError(true);
-                reset();
+                reset();}
             }
-        });
+        );
     }
 
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -236,10 +256,7 @@ public class ImagePickDelegate {
                         "Could not get OutputStream from the cacheFile, cacheFile = " + cacheFile.getFullPath());
             }
 
-            boolean fullyCopied = IOUtils.copy(is, os, MAX_FILE_SIZE);
-            if (fullyCopied) {
-                success = true;
-            }
+            success = IOUtils.copy(is, os, MAX_FILE_SIZE);
         } catch (IOException | SecurityException e) {
             Logger.e(TAG, "Error copying file from the file descriptor", e);
         } finally {
@@ -268,6 +285,13 @@ public class ImagePickDelegate {
         success = false;
         fileName = null;
         uri = null;
+    }
+
+    public void onDestroy() {
+        if (cancelableDownload != null) {
+            cancelableDownload.cancel();
+            cancelableDownload = null;
+        }
     }
 
     public interface ImagePickCallback {

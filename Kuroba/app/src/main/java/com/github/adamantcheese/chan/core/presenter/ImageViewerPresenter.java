@@ -16,22 +16,29 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.annotation.SuppressLint;
 import android.media.AudioManager;
 
 import androidx.viewpager.widget.ViewPager;
 
-import com.github.adamantcheese.chan.core.cache.FileCache;
-import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
+import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
+import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
+import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -49,24 +56,35 @@ import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.OTHER;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageViewerPresenter
         implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewerPresenter";
+    private static final int PRELOAD_IMAGE_INDEX = 1;
+    /**
+     * We don't want to cancel an image right after we have started preloading it because it
+     * sometimes causes weird bugs where you swipe to an already canceled image/webm and nothing
+     * happens so you need to swipe back and forth for it to start loading.
+     */
+    private static final int CANCEL_IMAGE_INDEX = 2;
 
     private final Callback callback;
 
     @Inject
-    FileCache fileCache;
+    FileCacheV2 fileCacheV2;
+    @Inject
+    CacheHandler cacheHandler;
 
     private boolean entering = true;
     private boolean exiting = false;
     private List<PostImage> images;
-    private List<Float> progress;
-    private int selectedPosition;
+    private Map<Integer, List<Float>> progress;
+    private int selectedPosition = 0;
+    private SwipeDirection swipeDirection = SwipeDirection.Default;
     private Loadable loadable;
-
-    private Set<FileCacheDownloader> preloadingImages = new HashSet<>();
+    private Set<CancelableDownload> preloadingImages = new HashSet<>();
+    private final Set<String> nonCancelableImages = new HashSet<>();
 
     // Disables swiping until the view pager is visible
     private boolean viewPagerVisible = false;
@@ -83,14 +101,25 @@ public class ImageViewerPresenter
                 || !audioManager.isWiredHeadsetOn());
     }
 
+    @SuppressLint("UseSparseArrays")
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
         this.images = images;
-        selectedPosition = Math.max(0, Math.min(images.size() - 1, position));
         this.loadable = loadable;
+        this.selectedPosition = Math.max(0, Math.min(images.size() - 1, position));
+        this.progress = new HashMap<>(images.size());
 
-        progress = new ArrayList<>(images.size());
-        for (int i = 0; i < images.size(); i++) {
-            progress.add(i, -1f);
+        int chunksCount = ChanSettings.concurrentDownloadChunkCount.get().toInt();
+
+        for (int i = 0; i < images.size(); ++i) {
+            List<Float> initialProgress = new ArrayList<>(chunksCount);
+
+            for (int j = 0; j < chunksCount; ++j) {
+                initialProgress.add(.1f);
+            }
+
+            // Always use a little bit of progress so it's obvious that we have started downloading
+            // the image
+            progress.put(i, initialProgress);
         }
 
         // Do this before the view is measured, to avoid it to always loading the first two pages
@@ -123,15 +152,17 @@ public class ImageViewerPresenter
             callback.setImageMode(postImage, LOWRES, true);
         }
 
-        callback.resetDownloadButtonState();
+        callback.showDownloadMenuItem(false);
         callback.setPagerVisiblity(false);
         callback.setPreviewVisibility(true);
         callback.startPreviewOutTransition(loadable, postImage);
         callback.showProgress(false);
 
-        for (FileCacheDownloader preloadingImage : preloadingImages) {
+        for (CancelableDownload preloadingImage : preloadingImages) {
             preloadingImage.cancel();
         }
+
+        nonCancelableImages.clear();
         preloadingImages.clear();
     }
 
@@ -159,8 +190,15 @@ public class ImageViewerPresenter
             return;
         }
 
-        selectedPosition = position;
+        if (position == selectedPosition) {
+            swipeDirection = SwipeDirection.Default;
+        } else if (position > selectedPosition) {
+            swipeDirection = SwipeDirection.Forward;
+        } else {
+            swipeDirection = SwipeDirection.Backward;
+        }
 
+        selectedPosition = position;
         onPageSwipedTo(position);
     }
 
@@ -212,7 +250,7 @@ public class ImageViewerPresenter
         callback.showVolumeMenuItem(false, true);
 
         //Reset the save icon
-        callback.resetDownloadButtonState();
+        callback.showDownloadMenuItem(false);
 
         PostImage postImage = images.get(selectedPosition);
         setTitle(postImage, position);
@@ -222,16 +260,19 @@ public class ImageViewerPresenter
             callback.setImageMode(other, LOWRES, false);
         }
 
-        cancelPreviousImageDownload(position);
+        nonCancelableImages.clear();
+        nonCancelableImages.addAll(getNonCancelableImages(position));
+
+        if (swipeDirection == SwipeDirection.Forward) {
+            cancelPreviousFromStartImageDownload(position);
+        } else if (swipeDirection == SwipeDirection.Backward) {
+            cancelPreviousFromEndImageDownload(position);
+        }
 
         // Already in LOWRES mode
         if (callback.getImageMode(postImage) == LOWRES) {
             onLowResInCenter();
         }
-        // Else let onModeLoaded handle it
-
-        callback.showProgress(progress.get(selectedPosition) >= 0f);
-        callback.onLoadProgress(progress.get(selectedPosition));
     }
 
     // Called from either a page swipe caused a lowres image to be in the center or an
@@ -251,58 +292,163 @@ public class ImageViewerPresenter
             }
         }
 
-        preloadNext();
+        ChanSettings.ImageClickPreloadStrategy strategy = ChanSettings.imageClickPreloadStrategy.get();
+
+        if (swipeDirection == SwipeDirection.Forward) {
+            preloadNext();
+        } else if (swipeDirection == SwipeDirection.Backward) {
+            preloadPrevious();
+        } else {
+            switch (strategy) {
+                case PreloadNext:
+                    preloadNext();
+                    break;
+                case PreloadPrevious:
+                    preloadPrevious();
+                    break;
+                case PreloadBoth:
+                    preloadNext();
+                    preloadPrevious();
+                    break;
+                case PreloadNeither:
+                    break;
+            }
+        }
+    }
+
+    private void preloadPrevious() {
+        BackgroundUtils.ensureMainThread();
+        int index = selectedPosition - PRELOAD_IMAGE_INDEX;
+
+        if (index >= 0 && index < images.size()) {
+            doPreloading(images.get(index));
+        }
     }
 
     // This won't actually change any modes, but it will preload the image so that it's
     // available immediately when the user swipes right.
     private void preloadNext() {
         BackgroundUtils.ensureMainThread();
+        int index = selectedPosition + PRELOAD_IMAGE_INDEX;
 
-        if (selectedPosition + 1 < images.size()) {
-            PostImage next = images.get(selectedPosition + 1);
+        if (index >= 0 && index < images.size()) {
+            doPreloading(images.get(index));
+        }
+    }
 
-            boolean load = false;
-            if (next.type == STATIC || next.type == GIF) {
-                load = imageAutoLoad(loadable, next);
-            } else if (next.type == MOVIE) {
-                load = videoAutoLoad(loadable, next);
+    private List<String> getNonCancelableImages(int index) {
+        if (images.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<String> nonCancelableImages = new ArrayList<>(3);
+
+        if (index - 1 >= 0) {
+            nonCancelableImages.add(images.get(index - 1).imageUrl.toString());
+        }
+
+        if (index >= 0 && index < images.size()) {
+            nonCancelableImages.add(images.get(index).imageUrl.toString());
+        }
+
+        if (index + 1 < images.size()) {
+            nonCancelableImages.add(images.get(index + 1).imageUrl.toString());
+        }
+
+        return nonCancelableImages;
+    }
+
+    private void doPreloading(PostImage postImage) {
+        boolean load = false;
+        boolean loadChunked = true;
+
+        if (postImage.type == STATIC || postImage.type == GIF) {
+            load = imageAutoLoad(loadable, postImage);
+        } else if (postImage.type == MOVIE) {
+            load = videoAutoLoad(loadable, postImage);
+        }
+
+        /**
+         * If the file is a webm file and webm streaming is turned on we don't want to download the
+         * webm chunked because it will most likely corrupt the file since we will forcefully stop
+         * it.
+         * */
+        if (postImage.type == MOVIE && ChanSettings.videoStream.get()) {
+            loadChunked = false;
+        }
+
+        if (load) {
+            // If downloading, remove from preloadingImages if it finished.
+            // Array to allow access from within the callback (the callback should really
+            // pass the filecachedownloader itself).
+            final CancelableDownload[] preloadDownload = new CancelableDownload[1];
+
+            final FileCacheListener fileCacheListener = new FileCacheListener() {
+                @Override
+                public void onEnd() {
+                    BackgroundUtils.ensureMainThread();
+
+                    if (preloadDownload[0] != null) {
+                        preloadingImages.remove(preloadDownload[0]);
+                    }
+                }
+            };
+
+            if (loadChunked) {
+                DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
+
+                preloadDownload[0] = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable,
+                        postImage,
+                        extraInfo,
+                        fileCacheListener
+                );
+            } else {
+                preloadDownload[0] =
+                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, false, fileCacheListener);
             }
 
-            if (load) {
-                // If downloading, remove from preloadingImages if it finished.
-                // Array to allow access from within the callback (the callback should really
-                // pass the filecachedownloader itself).
-                final FileCacheDownloader[] preloadDownload = new FileCacheDownloader[1];
-                preloadDownload[0] = fileCache.downloadFile(loadable, next, new FileCacheListener() {
-                    @Override
-                    public void onEnd() {
-                        BackgroundUtils.ensureMainThread();
+            if (preloadDownload[0] != null) {
+                preloadingImages.add(preloadDownload[0]);
+            }
+        }
+    }
 
-                        if (preloadDownload[0] != null) {
-                            preloadingImages.remove(preloadDownload[0]);
-                        }
-                    }
-                });
-
-                if (preloadDownload[0] != null) {
-                    preloadingImages.add(preloadDownload[0]);
+    private void cancelPreviousFromEndImageDownload(int position) {
+        for (CancelableDownload downloader : preloadingImages) {
+            int index = position + CANCEL_IMAGE_INDEX;
+            if (index < images.size()) {
+                if (cancelImageDownload(index, downloader)) {
+                    return;
                 }
             }
         }
     }
 
-    private void cancelPreviousImageDownload(int position) {
-        for (FileCacheDownloader downloader : preloadingImages) {
-            if (position - 1 >= 0) {
-                PostImage previousImage = images.get(position - 1);
-                if (downloader.getUrl().equals(previousImage.imageUrl.toString())) {
-                    downloader.cancel();
-                    preloadingImages.remove(downloader);
+    private void cancelPreviousFromStartImageDownload(int position) {
+        for (CancelableDownload downloader : preloadingImages) {
+            int index = position - CANCEL_IMAGE_INDEX;
+            if (index >= 0) {
+                if (cancelImageDownload(index, downloader)) {
                     return;
                 }
             }
         }
+    }
+
+    private boolean cancelImageDownload(int position, CancelableDownload downloader) {
+        if (nonCancelableImages.contains(downloader.getUrl())) {
+            Logger.d(TAG, "Attempt to cancel non cancelable download for image with url: " + downloader.getUrl());
+            return false;
+        }
+
+        PostImage previousImage = images.get(position);
+        if (downloader.getUrl().equals(previousImage.imageUrl.toString())) {
+            downloader.cancel();
+            preloadingImages.remove(downloader);
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -347,34 +493,73 @@ public class ImageViewerPresenter
     }
 
     @Override
-    public void showProgress(MultiImageView multiImageView, boolean show) {
+    public void onStartDownload(MultiImageView multiImageView, int chunksCount) {
+        BackgroundUtils.ensureMainThread();
+
+        if (chunksCount <= 0) {
+            throw new IllegalArgumentException(
+                    "chunksCount must be 1 or greater than 1 " + "(actual = " + chunksCount + ")");
+        }
+
+        List<Float> initialProgress = new ArrayList<>(chunksCount);
+
+        for (int i = 0; i < chunksCount; ++i) {
+            // Always use a little bit of progress so it's obvious that we have started downloading
+            // the image
+            initialProgress.add(.1f);
+        }
+
         for (int i = 0; i < images.size(); i++) {
             PostImage postImage = images.get(i);
             if (postImage == multiImageView.getPostImage()) {
-                progress.set(i, show ? 0f : -1f);
+                progress.put(i, initialProgress);
                 break;
             }
         }
 
         if (multiImageView.getPostImage() == images.get(selectedPosition)) {
-            callback.showProgress(progress.get(selectedPosition) >= 0f);
-            if (show) {
-                callback.onLoadProgress(0f);
-            }
+            callback.showProgress(true);
+            callback.onLoadProgress(initialProgress);
         }
     }
 
     @Override
-    public void onProgress(MultiImageView multiImageView, long current, long total) {
+    public void onDownloaded(PostImage postImage) {
+        BackgroundUtils.ensureMainThread();
+
+        if (getCurrentPostImage().equalUrl(postImage)) {
+            callback.showDownloadMenuItem(true);
+        }
+    }
+
+    @Override
+    public void hideProgress(MultiImageView multiImageView) {
+        BackgroundUtils.ensureMainThread();
+
+        callback.showProgress(false);
+    }
+
+    @Override
+    public void onProgress(MultiImageView multiImageView, int chunkIndex, long current, long total) {
+        BackgroundUtils.ensureMainThread();
+
         for (int i = 0; i < images.size(); i++) {
             PostImage postImage = images.get(i);
             if (postImage == multiImageView.getPostImage()) {
-                progress.set(i, current / (float) total);
+                List<Float> chunksProgress = progress.get(i);
+
+                if (chunksProgress != null) {
+                    if (chunkIndex >= 0 && chunkIndex < chunksProgress.size()) {
+                        chunksProgress.set(chunkIndex, current / (float) total);
+                    }
+                }
+
                 break;
             }
         }
 
-        if (multiImageView.getPostImage() == images.get(selectedPosition)) {
+        if (multiImageView.getPostImage() == images.get(selectedPosition) && progress.get(selectedPosition) != null) {
+            callback.showProgress(true);
             callback.onLoadProgress(progress.get(selectedPosition));
         }
     }
@@ -400,7 +585,7 @@ public class ImageViewerPresenter
         }
 
         // Auto load the image when it is cached
-        return fileCache.exists(postImage.imageUrl.toString())
+        return cacheHandler.exists(postImage.imageUrl.toString())
                 || shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get());
     }
 
@@ -432,6 +617,29 @@ public class ImageViewerPresenter
         return other;
     }
 
+    public boolean forceReload() {
+        PostImage currentImage = getCurrentPostImage();
+
+        if (fileCacheV2.isRunning(currentImage.imageUrl.toString())) {
+            showToast("Image is not yet downloaded");
+            return false;
+        }
+
+        if (!cacheHandler.deleteCacheFileByUrl(currentImage.imageUrl.toString())) {
+            showToast("Can't force reload because couldn't delete cached image");
+            return false;
+        }
+
+        callback.setImageMode(currentImage, LOWRES, false);
+        return true;
+    }
+
+    private enum SwipeDirection {
+        Default,
+        Forward,
+        Backward
+    }
+
     public interface Callback {
         void startPreviewInTransition(Loadable loadable, PostImage postImage);
 
@@ -455,11 +663,11 @@ public class ImageViewerPresenter
 
         void showProgress(boolean show);
 
-        void onLoadProgress(float progress);
+        void onLoadProgress(List<Float> progress);
 
         void showVolumeMenuItem(boolean show, boolean muted);
 
-        void resetDownloadButtonState();
+        void showDownloadMenuItem(boolean show);
 
         boolean isImmersive();
 

@@ -72,7 +72,6 @@ public class GenericWebViewAuthenticationLayout
         inject(this);
     }
 
-
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
     public void initialize(Site site, AuthenticationLayoutCallback callback, boolean ignored) {

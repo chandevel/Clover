@@ -157,7 +157,7 @@ public class FilterWatchManager
         //Match filters and ignores
         List<Filter> filters = filterEngine.getEnabledWatchFilters();
         for (Filter f : filters) {
-            for (Post p : catalog.getPostsUnsafe()) {
+            for (Post p : catalog.getPosts()) {
                 if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
                     Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site,
                             p.board,
@@ -184,7 +184,7 @@ public class FilterWatchManager
             Set<Integer> toAdd = new HashSet<>();
             //Match filters and ignores
             for (Filter f : filters) {
-                for (Post p : result.getPostsUnsafe()) {
+                for (Post p : result.getPosts()) {
                     if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
                         Loadable pinLoadable = Loadable.forThread(result.getLoadable().site,
                                 p.board,
@@ -199,32 +199,40 @@ public class FilterWatchManager
             }
             //add all posts to ignore
             ignoredPosts.addAll(toAdd);
-            lastCheckedPosts.addAll(result.getPostsUnsafe());
+            lastCheckedPosts.addAll(result.getPosts());
             synchronized (this) {
                 numBoardsChecked--;
                 Logger.d(TAG, "Filter loader processed, left " + numBoardsChecked);
-                if (numBoardsChecked <= 0) {
-                    numBoardsChecked = 0;
-                    Set<Integer> lastCheckedPostNumbers = new HashSet<>();
-                    for (Post post : lastCheckedPosts) {
-                        lastCheckedPostNumbers.add(post.no);
-                    }
-                    ignoredPosts.retainAll(lastCheckedPostNumbers);
-                    ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
-                    lastCheckedPosts.clear();
-                    processing = false;
-                    Logger.i(TAG,
-                            "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance()
-                                    .format(new Date())
-                    );
-                    wakeManager.manageLock(false, FilterWatchManager.this);
-                }
+                checkComplete();
             }
         }
 
         @Override
         public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
-            //ignore all errors
+            synchronized (this) {
+                numBoardsChecked--;
+                Logger.d(TAG, "Filter loader failed, left " + numBoardsChecked);
+                checkComplete();
+            }
+        }
+
+        private void checkComplete() {
+            if (numBoardsChecked <= 0) {
+                numBoardsChecked = 0;
+                Set<Integer> lastCheckedPostNumbers = new HashSet<>();
+                for (Post post : lastCheckedPosts) {
+                    lastCheckedPostNumbers.add(post.no);
+                }
+                ignoredPosts.retainAll(lastCheckedPostNumbers);
+                ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
+                lastCheckedPosts.clear();
+                processing = false;
+                Logger.i(TAG,
+                        "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance()
+                                .format(new Date())
+                );
+                wakeManager.manageLock(false, FilterWatchManager.this);
+            }
         }
     }
 }
