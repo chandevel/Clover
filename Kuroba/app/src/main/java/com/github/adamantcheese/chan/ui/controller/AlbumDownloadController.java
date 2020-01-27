@@ -41,7 +41,6 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -113,6 +112,16 @@ public class AlbumDownloadController
     }
 
     @Override
+    public boolean onBack() {
+        if (loadingViewController != null) {
+            loadingViewController.stopPresenting();
+            loadingViewController = null;
+            return true;
+        }
+        return super.onBack();
+    }
+
+    @Override
     public void onClick(View v) {
         if (v == download) {
             int checkCount = getCheckCount();
@@ -158,6 +167,7 @@ public class AlbumDownloadController
                 }
 
                 loadingViewController = new LoadingViewController(context, false);
+                loadingViewController.enableBack();
                 navigationController.presentController(loadingViewController);
                 break;
             case BaseDirectoryDoesNotExist:
@@ -181,13 +191,12 @@ public class AlbumDownloadController
 
     @Override
     public void onBundleDownloadCompleted() {
-        if (loadingViewController == null) {
-            throw new IllegalStateException("LoadingViewController is not set!");
+        if (loadingViewController != null) {
+            loadingViewController.stopPresenting();
+            loadingViewController = null;
         }
 
-        loadingViewController.stopPresenting();
-        loadingViewController = null;
-
+        //extra pop to get out of this controller
         navigationController.popController();
     }
 

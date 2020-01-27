@@ -525,12 +525,10 @@ public class MediaSettingsController
     ) {
         BackgroundUtils.ensureMainThread();
 
-        if (loadingViewController == null) {
-            throw new IllegalStateException("LoadingViewController was not shown beforehand!");
+        if (loadingViewController != null) {
+            loadingViewController.stopPresenting();
+            loadingViewController = null;
         }
-
-        loadingViewController.stopPresenting();
-        loadingViewController = null;
 
         if (!result) {
             showToast(R.string.media_settings_could_not_copy_files, Toast.LENGTH_LONG);
@@ -604,7 +602,8 @@ public class MediaSettingsController
         BackgroundUtils.ensureMainThread();
 
         if (loadingViewController != null) {
-            throw new IllegalStateException("Previous loadingViewController was not destroyed");
+            loadingViewController.stopPresenting();
+            loadingViewController = null;
         }
 
         AlertDialog alertDialog =

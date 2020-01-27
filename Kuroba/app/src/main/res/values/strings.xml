@@ -761,7 +761,7 @@ Don't have a 4chan Pass?<br>
     <string name="image_saver_unknown_location_message">Unknown location</string>
     <string name="image_saver_failed_to_save_image">Failed to save the image. Reason: %s</string>
     <string name="image_saver_no_write_permission_message">Cannot start saving images without the WRITE_EXTERNAL_STORAGE permission</string>
-    <string name="album_download_batch_image_processed_message">Downloaded %1$d out of %2$d (failed %3$d)</string>
+    <string name="album_download_batch_image_processed_message">Downloaded %1$d out of %2$d (%3$d failed)</string>
     <string name="media_settings_image_click_preload_strategy_name">Image preload strategy</string>
     <string name="media_settings_image_click_preload_strategy_description">When opening up an image pager, determines what image(s) should be preloaded next.</string>
 </resources>
