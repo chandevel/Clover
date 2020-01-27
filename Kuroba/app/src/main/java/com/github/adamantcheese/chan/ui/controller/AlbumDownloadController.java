@@ -190,10 +190,6 @@ public class AlbumDownloadController
             throw new IllegalStateException("LoadingViewController is not set!");
         }
 
-        if (!loadingViewController.shown) {
-            throw new IllegalStateException("LoadingViewController is not shown!");
-        }
-
         loadingViewController.stopPresenting();
         loadingViewController = null;
 

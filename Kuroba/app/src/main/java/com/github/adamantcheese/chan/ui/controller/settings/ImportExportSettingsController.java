@@ -295,7 +295,7 @@ public class ImportExportSettingsController
                 if (importExport == ImportExportRepository.ImportExport.Import) {
                     ((StartActivity) context).restartApp();
                 } else {
-                    clearAllChildControllers();
+                    loadingViewController.stopPresenting();
                     showToast(R.string.successfully_exported_text, Toast.LENGTH_LONG);
 
                     if (callbacks != null) {
@@ -308,17 +308,10 @@ public class ImportExportSettingsController
 
     @Override
     public void onError(String message) {
-        // may be called on background thread
         runOnUiThread(() -> {
-            clearAllChildControllers();
+            loadingViewController.stopPresenting();
             showToast(message, Toast.LENGTH_LONG);
         });
-    }
-
-    private void clearAllChildControllers() {
-        if (loadingViewController.shown) {
-            loadingViewController.stopPresenting();
-        }
     }
 
     public interface OnExportSuccessCallbacks {
