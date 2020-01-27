@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.widget.Toast;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
@@ -235,7 +236,7 @@ public class ImageSaver {
             }
 
             String text = getText(null, false, false);
-            cancellableToast.showToast(getAppContext(), text, CancellableToast.Duration.Long);
+            cancellableToast.showToast(text, Toast.LENGTH_LONG);
         });
 
         return Ok;
@@ -287,8 +288,8 @@ public class ImageSaver {
 
         Logger.e(TAG, "imageSaveTaskFailed imageUrl = " + task.getPostImageUrl());
 
-        cancellableToast.showToast(getAppContext(), errorMessage, CancellableToast.Duration.Long);
         String errorMessage = getString(R.string.image_saver_failed_to_save_image, error.getMessage());
+        cancellableToast.showToast(errorMessage, Toast.LENGTH_LONG);
     }
 
     public void imageSaveTaskFinished(ImageSaveTask task, BundledDownloadResult result) {
@@ -316,17 +317,9 @@ public class ImageSaver {
         // Do not show the toast when image download has failed; we will show it in imageSaveTaskFailed
         if (result == BundledDownloadResult.Success) {
             String text = getText(task, true, wasAlbumSave);
-            cancellableToast.showToast(
-                    getAppContext(),
-                    text,
-                    CancellableToast.Duration.Long
-            );
+            cancellableToast.showToast(text, Toast.LENGTH_LONG);
         } else if (result == BundledDownloadResult.Canceled) {
-            cancellableToast.showToast(
-                    getAppContext(),
-                    R.string.image_saver_canceled_by_user_message,
-                    CancellableToast.Duration.Long
-            );
+            cancellableToast.showToast(R.string.image_saver_canceled_by_user_message, Toast.LENGTH_LONG);
         }
     }
 
@@ -399,11 +392,7 @@ public class ImageSaver {
 
         updateNotification();
 
-        cancellableToast.showToast(
-                getAppContext(),
-                getAppContext().getString(R.string.image_saver_canceled_by_user_message),
-                CancellableToast.Duration.Long
-        );
+        cancellableToast.showToast(R.string.image_saver_canceled_by_user_message, Toast.LENGTH_LONG);
     }
 
     private void updateNotification() {

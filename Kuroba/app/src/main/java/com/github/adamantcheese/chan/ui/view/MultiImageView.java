@@ -648,7 +648,7 @@ public class MultiImageView
 
     private void setOther(Loadable loadable, PostImage image) {
         if (image.type == PostImage.Type.PDF) {
-            cancellableToast.showToast(context, R.string.pdf_not_viewable);
+            cancellableToast.showToast(R.string.pdf_not_viewable);
         }
     }
 
@@ -728,30 +728,26 @@ public class MultiImageView
                 reason = "Unknown reason";
             }
 
-            String message = String.format(
-                    "%s, reason: %s",
-                    context.getString(R.string.image_preview_failed),
-                    reason
-            );
+            String message = String.format("%s, reason: %s", context.getString(R.string.image_preview_failed), reason);
 
-            cancellableToast.showToast(context, message);
+            cancellableToast.showToast(message);
             callback.hideProgress(MultiImageView.this);
         }
     }
 
     private void onNotFoundError() {
-        cancellableToast.showToast(context, R.string.image_not_found);
+        cancellableToast.showToast(R.string.image_not_found);
         callback.hideProgress(MultiImageView.this);
     }
 
     private void onOutOfMemoryError() {
-        cancellableToast.showToast(context, R.string.image_preview_failed_oom);
+        cancellableToast.showToast(R.string.image_preview_failed_oom);
         callback.hideProgress(MultiImageView.this);
     }
 
     private void onBigImageError(boolean wasInitial) {
         if (wasInitial) {
-            cancellableToast.showToast(context, R.string.image_failed_big_image);
+            cancellableToast.showToast(R.string.image_failed_big_image);
             callback.hideProgress(MultiImageView.this);
         }
     }
