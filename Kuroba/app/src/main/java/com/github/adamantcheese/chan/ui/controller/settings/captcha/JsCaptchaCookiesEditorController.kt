@@ -6,6 +6,7 @@ import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.controller.Controller
 import com.github.adamantcheese.chan.core.settings.ChanSettings
+import com.github.adamantcheese.chan.core.settings.ChanSettings.EMPTY_JSON
 import com.github.adamantcheese.chan.utils.AndroidUtils.inflate
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
@@ -82,7 +83,7 @@ class JsCaptchaCookiesEditorController(context: Context) : Controller(context) {
         sidCookieEditText.setText("")
         nidCookieEditText.setText("")
 
-        ChanSettings.jsCaptchaCookies.set("{}")
+        ChanSettings.jsCaptchaCookies.set(EMPTY_JSON)
         onFinishedListener?.invoke()
     }
 
@@ -93,22 +94,22 @@ class JsCaptchaCookiesEditorController(context: Context) : Controller(context) {
         val nidCookie = nidCookieEditText.text?.toString() ?: ""
 
         if (hsidCookie.isEmpty()) {
-            hsidCookieEditText.error = "HSID cookie is not set!"
+            hsidCookieEditText.error = context.getString(R.string.js_captcha_cookies_editor_bad_hsid)
             return
         }
 
         if (ssidCookie.isEmpty()) {
-            ssidCookieEditText.error = "SSID cookie is not set!"
+            ssidCookieEditText.error = context.getString(R.string.js_captcha_cookies_editor_bad_ssid)
             return
         }
 
         if (sidCookie.isEmpty()) {
-            sidCookieEditText.error = "SID cookie is not set!"
+            sidCookieEditText.error = context.getString(R.string.js_captcha_cookies_editor_bad_sid)
             return
         }
 
         if (nidCookie.isEmpty()) {
-            nidCookieEditText.error = "NID cookie is not set!"
+            nidCookieEditText.error = context.getString(R.string.js_captcha_cookies_editor_bad_nid)
             return
         }
 

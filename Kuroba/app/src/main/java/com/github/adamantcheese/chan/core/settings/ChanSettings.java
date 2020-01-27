@@ -45,7 +45,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ChanSettings {
     private static final String TAG = "ChanSettings";
-    private static final String EMPTY_JSON = "{}";
+    public static final String EMPTY_JSON = "{}";
 
     public enum MediaAutoLoadMode
             implements OptionSettingItem {

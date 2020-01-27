@@ -775,4 +775,8 @@ Don't have a 4chan Pass?<br>
     <string name="js_captcha_cookies_editor_controller_title">JS Captcha cookies editor</string>
     <string name="settings_js_captcha_cookies_title">JS captcha cookies</string>
     <string name="settings_js_captcha_cookies_description">By selling your soul to the Google botnet you will be granted with easy captcha</string>
+    <string name="js_captcha_cookies_editor_bad_hsid">HSID cookie is not set!</string>
+    <string name="js_captcha_cookies_editor_bad_ssid">SSID cookie is not set!</string>
+    <string name="js_captcha_cookies_editor_bad_sid">SID cookie is not set!</string>
+    <string name="js_captcha_cookies_editor_bad_nid">NID cookie is not set!</string>
 </resources>
