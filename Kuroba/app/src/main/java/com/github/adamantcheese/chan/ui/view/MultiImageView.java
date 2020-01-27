@@ -559,6 +559,7 @@ public class MultiImageView
                         exoPlayer.prepare(source);
                         exoPlayer.setVolume(0f);
                         exoPlayer.addAudioListener(MultiImageView.this);
+                        exoVideoView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
 
                         addView(exoVideoView);
                         exoPlayer.setPlayWhenReady(true);
