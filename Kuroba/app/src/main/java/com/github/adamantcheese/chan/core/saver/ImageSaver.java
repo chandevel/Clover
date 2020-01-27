@@ -123,12 +123,9 @@ public class ImageSaver {
     @GuardedBy("itself")
     private final Set<String> activeDownloads = new HashSet<>(64);
 
-    private Scheduler workerScheduler = Schedulers.from(Executors.newFixedThreadPool(
-            THREADS_COUNT,
-            r -> new Thread(r,
-                    String.format(Locale.US, IMAGE_SAVER_THREAD_NAME_FORMAT, imagesSaverThreadIndex.getAndIncrement())
-            )
-    ));
+    private Scheduler workerScheduler = Schedulers.from(Executors.newFixedThreadPool(THREADS_COUNT, r -> new Thread(r,
+            String.format(Locale.US, IMAGE_SAVER_THREAD_NAME_FORMAT, imagesSaverThreadIndex.getAndIncrement())
+    )));
 
     /**
      * This is a singleton class so we don't care about the disposable since we will never should

@@ -43,7 +43,8 @@ public class ExperimentalSettingsController
     private void populatePreferences() {
         SettingsGroup group = new SettingsGroup(getString(R.string.experimental_settings_group));
 
-        group.add(new BooleanSettingView(this,
+        group.add(new BooleanSettingView(
+                this,
                 ChanSettings.videoStream,
                 R.string.setting_video_stream,
                 R.string.setting_video_stream_description
@@ -61,7 +62,8 @@ public class ExperimentalSettingsController
             items.add(new ListSettingView.Item<>(setting.getKey(), setting));
         }
 
-        requiresRestart.add(group.add(new ListSettingView<ChanSettings.ConcurrentFileDownloadingChunks>(this,
+        requiresRestart.add(group.add(new ListSettingView<ChanSettings.ConcurrentFileDownloadingChunks>(
+                this,
                 ChanSettings.concurrentDownloadChunkCount,
                 getString(R.string.settings_concurrent_file_downloading_name),
                 items
