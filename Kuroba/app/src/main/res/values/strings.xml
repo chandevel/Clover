@@ -114,6 +114,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_install_downloading">Downloading update…</string>
 
     <string name="update_install_download_failed">Download failed</string>
+    <string name="update_install_download_failed_description">Reason: %1$s</string>
 
     <string name="update_retry_title">Retry update</string>
 
@@ -167,7 +168,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="action_confirm_exit_title">Tap back again to exit</string>
 
     <string name="thumbnail_load_failed_network">Error</string>
-    <string name="thumbnail_load_failed_server" translatable="false">404</string>
     <string name="image_preview_failed">Failed to show image</string>
     <string name="image_preview_failed_oom">Failed to show image (out of memory)</string>
     <string name="image_failed_big_image">Failed to show image (deep-zoom loading failed)</string>
@@ -228,7 +228,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="filter_action">Action</string>
     <string name="filter_pattern">Pattern</string>
     <string name="filter_match_test">Test the pattern</string>
-    <string name="filter_pattern_hint_regex">Pattern</string>
     <string name="filter_boards">Boards</string>
     <string name="filter_types">Types</string>
     <string name="filter_all">All</string>
@@ -357,15 +356,15 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="album_download_screen">Select images (%1$d / %2$d)</string>
     <string name="album_download_none_checked">Please select images to download</string>
     <string name="album_download_confirm">%1$s will be downloaded to %2$s</string>
-    <string name="album_download_success">Finished saving images; downloaded to %1$s</string>
+    <string name="image_saver_album_download_success">Finished saving images; downloaded to %1$s</string>
 
     <string name="report_screen">Report %1$s</string>
 
     <string name="image_save_notification_downloading">Downloading images…</string>
     <string name="image_save_notification_cancel">Tap to cancel</string>
     <string name="image_save_saved">Image saved</string>
-    <string name="image_save_as">Saved as \"%1$s\"</string>
-    <string name="image_save_failed">Saving image failed</string>
+    <string name="image_saver_saved_as_message">Saved as \"%1$s\"</string>
+    <string name="image_saver_failed_to_save_image_message">Saving image failed</string>
 
     <string name="thread_page_limit">Thread hit last page</string>
 
@@ -503,6 +502,8 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="setting_save_server_filename">Save server filename</string>
     <string name="setting_save_server_filename_description">Save the image with the filename the site assigned. If disabled, save the image with the filename the uploader assigned.</string>
     <string name="setting_video_default_muted">Start videos muted</string>
+    <string name="setting_video_stream">Stream videos</string>
+    <string name="setting_video_stream_description">Attempt to stream videos, instead of downloading them completely. (Works really bad with 4chan servers)</string>
     <string name="setting_video_default_muted_description">If a video has audio, mute it by default</string>
     <string name="setting_headset_default_muted">Mute headset videos</string>
     <string name="setting_headset_default_muted_description">Mute the video even if a wired headset is connected</string>
@@ -552,7 +553,8 @@ Tap the toolbar menu to change its color."
     </string>
     <string name="setting_theme_accent">Tap here to change the FAB color.</string>
     <string name="settings_open_logs">View logs</string>
-
+    <string name="settings_enable_verbose_logs">Enable verbose logs</string>
+    <string name="settings_disable_verbose_logs">Disable verbose logs</string>
 
     <!-- Theme settings -->
     <string name="settings_logs_screen">Logs</string>
@@ -641,7 +643,6 @@ Don't have a 4chan Pass?<br>
 
     <!-- Captcha settings -->
     <string name="captcha_layout_v2_verify_button_text">Verify</string>
-    <string name="captcha_layout_v2_reload">Reload</string>
     <string name="captcha_layout_v2_use_old_captcha">Use old\ncaptcha</string>
 
     <string name="captcha_layout_v2_you_have_to_select_at_least_one_image">You have to select at least one image (if you see a captcha that does not have any matching images, then it is probably a bug; fill an issue and use the old captcha)</string>
@@ -661,7 +662,7 @@ Don't have a 4chan Pass?<br>
     <string name="setting_bookmark_short_info_description">Shorter information in the bookmark menu for unread and quoted posts</string>
     <string name="filter_removed_undo">Removed filter %1$s</string>
     <string name="image_url_get_attempt">Getting image from clipboard URL…</string>
-    <string name="image_url_get_failed">Failed to get image from clipboard</string>
+    <string name="image_url_get_failed">Failed to get image from clipboard, reason = %1$s</string>
     <string name="image_url_get_success">Got image from clipboard</string>
     <string name="setting_shift_post">Shift post format</string>
     <string name="setting_shift_post_description">Shift the comment of long posts to start below the thumbnail</string>
@@ -692,7 +693,7 @@ Don't have a 4chan Pass?<br>
     <string name="settings_image_long_url">Enable long-press image URL copy</string>
     <string name="settings_image_long_url_description">Makes long-pressing on post images copy the image URL to the clipboard</string>
     <string name="setting_youtube_title">Enable Youtube titles</string>
-    <string name="setting_youtube_title_description">Replaces Youtube links with their titles; do not enable if you have filter watching enabled, loading will fail eventually</string>
+    <string name="setting_youtube_title_description">Replaces Youtube links with their titles</string>
     <string name="album_download_could_not_save_one_or_more_images">Could not save one or more images</string>
     <string name="could_not_create_base_local_threads_dir">Could not create base local threads directory</string>
     <string-array name="setting_watch_notify_modes">
@@ -739,7 +740,7 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_you_have_to_stop_all_downloads">You have to stop all the threads that are being downloaded before changing local threads base directory!</string>
     <string name="media_settings_some_thread_downloads_are_still_processed">Some thread downloads are still being processed</string>
     <string name="media_settings_do_not_terminate_the_app_manually">You may have to wait for couple of minutes until all active downloads are complete. DO NOT TERMINATE THE APP MANUALLY!!! This will break your local threads.</string>
-    <string name="media_settings_cannot_continue_write_permission">Cannot continue without WRITE_EXTERNAL_STORAGE</string>
+    <string name="media_settings_cannot_continue_write_permission">Cannot continue without the WRITE_EXTERNAL_STORAGE permission</string>
     <string name="media_settings_base_directory_is_already_registered">Cannot use this directory because it is already in use</string>
     <string name="setting_image_link_loading_title">Enable image link loading</string>
     <string name="setting_image_link_loading_description">Adds any JPG, PNG, GIF, PDF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
@@ -754,4 +755,13 @@ Don't have a 4chan Pass?<br>
     <string name="image_saver_could_not_figure_out_save_location">Couldn\'t figure out save location</string>
     <string name="settings_captcha_setup">Captcha Settings</string>
     <string name="settings_captcha_setup_description">Captcha settings are per-site configurable. Tap for site setup.</string>
+    <string name="settings_concurrent_file_downloading_name">Concurrent chunked file downloading</string>
+    <string name="settings_concurrent_file_downloading_description">Split file downloads into chunks and download them concurrently, when possible; makes loading times shorter when viewing them in the gallery. Determines the number of chunks to split files into.</string>
+    <string name="image_saver_canceled_by_user_message">Canceled by user</string>
+    <string name="image_saver_unknown_location_message">Unknown location</string>
+    <string name="image_saver_failed_to_save_image">Failed to save the image. Reason: %s</string>
+    <string name="image_saver_no_write_permission_message">Cannot start saving images without the WRITE_EXTERNAL_STORAGE permission</string>
+    <string name="album_download_batch_image_processed_message">Downloaded %1$d out of %2$d (%3$d failed)</string>
+    <string name="media_settings_image_click_preload_strategy_name">Image preload strategy</string>
+    <string name="media_settings_image_click_preload_strategy_description">When opening up an image pager, determines what image(s) should be preloaded next.</string>
 </resources>

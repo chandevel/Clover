@@ -24,18 +24,17 @@ import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
 
 import javax.inject.Inject;
 
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
-
-import static com.github.adamantcheese.chan.Chan.instance;
 
 /**
  * Manages the {@link HttpCall} executions.
  */
 public class HttpCallManager {
+    private NetModule.ProxiedOkHttpClient okHttpClient;
 
     @Inject
-    public HttpCallManager() {
+    public HttpCallManager(NetModule.ProxiedOkHttpClient okHttpClient) {
+        this.okHttpClient = okHttpClient;
     }
 
     public void makeHttpCall(
@@ -66,6 +65,6 @@ public class HttpCallManager {
         requestBuilder.header("User-Agent", NetModule.USER_AGENT);
         Request request = requestBuilder.build();
 
-        instance(OkHttpClient.class).newCall(request).enqueue(httpCall);
+        okHttpClient.getProxiedClient().newCall(request).enqueue(httpCall);
     }
 }

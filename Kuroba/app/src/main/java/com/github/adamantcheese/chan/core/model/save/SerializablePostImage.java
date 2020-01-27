@@ -25,6 +25,8 @@ public class SerializablePostImage {
     private boolean spoiler;
     @SerializedName("size")
     private long size;
+    @SerializedName("file_hash")
+    private String fileHash;
 
     public SerializablePostImage(
             String originalName,
@@ -36,7 +38,8 @@ public class SerializablePostImage {
             int imageWidth,
             int imageHeight,
             boolean spoiler,
-            long size
+            long size,
+            String fileHash
     ) {
         this.originalName = originalName;
         this.filename = filename;
@@ -48,6 +51,7 @@ public class SerializablePostImage {
         this.imageHeight = imageHeight;
         this.spoiler = spoiler;
         this.size = size;
+        this.fileHash = fileHash;
     }
 
     public String getOriginalName() {
@@ -89,6 +93,11 @@ public class SerializablePostImage {
 
     public long getSize() {
         return size;
+    }
+
+    @Nullable
+    public String getFileHash() {
+        return fileHash;
     }
 
     @Override

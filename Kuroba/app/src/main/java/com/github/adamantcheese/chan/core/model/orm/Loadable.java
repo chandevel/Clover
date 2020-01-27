@@ -24,6 +24,8 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.Locale;
+
 /**
  * Something that can be loaded, like a board or thread.
  * Used instead of {@link Board} or {@link Post} because of the unique things a loadable can do and save in the database:<br>
@@ -264,6 +266,13 @@ public class Loadable
      */
     public boolean isDownloading() {
         return loadableDownloadingState == LoadableDownloadingState.DownloadingAndNotViewable;
+    }
+
+    /**
+     * Extracts and converts to a string only the info that we are interested in from this loadable
+     */
+    public String toShortString() {
+        return String.format(Locale.US, "[%s, %s, %d]", site.name(), boardCode, no);
     }
 
     public static Loadable readFromParcel(Parcel parcel) {

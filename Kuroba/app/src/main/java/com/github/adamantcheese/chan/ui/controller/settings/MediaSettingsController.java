@@ -233,6 +233,7 @@ public class MediaSettingsController
             SettingsGroup loading = new SettingsGroup(R.string.settings_group_media_loading);
 
             setupMediaLoadTypesSetting(loading);
+            setupImagePreloadStrategySetting(loading);
 
             requiresRestart.add(loading.add(new BooleanSettingView(this,
                     ChanSettings.autoLoadThreadImages,
@@ -242,6 +243,25 @@ public class MediaSettingsController
 
             groups.add(loading);
         }
+    }
+
+    private void setupImagePreloadStrategySetting(SettingsGroup preloading) {
+        List<ListSettingView.Item> items = new ArrayList<>();
+        for (ChanSettings.ImageClickPreloadStrategy setting : ChanSettings.ImageClickPreloadStrategy.values()) {
+            items.add(new ListSettingView.Item<>(setting.getKey(), setting));
+        }
+
+        preloading.add(new ListSettingView<ChanSettings.ImageClickPreloadStrategy>(this,
+                ChanSettings.imageClickPreloadStrategy,
+                getString(R.string.media_settings_image_click_preload_strategy_name),
+                items
+        ) {
+            @Override
+            public String getBottomDescription() {
+                return getString(R.string.media_settings_image_click_preload_strategy_description) + "\n\n" + items.get(
+                        selected).name;
+            }
+        });
     }
 
     //region Setup Local Threads location
@@ -505,12 +525,10 @@ public class MediaSettingsController
     ) {
         BackgroundUtils.ensureMainThread();
 
-        if (loadingViewController == null) {
-            throw new IllegalStateException("LoadingViewController was not shown beforehand!");
+        if (loadingViewController != null) {
+            loadingViewController.stopPresenting();
+            loadingViewController = null;
         }
-
-        loadingViewController.stopPresenting();
-        loadingViewController = null;
 
         if (!result) {
             showToast(R.string.media_settings_could_not_copy_files, Toast.LENGTH_LONG);
@@ -584,7 +602,8 @@ public class MediaSettingsController
         BackgroundUtils.ensureMainThread();
 
         if (loadingViewController != null) {
-            throw new IllegalStateException("Previous loadingViewController was not destroyed");
+            loadingViewController.stopPresenting();
+            loadingViewController = null;
         }
 
         AlertDialog alertDialog =

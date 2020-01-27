@@ -8,11 +8,21 @@ import java.io.File
 class LocalThreadsBaseDirectory : BaseDirectory() {
 
     override fun getDirFile(): File? {
-        return File(ChanSettings.localThreadLocation.fileApiBaseDir.get())
+        val path = ChanSettings.localThreadLocation.fileApiBaseDir.get()
+        if (path.isEmpty()) {
+            return null
+        }
+
+        return File(path)
     }
 
     override fun getDirUri(): Uri? {
-        return Uri.parse(ChanSettings.localThreadLocation.safBaseDir.get())
+        val path = ChanSettings.localThreadLocation.safBaseDir.get()
+        if (path.isEmpty()) {
+            return null
+        }
+
+        return Uri.parse(path)
     }
 
     override fun currentActiveBaseDirType(): ActiveBaseDirType {

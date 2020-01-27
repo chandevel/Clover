@@ -269,12 +269,7 @@ public class ThreadLayout
 
         getPresenter().updateLoadable(thread.getLoadable().loadableDownloadingState);
 
-        threadListLayout.showPosts(
-                thread,
-                filter,
-                visible != Visible.THREAD,
-                refreshAfterHideOrRemovePosts
-        );
+        threadListLayout.showPosts(thread, filter, visible != Visible.THREAD, refreshAfterHideOrRemovePosts);
 
         switchVisible(Visible.THREAD);
         callback.onShowPosts();
