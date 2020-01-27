@@ -40,21 +40,13 @@ public class LoadingViewController
      * Shows a progress bar with percentage in the center (cannot be used with indeterminate)
      */
     public void updateProgress(int percent) {
-        BackgroundUtils.ensureMainThread();
-
         if (indeterminate) {
-            throw new IllegalStateException("Cannot be used with indeterminate flag");
+            return;
         }
 
-        if (textView.getVisibility() != VISIBLE && percent > 0) {
-            textView.setVisibility(VISIBLE);
-        }
-
-        if (progressBar.getVisibility() != VISIBLE) {
-            progressBar.setVisibility(VISIBLE);
-        }
-
-        textView.setText(String.valueOf(percent));
+        textView.setVisibility(VISIBLE);
+        progressBar.setVisibility(VISIBLE);
+        textView.setText(String.valueOf(percent > 0 ? percent : "0"));
     }
 
     /**
@@ -62,20 +54,12 @@ public class LoadingViewController
      * (cannot be used with indeterminate)
      */
     public void updateWithText(String text) {
-        BackgroundUtils.ensureMainThread();
-
         if (indeterminate) {
-            throw new IllegalStateException("Cannot be used with indeterminate flag");
+            return;
         }
 
-        if (textView.getVisibility() != VISIBLE) {
-            textView.setVisibility(VISIBLE);
-        }
-
-        if (progressBar.getVisibility() == VISIBLE) {
-            progressBar.setVisibility(GONE);
-        }
-
+        textView.setVisibility(VISIBLE);
+        progressBar.setVisibility(GONE);
         textView.setText(text);
     }
 

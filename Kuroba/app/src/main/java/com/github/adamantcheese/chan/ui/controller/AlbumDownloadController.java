@@ -109,7 +109,6 @@ public class AlbumDownloadController
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         imageSaver.removeBundleTaskCallback();
     }
 
@@ -155,7 +154,7 @@ public class AlbumDownloadController
         switch (result) {
             case Ok:
                 if (loadingViewController != null) {
-                    throw new IllegalStateException("LoadingViewController is already set!");
+                    loadingViewController.stopPresenting();
                 }
 
                 loadingViewController = new LoadingViewController(context, false);
@@ -172,8 +171,6 @@ public class AlbumDownloadController
 
     @Override
     public void onImageProcessed(int downloaded, int failed, int total) {
-        BackgroundUtils.ensureMainThread();
-
         if (loadingViewController != null) {
             String message =
                     getString(R.string.album_download_batch_image_processed_message, downloaded, total, failed);
@@ -184,8 +181,6 @@ public class AlbumDownloadController
 
     @Override
     public void onBundleDownloadCompleted() {
-        BackgroundUtils.ensureMainThread();
-
         if (loadingViewController == null) {
             throw new IllegalStateException("LoadingViewController is not set!");
         }
