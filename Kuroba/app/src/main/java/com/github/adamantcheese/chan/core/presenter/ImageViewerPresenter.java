@@ -396,26 +396,17 @@ public class ImageViewerPresenter
                 }
             };
 
-
             if (loadChunked) {
-                DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(
-                        postImage.size,
-                        postImage.fileHash
-                );
+                DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
 
-                preloadDownload[0] = fileCacheV2.enqueueChunkedDownloadFileRequest(
-                        loadable,
+                preloadDownload[0] = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable,
                         postImage,
                         extraInfo,
                         fileCacheListener
                 );
             } else {
-                preloadDownload[0] = fileCacheV2.enqueueNormalDownloadFileRequest(
-                        loadable,
-                        postImage,
-                        false,
-                        fileCacheListener
-                );
+                preloadDownload[0] =
+                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, false, fileCacheListener);
             }
 
             if (preloadDownload[0] != null) {
@@ -448,10 +439,7 @@ public class ImageViewerPresenter
 
     private boolean cancelImageDownload(int position, CancelableDownload downloader) {
         if (nonCancelableImages.contains(downloader.getUrl())) {
-            Logger.d(TAG,
-                    "Attempt to cancel non cancelable download for image with url: "
-                            + downloader.getUrl()
-            );
+            Logger.d(TAG, "Attempt to cancel non cancelable download for image with url: " + downloader.getUrl());
             return false;
         }
 
@@ -511,8 +499,8 @@ public class ImageViewerPresenter
         BackgroundUtils.ensureMainThread();
 
         if (chunksCount <= 0) {
-            throw new IllegalArgumentException("chunksCount must be 1 or greater than 1 " +
-                    "(actual = " + chunksCount + ")");
+            throw new IllegalArgumentException(
+                    "chunksCount must be 1 or greater than 1 " + "(actual = " + chunksCount + ")");
         }
 
         List<Float> initialProgress = new ArrayList<>(chunksCount);
@@ -572,8 +560,7 @@ public class ImageViewerPresenter
             }
         }
 
-        if (multiImageView.getPostImage() == images.get(selectedPosition)
-                && progress.get(selectedPosition) != null) {
+        if (multiImageView.getPostImage() == images.get(selectedPosition) && progress.get(selectedPosition) != null) {
             callback.showProgress(true);
             callback.onLoadProgress(progress.get(selectedPosition));
         }

@@ -271,77 +271,77 @@ public class UpdateManager {
             cancelableDownload = null;
         }
 
-        cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(response.apkURL.toString(), new FileCacheListener() {
-            @Override
-            public void onProgress(int chunkIndex, long downloaded, long total) {
-                BackgroundUtils.ensureMainThread();
+        cancelableDownload =
+                fileCacheV2.enqueueNormalDownloadFileRequest(response.apkURL.toString(), new FileCacheListener() {
+                    @Override
+                    public void onProgress(int chunkIndex, long downloaded, long total) {
+                        BackgroundUtils.ensureMainThread();
 
-                updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded / (double) total)));
-            }
-
-            @Override
-            public void onSuccess(RawFile file) {
-                BackgroundUtils.ensureMainThread();
-
-                updateDownloadDialog.dismiss();
-                updateDownloadDialog = null;
-
-                String fileName = getApplicationLabel() + "_" + response.versionCodeString + ".apk";
-
-                //put a copy into the Downloads folder, for archive/rollback purposes
-                File downloadAPKcopy = new File(
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                        fileName
-                );
-
-                AbstractFile copyFile = fileManager.fromRawFile(downloadAPKcopy);
-
-                if (fileManager.create(copyFile) != null) {
-                    if (!fileManager.copyFileContents(file, copyFile)) {
-                        Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory");
+                        updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded
+                                / (double) total)));
                     }
-                } else {
-                    Logger.e(TAG, "Couldn't create backup apk file: " + downloadAPKcopy.getAbsolutePath());
-                }
 
-                //install from the filecache rather than downloads, as the Environment.DIRECTORY_DOWNLOADS may not be "Download"
-                installApk(file);
-            }
+                    @Override
+                    public void onSuccess(RawFile file) {
+                        BackgroundUtils.ensureMainThread();
 
-            @Override
-            public void onNotFound() {
-                onFail(new IOException("Not found"));
-            }
+                        updateDownloadDialog.dismiss();
+                        updateDownloadDialog = null;
 
-            @Override
-            public void onFail(Exception exception) {
-                BackgroundUtils.ensureMainThread();
+                        String fileName = getApplicationLabel() + "_" + response.versionCodeString + ".apk";
 
-                String description = context.getString(
-                        R.string.update_install_download_failed_description,
-                        exception.getMessage()
-                );
+                        //put a copy into the Downloads folder, for archive/rollback purposes
+                        File downloadAPKcopy =
+                                new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                                        fileName
+                                );
 
-                updateDownloadDialog.dismiss();
-                updateDownloadDialog = null;
-                new AlertDialog.Builder(context)
-                        .setTitle(R.string.update_install_download_failed)
-                        .setMessage(description)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            }
+                        AbstractFile copyFile = fileManager.fromRawFile(downloadAPKcopy);
 
-            @Override
-            public void onCancel() {
-                BackgroundUtils.ensureMainThread();
+                        if (fileManager.create(copyFile) != null) {
+                            if (!fileManager.copyFileContents(file, copyFile)) {
+                                Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory");
+                            }
+                        } else {
+                            Logger.e(TAG, "Couldn't create backup apk file: " + downloadAPKcopy.getAbsolutePath());
+                        }
 
-                updateDownloadDialog.dismiss();
-                updateDownloadDialog = null;
-                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            }
-        });
+                        //install from the filecache rather than downloads, as the Environment.DIRECTORY_DOWNLOADS may not be "Download"
+                        installApk(file);
+                    }
+
+                    @Override
+                    public void onNotFound() {
+                        onFail(new IOException("Not found"));
+                    }
+
+                    @Override
+                    public void onFail(Exception exception) {
+                        BackgroundUtils.ensureMainThread();
+
+                        String description = context.getString(R.string.update_install_download_failed_description,
+                                exception.getMessage()
+                        );
+
+                        updateDownloadDialog.dismiss();
+                        updateDownloadDialog = null;
+                        new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
+                                .setMessage(description)
+                                .setPositiveButton(R.string.ok, null)
+                                .show();
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        BackgroundUtils.ensureMainThread();
+
+                        updateDownloadDialog.dismiss();
+                        updateDownloadDialog = null;
+                        new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
+                                .setPositiveButton(R.string.ok, null)
+                                .show();
+                    }
+                });
     }
 
     private void installApk(RawFile apk) {
@@ -385,8 +385,7 @@ public class UpdateManager {
                 updateDownloadDialog.show();
                 doUpdate(response);
             } else {
-                runtimePermissionsHelper.showPermissionRequiredDialog(
-                        context,
+                runtimePermissionsHelper.showPermissionRequiredDialog(context,
                         getString(R.string.update_storage_permission_required_title),
                         getString(R.string.update_storage_permission_required),
                         () -> updateInstallRequested(response)

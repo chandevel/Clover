@@ -139,45 +139,39 @@ public class ImageSaver {
         this.fileManager = fileManager;
         EventBus.getDefault().register(this);
 
-        imageSaverQueue
-                .observeOn(workerScheduler)
+        imageSaverQueue.observeOn(workerScheduler)
                 // Unbounded queue
-                .onBackpressureBuffer(UNBOUNDED_QUEUE_MIN_CAPACITY, false, true)
-                .flatMapSingle((t) -> {
-                    return Single.just(t)
-                            .observeOn(workerScheduler)
-                            .flatMap((task) -> {
-                                boolean isStillActive = false;
+                .onBackpressureBuffer(UNBOUNDED_QUEUE_MIN_CAPACITY, false, true).flatMapSingle((t) -> {
+            return Single.just(t)
+                    .observeOn(workerScheduler)
+                    .flatMap((task) -> {
+                        boolean isStillActive = false;
 
-                                synchronized (activeDownloads) {
-                                    isStillActive = activeDownloads.contains(task.getPostImageUrl());
-                                }
+                        synchronized (activeDownloads) {
+                            isStillActive = activeDownloads.contains(task.getPostImageUrl());
+                        }
 
-                                // If the download is not present in activeDownloads that means that
-                                // it wat canceled, so exit immediately
-                                if (!isStillActive) {
-                                    return Single.just(BundledDownloadResult.Canceled);
-                                }
+                        // If the download is not present in activeDownloads that means that
+                        // it wat canceled, so exit immediately
+                        if (!isStillActive) {
+                            return Single.just(BundledDownloadResult.Canceled);
+                        }
 
-                                return task.run();
-                            })
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnError((error) -> imageSaveTaskFailed(t, error))
-                            .doOnSuccess((success) -> imageSaveTaskFinished(t, success))
-                            .doOnError((error) -> Logger.e(TAG, "Unhandled exception", error))
-                            .onErrorReturnItem(BundledDownloadResult.Failure);
-                }, false, CONCURRENT_REQUESTS_COUNT)
-                .subscribe((result) -> {
-                    // Do nothing
-                }, (error) -> {
-                    throw new RuntimeException(TAG + " Uncaught exception!!! " +
-                            "workerQueue is in error state now!!! " +
-                            "This should not happen!!!, original error = " + error.getMessage());
-                }, () -> {
-                    throw new RuntimeException(
-                            TAG + " workerQueue stream has completed!!! This should not happen!!!"
-                    );
-                });
+                        return task.run();
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnError((error) -> imageSaveTaskFailed(t, error))
+                    .doOnSuccess((success) -> imageSaveTaskFinished(t, success))
+                    .doOnError((error) -> Logger.e(TAG, "Unhandled exception", error))
+                    .onErrorReturnItem(BundledDownloadResult.Failure);
+        }, false, CONCURRENT_REQUESTS_COUNT).subscribe((result) -> {
+            // Do nothing
+        }, (error) -> {
+            throw new RuntimeException(TAG + " Uncaught exception!!! " + "workerQueue is in error state now!!! "
+                    + "This should not happen!!!, original error = " + error.getMessage());
+        }, () -> {
+            throw new RuntimeException(TAG + " workerQueue stream has completed!!! This should not happen!!!");
+        });
     }
 
     public void startDownloadTask(Context context, final ImageSaveTask task, DownloadTaskCallbacks callbacks) {

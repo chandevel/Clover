@@ -136,15 +136,14 @@ public class ThreadSaveManager {
                 .subscribe(res -> {},
                         // OK
                         error -> {
-                                throw new RuntimeException(TAG + " Uncaught exception!!! " +
-                                          "workerQueue is in error state now!!! " +
-                                          "This should not happen!!!, original error = " + error.getMessage());
-                              }, () -> {
-                                throw new RuntimeException(
-                                        TAG + " workerQueue stream has completed!!! This should not happen!!!"
-                                );
-                           }
-                   );
+                            throw new RuntimeException(
+                                    TAG + " Uncaught exception!!! " + "workerQueue is in error state now!!! "
+                                            + "This should not happen!!!, original error = " + error.getMessage());
+                        }, () -> {
+                            throw new RuntimeException(
+                                    TAG + " workerQueue stream has completed!!! This should not happen!!!");
+                        }
+                );
     }
 
     private Flowable<Boolean> processCollectedRequests(List<Loadable> loadableList) {
@@ -354,8 +353,7 @@ public class ThreadSaveManager {
             SaveThreadParameters parameters = activeDownloads.get(loadable);
             if (parameters == null) {
                 Logger.w(TAG,
-                        "cancelDownloading Could not find SaveThreadParameters for loadable "
-                                + loadable.toShortString()
+                        "cancelDownloading Could not find SaveThreadParameters for loadable " + loadable.toShortString()
                 );
                 return;
             }
@@ -377,8 +375,7 @@ public class ThreadSaveManager {
             SaveThreadParameters parameters = activeDownloads.get(loadable);
             if (parameters == null) {
                 Logger.w(TAG,
-                        "stopDownloading Could not find SaveThreadParameters for loadable "
-                                + loadable.toShortString()
+                        "stopDownloading Could not find SaveThreadParameters for loadable " + loadable.toShortString()
                 );
                 return;
             }
@@ -393,14 +390,12 @@ public class ThreadSaveManager {
             SaveThreadParameters saveThreadParameters = activeDownloads.get(loadable);
             if (saveThreadParameters == null) {
                 Logger.w(TAG,
-                        "Attempt to remove non existing active download with loadable "
-                                + loadable.toShortString()
+                        "Attempt to remove non existing active download with loadable " + loadable.toShortString()
                 );
                 return;
             }
 
-            Logger.d(TAG, "Download for loadable " + loadable.toShortString()
-                    + " ended up with result " + result);
+            Logger.d(TAG, "Download for loadable " + loadable.toShortString() + " ended up with result " + result);
 
             // Remove the download
             activeDownloads.remove(loadable);
@@ -835,8 +830,7 @@ public class ThreadSaveManager {
                 downloadImage(loadable, threadSaveDirImages, spoilerImageName, spoilerImageUrl);
             } catch (ImageWasAlreadyDeletedException e) {
                 // If this ever happens that means that something has changed on the server
-                Logger.e(TAG, "Could not download spoiler image, got 404 for loadable "
-                        + loadable.toShortString());
+                Logger.e(TAG, "Could not download spoiler image, got 404 for loadable " + loadable.toShortString());
                 return false;
             }
         }
@@ -961,8 +955,7 @@ public class ThreadSaveManager {
             AdditionalThreadParameters parameters = additionalThreadParameter.get(loadable);
             if (parameters == null) {
                 Logger.e(TAG,
-                        "isImageAlreadyDeletedFromServer parameters == null for loadable "
-                                + loadable.toShortString()
+                        "isImageAlreadyDeletedFromServer parameters == null for loadable " + loadable.toShortString()
                 );
                 return true;
             }
@@ -994,8 +987,8 @@ public class ThreadSaveManager {
         int percent = (int) (((float) index / (float) count) * 100f);
 
         Logger.d(TAG,
-                "Downloading is in progress for an image with loadable " + loadable.toShortString() + ", " + index
-                        + "/" + count + " (" + percent + "%)"
+                "Downloading is in progress for an image with loadable " + loadable.toShortString() + ", " + index + "/"
+                        + count + " (" + percent + "%)"
         );
     }
 
