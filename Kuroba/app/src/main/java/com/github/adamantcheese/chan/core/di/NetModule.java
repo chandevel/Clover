@@ -33,7 +33,6 @@ import com.github.k1rakishou.fsaf.file.RawFile;
 import org.codejargon.feather.Provides;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -42,12 +41,10 @@ import okhttp3.OkHttpClient;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class NetModule {
     public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
-    public static final long DOWNLOADER_OKHTTP_TIMEOUT_SECONDS = 20L;
-    public static final long PROXIED_OKHTTP_TIMEOUT_SECONDS = 30L;
-    public static final long THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS = 30L;
     public static final String THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME = "thread_save_manager_okhttp_client";
     public static final String DOWNLOADER_OKHTTP_CLIENT_NAME = "downloader_okhttp_client";
     private static final String FILE_CACHE_DIR = "filecache";
@@ -131,10 +128,9 @@ public class NetModule {
     public OkHttpClient provideOkHttpClient() {
         Logger.d(AppModule.DI_TAG, "DownloaderOkHttp client");
 
-        return new OkHttpClient.Builder()
-                .connectTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .readTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .writeTimeout(DOWNLOADER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        return new OkHttpClient.Builder().connectTimeout(30, SECONDS)
+                .readTimeout(30, SECONDS)
+                .writeTimeout(30, SECONDS)
                 .build();
     }
 
@@ -148,9 +144,9 @@ public class NetModule {
         Logger.d(AppModule.DI_TAG, "ThreadSaverOkHttp client");
 
         return new OkHttpClient().newBuilder()
-                .connectTimeout(THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .writeTimeout(THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .readTimeout(THREAD_SAVE_MANAGER_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .connectTimeout(30, SECONDS)
+                .writeTimeout(30, SECONDS)
+                .readTimeout(30, SECONDS)
                 .build();
     }
 
@@ -162,11 +158,11 @@ public class NetModule {
         public OkHttpClient getProxiedClient() {
             if (proxiedClient == null) {
 
+                // Proxies are usually slow, so they have increased timeouts
                 proxiedClient = newBuilder().proxy(ChanSettings.getProxy())
-                        // Proxies are usually slow, so they have increased timeouts
-                        .connectTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                        .readTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                        .writeTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .connectTimeout(30, SECONDS)
+                        .readTimeout(30, SECONDS)
+                        .writeTimeout(30, SECONDS)
                         .build();
             }
             return proxiedClient;

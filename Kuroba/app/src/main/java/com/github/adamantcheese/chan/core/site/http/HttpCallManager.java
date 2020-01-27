@@ -65,6 +65,6 @@ public class HttpCallManager {
         requestBuilder.header("User-Agent", NetModule.USER_AGENT);
         Request request = requestBuilder.build();
 
-        okHttpClient.newCall(request).enqueue(httpCall);
+        okHttpClient.getProxiedClient().newCall(request).enqueue(httpCall);
     }
 }

@@ -133,7 +133,7 @@ public class CaptchaNoJsPresenterV2 {
                             .header("Cookie", defaultGoogleCookies)
                             .build();
 
-                    try (Response response = okHttpClient.newCall(request).execute()) {
+                    try (Response response = okHttpClient.getProxiedClient().newCall(request).execute()) {
                         prevCaptchaInfo = handleGetRecaptchaResponse(response);
                     } finally {
                         verificationInProgress.set(false);
@@ -231,7 +231,7 @@ public class CaptchaNoJsPresenterV2 {
                 .header("Cookie", defaultGoogleCookies)
                 .build();
 
-        try (Response response = okHttpClient.newCall(request).execute()) {
+        try (Response response = okHttpClient.getProxiedClient().newCall(request).execute()) {
             return handleGetRecaptchaResponse(response);
         }
     }

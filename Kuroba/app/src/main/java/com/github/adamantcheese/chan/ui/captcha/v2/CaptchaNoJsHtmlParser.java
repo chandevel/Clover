@@ -298,7 +298,7 @@ public class CaptchaNoJsHtmlParser {
             throws IOException, CaptchaNoJsV2ParsingError {
         Request request = new Request.Builder().url(fullUrl).build();
 
-        try (Response response = okHttpClient.newCall(request).execute()) {
+        try (Response response = okHttpClient.getProxiedClient().newCall(request).execute()) {
             if (response.code() != SUCCESS_STATUS_CODE) {
                 throw new CaptchaNoJsV2ParsingError(
                         "Could not download challenge image, status code = " + response.code());
