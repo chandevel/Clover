@@ -569,12 +569,10 @@ public class ThreadPresenter
                             }
 
                             if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
-                                    && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get()))
-                            {
+                                    && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
                                 postImageList.add(postImage);
                             } else if (postImage.type == PostImage.Type.MOVIE
-                                    && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get()))
-                            {
+                                    && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
                                 postImageList.add(postImage);
                             }
                         }
@@ -582,10 +580,7 @@ public class ThreadPresenter
                 }
 
                 if (postImageList.size() > 0) {
-                    activePrefetches = fileCacheV2.enqueueMediaPrefetchRequestBatch(
-                            loadable,
-                            postImageList
-                    );
+                    activePrefetches = fileCacheV2.enqueueMediaPrefetchRequestBatch(loadable, postImageList);
                 }
             }
         }
@@ -1258,8 +1253,7 @@ public class ThreadPresenter
 
     private void showPosts(boolean refreshAfterHideOrRemovePosts) {
         if (chanLoader != null && chanLoader.getThread() != null) {
-            threadPresenterCallback.showPosts(
-                    chanLoader.getThread(),
+            threadPresenterCallback.showPosts(chanLoader.getThread(),
                     new PostsFilter(order, searchQuery),
                     refreshAfterHideOrRemovePosts
             );

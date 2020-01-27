@@ -5,14 +5,8 @@
     <cache-path
         name="fc"
         path="filecache/" />
-    <cache-path
-        name="fcc"
-        path="file_chunks_cache/" />
     <external-cache-path
         name="exfc"
         path="filecache/" />
-    <external-cache-path
-        name="exfcc"
-        path="file_chunks_cache/"/>
 
 </paths>

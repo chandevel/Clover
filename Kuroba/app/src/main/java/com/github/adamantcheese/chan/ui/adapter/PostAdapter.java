@@ -249,13 +249,10 @@ public class PostAdapter
 
         //update for indicator (adds/removes extra recycler item that causes inconsistency exceptions)
         //or if something changed per reasons above
-        if (
-                lastLastSeenIndicator != lastSeenIndicatorPosition
-                        || changed
-                        // When true that means that the user has just hid or removed post/thread
-                        // so we need to refresh the UI
-                        || refreshAfterHideOrRemovePosts
-        ) {
+        if (lastLastSeenIndicator != lastSeenIndicatorPosition || changed
+                // When true that means that the user has just hid or removed post/thread
+                // so we need to refresh the UI
+                || refreshAfterHideOrRemovePosts) {
             notifyDataSetChanged();
         }
     }

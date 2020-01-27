@@ -37,7 +37,6 @@ public class Sushichan
         extends CommonSite {
     private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
 
-
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private static final String ROOT = "https://sushigirl.us/";
 
@@ -53,7 +52,7 @@ public class Sushichan
 
         @Override
         public String[] getMediaHosts() {
-            return new String[] { ROOT };
+            return new String[]{ROOT};
         }
 
         @Override

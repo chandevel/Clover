@@ -81,8 +81,8 @@ class ChunkPersisterTest {
                 throw IOException("BAM!!!")
             }
         }
-        .whenever(activeDownloads)
-        .updateDownloaded(anyString(), anyLong())
+                .whenever(activeDownloads)
+                .updateDownloaded(anyString(), anyLong())
 
         val testObserver = Flowable.fromIterable(chunkResponses)
                 .flatMap { chunkResponse ->

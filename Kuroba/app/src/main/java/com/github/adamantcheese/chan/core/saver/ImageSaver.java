@@ -83,20 +83,20 @@ public class ImageSaver {
 
     /**
      * Amount of successfully downloaded images
-     * */
+     */
     private AtomicInteger doneTasks = new AtomicInteger(0);
     /**
      * Total amount of images in a batch to download
-     * */
+     */
     private AtomicInteger totalTasks = new AtomicInteger(0);
     /**
      * Amount of images we couldn't download
-     * */
+     */
     private AtomicInteger failedTasks = new AtomicInteger(0);
     /**
      * Callbacks to show and update the LoadingViewController with the album download information
      * (downloaded/total to download/failed to download images)
-     * */
+     */
     @Nullable
     private BundledDownloadTaskCallbacks callbacks;
 
@@ -104,34 +104,30 @@ public class ImageSaver {
     /**
      * Like a normal toast but automatically cancels previous toast when showing a new one to avoid
      * toast spam.
-     * */
+     */
     private CancellableToast cancellableToast = new CancellableToast();
     /**
      * Reactive queue used for batch image downloads.
-     * */
+     */
     private FlowableProcessor<ImageSaveTask> imageSaverQueue = PublishProcessor.create();
 
     /**
      * Id of a thread in the workerScheduler
-     * */
+     */
     private AtomicInteger imagesSaverThreadIndex = new AtomicInteger(0);
     /**
      * Only for batch downloads. Holds the urls of all images in a batch. Use for batch canceling.
      * If an image url is not present in the activeDownloads that means that it was canceled.
-     * */
+     */
     @GuardedBy("itself")
     private final Set<String> activeDownloads = new HashSet<>(64);
 
-    private Scheduler workerScheduler = Schedulers.from(
-            Executors.newFixedThreadPool(THREADS_COUNT, r -> new Thread(
-                            r,
-                            String.format(
-                                    Locale.US,
-                                    IMAGE_SAVER_THREAD_NAME_FORMAT,
-                                    imagesSaverThreadIndex.getAndIncrement()
-                            )
-                    )
-            ));
+    private Scheduler workerScheduler = Schedulers.from(Executors.newFixedThreadPool(
+            THREADS_COUNT,
+            r -> new Thread(r,
+                    String.format(Locale.US, IMAGE_SAVER_THREAD_NAME_FORMAT, imagesSaverThreadIndex.getAndIncrement())
+            )
+    ));
 
     /**
      * This is a singleton class so we don't care about the disposable since we will never should
@@ -291,9 +287,8 @@ public class ImageSaver {
 
         Logger.e(TAG, "imageSaveTaskFailed imageUrl = " + task.getPostImageUrl());
 
-        String errorMessage = getAppContext().getString(R.string.image_saver_failed_to_save_image)
-                + error.getMessage();
         cancellableToast.showToast(getAppContext(), errorMessage, CancellableToast.Duration.Long);
+        String errorMessage = getString(R.string.image_saver_failed_to_save_image, error.getMessage());
     }
 
     public void imageSaveTaskFinished(ImageSaveTask task, BundledDownloadResult result) {
@@ -338,11 +333,8 @@ public class ImageSaver {
     private boolean checkBatchCompleted() {
         if (doneTasks.get() + failedTasks.get() > totalTasks.get()) {
             throw new IllegalStateException(
-                    "Amount of downloaded and failed tasks is greater than total! " +
-                            "(done = " + doneTasks.get() +
-                            ", failed = " + failedTasks.get() +
-                            ", total = " + totalTasks.get() + ")"
-            );
+                    "Amount of downloaded and failed tasks is greater than total! " + "(done = " + doneTasks.get()
+                            + ", failed = " + failedTasks.get() + ", total = " + totalTasks.get() + ")");
         }
 
         return doneTasks.get() + failedTasks.get() == totalTasks.get();
@@ -350,10 +342,10 @@ public class ImageSaver {
 
     private void onBatchCompleted() {
         BackgroundUtils.ensureMainThread();
-        Logger.d(TAG, "onBatchCompleted " +
-                "downloaded = " + doneTasks.get() + ", " +
-                "failed = " + failedTasks.get() + ", " +
-                "total = " + totalTasks.get());
+        Logger.d(TAG,
+                "onBatchCompleted " + "downloaded = " + doneTasks.get() + ", " + "failed = " + failedTasks.get() + ", "
+                        + "total = " + totalTasks.get()
+        );
 
         totalTasks.set(0);
         doneTasks.set(0);
@@ -433,17 +425,14 @@ public class ImageSaver {
                 AbstractFile locationFile = getSaveLocation(task);
 
                 if (locationFile == null) {
-                    location = getAppContext().getString(R.string.image_saver_unknown_location_message);
+                    location = getString(R.string.image_saver_unknown_location_message);
                 } else {
                     location = locationFile.getFullPath();
                 }
 
                 text = getString(R.string.image_saver_album_download_success, location);
             } else {
-                text = getString(
-                        R.string.image_saver_saved_as_message,
-                        fileManager.getName(task.getDestination())
-                );
+                text = getString(R.string.image_saver_saved_as_message, fileManager.getName(task.getDestination()));
             }
         } else {
             text = getString(R.string.image_saver_failed_to_save_image_message);
@@ -503,11 +492,7 @@ public class ImageSaver {
 
         AbstractFile saveLocation = getSaveLocation(task);
         if (saveLocation == null) {
-            Logger.e(
-                    TAG,
-                    getAppContext().getString(R.string.image_saver_save_location_is_null_message)
-            );
-
+            Logger.e(TAG, "Save location is null!");
             return null;
         }
 

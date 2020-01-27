@@ -109,7 +109,8 @@ public class ChanSettings {
         }
     }
 
-    public enum ConcurrentFileDownloadingChunks implements OptionSettingItem {
+    public enum ConcurrentFileDownloadingChunks
+            implements OptionSettingItem {
         One("One chunk"),
         Two("Two chunks"),
         Four("Four chunks");
@@ -139,7 +140,8 @@ public class ChanSettings {
         }
     }
 
-    public enum ImageClickPreloadStrategy implements OptionSettingItem {
+    public enum ImageClickPreloadStrategy
+            implements OptionSettingItem {
         PreloadNext("Preload next image"),
         PreloadPrevious("Preload previous image"),
         PreloadBoth("Preload next and previous images"),
@@ -150,7 +152,6 @@ public class ChanSettings {
         ImageClickPreloadStrategy(String name) {
             this.name = name;
         }
-
 
         @Override
         public String getKey() {
@@ -393,19 +394,13 @@ public class ChanSettings {
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
             youtubeTitleCache = new StringSetting(p, "yt_title_cache", "{}");
             youtubeDurationCache = new StringSetting(p, "yt_dur_cache", "{}");
-            concurrentFileDownloadingChunksCount = new OptionsSetting<>(
-                    p,
+            concurrentFileDownloadingChunksCount = new OptionsSetting<>(p,
                     "concurrent_file_downloading_chunks_count",
                     ConcurrentFileDownloadingChunks.class,
                     ConcurrentFileDownloadingChunks.Two
             );
-            verboseLogs = new BooleanSetting(
-                    p,
-                    "verbose_logs",
-                    false
-            );
-            imageClickPreloadStrategy = new OptionsSetting<>(
-                    p,
+            verboseLogs = new BooleanSetting(p, "verbose_logs", false);
+            imageClickPreloadStrategy = new OptionsSetting<>(p,
                     "image_click_preload_strategy",
                     ImageClickPreloadStrategy.class,
                     ImageClickPreloadStrategy.PreloadNext

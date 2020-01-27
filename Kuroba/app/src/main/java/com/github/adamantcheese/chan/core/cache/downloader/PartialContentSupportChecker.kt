@@ -164,37 +164,37 @@ internal class PartialContentSupportChecker(
                 }
             })
         }
-        // Some HEAD requests on 4chan may take a lot of time (like 2 seconds or even more) when
-        // a file is not cached by the cloudflare so if a request takes more than [MAX_TIMEOUT_MS]
-        // we assume that cloudflare doesn't have this file cached so we just download it normally
-        // without using Partial Content
-        .timeout(maxTimeoutMs, TimeUnit.MILLISECONDS)
-        .doOnSuccess {
-            val diff = System.currentTimeMillis() - startTime
-            Logger.d(TAG, "HEAD request to url ($url) has succeeded, time = ${diff}ms")
-        }
-        .doOnError { error ->
-            val diff = System.currentTimeMillis() - startTime
-            Logger.e(TAG, "HEAD request to url ($url) has failed " +
-                    "because of \"${error.javaClass.simpleName}\" exception, time = ${diff}ms")
-        }
-        .onErrorResumeNext { error ->
-            if (error !is TimeoutException) {
-                return@onErrorResumeNext Single.error(error)
-            }
+                // Some HEAD requests on 4chan may take a lot of time (like 2 seconds or even more) when
+                // a file is not cached by the cloudflare so if a request takes more than [MAX_TIMEOUT_MS]
+                // we assume that cloudflare doesn't have this file cached so we just download it normally
+                // without using Partial Content
+                .timeout(maxTimeoutMs, TimeUnit.MILLISECONDS)
+                .doOnSuccess {
+                    val diff = System.currentTimeMillis() - startTime
+                    Logger.d(TAG, "HEAD request to url ($url) has succeeded, time = ${diff}ms")
+                }
+                .doOnError { error ->
+                    val diff = System.currentTimeMillis() - startTime
+                    Logger.e(TAG, "HEAD request to url ($url) has failed " +
+                            "because of \"${error.javaClass.simpleName}\" exception, time = ${diff}ms")
+                }
+                .onErrorResumeNext { error ->
+                    if (error !is TimeoutException) {
+                        return@onErrorResumeNext Single.error(error)
+                    }
 
-            val diff = System.currentTimeMillis() - startTime
-            log(TAG, "HEAD request took for url ($url) too much time, " +
-                    "canceled by timeout() operator, took = ${diff}ms")
+                    val diff = System.currentTimeMillis() - startTime
+                    log(TAG, "HEAD request took for url ($url) too much time, " +
+                            "canceled by timeout() operator, took = ${diff}ms")
 
-            // Do not cache this result because after this request the file should be cached by the
-            // cloudflare, so the next time we open it, it should load way faster
-            return@onErrorResumeNext Single.just(
-                    PartialContentCheckResult(
-                            supportsPartialContentDownload = false
+                    // Do not cache this result because after this request the file should be cached by the
+                    // cloudflare, so the next time we open it, it should load way faster
+                    return@onErrorResumeNext Single.just(
+                            PartialContentCheckResult(
+                                    supportsPartialContentDownload = false
+                            )
                     )
-            )
-        }
+                }
     }
 
     private fun handleResponse(

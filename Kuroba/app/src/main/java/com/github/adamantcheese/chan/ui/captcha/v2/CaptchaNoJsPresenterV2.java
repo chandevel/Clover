@@ -78,12 +78,12 @@ public class CaptchaNoJsPresenterV2 {
     public CaptchaNoJsPresenterV2(@Nullable AuthenticationCallbacks callbacks, Context context) {
         this.callbacks = callbacks;
         this.parser = new CaptchaNoJsHtmlParser(context);
-        this.okHttpClient =  Chan.instance(NetModule.ProxiedOkHttpClient.class);
+        this.okHttpClient = Chan.instance(NetModule.ProxiedOkHttpClient.class);
     }
 
     public void init(String siteKey, String baseUrl) {
         this.siteKey = siteKey;
-        this.baseUrl = baseUrl; 
+        this.baseUrl = baseUrl;
     }
 
     /**

@@ -63,7 +63,7 @@ public class Wired7
 
         @Override
         public String[] getMediaHosts() {
-            return new String[] { ROOT };
+            return new String[]{ROOT};
         }
 
         @Override

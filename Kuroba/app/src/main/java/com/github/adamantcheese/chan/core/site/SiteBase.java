@@ -32,7 +32,6 @@ import java.util.List;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.core.site.SiteUrlHandler.WWW_PREFIX;
 
 public abstract class SiteBase
         implements Site {
@@ -105,18 +104,15 @@ public abstract class SiteBase
         return board;
     }
 
-    public static boolean containsMediaHostUrl(HttpUrl diseredSiteUrl, String[] mediaHosts) {
-        String host = diseredSiteUrl.host();
-        if (host == null) {
-            return false;
-        }
+    public static boolean containsMediaHostUrl(HttpUrl desiredSiteUrl, String[] mediaHosts) {
+        String host = desiredSiteUrl.host();
 
         for (String mediaHost : mediaHosts) {
             if (host.equals(mediaHost)) {
                 return true;
             }
 
-            if (host.equals(String.format("%s.%s", WWW_PREFIX, mediaHost))) {
+            if (host.equals("www." + mediaHost)) {
                 return true;
             }
         }

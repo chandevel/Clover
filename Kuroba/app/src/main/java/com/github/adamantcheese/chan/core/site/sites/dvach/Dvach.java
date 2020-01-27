@@ -54,7 +54,7 @@ public class Dvach
 
         @Override
         public String[] getMediaHosts() {
-            return new String[] { ROOT };
+            return new String[]{ROOT};
         }
 
         @Override
@@ -83,15 +83,14 @@ public class Dvach
     public Dvach() {
         chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(
                 // 2ch.hk sends file size in KB
-                false,
-                true
-        );
+                false, true);
     }
 
     @Override
     public void initializeSettings() {
         super.initializeSettings();
-        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type_dvach", Chan4.CaptchaType.class, V2JS);
+        captchaType =
+                new OptionsSetting<>(settingsProvider, "preference_captcha_type_dvach", Chan4.CaptchaType.class, V2JS);
     }
 
     @Override

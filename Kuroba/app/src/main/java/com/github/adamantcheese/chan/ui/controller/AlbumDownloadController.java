@@ -54,7 +54,6 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
@@ -176,12 +175,8 @@ public class AlbumDownloadController
         BackgroundUtils.ensureMainThread();
 
         if (loadingViewController != null) {
-            String message = getAppContext().getString(
-                    R.string.album_download_batch_image_processed_message,
-                    downloaded,
-                    total,
-                    failed
-            );
+            String message =
+                    getString(R.string.album_download_batch_image_processed_message, downloaded, total, failed);
 
             loadingViewController.updateWithText(message);
         }

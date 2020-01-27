@@ -42,7 +42,6 @@ import okhttp3.OkHttpClient;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
-import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class NetModule {
     public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
@@ -72,12 +71,7 @@ public class NetModule {
         RawFile cacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CACHE_DIR));
         RawFile chunksCacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CHUNKS_CACHE_DIR));
 
-        return new CacheHandler(
-                fileManager,
-                cacheDirFile,
-                chunksCacheDirFile,
-                ChanSettings.autoLoadThreadImages.get()
-        );
+        return new CacheHandler(fileManager, cacheDirFile, chunksCacheDirFile, ChanSettings.autoLoadThreadImages.get());
     }
 
     @Provides
@@ -95,9 +89,7 @@ public class NetModule {
     @Provides
     @Singleton
     public WebmStreamingSource provideWebmStreamingSource(
-            FileManager fileManager,
-            FileCacheV2 fileCacheV2,
-            CacheHandler cacheHandler
+            FileManager fileManager, FileCacheV2 fileCacheV2, CacheHandler cacheHandler
     ) {
         Logger.d(AppModule.DI_TAG, "WebmStreamingSource");
         return new WebmStreamingSource(fileManager, fileCacheV2, cacheHandler);
@@ -121,7 +113,7 @@ public class NetModule {
 
     /**
      * This okHttpClient is for posting.
-     * */
+     */
     // TODO(FileCacheV2): make this @Named as well instead of using hacks
     @Provides
     @Singleton
@@ -132,7 +124,7 @@ public class NetModule {
 
     /**
      * This okHttpClient is for images/file/apk updates/ downloading, prefetching, etc.
-     * */
+     */
     @Provides
     @Singleton
     @Named(DOWNLOADER_OKHTTP_CLIENT_NAME)
@@ -148,7 +140,7 @@ public class NetModule {
 
     /**
      * This okHttpClient is for local threads downloading.
-     * */
+     */
     @Provides
     @Singleton
     @Named(THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME)
@@ -175,7 +167,6 @@ public class NetModule {
                         .connectTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                         .readTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                         .writeTimeout(PROXIED_OKHTTP_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                        .callTimeout(2, MINUTES)
                         .build();
             }
             return proxiedClient;

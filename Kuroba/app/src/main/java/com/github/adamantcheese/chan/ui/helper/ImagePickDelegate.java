@@ -47,7 +47,6 @@ import javax.inject.Inject;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -97,12 +96,7 @@ public class ImagePickDelegate
                     clipboardURL =
                             HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
                 } catch (Exception exception) {
-                    String message = getAppContext().getString(
-                            R.string.image_url_get_failed,
-                            exception.getMessage()
-                    );
-
-                    showToast(message);
+                    showToast(getString(R.string.image_url_get_failed, exception.getMessage()));
                     callback.onFilePickError(true);
                     reset();
                 }
@@ -114,8 +108,7 @@ public class ImagePickDelegate
                         cancelableDownload = null;
                     }
 
-                    cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(
-                            clipboardURL.toString(),
+                    cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(clipboardURL.toString(),
                             new FileCacheListener() {
                                 @Override
                                 public void onSuccess(RawFile file) {
@@ -124,10 +117,7 @@ public class ImagePickDelegate
                                     showToast(R.string.image_url_get_success);
                                     Uri imageURL = Uri.parse(finalClipboardURL.toString());
 
-                                    callback.onFilePicked(
-                                            imageURL.getLastPathSegment(),
-                                            new File(file.getFullPath())
-                                    );
+                                    callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
 
                                     reset();
                                 }
@@ -141,16 +131,14 @@ public class ImagePickDelegate
                                 public void onFail(Exception exception) {
                                     BackgroundUtils.ensureMainThread();
 
-                                    String message = getString(
-                                            R.string.image_url_get_failed,
-                                            exception.getMessage()
-                                    );
+                                    String message = getString(R.string.image_url_get_failed, exception.getMessage());
 
                                     showToast(message);
                                     callback.onFilePickError(true);
                                     reset();
                                 }
-                            });
+                            }
+                    );
                 }
             } else {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);

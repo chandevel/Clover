@@ -160,8 +160,8 @@ class CancelableDownload(
 
                 Logger.d(TAG, "$action file download request, url = $url")
             }
-            // We use timeout here just in case to not get deadlocked
-            .get(MAX_CANCELLATION_WAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    // We use timeout here just in case to not get deadlocked
+                    .get(MAX_CANCELLATION_WAIT_TIME_SECONDS, TimeUnit.SECONDS)
         } catch (error: Throwable) {
             if (error is TimeoutException) {
                 Logger.e(TAG, "POSSIBLE DEADLOCK in CancelableDownload.dispose() !!!", error)

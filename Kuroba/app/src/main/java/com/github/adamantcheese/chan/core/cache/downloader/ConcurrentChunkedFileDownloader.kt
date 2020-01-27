@@ -74,21 +74,21 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                             output
                     )
                 }
-                .doOnSubscribe { log(TAG, "Starting downloading (${url})") }
-                .doOnComplete {
-                    log(TAG, "Completed downloading (${url})")
-                    removeChunksFromDisk(url)
-                }
-                .doOnError { error ->
-                    logErrorsAndExtractErrorMessage(
-                            TAG,
-                            "Error while trying to download",
-                            error
-                    )
+                        .doOnSubscribe { log(TAG, "Starting downloading (${url})") }
+                        .doOnComplete {
+                            log(TAG, "Completed downloading (${url})")
+                            removeChunksFromDisk(url)
+                        }
+                        .doOnError { error ->
+                            logErrorsAndExtractErrorMessage(
+                                    TAG,
+                                    "Error while trying to download",
+                                    error
+                            )
 
-                    removeChunksFromDisk(url)
-                }
-                .subscribeOn(workerScheduler)
+                            removeChunksFromDisk(url)
+                        }
+                        .subscribeOn(workerScheduler)
         )
     }
 

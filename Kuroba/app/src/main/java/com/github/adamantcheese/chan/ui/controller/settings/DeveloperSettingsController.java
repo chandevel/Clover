@@ -22,7 +22,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -115,7 +114,7 @@ public class DeveloperSettingsController
             databaseManager.reset();
             ((StartActivity) context).restartApp();
         });
-        resetDbButton.setText("Delete database");
+        resetDbButton.setText("Delete database & restart");
         wrapper.addView(resetDbButton);
 
         //FILTER WATCH IGNORE RESET
@@ -126,9 +125,9 @@ public class DeveloperSettingsController
                 Field ignoredField = filterWatchManager.getClass().getDeclaredField("ignoredPosts");
                 ignoredField.setAccessible(true);
                 ignoredField.set(filterWatchManager, Collections.synchronizedSet(new HashSet<Integer>()));
-                Logger.i(TAG, "Cleared ignores");
+                showToast("Cleared ignores");
             } catch (Exception e) {
-                Logger.i(TAG, "Failed to clear ignores");
+                showToast("Failed to clear ignores");
             }
         });
         clearFilterWatchIgnores.setText("Clear ignored filter watches");
@@ -176,9 +175,9 @@ public class DeveloperSettingsController
                 for (WakeManager.Wakeable wakeable : (Set<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
                     wakeable.onWake();
                 }
-                Logger.i(TAG, "Woke all wakeables");
+                showToast("Woke all wakeables");
             } catch (Exception e) {
-                Logger.i(TAG, "Failed to run wakeables");
+                showToast("Failed to run wakeables");
             }
         });
         forceWake.setText("Force wakemanager wake");
@@ -197,10 +196,10 @@ public class DeveloperSettingsController
             ChanSettings.verboseLogs.set(!ChanSettings.verboseLogs.get());
 
             if (ChanSettings.verboseLogs.get()) {
-                Toast.makeText(context, "Verbose logs enabled", Toast.LENGTH_SHORT).show();
+                showToast("Verbose logs enabled");
                 verboseLogsButton.setText(R.string.settings_disable_verbose_logs);
             } else {
-                Toast.makeText(context, "Verbose logs disabled", Toast.LENGTH_SHORT).show();
+                showToast("Verbose logs disabled");
                 verboseLogsButton.setText(R.string.settings_enable_verbose_logs);
             }
         });

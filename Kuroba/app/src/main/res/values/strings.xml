@@ -168,7 +168,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="action_confirm_exit_title">Tap back again to exit</string>
 
     <string name="thumbnail_load_failed_network">Error</string>
-    <string name="thumbnail_load_failed_server" translatable="false">404</string>
     <string name="image_preview_failed">Failed to show image</string>
     <string name="image_preview_failed_oom">Failed to show image (out of memory)</string>
     <string name="image_failed_big_image">Failed to show image (deep-zoom loading failed)</string>
@@ -229,7 +228,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="filter_action">Action</string>
     <string name="filter_pattern">Pattern</string>
     <string name="filter_match_test">Test the pattern</string>
-    <string name="filter_pattern_hint_regex">Pattern</string>
     <string name="filter_boards">Boards</string>
     <string name="filter_types">Types</string>
     <string name="filter_all">All</string>
@@ -645,7 +643,6 @@ Don't have a 4chan Pass?<br>
 
     <!-- Captcha settings -->
     <string name="captcha_layout_v2_verify_button_text">Verify</string>
-    <string name="captcha_layout_v2_reload">Reload</string>
     <string name="captcha_layout_v2_use_old_captcha">Use old\ncaptcha</string>
 
     <string name="captcha_layout_v2_you_have_to_select_at_least_one_image">You have to select at least one image (if you see a captcha that does not have any matching images, then it is probably a bug; fill an issue and use the old captcha)</string>
@@ -761,7 +758,6 @@ Don't have a 4chan Pass?<br>
     <string name="settings_concurrent_file_downloading_name">Concurrent chunked file downloading</string>
     <string name="settings_concurrent_file_downloading_description">Split file downloads into chunks and download them concurrently, when possible; makes loading times shorter when viewing them in the gallery.\nHow many chunks a file will be split into:</string>
     <string name="image_saver_canceled_by_user_message">Canceled by user</string>
-    <string name="image_saver_save_location_is_null_message">Save location is null!</string>
     <string name="image_saver_unknown_location_message">Unknown location</string>
     <string name="image_saver_failed_to_save_image">Failed to save the image. Reason</string>
     <string name="image_saver_no_write_permission_message">Cannot start saving images without WRITE permission</string>

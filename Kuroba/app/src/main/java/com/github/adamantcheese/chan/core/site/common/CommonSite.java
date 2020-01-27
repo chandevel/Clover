@@ -237,7 +237,9 @@ public abstract class CommonSite
     public static abstract class CommonSiteUrlHandler
             implements SiteUrlHandler {
         public abstract HttpUrl getUrl();
+
         public abstract String[] getMediaHosts();
+
         public abstract String[] getNames();
 
         @Override

@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class CardPostCell
@@ -244,7 +245,7 @@ public class CardPostCell
         comment.setText(commentText);
         comment.setTextColor(ThemeHelper.getTheme().textPrimary);
 
-        replies.setText(getResources().getString(R.string.card_stats, post.getReplies(), post.getImagesCount()));
+        replies.setText(getString(R.string.card_stats, post.getReplies(), post.getImagesCount()));
     }
 
     private void setCompact(boolean compact) {

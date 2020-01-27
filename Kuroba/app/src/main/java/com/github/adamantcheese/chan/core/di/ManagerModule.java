@@ -153,12 +153,7 @@ public class ManagerModule {
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Thread save manager");
-        return new ThreadSaveManager(
-                databaseManager,
-                okHttpClient,
-                savedThreadLoaderRepository,
-                fileManager
-        );
+        return new ThreadSaveManager(databaseManager, okHttpClient, savedThreadLoaderRepository, fileManager);
     }
 
     @Provides

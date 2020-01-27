@@ -29,7 +29,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Lifecycle;
@@ -86,6 +85,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
 
 public class MultiImageView
@@ -287,13 +287,8 @@ public class MultiImageView
             return;
         }
 
-        thumbnailRequest = imageLoaderV2.getImage(
-                true,
-                loadable,
-                postImage,
-                getWidth(),
-                getHeight(),
-                new ImageListener() {
+        thumbnailRequest =
+                imageLoaderV2.getImage(true, loadable, postImage, getWidth(), getHeight(), new ImageListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         thumbnailRequest = null;
@@ -542,14 +537,7 @@ public class MultiImageView
             @Override
             public void onError(@NotNull Throwable error) {
                 Logger.e(TAG, "Error while trying to stream a webm", error);
-                BackgroundUtils.ensureMainThread();
-
-                if (context != null) {
-                    String message = "Couldn't open webm in streaming mode, error = "
-                            + error.getMessage();
-
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                }
+                showToast("Couldn't open webm in streaming mode, error = " + error.getMessage());
             }
         });
     }

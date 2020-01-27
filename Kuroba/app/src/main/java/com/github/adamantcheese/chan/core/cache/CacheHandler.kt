@@ -35,7 +35,7 @@ import java.io.IOException
 import java.io.PrintWriter
 import java.util.*
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.MINUTES
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
@@ -526,8 +526,7 @@ class CacheHandler(
                 read = reader.read(contentBuffer)
                 if (read != length) {
                     throw IOException(
-                            "Couldn't read content cache file meta, " +
-                                    "read = $read, expected = $length"
+                            "Couldn't read content cache file meta, read = $read, expected = $length"
                     )
                 }
 
@@ -738,8 +737,7 @@ class CacheHandler(
                 if (!deleteCacheFile(abstractFile)) {
                     Logger.e(
                             TAG,
-                            "Couldn't delete cache file with " +
-                                    "meta for file = ${abstractFile.getFullPath()}"
+                            "Couldn't delete cache file with meta for file = ${abstractFile.getFullPath()}"
                     )
                 }
                 continue
@@ -868,12 +866,10 @@ class CacheHandler(
 
         // 1GB for prefetching, so that entire threads can be loaded at once more easily,
         // otherwise 512MB. 100MB is actually not that much for some boards like /wsg/ where every file
-        // may weight up to 5MB (I believe). So it's like 20 files before we have to clean the cache.
-        // And there are other chans (like 2ch.hk) where a webm may weight up to 25MB (!!!)
+        // may weigh up to 5MB (I believe). So it's like 20 files before we have to clean the cache.
+        // And there are other chans (like 2ch.hk) where a webm may weigh up to 25MB
         // (or even more I don't remember how much exactly). Also when downloading albums, the cache
         // will be cleaned a lot of times with the old size.
-        // So let's increase it. And it's the Android app's cache which can be cleaned by the
-        // OS (or user) at any time so it shouldn't be a problem.
         private const val DEFAULT_CACHE_SIZE = 512L * 1024L * 1024L
         private const val PREFETCH_CACHE_SIZE = 1024L * 1024L * 1024L
         private const val CACHE_FILE_META_HEADER_SIZE = 4
@@ -884,8 +880,8 @@ class CacheHandler(
         internal const val CACHE_META_EXTENSION = "cache_meta"
         internal const val CHUNK_CACHE_EXTENSION = "chunk"
 
-        private val MIN_CACHE_FILE_LIFE_TIME = TimeUnit.MINUTES.toMillis(5)
-        private val MIN_TRIM_INTERVAL = TimeUnit.MINUTES.toMillis(1)
+        private val MIN_CACHE_FILE_LIFE_TIME = MINUTES.toMillis(5)
+        private val MIN_TRIM_INTERVAL = MINUTES.toMillis(1)
 
         private val CACHE_FILE_COMPARATOR = Comparator<CacheFile> { cacheFile1, cacheFile2 ->
             cacheFile1.createdOn.compareTo(cacheFile2.createdOn)

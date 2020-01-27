@@ -25,12 +25,15 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import okhttp3.HttpUrl;
 
 public interface SiteUrlHandler {
-    String WWW_PREFIX = "www";
-
     Class<? extends Site> getSiteClass();
+
     boolean matchesName(String value);
+
     boolean respondsTo(HttpUrl url);
+
     boolean matchesMediaHost(@NonNull HttpUrl url);
+
     String desktopUrl(Loadable loadable, @Nullable final Post post);
+
     Loadable resolveLoadable(Site site, HttpUrl url);
 }

@@ -7,6 +7,7 @@ sealed class DownloadState {
      * file right away because we use that cache file ti fill up the WebmStreamingDataSource
      * */
     object Stopped : DownloadState()
+
     /**
      * Cancels the download and deletes the file
      * */

@@ -110,19 +110,16 @@ public class ImageSaveTask
     }
 
     public Single<ImageSaver.BundledDownloadResult> run() {
-        @Nullable Action onDisposeFunc = null;
+        @Nullable
+        Action onDisposeFunc = null;
 
         try {
             if (fileManager.exists(destination)) {
                 onDestination();
                 onEnd();
             } else {
-                CancelableDownload cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(
-                        loadable,
-                        postImage,
-                        isBatchDownload,
-                        this
-                );
+                CancelableDownload cancelableDownload =
+                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, isBatchDownload, this);
 
                 onDisposeFunc = () -> {
                     if (cancelableDownload != null) {

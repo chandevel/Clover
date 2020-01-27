@@ -64,7 +64,6 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 
 import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2JS;
-import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2NOJS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class Chan4
@@ -77,9 +76,7 @@ public class Chan4
 
     public static final SiteUrlHandler URL_HANDLER = new SiteUrlHandler() {
 
-        private final String[] mediaHosts = new String[] {
-                "i.4cdn.org"
-        };
+        private final String[] mediaHosts = new String[]{"i.4cdn.org"};
 
         @Override
         public Class<? extends Site> getSiteClass() {
@@ -100,12 +97,9 @@ public class Chan4
         public boolean respondsTo(HttpUrl url) {
             String host = url.host();
 
-            return host.equals("4chan.org")
-                    || host.equals("www.4chan.org")
-                    || host.equals("boards.4chan.org")
-                    || host.equals("4channel.org")
-                    || host.equals("www.4channel.org")
-                    || host.equals("boards.4channel.org");
+            return host.equals("4chan.org") || host.equals("www.4chan.org") || host.equals("boards.4chan.org")
+                    || host.equals("4channel.org") || host.equals("www.4channel.org") || host.equals(
+                    "boards.4channel.org");
         }
 
         @Override

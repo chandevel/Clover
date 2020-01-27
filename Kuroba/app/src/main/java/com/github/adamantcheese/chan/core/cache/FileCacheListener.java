@@ -27,7 +27,7 @@ public abstract class FileCacheListener {
      * downloading anything, which may take up to 1 second. In some cases we won't send the HEAD
      * request (like when the setting to chunk downloads is set to 1 chunk) so this callback will
      * be called immediately.
-     * */
+     */
     public void onStart(int chunksCount) {
     }
 
@@ -35,7 +35,7 @@ public abstract class FileCacheListener {
      * In case of the file being downloaded in chunks [chunkIndex] will be representing the chunk
      * index. Otherwise it will always be 0.
      * The amount of chunks is being passed into the [onStart] event.
-     * */
+     */
     public void onProgress(int chunkIndex, long downloaded, long total) {
     }
 
@@ -48,7 +48,7 @@ public abstract class FileCacheListener {
     /**
      * This is called when we got 404 status from the server. You must override this method because
      * onFail won't be called!
-     * */
+     */
     public void onNotFound() {
     }
 
