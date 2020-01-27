@@ -19,7 +19,7 @@ class MultiImageViewGestureDetector(
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val gifImageView = callbacks.findGifImageView()
         if (gifImageView != null) {
-            // If a GifImageView is visible the toggle it's play state
+            // If a GifImageView is visible then toggle it's play state
             val drawable = gifImageView.drawable as GifDrawable
             if (drawable.isPlaying) {
                 drawable.pause()
@@ -73,7 +73,7 @@ class MultiImageViewGestureDetector(
                     bigImageView.isViewportTouchingImageBottom &&
                     bigImageView.isViewportTouchingImageTop
             ) {
-                // We are either not zoomed it or just slightly zoomed in (i.e. the view
+                // We are either not zoomed in or just slightly zoomed in (i.e. the view
                 // port is touching both the top and bottom of an image). We can use
                 // swipe-to-save image gesture.
                 swipeToSaveOrClose()
@@ -116,14 +116,12 @@ class MultiImageViewGestureDetector(
             callbacks.onSwipeToCloseImage()
         } else {
             callbacks.onSwipeToSaveImage()
-            // TODO: disable the "save image" toolbar menu item once FileCacheV2
-            //  is merged
             callbacks.setImageAlreadySaved()
         }
     }
 
     private fun onSwipedUp(bigImageView: CustomScaleImageView?): Boolean {
-        // If either other than big image view is visible (thumbnail, gif or video) OR
+        // If either any view, other than the big image view, is visible (thumbnail, gif or video) OR
         // big image is visible and the viewport is touching image bottom then use
         // close-to-swipe gesture
         if (bigImageView == null || bigImageView.isViewportTouchingImageBottom) {
