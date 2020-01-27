@@ -30,6 +30,7 @@ import okhttp3.HttpUrl;
  * Endpoints for {@link Site}.
  */
 public interface SiteEndpoints {
+
     HttpUrl catalog(Board board);
 
     HttpUrl thread(Board board, Loadable loadable);

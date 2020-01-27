@@ -67,7 +67,7 @@ public abstract class Controller {
     public Controller presentingThisController;
 
     public boolean alive = false;
-    public boolean shown = false;
+    private boolean shown = false;
 
     public Controller(Context context) {
         this.context = context;

@@ -158,7 +158,7 @@ public class DrawerController
                         if (savedThread.isFullyDownloaded) {
                             state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
                         } else {
-                            // TODO: we can check here that the user has no internet connection
+                            // TODO(LocalThreads): we can check here that the user has no internet connection
                             //  and load the local thread right away so the user doesn't have
                             //  to do it manually
                             state = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;

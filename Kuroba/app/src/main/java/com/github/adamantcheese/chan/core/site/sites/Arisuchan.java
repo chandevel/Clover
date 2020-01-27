@@ -16,11 +16,13 @@
  */
 package com.github.adamantcheese.chan.core.site.sites;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.site.ChunkDownloaderSiteProperties;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -33,7 +35,11 @@ import okhttp3.HttpUrl;
 
 public class Arisuchan
         extends CommonSite {
+    private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
+
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
+        private static final String ROOT = "https://arisuchan.jp/";
+
         @Override
         public Class<? extends Site> getSiteClass() {
             return Arisuchan.class;
@@ -41,7 +47,12 @@ public class Arisuchan
 
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https://arisuchan.jp/");
+            return HttpUrl.parse(ROOT);
+        }
+
+        @Override
+        public String[] getMediaHosts() {
+            return new String[]{ROOT};
         }
 
         @Override
@@ -64,6 +75,15 @@ public class Arisuchan
             }
         }
     };
+
+    public Arisuchan() {
+        chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(
+                // The site is dead so we can't know it
+                false,
+                // The site is dead so we can't know it
+                false
+        );
+    }
 
     @Override
     public void setup() {
@@ -95,5 +115,11 @@ public class Arisuchan
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());
+    }
+
+    @NonNull
+    @Override
+    public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
+        return chunkDownloaderSiteProperties;
     }
 }

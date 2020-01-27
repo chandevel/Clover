@@ -171,6 +171,10 @@ public class ImageViewerController
         overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
         overflowBuilder.withSubItem(R.string.action_image_rotate, this::rotateImage);
 
+        if (!loadable.isLocal()) {
+            overflowBuilder.withSubItem(R.string.action_reload, this::forceReload);
+        }
+
         overflowBuilder.build().build();
 
         hideSystemUI();
@@ -192,6 +196,11 @@ public class ImageViewerController
         }
 
         waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
+            ToolbarMenuItem saveMenuItem = navigation.findItem(SAVE_ID);
+            if (saveMenuItem != null) {
+                saveMenuItem.setEnabled(false);
+            }
+
             presenter.onViewMeasured();
             return true;
         });
@@ -222,8 +231,7 @@ public class ImageViewerController
     }
 
     private void saveClicked(ToolbarMenuItem item) {
-        item.setCallback(null);
-        item.getView().getDrawable().setTint(Color.GRAY);
+        item.setEnabled(false);
         saveShare(false, presenter.getCurrentPostImage());
     }
 
@@ -275,6 +283,13 @@ public class ImageViewerController
         dialog.show();
     }
 
+    private void forceReload(ToolbarMenuSubItem item) {
+        ToolbarMenuItem menuItem = navigation.findItem(SAVE_ID);
+        if (menuItem != null && presenter.forceReload()) {
+            menuItem.setEnabled(false);
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -288,7 +303,7 @@ public class ImageViewerController
         if (share && ChanSettings.shareUrl.get()) {
             shareLink(postImage.imageUrl.toString());
         } else {
-            ImageSaveTask task = new ImageSaveTask(loadable, postImage);
+            ImageSaveTask task = new ImageSaveTask(loadable, postImage, false);
             task.setShare(share);
             if (ChanSettings.saveBoardFolder.get()) {
                 String subFolderName;
@@ -405,10 +420,15 @@ public class ImageViewerController
     }
 
     public void showProgress(boolean show) {
+        int visibility = loadingBar.getVisibility();
+        if ((visibility == VISIBLE && show) || (visibility == GONE && !show)) {
+            return;
+        }
+
         loadingBar.setVisibility(show ? VISIBLE : GONE);
     }
 
-    public void onLoadProgress(float progress) {
+    public void onLoadProgress(List<Float> progress) {
         loadingBar.setProgress(progress);
     }
 
@@ -420,14 +440,13 @@ public class ImageViewerController
     }
 
     @Override
-    public void resetDownloadButtonState() {
+    public void showDownloadMenuItem(boolean show) {
         ToolbarMenuItem saveItem = navigation.findItem(SAVE_ID);
         if (saveItem == null) {
             return;
         }
 
-        saveItem.getView().getDrawable().setTintList(null);
-        saveItem.setCallback(this::saveClicked);
+        saveItem.setEnabled(show);
     }
 
     @Override

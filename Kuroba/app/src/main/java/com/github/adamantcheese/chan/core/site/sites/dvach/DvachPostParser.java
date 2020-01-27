@@ -45,20 +45,22 @@ public class DvachPostParser
 
             Document document = Jsoup.parseBodyFragment(name);
             Element span = document.body().getElementsByTag("span").first();
-            String style = span.attr("style");
-            builder.posterId = span.text();
-            builder.name = document.body().textNodes().get(0).text().trim();
+            if (span != null) {
+                String style = span.attr("style");
+                builder.posterId = span.text();
+                builder.name = document.body().textNodes().get(0).text().trim();
 
-            if (!TextUtils.isEmpty(style)) {
-                style = style.replace(" ", "");
+                if (!TextUtils.isEmpty(style)) {
+                    style = style.replace(" ", "");
 
-                Matcher matcher = colorPattern.matcher(style);
-                if (matcher.find()) {
-                    int r = Integer.parseInt(matcher.group(1));
-                    int g = Integer.parseInt(matcher.group(2));
-                    int b = Integer.parseInt(matcher.group(3));
+                    Matcher matcher = colorPattern.matcher(style);
+                    if (matcher.find()) {
+                        int r = Integer.parseInt(matcher.group(1));
+                        int g = Integer.parseInt(matcher.group(2));
+                        int b = Integer.parseInt(matcher.group(3));
 
-                    builder.idColor = Color.rgb(r, g, b);
+                        builder.idColor = Color.rgb(r, g, b);
+                    }
                 }
             }
         } catch (Exception e) {

@@ -125,8 +125,7 @@ public class PostLinkable
         PostLinkable linkable = (PostLinkable) obj;
 
         // We need to ignore the spans here when comparing
-        return linkable.key.toString().equals(this.key.toString())
-                && linkable.value.equals(this.value)
-                && linkable.type.equals(this.type);
+        return linkable.key.toString().equals(this.key.toString()) && linkable.value.equals(this.value) && linkable.type
+                .equals(this.type);
     }
 }

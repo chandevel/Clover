@@ -30,6 +30,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.widget.Button;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 
@@ -38,17 +39,20 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
+import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,10 +80,16 @@ public class UpdateManager {
     RequestQueue volleyRequestQueue;
 
     @Inject
-    FileCache fileCache;
+    FileCacheV2 fileCacheV2;
+
+    @Inject
+    FileManager fileManager;
 
     private ProgressDialog updateDownloadDialog;
     private Context context;
+
+    @Nullable
+    private CancelableDownload cancelableDownload;
 
     public UpdateManager(Context context) {
         inject(this);
@@ -256,59 +266,85 @@ public class UpdateManager {
     public void doUpdate(UpdateApiRequest.UpdateApiResponse response) {
         BackgroundUtils.ensureMainThread();
 
-        fileCache.downloadFile(response.apkURL.toString(), new FileCacheListener() {
-            @Override
-            public void onProgress(long downloaded, long total) {
-                BackgroundUtils.ensureMainThread();
+        if (cancelableDownload != null) {
+            cancelableDownload.cancel();
+            cancelableDownload = null;
+        }
 
-                updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded / (double) total)));
-            }
+        cancelableDownload =
+                fileCacheV2.enqueueNormalDownloadFileRequest(response.apkURL.toString(), new FileCacheListener() {
+                    @Override
+                    public void onProgress(int chunkIndex, long downloaded, long total) {
+                        BackgroundUtils.ensureMainThread();
 
-            @Override
-            public void onSuccess(RawFile file) {
-                BackgroundUtils.ensureMainThread();
+                        updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded
+                                / (double) total)));
+                    }
 
-                updateDownloadDialog.dismiss();
-                updateDownloadDialog = null;
-                //put a copy into the Downloads folder, for archive/rollback purposes
-                File downloadAPKcopy = new File(
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                        getApplicationLabel() + "_" + response.versionCodeString + ".apk"
-                );
-                File updateAPK = new File(file.getFullPath());
-                try {
-                    IOUtils.copyFile(updateAPK, downloadAPKcopy);
-                } catch (Exception ignored) { //if we fail to move the downloaded file, just ignore it
-                }
-                //install from the filecache rather than downloads, as the Environment.DIRECTORY_DOWNLOADS may not be "Download"
-                installApk(updateAPK);
-            }
+                    @Override
+                    public void onSuccess(RawFile file) {
+                        BackgroundUtils.ensureMainThread();
 
-            @Override
-            public void onFail(boolean notFound) {
-                BackgroundUtils.ensureMainThread();
+                        updateDownloadDialog.dismiss();
+                        updateDownloadDialog = null;
 
-                updateDownloadDialog.dismiss();
-                updateDownloadDialog = null;
-                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            }
+                        String fileName = getApplicationLabel() + "_" + response.versionCodeString + ".apk";
 
-            @Override
-            public void onCancel() {
-                BackgroundUtils.ensureMainThread();
+                        //put a copy into the Downloads folder, for archive/rollback purposes
+                        File downloadAPKcopy =
+                                new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                                        fileName
+                                );
 
-                updateDownloadDialog.dismiss();
-                updateDownloadDialog = null;
-                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            }
-        });
+                        AbstractFile copyFile = fileManager.fromRawFile(downloadAPKcopy);
+
+                        if (fileManager.create(copyFile) != null) {
+                            if (!fileManager.copyFileContents(file, copyFile)) {
+                                Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory");
+                            }
+                        } else {
+                            Logger.e(TAG, "Couldn't create backup apk file: " + downloadAPKcopy.getAbsolutePath());
+                        }
+
+                        //install from the filecache rather than downloads, as the Environment.DIRECTORY_DOWNLOADS may not be "Download"
+                        installApk(file);
+                    }
+
+                    @Override
+                    public void onNotFound() {
+                        onFail(new IOException("Not found"));
+                    }
+
+                    @Override
+                    public void onFail(Exception exception) {
+                        BackgroundUtils.ensureMainThread();
+
+                        String description = context.getString(R.string.update_install_download_failed_description,
+                                exception.getMessage()
+                        );
+
+                        updateDownloadDialog.dismiss();
+                        updateDownloadDialog = null;
+                        new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
+                                .setMessage(description)
+                                .setPositiveButton(R.string.ok, null)
+                                .show();
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        BackgroundUtils.ensureMainThread();
+
+                        updateDownloadDialog.dismiss();
+                        updateDownloadDialog = null;
+                        new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
+                                .setPositiveButton(R.string.ok, null)
+                                .show();
+                    }
+                });
     }
 
-    private void installApk(File apk) {
+    private void installApk(RawFile apk) {
         // First open the dialog that asks to retry and calls this method again.
         new AlertDialog.Builder(context).setTitle(R.string.update_retry_title)
                 .setMessage(getString(R.string.update_retry, getApplicationLabel()))
@@ -319,7 +355,10 @@ public class UpdateManager {
         // Then launch the APK install intent.
         Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        Uri apkURI = FileProvider.getUriForFile(context, getAppFileProvider(), apk);
+
+        File apkFile = new File(apk.getFullPath());
+        Uri apkURI = FileProvider.getUriForFile(context, getAppFileProvider(), apkFile);
+
         intent.setDataAndType(apkURI, "application/vnd.android.package-archive");
 
         // The installer wants a content scheme from android N and up,
@@ -346,13 +385,19 @@ public class UpdateManager {
                 updateDownloadDialog.show();
                 doUpdate(response);
             } else {
-                runtimePermissionsHelper.showPermissionRequiredDialog(
-                        context,
+                runtimePermissionsHelper.showPermissionRequiredDialog(context,
                         getString(R.string.update_storage_permission_required_title),
                         getString(R.string.update_storage_permission_required),
                         () -> updateInstallRequested(response)
                 );
             }
         });
+    }
+
+    public void onDestroy() {
+        if (cancelableDownload != null) {
+            cancelableDownload.cancel();
+            cancelableDownload = null;
+        }
     }
 }

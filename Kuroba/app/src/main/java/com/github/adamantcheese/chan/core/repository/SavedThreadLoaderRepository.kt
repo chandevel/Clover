@@ -65,7 +65,6 @@ constructor(
         BackgroundUtils.ensureBackgroundThread()
 
         val threadFile = threadSaveDir.clone(FileSegment(THREAD_FILE_NAME))
-
         val createdThreadFile = fileManager.create(threadFile)
 
         if (!fileManager.exists(threadFile) || createdThreadFile == null) {
