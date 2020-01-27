@@ -150,6 +150,7 @@ public class TaimabaApi extends CommonSite.CommonApi {
                     postcom = postcom.replaceAll("(?i)\\[spoiler\\](.*?)\\[/spoiler\\]", "<span class=\"spoiler\">$1</span>");
                     postcom = postcom.replaceAll("(?i)\\[s\\](.*?)\\[/s\\]", "<strike>$1</strike>");
                     postcom = postcom.replaceAll("(?i)\\[pre\\](.*?)\\[/pre\\]", "<pre>$1</pre>");
+                    postcom = postcom.replaceAll("(?i)\\[sub\\](.*?)\\[/sub\\]", "<pre>$1</pre>");
                     builder.comment(postcom);
                     break;
                 case "filename":
