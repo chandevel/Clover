@@ -47,6 +47,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter;
 import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item;
+import com.github.adamantcheese.chan.core.site.ChunkDownloaderSiteProperties;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -160,6 +161,11 @@ public class BrowseBoardsFloatingMenu
                         }
 
                         @Override
+                        public String[] getMediaHosts() {
+                            return new String[0];
+                        }
+
+                        @Override
                         public String[] getNames() {
                             return new String[0];
                         }
@@ -177,6 +183,12 @@ public class BrowseBoardsFloatingMenu
                     });
                     setActions(new CommonActions(null) {});
                     setParser(new CommentParser());
+                }
+
+                @NonNull
+                @Override
+                public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
+                    throw new RuntimeException("Shouldn't be called");
                 }
             };
             setupSite.setup();

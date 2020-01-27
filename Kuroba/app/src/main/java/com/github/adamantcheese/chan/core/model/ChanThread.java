@@ -19,17 +19,22 @@ package com.github.adamantcheese.chan.core.model;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ChanThread {
     private Loadable loadable;
+    // Unmodifiable list of posts. We need it to make this class "thread-safe" (it's actually
+    // still not fully thread-safe because Loadable and the Post classes are not thread-safe but
+    // there is no easy way to fix them right now) and to avoid copying the whole list of posts
+    // every time it is needed somewhere.
     private List<Post> posts;
     private boolean closed = false;
     private boolean archived = false;
 
     public ChanThread(Loadable loadable, List<Post> posts) {
         this.loadable = loadable;
-        this.posts = posts;
+        this.posts = Collections.unmodifiableList(new ArrayList<>(posts));
     }
 
     public synchronized int getPostsCount() {
@@ -61,24 +66,12 @@ public class ChanThread {
         this.archived = archived;
     }
 
-    /**
-     * This allocates additional memory. Only use it when you need to change the collection in some way.
-     */
     public synchronized List<Post> getPosts() {
-        return new ArrayList<>(posts);
-    }
-
-    /**
-     * To avoid posts allocations.
-     * Not safe! Only use for read-only operations like iteration, etc!
-     */
-    public synchronized List<Post> getPostsUnsafe() {
         return posts;
     }
 
     public synchronized void setNewPosts(List<Post> newPosts) {
-        posts.clear();
-        posts.addAll(newPosts);
+        this.posts = Collections.unmodifiableList(new ArrayList<>(newPosts));
     }
 
     public synchronized int getLoadableId() {
@@ -97,7 +90,7 @@ public class ChanThread {
     }
 
     /**
-     * For now it is like this because there are a lot of places that will have to changed to make
+     * For now it is like this because there are a lot of places that will have to be changed to make
      * this safe
      */
     public Loadable getLoadable() {

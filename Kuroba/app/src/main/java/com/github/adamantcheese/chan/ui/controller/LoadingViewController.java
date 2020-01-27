@@ -14,6 +14,7 @@ public class LoadingViewController
     private TextView textView;
     private ProgressBar progressBar;
     private boolean indeterminate;
+    private boolean backNotAllowed = true;
 
     public LoadingViewController(Context context, boolean indeterminate) {
         super(context);
@@ -29,8 +30,16 @@ public class LoadingViewController
         progressBar = view.findViewById(R.id.progress_bar);
     }
 
+    public void enableBack() {
+        backNotAllowed = false;
+    }
+
+    // Disable the back button for this controller unless otherwise requested by the above
     @Override
     public boolean onBack() {
+        if (!backNotAllowed) {
+            presentedByController.onBack();
+        }
         return true;
     }
 
@@ -39,18 +48,12 @@ public class LoadingViewController
      */
     public void updateProgress(int percent) {
         if (indeterminate) {
-            throw new IllegalStateException("Cannot be used with indeterminate flag");
+            return;
         }
 
-        if (textView.getVisibility() != VISIBLE && percent > 0) {
-            textView.setVisibility(VISIBLE);
-        }
-
-        if (progressBar.getVisibility() != VISIBLE) {
-            progressBar.setVisibility(VISIBLE);
-        }
-
-        textView.setText(String.valueOf(percent));
+        textView.setVisibility(VISIBLE);
+        progressBar.setVisibility(VISIBLE);
+        textView.setText(String.valueOf(percent > 0 ? percent : "0"));
     }
 
     /**
@@ -59,17 +62,11 @@ public class LoadingViewController
      */
     public void updateWithText(String text) {
         if (indeterminate) {
-            throw new IllegalStateException("Cannot be used with indeterminate flag");
+            return;
         }
 
-        if (textView.getVisibility() != VISIBLE) {
-            textView.setVisibility(VISIBLE);
-        }
-
-        if (progressBar.getVisibility() == VISIBLE) {
-            progressBar.setVisibility(GONE);
-        }
-
+        textView.setVisibility(VISIBLE);
+        progressBar.setVisibility(GONE);
         textView.setText(text);
     }
 

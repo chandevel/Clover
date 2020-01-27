@@ -161,6 +161,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     </style>
 
+    <style name="Chan.Theme.TomorrowBlack" parent="Chan.Theme.Tomorrow">
+        <item name="backcolor">#000000</item>
+        <item name="backcolor_secondary">#212121</item>
+
+        <item name="post_spoiler_color">#2c2c2c</item>
+    </style>
+
     <style name="Chan.Theme.Insomnia" parent="Chan.Theme.Dark">
         <item name="colorAccent">#5f89ac</item>
 

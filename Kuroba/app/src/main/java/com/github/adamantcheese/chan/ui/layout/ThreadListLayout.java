@@ -272,10 +272,7 @@ public class ThreadListLayout
     }
 
     public void showPosts(
-            ChanThread thread,
-            PostsFilter filter,
-            boolean initial,
-            boolean refreshAfterHideOrRemovePosts
+            ChanThread thread, PostsFilter filter, boolean initial, boolean refreshAfterHideOrRemovePosts
     ) {
         showingThread = thread;
         if (initial) {

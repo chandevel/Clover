@@ -55,7 +55,6 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
@@ -583,8 +582,7 @@ public class ReplyPresenter
 
             int stringResId = probablyWebm ? R.string.reply_webm_too_big : R.string.reply_file_too_big;
 
-            String text = getRes().getString(stringResId, fileSize, maxSizeString);
-            callback.openPreviewMessage(true, text);
+            callback.openPreviewMessage(true, getString(stringResId, fileSize, maxSizeString));
         } else {
             callback.openPreviewMessage(false, null);
         }

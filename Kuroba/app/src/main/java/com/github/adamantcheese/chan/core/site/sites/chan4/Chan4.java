@@ -20,6 +20,8 @@ import android.util.JsonReader;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -30,6 +32,7 @@ import com.github.adamantcheese.chan.core.settings.OptionsSetting;
 import com.github.adamantcheese.chan.core.settings.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.SharedPreferencesSettingProvider;
 import com.github.adamantcheese.chan.core.settings.StringSetting;
+import com.github.adamantcheese.chan.core.site.ChunkDownloaderSiteProperties;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
@@ -60,15 +63,29 @@ import java.util.Random;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
-import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2NOJS;
+import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2JS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class Chan4
         extends SiteBase {
+    private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
+
+    private static final String TAG = "Chan4";
+    private static final String CAPTCHA_KEY = "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
+    private static final Random random = new Random();
+
     public static final SiteUrlHandler URL_HANDLER = new SiteUrlHandler() {
+
+        private final String[] mediaHosts = new String[]{"i.4cdn.org"};
+
         @Override
         public Class<? extends Site> getSiteClass() {
             return Chan4.class;
+        }
+
+        @Override
+        public boolean matchesMediaHost(@NonNull HttpUrl url) {
+            return SiteBase.containsMediaHostUrl(url, mediaHosts);
         }
 
         @Override
@@ -78,9 +95,11 @@ public class Chan4
 
         @Override
         public boolean respondsTo(HttpUrl url) {
-            return url.host().equals("4chan.org") || url.host().equals("www.4chan.org") || url.host()
-                    .equals("boards.4chan.org") || url.host().equals("4channel.org") || url.host()
-                    .equals("www.4channel.org") || url.host().equals("boards.4channel.org");
+            String host = url.host();
+
+            return host.equals("4chan.org") || host.equals("www.4chan.org") || host.equals("boards.4chan.org")
+                    || host.equals("4channel.org") || host.equals("www.4channel.org") || host.equals(
+                    "boards.4channel.org");
         }
 
         @Override
@@ -149,23 +168,12 @@ public class Chan4
         }
     };
 
-    private static final String TAG = "Chan4";
-
-    private static final String CAPTCHA_KEY = "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
-
-    private static final Random random = new Random();
-
     private final SiteEndpoints endpoints = new SiteEndpoints() {
         private final HttpUrl a = new HttpUrl.Builder().scheme("https").host("a.4cdn.org").build();
-
         private final HttpUrl i = new HttpUrl.Builder().scheme("https").host("i.4cdn.org").build();
-
         private final HttpUrl t = new HttpUrl.Builder().scheme("https").host("i.4cdn.org").build();
-
         private final HttpUrl s = new HttpUrl.Builder().scheme("https").host("s.4cdn.org").build();
-
         private final HttpUrl sys = new HttpUrl.Builder().scheme("https").host("sys.4chan.org").build();
-
         private final HttpUrl b = new HttpUrl.Builder().scheme("https").host("boards.4chan.org").build();
 
         @Override
@@ -318,51 +326,14 @@ public class Chan4
         @Override
         public void archives(ArchiveRequestListener archivesListener) {
             requestQueue.add(new JsonReaderRequest<List<ArchivesManager.Archives>>(
-                    "https://mayhemydg.github.io/archives.json/archives.json",
+                    "https://nstepien.github.io/archives.json/archives.json",
                     archivesListener::onArchivesReceived,
-                    error -> {
-                        Logger.e(TAG, "Failed to get archives for 4Chan");
-                        archivesListener.onArchivesReceived(new ArrayList<>());
-                    }
+                    error -> Logger.e(TAG, "Failed to get archives for 4Chan, using builtins")
             ) {
                 @Override
                 public List<ArchivesManager.Archives> readJson(JsonReader reader)
                         throws Exception {
-                    List<ArchivesManager.Archives> archives = new ArrayList<>();
-
-                    reader.beginArray();
-                    while (reader.hasNext()) {
-                        ArchivesManager.Archives a = new ArchivesManager.Archives();
-
-                        reader.beginObject();
-                        while (reader.hasNext()) {
-                            switch (reader.nextName()) {
-                                case "name":
-                                    a.name = reader.nextString();
-                                    break;
-                                case "domain":
-                                    a.domain = reader.nextString();
-                                    break;
-                                case "boards":
-                                    List<String> b = new ArrayList<>();
-                                    reader.beginArray();
-                                    while (reader.hasNext()) {
-                                        b.add(reader.nextString());
-                                    }
-                                    reader.endArray();
-                                    a.boards = b;
-                                    break;
-                                default:
-                                    reader.skipValue();
-                                    break;
-                            }
-                        }
-                        reader.endObject();
-                        archives.add(a);
-                    }
-                    reader.endArray();
-
-                    return archives;
+                    return ArchivesManager.parseArchives(reader);
                 }
             });
         }
@@ -504,13 +475,15 @@ public class Chan4
         // token was renamed, before it meant the username, now it means the token returned
         // from the server that the cookie is set to.
         passToken = new StringSetting(p, "preference_pass_id", "");
+
+        chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(true, true);
     }
 
     @Override
     public void initializeSettings() {
         super.initializeSettings();
 
-        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type", CaptchaType.class, V2NOJS);
+        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, V2JS);
     }
 
     @Override
@@ -596,5 +569,11 @@ public class Chan4
     @Override
     public SiteActions actions() {
         return actions;
+    }
+
+    @NonNull
+    @Override
+    public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
+        return chunkDownloaderSiteProperties;
     }
 }

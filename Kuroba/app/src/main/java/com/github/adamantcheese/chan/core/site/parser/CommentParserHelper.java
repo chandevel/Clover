@@ -71,7 +71,7 @@ public class CommentParserHelper {
     public static LruCache<String, String> youtubeDurCache = new LruCache<>(500);
 
     //@formatter:off
-    private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf)", Pattern.CASE_INSENSITIVE);
+    private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp)", Pattern.CASE_INSENSITIVE);
     //@formatter:on
 
     private static final Pattern dubsPattern = Pattern.compile("(\\d)\\1$");

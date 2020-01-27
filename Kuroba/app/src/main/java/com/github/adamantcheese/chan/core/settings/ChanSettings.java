@@ -109,6 +109,47 @@ public class ChanSettings {
         }
     }
 
+    public enum ConcurrentFileDownloadingChunks
+            implements OptionSettingItem {
+        One("One chunk"),
+        Two("Two chunks"),
+        Four("Four chunks");
+
+        String name;
+
+        ConcurrentFileDownloadingChunks(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getKey() {
+            return name;
+        }
+
+        public int toInt() {
+            return (int) Math.pow(2, ordinal());
+        }
+    }
+
+    public enum ImageClickPreloadStrategy
+            implements OptionSettingItem {
+        PreloadNext("Preload next image"),
+        PreloadPrevious("Preload previous image"),
+        PreloadBoth("Preload next and previous images"),
+        PreloadNeither("Do not preload any images");
+
+        String name;
+
+        ImageClickPreloadStrategy(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getKey() {
+            return name;
+        }
+    }
+
     private static Proxy proxy;
     private static final String sharedPrefsFile = "shared_prefs/" + BuildConfig.APPLICATION_ID + "_preferences.xml";
 
@@ -121,6 +162,7 @@ public class ChanSettings {
     public static final BooleanSetting autoRefreshThread;
     public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
     public static final OptionsSetting<MediaAutoLoadMode> videoAutoLoadNetwork;
+    public static final BooleanSetting videoStream;
     public static final BooleanSetting videoOpenExternal;
     public static final BooleanSetting textOnly;
     public static final OptionsSetting<PostViewMode> boardViewMode;
@@ -207,12 +249,13 @@ public class ChanSettings {
     public static final BooleanSetting parsePostImageLinks;
 
     public static final StringSetting previousDevHash;
-
     public static final BooleanSetting addDubs;
     public static final BooleanSetting transparencyOn;
-
     public static final StringSetting youtubeTitleCache;
     public static final StringSetting youtubeDurationCache;
+    public static final OptionsSetting<ConcurrentFileDownloadingChunks> concurrentDownloadChunkCount;
+    public static final BooleanSetting verboseLogs;
+    public static final OptionsSetting<ImageClickPreloadStrategy> imageClickPreloadStrategy;
 
     static {
         try {
@@ -237,6 +280,7 @@ public class ChanSettings {
                     MediaAutoLoadMode.class,
                     MediaAutoLoadMode.WIFI
             );
+            videoStream = new BooleanSetting(p, "preference_video_stream", false);
             videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
             textOnly = new BooleanSetting(p, "preference_text_only", false);
             boardViewMode =
@@ -337,12 +381,21 @@ public class ChanSettings {
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
 
             previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
-
             addDubs = new BooleanSetting(p, "add_dubs", false);
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
-
             youtubeTitleCache = new StringSetting(p, "yt_title_cache", "{}");
             youtubeDurationCache = new StringSetting(p, "yt_dur_cache", "{}");
+            concurrentDownloadChunkCount = new OptionsSetting<>(p,
+                    "concurrent_file_downloading_chunks_count",
+                    ConcurrentFileDownloadingChunks.class,
+                    ConcurrentFileDownloadingChunks.Two
+            );
+            verboseLogs = new BooleanSetting(p, "verbose_logs", false);
+            imageClickPreloadStrategy = new OptionsSetting<>(p,
+                    "image_click_preload_strategy",
+                    ImageClickPreloadStrategy.class,
+                    ImageClickPreloadStrategy.PreloadNext
+            );
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.
