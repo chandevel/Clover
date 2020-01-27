@@ -36,7 +36,7 @@ public class PostUtils {
 
     public static Post findPostById(int id, @Nullable ChanThread thread) {
         if (thread != null) {
-            for (Post post : thread.getPostsUnsafe()) {
+            for (Post post : thread.getPosts()) {
                 if (post.no == id) {
                     return post;
                 }

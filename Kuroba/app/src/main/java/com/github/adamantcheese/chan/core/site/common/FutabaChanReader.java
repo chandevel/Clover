@@ -103,6 +103,7 @@ public class FutabaChanReader
         long fileSize = 0;
         boolean fileSpoiler = false;
         String fileName = null;
+        String fileHash = null;
 
         List<PostImage> files = new ArrayList<>();
 
@@ -217,6 +218,9 @@ public class FutabaChanReader
 
                     reader.endArray();
                     break;
+                case "md5":
+                    fileHash = reader.nextString();
+                    break;
                 default:
                     // Unknown/ignored key
                     reader.skipValue();
@@ -238,6 +242,7 @@ public class FutabaChanReader
                     .imageHeight(fileHeight)
                     .spoiler(fileSpoiler)
                     .size(fileSize)
+                    .fileHash(fileHash)
                     .build();
             // Insert it at the beginning.
             files.add(0, image);

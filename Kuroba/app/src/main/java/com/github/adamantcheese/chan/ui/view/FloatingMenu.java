@@ -167,7 +167,7 @@ public class FloatingMenu {
                     FloatingMenuItem item = items.get(position);
                     if (item.isEnabled()) {
                         callback.onFloatingMenuItemClicked(FloatingMenu.this, item);
-                        popupWindow.dismiss();
+                        dismiss();
                     }
                 } else {
                     callback.onFloatingMenuItemClicked(FloatingMenu.this, null);
@@ -207,7 +207,7 @@ public class FloatingMenu {
     }
 
     public void dismiss() {
-        if (popupWindow != null && popupWindow.isShowing()) {
+        if (isShowing()) {
             popupWindow.dismiss();
             popupWindow = null;
         }

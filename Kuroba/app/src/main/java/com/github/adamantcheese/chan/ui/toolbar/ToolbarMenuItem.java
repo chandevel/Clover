@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
@@ -44,8 +45,8 @@ public class ToolbarMenuItem {
     public Object id;
 
     public boolean overflowStyle = false;
-
     public boolean visible = true;
+    public boolean enabled = true;
 
     public Drawable drawable;
 
@@ -109,6 +110,22 @@ public class ToolbarMenuItem {
 
         if (view != null) {
             view.setVisibility(visible ? VISIBLE : GONE);
+        }
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+
+        if (view != null) {
+            if (!enabled) {
+                view.setClickable(false);
+                view.setFocusable(false);
+                view.getDrawable().setTint(Color.GRAY);
+            } else {
+                view.setClickable(true);
+                view.setFocusable(true);
+                view.getDrawable().setTint(Color.WHITE);
+            }
         }
     }
 

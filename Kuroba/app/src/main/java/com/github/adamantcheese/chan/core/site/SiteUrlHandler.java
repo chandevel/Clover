@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -29,6 +30,8 @@ public interface SiteUrlHandler {
     boolean matchesName(String value);
 
     boolean respondsTo(HttpUrl url);
+
+    boolean matchesMediaHost(@NonNull HttpUrl url);
 
     String desktopUrl(Loadable loadable, @Nullable final Post post);
 

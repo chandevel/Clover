@@ -16,10 +16,15 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.text.Spanned;
 import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatEditText;
+
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 public class SelectionListeningEditText
         extends AppCompatEditText {
@@ -53,23 +58,36 @@ public class SelectionListeningEditText
 
     @Override
     public boolean onTextContextMenuItem(int id) {
-        //cursor setup
-        int selectionStart = getSelectionStart();
-        int curLength = getText() != null ? getText().length() : 0;
-        //do the paste
-        boolean consumed = super.onTextContextMenuItem(id);
+        if (getText() == null) return false;
+        int start = getSelectionStart();
+        int end = getSelectionEnd();
+        int min = isFocused() ? Math.max(0, Math.min(start, end)) : 0;
+        int max = isFocused() ? Math.max(0, Math.max(start, end)) : getText().length();
         if (id == android.R.id.paste && plainTextPaste) {
-            //make it plaintext if set
-            if (getText() != null) {
-                setText(getText().toString());
-                //adjust cursor
-                int delta = getText().length() - curLength;
-                setSelection(selectionStart < 0
-                        ? (delta < 0 ? selectionStart : selectionStart + delta)
-                        : getText().length() - 1);
+            //this code is basically a duplicate of the plain text paste functionality for later API versions
+            ClipboardManager clipboard = AndroidUtils.getClipboardManager();
+            ClipData clip = clipboard.getPrimaryClip();
+            if (clip != null) {
+                boolean didFirst = false;
+                for (int i = 0; i < clip.getItemCount(); i++) {
+                    // Get an item as text and remove all spans by toString().
+                    final CharSequence text = clip.getItemAt(i).coerceToText(getContext());
+                    final CharSequence paste = (text instanceof Spanned) ? text.toString() : text;
+                    if (paste != null) {
+                        if (!didFirst) {
+                            setSelection(max);
+                            getText().replace(min, max, paste);
+                            didFirst = true;
+                        } else {
+                            getText().insert(getSelectionEnd(), "\n");
+                            getText().insert(getSelectionEnd(), paste);
+                        }
+                    }
+                }
             }
+            return true;
         }
-        return consumed;
+        return super.onTextContextMenuItem(id);
     }
 
     public void setPlainTextPaste(boolean plainTextPaste) {

@@ -23,15 +23,17 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class LoadingBar
         extends View {
-    private static final float MINIMUM_PROGRESS = 0.1f;
-
-    private float progress;
-    private float targetProgress;
+    private int chunksCount = -1;
+    private List<Float> chunkLoadingProgress = new ArrayList<>();
     private Paint paint;
 
     public LoadingBar(Context context) {
@@ -49,12 +51,25 @@ public class LoadingBar
         init();
     }
 
-    public void setProgress(float targetProgress) {
-        float clampedProgress = Math.min(Math.max(targetProgress, 0f), 1f);
-        this.targetProgress = MINIMUM_PROGRESS + clampedProgress * (1f - MINIMUM_PROGRESS);
-        if (this.targetProgress < this.progress) {
-            this.progress = this.targetProgress;
+    public void setProgress(List<Float> updatedProgress) {
+        BackgroundUtils.ensureMainThread();
+
+        // This branch should only happen once for each download so it should be fine to re-allocate
+        // the list here
+        if (chunksCount == -1 || chunksCount != updatedProgress.size()) {
+            chunksCount = updatedProgress.size();
+
+            chunkLoadingProgress.clear();
+            chunkLoadingProgress.addAll(updatedProgress);
         }
+
+        for (int i = 0; i < updatedProgress.size(); i++) {
+            float updatedChunkProgress = updatedProgress.get(i);
+            float clampedProgress = Math.min(Math.max(updatedChunkProgress, .1f), 1f);
+
+            chunkLoadingProgress.set(i, clampedProgress);
+        }
+
         invalidate();
     }
 
@@ -62,14 +77,16 @@ public class LoadingBar
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        progress += (targetProgress - progress) * 0.05f;
+        float width = getWidth() / chunksCount;
+        float offset = 0f;
 
-        if (progress > 0f) {
-            canvas.drawRect(0f, 0f, getWidth() * progress, getHeight(), paint);
-        }
+        for (int i = 0; i < chunkLoadingProgress.size(); i++) {
+            float progress = chunkLoadingProgress.get(i);
+            if (progress > 0f) {
+                canvas.drawRect(offset, 0f, offset + (width * progress), getHeight(), paint);
+            }
 
-        if ((getWidth() * Math.abs(targetProgress - progress)) > 1f) {
-            invalidate();
+            offset += width;
         }
     }
 
