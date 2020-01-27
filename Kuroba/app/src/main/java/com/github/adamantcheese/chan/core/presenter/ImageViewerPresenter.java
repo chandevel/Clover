@@ -108,9 +108,7 @@ public class ImageViewerPresenter
         this.selectedPosition = Math.max(0, Math.min(images.size() - 1, position));
         this.progress = new HashMap<>(images.size());
 
-        int chunksCount = ChanSettings.ConcurrentFileDownloadingChunks.toChunkCount(
-                ChanSettings.concurrentFileDownloadingChunksCount.get()
-        );
+        int chunksCount = ChanSettings.concurrentDownloadChunkCount.get().toInt();
 
         for (int i = 0; i < images.size(); ++i) {
             List<Float> initialProgress = new ArrayList<>(chunksCount);

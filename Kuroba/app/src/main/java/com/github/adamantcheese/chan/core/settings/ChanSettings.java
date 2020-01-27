@@ -126,17 +126,8 @@ public class ChanSettings {
             return name;
         }
 
-        public static int toChunkCount(ConcurrentFileDownloadingChunks item) {
-            switch (item) {
-                case One:
-                    return 1;
-                case Two:
-                    return 2;
-                case Four:
-                    return 4;
-                default:
-                    throw new RuntimeException("Not implemented for " + item.getClass().getName());
-            }
+        public int toInt() {
+            return (int) Math.pow(2, ordinal());
         }
     }
 
@@ -262,7 +253,7 @@ public class ChanSettings {
     public static final BooleanSetting transparencyOn;
     public static final StringSetting youtubeTitleCache;
     public static final StringSetting youtubeDurationCache;
-    public static final OptionsSetting<ConcurrentFileDownloadingChunks> concurrentFileDownloadingChunksCount;
+    public static final OptionsSetting<ConcurrentFileDownloadingChunks> concurrentDownloadChunkCount;
     public static final BooleanSetting verboseLogs;
     public static final OptionsSetting<ImageClickPreloadStrategy> imageClickPreloadStrategy;
 
@@ -394,7 +385,7 @@ public class ChanSettings {
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
             youtubeTitleCache = new StringSetting(p, "yt_title_cache", "{}");
             youtubeDurationCache = new StringSetting(p, "yt_dur_cache", "{}");
-            concurrentFileDownloadingChunksCount = new OptionsSetting<>(p,
+            concurrentDownloadChunkCount = new OptionsSetting<>(p,
                     "concurrent_file_downloading_chunks_count",
                     ConcurrentFileDownloadingChunks.class,
                     ConcurrentFileDownloadingChunks.Two
