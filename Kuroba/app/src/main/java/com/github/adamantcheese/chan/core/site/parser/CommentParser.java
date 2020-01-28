@@ -34,6 +34,7 @@ import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
@@ -54,6 +55,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParser {
+    private static final String TAG = "CommentParser";
     private static final String SAVED_REPLY_SELF_SUFFIX = " (Me)";
     private static final String SAVED_REPLY_OTHER_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
@@ -65,6 +67,7 @@ public class CommentParser {
     private Pattern boardLinkPattern8Chan = Pattern.compile("/(.*?)/index.html");
     private Pattern boardSearchPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/catalog#s=(.*)");
     private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
+    private Pattern crossBoardDeadLink = Pattern.compile(">>>/\\w+/(\\d+)");
 
     private Map<String, List<StyleRule>> rules = new HashMap<>();
 
@@ -243,9 +246,30 @@ public class CommentParser {
             Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element deadlink
     ) {
         // html looks like <span class="deadlink">&gt;&gt;number</span>
-        int postNo = Integer.parseInt(Parser.unescapeEntities(deadlink.text(), true).substring(2));
+        // Or like this &gt;&gt;&gt;/int/116000000 in case of a dead crossboard link
+
+        String deadlinkText = deadlink.text();
+        int postNo = -1;
+
+        try {
+            // Handle the crossboard dead link first, because otherwise the condition will be always
+            // true. The order of conditions matters!
+            if (deadlinkText.startsWith(">>>")) {
+                Matcher matcher = crossBoardDeadLink.matcher(deadlinkText);
+                if (matcher.matches()) {
+                    postNo = Integer.parseInt(matcher.group(1));
+                }
+            } else if (deadlinkText.startsWith(">>")) {
+                postNo = Integer.parseInt(Parser.unescapeEntities(deadlinkText, true).substring(2));
+            } else {
+                Logger.e(TAG, "Unknown format of a dead link, deadlinkText = " + deadlinkText);
+            }
+        } catch (Throwable error) {
+            Logger.e(TAG, "Couldn't parse postNo for a dead link, deadlinkText = " + deadlinkText);
+        }
+
         List<ArchivesLayout.PairForAdapter> boards = instance(ArchivesManager.class).domainsForBoard(builder.board);
-        if (!boards.isEmpty() && builder.op) {
+        if (postNo >= 0 && !boards.isEmpty() && builder.op) {
             //only allow deadlinks to be parsed in the OP, as they are likely previous thread links
             //if a deadlink appears in a regular post that is likely to be a dead post link, we are unable to link to an archive
             //as there are no URLs that directly will allow you to link to a post and be redirected to the right thread
@@ -256,7 +280,14 @@ public class CommentParser {
             PostLinkable newLinkable = new PostLinkable(theme, link, link, PostLinkable.Type.LINK);
             text = span(text, newLinkable);
             builder.addLinkable(newLinkable);
+        } else {
+            Logger.e(TAG, "Couldn't process dead link, " +
+                    "deadlinkText = " + deadlinkText + ", " +
+                    "postNo = " + postNo + ", " +
+                    "boards.isEmpty() = " + boards.isEmpty() + ", " +
+                    "op = " + builder.op);
         }
+
         return text;
     }
 
