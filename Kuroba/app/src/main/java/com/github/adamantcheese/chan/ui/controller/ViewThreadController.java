@@ -291,9 +291,7 @@ public class ViewThreadController
         }
 
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link =
-                loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
-        openLinkInBrowser((Activity) context, link);
+        openLinkInBrowser((Activity) context, loadable.desktopUrl());
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
@@ -303,9 +301,7 @@ public class ViewThreadController
         }
 
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link =
-                loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
-        shareLink(link);
+        shareLink(loadable.desktopUrl());
     }
 
     private void upClicked(ToolbarMenuSubItem item) {
@@ -734,13 +730,7 @@ public class ViewThreadController
     @Override
     public void openArchive(Pair<String, String> domainNamePair) {
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        Post tempOP = new Post.Builder().board(loadable.board)
-                .id(loadable.no)
-                .opId(loadable.no)
-                .setUnixTimestampSeconds(1)
-                .comment("")
-                .build();
-        String link = loadable.site.resolvable().desktopUrl(loadable, tempOP);
+        String link = loadable.desktopUrl();
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
         openLinkInBrowser((Activity) context, link);
     }

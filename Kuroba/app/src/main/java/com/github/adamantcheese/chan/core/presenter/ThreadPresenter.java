@@ -977,10 +977,10 @@ public class ThreadPresenter
                 watchManager.createPin(pinLoadable, post, PinType.WATCH_NEW_POSTS);
                 break;
             case POST_OPTION_OPEN_BROWSER:
-                openLink(loadable.site.resolvable().desktopUrl(loadable, post));
+                openLink(loadable.site.resolvable().desktopUrl(loadable, post.no));
                 break;
             case POST_OPTION_SHARE:
-                shareLink(loadable.site.resolvable().desktopUrl(loadable, post));
+                shareLink(loadable.site.resolvable().desktopUrl(loadable, post.no));
                 break;
             case POST_OPTION_REMOVE:
             case POST_OPTION_HIDE:
@@ -1323,13 +1323,7 @@ public class ThreadPresenter
 
     @Override
     public void openArchive(Pair<String, String> domainNamePair) {
-        Post tempOP = new Post.Builder().board(loadable.board)
-                .id(loadable.no)
-                .opId(loadable.no)
-                .setUnixTimestampSeconds(1)
-                .comment("")
-                .build();
-        String link = loadable.site.resolvable().desktopUrl(loadable, tempOP);
+        String link = loadable.desktopUrl();
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
         openLinkInBrowser((Activity) context, link);
     }

@@ -292,8 +292,7 @@ public class BrowseController
                 return;
             }
 
-            Loadable loadable = presenter.getLoadable();
-            String link = loadable.site.resolvable().desktopUrl(loadable, presenter.getChanThread().getOp());
+            String link = presenter.getLoadable().desktopUrl();
 
             if (share) {
                 shareLink(link);
