@@ -28,6 +28,6 @@ public class CounterSetting
     }
 
     public void reset() {
-        set(0);
+        set(getDefault());
     }
 }
