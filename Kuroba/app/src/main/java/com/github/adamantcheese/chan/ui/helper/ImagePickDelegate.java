@@ -127,7 +127,7 @@ public class ImagePickDelegate {
         } else if (intents.size() > 1) {
             Intent chooser = Intent.createChooser(
                     intents.remove(intents.size() - 1),
-                    activity.getString(R.string.image_pick_delegate_select_file_picker)
+                    getString(R.string.image_pick_delegate_select_file_picker)
             );
 
             chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new Intent[0]));
