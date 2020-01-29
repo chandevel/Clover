@@ -14,7 +14,6 @@ android:
     - build-tools-29.0.2
     - android-29
 before_install:
-  - sdkmanager --help
   - /usr/local/sdk/tools/bin/sdkmanager --help
   - yes | /usr/local/sdk/tools/bin/sdkmanager --licenses
 install:
