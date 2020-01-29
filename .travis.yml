@@ -13,9 +13,6 @@ android:
     - extra-android-m2repository
     - build-tools-29.0.2
     - android-29
-before_install:
-  - /usr/local/sdk/tools/bin/sdkmanager --help
-  - yes | /usr/local/sdk/tools/bin/sdkmanager --licenses
 install:
   - sudo apt-get update
   - sudo apt-get install python3

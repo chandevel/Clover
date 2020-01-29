@@ -9,6 +9,7 @@ android {
     // don't forget to also update travis.yml config
     // !!! IMPORTANT !!!
 
+    buildToolsVersion "29.0.2"
     compileSdkVersion 29
 
     def getCommitHash = { ->
