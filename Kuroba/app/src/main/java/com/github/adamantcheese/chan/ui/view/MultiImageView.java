@@ -128,7 +128,8 @@ public class MultiImageView
 
     private boolean hasContent = false;
     private boolean mediaSourceCancel = false;
-    private boolean backgroundToggle;
+
+    private boolean transparentBackground = ChanSettings.transparencyOn.get();
 
     public MultiImageView(Context context) {
         this(context, null);
@@ -207,7 +208,7 @@ public class MultiImageView
             switch (newMode) {
                 case LOWRES:
                     setThumbnail(loadable, postImage, center);
-                    backgroundToggle = false;
+                    transparentBackground = ChanSettings.transparencyOn.get();
                     break;
                 case BIGIMAGE:
                     setBigImage(loadable, postImage);
@@ -356,9 +357,7 @@ public class MultiImageView
                         BackgroundUtils.ensureMainThread();
 
                         setBitImageFileInternal(new File(file.getFullPath()), true, Mode.BIGIMAGE);
-                        if (!ChanSettings.transparencyOn.get() && !backgroundToggle) {
-                            toggleTransparency();
-                        }
+                        toggleTransparency();
 
                         callback.onDownloaded(postImage);
                     }
@@ -424,9 +423,7 @@ public class MultiImageView
 
                         if (!hasContent || mode == Mode.GIFIMAGE) {
                             setGifFile(new File(file.getFullPath()));
-                            if (!ChanSettings.transparencyOn.get() && !backgroundToggle) {
-                                toggleTransparency();
-                            }
+                            toggleTransparency();
                         }
 
                         callback.onDownloaded(postImage);
@@ -645,18 +642,18 @@ public class MultiImageView
     }
 
     public void toggleTransparency() {
+        transparentBackground = !transparentBackground;
         final int BACKGROUND_COLOR = Color.argb(255, 211, 217, 241);
         CustomScaleImageView imageView = findScaleImageView();
         GifImageView gifView = findGifImageView();
         if (imageView == null && gifView == null) return;
         boolean isImage = imageView != null && gifView == null;
-        int backgroundColor = backgroundToggle ? Color.TRANSPARENT : BACKGROUND_COLOR;
+        int backgroundColor = !transparentBackground ? Color.TRANSPARENT : BACKGROUND_COLOR;
         if (isImage) {
             imageView.setTileBackgroundColor(backgroundColor);
         } else {
             gifView.getDrawable().setColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER);
         }
-        backgroundToggle = !backgroundToggle;
     }
 
     public void rotateImage(int degrees) {
