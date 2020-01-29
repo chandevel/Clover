@@ -765,4 +765,5 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_image_click_preload_strategy_name">Image preload strategy</string>
     <string name="media_settings_image_click_preload_strategy_description">When opening up an image pager, determines what image(s) should be preloaded next.</string>
     <string name="mock_reply">Mock reply</string>
+    <string name="mock_reply_queued">Mock reply queued</string>
 </resources>

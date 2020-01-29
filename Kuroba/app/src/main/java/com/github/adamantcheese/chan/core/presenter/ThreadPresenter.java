@@ -1026,6 +1026,8 @@ public class ThreadPresenter
                     break;
                 }
 
+                showToast(R.string.mock_reply_queued);
+
                 int opNo = chanLoader.getThread().getOp().no;
                 mockReplyManager.addMockReply(post.board.siteId, post.board.code, opNo, post.no);
                 break;

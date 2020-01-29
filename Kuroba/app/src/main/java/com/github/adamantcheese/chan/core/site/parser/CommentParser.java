@@ -159,52 +159,70 @@ public class CommentParser {
     ) {
         CommentParser.Link handlerLink = matchAnchor(post, text, anchor, callback);
 
-        if (handlerLink != null) {
-            SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
+        MockReplyManager.MockReply mockReply = mockReplyManager.getLastMockReplyOrNull(
+                post.board.siteId,
+                post.board.code,
+                post.opId
+        );
 
-            if (handlerLink.type == PostLinkable.Type.THREAD) {
-                handlerLink.key = TextUtils.concat(handlerLink.key, EXTERN_THREAD_LINK_SUFFIX);
-            }
-
-            if (handlerLink.type == PostLinkable.Type.QUOTE) {
-                int postNo = (int) handlerLink.value;
-                post.addReplyTo(postNo);
-
-                MockReplyManager.MockReply mockReply = mockReplyManager.getLastMockReplyOrNull(
-                        post.board.siteId,
-                        post.board.code,
-                        post.opId
-                );
-
-                if (mockReply != null) {
-                    addMockReply(theme, post, spannableStringBuilder, postNo, mockReply);
-                }
-
-                // Append (OP) when it's a reply to OP
-                if (postNo == post.opId) {
-                    handlerLink.key = TextUtils.concat(handlerLink.key, OP_REPLY_SUFFIX);
-                }
-
-                // Append (You) when it's a reply to a saved reply, (Me) if it's a self reply
-                if (callback.isSaved(postNo)) {
-                    if (post.isSavedReply) {
-                        handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_SELF_SUFFIX);
-                    } else {
-                        handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_OTHER_SUFFIX);
-                    }
-                }
-            }
-
-            SpannableString res = new SpannableString(handlerLink.key);
-            PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
-            res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
-            post.addLinkable(pl);
-
-            return spannableStringBuilder
-                    .append(res);
-        } else {
+        if (handlerLink == null && mockReply == null) {
             return null;
         }
+
+        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
+
+        if (mockReply != null) {
+            addMockReply(theme, post, spannableStringBuilder, post.id, mockReply);
+        }
+
+        if (handlerLink != null) {
+            addReply(theme, callback, post, handlerLink, spannableStringBuilder);
+        }
+
+        if (spannableStringBuilder.length() > 0) {
+            return spannableStringBuilder;
+        }
+
+        return null;
+    }
+
+    private void addReply(
+            Theme theme,
+            PostParser.Callback callback,
+            Post.Builder post,
+            Link handlerLink,
+            SpannableStringBuilder spannableStringBuilder
+    ) {
+        if (handlerLink.type == PostLinkable.Type.THREAD) {
+            handlerLink.key = TextUtils.concat(handlerLink.key, EXTERN_THREAD_LINK_SUFFIX);
+        }
+
+        if (handlerLink.type == PostLinkable.Type.QUOTE) {
+            int postNo = (int) handlerLink.value;
+            post.addReplyTo(postNo);
+
+            // Append (OP) when it's a reply to OP
+            if (postNo == post.opId) {
+                handlerLink.key = TextUtils.concat(handlerLink.key, OP_REPLY_SUFFIX);
+            }
+
+            // Append (You) when it's a reply to a saved reply, (Me) if it's a self reply
+            if (callback.isSaved(postNo)) {
+                if (post.isSavedReply) {
+                    handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_SELF_SUFFIX);
+                } else {
+                    handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_OTHER_SUFFIX);
+                }
+            }
+        }
+
+        SpannableString res = new SpannableString(handlerLink.key);
+        PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
+        res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
+        post.addLinkable(pl);
+
+        spannableStringBuilder
+                .append(res);
     }
 
     private void addMockReply(
