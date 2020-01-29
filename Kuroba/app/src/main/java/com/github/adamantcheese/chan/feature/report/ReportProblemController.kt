@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.report
+package com.github.adamantcheese.chan.feature.report
 
 import android.content.Context
 import androidx.appcompat.widget.AppCompatButton
@@ -9,15 +9,15 @@ import com.github.adamantcheese.chan.controller.Controller
 import com.github.adamantcheese.chan.core.base.MResult
 import com.github.adamantcheese.chan.ui.controller.LoadingViewController
 import com.github.adamantcheese.chan.ui.controller.LogsController
-import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.adamantcheese.chan.utils.AndroidUtils.inflate
+import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
 import com.github.adamantcheese.chan.utils.Logger
 import com.google.android.material.textfield.TextInputEditText
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
-class ReportProblemController(context: Context) : Controller(context) {
+class ReportProblemController(context: Context) : Controller(context), ReportProblemView {
     private lateinit var compositeDisposable: CompositeDisposable
     private lateinit var reportActivityProblemTitle: TextInputEditText
     private lateinit var reportActivityProblemDescription: TextInputEditText
@@ -80,7 +80,10 @@ class ReportProblemController(context: Context) : Controller(context) {
             return
         }
 
-        if (description.isEmpty()) {
+        if (
+                description.isEmpty()
+                && !(reportActivityAttachLogsButton.isChecked && logs.isNotEmpty())
+        ) {
             reportActivityProblemDescription.error =
                     context.getString(R.string.report_activity_description_cannot_be_empty_error)
             return
@@ -110,7 +113,7 @@ class ReportProblemController(context: Context) : Controller(context) {
                     Logger.e(TAG, "Error", error)
 
                     val errorMessage = error.message ?: "No error message"
-                    AndroidUtils.showToast(
+                    showToast(
                             context.getString(R.string.report_activity_error_while_trying_to_send_report,
                                     errorMessage)
                     )
@@ -121,12 +124,12 @@ class ReportProblemController(context: Context) : Controller(context) {
     private fun handleResult(result: MResult<Boolean>) {
         when (result) {
             is MResult.Value -> {
-                AndroidUtils.showToast(context.getString(R.string.report_activity_report_sent_message))
+                showToast(context.getString(R.string.report_activity_report_sent_message))
                 onFinishedListener?.invoke()
             }
             is MResult.Error -> {
                 val errorMessage = result.error.message ?: "No error message"
-                AndroidUtils.showToast(
+                showToast(
                         context.getString(R.string.report_activity_error_while_trying_to_send_report,
                                 errorMessage)
                 )
@@ -142,10 +145,8 @@ class ReportProblemController(context: Context) : Controller(context) {
     }
 
     private fun hideProgressDialog() {
-        if (loadingViewController != null) {
-            loadingViewController!!.stopPresenting()
-            loadingViewController = null
-        }
+        loadingViewController?.stopPresenting()
+        loadingViewController = null
     }
 
     companion object {

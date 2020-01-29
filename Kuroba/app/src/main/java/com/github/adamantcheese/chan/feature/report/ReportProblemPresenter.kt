@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.report
+package com.github.adamantcheese.chan.feature.report
 
 import android.os.Build
 import com.github.adamantcheese.chan.BuildConfig
@@ -15,33 +15,25 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import javax.inject.Inject
 
-class ReportProblemPresenter : BasePresenter<ReportProblemController>() {
+class ReportProblemPresenter : BasePresenter<ReportProblemView>() {
 
     @Inject
     lateinit var okHttpClient: OkHttpClient
     @Inject
     lateinit var gson: Gson
 
-    override fun onCreate(view: ReportProblemController) {
+    override fun onCreate(view: ReportProblemView) {
         super.onCreate(view)
 
         inject(this)
     }
 
     fun sendReport(title: String, description: String, logs: String?): Single<MResult<Boolean>> {
-        require(title.isNotEmpty())
-        require(description.isNotEmpty())
-        require(title.length <= MAX_TITLE_LENGTH) {
-            "title is too long ${title.length}"
-        }
-        require(description.length <= MAX_DESCRIPTION_LENGTH) {
-            "description is too long ${description.length}"
-        }
-        logs?.let {
-            require(it.length <= MAX_LOGS_LENGTH) {
-                "logs are too long"
-            }
-        }
+        require(title.isNotEmpty()) { "title is empty" }
+        require(description.isNotEmpty() || logs != null) { "description is empty" }
+        require(title.length <= MAX_TITLE_LENGTH) { "title is too long ${title.length}" }
+        require(description.length <= MAX_DESCRIPTION_LENGTH) { "description is too long ${description.length}" }
+        logs?.let { require(it.length <= MAX_LOGS_LENGTH) { "logs are too long" } }
 
         val reportUrl = "${BuildConfig.DEV_API_ENDPOINT}/report"
         val osInfo = String.format(
