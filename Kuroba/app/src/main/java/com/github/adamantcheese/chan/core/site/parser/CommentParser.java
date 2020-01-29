@@ -46,7 +46,6 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -200,9 +199,9 @@ public class CommentParser {
             PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
             res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
             post.addLinkable(pl);
-            spannableStringBuilder.append(res);
 
-            return spannableStringBuilder;
+            return spannableStringBuilder
+                    .append(res);
         } else {
             return null;
         }
@@ -218,13 +217,7 @@ public class CommentParser {
         Logger.d(TAG, "Adding a new mock reply (replyTo: " + mockReply.getPostNo() + ", replyFrom: " + postNo + ")");
         post.addReplyTo(mockReply.getPostNo());
 
-        CharSequence replyText = String.format(
-                Locale.US,
-                ">>%d%s",
-                mockReply.getPostNo(),
-                MOCK_REPLY_SUFFIX
-        );
-
+        CharSequence replyText = ">>" + mockReply.getPostNo() + MOCK_REPLY_SUFFIX;
         SpannableString res = new SpannableString(replyText);
 
         PostLinkable pl = new PostLinkable(
