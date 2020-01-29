@@ -42,8 +42,17 @@ public class TaimabaActions extends CommonSite.CommonActions {
         super(commonSite);
     }
 
+    int threadNo = 0;
+    int postNo = 0;
+    String password = null;
+
     @Override
     public void setupPost(Reply reply, MultipartHttpCall call) {
+        //pass threadNo, postNo & password with correct variables
+        threadNo = reply.loadable.no;
+        postNo = reply.loadable.id;
+        password = reply.password;
+
         call.parameter("fart", Integer.toString((int) Math.random() * 15000 + 5000));
 
         call.parameter("board", reply.loadable.board.code);
@@ -69,6 +78,14 @@ public class TaimabaActions extends CommonSite.CommonActions {
         if (reply.options == "sage") {
             call.parameter("sage", "on");
         }
+    }
+
+    @Override
+    public void handlePost(ReplyResponse replyResponse, Response response, String result) {
+        replyResponse.threadNo = threadNo;
+        replyResponse.postNo = postNo;
+        replyResponse.password = password;
+        replyResponse.posted = true;
     }
 
     public Pattern errorPattern() {
