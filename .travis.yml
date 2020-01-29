@@ -13,7 +13,9 @@ android:
     - extra-android-m2repository
     - build-tools-29.0.2
     - android-29
-before-install:
+before_install:
+  - echo "$ANDROID_HOME"
+  - echo "$ANDROID_SDK"
   - yes | sdkmanager --licenses
 install:
   - sudo apt-get update
