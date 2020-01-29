@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.core.site.sites.dvach;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -63,7 +62,7 @@ public class Dvach
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, @Nullable final Post post) {
+        public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {

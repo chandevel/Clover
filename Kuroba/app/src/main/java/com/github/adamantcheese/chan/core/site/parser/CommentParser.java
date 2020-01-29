@@ -36,7 +36,6 @@ import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import org.jsoup.nodes.Element;
-import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 import java.io.UnsupportedEncodingException;
@@ -242,20 +241,23 @@ public class CommentParser {
     public CharSequence handleDead(
             Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element deadlink
     ) {
-        // html looks like <span class="deadlink">&gt;&gt;number</span>
-        int postNo = Integer.parseInt(Parser.unescapeEntities(deadlink.text(), true).substring(2));
-        List<ArchivesLayout.PairForAdapter> boards = instance(ArchivesManager.class).domainsForBoard(builder.board);
-        if (!boards.isEmpty() && builder.op) {
-            //only allow deadlinks to be parsed in the OP, as they are likely previous thread links
-            //if a deadlink appears in a regular post that is likely to be a dead post link, we are unable to link to an archive
-            //as there are no URLs that directly will allow you to link to a post and be redirected to the right thread
-            Site site = builder.board.site;
-            String link =
-                    site.resolvable().desktopUrl(Loadable.forThread(site, builder.board, postNo, ""), builder.build());
-            link = link.replace("https://boards.4chan.org/", "https://" + boards.get(0).second + "/");
-            PostLinkable newLinkable = new PostLinkable(theme, link, link, PostLinkable.Type.LINK);
-            text = span(text, newLinkable);
-            builder.addLinkable(newLinkable);
+        //crossboard thread links in the OP are likely not thread links, so just let them error out on the parseInt
+        try {
+            int postNo = Integer.parseInt(deadlink.text().substring(2));
+            List<ArchivesLayout.PairForAdapter> boards = instance(ArchivesManager.class).domainsForBoard(builder.board);
+            if (!boards.isEmpty() && builder.op) {
+                //only allow same board deadlinks to be parsed in the OP, as they are likely previous thread links
+                //if a deadlink appears in a regular post that is likely to be a dead post link, we are unable to link to an archive
+                //as there are no URLs that directly will allow you to link to a post and be redirected to the right thread
+                Site site = builder.board.site;
+                String link =
+                        site.resolvable().desktopUrl(Loadable.forThread(site, builder.board, postNo, ""), builder.id);
+                link = link.replace("https://boards.4chan.org/", "https://" + boards.get(0).second + "/");
+                PostLinkable newLinkable = new PostLinkable(theme, link, link, PostLinkable.Type.LINK);
+                text = span(text, newLinkable);
+                builder.addLinkable(newLinkable);
+            }
+        } catch (Exception ignored) {
         }
         return text;
     }

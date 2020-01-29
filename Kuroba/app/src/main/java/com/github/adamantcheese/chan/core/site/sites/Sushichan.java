@@ -17,9 +17,7 @@
 package com.github.adamantcheese.chan.core.site.sites;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.ChunkDownloaderSiteProperties;
@@ -61,7 +59,7 @@ public class Sushichan
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, @Nullable final Post post) {
+        public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {

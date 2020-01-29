@@ -129,9 +129,10 @@ public class ThreadSaveManager {
         // Just buffer everything in the internal queue when the consumers are slow (and they are
         // always slow because they have to download images, but we check whether a download request
         // is already enqueued so it's okay for us to rely on the buffering)
-        workerQueue.onBackpressureBuffer()
+        workerQueue
                 // Collect all the request over some time
                 .buffer(REQUEST_BUFFERING_TIME_SECONDS, SECONDS)
+                .onBackpressureBuffer()
                 .concatMap(this::processCollectedRequests)
                 .subscribe(res -> {},
                         // OK

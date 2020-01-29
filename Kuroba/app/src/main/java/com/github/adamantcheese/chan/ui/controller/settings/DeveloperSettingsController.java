@@ -183,6 +183,15 @@ public class DeveloperSettingsController
         forceWake.setText("Force wakemanager wake");
         wrapper.addView(forceWake);
 
+        // Reset the thread open counter
+        Button resetThreadOpenCounter = new Button(context);
+        resetThreadOpenCounter.setOnClickListener(v -> {
+            ChanSettings.threadOpenCounter.reset();
+            showToast("Done");
+        });
+        resetThreadOpenCounter.setText("Reset thread open counter");
+        wrapper.addView(resetThreadOpenCounter);
+
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);
         view = scrollView;

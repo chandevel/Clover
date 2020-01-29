@@ -103,21 +103,21 @@ public class Chan4
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, final Post post) {
+        public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
-                if (post != null && post.no != 0) {
-                    return "https://boards.4chan.org/" + loadable.board.code + "/thread/" + post.no;
+                if (postNo > 0) {
+                    return "https://boards.4chan.org/" + loadable.board.code + "/thread/" + postNo;
                 } else {
                     return "https://boards.4chan.org/" + loadable.board.code + "/";
                 }
             } else if (loadable.isThreadMode()) {
                 String url = "https://boards.4chan.org/" + loadable.board.code + "/thread/" + loadable.no;
-                if (post != null) {
-                    url += "#p" + post.no;
+                if (postNo > 0 && loadable.no != postNo) {
+                    url += "#p" + postNo;
                 }
                 return url;
             } else {
-                throw new IllegalArgumentException();
+                return "https://boards.4chan.org/" + loadable.board.code + "/";
             }
         }
 

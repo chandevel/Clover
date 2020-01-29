@@ -275,6 +275,10 @@ public class Loadable
         return String.format(Locale.US, "[%s, %s, %d]", site.name(), boardCode, no);
     }
 
+    public String desktopUrl() {
+        return site.resolvable().desktopUrl(this, no);
+    }
+
     public static Loadable readFromParcel(Parcel parcel) {
         Loadable loadable = new Loadable();
         /*loadable.id = */
