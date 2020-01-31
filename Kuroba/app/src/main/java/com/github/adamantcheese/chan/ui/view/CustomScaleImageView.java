@@ -74,22 +74,63 @@ public class CustomScaleImageView
         });
     }
 
-    public boolean isViewportTouchingImageBottom() {
+    public ImageViewportTouchSide getImageViewportTouchSide() {
+        int side = 0;
+
         panRectF.set(0f, 0f, 0f, 0f);
         getPanRemaining(panRectF);
 
-        return Math.abs(panRectF.bottom) < EPSILON;
-    }
+        if (Math.abs(panRectF.left) < EPSILON) {
+            side = side | ImageViewportTouchSide.LEFT_SIDE;
+        }
+        if (Math.abs(panRectF.right) < EPSILON) {
+            side = side | ImageViewportTouchSide.RIGHT_SIDE;
+        }
+        if (Math.abs(panRectF.top) < EPSILON) {
+            side = side | ImageViewportTouchSide.TOP_SIDE;
+        }
+        if (Math.abs(panRectF.bottom) < EPSILON) {
+            side = side | ImageViewportTouchSide.BOTTOM_SIDE;
+        }
 
-    public boolean isViewportTouchingImageTop() {
-        panRectF.set(0f, 0f, 0f, 0f);
-        getPanRemaining(panRectF);
-
-        return Math.abs(panRectF.top) < EPSILON;
+        return new ImageViewportTouchSide(side);
     }
 
     public void setCallback(Callback callback) {
         this.callback = callback;
+    }
+
+    public static class ImageViewportTouchSide {
+        public final static int LEFT_SIDE = 1 << 0;
+        public final static int RIGHT_SIDE = 1 << 1;
+        public final static int TOP_SIDE = 1 << 2;
+        public final static int BOTTOM_SIDE = 1 << 3;
+
+        private int side;
+
+        public ImageViewportTouchSide(int side) {
+            this.side = side;
+        }
+
+        public boolean isTouchingLeft() {
+            return (side & LEFT_SIDE) != 0;
+        }
+
+        public boolean isTouchingRight() {
+            return (side & RIGHT_SIDE) != 0;
+        }
+
+        public boolean isTouchingTop() {
+            return (side & TOP_SIDE) != 0;
+        }
+
+        public boolean isTouchingBottom() {
+            return (side & BOTTOM_SIDE) != 0;
+        }
+
+        public boolean isTouchingAllSides() {
+            return isTouchingLeft() && isTouchingRight() && isTouchingTop() && isTouchingBottom();
+        }
     }
 
     public interface Callback {

@@ -68,20 +68,18 @@ class MultiImageViewGestureDetector(
 
     private fun onSwipedBottom(bigImageView: CustomScaleImageView?): Boolean {
         if (bigImageView != null) {
+            val imageViewportTouchSide = bigImageView.imageViewportTouchSide
+
             // Current image is big image
-            if (
-                    bigImageView.isViewportTouchingImageBottom &&
-                    bigImageView.isViewportTouchingImageTop
-            ) {
-                // We are either not zoomed in or just slightly zoomed in (i.e. the view
-                // port is touching both the top and bottom of an image). We can use
-                // swipe-to-save image gesture.
+            if (imageViewportTouchSide.isTouchingAllSides) {
+                // We are not zoomed in. This is the default state when we open an image.
+                // We can use swipe-to-save image gesture.
                 swipeToSaveOrClose()
 
                 return true
             } else if (
-                    bigImageView.isViewportTouchingImageBottom ||
-                    bigImageView.isViewportTouchingImageTop
+                    imageViewportTouchSide.isTouchingBottom ||
+                    imageViewportTouchSide.isTouchingTop
             ) {
                 // We are zoomed in and the viewport is touching either top or bottom of an
                 // image. We don't want to use swipe-to-save image gesture, we want to use
@@ -124,7 +122,7 @@ class MultiImageViewGestureDetector(
         // If either any view, other than the big image view, is visible (thumbnail, gif or video) OR
         // big image is visible and the viewport is touching image bottom then use
         // close-to-swipe gesture
-        if (bigImageView == null || bigImageView.isViewportTouchingImageBottom) {
+        if (bigImageView == null || bigImageView.imageViewportTouchSide.isTouchingBottom) {
             callbacks.onSwipeToCloseImage()
             return true
         }
