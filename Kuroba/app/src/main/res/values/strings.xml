@@ -770,7 +770,7 @@ Don't have a 4chan Pass?<br>
     <string name="js_captcha_cookies_editor_nid_cookie_text">NID</string>
     <string name="js_captcha_cookies_editor_reset">Reset</string>
     <string name="js_captcha_cookies_editor_save_and_apply_text">Save and apply</string>
-    <string name="js_captcha_cookies_editor_make_sure_to_double_check_all_the_parameters_message">Make sure to double check all the parameters!</string>
+    <string name="js_captcha_cookies_editor_make_sure_to_double_check_all_the_parameters_message">Make sure to double check all the parameters! (And symbols like periods)</string>
     <string name="js_captcha_cookies_editor_format_hint_message">Enter the values. No need to prepend them with \"HSID=…\", \"SSID=…\" etc</string>
     <string name="js_captcha_cookies_editor_controller_title">JS Captcha cookies editor</string>
     <string name="settings_js_captcha_cookies_title">JS captcha cookies</string>
