@@ -30,6 +30,7 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -65,7 +66,7 @@ import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 /**
  * A ChanThreadLoader is the loader for Loadables.
- * <p>Obtain ChanLoaders with {@link com.github.adamantcheese.chan.core.pool.ChanLoaderFactory}.
+ * <p>Obtain ChanLoaders with {@link ChanLoaderManager}.
  * <p>ChanLoaders can load boards and threads, and return {@link ChanThread} objects on success, through
  * {@link ChanLoaderCallback}.
  * <p>For threads timers can be started with {@link #setTimer()} to do a request later.
@@ -102,7 +103,7 @@ public class ChanThreadLoader
     private ScheduledFuture<?> pendingFuture;
 
     /**
-     * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link com.github.adamantcheese.chan.core.pool.ChanLoaderFactory}</b>
+     * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link ChanLoaderManager}</b>
      * Also, do not use feather().instance(WatchManager.class) here because it will create a cyclic
      * dependency instantiation
      */
@@ -493,8 +494,7 @@ public class ChanThreadLoader
             loadable.setTitle(PostHelper.getTitle(thread.getOp(), loadable));
         }
 
-        // TODO: do we really need to do this?
-        for (Post post : thread.getPostsUnsafe()) {
+        for (Post post : thread.getPosts()) {
             post.setTitle(loadable.title);
         }
 

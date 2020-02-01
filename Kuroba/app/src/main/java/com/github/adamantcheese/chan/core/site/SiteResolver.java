@@ -38,9 +38,12 @@ public class SiteResolver {
         this.databaseManager = databaseManager;
     }
 
+    /**
+     * Can find a site by it's url (e.g. 4chan.org, 4channel.org) or it's media url (e.g. i.4cdn.org)
+     */
+    @Nullable
     public Site findSiteForUrl(String url) {
         HttpUrl httpUrl = sanitizeUrl(url);
-
         SiteRepository.Sites sites = siteRepository.all();
 
         if (httpUrl == null) {
@@ -62,6 +65,9 @@ public class SiteResolver {
         for (Site site : sites.getAll()) {
             SiteUrlHandler siteUrlHandler = site.resolvable();
             if (siteUrlHandler.respondsTo(httpUrl)) {
+                return site;
+            }
+            if (siteUrlHandler.matchesMediaHost(httpUrl)) {
                 return site;
             }
         }

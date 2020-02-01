@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -55,6 +56,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class DrawerController
@@ -158,10 +160,16 @@ public class DrawerController
                         if (savedThread.isFullyDownloaded) {
                             state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
                         } else {
-                            // TODO: we can check here that the user has no internet connection
-                            //  and load the local thread right away so the user doesn't have
-                            //  to do it manually
-                            state = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+                            boolean hasNoNetwork = !isConnected(ConnectivityManager.TYPE_MOBILE)
+                                    && !isConnected(ConnectivityManager.TYPE_WIFI);
+
+                            if (hasNoNetwork) {
+                                // No internet connection, but we have a local copy of this thread,
+                                // so show it instead of an empty screen.
+                                state = Loadable.LoadableDownloadingState.DownloadingAndViewable;
+                            } else {
+                                state = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+                            }
                         }
                     }
                 }

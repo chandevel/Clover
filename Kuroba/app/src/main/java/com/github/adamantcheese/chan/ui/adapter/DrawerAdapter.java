@@ -330,7 +330,6 @@ public class DrawerAdapter
 
                 watchCount.setPaintFlags(watchCount.getPaintFlags());
             } else {
-                // FIXME: apparently we don't need to set the visibility to GONE here. Needs research.
                 watchCount.setVisibility(GONE);
             }
         } else {

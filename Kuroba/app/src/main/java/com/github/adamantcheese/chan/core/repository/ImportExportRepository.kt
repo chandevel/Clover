@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.model.orm.*
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository.ImportExport.Export
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository.ImportExport.Import
 import com.github.adamantcheese.chan.core.settings.ChanSettings
+import com.github.adamantcheese.chan.core.settings.ChanSettings.EMPTY_JSON
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
@@ -307,7 +308,7 @@ constructor(
             //clear the site model usersettings to be an empty JSON map for version 2,
             // as they won't parse correctly otherwise
             for (site in appSettings.exportedSites) {
-                site.userSettings = "{}"
+                site.userSettings = EMPTY_JSON
             }
         }
 

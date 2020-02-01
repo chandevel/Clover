@@ -291,9 +291,7 @@ public class ViewThreadController
         }
 
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link =
-                loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
-        openLinkInBrowser((Activity) context, link);
+        openLinkInBrowser((Activity) context, loadable.desktopUrl());
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
@@ -303,9 +301,7 @@ public class ViewThreadController
         }
 
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link =
-                loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().getOp());
-        shareLink(link);
+        shareLink(loadable.desktopUrl());
     }
 
     private void upClicked(ToolbarMenuSubItem item) {
@@ -592,6 +588,16 @@ public class ViewThreadController
                     HintPopup.show(context, view, getString(R.string.thread_pin_hint), -dp(1), 0);
                 }
             }, 600);
+        } else if (counter == 4) {
+            view.postDelayed(() -> {
+                ToolbarMenuItem saveThreadItem = navigation.findItem(SAVE_THREAD_ID);
+                if (saveThreadItem != null) {
+                    View view = saveThreadItem.getView();
+                    if (view != null) {
+                        HintPopup.show(context, view, getString(R.string.thread_save_hint), -dp(1), 0);
+                    }
+                }
+            }, 600);
         }
     }
 
@@ -696,7 +702,6 @@ public class ViewThreadController
                 menuItem.setImage(downloadIconOutline, animated);
                 break;
             case DownloadInProgress:
-                // FIXME: shit is broken
                 menuItem.setImage(downloadAnimation, animated);
                 downloadAnimation.start();
 
@@ -734,13 +739,7 @@ public class ViewThreadController
     @Override
     public void openArchive(Pair<String, String> domainNamePair) {
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        Post tempOP = new Post.Builder().board(loadable.board)
-                .id(loadable.no)
-                .opId(loadable.no)
-                .setUnixTimestampSeconds(1)
-                .comment("")
-                .build();
-        String link = loadable.site.resolvable().desktopUrl(loadable, tempOP);
+        String link = loadable.desktopUrl();
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
         openLinkInBrowser((Activity) context, link);
     }

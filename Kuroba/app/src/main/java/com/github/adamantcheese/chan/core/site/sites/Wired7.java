@@ -16,11 +16,11 @@
  */
 package com.github.adamantcheese.chan.core.site.sites;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.site.ChunkDownloaderSiteProperties;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -44,7 +44,11 @@ import static android.text.TextUtils.isEmpty;
 
 public class Wired7
         extends CommonSite {
+    private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
+
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
+        private static final String ROOT = "https://wired-7.org/";
+
         @Override
         public Class<? extends Site> getSiteClass() {
             return Wired7.class;
@@ -52,7 +56,12 @@ public class Wired7
 
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https://wired-7.org/");
+            return HttpUrl.parse(ROOT);
+        }
+
+        @Override
+        public String[] getMediaHosts() {
+            return new String[]{ROOT};
         }
 
         @Override
@@ -61,14 +70,14 @@ public class Wired7
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, @Nullable final Post post) {
+        public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
                 return getUrl().newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("res")
-                        .addPathSegment(loadable.no + ".html")
+                        .addPathSegment(String.valueOf(loadable.no))
                         .toString();
             } else {
                 return getUrl().toString();
@@ -76,13 +85,20 @@ public class Wired7
         }
     };
 
+    public Wired7() {
+        chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(
+                true,
+                // Wired-7 sends incorrect file md5 hash sometimes
+                false
+        );
+    }
+
     @Override
     public void setup() {
         setName("Wired-7");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://wired-7.org/favicon.ico")));
 
         setBoards(
-                Board.fromSiteNameCode(this, "Lewds & +18", "18"),
                 Board.fromSiteNameCode(this, "Random", "b"),
                 Board.fromSiteNameCode(this, "Hentai", "h"),
                 Board.fromSiteNameCode(this, "Humanidad", "hum"),
@@ -178,5 +194,11 @@ public class Wired7
                 }
             }
         }
+    }
+
+    @NonNull
+    @Override
+    public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
+        return chunkDownloaderSiteProperties;
     }
 }

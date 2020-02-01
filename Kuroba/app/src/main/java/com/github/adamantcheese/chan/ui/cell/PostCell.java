@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.cell;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -57,7 +58,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.cache.FileCache;
+import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
@@ -86,13 +87,19 @@ import java.util.List;
 import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
+import static android.view.View.MeasureSpec.AT_MOST;
+import static android.view.View.MeasureSpec.EXACTLY;
+import static android.view.View.MeasureSpec.UNSPECIFIED;
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -100,7 +107,7 @@ import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class PostCell
         extends LinearLayout
-        implements PostCellInterface, View.OnTouchListener {
+        implements PostCellInterface {
     private static final String TAG = "PostCell";
     private static final int COMMENT_MAX_LENGTH_BOARD = 350;
 
@@ -126,24 +133,13 @@ public class PostCell
     private Loadable loadable;
     private Post post;
     private PostCellCallback callback;
-    private boolean selectable;
+    private boolean inPopup;
     private boolean highlighted;
     private boolean selected;
     private int markedNo;
     private boolean showDivider;
 
     private GestureDetector gestureDetector;
-
-    private OnClickListener selfClicked = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (ignoreNextOnClick) {
-                ignoreNextOnClick = false;
-            } else {
-                callback.onPostClicked(post);
-            }
-        }
-    };
 
     private PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
     private PostViewFastMovementMethod titleMovementMethod = new PostViewFastMovementMethod();
@@ -222,8 +218,13 @@ public class PostCell
             showOptions(v, items, extraItems, extraOption);
         });
 
-        setOnClickListener(selfClicked);
-        setOnTouchListener(this);
+        setOnClickListener(v -> {
+            if (ignoreNextOnClick) {
+                ignoreNextOnClick = false;
+            } else {
+                callback.onPostClicked(post);
+            }
+        });
 
         gestureDetector = new GestureDetector(getContext(), new DoubleTapGestureListener());
     }
@@ -276,7 +277,7 @@ public class PostCell
             Loadable loadable,
             final Post post,
             PostCellInterface.PostCellCallback callback,
-            boolean selectable,
+            boolean inPopup,
             boolean highlighted,
             boolean selected,
             int markedNo,
@@ -285,8 +286,8 @@ public class PostCell
             boolean compact,
             Theme theme
     ) {
-        if (this.post == post && this.selectable == selectable && this.highlighted == highlighted
-                && this.selected == selected && this.markedNo == markedNo && this.showDivider == showDivider) {
+        if (this.post == post && this.inPopup == inPopup && this.highlighted == highlighted && this.selected == selected
+                && this.markedNo == markedNo && this.showDivider == showDivider) {
             return;
         }
 
@@ -298,7 +299,7 @@ public class PostCell
         this.loadable = loadable;
         this.post = post;
         this.callback = callback;
-        this.selectable = selectable;
+        this.inPopup = inPopup;
         this.highlighted = highlighted;
         this.selected = selected;
         this.markedNo = markedNo;
@@ -333,6 +334,8 @@ public class PostCell
         threadMode = callback.getLoadable() == null || callback.getLoadable().isThreadMode();
 
         setPostLinkableListener(post, true);
+
+        options.setImageTintList(ColorStateList.valueOf(theme.textSecondary));
 
         replies.setClickable(threadMode);
         repliesAdditionalArea.setClickable(threadMode);
@@ -439,6 +442,9 @@ public class PostCell
 
         if (post.httpIcons != null) {
             icons.setHttpIcons(post.httpIcons, theme, iconSizePx);
+            comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
+        } else {
+            comment.setPadding(paddingPx, paddingPx / 2, paddingPx, 0);
         }
 
         icons.apply();
@@ -458,6 +464,8 @@ public class PostCell
             comment.setTypeface(ChanSettings.fontAlternate.get() ? Typeface.DEFAULT : theme.altFont);
         }
 
+        comment.setTextColor(theme.textPrimary);
+
         if (ChanSettings.shiftPostFormat.get()) {
             comment.setVisibility(isEmpty(commentText) ? GONE : VISIBLE);
         } else {
@@ -466,77 +474,64 @@ public class PostCell
         }
 
         if (threadMode) {
-            if (selectable) {
-                // Setting the text to selectable creates an editor, sets up a bunch of click
-                // handlers and sets a movementmethod.
-                // Required for the isTextSelectable check.
-                // We override the test and movementmethod settings.
-                comment.setTextIsSelectable(true);
+            comment.setTextIsSelectable(true);
+            comment.setText(commentText, TextView.BufferType.SPANNABLE);
+            comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                private MenuItem quoteMenuItem;
+                private MenuItem webSearchItem;
+                private boolean processed;
 
-                comment.setText(commentText, TextView.BufferType.SPANNABLE);
+                @Override
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote, 0, R.string.post_quote);
+                    webSearchItem = menu.add(Menu.NONE, R.id.post_selection_action_search, 1, R.string.post_web_search);
+                    return true;
+                }
 
-                comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
-                    private MenuItem quoteMenuItem;
-                    private MenuItem webSearchItem;
-                    private boolean processed;
+                @Override
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return true;
+                }
 
-                    @Override
-                    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                        quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote, 0, R.string.post_quote);
-                        webSearchItem =
-                                menu.add(Menu.NONE, R.id.post_selection_action_search, 1, R.string.post_web_search);
+                @Override
+                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                    CharSequence selection =
+                            comment.getText().subSequence(comment.getSelectionStart(), comment.getSelectionEnd());
+                    if (item == quoteMenuItem) {
+                        callback.onPostSelectionQuoted(post, selection);
+                        processed = true;
+                    } else if (item == webSearchItem) {
+                        Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                        searchIntent.putExtra(SearchManager.QUERY, selection.toString());
+                        openIntent(searchIntent);
+                        processed = true;
+                    }
+
+                    if (processed) {
+                        mode.finish();
+                        processed = false;
                         return true;
+                    } else {
+                        return false;
                     }
+                }
 
-                    @Override
-                    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                        CharSequence selection =
-                                comment.getText().subSequence(comment.getSelectionStart(), comment.getSelectionEnd());
-                        if (item == quoteMenuItem) {
-                            callback.onPostSelectionQuoted(post, selection);
-                            processed = true;
-                        } else if (item == webSearchItem) {
-                            Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
-                            searchIntent.putExtra(SearchManager.QUERY, selection.toString());
-                            openIntent(searchIntent);
-                            processed = true;
-                        }
-
-                        if (processed) {
-                            mode.finish();
-                            processed = false;
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-
-                    @Override
-                    public void onDestroyActionMode(ActionMode mode) {
-                    }
-                });
-            } else {
-                comment.setText(commentText);
-            }
+                @Override
+                public void onDestroyActionMode(ActionMode mode) {
+                }
+            });
 
             // Sets focusable to auto, clickable and longclickable to true.
             comment.setMovementMethod(commentMovementMethod);
 
             // And this sets clickable to appropriate values again.
-            comment.setOnClickListener(selfClicked);
-            comment.setOnTouchListener(this);
+            comment.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
 
             if (ChanSettings.tapNoReply.get()) {
                 title.setMovementMethod(titleMovementMethod);
             }
         } else {
             comment.setText(commentText);
-            comment.setOnClickListener(null);
             comment.setOnTouchListener(null);
             comment.setClickable(false);
 
@@ -580,27 +575,26 @@ public class PostCell
             //display width, we don't care about height here
             Point displaySize = getDisplaySize();
 
-            //thumbnail size
             int thumbnailSize = getDimen(R.dimen.cell_post_thumbnail_size);
+            boolean isSplitMode =
+                    ChanSettings.layoutMode.get() == SPLIT || (ChanSettings.layoutMode.get() == AUTO && isTablet());
 
             //get the width of the cell for calculations, height we don't need but measure it anyways
-            this.measure(MeasureSpec.makeMeasureSpec(
-                    ChanSettings.layoutMode.get() == ChanSettings.LayoutMode.SPLIT ? displaySize.x / 2 : displaySize.x,
-                    MeasureSpec.AT_MOST
-            ), MeasureSpec.makeMeasureSpec(displaySize.y, MeasureSpec.AT_MOST));
+            //0.35 is from SplitNavigationControllerLayout; measure for the smaller of the two sides
+            this.measure(
+                    MeasureSpec.makeMeasureSpec(isSplitMode ? (int) (displaySize.x * 0.35) : displaySize.x, AT_MOST),
+                    MeasureSpec.makeMeasureSpec(displaySize.y, AT_MOST)
+            );
 
             //we want the heights here, but the widths must be the exact size between the thumbnail and view edge so that we calculate offsets right
-            title.measure(
-                    MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, UNSPECIFIED)
             );
-            icons.measure(
-                    MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            icons.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, UNSPECIFIED)
             );
-            comment.measure(
-                    MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, UNSPECIFIED)
             );
             int wrapHeight = title.getMeasuredHeight() + icons.getMeasuredHeight();
             int extraWrapHeight = wrapHeight + comment.getMeasuredHeight();
@@ -666,7 +660,7 @@ public class PostCell
                 v.setPostImage(loadable, image, false, size, size);
                 v.setClickable(true);
                 //don't set a callback if the post is deleted, but if the file already exists in cache let it through
-                if (!post.deleted.get() || instance(FileCache.class).exists(image.imageUrl.toString())) {
+                if (!post.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl.toString())) {
                     v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 }
                 v.setRounding(dp(2));
@@ -719,11 +713,6 @@ public class PostCell
     }
 
     private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return gestureDetector.onTouchEvent(event);
-    }
 
     /**
      * A MovementMethod that searches for PostLinkables.<br>
@@ -873,6 +862,7 @@ public class PostCell
     private static Bitmap closedIcon = BitmapFactory.decodeResource(getRes(), R.drawable.closed_icon);
     private static Bitmap trashIcon = BitmapFactory.decodeResource(getRes(), R.drawable.trash_icon);
     private static Bitmap archivedIcon = BitmapFactory.decodeResource(getRes(), R.drawable.archived_icon);
+    private static Bitmap errorIcon = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
 
     public static class PostIcons
             extends View {
@@ -973,7 +963,7 @@ public class PostCell
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
             int measureHeight = icons == 0 ? 0 : (height + getPaddingTop() + getPaddingBottom());
 
-            setMeasuredDimension(widthMeasureSpec, MeasureSpec.makeMeasureSpec(measureHeight, MeasureSpec.EXACTLY));
+            setMeasuredDimension(widthMeasureSpec, MeasureSpec.makeMeasureSpec(measureHeight, EXACTLY));
         }
 
         @Override
@@ -1064,6 +1054,8 @@ public class PostCell
 
         @Override
         public void onErrorResponse(VolleyError error) {
+            bitmap = errorIcon;
+            postIcons.invalidate();
         }
     }
 
@@ -1071,8 +1063,10 @@ public class PostCell
             extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            callback.onPostDoubleClicked(post);
-            return true;
+            if (inPopup) {
+                callback.onPopupPostDoubleClicked(post);
+            }
+            return inPopup;
         }
     }
 }

@@ -198,7 +198,7 @@ public class StyleRule {
 
         CharSequence result = text;
         for (Action action : actions) {
-            result = action.execute(theme, callback, post, text, element);
+            result = action.execute(theme, callback, post, result, element);
         }
 
         List<Object> spansToApply = new ArrayList<>(2);

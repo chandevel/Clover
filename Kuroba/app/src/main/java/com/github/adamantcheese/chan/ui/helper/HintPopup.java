@@ -83,6 +83,7 @@ public class HintPopup {
     @SuppressLint("InflateParams")
     private void createView(Context context) {
         popupView = inflate(context, top ? R.layout.popup_hint_top : R.layout.popup_hint);
+        popupView.setOnClickListener((view) -> dismiss());
 
         TextView textView = popupView.findViewById(R.id.text);
         textView.setText(text);

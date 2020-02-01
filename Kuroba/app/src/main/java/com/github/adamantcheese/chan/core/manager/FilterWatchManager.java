@@ -24,7 +24,6 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
-import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
@@ -54,7 +53,7 @@ public class FilterWatchManager
     private final WakeManager wakeManager;
     private final FilterEngine filterEngine;
     private final WatchManager watchManager;
-    private final ChanLoaderFactory chanLoaderFactory;
+    private final ChanLoaderManager chanLoaderManager;
     private final BoardRepository boardRepository;
     private final DatabaseLoadableManager databaseLoadableManager;
 
@@ -75,14 +74,14 @@ public class FilterWatchManager
             WakeManager wakeManager,
             FilterEngine filterEngine,
             WatchManager watchManager,
-            ChanLoaderFactory chanLoaderFactory,
+            ChanLoaderManager chanLoaderManager,
             BoardRepository boardRepository,
             DatabaseManager databaseManager
     ) {
         this.wakeManager = wakeManager;
         this.filterEngine = filterEngine;
         this.watchManager = watchManager;
-        this.chanLoaderFactory = chanLoaderFactory;
+        this.chanLoaderManager = chanLoaderManager;
         this.boardRepository = boardRepository;
         this.databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
 
@@ -110,7 +109,7 @@ public class FilterWatchManager
 
     private void populateFilterLoaders() {
         for (ChanThreadLoader loader : filterLoaders.keySet()) {
-            chanLoaderFactory.release(loader, filterLoaders.get(loader));
+            chanLoaderManager.release(loader, filterLoaders.get(loader));
         }
         filterLoaders.clear();
         //get our filters that are tagged as "pin"
@@ -140,7 +139,7 @@ public class FilterWatchManager
                         Loadable boardLoadable = Loadable.forCatalog(b);
                         boardLoadable = databaseLoadableManager.get(boardLoadable);
                         ChanThreadLoader catalogLoader =
-                                chanLoaderFactory.obtain(boardLoadable, watchManager, backgroundLoader);
+                                chanLoaderManager.obtain(boardLoadable, watchManager, backgroundLoader);
                         filterLoaders.put(catalogLoader, backgroundLoader);
                     }
                 }
@@ -157,7 +156,7 @@ public class FilterWatchManager
         //Match filters and ignores
         List<Filter> filters = filterEngine.getEnabledWatchFilters();
         for (Filter f : filters) {
-            for (Post p : catalog.getPostsUnsafe()) {
+            for (Post p : catalog.getPosts()) {
                 if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
                     Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site,
                             p.board,
@@ -184,7 +183,7 @@ public class FilterWatchManager
             Set<Integer> toAdd = new HashSet<>();
             //Match filters and ignores
             for (Filter f : filters) {
-                for (Post p : result.getPostsUnsafe()) {
+                for (Post p : result.getPosts()) {
                     if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
                         Loadable pinLoadable = Loadable.forThread(result.getLoadable().site,
                                 p.board,
@@ -199,32 +198,40 @@ public class FilterWatchManager
             }
             //add all posts to ignore
             ignoredPosts.addAll(toAdd);
-            lastCheckedPosts.addAll(result.getPostsUnsafe());
+            lastCheckedPosts.addAll(result.getPosts());
             synchronized (this) {
                 numBoardsChecked--;
                 Logger.d(TAG, "Filter loader processed, left " + numBoardsChecked);
-                if (numBoardsChecked <= 0) {
-                    numBoardsChecked = 0;
-                    Set<Integer> lastCheckedPostNumbers = new HashSet<>();
-                    for (Post post : lastCheckedPosts) {
-                        lastCheckedPostNumbers.add(post.no);
-                    }
-                    ignoredPosts.retainAll(lastCheckedPostNumbers);
-                    ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
-                    lastCheckedPosts.clear();
-                    processing = false;
-                    Logger.i(TAG,
-                            "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance()
-                                    .format(new Date())
-                    );
-                    wakeManager.manageLock(false, FilterWatchManager.this);
-                }
+                checkComplete();
             }
         }
 
         @Override
         public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
-            //ignore all errors
+            synchronized (this) {
+                numBoardsChecked--;
+                Logger.d(TAG, "Filter loader failed, left " + numBoardsChecked);
+                checkComplete();
+            }
+        }
+
+        private void checkComplete() {
+            if (numBoardsChecked <= 0) {
+                numBoardsChecked = 0;
+                Set<Integer> lastCheckedPostNumbers = new HashSet<>();
+                for (Post post : lastCheckedPosts) {
+                    lastCheckedPostNumbers.add(post.no);
+                }
+                ignoredPosts.retainAll(lastCheckedPostNumbers);
+                ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
+                lastCheckedPosts.clear();
+                processing = false;
+                Logger.i(TAG,
+                        "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance()
+                                .format(new Date())
+                );
+                wakeManager.manageLock(false, FilterWatchManager.this);
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ android {
     // don't forget to also update travis.yml config
     // !!! IMPORTANT !!!
 
+    buildToolsVersion "29.0.2"
     compileSdkVersion 29
 
     def getCommitHash = { ->
@@ -233,16 +234,16 @@ dependencies {
     implementation 'androidx.core:core:1.1.0'
     implementation 'androidx.drawerlayout:drawerlayout:1.0.0'
     implementation 'androidx.exifinterface:exifinterface:1.1.0'
-    implementation 'androidx.lifecycle:lifecycle-common:2.1.0'
+    implementation 'androidx.lifecycle:lifecycle-common:2.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.slidingpanelayout:slidingpanelayout:1.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'androidx.viewpager:viewpager:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
-    implementation 'com.google.android.exoplayer:exoplayer:2.10.4'
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.1'
     implementation 'com.android.volley:volley:1.2.0-SNAPSHOT'
-    implementation 'com.squareup.okhttp3:okhttp:4.2.2'
+    implementation 'com.squareup.okhttp3:okhttp:4.3.1'
     implementation 'com.j256.ormlite:ormlite-core:5.1'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
     implementation 'org.jsoup:jsoup:1.12.1'
@@ -253,15 +254,20 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'me.xdrop:fuzzywuzzy:1.2.0'
     implementation 'org.codejargon.feather:feather:1.0'
-    implementation 'com.vladsch.flexmark:flexmark:0.50.46'
+    implementation 'com.vladsch.flexmark:flexmark:0.50.50'
     implementation 'com.vdurmont:emoji-java:5.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha20'
+    implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha21'
     implementation 'joda-time:joda-time:2.10.5'
 
     testImplementation 'junit:junit:4.13'
+    testImplementation "org.robolectric:robolectric:4.3.1"
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.3.1'
+    testImplementation "org.mockito:mockito-core:3.2.4"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
+
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 }
 

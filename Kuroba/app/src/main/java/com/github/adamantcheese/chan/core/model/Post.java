@@ -164,7 +164,6 @@ public class Post
         filterSaved = builder.filterSaved;
 
         isSavedReply = builder.isSavedReply;
-
         subjectSpan = builder.subjectSpan;
         nameTripcodeIdCapcodeSpan = builder.nameTripcodeIdCapcodeSpan;
 
@@ -345,7 +344,6 @@ public class Post
         public boolean filterReplies;
         public boolean filterOnlyOP;
         public boolean filterSaved;
-
         public boolean isSavedReply;
 
         public CharSequence subjectSpan;

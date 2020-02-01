@@ -14,11 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.pool;
+package com.github.adamantcheese.chan.core.manager;
 
 import android.util.LruCache;
 
-import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -27,13 +26,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * ChanLoaderFactory is a factory for ChanLoaders. ChanLoaders for threads are cached.
+ * ChanLoaderManager is a factory for ChanLoaders. ChanLoaders for threads are cached.
  * <p>Each reference to a loader is a {@link ChanThreadLoader.ChanLoaderCallback}, these
  * references can be obtained with {@link #obtain(Loadable, WatchManager, ChanThreadLoader.ChanLoaderCallback)}} and released
  * with {@link #release(ChanThreadLoader, ChanThreadLoader.ChanLoaderCallback)}.
  */
-public class ChanLoaderFactory {
-    private static final String TAG = "ChanLoaderFactory";
+public class ChanLoaderManager {
+    private static final String TAG = "ChanLoaderManager";
     public static final int THREAD_LOADERS_CACHE_SIZE = 25;
 
     private Map<Loadable, ChanThreadLoader> threadLoaders = new HashMap<>();

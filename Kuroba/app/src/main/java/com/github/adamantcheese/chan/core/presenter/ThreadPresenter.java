@@ -26,9 +26,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.cache.FileCache;
+import com.github.adamantcheese.chan.core.cache.CacheHandler;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
+import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
@@ -45,7 +49,6 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
-import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -54,6 +57,7 @@ import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.MockReplyManager;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -112,13 +116,17 @@ public class ThreadPresenter
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
     private static final int POST_OPTION_EXTRA = 15;
     private static final int POST_OPTION_REMOVE = 16;
+    private static final int POST_OPTION_MOCK_REPLY = 17;
 
     private final WatchManager watchManager;
     private final DatabaseManager databaseManager;
-    private final ChanLoaderFactory chanLoaderFactory;
+    private final ChanLoaderManager chanLoaderManager;
     private final PageRequestManager pageRequestManager;
     private final ThreadSaveManager threadSaveManager;
     private final FileManager fileManager;
+    private final FileCacheV2 fileCacheV2;
+    private final CacheHandler cacheHandler;
+    private final MockReplyManager mockReplyManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
@@ -131,21 +139,30 @@ public class ThreadPresenter
     private boolean addToLocalBackHistory;
     private Context context;
 
+    @Nullable
+    private List<CancelableDownload> activePrefetches = null;
+
     @Inject
     public ThreadPresenter(
             WatchManager watchManager,
             DatabaseManager databaseManager,
-            ChanLoaderFactory chanLoaderFactory,
+            ChanLoaderManager chanLoaderManager,
             PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
-            FileManager fileManager
+            FileCacheV2 fileCacheV2,
+            CacheHandler cacheHandler,
+            FileManager fileManager,
+            MockReplyManager mockReplyManager
     ) {
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
-        this.chanLoaderFactory = chanLoaderFactory;
+        this.chanLoaderManager = chanLoaderManager;
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
         this.fileManager = fileManager;
+        this.fileCacheV2 = fileCacheV2;
+        this.cacheHandler = cacheHandler;
+        this.mockReplyManager = mockReplyManager;
     }
 
     public void create(ThreadPresenterCallback threadPresenterCallback) {
@@ -179,7 +196,7 @@ public class ThreadPresenter
             this.addToLocalBackHistory = addToLocalBackHistory;
 
             startSavingThreadIfItIsNotBeingSaved(this.loadable);
-            chanLoader = chanLoaderFactory.obtain(loadable, watchManager, this);
+            chanLoader = chanLoaderManager.obtain(loadable, watchManager, this);
             threadPresenterCallback.showLoading();
         }
     }
@@ -191,15 +208,31 @@ public class ThreadPresenter
     public void unbindLoadable() {
         if (chanLoader != null) {
             chanLoader.clearTimer();
-            chanLoaderFactory.release(chanLoader, this);
+            chanLoaderManager.release(chanLoader, this);
             chanLoader = null;
             loadable = null;
             historyAdded = false;
             addToLocalBackHistory = true;
+            cancelPrefetching();
 
             threadPresenterCallback.showNewPostsNotification(false, -1);
             threadPresenterCallback.showLoading();
         }
+    }
+
+    private void cancelPrefetching() {
+        if (activePrefetches == null || activePrefetches.isEmpty()) {
+            return;
+        }
+
+        Logger.d(TAG, "Cancel previous prefetching");
+
+        for (CancelableDownload cancelableDownload : activePrefetches) {
+            cancelableDownload.cancelPrefetch();
+        }
+
+        activePrefetches.clear();
+        activePrefetches = null;
     }
 
     private void stopSavingThreadIfItIsBeingSaved(Loadable loadable) {
@@ -361,7 +394,7 @@ public class ThreadPresenter
         }
 
         Post op = chanLoader.getThread().getOp();
-        List<Post> postsToSave = chanLoader.getThread().getPostsUnsafe();
+        List<Post> postsToSave = chanLoader.getThread().getPosts();
 
         Pin oldPin = watchManager.findPinByLoadableId(loadable.id);
         if (oldPin != null) {
@@ -511,15 +544,15 @@ public class ThreadPresenter
             int lastLoaded = loadable.lastLoaded;
             int more = 0;
             if (lastLoaded > 0) {
-                for (Post p : result.getPostsUnsafe()) {
+                for (Post p : result.getPosts()) {
                     if (p.no == lastLoaded) {
-                        more = result.getPostsCount() - result.getPostsUnsafe().indexOf(p) - 1;
+                        more = result.getPostsCount() - result.getPosts().indexOf(p) - 1;
                         break;
                     }
                 }
             }
 
-            loadable.setLastLoaded(result.getPostsUnsafe().get(result.getPostsCount() - 1).no);
+            loadable.setLastLoaded(result.getPosts().get(result.getPostsCount() - 1).no);
 
             if (more > 0) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
@@ -531,23 +564,29 @@ public class ThreadPresenter
             }
 
             if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal()) {
-                FileCache cache = instance(FileCache.class);
-                for (Post p : result.getPostsUnsafe()) {
+                List<PostImage> postImageList = new ArrayList<>(16);
+                cancelPrefetching();
+
+                for (Post p : result.getPosts()) {
                     if (p.images != null) {
                         for (PostImage postImage : p.images) {
-                            if (cache.exists(postImage.imageUrl.toString())) {
+                            if (cacheHandler.exists(postImage.imageUrl.toString())) {
                                 continue;
                             }
 
                             if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
                                     && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
-                                cache.downloadFile(loadable, postImage, null);
+                                postImageList.add(postImage);
                             } else if (postImage.type == PostImage.Type.MOVIE
                                     && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
-                                cache.downloadFile(loadable, postImage, null);
+                                postImageList.add(postImage);
                             }
                         }
                     }
+                }
+
+                if (postImageList.size() > 0) {
+                    activePrefetches = fileCacheV2.enqueueMediaPrefetchRequestBatch(loadable, postImageList);
                 }
             }
         }
@@ -561,7 +600,7 @@ public class ThreadPresenter
             loadable.markedNo = -1;
         }
 
-        storeNewPostsIfThreadIsBeingDownloaded(loadable, result.getPostsUnsafe());
+        storeNewPostsIfThreadIsBeingDownloaded(loadable, result.getPosts());
         addHistory();
 
         // Update loadable in the database
@@ -777,13 +816,14 @@ public class ThreadPresenter
             Loadable newLoadable =
                     Loadable.forThread(loadable.site, post.board, post.no, PostHelper.getTitle(post, loadable));
 
+            highlightPost(post);
             Loadable threadLoadable = databaseManager.getDatabaseLoadableManager().get(newLoadable);
             threadPresenterCallback.showThread(threadLoadable);
         }
     }
 
     @Override
-    public void onPostDoubleClicked(Post post) {
+    public void onPopupPostDoubleClicked(Post post) {
         if (!loadable.isCatalogMode()) {
             if (searchOpen) {
                 searchQuery = null;
@@ -806,7 +846,7 @@ public class ThreadPresenter
         for (Post item : posts) {
             if (!item.images.isEmpty()) {
                 for (PostImage image : item.images) {
-                    if (!item.deleted.get() || instance(FileCache.class).exists(image.imageUrl.toString())) {
+                    if (!item.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl.toString())) {
                         //deleted posts always have 404'd images, but let it through if the file exists in cache
                         images.add(image);
                         if (image.equalUrl(postImage)) {
@@ -874,6 +914,10 @@ public class ThreadPresenter
         if (!loadable.isLocal()) {
             boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
             extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, isSaved ? R.string.unsave : R.string.save));
+
+            if (BuildConfig.DEV_BUILD && loadable.no > 0) {
+                extraMenu.add(new FloatingMenuItem(POST_OPTION_MOCK_REPLY, R.string.mock_reply));
+            }
         }
 
         return POST_OPTION_EXTRA;
@@ -944,10 +988,10 @@ public class ThreadPresenter
                 watchManager.createPin(pinLoadable, post, PinType.WATCH_NEW_POSTS);
                 break;
             case POST_OPTION_OPEN_BROWSER:
-                openLink(loadable.site.resolvable().desktopUrl(loadable, post));
+                openLink(loadable.site.resolvable().desktopUrl(loadable, post.no));
                 break;
             case POST_OPTION_SHARE:
-                shareLink(loadable.site.resolvable().desktopUrl(loadable, post));
+                shareLink(loadable.site.resolvable().desktopUrl(loadable, post.no));
                 break;
             case POST_OPTION_REMOVE:
             case POST_OPTION_HIDE:
@@ -977,6 +1021,11 @@ public class ThreadPresenter
                         );
                     }
                 }
+                break;
+            case POST_OPTION_MOCK_REPLY:
+                mockReplyManager.addMockReply(post.board.siteId, post.board.code, loadable.no, post.no);
+                //force reload to display the change
+                requestData();
                 break;
         }
     }
@@ -1183,7 +1232,7 @@ public class ThreadPresenter
             text.append("\nId: ").append(post.id);
             int count = 0;
             try {
-                for (Post p : chanLoader.getThread().getPostsUnsafe()) {
+                for (Post p : chanLoader.getThread().getPosts()) {
                     if (p.id.equals(post.id)) count++;
                 }
             } catch (Exception ignored) {
@@ -1220,8 +1269,7 @@ public class ThreadPresenter
 
     private void showPosts(boolean refreshAfterHideOrRemovePosts) {
         if (chanLoader != null && chanLoader.getThread() != null) {
-            threadPresenterCallback.showPosts(
-                    chanLoader.getThread(),
+            threadPresenterCallback.showPosts(chanLoader.getThread(),
                     new PostsFilter(order, searchQuery),
                     refreshAfterHideOrRemovePosts
             );
@@ -1256,7 +1304,7 @@ public class ThreadPresenter
             if (wholeChain) {
                 ChanThread thread = chanLoader.getThread();
                 if (thread != null) {
-                    posts.addAll(PostUtils.findPostWithReplies(post.no, thread.getPostsUnsafe()));
+                    posts.addAll(PostUtils.findPostWithReplies(post.no, thread.getPosts()));
                 }
             } else {
                 posts.add(PostUtils.findPostById(post.no, chanLoader.getThread()));
@@ -1272,7 +1320,7 @@ public class ThreadPresenter
             return;
         }
 
-        threadPresenterCallback.viewRemovedPostsForTheThread(chanLoader.getThread().getPostsUnsafe(),
+        threadPresenterCallback.viewRemovedPostsForTheThread(chanLoader.getThread().getPosts(),
                 chanLoader.getThread().getOp().no
         );
     }
@@ -1291,13 +1339,7 @@ public class ThreadPresenter
 
     @Override
     public void openArchive(Pair<String, String> domainNamePair) {
-        Post tempOP = new Post.Builder().board(loadable.board)
-                .id(loadable.no)
-                .opId(loadable.no)
-                .setUnixTimestampSeconds(1)
-                .comment("")
-                .build();
-        String link = loadable.site.resolvable().desktopUrl(loadable, tempOP);
+        String link = loadable.desktopUrl();
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
         openLinkInBrowser((Activity) context, link);
     }

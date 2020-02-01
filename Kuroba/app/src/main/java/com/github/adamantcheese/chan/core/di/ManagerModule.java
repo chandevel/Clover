@@ -21,6 +21,7 @@ import android.content.Context;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
+import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
@@ -30,18 +31,23 @@ import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
-import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.parser.MockReplyManager;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 
 import org.codejargon.feather.Provides;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
+
+import okhttp3.OkHttpClient;
+
+import static com.github.adamantcheese.chan.core.di.NetModule.THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME;
 
 public class ManagerModule {
 
@@ -68,24 +74,23 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public ChanLoaderFactory provideChanLoaderFactory() {
+    public ChanLoaderManager provideChanLoaderFactory() {
         Logger.d(AppModule.DI_TAG, "Chan loader factory");
-        return new ChanLoaderFactory();
+        return new ChanLoaderManager();
     }
 
     @Provides
     @Singleton
     public WatchManager provideWatchManager(
             DatabaseManager databaseManager,
-            ChanLoaderFactory chanLoaderFactory,
+            ChanLoaderManager chanLoaderManager,
             WakeManager wakeManager,
             PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
-        return new WatchManager(databaseManager,
-                chanLoaderFactory,
+        return new WatchManager(databaseManager, chanLoaderManager,
                 wakeManager,
                 pageRequestManager,
                 threadSaveManager,
@@ -106,15 +111,14 @@ public class ManagerModule {
             WakeManager wakeManager,
             FilterEngine filterEngine,
             WatchManager watchManager,
-            ChanLoaderFactory chanLoaderFactory,
+            ChanLoaderManager chanLoaderManager,
             BoardRepository boardRepository,
             DatabaseManager databaseManager
     ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
         return new FilterWatchManager(wakeManager,
                 filterEngine,
-                watchManager,
-                chanLoaderFactory,
+                watchManager, chanLoaderManager,
                 boardRepository,
                 databaseManager
         );
@@ -143,11 +147,12 @@ public class ManagerModule {
     @Singleton
     public ThreadSaveManager provideSaveThreadManager(
             DatabaseManager databaseManager,
+            @Named(THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME) OkHttpClient okHttpClient,
             SavedThreadLoaderRepository savedThreadLoaderRepository,
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Thread save manager");
-        return new ThreadSaveManager(databaseManager, savedThreadLoaderRepository, fileManager);
+        return new ThreadSaveManager(databaseManager, okHttpClient, savedThreadLoaderRepository, fileManager);
     }
 
     @Provides
@@ -157,5 +162,12 @@ public class ManagerModule {
     ) {
         Logger.d(AppModule.DI_TAG, "Saved thread loader manager");
         return new SavedThreadLoaderManager(savedThreadLoaderRepository, fileManager);
+    }
+
+    @Provides
+    @Singleton
+    public MockReplyManager provideMockReplyManager() {
+        Logger.d(AppModule.DI_TAG, "Mock reply manager");
+        return new MockReplyManager();
     }
 }
