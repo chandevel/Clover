@@ -7,7 +7,6 @@ import com.github.adamantcheese.chan.ui.controller.LoadingViewController
 class ReportProblemController(context: Context)
     : Controller(context), ReportProblemLayout.ReportProblemControllerCallbacks {
     private var loadingViewController: LoadingViewController? = null
-    private var onFinishedListener: (() -> Unit)? = null
 
     override fun onCreate() {
         view = ReportProblemLayout(context).apply {
@@ -19,11 +18,6 @@ class ReportProblemController(context: Context)
         super.onDestroy()
 
         (view as ReportProblemLayout).destroy()
-        onFinishedListener = null
-    }
-
-    fun setOnFinishedCallback(callback: () -> Unit) {
-        this.onFinishedListener = callback
     }
 
     override fun showProgressDialog() {
@@ -39,6 +33,6 @@ class ReportProblemController(context: Context)
     }
 
     override fun onFinished() {
-        onFinishedListener?.invoke()
+        this.stopPresenting()
     }
 }

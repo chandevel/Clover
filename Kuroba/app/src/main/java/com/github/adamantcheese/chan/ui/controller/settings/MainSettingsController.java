@@ -31,8 +31,6 @@ import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
 import javax.inject.Inject;
 
-import kotlin.Unit;
-
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getIsOfficial;
@@ -163,23 +161,9 @@ public class MainSettingsController
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
         ));
 
-        about.add(
-                new LinkSettingView(
-                        this,
-                        "Report",
-                        "Report a problem/crash",
-                        v -> {
-                            ReportProblemController reportProblemController
-                                    = new ReportProblemController(context);
-
-                            reportProblemController.setOnFinishedCallback(() -> {
-                                reportProblemController.stopPresenting();
-                                return Unit.INSTANCE;
-                            });
-                            navigationController.presentController(reportProblemController);
-                        }
-                )
-        );
+        about.add(new LinkSettingView(this, "Report", "Report a problem/crash", v -> {
+            navigationController.presentController(new ReportProblemController(context));
+        }));
 
         about.add(new LinkSettingView(this,
                 "Find " + getApplicationLabel() + " on GitHub",
