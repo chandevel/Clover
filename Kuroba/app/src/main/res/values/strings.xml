@@ -767,4 +767,22 @@ Don't have a 4chan Pass?<br>
     <string name="album_download_batch_image_processed_message">Downloaded %1$d out of %2$d (%3$d failed)</string>
     <string name="media_settings_image_click_preload_strategy_name">Image preload strategy</string>
     <string name="media_settings_image_click_preload_strategy_description">When opening up an image pager, determines what image(s) should be preloaded next.</string>
+
+    <string name="lorem_ipsum">
+        The standard Lorem Ipsum passage, used since the 1500s
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    </string>
+    <string name="report_activity_report_an_error_problem">Report an error/crash or other problem</string>
+    <string name="report_activity_i_have_a_problem_with">I have a problem with:</string>
+    <string name="report_activity_problem_description">Problem description:</string>
+    <string name="report_activity_attach_logs">Attach logs (You can remove some parts of them you don\'t want to send):</string>
+    <string name="report_activity_no_logs">No logs</string>
+    <string name="report_activity_cancel">Cancel</string>
+    <string name="report_activity_send_report">Send report</string>
+    <string name="report_activity_title_cannot_be_empty_error">Title cannot be empty!</string>
+    <string name="report_activity_description_cannot_be_empty_error">Description cannot be empty!</string>
+    <string name="report_activity_logs_are_empty_error">You checked \"Attach logs\" option, but the logs are empty!</string>
+    <string name="report_activity_sending_report_message">Sending report…</string>
+    <string name="report_activity_report_sent_message">Sent</string>
+    <string name="report_activity_error_while_trying_to_send_report">Error while trying to send report: %1$s</string>
 </resources>

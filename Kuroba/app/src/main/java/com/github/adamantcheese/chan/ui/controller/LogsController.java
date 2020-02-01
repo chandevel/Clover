@@ -22,6 +22,8 @@ import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
@@ -68,7 +70,11 @@ public class LogsController
 
         view = container;
 
-        loadLogs();
+        String logs = loadLogs();
+        if (logs != null) {
+            logText = logs;
+            logTextView.setText(logText);
+        }
     }
 
     private void copyLogsClicked(ToolbarMenuSubItem item) {
@@ -77,13 +83,14 @@ public class LogsController
         showToast(R.string.settings_logs_copied_to_clipboard);
     }
 
-    private void loadLogs() {
+    @Nullable
+    public static String loadLogs() {
         Process process;
         try {
             process = new ProcessBuilder().command("logcat", "-v", "tag", "-t", "250", "StrictMode:S").start();
         } catch (IOException e) {
             Logger.e(TAG, "Error starting logcat", e);
-            return;
+            return null;
         }
 
         InputStream outputStream = process.getInputStream();
@@ -92,7 +99,7 @@ public class LogsController
         for (String line : IOUtils.readString(outputStream).split("\n")) {
             if (line.contains(getApplicationLabel())) filtered = filtered.concat(line).concat("\n");
         }
-        logText = filtered;
-        logTextView.setText(logText);
+
+        return filtered;
     }
 }

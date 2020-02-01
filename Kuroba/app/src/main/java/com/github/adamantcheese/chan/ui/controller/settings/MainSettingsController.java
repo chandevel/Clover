@@ -22,6 +22,7 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.SettingsPresenter;
+import com.github.adamantcheese.chan.feature.report.ReportProblemController;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
 import com.github.adamantcheese.chan.ui.controller.LicensesController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
@@ -29,6 +30,8 @@ import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
 import javax.inject.Inject;
+
+import kotlin.Unit;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
@@ -159,6 +162,24 @@ public class MainSettingsController
                 "Tap to check for updates",
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
         ));
+
+        about.add(
+                new LinkSettingView(
+                        this,
+                        "Report",
+                        "Report a problem/crash",
+                        v -> {
+                            ReportProblemController reportProblemController
+                                    = new ReportProblemController(context);
+
+                            reportProblemController.setOnFinishedCallback(() -> {
+                                reportProblemController.stopPresenting();
+                                return Unit.INSTANCE;
+                            });
+                            navigationController.presentController(reportProblemController);
+                        }
+                )
+        );
 
         about.add(new LinkSettingView(this,
                 "Find " + getApplicationLabel() + " on GitHub",
