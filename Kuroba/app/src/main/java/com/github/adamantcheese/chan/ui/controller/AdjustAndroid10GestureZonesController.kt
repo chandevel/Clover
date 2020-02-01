@@ -67,10 +67,6 @@ class AdjustAndroid10GestureZonesController(context: Context) : Controller(conte
         val side = checkNotNull(attachSide) { "Attach side was not provided! use setAttachSide()" }
         setButtonPosition(side)
 
-        adjustZonesView.layoutParams = RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.MATCH_PARENT
-        )
         adjustZonesView.measure(
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
@@ -86,8 +82,7 @@ class AdjustAndroid10GestureZonesController(context: Context) : Controller(conte
         )
 
         adjustZonesView.setOnZoneAddedCallback {
-            // TODO(gestures): strings
-            showToast("New exclusion zone added")
+            showToast(R.string.setting_exclusion_zones_zone_added_message)
             stopPresenting()
         }
     }

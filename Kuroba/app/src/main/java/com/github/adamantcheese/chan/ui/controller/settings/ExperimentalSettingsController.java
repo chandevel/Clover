@@ -45,6 +45,9 @@ public class ExperimentalSettingsController
     private static final int[] PORTRAIT_ORIENTATION_INDEXES = new int[]{0, 1};
     private static final int[] LANDSCAPE_ORIENTATION_INDEXES = new int[]{2, 3};
 
+    private LinkSettingView resetExclusionZonesSetting;
+    private LinkSettingView gestureExclusionZonesSetting;
+
     @Inject
     Android10GesturesExclusionZonesHolder exclusionZonesHolder;
 
@@ -60,10 +63,10 @@ public class ExperimentalSettingsController
         //  When changing the following list don't forget to update indexes in LEFT_ZONES_INDEXES,
         //  RIGHT_ZONES_INDEXES
         //  !!!!!!!!!!!!!!!!!!!!!!!!!!
-        arrayAdapter.add("Left zone (Portrait orientation)");
-        arrayAdapter.add("Right zone (Portrait orientation)");
-        arrayAdapter.add("Left zone (Landscape orientation)");
-        arrayAdapter.add("Right zone (Landscape orientation)");
+        arrayAdapter.add(context.getString(R.string.setting_exclusion_zones_left_zone_portrait));
+        arrayAdapter.add(context.getString(R.string.setting_exclusion_zones_right_zone_portrait));
+        arrayAdapter.add(context.getString(R.string.setting_exclusion_zones_left_zone_landscape));
+        arrayAdapter.add(context.getString(R.string.setting_exclusion_zones_right_zone_landscape));
     }
 
     @Override
@@ -75,6 +78,11 @@ public class ExperimentalSettingsController
         setupLayout();
         populatePreferences();
         buildPreferences();
+
+        if (!isAndroid10()) {
+            resetExclusionZonesSetting.setEnabled(false);
+            gestureExclusionZonesSetting.setEnabled(false);
+        }
 
         inject(this);
     }
@@ -95,9 +103,8 @@ public class ExperimentalSettingsController
         ));
 
         setupConcurrentFileDownloadingChunksSetting(group);
-
-        setUpZonesEditor(group);
-        setUpZonesResetButton(group);
+        setupZonesEditor(group);
+        setupZonesResetButton(group);
 
         groups.add(group);
     }
@@ -105,7 +112,8 @@ public class ExperimentalSettingsController
     private void setupConcurrentFileDownloadingChunksSetting(SettingsGroup group) {
         List<ListSettingView.Item> items = new ArrayList<>();
 
-        for (ChanSettings.ConcurrentFileDownloadingChunks setting : ChanSettings.ConcurrentFileDownloadingChunks.values()) {
+        for (ChanSettings.ConcurrentFileDownloadingChunks setting :
+                ChanSettings.ConcurrentFileDownloadingChunks.values()) {
             items.add(new ListSettingView.Item<>(setting.getKey(), setting));
         }
 
@@ -117,55 +125,50 @@ public class ExperimentalSettingsController
         ) {
             @Override
             public String getBottomDescription() {
-                return getString(R.string.settings_concurrent_file_downloading_description) + "\n\n" + items.get(
-                        selected).name;
+                return getString(R.string.settings_concurrent_file_downloading_description)
+                        + "\n\n" + items.get(selected).name;
             }
         }));
     }
 
-    private void setUpZonesResetButton(SettingsGroup group) {
-        LinkSettingView resetExclusionZonesSetting = new LinkSettingView(
+    private void setupZonesResetButton(SettingsGroup group) {
+        resetExclusionZonesSetting = new LinkSettingView(
                 this,
-                // TODO(gestures): strings!
-                "Reset exclusion zones",
-                "All exclusion zones will be deleted (The app will have to be restarted)",
+                R.string.setting_exclusion_zones_reset_zones,
+                R.string.setting_exclusion_zones_reset_zones_description,
                 (v) -> {
+                    if (!isAndroid10()) {
+                        showToast(R.string.setting_exclusion_zones_can_only_be_used_on_android_10);
+                        return;
+                    }
+
                     exclusionZonesHolder.resetZones();
                     ((StartActivity) context).restartApp();
                 }
         );
 
-        if (!isAndroid10()) {
-            resetExclusionZonesSetting.setEnabled(false);
-        }
         requiresUiRefresh.add(group.add(resetExclusionZonesSetting));
     }
 
-    private void setUpZonesEditor(SettingsGroup group) {
-        LinkSettingView gestureExclusionZonesSetting = new LinkSettingView(
+    private void setupZonesEditor(SettingsGroup group) {
+        gestureExclusionZonesSetting = new LinkSettingView(
                 this,
-                // TODO(gestures): strings!
-                "Android 10 gesture exclusion zones",
-                "Adjust zones where new Android 10 gestures will be disabled. " +
-                        "You will have to set 4 zones (Left/Right for Portrait/Landscape orientations). " +
-                        "You will have to rotate your phone/tablet to set zones for different orientations",
+                R.string.setting_exclusion_zones_editor,
+                R.string.setting_exclusion_zones_editor_description,
                 (v) -> showZonesDialog()
         );
 
-        if (!isAndroid10()) {
-            gestureExclusionZonesSetting.setEnabled(false);
-        }
         requiresUiRefresh.add(group.add(gestureExclusionZonesSetting));
     }
 
     private void showZonesDialog() {
         if (!isAndroid10()) {
-            showToast("Can only be used on Android 10 and above");
+            showToast(R.string.setting_exclusion_zones_can_only_be_used_on_android_10);
             return;
         }
 
         new AlertDialog.Builder(context)
-                .setTitle("Android 10 exclusion zones actions")
+                .setTitle(R.string.setting_exclusion_zones_actions_dialog_title)
                 .setAdapter(arrayAdapter, (dialog, selectedIndex) -> {
                     onOptionClicked(selectedIndex);
                     dialog.dismiss();
@@ -188,8 +191,7 @@ public class ExperimentalSettingsController
         }
 
         if (getScreenOrientation() != orientation) {
-            showToast("Wrong phone orientation, you need to rotate your " +
-                    "phone 90 degrees to any side before using this option");
+            showToast(R.string.setting_exclusion_zones_wrong_phone_orientation);
             return;
         }
 
@@ -212,8 +214,8 @@ public class ExperimentalSettingsController
     @RequiresApi(Build.VERSION_CODES.Q)
     private void showEditOrRemoveZoneDialog(int orientation, AttachSide attachSide) {
         new AlertDialog.Builder(context)
-                .setTitle("Edit or remove zone?")
-                .setPositiveButton("Edit", (dialog, which) -> {
+                .setTitle(R.string.setting_exclusion_zones_edit_or_remove_zone_title)
+                .setPositiveButton(R.string.edit, (dialog, which) -> {
                     ExclusionZone skipZone = exclusionZonesHolder.getZoneOrNull(orientation, attachSide);
                     if (skipZone == null) {
                         throw new IllegalStateException("skipZone is null! " +
@@ -223,9 +225,9 @@ public class ExperimentalSettingsController
                     showZoneEditorController(attachSide, skipZone);
                     dialog.dismiss();
                 })
-                .setNegativeButton("Remove", ((dialog, which) -> {
+                .setNegativeButton(R.string.remove, ((dialog, which) -> {
                     exclusionZonesHolder.removeZone(orientation, attachSide);
-                    showToast("Zone removed");
+                    showToast(R.string.setting_exclusion_zones_zone_remove_message);
                     dialog.dismiss();
                 }))
                 .create()

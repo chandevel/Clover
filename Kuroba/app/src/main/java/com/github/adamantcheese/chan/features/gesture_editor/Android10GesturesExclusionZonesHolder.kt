@@ -12,13 +12,14 @@ class Android10GesturesExclusionZonesHolder(
         private val minScreenSize: Int,
         private val maxScreenSize: Int
 ) {
-    private val exclusionZones = loadZones()
+    private val exclusionZones: MutableMap<Int, MutableSet<ExclusionZone>> = loadZones()
 
     private fun loadZones(): MutableMap<Int, MutableSet<ExclusionZone>> {
         val zones = mutableMapOf<Int, MutableSet<ExclusionZone>>()
 
         val json = ChanSettings.androidTenGestureZones.get()
         if (json.isEmpty()) {
+            Logger.d(TAG, "Json setting string is empty, reset.")
             ChanSettings.androidTenGestureZones.set(EMPTY_JSON)
             return zones
         }
@@ -28,14 +29,21 @@ class Android10GesturesExclusionZonesHolder(
         }
 
         if (!isAndroid10()) {
+            Logger.d(TAG, "Not android 10, reset.")
             ChanSettings.androidTenGestureZones.set(EMPTY_JSON)
             return zones
         }
 
-        val exclusionZones = gson.fromJson<ExclusionZonesJson>(
-                json,
-                ExclusionZonesJson::class.java
-        )
+        val exclusionZones = try {
+            gson.fromJson<ExclusionZonesJson>(
+                    json,
+                    ExclusionZonesJson::class.java
+            )
+        } catch (error: Throwable) {
+            Logger.e(TAG, "Error while trying to parse zones json, reset.", error)
+            ChanSettings.androidTenGestureZones.set(EMPTY_JSON)
+            return zones
+        }
 
         // The old settings must belong to a phone with the same screen size as the current one,
         // otherwise something may break
@@ -108,7 +116,7 @@ class Android10GesturesExclusionZonesHolder(
                 zones.forEach { zone ->
                     newExclusionZones += ExclusionZoneJson(
                             screenOrientation = orientation,
-                            attachSide = attachSide.id,
+                            attachSide = zone.attachSide.id,
                             left = zone.left.toFloat(),
                             right = zone.right.toFloat(),
                             top = zone.top.toFloat(),
@@ -167,11 +175,23 @@ class Android10GesturesExclusionZonesHolder(
 
     fun fillZones(zones: MutableMap<Int, MutableSet<ExclusionZone>>, skipZone: ExclusionZone?) {
         zones.clear()
-        zones.putAll(exclusionZones)
+        deepCopyZones(zones)
 
         if (skipZone != null) {
             skipZone.checkValid()
             zones[skipZone.screenOrientation]?.remove(skipZone)
+        }
+    }
+
+    private fun deepCopyZones(zones: MutableMap<Int, MutableSet<ExclusionZone>>) {
+        exclusionZones.forEach { (orientation, set) ->
+            if (!zones.containsKey(orientation)) {
+                zones[orientation] = mutableSetOf()
+            }
+
+            set.forEach { zone ->
+                zones[orientation]!!.add(zone.copy())
+            }
         }
     }
 
@@ -196,13 +216,14 @@ class Android10GesturesExclusionZonesHolder(
         }
 
         return zones.first()
+                .copy()
                 .also { zone -> zone.checkValid() }
     }
 
     fun resetZones() {
         Logger.d(TAG, "All zones reset")
 
-        if (exclusionZones != null && exclusionZones.isNotEmpty()) {
+        if (exclusionZones.isNotEmpty()) {
             exclusionZones.clear()
         }
 

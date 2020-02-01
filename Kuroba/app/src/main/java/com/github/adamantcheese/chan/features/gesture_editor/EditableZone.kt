@@ -20,8 +20,8 @@ class EditableZone {
     private val zoneDefaultWidth = dp(32f).toFloat()
     private val zoneDefaultHeight = dp(32f).toFloat()
     private val handleSize = dp(16f).toFloat()
-    private val zone = SafeRectF(0f, 0f, MINIMUM_SIZE, MINIMUM_SIZE)
-    private val handle = SafeRectF(0f, 0f, MINIMUM_SIZE, MINIMUM_SIZE)
+    private val zone = SafeRectF(0f, 0f, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE, MAXIMUM_SIZE)
+    private val handle = SafeRectF(0f, 0f, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE)
 
     fun init(
             attachSide: AttachSide,
@@ -108,10 +108,7 @@ class EditableZone {
         }
 
         isResizing = handle.contains(x, y)
-
-        check(!(isMoving && isResizing)) {
-            "isMoving and isResizing are both true!"
-        }
+        check(!(isMoving && isResizing)) { "isMoving and isResizing are both true!" }
     }
 
     /**
@@ -179,42 +176,26 @@ class EditableZone {
         when (currentAttachSide) {
             AttachSide.Left -> {
                 val targetHeight = zone.height + dy
-                val realNewHeight = when {
-                    targetHeight > MAXIMUM_SIZE -> MAXIMUM_SIZE
-                    targetHeight < MINIMUM_SIZE -> MINIMUM_SIZE
-                    else -> targetHeight
-                }
+                val realNewHeight = targetHeight.coerceIn(MINIMUM_SIZE, MAXIMUM_SIZE)
 
                 zone.setHeight(realNewHeight)
             }
             AttachSide.Right -> {
                 val targetHeight = zone.height + dy
-                val realNewHeight = when {
-                    targetHeight > MAXIMUM_SIZE -> MAXIMUM_SIZE
-                    targetHeight < MINIMUM_SIZE -> MINIMUM_SIZE
-                    else -> targetHeight
-                }
+                val realNewHeight = targetHeight.coerceIn(MINIMUM_SIZE, MAXIMUM_SIZE)
 
                 zone.setHeight(realNewHeight)
             }
             AttachSide.Top -> {
                 val targetWidth = zone.width - dx
-                val realNewWidth = when {
-                    targetWidth > MAXIMUM_SIZE -> MAXIMUM_SIZE
-                    targetWidth < MINIMUM_SIZE -> MINIMUM_SIZE
-                    else -> targetWidth
-                }
+                val realNewWidth = targetWidth.coerceIn(MINIMUM_SIZE, MAXIMUM_SIZE)
 
                 zone.moveTo((zone.x + dx) - (realNewWidth - targetWidth), zone.y)
                 zone.setWidth(realNewWidth)
             }
             AttachSide.Bottom -> {
                 val targetWidth = zone.width - dx
-                val realNewWidth = when {
-                    targetWidth > MAXIMUM_SIZE -> MAXIMUM_SIZE
-                    targetWidth < MINIMUM_SIZE -> MINIMUM_SIZE
-                    else -> targetWidth
-                }
+                val realNewWidth = targetWidth.coerceIn(MINIMUM_SIZE, MAXIMUM_SIZE)
 
                 zone.moveTo((zone.x + dx) - (realNewWidth - targetWidth), zone.y)
                 zone.setWidth(realNewWidth)
@@ -279,6 +260,8 @@ class EditableZone {
 
     companion object {
         val MINIMUM_SIZE = dp(16f).toFloat()
+
+        // Android limitation
         val MAXIMUM_SIZE = dp(200f).toFloat()
     }
 }

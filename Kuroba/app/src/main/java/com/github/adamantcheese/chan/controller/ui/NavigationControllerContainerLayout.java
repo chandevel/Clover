@@ -279,6 +279,8 @@ public class NavigationControllerContainerLayout
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
+        // We should check that changed is true, otherwise there will be way too may events, we don't
+        // want that many.
         if (isAndroid10() && changed) {
             // This shouldn't be called very often (like once per configuration change or even
             // less often) so it's okay to allocate lists. Just to not use this method in onDraw

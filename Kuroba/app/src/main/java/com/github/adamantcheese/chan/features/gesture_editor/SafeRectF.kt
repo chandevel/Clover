@@ -59,7 +59,7 @@ class SafeRectF {
         SafeRectF(rect.left, rect.bottom, rect.width(), rect.height(), minSize, maxSize)
     }
 
-    constructor(x: Float, y: Float, width: Float, height: Float, minSize: Float = width, maxSize: Float = height) {
+    constructor(x: Float, y: Float, width: Float, height: Float, minSize: Float, maxSize: Float) {
         this.minSize = minSize
         this.maxSize = maxSize
 
@@ -174,8 +174,8 @@ class SafeRectF {
         return _rect
     }
 
-    // Do not mutate the returned RectF since we use only one instance to avoid unnecessary
-    // allocations. Ideally, the returned RectF should only be used for drawing.
+    // Do not mutate the returned PointF since we use only one instance to avoid unnecessary
+    // allocations. Ideally, the returned PointF should only be used for drawing.
     fun center(): PointF {
         _center.set(x + (width / 2f), y + (height / 2f))
         return _center
