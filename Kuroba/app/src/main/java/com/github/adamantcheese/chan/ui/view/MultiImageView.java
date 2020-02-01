@@ -125,11 +125,7 @@ public class MultiImageView
     private boolean mediaSourceCancel = false;
     private boolean transparentBackground = ChanSettings.transparencyOn.get();
     private boolean imageAlreadySaved = false;
-
-    private GestureDetector gestureDetector = new GestureDetector(
-            getContext(),
-            new MultiImageViewGestureDetector(this, ChanSettings.imageViewerGestures.get())
-    );
+    private GestureDetector gestureDetector;
 
     public MultiImageView(Context context) {
         this(context, null);
@@ -143,6 +139,10 @@ public class MultiImageView
         super(context, attrs, defStyle);
         this.context = context;
         this.cancellableToast = new CancellableToast();
+        this.gestureDetector = new GestureDetector(
+                context,
+                new MultiImageViewGestureDetector(this, ChanSettings.imageViewerGestures.get())
+        );
 
         inject(this);
         setOnClickListener(null);
@@ -266,7 +266,7 @@ public class MultiImageView
      * Called when the user clicks save image button in ImageViewController. We need it to not allow
      * the user save one image twice (first time via that button and the next via swipe-to-save
      * gesture)
-     * */
+     */
     public void updateImageSavedFlag() {
         imageAlreadySaved = true;
     }
