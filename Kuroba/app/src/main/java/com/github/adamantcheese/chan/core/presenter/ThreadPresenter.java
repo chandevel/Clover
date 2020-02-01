@@ -810,6 +810,7 @@ public class ThreadPresenter
             Loadable newLoadable =
                     Loadable.forThread(loadable.site, post.board, post.no, PostHelper.getTitle(post, loadable));
 
+            highlightPost(post);
             Loadable threadLoadable = databaseManager.getDatabaseLoadableManager().get(newLoadable);
             threadPresenterCallback.showThread(threadLoadable);
         }

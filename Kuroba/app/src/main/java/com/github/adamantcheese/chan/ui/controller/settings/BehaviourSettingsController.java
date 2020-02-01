@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
+import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesEditorController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
@@ -109,6 +110,13 @@ public class BehaviourSettingsController
                     R.string.settings_captcha_setup,
                     R.string.settings_captcha_setup_description,
                     v -> navigationController.pushController(new SitesSetupController(context))
+            ));
+            general.add(new LinkSettingView(this,
+                    R.string.settings_js_captcha_cookies_title,
+                    R.string.settings_js_captcha_cookies_description,
+                    v -> {
+                        navigationController.pushController(new JsCaptchaCookiesEditorController(context));
+                    }
             ));
 
             setupClearThreadHidesSetting(general);

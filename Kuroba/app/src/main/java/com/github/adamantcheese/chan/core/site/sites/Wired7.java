@@ -77,7 +77,7 @@ public class Wired7
                 return getUrl().newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("res")
-                        .addPathSegment(loadable.no + ".html")
+                        .addPathSegment(String.valueOf(loadable.no))
                         .toString();
             } else {
                 return getUrl().toString();
@@ -99,7 +99,6 @@ public class Wired7
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://wired-7.org/favicon.ico")));
 
         setBoards(
-                Board.fromSiteNameCode(this, "Lewds & +18", "18"),
                 Board.fromSiteNameCode(this, "Random", "b"),
                 Board.fromSiteNameCode(this, "Hentai", "h"),
                 Board.fromSiteNameCode(this, "Humanidad", "hum"),

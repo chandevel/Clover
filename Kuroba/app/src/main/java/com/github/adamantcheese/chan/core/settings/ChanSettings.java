@@ -25,7 +25,9 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.base_dir.LocalThreadsBaseDirSetting;
 import com.github.adamantcheese.chan.core.settings.base_dir.SavedFilesBaseDirSetting;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
+import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesJar;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,6 +44,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ChanSettings {
+    private static final String TAG = "ChanSettings";
+    public static final String EMPTY_JSON = "{}";
+
     public enum MediaAutoLoadMode
             implements OptionSettingItem {
         // ALways auto load, either wifi or mobile
@@ -253,6 +258,7 @@ public class ChanSettings {
     public static final BooleanSetting transparencyOn;
     public static final StringSetting youtubeTitleCache;
     public static final StringSetting youtubeDurationCache;
+    public static final StringSetting jsCaptchaCookies;
     public static final OptionsSetting<ConcurrentFileDownloadingChunks> concurrentDownloadChunkCount;
     public static final BooleanSetting verboseLogs;
     public static final OptionsSetting<ImageClickPreloadStrategy> imageClickPreloadStrategy;
@@ -384,8 +390,9 @@ public class ChanSettings {
             previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
             addDubs = new BooleanSetting(p, "add_dubs", false);
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
-            youtubeTitleCache = new StringSetting(p, "yt_title_cache", "{}");
-            youtubeDurationCache = new StringSetting(p, "yt_dur_cache", "{}");
+            youtubeTitleCache = new StringSetting(p, "yt_title_cache", EMPTY_JSON);
+            youtubeDurationCache = new StringSetting(p, "yt_dur_cache", EMPTY_JSON);
+            jsCaptchaCookies = new StringSetting(p, "js_captcha_cookies", EMPTY_JSON);
             concurrentDownloadChunkCount = new OptionsSetting<>(p,
                     "concurrent_file_downloading_chunks_count",
                     ConcurrentFileDownloadingChunks.class,
@@ -404,8 +411,17 @@ public class ChanSettings {
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.
-            Logger.e("ChanSettings", "Error while initializing the settings", error);
+            Logger.e(TAG, "Error while initializing the settings", error);
             throw error;
+        }
+    }
+
+    public static JsCaptchaCookiesJar getJsCaptchaCookieJar(Gson gson) {
+        try {
+            return gson.fromJson(ChanSettings.jsCaptchaCookies.get(), JsCaptchaCookiesJar.class);
+        } catch (Throwable error) {
+            Logger.e(TAG, "Error while trying to deserialize JsCaptchaCookiesJar", error);
+            return JsCaptchaCookiesJar.empty();
         }
     }
 
