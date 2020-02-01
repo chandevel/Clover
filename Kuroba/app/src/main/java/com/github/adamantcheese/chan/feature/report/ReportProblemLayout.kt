@@ -123,7 +123,7 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
     private fun handleResult(result: MResult<Boolean>) {
         when (result) {
             is MResult.Value -> {
-                showToast(getString(R.string.report_activity_report_sent_message))
+                showToast(R.string.report_activity_report_sent_message)
                 callbacks?.onFinished()
             }
             is MResult.Error -> {

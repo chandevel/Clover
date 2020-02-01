@@ -13,7 +13,7 @@ class CancellableToast {
     }
 
     fun showToast(msgResId: Int) {
-        showToast(getString(msgResId), Toast.LENGTH_SHORT)
+        showToast(msgResId, Toast.LENGTH_SHORT)
     }
 
     fun showToast(msgResId: Int, duration: Int) {

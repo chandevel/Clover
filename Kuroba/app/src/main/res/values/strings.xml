@@ -780,9 +780,9 @@ Don't have a 4chan Pass?<br>
     <string name="report_activity_cancel">Cancel</string>
     <string name="report_activity_send_report">Send report</string>
     <string name="report_activity_title_cannot_be_empty_error">Title cannot be empty!</string>
-    <string name="report_activity_description_cannot_be_empty_error">Description cannot be empty!</string>
-    <string name="report_activity_logs_are_empty_error">You checked \"Attach logs\" option, but the logs are empty!</string>
+    <string name="report_activity_description_cannot_be_empty_error">If description is empty, logs cannot be empty!</string>
+    <string name="report_activity_logs_are_empty_error">\"Attach logs\" option is checked, but logs are empty!</string>
     <string name="report_activity_sending_report_message">Sending report…</string>
-    <string name="report_activity_report_sent_message">Sent</string>
+    <string name="report_activity_report_sent_message">Sent \;)</string>
     <string name="report_activity_error_while_trying_to_send_report">Error while trying to send report: %1$s</string>
 </resources>
