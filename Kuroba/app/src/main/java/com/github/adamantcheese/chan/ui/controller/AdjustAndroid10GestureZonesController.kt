@@ -2,11 +2,13 @@ package com.github.adamantcheese.chan.ui.controller
 
 import android.content.Context
 import android.content.res.Configuration
+import android.os.Build
 import android.view.View
 import android.view.View.inflate
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.RelativeLayout
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatButton
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.controller.Controller
@@ -16,6 +18,7 @@ import com.github.adamantcheese.chan.features.gesture_editor.ExclusionZone
 import com.github.adamantcheese.chan.utils.AndroidUtils.*
 
 
+@RequiresApi(Build.VERSION_CODES.Q)
 class AdjustAndroid10GestureZonesController(context: Context) : Controller(context) {
     private lateinit var viewRoot: RelativeLayout
     private lateinit var adjustZonesView: AdjustAndroid10GestureZonesView

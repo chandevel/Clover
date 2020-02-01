@@ -3,7 +3,10 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.widget.ArrayAdapter;
+
+import androidx.annotation.RequiresApi;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -22,6 +25,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ExperimentalSettingsController
@@ -77,39 +81,53 @@ public class ExperimentalSettingsController
     private void populatePreferences() {
         SettingsGroup group = new SettingsGroup(getString(R.string.experimental_settings_group));
 
-        requiresUiRefresh.add(
-                group.add(
-                        new LinkSettingView(
-                                this,
-                                // TODO(gestures): strings!
-                                "Android 10 gesture exclusion zones",
-                                "Adjust zones where new Android 10 gestures will be disabled. " +
-                                        "You will have to set 4 zones (Left/Right for Portrait/Landscape orientations). " +
-                                        "You will have to rotate your phone/tablet to set zones for different orientations",
-                                (v) -> showZonesDialog()
-                        )
-                )
-        );
-
-        requiresUiRefresh.add(
-                group.add(
-                        new LinkSettingView(
-                                this,
-                                // TODO(gestures): strings!
-                                "Reset exclusion zones",
-                                "All exclusion zones will be deleted (The app will have to be restarted)",
-                                (v) -> {
-                                    exclusionZonesHolder.resetZones();
-                                    ((StartActivity) context).restartApp();
-                                }
-                        )
-                )
-        );
+        setUpZonesEditor(group);
+        setUpZonesResetButton(group);
 
         groups.add(group);
     }
 
+    private void setUpZonesResetButton(SettingsGroup group) {
+        LinkSettingView resetExclusionZonesSetting = new LinkSettingView(
+                this,
+                // TODO(gestures): strings!
+                "Reset exclusion zones",
+                "All exclusion zones will be deleted (The app will have to be restarted)",
+                (v) -> {
+                    exclusionZonesHolder.resetZones();
+                    ((StartActivity) context).restartApp();
+                }
+        );
+
+        if (!isAndroid10()) {
+            resetExclusionZonesSetting.setEnabled(false);
+        }
+        requiresUiRefresh.add(group.add(resetExclusionZonesSetting));
+    }
+
+    private void setUpZonesEditor(SettingsGroup group) {
+        LinkSettingView gestureExclusionZonesSetting = new LinkSettingView(
+                this,
+                // TODO(gestures): strings!
+                "Android 10 gesture exclusion zones",
+                "Adjust zones where new Android 10 gestures will be disabled. " +
+                        "You will have to set 4 zones (Left/Right for Portrait/Landscape orientations). " +
+                        "You will have to rotate your phone/tablet to set zones for different orientations",
+                (v) -> showZonesDialog()
+        );
+
+        if (!isAndroid10()) {
+            gestureExclusionZonesSetting.setEnabled(false);
+        }
+        requiresUiRefresh.add(group.add(gestureExclusionZonesSetting));
+    }
+
     private void showZonesDialog() {
+        if (!isAndroid10()) {
+            showToast("Can only be used on Android 10 and above");
+            return;
+        }
+
         new AlertDialog.Builder(context)
                 .setTitle("Android 10 exclusion zones actions")
                 .setAdapter(arrayAdapter, (dialog, selectedIndex) -> {
@@ -120,6 +138,7 @@ public class ExperimentalSettingsController
                 .show();
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private void onOptionClicked(int selectedIndex) {
         AttachSide attachSide = null;
         int orientation = -1;
@@ -154,6 +173,7 @@ public class ExperimentalSettingsController
         showZoneEditorController(attachSide, null);
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private void showEditOrRemoveZoneDialog(int orientation, AttachSide attachSide) {
         new AlertDialog.Builder(context)
                 .setTitle("Edit or remove zone?")
@@ -176,6 +196,7 @@ public class ExperimentalSettingsController
                 .show();
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     private void showZoneEditorController(AttachSide attachSide, @Nullable ExclusionZone skipZone) {
         AdjustAndroid10GestureZonesController adjustGestureZonesController
                 = new AdjustAndroid10GestureZonesController(context);

@@ -5,16 +5,17 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.FrameLayout
+import androidx.annotation.RequiresApi
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.utils.AndroidUtils.getColor
 import javax.inject.Inject
 
-// TODO(gestures): uncomment
-//@RequiresApi(Build.VERSION_CODES.P)
+@RequiresApi(Build.VERSION_CODES.Q)
 class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
