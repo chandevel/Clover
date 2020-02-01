@@ -204,6 +204,7 @@ public class MultiImageView
 
     public void setMode(Loadable loadable, final Mode newMode, boolean center) {
         this.mode = newMode;
+        cancelLoad();
         waitForMeasure(this, view -> {
             switch (newMode) {
                 case LOWRES:
