@@ -13,7 +13,8 @@ import kotlin.math.abs
  * ThumbnailView, BigImageView, GifImageView and VideoView (or ExoplayerView).
  * */
 class MultiImageViewGestureDetector(
-        private val callbacks: MultiImageViewGestureDetectorCallbacks
+        private val callbacks: MultiImageViewGestureDetectorCallbacks,
+        private val gesturesEnabled: Boolean
 ) : SimpleOnGestureListener() {
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
@@ -38,6 +39,10 @@ class MultiImageViewGestureDetector(
     }
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, vx: Float, vy: Float): Boolean {
+        if (!gesturesEnabled) {
+            return false
+        }
+
         val bigImageView = callbacks.findBigImageView()
 
         val diffY = e2.y - e1.y

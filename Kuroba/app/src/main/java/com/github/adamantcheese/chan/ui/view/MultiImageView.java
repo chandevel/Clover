@@ -128,7 +128,7 @@ public class MultiImageView
 
     private GestureDetector gestureDetector = new GestureDetector(
             getContext(),
-            new MultiImageViewGestureDetector(this)
+            new MultiImageViewGestureDetector(this, ChanSettings.imageViewerGestures.get())
     );
 
     public MultiImageView(Context context) {

@@ -765,4 +765,6 @@ Don't have a 4chan Pass?<br>
     <string name="album_download_batch_image_processed_message">Downloaded %1$d out of %2$d (%3$d failed)</string>
     <string name="media_settings_image_click_preload_strategy_name">Image preload strategy</string>
     <string name="media_settings_image_click_preload_strategy_description">When opening up an image pager, determines what image(s) should be preloaded next.</string>
+    <string name="setting_image_viewer_gestures">Image Viewer gestures</string>
+    <string name="setting_image_viewer_gestures_description">Adds ability to use gestures to close (swipe-up) and save (swipe-bottom) an image/gif/webm when viewing them in gallery</string>
 </resources>
