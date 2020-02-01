@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
+import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -125,8 +126,7 @@ public class ImagePickDelegate {
         if (intents.size() == 1) {
             activity.startActivityForResult(intents.get(0), IMAGE_PICK_RESULT);
         } else if (intents.size() > 1) {
-            Intent chooser = Intent.createChooser(
-                    intents.remove(intents.size() - 1),
+            Intent chooser = Intent.createChooser(intents.remove(intents.size() - 1),
                     getString(R.string.image_pick_delegate_select_file_picker)
             );
 
@@ -140,13 +140,14 @@ public class ImagePickDelegate {
     }
 
     private void pickRemoteFile(ImagePickCallback callback) {
-        showToast(R.string.image_url_get_attempt);
-        HttpUrl clipboardURL = null;
+        CancellableToast toast = new CancellableToast();
+        toast.showToast(R.string.image_url_get_attempt);
+        HttpUrl clipboardURL;
         try {
-            clipboardURL =
-                    HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
+            //this is converted to a string again later, but this is an easy way of catching if the clipboard item is a URL
+            clipboardURL = HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
         } catch (Exception exception) {
-            showToast(getString(R.string.image_url_get_failed, exception.getMessage()));
+            toast.showToast(getString(R.string.image_url_get_failed, exception.getMessage()));
             callback.onFilePickError(true);
             reset();
 
@@ -155,45 +156,41 @@ public class ImagePickDelegate {
 
         HttpUrl finalClipboardURL = clipboardURL;
         if (cancelableDownload != null) {
-                        cancelableDownload.cancel();
-                        cancelableDownload = null;
+            cancelableDownload.cancel();
+            cancelableDownload = null;
+        }
+
+        cancelableDownload =
+                fileCacheV2.enqueueNormalDownloadFileRequest(clipboardURL.toString(), new FileCacheListener() {
+                    @Override
+                    public void onSuccess(RawFile file) {
+                        toast.showToast(R.string.image_url_get_success);
+                        Uri imageURL = Uri.parse(finalClipboardURL.toString());
+                        callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
                     }
 
-                    cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(clipboardURL.toString(), new FileCacheListener() {
-            @Override
-            public void onSuccess(RawFile file) {
-                BackgroundUtils.ensureMainThread();
+                    @Override
+                    public void onNotFound() {
+                        onFail(new IOException("Not found"));
+                    }
 
-                showToast(R.string.image_url_get_success);
-                Uri imageURL = Uri.parse(finalClipboardURL.toString());
-                callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
-                reset();
-            }
+                    @Override
+                    public void onFail(Exception exception) {
+                        String message = getString(R.string.image_url_get_failed, exception.getMessage());
 
-            @Override
-            public void onNotFound() {
-                                    onFail(new IOException("Not found"));
-                                }
+                        toast.showToast(message);
+                        callback.onFilePickError(true);
+                    }
 
-                                @Override
-                                public void onFail(Exception exception) {
-                BackgroundUtils.ensureMainThread();
-
-                String message = getString(R.string.image_url_get_failed, exception.getMessage());
-
-                                    showToast(message);
-                callback.onFilePickError(true);
-                reset();}
-            }
-        );
+                    @Override
+                    public void onEnd() {
+                        reset();
+                    }
+                });
     }
 
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (callback == null) {
-            return false;
-        }
-
-        if (requestCode != IMAGE_PICK_RESULT) {
+        if (callback == null || requestCode != IMAGE_PICK_RESULT) {
             return false;
         }
 
@@ -218,10 +215,7 @@ public class ImagePickDelegate {
                 // As per the comment on OpenableColumns.DISPLAY_NAME:
                 // If this is not provided then the name should default to the last segment of the file's URI.
                 fileName = uri.getLastPathSegment();
-            }
-
-            if (fileName == null) {
-                fileName = DEFAULT_FILE_NAME;
+                fileName = fileName == null ? DEFAULT_FILE_NAME : fileName;
             }
 
             executor.execute(this::run);
@@ -292,6 +286,7 @@ public class ImagePickDelegate {
             cancelableDownload.cancel();
             cancelableDownload = null;
         }
+        reset();
     }
 
     public interface ImagePickCallback {
