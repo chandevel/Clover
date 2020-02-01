@@ -799,7 +799,7 @@ Don't have a 4chan Pass?<br>
     <string name="setting_exclusion_zones_reset_zones_description">All exclusion zones will be deleted (The app will have to be restarted)</string>
     <string name="setting_exclusion_zones_can_only_be_used_on_android_10">Can only be used on Android 10 and above</string>
     <string name="setting_exclusion_zones_editor">Android 10 gesture exclusion zones</string>
-    <string name="setting_exclusion_zones_editor_description">Adjust zones where new Android 10 gestures will be disabled. \nYou will have to set 4 zones (Left/Right for Portrait/Landscape orientations). \nYou will have to rotate your phone/tablet to set zones for different orientations. \nYou will have to restart the app for the changes to get applied!!!</string>
+    <string name="setting_exclusion_zones_editor_description">Adjust zones where new Android 10 gestures will be disabled. \n\nYou will have to rotate your phone/tablet to set zones for different orientations. \nYou will have to restart the app for the changes to get applied!!!</string>
     <string name="setting_exclusion_zones_actions_dialog_title">Android 10 exclusion zones actions</string>
     <string name="setting_exclusion_zones_wrong_phone_orientation">Wrong phone orientation, you need to rotate your phone 90 degrees to any side before using this option</string>
     <string name="setting_exclusion_zones_edit_or_remove_zone_title">Edit or remove zone?</string>
