@@ -100,7 +100,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="@string/js_captcha_cookies_editor_reset" />
+                android:text="@string/reset" />
 
             <View
                 android:layout_width="0dp"
