@@ -54,7 +54,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 41;
+    private static final int DATABASE_VERSION = 42;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -289,7 +289,9 @@ public class DatabaseHelper
                 ));
                 List<Board> toRemove = where.query();
                 for (Board b : toRemove) {
-                    deleteBoard(b);
+                    if (b != null) {
+                        deleteBoard(b);
+                    }
                 }
 
                 //some descriptions changed for arisuchan
@@ -334,6 +336,22 @@ public class DatabaseHelper
             //enable the following as default for 4.10.2
             ChanSettings.parsePostImageLinks.set(true);
             ChanSettings.parseYoutubeTitles.set(true);
+        }
+
+        if (oldVersion < 42) {
+            try {
+                //remove wired-7 boards that don't exist anymore
+                Where where = boardsDao.queryBuilder().where();
+                where.and(where.eq("site", 6), where.eq("value", "18"));
+                List<Board> toRemove = where.query();
+                for (Board b : toRemove) {
+                    if (b != null) {
+                        deleteBoard(b);
+                    }
+                }
+            } catch (Exception e) {
+                Logger.e(TAG, "Error upgrading to version 42");
+            }
         }
     }
 
