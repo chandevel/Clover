@@ -141,8 +141,8 @@ public class TaimabaApi extends CommonSite.CommonApi {
                     break;
                 case "com":
                     postcom = reader.nextString();
-                    postcom = postcom.replaceAll(">>(\\d+)", "<a href=\"#$1\">&gt;$1</a>");
                     postcom = postcom.replaceAll(">(.*+)", "<blockquote class=\"unkfunc\">&gt;$1</blockquote>");
+                    postcom = postcom.replaceAll("<blockquote class=\"unkfunc\">&gt;>(\\d+)</blockquote>", "<a href=\"#$1\">&gt;&gt;$1</a>");
                     postcom = postcom.replaceAll("\n", "<br/>");
                     postcom = postcom.replaceAll("(?i)\\[b\\](.*?)\\[/b\\]", "<b>$1</b>");
                     postcom = postcom.replaceAll("(?i)\\[\\*\\*\\](.*?)\\[/\\*\\*\\]", "<b>$1</b>");
