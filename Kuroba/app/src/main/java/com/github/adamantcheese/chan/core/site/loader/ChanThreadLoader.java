@@ -38,6 +38,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
+import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderRequest;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
@@ -65,7 +66,7 @@ import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 /**
  * A ChanThreadLoader is the loader for Loadables.
- * <p>Obtain ChanLoaders with {@link com.github.adamantcheese.chan.core.pool.ChanLoaderFactory}.
+ * <p>Obtain ChanLoaders with {@link ChanLoaderManager}.
  * <p>ChanLoaders can load boards and threads, and return {@link ChanThread} objects on success, through
  * {@link ChanLoaderCallback}.
  * <p>For threads timers can be started with {@link #setTimer()} to do a request later.
@@ -102,7 +103,7 @@ public class ChanThreadLoader
     private ScheduledFuture<?> pendingFuture;
 
     /**
-     * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link com.github.adamantcheese.chan.core.pool.ChanLoaderFactory}</b>
+     * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link ChanLoaderManager}</b>
      * Also, do not use feather().instance(WatchManager.class) here because it will create a cyclic
      * dependency instantiation
      */

@@ -37,7 +37,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
-import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
@@ -134,7 +133,7 @@ public class WatchManager
     private final DatabaseManager databaseManager;
     private final DatabasePinManager databasePinManager;
     private final DatabaseSavedThreadManager databaseSavedThreadManager;
-    private final ChanLoaderFactory chanLoaderFactory;
+    private final ChanLoaderManager chanLoaderManager;
     private final WakeManager wakeManager;
     private final PageRequestManager pageRequestManager;
     private final ThreadSaveManager threadSaveManager;
@@ -152,7 +151,7 @@ public class WatchManager
     @Inject
     public WatchManager(
             DatabaseManager databaseManager,
-            ChanLoaderFactory chanLoaderFactory,
+            ChanLoaderManager chanLoaderManager,
             WakeManager wakeManager,
             PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
@@ -160,7 +159,7 @@ public class WatchManager
     ) {
         //retain local references to needed managers/factories/pins
         this.databaseManager = databaseManager;
-        this.chanLoaderFactory = chanLoaderFactory;
+        this.chanLoaderManager = chanLoaderManager;
         this.wakeManager = wakeManager;
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
@@ -1120,7 +1119,7 @@ public class WatchManager
             this.pin = pin;
 
             Logger.d(TAG, "created for " + pin.loadable.toString());
-            chanLoader = chanLoaderFactory.obtain(pin.loadable, watchManager, this);
+            chanLoader = chanLoaderManager.obtain(pin.loadable, watchManager, this);
             pageRequestManager.addListener(this);
         }
 
@@ -1177,7 +1176,7 @@ public class WatchManager
                         TAG,
                         "PinWatcher: destroyed for pin with id " + pin.id + " and loadable" + pin.loadable.toString()
                 );
-                chanLoaderFactory.release(chanLoader, this);
+                chanLoaderManager.release(chanLoader, this);
                 chanLoader = null;
             }
             pageRequestManager.removeListener(this);

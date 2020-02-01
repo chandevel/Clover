@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.core.kt_extensions
+package com.github.adamantcheese.chan.utils
 
 /**
  * Forces the kotlin compiler to require handling of all branches in the "when" operator

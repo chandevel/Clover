@@ -1,8 +1,8 @@
-package com.github.adamantcheese.chan.feature.report
+package com.github.adamantcheese.chan.ui.controller
 
 import android.content.Context
 import com.github.adamantcheese.chan.controller.Controller
-import com.github.adamantcheese.chan.ui.controller.LoadingViewController
+import com.github.adamantcheese.chan.ui.layout.ReportProblemLayout
 
 class ReportProblemController(context: Context)
     : Controller(context), ReportProblemLayout.ReportProblemControllerCallbacks {

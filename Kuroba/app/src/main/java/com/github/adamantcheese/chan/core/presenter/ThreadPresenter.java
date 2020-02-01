@@ -48,7 +48,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
-import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
+import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -120,7 +120,7 @@ public class ThreadPresenter
 
     private final WatchManager watchManager;
     private final DatabaseManager databaseManager;
-    private final ChanLoaderFactory chanLoaderFactory;
+    private final ChanLoaderManager chanLoaderManager;
     private final PageRequestManager pageRequestManager;
     private final ThreadSaveManager threadSaveManager;
     private final FileManager fileManager;
@@ -146,7 +146,7 @@ public class ThreadPresenter
     public ThreadPresenter(
             WatchManager watchManager,
             DatabaseManager databaseManager,
-            ChanLoaderFactory chanLoaderFactory,
+            ChanLoaderManager chanLoaderManager,
             PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
             FileCacheV2 fileCacheV2,
@@ -156,7 +156,7 @@ public class ThreadPresenter
     ) {
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
-        this.chanLoaderFactory = chanLoaderFactory;
+        this.chanLoaderManager = chanLoaderManager;
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
         this.fileManager = fileManager;
@@ -196,7 +196,7 @@ public class ThreadPresenter
             this.addToLocalBackHistory = addToLocalBackHistory;
 
             startSavingThreadIfItIsNotBeingSaved(this.loadable);
-            chanLoader = chanLoaderFactory.obtain(loadable, watchManager, this);
+            chanLoader = chanLoaderManager.obtain(loadable, watchManager, this);
             threadPresenterCallback.showLoading();
         }
     }
@@ -208,7 +208,7 @@ public class ThreadPresenter
     public void unbindLoadable() {
         if (chanLoader != null) {
             chanLoader.clearTimer();
-            chanLoaderFactory.release(chanLoader, this);
+            chanLoaderManager.release(chanLoader, this);
             chanLoader = null;
             loadable = null;
             historyAdded = false;

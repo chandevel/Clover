@@ -3,7 +3,7 @@ package com.github.adamantcheese.chan.core.cache
 import android.annotation.SuppressLint
 import com.github.adamantcheese.chan.core.cache.downloader.*
 import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
-import com.github.adamantcheese.chan.core.kt_extensions.exhaustive
+import com.github.adamantcheese.chan.utils.exhaustive
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
 import com.github.adamantcheese.chan.core.model.PostImage
 import com.github.adamantcheese.chan.core.model.orm.Loadable

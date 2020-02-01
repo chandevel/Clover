@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.feature.report
+package com.github.adamantcheese.chan.ui.layout
 
 import android.content.Context
 import android.widget.FrameLayout
@@ -7,6 +7,8 @@ import androidx.appcompat.widget.AppCompatCheckBox
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.base.MResult
+import com.github.adamantcheese.chan.core.presenter.ReportProblemPresenter
+import com.github.adamantcheese.chan.ui.view.ReportProblemView
 import com.github.adamantcheese.chan.ui.controller.LogsController
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
 import com.github.adamantcheese.chan.utils.AndroidUtils.showToast

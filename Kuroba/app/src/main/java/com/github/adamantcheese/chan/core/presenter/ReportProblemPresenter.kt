@@ -1,10 +1,11 @@
-package com.github.adamantcheese.chan.feature.report
+package com.github.adamantcheese.chan.core.presenter
 
 import android.os.Build
 import com.github.adamantcheese.chan.BuildConfig
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.core.base.BasePresenter
 import com.github.adamantcheese.chan.core.base.MResult
+import com.github.adamantcheese.chan.ui.view.ReportProblemView
 import com.github.adamantcheese.chan.utils.Logger
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName

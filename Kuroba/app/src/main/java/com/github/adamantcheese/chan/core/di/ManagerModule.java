@@ -30,7 +30,7 @@ import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
-import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
+import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
@@ -74,24 +74,23 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public ChanLoaderFactory provideChanLoaderFactory() {
+    public ChanLoaderManager provideChanLoaderFactory() {
         Logger.d(AppModule.DI_TAG, "Chan loader factory");
-        return new ChanLoaderFactory();
+        return new ChanLoaderManager();
     }
 
     @Provides
     @Singleton
     public WatchManager provideWatchManager(
             DatabaseManager databaseManager,
-            ChanLoaderFactory chanLoaderFactory,
+            ChanLoaderManager chanLoaderManager,
             WakeManager wakeManager,
             PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
-        return new WatchManager(databaseManager,
-                chanLoaderFactory,
+        return new WatchManager(databaseManager, chanLoaderManager,
                 wakeManager,
                 pageRequestManager,
                 threadSaveManager,
@@ -112,15 +111,14 @@ public class ManagerModule {
             WakeManager wakeManager,
             FilterEngine filterEngine,
             WatchManager watchManager,
-            ChanLoaderFactory chanLoaderFactory,
+            ChanLoaderManager chanLoaderManager,
             BoardRepository boardRepository,
             DatabaseManager databaseManager
     ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
         return new FilterWatchManager(wakeManager,
                 filterEngine,
-                watchManager,
-                chanLoaderFactory,
+                watchManager, chanLoaderManager,
                 boardRepository,
                 databaseManager
         );
