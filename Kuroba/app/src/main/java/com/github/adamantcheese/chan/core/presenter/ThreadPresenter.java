@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
@@ -56,6 +57,7 @@ import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.MockReplyManager;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -114,6 +116,7 @@ public class ThreadPresenter
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
     private static final int POST_OPTION_EXTRA = 15;
     private static final int POST_OPTION_REMOVE = 16;
+    private static final int POST_OPTION_MOCK_REPLY = 17;
 
     private final WatchManager watchManager;
     private final DatabaseManager databaseManager;
@@ -123,6 +126,7 @@ public class ThreadPresenter
     private final FileManager fileManager;
     private final FileCacheV2 fileCacheV2;
     private final CacheHandler cacheHandler;
+    private final MockReplyManager mockReplyManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
@@ -145,9 +149,10 @@ public class ThreadPresenter
             ChanLoaderFactory chanLoaderFactory,
             PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
-            FileManager fileManager,
             FileCacheV2 fileCacheV2,
-            CacheHandler cacheHandler
+            CacheHandler cacheHandler,
+            FileManager fileManager,
+            MockReplyManager mockReplyManager
     ) {
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
@@ -157,6 +162,7 @@ public class ThreadPresenter
         this.fileManager = fileManager;
         this.fileCacheV2 = fileCacheV2;
         this.cacheHandler = cacheHandler;
+        this.mockReplyManager = mockReplyManager;
     }
 
     public void create(ThreadPresenterCallback threadPresenterCallback) {
@@ -908,6 +914,10 @@ public class ThreadPresenter
         if (!loadable.isLocal()) {
             boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
             extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, isSaved ? R.string.unsave : R.string.save));
+
+            if (BuildConfig.DEV_BUILD && loadable.no > 0) {
+                extraMenu.add(new FloatingMenuItem(POST_OPTION_MOCK_REPLY, R.string.mock_reply));
+            }
         }
 
         return POST_OPTION_EXTRA;
@@ -1011,6 +1021,11 @@ public class ThreadPresenter
                         );
                     }
                 }
+                break;
+            case POST_OPTION_MOCK_REPLY:
+                mockReplyManager.addMockReply(post.board.siteId, post.board.code, loadable.no, post.no);
+                //force reload to display the change
+                requestData();
                 break;
         }
     }

@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.site.parser;
 
 import android.graphics.Typeface;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
@@ -34,6 +35,7 @@ import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -47,16 +49,24 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParser {
+    private static final String TAG = "CommentParser";
+
     private static final String SAVED_REPLY_SELF_SUFFIX = " (Me)";
     private static final String SAVED_REPLY_OTHER_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
     private static final String EXTERN_THREAD_LINK_SUFFIX = " \u2192"; // arrow to the right
+
+    @Inject
+    MockReplyManager mockReplyManager;
 
     private Pattern fullQuotePattern = Pattern.compile("/(\\w+)/\\w+/(\\d+)#p(\\d+)");
     private Pattern quotePattern = Pattern.compile(".*#p(\\d+)");
@@ -64,10 +74,11 @@ public class CommentParser {
     private Pattern boardLinkPattern8Chan = Pattern.compile("/(.*?)/index.html");
     private Pattern boardSearchPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/catalog#s=(.*)");
     private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
-
     private Map<String, List<StyleRule>> rules = new HashMap<>();
 
     public CommentParser() {
+        inject(this);
+
         // Required tags.
         rule(tagRule("p"));
         rule(tagRule("div"));
@@ -146,39 +157,76 @@ public class CommentParser {
     ) {
         CommentParser.Link handlerLink = matchAnchor(post, text, anchor, callback);
 
-        if (handlerLink != null) {
-            if (handlerLink.type == PostLinkable.Type.THREAD) {
-                handlerLink.key = TextUtils.concat(handlerLink.key, EXTERN_THREAD_LINK_SUFFIX);
-            }
+        MockReplyManager.MockReply mockReply =
+                mockReplyManager.getLastMockReply(post.board.siteId, post.board.code, post.opId);
 
-            if (handlerLink.type == PostLinkable.Type.QUOTE) {
-                int postNo = (int) handlerLink.value;
-                post.addReplyTo(postNo);
+        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
 
-                // Append (OP) when it's a reply to OP
-                if (postNo == post.opId) {
-                    handlerLink.key = TextUtils.concat(handlerLink.key, OP_REPLY_SUFFIX);
-                }
-
-                // Append (You) when it's a reply to a saved reply, (Me) if it's a self reply
-                if (callback.isSaved(postNo)) {
-                    if (post.isSavedReply) {
-                        handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_SELF_SUFFIX);
-                    } else {
-                        handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_OTHER_SUFFIX);
-                    }
-                }
-            }
-
-            SpannableString res = new SpannableString(handlerLink.key);
-            PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
-            res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
-            post.addLinkable(pl);
-
-            return res;
-        } else {
-            return null;
+        if (mockReply != null) {
+            addMockReply(theme, post, spannableStringBuilder, mockReply);
         }
+
+        if (handlerLink != null) {
+            addReply(theme, callback, post, handlerLink, spannableStringBuilder);
+        }
+
+        return spannableStringBuilder.length() > 0 ? spannableStringBuilder : null;
+    }
+
+    private void addReply(
+            Theme theme,
+            PostParser.Callback callback,
+            Post.Builder post,
+            Link handlerLink,
+            SpannableStringBuilder spannableStringBuilder
+    ) {
+        if (handlerLink.type == PostLinkable.Type.THREAD) {
+            handlerLink.key = TextUtils.concat(handlerLink.key, EXTERN_THREAD_LINK_SUFFIX);
+        }
+
+        if (handlerLink.type == PostLinkable.Type.QUOTE) {
+            int postNo = (int) handlerLink.value;
+            post.addReplyTo(postNo);
+
+            // Append (OP) when it's a reply to OP
+            if (postNo == post.opId) {
+                handlerLink.key = TextUtils.concat(handlerLink.key, OP_REPLY_SUFFIX);
+            }
+
+            // Append (You) when it's a reply to a saved reply, (Me) if it's a self reply
+            if (callback.isSaved(postNo)) {
+                if (post.isSavedReply) {
+                    handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_SELF_SUFFIX);
+                } else {
+                    handlerLink.key = TextUtils.concat(handlerLink.key, SAVED_REPLY_OTHER_SUFFIX);
+                }
+            }
+        }
+
+        SpannableString res = new SpannableString(handlerLink.key);
+        PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
+        res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
+        post.addLinkable(pl);
+
+        spannableStringBuilder.append(res);
+    }
+
+    private void addMockReply(
+            Theme theme,
+            Post.Builder post,
+            SpannableStringBuilder spannableStringBuilder,
+            MockReplyManager.MockReply mockReply
+    ) {
+        Logger.d(TAG, "Adding a new mock reply (replyTo: " + mockReply.getPostNo() + ", replyFrom: " + post.id + ")");
+        post.addReplyTo(mockReply.getPostNo());
+
+        CharSequence replyText = ">>" + mockReply.getPostNo() + " (MOCK)";
+        SpannableString res = new SpannableString(replyText);
+        PostLinkable pl = new PostLinkable(theme, replyText, mockReply.getPostNo(), PostLinkable.Type.QUOTE);
+        res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
+        post.addLinkable(pl);
+
+        spannableStringBuilder.append(res).append('\n');
     }
 
     private CharSequence handleFortune(

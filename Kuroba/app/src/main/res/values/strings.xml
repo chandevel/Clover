@@ -784,4 +784,6 @@ Don't have a 4chan Pass?<br>
     <string name="settings_js_captcha_cookies_title">JS captcha cookies</string>
     <string name="settings_js_captcha_cookies_description">By inputting your desktop browser captcha cookies, captcha solving may become easier</string>
     <string name="cookies_editor_bad_cookie">%1$s cookie is not set!</string>
+
+    <string name="mock_reply">Mock reply</string>
 </resources>

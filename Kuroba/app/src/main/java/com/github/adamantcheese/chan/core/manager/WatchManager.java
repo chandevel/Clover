@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.ServerError;
@@ -66,6 +67,8 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.BACKGROUND;
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.FOREGROUND;
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.NONE;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ALL_POSTS;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ONLY_QUOTES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.isInForeground;
@@ -344,10 +347,12 @@ public class WatchManager
 
         for (SavedThread savedThread : savedThreads) {
             if (savedThread.loadableId == loadableId) {
+                // Found in cache
                 return savedThread;
             }
         }
 
+        // Not found in cache, add to cache if exists
         SavedThread savedThread =
                 databaseManager.runTask(databaseSavedThreadManager.getSavedThreadByLoadableId(loadableId));
 
@@ -707,20 +712,23 @@ public class WatchManager
         updateIntervals(watchEnabled, backgroundEnabled);
 
         // Update pin watchers
-        boolean hasAtLeastOneActivePin = updatePinWatchers();
+        boolean hasAtLeastOneActivePinOrPinWithUnreadPosts = updatePinWatchers();
 
         // Update notification state
         // Do not start the service when all pins are either stopped or fully downloaded
         // or archived/404ed
-        if (watchEnabled && backgroundEnabled && hasAtLeastOneActivePin) {
-            getAppContext().startService(WATCH_NOTIFICATION_INTENT);
+        if (watchEnabled && backgroundEnabled && hasAtLeastOneActivePinOrPinWithUnreadPosts) {
+            // To make sure that we won't blow up when starting a service while the app is in
+            // background we have to use this method which will call context.startForegroundService()
+            // that allows an app to start a service (which must then call StartForeground in it's
+            // onCreate method) while being in background.
+            ContextCompat.startForegroundService(getAppContext(), WATCH_NOTIFICATION_INTENT);
         } else {
             getAppContext().stopService(WATCH_NOTIFICATION_INTENT);
         }
     }
 
     private boolean updatePinWatchers() {
-        boolean hasAtLeastOneActivePin = false;
         List<Pin> pinsToUpdateInDatabase = new ArrayList<>();
 
         for (Pin pin : pins) {
@@ -736,18 +744,6 @@ public class WatchManager
                 pinsToUpdateInDatabase.add(pin);
             }
 
-            if (PinType.hasDownloadFlag(pin.pinType)) {
-                // If pin is still downloading posts - it is active
-                if (savedThread != null && (!savedThread.isStopped && !savedThread.isFullyDownloaded)) {
-                    hasAtLeastOneActivePin = true;
-                }
-            }
-
-            // If pin is not archived/404ed and we are watching it - it is active
-            if (!pin.isError && !pin.archived && pin.watching) {
-                hasAtLeastOneActivePin = true;
-            }
-
             if (ChanSettings.watchEnabled.get()) {
                 createPinWatcher(pin);
             } else {
@@ -759,7 +755,62 @@ public class WatchManager
             updatePins(pinsToUpdateInDatabase, false);
         }
 
-        return hasAtLeastOneActivePin;
+        return hasActiveOrUnreadPins();
+    }
+
+    private boolean hasActiveOrUnreadPins() {
+        boolean hasAtLeastOneActivePin = false;
+        boolean hasAtLeastOnePinWithUnreadPosts = false;
+        boolean hasActiveLocalThread = false;
+
+        for (Pin pin : pins) {
+            if (PinType.hasDownloadFlag(pin.pinType)) {
+                SavedThread savedThread = findSavedThreadByLoadableId(pin.loadable.id);
+                // If pin is still downloading posts - it is active
+                if (savedThread != null && (!savedThread.isStopped && !savedThread.isFullyDownloaded)) {
+                    hasAtLeastOneActivePin = true;
+
+                    // FIXME: This is a hack for ThreadSaveManager. Without this hack, when the user
+                    //  selects to only notify him about quotes to his posts, ThreadSaveManager will
+                    //  never be started when the app is in background. That's because the service
+                    //  will only be started when somebody quotes the user. So in this case we
+                    //  need to ignore the ChanSettings.watchNotifyMode setting. So, when you have
+                    //  watchNotifyMode set to only notify you about quotes to your posts and you
+                    //  have at least one thread being downloaded, the watchNotifyMode setting will
+                    //  be ignored and it will behave the same as if it was set to NOTIFY_ALL_POSTS.
+                    //  To fix this we will have to move ThreadSaveManager into a separate service.
+                    //  Or move it out from WatchNotification service to WatchManager.
+                    if (!pin.isError && !pin.archived) {
+                        hasActiveLocalThread = true;
+                    }
+                }
+            }
+
+            // If pin is not archived/404ed and we are watching it - it is active
+            if (!pin.isError && !pin.archived && pin.watching) {
+                hasAtLeastOneActivePin = true;
+
+                if (ChanSettings.watchNotifyMode.get().equals(NOTIFY_ALL_POSTS)) {
+                    // This check is here so we can stop the foreground service when the user has read
+                    // every post in every active pin.
+                    if (pin.watchLastCount != pin.watchNewCount || pin.quoteLastCount != pin.quoteNewCount) {
+                        hasAtLeastOnePinWithUnreadPosts = true;
+                    }
+                } else if (ChanSettings.watchNotifyMode.get().equals(NOTIFY_ONLY_QUOTES)) {
+                    // Only check for quotes in case of the watchNotifyMode setting being set to
+                    // only quotes
+                    if (pin.quoteLastCount != pin.quoteNewCount) {
+                        hasAtLeastOnePinWithUnreadPosts = true;
+                    }
+                }
+            }
+
+            if ((hasAtLeastOneActivePin && hasAtLeastOnePinWithUnreadPosts) || hasActiveLocalThread) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void updateIntervals(boolean watchEnabled, boolean backgroundEnabled) {
