@@ -21,6 +21,7 @@ import android.content.Context;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
+import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
@@ -30,7 +31,6 @@ import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
-import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
@@ -90,7 +90,8 @@ public class ManagerModule {
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
-        return new WatchManager(databaseManager, chanLoaderManager,
+        return new WatchManager(databaseManager,
+                chanLoaderManager,
                 wakeManager,
                 pageRequestManager,
                 threadSaveManager,
@@ -118,7 +119,8 @@ public class ManagerModule {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
         return new FilterWatchManager(wakeManager,
                 filterEngine,
-                watchManager, chanLoaderManager,
+                watchManager,
+                chanLoaderManager,
                 boardRepository,
                 databaseManager
         );

@@ -21,7 +21,6 @@ import android.os.Looper;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;

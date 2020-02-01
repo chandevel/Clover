@@ -457,8 +457,7 @@ public class MediaSettingsController
             return;
         }
 
-        String moveThreadsDescription = getString(
-                R.string.media_settings_move_threads_to_new_dir_description,
+        String moveThreadsDescription = getString(R.string.media_settings_move_threads_to_new_dir_description,
                 oldBaseDirectory.getFullPath(),
                 newBaseDirectory.getFullPath()
         );
@@ -511,8 +510,7 @@ public class MediaSettingsController
             return;
         }
 
-        String moveFilesDescription = getString(
-                R.string.media_settings_move_saved_files_to_new_dir_description,
+        String moveFilesDescription = getString(R.string.media_settings_move_saved_files_to_new_dir_description,
                 oldBaseDirectory.getFullPath(),
                 newBaseDirectory.getFullPath()
         );
@@ -562,7 +560,10 @@ public class MediaSettingsController
     ) {
         AlertDialog alertDialog =
                 new AlertDialog.Builder(context).setTitle(getString(R.string.media_settings_would_you_like_to_delete_file_in_old_dir))
-                        .setMessage(getString(R.string.media_settings_file_have_been_copied, oldBaseDirectory.getFullPath()))
+                        .setMessage(getString(
+                                R.string.media_settings_file_have_been_copied,
+                                oldBaseDirectory.getFullPath()
+                        ))
                         .setPositiveButton(R.string.delete,
                                 (dialog, which) -> onDeleteOldFilesClicked(oldBaseDirectory)
                         )
