@@ -37,9 +37,12 @@ import com.github.k1rakishou.fsaf.manager.base_directory.DirectoryManager;
 
 import org.codejargon.feather.Provides;
 
+import java.io.File;
+
 import javax.inject.Singleton;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ReplaceBadSymbols;
 import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ThrowAnException;
 
@@ -125,5 +128,14 @@ public class AppModule {
     @Singleton
     public FileChooser provideFileChooser() {
         return new FileChooser(applicationContext);
+    }
+
+    static File getCacheDir() {
+        // See also res/xml/filepaths.xml for the fileprovider.
+        if (getAppContext().getExternalCacheDir() != null) {
+            return getAppContext().getExternalCacheDir();
+        } else {
+            return getAppContext().getCacheDir();
+        }
     }
 }

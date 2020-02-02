@@ -19,8 +19,10 @@ package com.github.adamantcheese.chan;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 
+import com.github.adamantcheese.chan.core.cache.downloader.FileCacheException;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.di.DatabaseModule;
@@ -32,6 +34,8 @@ import com.github.adamantcheese.chan.core.di.SiteModule;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
+import com.github.adamantcheese.chan.core.manager.ReportManager;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -39,12 +43,15 @@ import com.github.adamantcheese.chan.utils.Logger;
 import org.codejargon.feather.Feather;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import javax.inject.Inject;
 
 import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getIsOfficial;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static java.lang.Thread.currentThread;
 
@@ -61,6 +68,9 @@ public class Chan
 
     @Inject
     BoardManager boardManager;
+
+    @Inject
+    ReportManager reportManager;
 
     private static Feather feather;
 
@@ -108,12 +118,21 @@ public class Chan
             if (e instanceof UndeliverableException) {
                 e = e.getCause();
             }
+
+            if (e == null) {
+                return;
+            }
+
             if (e instanceof IOException) {
                 // fine, irrelevant network problem or API that throws on cancellation
                 return;
             }
             if (e instanceof InterruptedException) {
                 // fine, some blocking code was interrupted by a dispose call
+                return;
+            }
+            if (e instanceof FileCacheException.CancellationException) {
+                // fine, sometimes they get through all the checks but it doesn't really matter
                 return;
             }
             if ((e instanceof NullPointerException) || (e instanceof IllegalArgumentException)) {
@@ -127,8 +146,43 @@ public class Chan
                 return;
             }
 
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+
+            onUnhandledException(sw.toString());
             Logger.e("APP", "RxJava undeliverable exception", e);
         });
+
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            //if there's any uncaught crash stuff, just dump them to the log and exit immediately
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String errorText = sw.toString();
+
+            Logger.e("UNCAUGHT", errorText);
+            Logger.e("UNCAUGHT", "------------------------------");
+            Logger.e("UNCAUGHT", "END OF CURRENT RUNTIME MESSAGES");
+            Logger.e("UNCAUGHT", "------------------------------");
+            Logger.e("UNCAUGHT", "Android API Level: " + Build.VERSION.SDK_INT);
+            Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME);
+            Logger.e("UNCAUGHT", "Development Build: " + (getIsOfficial() ? "No" : "Yes"));
+            Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
+            onUnhandledException(errorText);
+
+            System.exit(999);
+        });
+
+        if (ChanSettings.autoCrashLogsUpload.get()) {
+            reportManager.sendCollectedCrashLogs();
+        }
+    }
+
+    private void onUnhandledException(String error) {
+        if (ChanSettings.autoCrashLogsUpload.get()) {
+            reportManager.storeCrashLog(error);
+        }
     }
 
     private void activityEnteredForeground() {

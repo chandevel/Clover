@@ -786,4 +786,8 @@ Don't have a 4chan Pass?<br>
     <string name="cookies_editor_bad_cookie">%1$s cookie is not set!</string>
 
     <string name="mock_reply">Mock reply</string>
+    <string name="settings_report">Report</string>
+    <string name="settings_report_description">Report a problem/crash</string>
+    <string name="settings_auto_crash_report">Automatic crash reporting</string>
+    <string name="settings_auto_crash_report_description">By enabling this setting, all collected crash logs will be uploaded automatically on every app restart. Crash reports only collect the crash log itself, app version and basic OS information.</string>
 </resources>

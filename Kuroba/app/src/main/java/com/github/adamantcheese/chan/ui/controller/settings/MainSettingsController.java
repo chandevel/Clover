@@ -22,10 +22,12 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.SettingsPresenter;
-import com.github.adamantcheese.chan.ui.controller.ReportProblemController;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
 import com.github.adamantcheese.chan.ui.controller.LicensesController;
+import com.github.adamantcheese.chan.ui.controller.ReportProblemController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
+import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
@@ -161,9 +163,17 @@ public class MainSettingsController
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
         ));
 
-        about.add(new LinkSettingView(this, "Report", "Report a problem/crash", v -> {
+        about.add(new LinkSettingView(this, R.string.settings_report, R.string.settings_report_description, v -> {
             navigationController.presentController(new ReportProblemController(context));
         }));
+        about.add(
+                new BooleanSettingView(
+                        this,
+                        ChanSettings.autoCrashLogsUpload,
+                        R.string.settings_auto_crash_report,
+                        R.string.settings_auto_crash_report_description
+                )
+        );
 
         about.add(new LinkSettingView(this,
                 "Find " + getApplicationLabel() + " on GitHub",
