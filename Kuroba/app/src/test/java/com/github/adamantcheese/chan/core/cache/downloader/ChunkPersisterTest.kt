@@ -65,7 +65,7 @@ class ChunkPersisterTest {
     @Test
     fun `test try store two chunks one chunk fails`() {
         val url = "http://testUrl.com/123.jpg"
-        val fileBytes = javaClass.classLoader.getResourceAsStream("test_img1.jpg").readBytes()
+        val fileBytes = javaClass.classLoader!!.getResourceAsStream("test_img1.jpg").readBytes()
         val chunksCount = 2
         val chunks = chunkLong(fileBytes.size.toLong(), chunksCount, MIN_CHUNK_SIZE)
         val chunkResponses = createChunkResponses(url, chunks, fileBytes)
@@ -121,7 +121,7 @@ class ChunkPersisterTest {
     @Test
     fun `test store two chunks on the disk both succeed`() {
         val url = "http://testUrl.com/123.jpg"
-        val fileBytes = javaClass.classLoader.getResourceAsStream("test_img1.jpg").readBytes()
+        val fileBytes = javaClass.classLoader!!.getResourceAsStream("test_img1.jpg").readBytes()
         val chunksCount = 2
         val chunks = chunkLong(fileBytes.size.toLong(), chunksCount, MIN_CHUNK_SIZE)
         val chunkResponses = createChunkResponses(url, chunks, fileBytes)
