@@ -96,7 +96,8 @@ public class ManagerModule {
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
-        return new WatchManager(databaseManager, chanLoaderManager,
+        return new WatchManager(databaseManager,
+                chanLoaderManager,
                 wakeManager,
                 pageRequestManager,
                 threadSaveManager,
@@ -124,7 +125,8 @@ public class ManagerModule {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
         return new FilterWatchManager(wakeManager,
                 filterEngine,
-                watchManager, chanLoaderManager,
+                watchManager,
+                chanLoaderManager,
                 boardRepository,
                 databaseManager
         );

@@ -30,6 +30,11 @@ internal class ChunkMerger(
                         "chunks count = ${chunkSuccessEvents.size}")
             }
 
+            val isRunning = activeDownloads.get(url)?.cancelableDownload?.isRunning() ?: false
+            if (!isRunning) {
+                activeDownloads.throwCancellationException(url)
+            }
+
             try {
                 // Must be sorted in ascending order!!!
                 val sortedChunkEvents = chunkSuccessEvents.sortedBy { event -> event.chunk.start }

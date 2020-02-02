@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.core.site.sites.dvach;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;

@@ -205,6 +205,10 @@ public class MultiImageView
     public void setMode(Loadable loadable, final Mode newMode, boolean center) {
         this.mode = newMode;
         waitForMeasure(this, view -> {
+            if (getWidth() == 0 || getHeight() == 0 || !isLaidOut()) {
+                Logger.e(TAG, "getWidth() or getHeight() returned 0, or view not laid out, not loading");
+                return false;
+            }
             switch (newMode) {
                 case LOWRES:
                     setThumbnail(loadable, postImage, center);
@@ -279,10 +283,7 @@ public class MultiImageView
     }
 
     private void setThumbnail(Loadable loadable, PostImage postImage, boolean center) {
-        if (getWidth() == 0 || getHeight() == 0) {
-            Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
-            return;
-        }
+        BackgroundUtils.ensureMainThread();
 
         if (thumbnailRequest != null) {
             return;
@@ -323,11 +324,6 @@ public class MultiImageView
 
     private void setBigImage(Loadable loadable, PostImage postImage) {
         BackgroundUtils.ensureMainThread();
-
-        if (getWidth() == 0 || getHeight() == 0) {
-            Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading big image");
-            return;
-        }
 
         if (bigImageRequest != null) {
             return;
@@ -388,11 +384,6 @@ public class MultiImageView
 
     private void setGif(Loadable loadable, PostImage postImage) {
         BackgroundUtils.ensureMainThread();
-
-        if (getWidth() == 0 || getHeight() == 0) {
-            Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
-            return;
-        }
 
         if (gifRequest != null) {
             return;
@@ -486,6 +477,7 @@ public class MultiImageView
 
     private void setVideo(Loadable loadable, PostImage postImage) {
         BackgroundUtils.ensureMainThread();
+
         if (ChanSettings.videoStream.get()) {
             openVideoInternalStream(postImage.imageUrl.toString());
         } else {

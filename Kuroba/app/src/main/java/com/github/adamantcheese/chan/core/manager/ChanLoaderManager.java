@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.manager;
 
 import android.util.LruCache;
 
-import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.utils.Logger;
