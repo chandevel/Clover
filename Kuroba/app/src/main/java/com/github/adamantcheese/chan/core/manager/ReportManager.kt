@@ -83,17 +83,21 @@ class ReportManager(
 
     private fun processSingleRequest(request: ReportRequest, crashLogFile: File): Single<MResult<Boolean>> {
         return sendInternal(request)
-                .doOnSuccess {
-                    Logger.d(TAG, "Crash log ${crashLogFile.absolutePath} sent")
+                .onErrorReturn { error -> MResult.error(error) }
+                .doOnSuccess { result ->
+                    when (result) {
+                        is MResult.Value -> {
+                            Logger.d(TAG, "Crash log ${crashLogFile.absolutePath} sent")
 
-                    if (!crashLogFile.delete()) {
-                        Logger.e(TAG, "Couldn't delete crash log file: ${crashLogFile.absolutePath}")
+                            if (!crashLogFile.delete()) {
+                                Logger.e(TAG, "Couldn't delete crash log file: ${crashLogFile.absolutePath}")
+                            }
+                        }
+                        is MResult.Error -> {
+                            Logger.e(TAG, "Error while trying to send crash log", result.error)
+                        }
                     }
                 }
-                .doOnError { error ->
-                    Logger.e(TAG, "Error while trying to send crash log", error)
-                }
-                .onErrorReturn { error -> MResult.error(error) }
     }
 
     fun storeCrashLog(error: String) {
@@ -131,30 +135,32 @@ class ReportManager(
 
         potentialCrashLogs.asSequence()
                 .filter { file -> file.name.startsWith(CRASH_LOG_FILE_NAME_PREFIX) }
-                .map { file ->
-                    val log = try {
-                        file.readText()
-                    } catch (error: Throwable) {
-                        Logger.e(TAG, "Error reading crash log file", error)
-                        return@map null
-                    }
-
-                    val request = ReportRequest(
-                            buildFlavor = BuildConfig.FLAVOR,
-                            versionName = BuildConfig.VERSION_NAME,
-                            osInfo = getOsInfo(),
-                            title = "Crash report",
-                            description = "No title",
-                            logs = log
-                    )
-
-                    return@map ReportRequestWithFile(
-                            reportRequest = request,
-                            crashLogFile = file
-                    )
-                }
+                .map { file -> createReportRequest(file) }
                 .filterNotNull()
                 .forEach { request -> crashLogSenderQueue.onNext(request) }
+    }
+
+    private fun createReportRequest(file: File): ReportRequestWithFile? {
+        val log = try {
+            file.readText()
+        } catch (error: Throwable) {
+            Logger.e(TAG, "Error reading crash log file", error)
+            return null
+        }
+
+        val request = ReportRequest(
+                buildFlavor = BuildConfig.FLAVOR,
+                versionName = BuildConfig.VERSION_NAME,
+                osInfo = getOsInfo(),
+                title = "Crash report",
+                description = "No title",
+                logs = log
+        )
+
+        return ReportRequestWithFile(
+                reportRequest = request,
+                crashLogFile = file
+        )
     }
 
     fun sendReport(title: String, description: String, logs: String?): Single<MResult<Boolean>> {

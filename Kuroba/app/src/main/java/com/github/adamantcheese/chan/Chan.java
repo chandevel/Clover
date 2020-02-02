@@ -146,20 +146,13 @@ public class Chan
                 return;
             }
 
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-
-            onUnhandledException(sw.toString());
+            onUnhandledException(exceptionToString(e));
             Logger.e("APP", "RxJava undeliverable exception", e);
         });
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             //if there's any uncaught crash stuff, just dump them to the log and exit immediately
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            String errorText = sw.toString();
+            String errorText = exceptionToString(e);
 
             Logger.e("UNCAUGHT", errorText);
             Logger.e("UNCAUGHT", "------------------------------");
@@ -176,6 +169,17 @@ public class Chan
 
         if (ChanSettings.autoCrashLogsUpload.get()) {
             reportManager.sendCollectedCrashLogs();
+        }
+    }
+
+    private String exceptionToString(Throwable e) {
+        try (StringWriter sw = new StringWriter()) {
+            try (PrintWriter pw = new PrintWriter(sw)) {
+                e.printStackTrace(pw);
+                return sw.toString();
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException("Error while trying to convert exception to string!", ex);
         }
     }
 
