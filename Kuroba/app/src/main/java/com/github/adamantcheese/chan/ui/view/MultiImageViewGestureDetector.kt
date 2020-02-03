@@ -18,6 +18,10 @@ class MultiImageViewGestureDetector(
 ) : SimpleOnGestureListener() {
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+        if(!ChanSettings.imageViewerGestures.get()) {
+            callbacks.onTap()
+            return true
+        }
         val gifImageView = callbacks.findGifImageView()
         if (gifImageView != null) {
             // If a GifImageView is visible then toggle it's play state
@@ -34,6 +38,25 @@ class MultiImageViewGestureDetector(
         }
 
         return true
+    }
+
+    override fun onDoubleTap(e: MotionEvent?): Boolean {
+        if(!ChanSettings.imageViewerGestures.get()) {
+            val gifImageView = callbacks.findGifImageView()
+            if (gifImageView != null) {
+                // If a GifImageView is visible then toggle it's play state
+                val drawable = gifImageView.drawable as GifDrawable
+                if (drawable.isPlaying) {
+                    drawable.pause()
+                } else {
+                    drawable.start()
+                }
+            } else if (callbacks.findVideoPlayerView() != null) {
+                callbacks.onTap()
+            }
+            return true
+        }
+        return false
     }
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, vx: Float, vy: Float): Boolean {
