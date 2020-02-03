@@ -27,7 +27,9 @@ import com.github.adamantcheese.chan.core.site.Site;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Chan420BoardsRequest extends JsonReaderRequest<List<Board>> {
     private final Site site;
@@ -71,12 +73,23 @@ public class Chan420BoardsRequest extends JsonReaderRequest<List<Board>> {
         board.siteId = site.id();
         board.site = site;
 
+        Map<String, Integer> fileSizeLimit = new HashMap<String, Integer>();
+        fileSizeLimit.put("f", 40960 * 1024);
+        fileSizeLimit.put("m", 40960 * 1024);
+        fileSizeLimit.put("h", 40960 * 1024);
+        fileSizeLimit.put("wooo", 204800 * 1024);
+
         while (reader.hasNext()) {
             String key = reader.nextName();
 
             switch (key) {
                 case "board":
                     board.code = reader.nextString();
+                    if (fileSizeLimit.containsKey(board.code)) {
+                        board.maxFileSize = fileSizeLimit.get(board.code);
+                    } else {
+                        board.maxFileSize = 20480 * 1024;
+                    }
                     break;
                 case "title":
                     board.description = reader.nextString();
