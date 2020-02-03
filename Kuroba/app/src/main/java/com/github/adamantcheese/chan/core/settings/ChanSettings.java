@@ -411,7 +411,7 @@ public class ChanSettings {
                     "image_viewer_gestures",
                     true
             );
-            allowFilePickChooser = new BooleanSetting(p, "allow_file_picker_chooser", true);
+            allowFilePickChooser = new BooleanSetting(p, "allow_file_picker_chooser", false);
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.
