@@ -244,7 +244,7 @@ public class MultiImageView
     }
 
     @Override
-    public void onPlayerTogglePlayState() {
+    public void togglePlayState() {
         if (exoPlayer != null) {
             exoPlayer.setPlayWhenReady(!exoPlayer.getPlayWhenReady());
         }
@@ -492,6 +492,10 @@ public class MultiImageView
             @Override
             public void onMediaSourceReady(@Nullable MediaSource source) {
                 BackgroundUtils.ensureMainThread();
+                if (source == null) {
+                    onError(new IllegalArgumentException("Source is null"));
+                    return;
+                }
 
                 synchronized (MultiImageView.this) {
                     if (mediaSourceCancel) {
