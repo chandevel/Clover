@@ -110,13 +110,17 @@ public class ImageSaveTask
     }
 
     public Single<ImageSaver.BundledDownloadResult> run() {
+        BackgroundUtils.ensureBackgroundThread();
+
         @Nullable
         Action onDisposeFunc = null;
 
         try {
             if (fileManager.exists(destination)) {
-                onDestination();
-                onEnd();
+                runOnUiThread(() -> {
+                    onDestination();
+                    onEnd();
+                });
             } else {
                 CancelableDownload cancelableDownload =
                         fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, isBatchDownload, this);
@@ -140,6 +144,8 @@ public class ImageSaveTask
 
     @Override
     public void onSuccess(RawFile file) {
+        BackgroundUtils.ensureMainThread();
+
         if (copyToDestination(file)) {
             onDestination();
         } else {
@@ -149,11 +155,13 @@ public class ImageSaveTask
 
     @Override
     public void onFail(Exception exception) {
+        BackgroundUtils.ensureMainThread();
         imageSaveTaskAsyncResult.onError(exception);
     }
 
     @Override
     public void onEnd() {
+        BackgroundUtils.ensureMainThread();
         imageSaveTaskAsyncResult.onSuccess(success ? Success : Failure);
     }
 

@@ -145,7 +145,7 @@ public class SiteRepository {
     private Site instantiateSiteClass(int classId) {
         Class<? extends Site> clazz = SiteRegistry.SITE_CLASSES.get(classId);
         if (clazz == null) {
-            throw new IllegalArgumentException("Unknown class id");
+            throw new IllegalArgumentException("Unknown class id: " + classId);
         }
         return instantiateSiteClass(clazz);
     }
