@@ -239,12 +239,10 @@ public class SitesSetupController
             holder.setSiteIcon(site.site);
             holder.text.setText(site.site.name());
 
-            int boards = site.boardCount;
-            String boardsString = getQuantityString(R.plurals.board, boards, boards);
-            String descriptionText = getString(R.string.setup_sites_site_description, boardsString);
+            String descriptionText = getQuantityString(R.plurals.board, site.boardCount, site.boardCount);
             holder.description.setText(descriptionText);
 
-            if (boards == 0) {
+            if (site.boardCount == 0) {
                 if (addBoardsHint != null) {
                     addBoardsHint.dismiss();
                 }
