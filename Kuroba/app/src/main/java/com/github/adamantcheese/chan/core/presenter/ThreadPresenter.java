@@ -1024,8 +1024,7 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_MOCK_REPLY:
                 mockReplyManager.addMockReply(post.board.siteId, post.board.code, loadable.no, post.no);
-                //force reload to display the change
-                requestData();
+                showToast("Refresh to add mock replies");
                 break;
         }
     }
