@@ -648,6 +648,8 @@ public class MultiImageView
     private void setOther(Loadable loadable, PostImage image) {
         if (image.type == PostImage.Type.PDF) {
             cancellableToast.showToast(R.string.pdf_not_viewable);
+            //this lets the user download the PDF, even though we haven't actually downloaded anything
+            callback.onDownloaded(image);
         }
     }
 
