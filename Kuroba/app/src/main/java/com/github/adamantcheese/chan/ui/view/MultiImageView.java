@@ -23,10 +23,8 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Lifecycle;
@@ -78,7 +76,6 @@ import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
@@ -88,7 +85,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
 
 public class MultiImageView
         extends FrameLayout
-        implements MultiImageViewGestureDetector.MultiImageViewGestureDetectorCallbacks, AudioListener, LifecycleObserver {
+        implements MultiImageViewGestureDetector.MultiImageViewGestureDetectorCallbacks, AudioListener,
+                   LifecycleObserver {
 
     public enum Mode {
         UNLOADED,
@@ -110,7 +108,6 @@ public class MultiImageView
 
     @Nullable
     private Context context;
-    private ImageView playView;
     private PostImage postImage;
     private Callback callback;
     private Mode mode = Mode.UNLOADED;
@@ -139,18 +136,9 @@ public class MultiImageView
         super(context, attrs, defStyle);
         this.context = context;
         this.cancellableToast = new CancellableToast();
-        this.gestureDetector = new GestureDetector(
-                context,
-                new MultiImageViewGestureDetector(this, ChanSettings.imageViewerGestures.get())
-        );
+        this.gestureDetector = new GestureDetector(context, new MultiImageViewGestureDetector(this));
 
         inject(this);
-        setOnClickListener(null);
-
-        playView = new ImageView(getContext());
-        playView.setVisibility(GONE);
-        playView.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
-        addView(playView, new FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER));
 
         if (context instanceof StartActivity) {
             ((StartActivity) context).getLifecycle().addObserver(this);
@@ -167,8 +155,6 @@ public class MultiImageView
     public void bindPostImage(PostImage postImage, Callback callback) {
         this.postImage = postImage;
         this.callback = callback;
-
-        playView.setVisibility(postImage.type == PostImage.Type.MOVIE ? VISIBLE : GONE);
     }
 
     public PostImage getPostImage() {
@@ -263,15 +249,6 @@ public class MultiImageView
 
     @Override
     public void setImageAlreadySaved() {
-        imageAlreadySaved = true;
-    }
-
-    /**
-     * Called when the user clicks save image button in ImageViewController. We need it to not allow
-     * the user save one image twice (first time via that button and the next via swipe-to-save
-     * gesture)
-     */
-    public void updateImageSavedFlag() {
         imageAlreadySaved = true;
     }
 
@@ -809,15 +786,13 @@ public class MultiImageView
             boolean alreadyAttached = false;
             for (int i = getChildCount() - 1; i >= 0; i--) {
                 View child = getChildAt(i);
-                if (child != playView) {
-                    if (child != view) {
-                        if (child instanceof PlayerView) {
-                            ((PlayerView) child).getPlayer().release();
-                        }
-                        removeViewAt(i);
-                    } else {
-                        alreadyAttached = true;
+                if (child != view) {
+                    if (child instanceof PlayerView) {
+                        ((PlayerView) child).getPlayer().release();
                     }
+                    removeViewAt(i);
+                } else {
+                    alreadyAttached = true;
                 }
             }
 

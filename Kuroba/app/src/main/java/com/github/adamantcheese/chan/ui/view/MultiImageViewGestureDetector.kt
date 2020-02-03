@@ -2,6 +2,8 @@ package com.github.adamantcheese.chan.ui.view
 
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
+import android.view.View
+import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.AndroidUtils.dp
 import com.google.android.exoplayer2.ui.PlayerView
 import pl.droidsonroids.gif.GifDrawable
@@ -10,11 +12,10 @@ import kotlin.math.abs
 
 /**
  * A gesture detector that handles swipe-up and swipe-bottom as well as single tap events for
- * ThumbnailView, BigImageView, GifImageView and VideoView (or ExoplayerView).
+ * ThumbnailView, BigImageView, GifImageView and PlayerView.
  * */
 class MultiImageViewGestureDetector(
-        private val callbacks: MultiImageViewGestureDetectorCallbacks,
-        private val gesturesEnabled: Boolean
+        private val callbacks: MultiImageViewGestureDetectorCallbacks
 ) : SimpleOnGestureListener() {
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
@@ -27,8 +28,6 @@ class MultiImageViewGestureDetector(
             } else {
                 drawable.start()
             }
-
-            // Fallthrough
         } else if (callbacks.findVideoPlayerView() != null) {
             callbacks.onPlayerTogglePlayState()
         } else {
@@ -39,7 +38,7 @@ class MultiImageViewGestureDetector(
     }
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, vx: Float, vy: Float): Boolean {
-        if (!gesturesEnabled) {
+        if (!ChanSettings.imageViewerGestures.get()) {
             return false
         }
 
@@ -61,8 +60,6 @@ class MultiImageViewGestureDetector(
             if (onSwipedUp(bigImageView)) {
                 return true
             }
-
-            // Fallthrough
         } else {
             // Swiped bottom (swipe-to-save file)
             return onSwipedBottom(bigImageView)
