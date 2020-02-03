@@ -140,8 +140,6 @@ public class ImageSaveTask
 
     @Override
     public void onSuccess(RawFile file) {
-        BackgroundUtils.ensureMainThread();
-
         if (copyToDestination(file)) {
             onDestination();
         } else {
@@ -151,14 +149,11 @@ public class ImageSaveTask
 
     @Override
     public void onFail(Exception exception) {
-        BackgroundUtils.ensureMainThread();
         imageSaveTaskAsyncResult.onError(exception);
     }
 
     @Override
     public void onEnd() {
-        BackgroundUtils.ensureMainThread();
-
         imageSaveTaskAsyncResult.onSuccess(success ? Success : Failure);
     }
 
