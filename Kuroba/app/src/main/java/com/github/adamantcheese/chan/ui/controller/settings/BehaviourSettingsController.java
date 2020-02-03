@@ -88,22 +88,10 @@ public class BehaviourSettingsController
                     0
             ));
 
-            requiresRestart.add(general.add(new BooleanSettingView(this,
-                    ChanSettings.fullUserRotationEnable,
-                    R.string.setting_full_screen_rotation,
-                    0
-            )));
-
             general.add(new BooleanSettingView(this,
                     ChanSettings.alwaysOpenDrawer,
                     R.string.settings_always_open_drawer,
                     0
-            ));
-
-            general.add(new BooleanSettingView(this,
-                    ChanSettings.allowMediaScannerToScanLocalThreads,
-                    R.string.settings_allow_media_scanner_scan_local_threads_title,
-                    R.string.settings_allow_media_scanner_scan_local_threads_description
             ));
 
             general.add(new LinkSettingView(this,
@@ -119,7 +107,13 @@ public class BehaviourSettingsController
                     }
             ));
 
-            setupClearThreadHidesSetting(general);
+            general.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, v -> {
+                // TODO: don't do this here.
+                DatabaseManager databaseManager = instance(DatabaseManager.class);
+                databaseManager.runTask(databaseManager.getDatabaseHideManager().clearAllThreadHides());
+                showToast(R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG);
+                postToEventBus(new RefreshUIMessage("clearhides"));
+            }));
 
             groups.add(general);
         }
@@ -179,6 +173,36 @@ public class BehaviourSettingsController
             groups.add(post);
         }
 
+        {
+            SettingsGroup other = new SettingsGroup("Other Options");
+
+            other.add(new StringSettingView(this,
+                    ChanSettings.parseYoutubeAPIKey,
+                    "Youtube API Key",
+                    "Youtube API Key"
+            ));
+
+            requiresRestart.add(other.add(new BooleanSettingView(this,
+                    ChanSettings.fullUserRotationEnable,
+                    R.string.setting_full_screen_rotation,
+                    0
+            )));
+
+            other.add(new BooleanSettingView(this,
+                    ChanSettings.allowFilePickChooser,
+                    "Allow alternate file pickers",
+                    "If you'd prefer to use a different file chooser, turn this on"
+            ));
+
+            other.add(new BooleanSettingView(this,
+                    ChanSettings.allowMediaScannerToScanLocalThreads,
+                    R.string.settings_allow_media_scanner_scan_local_threads_title,
+                    R.string.settings_allow_media_scanner_scan_local_threads_description
+            ));
+
+            groups.add(other);
+        }
+
         // Proxy group (proxy settings)
         {
             SettingsGroup proxy = new SettingsGroup(R.string.settings_group_proxy);
@@ -203,27 +227,5 @@ public class BehaviourSettingsController
 
             groups.add(proxy);
         }
-
-        {
-            SettingsGroup other = new SettingsGroup("Other Options");
-
-            other.add(new StringSettingView(this,
-                    ChanSettings.parseYoutubeAPIKey,
-                    "Youtube API Key",
-                    "Youtube API Key"
-            ));
-
-            groups.add(other);
-        }
-    }
-
-    private void setupClearThreadHidesSetting(SettingsGroup post) {
-        post.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, v -> {
-            // TODO: don't do this here.
-            DatabaseManager databaseManager = instance(DatabaseManager.class);
-            databaseManager.runTask(databaseManager.getDatabaseHideManager().clearAllThreadHides());
-            showToast(R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG);
-            postToEventBus(new RefreshUIMessage("clearhides"));
-        }));
     }
 }

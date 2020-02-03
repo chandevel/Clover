@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
@@ -123,7 +124,7 @@ public class ImagePickDelegate {
             intents.add(newIntent);
         }
 
-        if (intents.size() == 1) {
+        if (intents.size() == 1 || !ChanSettings.allowFilePickChooser.get()) {
             activity.startActivityForResult(intents.get(0), IMAGE_PICK_RESULT);
         } else if (intents.size() > 1) {
             Intent chooser = Intent.createChooser(intents.remove(intents.size() - 1),

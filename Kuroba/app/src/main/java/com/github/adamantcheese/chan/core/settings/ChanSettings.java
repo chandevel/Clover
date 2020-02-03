@@ -265,6 +265,7 @@ public class ChanSettings {
     public static final BooleanSetting verboseLogs;
     public static final OptionsSetting<ImageClickPreloadStrategy> imageClickPreloadStrategy;
     public static final BooleanSetting imageViewerGestures;
+    public static final BooleanSetting allowFilePickChooser;
 
     static {
         try {
@@ -410,6 +411,7 @@ public class ChanSettings {
                     "image_viewer_gestures",
                     true
             );
+            allowFilePickChooser = new BooleanSetting(p, "allow_file_picker_chooser", true);
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.
