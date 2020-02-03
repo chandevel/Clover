@@ -264,6 +264,7 @@ public class ChanSettings {
     public static final OptionsSetting<ConcurrentFileDownloadingChunks> concurrentDownloadChunkCount;
     public static final BooleanSetting verboseLogs;
     public static final OptionsSetting<ImageClickPreloadStrategy> imageClickPreloadStrategy;
+    public static final BooleanSetting imageViewerGestures;
 
     static {
         try {
@@ -404,6 +405,10 @@ public class ChanSettings {
                     "image_click_preload_strategy",
                     ImageClickPreloadStrategy.class,
                     ImageClickPreloadStrategy.PreloadNext
+            );
+            imageViewerGestures = new BooleanSetting(p,
+                    "image_viewer_gestures",
+                    true
             );
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the

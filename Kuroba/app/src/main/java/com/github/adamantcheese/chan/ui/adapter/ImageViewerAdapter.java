@@ -131,6 +131,13 @@ public class ImageViewerAdapter
         view.rotateImage(degrees);
     }
 
+    public void onImageSaved(PostImage postImage) {
+        MultiImageView view = find(postImage);
+        if (view != null) {
+            view.updateImageSavedFlag();
+        }
+    }
+
     private static class ModeChange {
         public MultiImageView.Mode mode;
         public PostImage postImage;

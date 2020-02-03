@@ -52,6 +52,13 @@ public class ExperimentalSettingsController
 
         setupConcurrentFileDownloadingChunksSetting(group);
 
+        group.add(new BooleanSettingView(
+                this,
+                ChanSettings.imageViewerGestures,
+                R.string.setting_image_viewer_gestures,
+                R.string.setting_image_viewer_gestures_description
+        ));
+
         groups.add(group);
     }
 
