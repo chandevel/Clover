@@ -195,51 +195,37 @@ public class MultiImageView
     }
 
     @Nullable
-    @Override
-    public CustomScaleImageView findBigImageView() {
-        CustomScaleImageView bigImage = null;
+    private View findView(Class<? extends View> classType) {
         for (int i = 0; i < getChildCount(); i++) {
-            if (getChildAt(i) instanceof CustomScaleImageView) {
-                bigImage = (CustomScaleImageView) getChildAt(i);
+            if (getChildAt(i).getClass().equals(classType)) {
+                return getChildAt(i);
             }
         }
-        return bigImage;
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public CustomScaleImageView findBigImageView() {
+        return (CustomScaleImageView) findView(CustomScaleImageView.class);
     }
 
     @Nullable
     @Override
     public GifImageView findGifImageView() {
-        GifImageView gif = null;
-        for (int i = 0; i < getChildCount(); i++) {
-            if (getChildAt(i) instanceof GifImageView) {
-                gif = (GifImageView) getChildAt(i);
-            }
-        }
-        return gif;
+        return (GifImageView) findView(GifImageView.class);
     }
 
     @Nullable
     @Override
     public ThumbnailImageView findThumbnailImageView() {
-        ThumbnailImageView thumbnailImageView = null;
-        for (int i = 0; i < getChildCount(); i++) {
-            if (getChildAt(i) instanceof ThumbnailImageView) {
-                thumbnailImageView = (ThumbnailImageView) getChildAt(i);
-            }
-        }
-        return thumbnailImageView;
+        return (ThumbnailImageView) findView(ThumbnailImageView.class);
     }
 
     @Nullable
     @Override
     public PlayerView findVideoPlayerView() {
-        PlayerView playerView = null;
-        for (int i = 0; i < getChildCount(); i++) {
-            if (getChildAt(i) instanceof PlayerView) {
-                playerView = (PlayerView) getChildAt(i);
-            }
-        }
-        return playerView;
+        return (PlayerView) findView(PlayerView.class);
     }
 
     @Override
@@ -320,9 +306,9 @@ public class MultiImageView
                         thumbnailRequest = null;
 
                         if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
-                            ThumbnailImageView thumbnail = new ThumbnailImageView(getContext(), null, 0);
+                            ThumbnailImageView thumbnail = new ThumbnailImageView(getContext());
+                            thumbnail.setType(postImage.type);
                             thumbnail.setImageBitmap(response.getBitmap());
-                            thumbnail.setOnClickListener(null);
                             thumbnail.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
 
                             onModeLoaded(Mode.LOWRES, thumbnail);
@@ -487,7 +473,6 @@ public class MultiImageView
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
 
-        view.setOnClickListener(null);
         view.setOnTouchListener((view1, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
         onModeLoaded(Mode.GIFIMAGE, view);
     }

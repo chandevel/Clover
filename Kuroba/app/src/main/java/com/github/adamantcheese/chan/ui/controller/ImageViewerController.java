@@ -424,8 +424,7 @@ public class ImageViewerController
     public void saveImage() {
         ToolbarMenuItem saveMenuItem = navigation.findItem(SAVE_ID);
         if (saveMenuItem != null) {
-            saveMenuItem.setCallback(null);
-            saveMenuItem.getView().getDrawable().setTint(Color.GRAY);
+            saveMenuItem.setEnabled(false);
         }
 
         saveShare(false, presenter.getCurrentPostImage());

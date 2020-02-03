@@ -134,7 +134,7 @@ public class ImageViewerAdapter
     public void onImageSaved(PostImage postImage) {
         MultiImageView view = find(postImage);
         if (view != null) {
-            view.updateImageSavedFlag();
+            view.setImageAlreadySaved();
         }
     }
 
