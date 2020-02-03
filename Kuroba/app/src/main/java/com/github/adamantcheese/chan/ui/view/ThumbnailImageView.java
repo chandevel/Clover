@@ -17,6 +17,7 @@ public class ThumbnailImageView
 
     private PostImage.Type type = PostImage.Type.STATIC;
     private Drawable playIcon;
+    private Rect bounds = new Rect();
 
     public ThumbnailImageView(Context context) {
         this(context, null);
@@ -45,7 +46,7 @@ public class ThumbnailImageView
             int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() * scalar);
             int y = (int) (getHeight() / 2.0 - playIcon.getIntrinsicHeight() * scalar);
 
-            Rect bounds = new Rect(x,
+            bounds.set(x,
                     y,
                     x + playIcon.getIntrinsicWidth() * iconScale,
                     y + playIcon.getIntrinsicHeight() * iconScale

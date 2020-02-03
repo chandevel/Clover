@@ -40,6 +40,7 @@ public class PostImageThumbnailView
     private PostImage postImage;
     private Drawable playIcon;
     private float ratio = 0f;
+    private Rect bounds = new Rect();
 
     public PostImageThumbnailView(Context context) {
         this(context, null);
@@ -113,7 +114,7 @@ public class PostImageThumbnailView
             int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() * scalar);
             int y = (int) (getHeight() / 2.0 - playIcon.getIntrinsicHeight() * scalar);
 
-            Rect bounds = new Rect(x,
+            bounds.set(x,
                     y,
                     x + playIcon.getIntrinsicWidth() * iconScale,
                     y + playIcon.getIntrinsicHeight() * iconScale
