@@ -212,6 +212,8 @@ public class BehaviourSettingsController
                     "Youtube API Key",
                     "Youtube API Key"
             ));
+
+            groups.add(other);
         }
     }
 
