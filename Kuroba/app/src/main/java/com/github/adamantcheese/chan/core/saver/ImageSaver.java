@@ -309,7 +309,7 @@ public class ImageSaver {
         updateNotification();
 
         // Do not show the toast when image download has failed; we will show it in imageSaveTaskFailed
-        if (result == BundledDownloadResult.Success) {
+        if (result == BundledDownloadResult.Success && !task.getShare()) {
             String text = getText(task, true, wasAlbumSave);
             cancellableToast.showToast(text, Toast.LENGTH_LONG);
         } else if (result == BundledDownloadResult.Canceled) {
