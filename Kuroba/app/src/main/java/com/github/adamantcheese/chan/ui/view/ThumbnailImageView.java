@@ -5,15 +5,15 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 
 public class ThumbnailImageView
-        extends ImageView {
+        extends AppCompatImageView {
 
     private PostImage.Type type = PostImage.Type.STATIC;
     private Drawable playIcon;

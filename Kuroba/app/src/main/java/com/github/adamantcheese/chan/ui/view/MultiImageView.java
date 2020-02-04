@@ -139,6 +139,7 @@ public class MultiImageView
         this.gestureDetector = new GestureDetector(context, new MultiImageViewGestureDetector(this));
 
         inject(this);
+        setOnClickListener(null);
 
         if (context instanceof StartActivity) {
             ((StartActivity) context).getLifecycle().addObserver(this);
@@ -309,6 +310,7 @@ public class MultiImageView
                             ThumbnailImageView thumbnail = new ThumbnailImageView(getContext());
                             thumbnail.setType(postImage.type);
                             thumbnail.setImageBitmap(response.getBitmap());
+                            thumbnail.setOnClickListener(null);
                             thumbnail.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
 
                             onModeLoaded(Mode.LOWRES, thumbnail);
@@ -472,7 +474,7 @@ public class MultiImageView
 
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
-
+        view.setOnClickListener(null);
         view.setOnTouchListener((view1, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
         onModeLoaded(Mode.GIFIMAGE, view);
     }
@@ -514,6 +516,7 @@ public class MultiImageView
                         exoPlayer.prepare(source);
                         exoPlayer.setVolume(0f);
                         exoPlayer.addAudioListener(MultiImageView.this);
+                        exoVideoView.setOnClickListener(null);
                         exoVideoView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
 
                         addView(exoVideoView);
@@ -618,6 +621,7 @@ public class MultiImageView
 
             exoPlayer.prepare(videoSource);
             exoPlayer.addAudioListener(this);
+            exoVideoView.setOnClickListener(null);
             exoVideoView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
 
             addView(exoVideoView);
@@ -708,6 +712,7 @@ public class MultiImageView
                 onBigImageError(wasInitial);
             }
         });
+        image.setOnClickListener(null);
         image.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
     }
 
