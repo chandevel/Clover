@@ -18,44 +18,44 @@ class MultiImageViewGestureDetector(
 ) : SimpleOnGestureListener() {
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        if(!ChanSettings.imageViewerGestures.get()) {
-            callbacks.onTap()
+        if (callbacks.findVideoPlayerView() != null) {
+            callbacks.togglePlayState()
             return true
         }
+
+        if (tryHandleGifView()) {
+            return true
+        }
+
+        callbacks.onTap()
+        return true
+    }
+
+    private fun tryHandleGifView(): Boolean {
         val gifImageView = callbacks.findGifImageView()
-        if (gifImageView != null) {
-            // If a GifImageView is visible then toggle it's play state
-            val drawable = gifImageView.drawable as GifDrawable
-            if (drawable.isPlaying) {
-                drawable.pause()
-            } else {
-                drawable.start()
-            }
-        } else if (callbacks.findVideoPlayerView() != null) {
-            callbacks.togglePlayState()
+                ?: return false
+
+        // If a GifImageView is visible then toggle it's play state
+        val drawable = gifImageView.drawable as GifDrawable
+        if (drawable.isPlaying) {
+            drawable.pause()
         } else {
-            callbacks.onTap()
+            drawable.start()
         }
 
         return true
     }
 
     override fun onDoubleTap(e: MotionEvent?): Boolean {
-        if(!ChanSettings.imageViewerGestures.get()) {
-            val gifImageView = callbacks.findGifImageView()
-            if (gifImageView != null) {
-                // If a GifImageView is visible then toggle it's play state
-                val drawable = gifImageView.drawable as GifDrawable
-                if (drawable.isPlaying) {
-                    drawable.pause()
-                } else {
-                    drawable.start()
-                }
-            } else if (callbacks.findVideoPlayerView() != null) {
-                callbacks.onTap()
+        if (!ChanSettings.imageViewerGestures.get()) {
+            if (callbacks.findGifImageView() != null || callbacks.findVideoPlayerView() != null) {
+                callbacks.onSwipeToCloseImage()
+                return true
             }
-            return true
+
+            // Big image has zoom-in on double tap, we don't want to override it
         }
+
         return false
     }
 
@@ -63,8 +63,6 @@ class MultiImageViewGestureDetector(
         if (!ChanSettings.imageViewerGestures.get()) {
             return false
         }
-
-        val bigImageView = callbacks.findBigImageView()
 
         val diffY = e2.y - e1.y
         val diffX = e2.x - e1.x
@@ -77,6 +75,7 @@ class MultiImageViewGestureDetector(
             return false
         }
 
+        val bigImageView = callbacks.findBigImageView()
         if (diffY <= 0) {
             // Swiped up (swipe-to-close)
             if (onSwipedUp(bigImageView)) {
