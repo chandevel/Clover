@@ -133,6 +133,7 @@ public class ThreadSaveManager {
                 // Collect all the request over some time
                 .buffer(REQUEST_BUFFERING_TIME_SECONDS, SECONDS)
                 .onBackpressureBuffer()
+                .filter((requests) -> !requests.isEmpty())
                 .concatMap(this::processCollectedRequests)
                 .subscribe(res -> {},
                         // OK

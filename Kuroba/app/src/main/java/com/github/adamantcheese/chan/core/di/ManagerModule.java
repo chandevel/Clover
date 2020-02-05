@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
+import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
@@ -39,17 +40,22 @@ import com.github.adamantcheese.chan.core.site.parser.MockReplyManager;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
+import com.google.gson.Gson;
 
 import org.codejargon.feather.Provides;
+
+import java.io.File;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import okhttp3.OkHttpClient;
 
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.core.di.NetModule.THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME;
 
 public class ManagerModule {
+    private static final String CRASH_LOGS_DIR_NAME = "crashlogs";
 
     @Provides
     @Singleton
@@ -171,5 +177,18 @@ public class ManagerModule {
     public MockReplyManager provideMockReplyManager() {
         Logger.d(AppModule.DI_TAG, "Mock reply manager");
         return new MockReplyManager();
+    }
+
+    @Provides
+    @Singleton
+    public ReportManager provideReportManager(NetModule.ProxiedOkHttpClient okHttpClient, Gson gson) {
+        Logger.d(AppModule.DI_TAG, "Report manager");
+        File cacheDir = getCacheDir();
+
+        return new ReportManager(
+                okHttpClient.getProxiedClient(),
+                gson,
+                new File(cacheDir, CRASH_LOGS_DIR_NAME)
+        );
     }
 }

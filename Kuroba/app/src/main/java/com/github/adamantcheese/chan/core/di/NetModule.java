@@ -39,6 +39,7 @@ import javax.inject.Singleton;
 
 import okhttp3.OkHttpClient;
 
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -90,15 +91,6 @@ public class NetModule {
     ) {
         Logger.d(AppModule.DI_TAG, "WebmStreamingSource");
         return new WebmStreamingSource(fileManager, fileCacheV2, cacheHandler);
-    }
-
-    private File getCacheDir() {
-        // See also res/xml/filepaths.xml for the fileprovider.
-        if (getAppContext().getExternalCacheDir() != null) {
-            return getAppContext().getExternalCacheDir();
-        } else {
-            return getAppContext().getCacheDir();
-        }
     }
 
     @Provides

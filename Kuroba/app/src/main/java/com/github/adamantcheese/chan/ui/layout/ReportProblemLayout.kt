@@ -7,7 +7,7 @@ import androidx.appcompat.widget.AppCompatCheckBox
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.base.MResult
-import com.github.adamantcheese.chan.core.presenter.ReportProblemPresenter
+import com.github.adamantcheese.chan.core.manager.ReportManager
 import com.github.adamantcheese.chan.ui.controller.LogsController
 import com.github.adamantcheese.chan.ui.view.ReportProblemView
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
@@ -16,10 +16,13 @@ import com.github.adamantcheese.chan.utils.Logger
 import com.google.android.material.textfield.TextInputEditText
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
 class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProblemView {
-    private val presenter: ReportProblemPresenter = ReportProblemPresenter()
+
+    @Inject
+    lateinit var reportManager: ReportManager
+
     private var callbacks: ReportProblemControllerCallbacks? = null
     private lateinit var compositeDisposable: CompositeDisposable
 
@@ -44,7 +47,6 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
     }
 
     fun onReady(controllerCallbacks: ReportProblemControllerCallbacks) {
-        presenter.onCreate(this)
         compositeDisposable = CompositeDisposable()
 
         val logs = LogsController.loadLogs()
@@ -62,7 +64,6 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
     }
 
     fun destroy() {
-        presenter.onDestroy()
         compositeDisposable.dispose()
         callbacks = null
     }
@@ -102,8 +103,7 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
 
         callbacks?.showProgressDialog()
 
-        presenter.sendReport(title, description, logsParam)
-                .subscribeOn(Schedulers.io())
+        reportManager.sendReport(title, description, logsParam)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate { callbacks?.hideProgressDialog() }
                 .subscribe({ result ->

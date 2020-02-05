@@ -156,12 +156,12 @@ class FileCacheV2(
                 .subscribe({
                     // Do nothing
                 }, { error ->
-                    throw RuntimeException("Uncaught exception!!! " +
+                    throw RuntimeException("$TAG Uncaught exception!!! " +
                             "workerQueue is in error state now!!! " +
                             "This should not happen!!!, original error = " + error.message)
                 }, {
                     throw RuntimeException(
-                            "workerQueue stream has completed!!! This should not happen!!!"
+                            "$TAG workerQueue stream has completed!!! This should not happen!!!"
                     )
                 })
     }
