@@ -10,6 +10,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
 import com.github.adamantcheese.chan.utils.BackgroundUtils
+import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.PostUtils
 import com.github.adamantcheese.chan.utils.exhaustive
@@ -309,8 +310,10 @@ class FileCacheV2(
             } catch (error: Throwable) {
                 logError(TAG, "Error while trying to load local thread file", error)
 
-                callback.onFail(Exception(error))
-                callback.onEnd()
+                runOnUiThread {
+                    callback.onFail(Exception(error))
+                    callback.onEnd()
+                }
 
                 null
             }
@@ -344,8 +347,10 @@ class FileCacheV2(
     ): CancelableDownload? {
         val file: RawFile? = cacheHandler.getOrCreateCacheFile(url)
         if (file == null) {
-            callback?.onFail(IOException("Couldn't get or create cache file"))
-            callback?.onEnd()
+            runOnUiThread {
+                callback?.onFail(IOException("Couldn't get or create cache file"))
+                callback?.onEnd()
+            }
 
             return null
         }
@@ -472,8 +477,10 @@ class FileCacheV2(
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory::class.java)) {
             logError(TAG, "handleLocalThreadFile() Base local threads directory does not exist")
 
-            callback.onFail(IOException("Base local threads directory does not exist"))
-            callback.onEnd()
+            runOnUiThread {
+                callback.onFail(IOException("Base local threads directory does not exist"))
+                callback.onEnd()
+            }
 
             return null
         }
@@ -485,8 +492,10 @@ class FileCacheV2(
         if (baseDirFile == null) {
             logError(TAG, "handleLocalThreadFile() fileManager.newLocalThreadFile() returned null")
 
-            callback.onFail(IOException("Couldn't create a file inside local threads base directory"))
-            callback.onEnd()
+            runOnUiThread {
+                callback.onFail(IOException("Couldn't create a file inside local threads base directory"))
+                callback.onEnd()
+            }
 
             return null
         }
@@ -506,12 +515,14 @@ class FileCacheV2(
         } else {
             logError(TAG, "Cannot load saved image from the disk, path: " + localImgFile.getFullPath())
 
-            callback.onFail(
-                    IOException("Couldn't load saved image from the disk, path: "
-                            + localImgFile.getFullPath())
-            )
+            runOnUiThread {
+                callback.onFail(
+                        IOException("Couldn't load saved image from the disk, path: "
+                                + localImgFile.getFullPath())
+                )
 
-            callback.onEnd()
+                callback.onEnd()
+            }
         }
 
         return null
@@ -522,7 +533,7 @@ class FileCacheV2(
                 ?: return
 
         request.cancelableDownload.forEachCallback {
-            BackgroundUtils.runOnUiThread {
+            runOnUiThread {
                 onSuccess(file)
                 onEnd()
             }
@@ -536,7 +547,7 @@ class FileCacheV2(
     ) {
         if (file is RawFile) {
             // Regular Java File
-            BackgroundUtils.runOnUiThread {
+            runOnUiThread {
                 callback?.onSuccess(file)
                 callback?.onEnd()
             }
@@ -545,7 +556,7 @@ class FileCacheV2(
             try {
                 val resultFile = cacheHandler.getOrCreateCacheFile(postImage.imageUrl.toString())
                 if (resultFile == null) {
-                    BackgroundUtils.runOnUiThread {
+                    runOnUiThread {
                         callback?.onFail(IOException("Couldn't get or create cache file"))
                         callback?.onEnd()
                     }
@@ -564,7 +575,7 @@ class FileCacheV2(
                                     ", resultFile = " + resultFile.getFullPath()
                     )
 
-                    BackgroundUtils.runOnUiThread {
+                    runOnUiThread {
                         callback?.onFail(error)
                         callback?.onEnd()
                     }
@@ -573,7 +584,7 @@ class FileCacheV2(
                 }
 
                 if (!cacheHandler.markFileDownloaded(resultFile)) {
-                    BackgroundUtils.runOnUiThread {
+                    runOnUiThread {
                         callback?.onFail(FileCacheException.CouldNotMarkFileAsDownloaded(resultFile))
                         callback?.onEnd()
                     }
@@ -581,14 +592,14 @@ class FileCacheV2(
                     return
                 }
 
-                BackgroundUtils.runOnUiThread {
+                runOnUiThread {
                     callback?.onSuccess(resultFile)
                     callback?.onEnd()
                 }
             } catch (e: IOException) {
                 logError(TAG, "Error while trying to create a new random cache file", e)
 
-                BackgroundUtils.runOnUiThread {
+                runOnUiThread {
                     callback?.onFail(e)
                     callback?.onEnd()
                 }
@@ -783,7 +794,7 @@ class FileCacheV2(
     ) {
         try {
             request.cancelableDownload.forEachCallback {
-                BackgroundUtils.runOnUiThread {
+                runOnUiThread {
                     func()
                 }
             }
