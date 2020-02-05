@@ -44,7 +44,6 @@ public class ToolbarMenuItem {
 
     public Object id;
 
-    public boolean overflowStyle = false;
     public boolean visible = true;
     public boolean enabled = true;
 

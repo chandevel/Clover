@@ -22,6 +22,8 @@ import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
@@ -45,6 +47,7 @@ public class ToolbarMenuView
 
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER_VERTICAL);
+        setPadding(dp(9f), 0, dp(3f), 0);
     }
 
     public void attach(ToolbarMenu menu) {
@@ -71,12 +74,8 @@ public class ToolbarMenuView
 
             imageView.setVisibility(item.visible ? VISIBLE : GONE);
 
-            if (item.overflowStyle) {
-                imageView.setLayoutParams(new LayoutParams(dp(44), dp(56)));
-                imageView.setPadding(dp(8), 0, dp(16), 0);
-            } else {
-                imageView.setLayoutParams(new LinearLayout.LayoutParams(dp(50), dp(56)));
-            }
+            imageView.setLayoutParams(new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT));
+            imageView.setPadding(dp(6f), 0, dp(6f), 0);
 
             imageView.setImageDrawable(item.drawable);
             setRoundItemBackground(imageView);

@@ -29,7 +29,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.cell.AlbumViewCell;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
+import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
@@ -79,9 +79,7 @@ public class AlbumViewController
         if (!loadable.isLocal()) {
             // Navigation
             navigation.buildMenu()
-                    .withOverflow()
-                    .withSubItem(R.string.action_download_album, this::downloadAlbumClicked)
-                    .build()
+                    .withItem(1, R.drawable.ic_file_download_white_24dp, this::downloadAlbumClicked)
                     .build();
         }
 
@@ -90,7 +88,7 @@ public class AlbumViewController
         targetIndex = index;
     }
 
-    private void downloadAlbumClicked(ToolbarMenuSubItem item) {
+    private void downloadAlbumClicked(ToolbarMenuItem item) {
         AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
         albumDownloadController.setPostImages(loadable, postImages);
         navigationController.pushController(albumDownloadController);

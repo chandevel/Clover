@@ -145,9 +145,7 @@ public class ViewThreadController
     protected void buildMenu() {
         prevState = DownloadThreadState.Default;
 
-        NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu()
-                .withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
-                .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked);
+        NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
 
         if (ChanSettings.incrementalThreadDownloadingEnabled.get()) {
             // This method recreates the menu (and if there was the download animation running it
@@ -155,6 +153,9 @@ public class ViewThreadController
             // we can start animation again
             menuBuilder.withItem(SAVE_THREAD_ID, downloadIconOutline, this::saveClicked);
         }
+
+        menuBuilder.withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
+                .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked);
 
         NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow();
 
