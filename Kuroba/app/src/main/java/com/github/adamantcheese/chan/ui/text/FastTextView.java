@@ -41,7 +41,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 public class FastTextView
         extends View {
     private static final String TAG = "FastTextView";
-    private static LruCache<FastTextViewItem, StaticLayout> textCache = new LruCache<>(250);
+    private static LruCache<FastTextViewItem, StaticLayout> textCache = new LruCache<>(75);
 
     private TextPaint paint;
     private boolean singleLine;
