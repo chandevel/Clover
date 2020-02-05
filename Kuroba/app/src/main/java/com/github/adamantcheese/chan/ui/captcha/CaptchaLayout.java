@@ -38,6 +38,7 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesJar;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
@@ -55,7 +56,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class CaptchaLayout
         extends WebView
@@ -240,12 +241,12 @@ public class CaptchaLayout
 
         @JavascriptInterface
         public void onCaptchaEntered(final String response) {
-            runOnUiThread(() -> layout.onCaptchaEntered(null, response));
+            BackgroundUtils.runOnMainThread(() -> layout.onCaptchaEntered(null, response));
         }
 
         @JavascriptInterface
         public void onCaptchaEnteredv1(final String challenge, final String response) {
-            runOnUiThread(() -> layout.onCaptchaEntered(challenge, response));
+            BackgroundUtils.runOnMainThread(() -> layout.onCaptchaEntered(challenge, response));
         }
     }
 }

@@ -42,6 +42,7 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -57,7 +58,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class ReplyPresenter
@@ -369,7 +370,7 @@ public class ReplyPresenter
     @Override
     public void onUploadingProgress(int percent) {
         //called on a background thread!
-        runOnUiThread(() -> callback.onUploadingProgress(percent));
+        BackgroundUtils.runOnMainThread(() -> callback.onUploadingProgress(percent));
     }
 
     @Override

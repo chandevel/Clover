@@ -66,7 +66,7 @@ import java.util.List;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
@@ -426,19 +426,19 @@ public class AndroidUtils {
     }
 
     public static void showToast(String message, int duration) {
-        runOnUiThread(() -> Toast.makeText(application, message, duration).show());
+        BackgroundUtils.runOnMainThread(() -> Toast.makeText(application, message, duration).show());
     }
 
     public static void showToast(String message) {
-        runOnUiThread(() -> Toast.makeText(application, message, Toast.LENGTH_SHORT).show());
+        BackgroundUtils.runOnMainThread(() -> Toast.makeText(application, message, Toast.LENGTH_SHORT).show());
     }
 
     public static void showToast(int resId, int duration) {
-        runOnUiThread(() -> Toast.makeText(application, getString(resId), duration).show());
+        BackgroundUtils.runOnMainThread(() -> Toast.makeText(application, getString(resId), duration).show());
     }
 
     public static void showToast(int resId) {
-        runOnUiThread(() -> Toast.makeText(application, getString(resId), Toast.LENGTH_SHORT).show());
+        BackgroundUtils.runOnMainThread(() -> Toast.makeText(application, getString(resId), Toast.LENGTH_SHORT).show());
     }
 
     private static InputMethodManager getInputManager() {

@@ -26,13 +26,14 @@ import android.webkit.WebView;
 
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class GenericWebViewAuthenticationLayout
         extends WebView
@@ -180,7 +181,7 @@ public class GenericWebViewAuthenticationLayout
 
         @JavascriptInterface
         public void onAllText(String text) {
-            runOnUiThread(() -> layout.onAllText(text));
+            BackgroundUtils.runOnMainThread(() -> layout.onAllText(text));
         }
     }
 }

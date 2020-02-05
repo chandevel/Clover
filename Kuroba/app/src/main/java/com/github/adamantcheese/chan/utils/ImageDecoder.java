@@ -31,7 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 /**
  * Simple ImageDecoder. Taken from Volley ImageRequest.
@@ -74,7 +74,7 @@ public class ImageDecoder {
             }
 
             final Bitmap finalVideoBitmap = videoBitmap;
-            runOnUiThread(() -> callback.onImageBitmap(bitmap != null ? bitmap : finalVideoBitmap));
+            BackgroundUtils.runOnMainThread(() -> callback.onImageBitmap(bitmap != null ? bitmap : finalVideoBitmap));
         });
         thread.start();
     }

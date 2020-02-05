@@ -387,7 +387,7 @@ public class WebmStreamingDataSource
             return;
         }
 
-        BackgroundUtils.runOnUiThread(() -> {
+        BackgroundUtils.runOnMainThread(() -> {
             for (Callback c : listeners) {
                 c.dataSourceAddedFile(innerFile);
             }

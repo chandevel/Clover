@@ -44,6 +44,7 @@ import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -64,7 +65,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class FiltersController
         extends Controller
@@ -170,13 +171,13 @@ public class FiltersController
             List<Filter> enabledFilters = filterEngine.getEnabledFilters();
             List<Filter> allFilters = filterEngine.getAllFilters();
             if (enabledFilters.isEmpty()) {
-                runOnUiThread(() -> setFilters(allFilters, true));
+                BackgroundUtils.runOnMainThread(() -> setFilters(allFilters, true));
                 enableButton.setImageResource(R.drawable.ic_clear_white_24dp);
             } else if (enabledFilters.size() == allFilters.size()) {
-                runOnUiThread(() -> setFilters(allFilters, false));
+                BackgroundUtils.runOnMainThread(() -> setFilters(allFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             } else {
-                runOnUiThread(() -> setFilters(enabledFilters, false));
+                BackgroundUtils.runOnMainThread(() -> setFilters(enabledFilters, false));
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
             ThemeHelper.getTheme().applyFabColor(enable);

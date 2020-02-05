@@ -35,11 +35,12 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class LegacyCaptchaLayout
         extends LinearLayout
@@ -158,7 +159,7 @@ public class LegacyCaptchaLayout
 
         @JavascriptInterface
         public void onCaptchaLoaded(final String imageUrl, final String challenge) {
-            runOnUiThread(() -> layout.onCaptchaLoaded(imageUrl, challenge));
+            BackgroundUtils.runOnMainThread(() -> layout.onCaptchaLoaded(imageUrl, challenge));
         }
     }
 }

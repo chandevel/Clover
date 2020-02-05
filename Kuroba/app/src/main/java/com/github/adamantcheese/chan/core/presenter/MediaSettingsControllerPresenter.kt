@@ -9,7 +9,7 @@ import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBase
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
 import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
-import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread
+import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileChooser
 import com.github.k1rakishou.fsaf.FileManager
@@ -257,7 +257,7 @@ class MediaSettingsControllerPresenter(
             // any activity as soon as it goes into the "Paused" state.
             showToast(R.string.media_settings_dont_keep_activities_setting_is_probably_turned_on, Toast.LENGTH_LONG)
         } else {
-            runOnUiThread {
+            runOnMainThread {
                 func(callbacks!!)
             }
         }

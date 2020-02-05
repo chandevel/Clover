@@ -48,7 +48,7 @@ import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloa
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class ImageSaveTask
         extends FileCacheListener {
@@ -117,7 +117,7 @@ public class ImageSaveTask
 
         try {
             if (fileManager.exists(destination)) {
-                runOnUiThread(() -> {
+                BackgroundUtils.runOnMainThread(() -> {
                     onDestination();
                     onEnd();
                 });
@@ -181,11 +181,11 @@ public class ImageSaveTask
             MediaScannerConnection.scanFile(getAppContext(),
                     paths,
                     null,
-                    (path, uri) -> runOnUiThread(() -> afterScan(uri))
+                    (path, uri) -> BackgroundUtils.runOnMainThread(() -> afterScan(uri))
             );
         } else if (destination instanceof ExternalFile) {
             Uri uri = Uri.parse(destination.getFullPath());
-            runOnUiThread(() -> afterScan(uri));
+            BackgroundUtils.runOnMainThread(() -> afterScan(uri));
         } else {
             throw new NotImplementedError("Not implemented for " + destination.getClass().getName());
         }

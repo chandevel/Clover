@@ -60,7 +60,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class ImagePickDelegate {
     private static final String TAG = "ImagePickActivity";
@@ -265,7 +265,7 @@ public class ImagePickDelegate {
             }
         }
 
-        runOnUiThread(() -> {
+        BackgroundUtils.runOnMainThread(() -> {
             if (success) {
                 callback.onFilePicked(fileName, new File(cacheFile.getFullPath()));
             } else {

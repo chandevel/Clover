@@ -41,6 +41,7 @@ import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -51,7 +52,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class ImageOptionsController
         extends Controller
@@ -270,7 +271,7 @@ public class ImageOptionsController
     public void onImageOptionsApplied(Reply reply, boolean filenameRemoved) {
         //called on the background thread!
 
-        runOnUiThread(() -> {
+        BackgroundUtils.runOnMainThread(() -> {
             imageReencodingHelper.pop();
             callbacks.onImageOptionsApplied(reply, filenameRemoved);
         });
@@ -280,7 +281,7 @@ public class ImageOptionsController
     public void disableOrEnableButtons(boolean enabled) {
         //called on the background thread!
 
-        runOnUiThread(() -> {
+        BackgroundUtils.runOnMainThread(() -> {
             fixExif.setEnabled(enabled);
             removeMetadata.setEnabled(enabled);
             removeFilename.setEnabled(enabled);

@@ -65,7 +65,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvide
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 /**
@@ -110,7 +110,7 @@ public class UpdateManager {
 
             final Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             button.setEnabled(false);
-            runOnUiThread(() -> {
+            runOnMainThread(() -> {
                 dialog.setCanceledOnTouchOutside(true);
                 button.setEnabled(true);
             }, 1500);

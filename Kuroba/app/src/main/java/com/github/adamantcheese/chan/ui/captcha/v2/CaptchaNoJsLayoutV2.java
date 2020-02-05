@@ -43,6 +43,7 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.List;
@@ -54,7 +55,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2_NOJS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class CaptchaNoJsLayoutV2
         extends FrameLayout
@@ -157,7 +158,7 @@ public class CaptchaNoJsLayoutV2
 
     @Override
     public void onCaptchaInfoParsed(CaptchaInfo captchaInfo) {
-        runOnUiThread(() -> {
+        BackgroundUtils.runOnMainThread(() -> {
             captchaVerifyButton.setEnabled(true);
             renderCaptchaWindow(captchaInfo);
         });
@@ -165,7 +166,7 @@ public class CaptchaNoJsLayoutV2
 
     @Override
     public void onVerificationDone(String verificationToken) {
-        runOnUiThread(() -> {
+        BackgroundUtils.runOnMainThread(() -> {
             captchaHolder.addNewToken(verificationToken, RECAPTCHA_TOKEN_LIVE_TIME);
 
             String token;
@@ -184,7 +185,7 @@ public class CaptchaNoJsLayoutV2
     // Called when we got response from re-captcha but could not parse some part of it
     @Override
     public void onCaptchaInfoParseError(Throwable error) {
-        runOnUiThread(() -> {
+        BackgroundUtils.runOnMainThread(() -> {
             Logger.e(TAG, "CaptchaV2 error", error);
             showToast(error.getMessage(), Toast.LENGTH_LONG);
             captchaVerifyButton.setEnabled(true);
