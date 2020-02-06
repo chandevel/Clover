@@ -494,9 +494,7 @@ public class ThreadPresenter
     }
 
     public void refreshUI() {
-        if (chanLoader != null && chanLoader.getThread() != null) {
-            showPosts(true);
-        }
+        showPosts(true);
     }
 
     public void showAlbum() {

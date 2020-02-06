@@ -86,10 +86,8 @@ public abstract class ThreadController
 
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        if (navigation.handlesToolbarInset) {
-            int toolbarHeight = getToolbar().getToolbarHeight();
-            swipeRefreshLayout.setProgressViewOffset(false, toolbarHeight - dp(40), toolbarHeight + dp(64 - 40));
-        }
+        int toolbarHeight = getToolbar().getToolbarHeight();
+        swipeRefreshLayout.setProgressViewOffset(false, toolbarHeight - dp(40), toolbarHeight + dp(64 - 40));
 
         view = swipeRefreshLayout;
     }
