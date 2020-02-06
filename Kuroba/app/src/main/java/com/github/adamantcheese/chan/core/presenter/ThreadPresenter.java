@@ -552,7 +552,7 @@ public class ThreadPresenter
 
             loadable.setLastLoaded(result.getPosts().get(result.getPostsCount() - 1).no);
 
-            if (more > 0 && loadable.no == result.getOp().no) {
+            if (more > 0 && loadable.no == result.getLoadable().no) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
                 //deal with any "requests" for a page update
                 if (forcePageUpdate) {
