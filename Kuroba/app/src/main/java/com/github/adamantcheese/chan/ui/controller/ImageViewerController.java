@@ -313,8 +313,11 @@ public class ImageViewerController
                 if (ChanSettings.saveThreadFolder.get()) {
                     subFolderName = appendAdditionalSubDirectories(postImage);
                 } else {
-                    subFolderName =
-                            presenter.getLoadable().site.name() + File.separator + presenter.getLoadable().boardCode;
+                    String siteNameSafe = StringUtils.dirNameRemoveBadCharacters(
+                            presenter.getLoadable().site.name()
+                    );
+
+                    subFolderName = siteNameSafe + File.separator + presenter.getLoadable().boardCode;
                 }
 
                 task.setSubFolder(subFolderName);
