@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.utils.BackgroundUtils
+import com.github.adamantcheese.chan.utils.exhaustive
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.BackpressureStrategy
@@ -110,6 +111,7 @@ internal class ChunkPersister(
         }, BackpressureStrategy.BUFFER)
     }
 
+    @Synchronized
     private fun handleErrors(
             url: String,
             totalChunksCount: Int,
@@ -119,24 +121,16 @@ internal class ChunkPersister(
             emitter: FlowableEmitter<ChunkDownloadEvent>
     ) {
         val state = activeDownloads.getState(url)
-        val isStoppedOrCanceled = state == DownloadState.Canceled
-                || state == DownloadState.Stopped
+        val isStoppedOrCanceled = state == DownloadState.Canceled || state == DownloadState.Stopped
 
         // If totalChunksCount == 1 then there is nothing else to stop so we can just emit
         // one error
         if (isStoppedOrCanceled || totalChunksCount > 1 && error !is IOException) {
             when (state) {
-                DownloadState.Canceled -> {
-                    activeDownloads.get(url)?.cancelableDownload?.cancel()
-                }
-                DownloadState.Stopped -> {
-                    activeDownloads.get(url)?.cancelableDownload?.stop()
-                }
-                else -> {
-                    throw RuntimeException("Expected: Canceled or Stopped, but " +
-                            "actual state is Running")
-                }
-            }
+                DownloadState.Running,
+                DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
+                DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
+            }.exhaustive
 
             log(TAG, "pipeChunk($chunkIndex) ($url) cancel for chunk ${chunk.start}..${chunk.end}")
             if (isStoppedOrCanceled) {
@@ -150,8 +144,7 @@ internal class ChunkPersister(
             }
         } else {
             emitter.tryOnError(error)
-            log(TAG, "pipeChunk($chunkIndex) ($url) fail " +
-                    "for chunk ${chunk.start}..${chunk.end}")
+            log(TAG, "pipeChunk($chunkIndex) ($url) fail for chunk ${chunk.start}..${chunk.end}")
         }
     }
 
