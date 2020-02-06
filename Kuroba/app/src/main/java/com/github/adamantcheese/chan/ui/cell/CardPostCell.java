@@ -139,6 +139,7 @@ public class CardPostCell
         super.onDetachedFromWindow();
 
         if (post != null && bound) {
+            thumbView.setPostImage(loadable, null, false, 0, 0);
             bound = false;
         }
     }
