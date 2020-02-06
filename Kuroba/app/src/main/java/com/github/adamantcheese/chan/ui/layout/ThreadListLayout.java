@@ -477,8 +477,15 @@ public class ThreadListLayout
     }
 
     public boolean canChildScrollUp() {
-        if (replyOpen || searchOpen) {
+        if (replyOpen) {
             return true;
+        }
+
+        if (searchOpen) {
+            if (getTopAdapterPosition() == 0) {
+                View top = layoutManager.findViewByPosition(0);
+                return top.getTop() != findViewById(R.id.search_status).getHeight();
+            }
         }
 
         switch (postViewMode) {
