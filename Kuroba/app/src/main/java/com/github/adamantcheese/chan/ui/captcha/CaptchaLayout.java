@@ -65,7 +65,6 @@ public class CaptchaLayout
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
     private static final String COOKIE_DOMAIN = "google.com";
-    private static final String COOKIE_FORMAT = "HSID=%s; SSID=%s; SID=%s; NID=%s; path=/; domain=.google.com";
 
     private AuthenticationLayoutCallback callback;
     private boolean loaded = false;
@@ -149,17 +148,11 @@ public class CaptchaLayout
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
         cookieManager.setAcceptThirdPartyCookies(this, true);
+        cookieManager.removeAllCookie();
 
-        String cookies = String.format(
-                Locale.US,
-                COOKIE_FORMAT,
-                jsCaptchaCookiesJar.getHsidCookie(),
-                jsCaptchaCookiesJar.getSsidCookie(),
-                jsCaptchaCookiesJar.getSidCookie(),
-                jsCaptchaCookiesJar.getNidCookie()
-        );
-
-        cookieManager.setCookie(COOKIE_DOMAIN, cookies);
+        for(String c : jsCaptchaCookiesJar.getCookies()) {
+            cookieManager.setCookie(COOKIE_DOMAIN, c);
+        }
     }
 
     public void reset() {

@@ -20,6 +20,15 @@ data class JsCaptchaCookiesJar(
                 && nidCookie.isNotEmpty()
     }
 
+    fun getCookies(): Array<String> {
+        return arrayOf(
+                "HSID=$hsidCookie$COOKIE_SUFFIX",
+                "SSID=$ssidCookie$COOKIE_SUFFIX",
+                "SID=$sidCookie$COOKIE_SUFFIX",
+                "NID=$nidCookie$COOKIE_SUFFIX"
+        )
+    }
+
     companion object {
         @JvmStatic
         fun empty(): JsCaptchaCookiesJar {
@@ -30,5 +39,7 @@ data class JsCaptchaCookiesJar(
                     nidCookie = ""
             )
         }
+
+        private const val COOKIE_SUFFIX = "; path=/; domain=.google.com"
     }
 }
