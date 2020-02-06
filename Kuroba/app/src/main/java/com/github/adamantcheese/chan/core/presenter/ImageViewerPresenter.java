@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.media.AudioManager;
 
 import androidx.viewpager.widget.ViewPager;
@@ -61,6 +62,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class ImageViewerPresenter
         implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewerPresenter";
+    private Context context;
     private static final int PRELOAD_IMAGE_INDEX = 1;
     /**
      * We don't want to cancel an image right after we have started preloading it because it
@@ -92,7 +94,8 @@ public class ImageViewerPresenter
 
     private boolean muted;
 
-    public ImageViewerPresenter(Callback callback) {
+    public ImageViewerPresenter(Context context, Callback callback) {
+        this.context = context;
         this.callback = callback;
         inject(this);
 
@@ -626,12 +629,12 @@ public class ImageViewerPresenter
         PostImage currentImage = getCurrentPostImage();
 
         if (fileCacheV2.isRunning(currentImage.imageUrl.toString())) {
-            showToast("Image is not yet downloaded");
+            showToast(context, "Image is not yet downloaded");
             return false;
         }
 
         if (!cacheHandler.deleteCacheFileByUrl(currentImage.imageUrl.toString())) {
-            showToast("Can't force reload because couldn't delete cached image");
+            showToast(context, "Can't force reload because couldn't delete cached image");
             return false;
         }
 

@@ -224,7 +224,7 @@ public class ImportExportSettingsController
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showToast(reason, Toast.LENGTH_LONG);
+                showToast(context, reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -243,7 +243,7 @@ public class ImportExportSettingsController
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showToast(reason, Toast.LENGTH_LONG);
+                showToast(context, reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -256,7 +256,7 @@ public class ImportExportSettingsController
             String message = "onFileChosen() fileManager.fromUri() returned null, uri = " + uri;
 
             Logger.d(TAG, message);
-            showToast(message, Toast.LENGTH_LONG);
+            showToast(context, message, Toast.LENGTH_LONG);
             return;
         }
 
@@ -273,7 +273,7 @@ public class ImportExportSettingsController
                     String message = "onImportClicked() fileManager.fromUri() returned null, uri = " + uri;
 
                     Logger.d(TAG, message);
-                    showToast(message, Toast.LENGTH_LONG);
+                    showToast(context, message, Toast.LENGTH_LONG);
                     return;
                 }
 
@@ -283,7 +283,7 @@ public class ImportExportSettingsController
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showToast(reason, Toast.LENGTH_LONG);
+                showToast(context, reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -297,7 +297,7 @@ public class ImportExportSettingsController
                     ((StartActivity) context).restartApp();
                 } else {
                     loadingViewController.stopPresenting();
-                    showToast(R.string.successfully_exported_text, Toast.LENGTH_LONG);
+                    showToast(context, R.string.successfully_exported_text, Toast.LENGTH_LONG);
 
                     if (callbacks != null) {
                         callbacks.finish();
@@ -311,7 +311,7 @@ public class ImportExportSettingsController
     public void onError(String message) {
         BackgroundUtils.runOnMainThread(() -> {
             loadingViewController.stopPresenting();
-            showToast(message, Toast.LENGTH_LONG);
+            showToast(context, message, Toast.LENGTH_LONG);
         });
     }
 

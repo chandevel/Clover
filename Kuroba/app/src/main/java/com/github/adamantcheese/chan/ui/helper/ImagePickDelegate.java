@@ -134,7 +134,7 @@ public class ImagePickDelegate {
             chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new Intent[0]));
             activity.startActivityForResult(chooser, IMAGE_PICK_RESULT);
         } else {
-            showToast(R.string.open_file_picker_failed, Toast.LENGTH_LONG);
+            showToast(activity, R.string.open_file_picker_failed, Toast.LENGTH_LONG);
             callback.onFilePickError(false);
             reset();
         }

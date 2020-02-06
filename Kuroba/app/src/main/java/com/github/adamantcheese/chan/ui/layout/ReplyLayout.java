@@ -482,7 +482,7 @@ public class ReplyLayout
 
     @Override
     public void onPosted() {
-        showToast(R.string.reply_success);
+        showToast(getContext(), R.string.reply_success);
         callback.openReply(false);
         callback.requestNewPostLoad();
     }

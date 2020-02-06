@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.presenter
 
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import com.github.adamantcheese.chan.R
@@ -21,7 +22,8 @@ import java.util.concurrent.Executors
 class MediaSettingsControllerPresenter(
         private val fileManager: FileManager,
         private val fileChooser: FileChooser,
-        private var callbacks: MediaSettingsControllerCallbacks?
+        private var callbacks: MediaSettingsControllerCallbacks?,
+        private var context: Context
 ) {
     private val fileCopyingExecutor = Executors.newSingleThreadExecutor()
 
@@ -40,7 +42,7 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
                 if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(uri)) {
-                    showToast(R.string.media_settings_base_directory_is_already_registered)
+                    showToast(context, R.string.media_settings_base_directory_is_already_registered)
                     return
                 }
 
@@ -56,7 +58,7 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
                 if (newLocalThreadsDirectory == null) {
-                    showToast(R.string.media_settings_new_threads_base_dir_not_registered)
+                    showToast(context, R.string.media_settings_new_threads_base_dir_not_registered)
                     return
                 }
 
@@ -69,7 +71,7 @@ class MediaSettingsControllerPresenter(
             }
 
             override fun onCancel(reason: String) {
-                showToast(reason, Toast.LENGTH_LONG)
+                showToast(context, reason, Toast.LENGTH_LONG)
             }
         })
     }
@@ -79,12 +81,12 @@ class MediaSettingsControllerPresenter(
                 fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
         if (oldLocalThreadsDirectory == null) {
-            showToast(R.string.media_settings_old_threads_base_dir_not_registered)
+            showToast(context, R.string.media_settings_old_threads_base_dir_not_registered)
             return
         }
 
         if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(dirPath)) {
-            showToast(R.string.media_settings_base_directory_is_already_registered)
+            showToast(context, R.string.media_settings_base_directory_is_already_registered)
             return
         }
 
@@ -95,7 +97,7 @@ class MediaSettingsControllerPresenter(
                 fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
         if (newLocalThreadsDirectory == null) {
-            showToast(R.string.media_settings_new_threads_base_dir_not_registered)
+            showToast(context, R.string.media_settings_new_threads_base_dir_not_registered)
             return
         }
 
@@ -117,7 +119,7 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
                 if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(uri)) {
-                    showToast(R.string.media_settings_base_directory_is_already_registered)
+                    showToast(context, R.string.media_settings_base_directory_is_already_registered)
                     return
                 }
 
@@ -133,7 +135,7 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
                 if (newSavedFilesBaseDirectory == null) {
-                    showToast(R.string.media_settings_new_saved_files_base_dir_not_registered)
+                    showToast(context, R.string.media_settings_new_saved_files_base_dir_not_registered)
                     return
                 }
 
@@ -146,7 +148,7 @@ class MediaSettingsControllerPresenter(
             }
 
             override fun onCancel(reason: String) {
-                showToast(reason, Toast.LENGTH_LONG)
+                showToast(context, reason, Toast.LENGTH_LONG)
             }
         })
     }
@@ -155,12 +157,12 @@ class MediaSettingsControllerPresenter(
         val oldSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
         if (oldSaveFilesDirectory == null) {
-            showToast(R.string.media_settings_old_saved_files_base_dir_not_registered)
+            showToast(context, R.string.media_settings_old_saved_files_base_dir_not_registered)
             return
         }
 
         if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(dirPath)) {
-            showToast(R.string.media_settings_base_directory_is_already_registered)
+            showToast(context, R.string.media_settings_base_directory_is_already_registered)
             return
         }
 
@@ -169,7 +171,7 @@ class MediaSettingsControllerPresenter(
 
         val newSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
         if (newSaveFilesDirectory == null) {
-            showToast(R.string.media_settings_new_saved_files_base_dir_not_registered)
+            showToast(context, R.string.media_settings_new_saved_files_base_dir_not_registered)
             return
         }
 
@@ -204,7 +206,7 @@ class MediaSettingsControllerPresenter(
         }
 
         if (filesCount == 0) {
-            showToast(R.string.media_settings_no_files_to_copy)
+            showToast(context, R.string.media_settings_no_files_to_copy)
             return
         }
 
@@ -255,7 +257,7 @@ class MediaSettingsControllerPresenter(
             // turned on! In such case we want to notify the user that the setting is PROBABLY on
             // so they should disable it if it's really turned on because that setting will kill
             // any activity as soon as it goes into the "Paused" state.
-            showToast(R.string.media_settings_dont_keep_activities_setting_is_probably_turned_on, Toast.LENGTH_LONG)
+            showToast(context, R.string.media_settings_dont_keep_activities_setting_is_probably_turned_on, Toast.LENGTH_LONG)
         } else {
             runOnMainThread {
                 func(callbacks!!)

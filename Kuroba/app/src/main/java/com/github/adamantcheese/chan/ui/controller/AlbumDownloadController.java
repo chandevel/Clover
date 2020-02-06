@@ -126,7 +126,7 @@ public class AlbumDownloadController
         if (v == download) {
             int checkCount = getCheckCount();
             if (checkCount == 0) {
-                showToast(R.string.album_download_none_checked);
+                showToast(context, R.string.album_download_none_checked);
             } else {
                 String subFolder = ChanSettings.saveBoardFolder.get() ? (ChanSettings.saveThreadFolder.get()
                         ? appendAdditionalSubDirectories(items.get(0).postImage)
@@ -171,10 +171,10 @@ public class AlbumDownloadController
                 navigationController.presentController(loadingViewController);
                 break;
             case BaseDirectoryDoesNotExist:
-                showToast(R.string.files_base_dir_does_not_exist);
+                showToast(context, R.string.files_base_dir_does_not_exist);
                 break;
             case UnknownError:
-                showToast(R.string.album_download_could_not_save_one_or_more_images);
+                showToast(context, R.string.album_download_could_not_save_one_or_more_images);
                 break;
         }
     }

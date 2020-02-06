@@ -508,7 +508,7 @@ public class StartActivity
     public void onBackPressed() {
         if (!stackTop().onBack()) {
             if (!exitFlag) {
-                showToast(R.string.action_confirm_exit_title, Toast.LENGTH_LONG);
+                showToast(this, R.string.action_confirm_exit_title, Toast.LENGTH_LONG);
                 exitFlag = true;
             } else {
                 exitFlag = false;

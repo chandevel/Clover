@@ -117,7 +117,7 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
                             errorMessage
                     )
 
-                    showToast(formattedMessage)
+                    showToast(context, formattedMessage)
                 })
                 .also { disposable -> compositeDisposable.add(disposable) }
     }
@@ -125,7 +125,7 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
     private fun handleResult(result: MResult<Boolean>) {
         when (result) {
             is MResult.Value -> {
-                showToast(R.string.report_activity_report_sent_message)
+                showToast(context, R.string.report_activity_report_sent_message)
                 callbacks?.onFinished()
             }
             is MResult.Error -> {
@@ -135,7 +135,7 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
                         errorMessage
                 )
 
-                showToast(formattedMessage)
+                showToast(context, formattedMessage)
             }
         }
     }

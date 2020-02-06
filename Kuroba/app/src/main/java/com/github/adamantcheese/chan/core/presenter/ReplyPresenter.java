@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -71,6 +72,7 @@ public class ReplyPresenter
     }
 
     private static final String TAG = "ReplyPresenter";
+    private Context context;
     private static final Pattern QUOTE_PATTERN = Pattern.compile(">>\\d+");
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
@@ -94,11 +96,13 @@ public class ReplyPresenter
 
     @Inject
     public ReplyPresenter(
+            Context context,
             ReplyManager replyManager,
             WatchManager watchManager,
             DatabaseManager databaseManager,
             LastReplyRepository lastReplyRepository
     ) {
+        this.context = context;
         this.replyManager = replyManager;
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
@@ -490,7 +494,7 @@ public class ReplyPresenter
     public void onFilePickError(boolean canceled) {
         pickingFile = false;
         if (!canceled) {
-            showToast(R.string.reply_file_open_failed, Toast.LENGTH_LONG);
+            showToast(context, R.string.reply_file_open_failed, Toast.LENGTH_LONG);
         }
     }
 

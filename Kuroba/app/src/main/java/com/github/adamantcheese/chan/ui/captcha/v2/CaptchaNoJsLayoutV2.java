@@ -148,10 +148,10 @@ public class CaptchaNoJsLayoutV2
             case ALREADY_SHUTDOWN:
                 break;
             case HOLD_YOUR_HORSES:
-                showToast(R.string.captcha_layout_v2_you_are_requesting_captcha_too_fast, Toast.LENGTH_LONG);
+                showToast(getContext(), R.string.captcha_layout_v2_you_are_requesting_captcha_too_fast, Toast.LENGTH_LONG);
                 break;
             case ALREADY_IN_PROGRESS:
-                showToast(R.string.captcha_layout_v2_captcha_request_is_already_in_progress, Toast.LENGTH_LONG);
+                showToast(getContext(), R.string.captcha_layout_v2_captcha_request_is_already_in_progress, Toast.LENGTH_LONG);
                 break;
         }
     }
@@ -187,7 +187,7 @@ public class CaptchaNoJsLayoutV2
     public void onCaptchaInfoParseError(Throwable error) {
         BackgroundUtils.runOnMainThread(() -> {
             Logger.e(TAG, "CaptchaV2 error", error);
-            showToast(error.getMessage(), Toast.LENGTH_LONG);
+            showToast(getContext(), error.getMessage(), Toast.LENGTH_LONG);
             captchaVerifyButton.setEnabled(true);
             callback.onFallbackToV1CaptchaView(isAutoReply);
         });
@@ -259,10 +259,10 @@ public class CaptchaNoJsLayoutV2
                     captchaVerifyButton.setEnabled(false);
                     break;
                 case NO_IMAGES_SELECTED:
-                    showToast(R.string.captcha_layout_v2_you_have_to_select_at_least_one_image, Toast.LENGTH_LONG);
+                    showToast(getContext(), R.string.captcha_layout_v2_you_have_to_select_at_least_one_image, Toast.LENGTH_LONG);
                     break;
                 case ALREADY_IN_PROGRESS:
-                    showToast(R.string.captcha_layout_v2_verification_already_in_progress, Toast.LENGTH_LONG);
+                    showToast(getContext(), R.string.captcha_layout_v2_verification_already_in_progress, Toast.LENGTH_LONG);
                     break;
                 case ALREADY_SHUTDOWN:
                     // do nothing

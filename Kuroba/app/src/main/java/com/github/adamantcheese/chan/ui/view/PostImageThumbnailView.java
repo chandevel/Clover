@@ -151,7 +151,7 @@ public class PostImageThumbnailView
 
         ClipData clip = ClipData.newPlainText("Image URL", postImage.imageUrl.toString());
         getClipboardManager().setPrimaryClip(clip);
-        showToast(R.string.image_url_copied_to_clipboard);
+        showToast(getContext(), R.string.image_url_copied_to_clipboard);
 
         return true;
     }

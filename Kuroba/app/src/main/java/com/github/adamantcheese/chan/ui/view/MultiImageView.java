@@ -531,7 +531,7 @@ public class MultiImageView
             @Override
             public void onError(@NotNull Throwable error) {
                 Logger.e(TAG, "Error while trying to stream a webm", error);
-                showToast("Couldn't open webm in streaming mode, error = " + error.getMessage());
+                showToast(context, "Couldn't open webm in streaming mode, error = " + error.getMessage());
             }
         });
     }

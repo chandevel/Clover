@@ -80,7 +80,7 @@ public class LogsController
     private void copyLogsClicked(ToolbarMenuSubItem item) {
         ClipData clip = ClipData.newPlainText("Logs", logText);
         getClipboardManager().setPrimaryClip(clip);
-        showToast(R.string.settings_logs_copied_to_clipboard);
+        showToast(context, R.string.settings_logs_copied_to_clipboard);
     }
 
     @Nullable

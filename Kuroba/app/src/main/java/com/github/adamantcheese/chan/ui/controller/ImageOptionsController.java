@@ -96,7 +96,7 @@ public class ImageOptionsController
         lastSettings = lastOptions;
         reencodeEnabled = supportsReencode;
 
-        presenter = new ImageReencodingPresenter(this, loadable, lastOptions);
+        presenter = new ImageReencodingPresenter(context, this, loadable, lastOptions);
     }
 
     @Override

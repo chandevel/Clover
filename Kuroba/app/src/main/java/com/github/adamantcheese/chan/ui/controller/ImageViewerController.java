@@ -138,7 +138,7 @@ public class ImageViewerController
         this.toolbar = toolbar;
         this.loadable = loadable;
 
-        presenter = new ImageViewerPresenter(this);
+        presenter = new ImageViewerPresenter(context, this);
     }
 
     @Override
@@ -324,7 +324,7 @@ public class ImageViewerController
                 String errorMessage =
                         String.format(Locale.US, "%s, error message = %s", "Couldn't start download task", message);
 
-                showToast(errorMessage, Toast.LENGTH_LONG);
+                showToast(context, errorMessage, Toast.LENGTH_LONG);
             });
         }
     }

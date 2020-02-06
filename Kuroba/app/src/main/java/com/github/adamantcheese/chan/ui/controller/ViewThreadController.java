@@ -220,7 +220,7 @@ public class ViewThreadController
             if (granted) {
                 saveClickedInternal();
             } else {
-                showToast(R.string.view_thread_controller_thread_downloading_requires_write_permission,
+                showToast(context, R.string.view_thread_controller_thread_downloading_requires_write_permission,
                         Toast.LENGTH_LONG
                 );
             }
@@ -232,19 +232,19 @@ public class ViewThreadController
 
         if (baseLocalThreadsDir == null) {
             Logger.e(TAG, "saveClickedInternal() fileManager.newLocalThreadFile() returned null");
-            showToast(R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
+            showToast(context, R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
             return;
         }
 
         if (!fileManager.exists(baseLocalThreadsDir) && fileManager.create(baseLocalThreadsDir) == null) {
             Logger.e(TAG, "saveClickedInternal() Couldn't create baseLocalThreadsDir");
-            showToast(R.string.could_not_create_base_local_threads_dir, Toast.LENGTH_LONG);
+            showToast(context, R.string.could_not_create_base_local_threads_dir, Toast.LENGTH_LONG);
             return;
         }
 
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
             Logger.e(TAG, "Base local threads directory does not exist");
-            showToast(R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
+            showToast(context, R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
             return;
         }
 
@@ -287,7 +287,7 @@ public class ViewThreadController
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            showToast(R.string.cannot_open_in_browser_already_deleted);
+            showToast(context, R.string.cannot_open_in_browser_already_deleted);
             return;
         }
 
@@ -297,7 +297,7 @@ public class ViewThreadController
 
     private void shareClicked(ToolbarMenuSubItem item) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            showToast(R.string.cannot_shared_thread_already_deleted);
+            showToast(context, R.string.cannot_shared_thread_already_deleted);
             return;
         }
 

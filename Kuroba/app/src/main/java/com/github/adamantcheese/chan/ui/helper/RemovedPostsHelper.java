@@ -52,7 +52,7 @@ public class RemovedPostsHelper {
             List<Post> removedPosts = getRemovedPosts(threadPosts, threadNo);
 
             if (removedPosts.isEmpty()) {
-                showToast(R.string.no_removed_posts_for_current_thread);
+                showToast(context, R.string.no_removed_posts_for_current_thread);
                 return null;
             }
 

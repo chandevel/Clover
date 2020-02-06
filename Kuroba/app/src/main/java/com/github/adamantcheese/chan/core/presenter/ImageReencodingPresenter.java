@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Pair;
@@ -50,6 +51,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageReencodingPresenter {
     private final static String TAG = "ImageReencodingPresenter";
+    private Context context;
 
     @Inject
     ReplyManager replyManager;
@@ -60,11 +62,12 @@ public class ImageReencodingPresenter {
     private ImageOptions imageOptions;
     private BackgroundUtils.Cancelable cancelable;
 
-    public ImageReencodingPresenter(
+    public ImageReencodingPresenter(Context context,
             ImageReencodingPresenterCallback callback, Loadable loadable, ImageOptions lastOptions
     ) {
         inject(this);
 
+        this.context = context;
         this.loadable = loadable;
         this.callback = callback;
         if (lastOptions != null) {
@@ -90,7 +93,7 @@ public class ImageReencodingPresenter {
                 //decode to the device width/height, whatever is smaller
                 dp(displaySize.x > displaySize.y ? displaySize.y : displaySize.x), 0, bitmap -> {
                     if (bitmap == null) {
-                        showToast(R.string.could_not_decode_image_bitmap);
+                        showToast(context, R.string.could_not_decode_image_bitmap);
                         return;
                     }
 
@@ -198,7 +201,7 @@ public class ImageReencodingPresenter {
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to re-encode bitmap file", error);
                 callback.disableOrEnableButtons(true);
-                showToast(getString(R.string.could_not_apply_image_options, error.getMessage()));
+                showToast(context, getString(R.string.could_not_apply_image_options, error.getMessage()));
                 cancelable = null;
                 return;
             } finally {

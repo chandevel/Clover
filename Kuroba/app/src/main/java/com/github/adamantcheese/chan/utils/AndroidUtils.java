@@ -141,7 +141,7 @@ public class AndroidUtils {
 
         ComponentName resolvedActivity = intent.resolveActivity(pm);
         if (resolvedActivity == null) {
-            showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
+            showToast(application, R.string.open_link_failed, Toast.LENGTH_LONG);
         } else {
             boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(application.getPackageName());
             if (!thisAppIsDefault) {
@@ -164,7 +164,7 @@ public class AndroidUtils {
                     chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, filteredIntents.toArray(new Intent[0]));
                     openIntent(chooser);
                 } else {
-                    showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
+                    showToast(application, R.string.open_link_failed, Toast.LENGTH_LONG);
                 }
             }
         }
@@ -190,7 +190,7 @@ public class AndroidUtils {
                 tabsIntent.launchUrl(activity, Uri.parse(link));
             } catch (ActivityNotFoundException e) {
                 // Can't check it beforehand so catch the exception
-                showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
+                showToast(activity, R.string.open_link_failed, Toast.LENGTH_LONG);
             }
         } else {
             openLink(link);
@@ -210,7 +210,7 @@ public class AndroidUtils {
         if (intent.resolveActivity(application.getPackageManager()) != null) {
             application.startActivity(intent);
         } else {
-            showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
+            showToast(application, R.string.open_link_failed, Toast.LENGTH_LONG);
         }
     }
 
@@ -425,20 +425,20 @@ public class AndroidUtils {
         return displaySize;
     }
 
-    public static void showToast(String message, int duration) {
+    public static void showToast(Context context, String message, int duration) {
         BackgroundUtils.runOnMainThread(() -> Toast.makeText(application, message, duration).show());
     }
 
-    public static void showToast(String message) {
-        BackgroundUtils.runOnMainThread(() -> Toast.makeText(application, message, Toast.LENGTH_SHORT).show());
+    public static void showToast(Context context, String message) {
+        showToast(context, message, Toast.LENGTH_SHORT);
     }
 
-    public static void showToast(int resId, int duration) {
-        BackgroundUtils.runOnMainThread(() -> Toast.makeText(application, getString(resId), duration).show());
+    public static void showToast(Context context, int resId, int duration) {
+        showToast(context, getString(resId), duration);
     }
 
-    public static void showToast(int resId) {
-        BackgroundUtils.runOnMainThread(() -> Toast.makeText(application, getString(resId), Toast.LENGTH_SHORT).show());
+    public static void showToast(Context context, int resId) {
+        showToast(context, getString(resId));
     }
 
     private static InputMethodManager getInputManager() {

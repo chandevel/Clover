@@ -111,7 +111,7 @@ public class BehaviourSettingsController
                 // TODO: don't do this here.
                 DatabaseManager databaseManager = instance(DatabaseManager.class);
                 databaseManager.runTask(databaseManager.getDatabaseHideManager().clearAllThreadHides());
-                showToast(R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG);
+                showToast(context, R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG);
                 postToEventBus(new RefreshUIMessage("clearhides"));
             }));
 

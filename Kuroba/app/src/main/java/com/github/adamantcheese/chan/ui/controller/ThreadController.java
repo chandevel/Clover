@@ -145,7 +145,7 @@ public abstract class ThreadController
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            showToast(R.string.cannot_send_thread_via_nfc_already_deleted);
+            showToast(context, R.string.cannot_send_thread_via_nfc_already_deleted);
             return null;
         }
 

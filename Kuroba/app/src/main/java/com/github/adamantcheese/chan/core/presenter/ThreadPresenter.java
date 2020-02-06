@@ -436,7 +436,7 @@ public class ThreadPresenter
         }
 
         if (!ChanSettings.watchEnabled.get() || !ChanSettings.watchBackground.get()) {
-            showToast(R.string.thread_layout_background_watcher_is_disabled_message, Toast.LENGTH_LONG);
+            showToast(context, R.string.thread_layout_background_watcher_is_disabled_message, Toast.LENGTH_LONG);
         }
 
         return true;
@@ -1022,7 +1022,7 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_MOCK_REPLY:
                 mockReplyManager.addMockReply(post.board.siteId, post.board.code, loadable.no, post.no);
-                showToast("Refresh to add mock replies");
+                showToast(context, "Refresh to add mock replies");
                 break;
         }
     }

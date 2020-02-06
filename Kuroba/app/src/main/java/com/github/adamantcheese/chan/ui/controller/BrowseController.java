@@ -288,7 +288,7 @@ public class BrowseController
     private void handleShareAndOpenInBrowser(ThreadPresenter presenter, boolean share) {
         if (presenter.isBound()) {
             if (presenter.getChanThread() == null) {
-                showToast(R.string.cannot_open_in_browser_already_deleted);
+                showToast(context, R.string.cannot_open_in_browser_already_deleted);
                 return;
             }
 

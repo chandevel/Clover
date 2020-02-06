@@ -332,7 +332,7 @@ public class ThreadLayout
     public void clipboardPost(Post post) {
         ClipData clip = ClipData.newPlainText("Post text", post.comment.toString());
         getClipboardManager().setPrimaryClip(clip);
-        showToast(R.string.post_text_copied);
+        showToast(getContext(), R.string.post_text_copied);
     }
 
     @Override

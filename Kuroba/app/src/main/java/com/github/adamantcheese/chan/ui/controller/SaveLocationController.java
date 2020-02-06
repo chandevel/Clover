@@ -121,7 +121,7 @@ public class SaveLocationController
 
     private void onPositionButtonClick(NewFolderLayout dialogView, DialogInterface dialog) {
         if (!dialogView.getFolderName().matches("\\A\\w+\\z")) {
-            showToast("Folder must be a word, no spaces");
+            showToast(context, "Folder must be a word, no spaces");
         } else {
             File newDir = new File(
                     fileWatcher.getCurrentPath().getAbsolutePath() + File.separator + dialogView.getFolderName());
