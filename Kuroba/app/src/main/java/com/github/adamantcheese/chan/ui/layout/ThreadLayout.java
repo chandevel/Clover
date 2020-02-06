@@ -135,6 +135,7 @@ public class ThreadLayout
     public ThreadLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         inject(this);
+        newPostsNotification = Snackbar.make(this, "", Snackbar.LENGTH_LONG); //so there's no null reference
     }
 
     public void create(ThreadLayoutCallback callback) {
@@ -604,22 +605,31 @@ public class ThreadLayout
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
                 newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
                     presenter.onNewPostsViewClicked();
-                    newPostsNotification.dismiss();
-                    newPostsNotification = null;
-                }).show();
-                postDelayed(() -> {
                     if (newPostsNotification != null) {
                         newPostsNotification.dismiss();
-                        newPostsNotification = null;
                     }
-                }, 3500);
+                }).show();
                 fixSnackbarText(getContext(), newPostsNotification);
             }
         } else {
-            if (newPostsNotification != null) {
+            if (newPostsNotification != null) { //just to be sure
                 newPostsNotification.dismiss();
-                newPostsNotification = null;
             }
+        }
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        newPostsNotification = Snackbar.make(this, "", Snackbar.LENGTH_LONG); //so there's no null reference
+    }
+
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (newPostsNotification != null) {
+            newPostsNotification.dismiss();
+            newPostsNotification = null;
         }
     }
 
@@ -684,7 +694,6 @@ public class ThreadLayout
                     showReplyButton(false);
                     if (newPostsNotification != null) {
                         newPostsNotification.dismiss();
-                        newPostsNotification = null;
                     }
                 }
             }

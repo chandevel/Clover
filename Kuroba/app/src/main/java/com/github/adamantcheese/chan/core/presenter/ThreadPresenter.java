@@ -215,7 +215,6 @@ public class ThreadPresenter
             addToLocalBackHistory = true;
             cancelPrefetching();
 
-            threadPresenterCallback.showNewPostsNotification(false, -1);
             threadPresenterCallback.showLoading();
         }
     }
