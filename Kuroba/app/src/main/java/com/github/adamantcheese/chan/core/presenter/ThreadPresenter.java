@@ -561,7 +561,7 @@ public class ThreadPresenter
                 }
             }
 
-            if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal()) {
+            if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal() && !loadable.isDownloading()) {
                 List<PostImage> postImageList = new ArrayList<>(16);
                 cancelPrefetching();
 
