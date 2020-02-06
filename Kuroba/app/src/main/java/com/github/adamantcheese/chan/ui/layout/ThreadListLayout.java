@@ -484,7 +484,17 @@ public class ThreadListLayout
         if (searchOpen) {
             if (getTopAdapterPosition() == 0) {
                 View top = layoutManager.findViewByPosition(0);
-                return top.getTop() != findViewById(R.id.search_status).getHeight();
+                int searchExtraHeight = findViewById(R.id.search_status).getHeight();
+                if (postViewMode == ChanSettings.PostViewMode.LIST) {
+                    return top.getTop() != searchExtraHeight;
+                } else {
+                    if (top instanceof PostStubCell) {
+                        // PostStubCell does not have grid_card_margin
+                        return top.getTop() != searchExtraHeight + dp(1);
+                    } else {
+                        return top.getTop() != getDimen(R.dimen.grid_card_margin) + dp(1) + searchExtraHeight;
+                    }
+                }
             }
         }
 
