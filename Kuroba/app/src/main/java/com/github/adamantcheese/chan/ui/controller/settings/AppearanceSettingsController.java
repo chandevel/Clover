@@ -87,8 +87,14 @@ public class AppearanceSettingsController
             requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.moveInputToBottom,
                     "Bottom input",
-                    "Makes the captcha and reply input float to the bottom of the screen"
+                    "Makes the reply input float to the bottom of the screen"
             )));
+
+            layout.add(new BooleanSettingView(this,
+                    ChanSettings.captchaOnBottom,
+                    "Bottom captcha",
+                    "Makes the JS captcha float to the bottom of the screen"
+            ));
 
             requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.useImmersiveModeForGallery,

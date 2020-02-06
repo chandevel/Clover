@@ -268,6 +268,8 @@ public class ChanSettings {
     public static final BooleanSetting allowFilePickChooser;
     public static final BooleanSetting autoCrashLogsUpload;
 
+    public static final BooleanSetting captchaOnBottom;
+
     static {
         try {
             SettingProvider p = new SharedPreferencesSettingProvider(getPreferences());
@@ -408,15 +410,10 @@ public class ChanSettings {
                     ImageClickPreloadStrategy.class,
                     ImageClickPreloadStrategy.PreloadNext
             );
-            imageViewerGestures = new BooleanSetting(p,
-                    "image_viewer_gestures",
-                    true
-            );
+            imageViewerGestures = new BooleanSetting(p, "image_viewer_gestures", true);
             allowFilePickChooser = new BooleanSetting(p, "allow_file_picker_chooser", false);
-            autoCrashLogsUpload = new BooleanSetting(p,
-                    "auto_upload_crash_logs",
-                    true
-            );
+            autoCrashLogsUpload = new BooleanSetting(p, "auto_upload_crash_logs", true);
+            captchaOnBottom = new BooleanSetting(p, "captcha_on_bottom", true);
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.

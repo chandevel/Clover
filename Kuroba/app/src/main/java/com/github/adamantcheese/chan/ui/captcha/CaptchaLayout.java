@@ -43,7 +43,6 @@ import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -56,7 +55,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class CaptchaLayout
         extends WebView
@@ -150,7 +148,7 @@ public class CaptchaLayout
         cookieManager.setAcceptThirdPartyCookies(this, true);
         cookieManager.removeAllCookie();
 
-        for(String c : jsCaptchaCookiesJar.getCookies()) {
+        for (String c : jsCaptchaCookiesJar.getCookies()) {
             cookieManager.setCookie(COOKIE_DOMAIN, c);
         }
     }
@@ -170,7 +168,7 @@ public class CaptchaLayout
 
     @Override
     public void hardReset() {
-        String html = IOUtils.assetAsString(getContext(), "captcha/captcha2.html");
+        String html = IOUtils.assetAsString(getContext(), "html/captcha2.html");
         html = html.replace("__site_key__", siteKey);
         html = html.replace("__theme__", ThemeHelper.getTheme().isLightTheme ? "light" : "dark");
 
@@ -192,7 +190,12 @@ public class CaptchaLayout
         html = html.replace(
                 "__positioning_horizontal__",
                 //equal is left, greater is right
-                (isSplitMode ? (containerWidth == displaySize.x * 0.35 ? "left: 0" : "right: 0") : "left: 0")
+                isSplitMode ? (containerWidth == displaySize.x * 0.35 ? "left" : "right") : "left"
+        );
+        html = html.replace(
+                "__positioning_vertical__",
+                //split mode should always be on the bottom
+                isSplitMode ? "bottom" : (ChanSettings.captchaOnBottom.get() ? "bottom" : "top")
         );
 
         loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);

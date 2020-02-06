@@ -133,7 +133,7 @@ public class LegacyCaptchaLayout
     @Override
     public void reset() {
         input.setText("");
-        String html = IOUtils.assetAsString(getContext(), "captcha/captcha_legacy.html");
+        String html = IOUtils.assetAsString(getContext(), "html/captcha_legacy.html");
         html = html.replace("__site_key__", siteKey);
         internalWebView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
         image.setUrl(null);
