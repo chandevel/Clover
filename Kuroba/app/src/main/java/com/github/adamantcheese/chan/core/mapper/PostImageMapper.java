@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.mapper;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.save.SerializablePostImage;
 
@@ -10,7 +12,12 @@ import okhttp3.HttpUrl;
 
 public class PostImageMapper {
 
+    @Nullable
     public static SerializablePostImage toSerializablePostImage(PostImage postImage) {
+        if (postImage.imageUrl == null) {
+            return null;
+        }
+
         return new SerializablePostImage(
                 postImage.serverFilename,
                 postImage.filename,
@@ -30,17 +37,27 @@ public class PostImageMapper {
         List<SerializablePostImage> serializablePostImageList = new ArrayList<>(postImageList.size());
 
         for (PostImage postImage : postImageList) {
-            serializablePostImageList.add(toSerializablePostImage(postImage));
+            SerializablePostImage serializablePostImage = toSerializablePostImage(postImage);
+            if (serializablePostImage == null) {
+                continue;
+            }
+
+            serializablePostImageList.add(serializablePostImage);
         }
 
         return serializablePostImageList;
     }
 
+    @Nullable
     public static PostImage fromSerializablePostImage(SerializablePostImage serializablePostImage) {
         HttpUrl imageUrl = null;
 
         if (serializablePostImage.getImageUrl() != null) {
             imageUrl = HttpUrl.parse(serializablePostImage.getImageUrl());
+        }
+
+        if (imageUrl == null) {
+            return null;
         }
 
         return new PostImage.Builder().serverFilename(serializablePostImage.getOriginalName())
@@ -61,7 +78,12 @@ public class PostImageMapper {
         List<PostImage> postImageList = new ArrayList<>(serializablePostImageList.size());
 
         for (SerializablePostImage serializablePostImage : serializablePostImageList) {
-            postImageList.add(fromSerializablePostImage(serializablePostImage));
+            PostImage postImage = fromSerializablePostImage(serializablePostImage);
+            if (postImage == null) {
+                continue;
+            }
+
+            postImageList.add(postImage);
         }
 
         return postImageList;

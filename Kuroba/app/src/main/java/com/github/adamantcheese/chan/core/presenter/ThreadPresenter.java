@@ -565,19 +565,22 @@ public class ThreadPresenter
                 cancelPrefetching();
 
                 for (Post p : result.getPosts()) {
-                    if (p.images != null) {
-                        for (PostImage postImage : p.images) {
-                            if (cacheHandler.exists(postImage.imageUrl.toString())) {
-                                continue;
-                            }
+                    for (PostImage postImage : p.images) {
+                        if (postImage.imageUrl == null) {
+                            Logger.e(TAG, "onChanLoaderData() postImage.imageUrl == null");
+                            continue;
+                        }
 
-                            if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
-                                    && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
-                                postImageList.add(postImage);
-                            } else if (postImage.type == PostImage.Type.MOVIE
-                                    && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
-                                postImageList.add(postImage);
-                            }
+                        if (cacheHandler.exists(postImage.imageUrl.toString())) {
+                            continue;
+                        }
+
+                        if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
+                                && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
+                            postImageList.add(postImage);
+                        } else if (postImage.type == PostImage.Type.MOVIE
+                                && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
+                            postImageList.add(postImage);
                         }
                     }
                 }
@@ -843,6 +846,11 @@ public class ThreadPresenter
         for (Post item : posts) {
             if (!item.images.isEmpty()) {
                 for (PostImage image : item.images) {
+                    if (image.imageUrl == null) {
+                        Logger.e(TAG, "onThumbnailClicked() image.imageUrl == null");
+                        continue;
+                    }
+
                     if (!item.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl.toString())) {
                         //deleted posts always have 404'd images, but let it through if the file exists in cache
                         images.add(image);

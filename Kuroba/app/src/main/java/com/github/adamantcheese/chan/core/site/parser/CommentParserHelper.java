@@ -35,6 +35,7 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
@@ -60,6 +61,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParserHelper {
+    private static final String TAG = "CommentParserHelper";
     private static final LinkExtractor LINK_EXTRACTOR =
             LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
@@ -221,11 +223,18 @@ public class CommentParserHelper {
                                         || ((String) linkable.value).endsWith("mp4");
                         String spoilerThumbnail =
                                 "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png";
+
+                        HttpUrl imageUrl = HttpUrl.parse((String) linkable.value);
+                        if (imageUrl == null) {
+                            Logger.e(TAG, "addPostImages() couldn't parse linkable.value (" + linkable.value + ")");
+                            continue;
+                        }
+
                         post.images(Collections.singletonList(new PostImage.Builder().serverFilename(matcher.group(1))
                                 //spoiler thumb for some linked items, the image itself for the rest; probably not a great idea
                                 .thumbnailUrl(HttpUrl.parse(noThumbnail ? spoilerThumbnail : (String) linkable.value))
                                 .spoilerThumbnailUrl(HttpUrl.parse(spoilerThumbnail))
-                                .imageUrl(HttpUrl.parse((String) linkable.value))
+                                .imageUrl(imageUrl)
                                 .filename(matcher.group(1))
                                 .extension(matcher.group(2))
                                 .spoiler(true)

@@ -40,6 +40,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.VolleyError;
@@ -239,6 +240,11 @@ public class ImageViewerController
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
         PostImage postImage = presenter.getCurrentPostImage();
+        if (postImage.imageUrl == null) {
+            Logger.e(TAG, "openBrowserClicked() postImage.imageUrl is null");
+            return;
+        }
+
         if (ChanSettings.openLinkBrowser.get()) {
             openLink(postImage.imageUrl.toString());
         } else {
@@ -303,6 +309,11 @@ public class ImageViewerController
 
     private void saveShare(boolean share, PostImage postImage) {
         if (share && ChanSettings.shareUrl.get()) {
+            if (postImage.imageUrl == null) {
+                Logger.e(TAG, "saveShare() postImage.imageUrl == null");
+                return;
+            }
+
             shareLink(postImage.imageUrl.toString());
         } else {
             ImageSaveTask task = new ImageSaveTask(loadable, postImage, false);
@@ -489,6 +500,11 @@ public class ImageViewerController
                 for (ImageSearch imageSearch : ImageSearch.engines) {
                     if (((Integer) item.getId()) == imageSearch.getId()) {
                         final HttpUrl searchImageUrl = getSearchImageUrl(presenter.getCurrentPostImage());
+                        if (searchImageUrl == null) {
+                            Logger.e(TAG, "onFloatingMenuItemClicked() searchImageUrl == null");
+                            break;
+                        }
+
                         openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageUrl.toString()));
                         break;
                     }
@@ -760,6 +776,7 @@ public class ImageViewerController
      * @param postImage the post image
      * @return url of an image to be searched
      */
+    @Nullable
     private HttpUrl getSearchImageUrl(final PostImage postImage) {
         return postImage.type == PostImage.Type.MOVIE ? postImage.thumbnailUrl : postImage.imageUrl;
     }

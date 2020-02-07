@@ -48,7 +48,6 @@ import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloa
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class ImageSaveTask
         extends FileCacheListener {
@@ -90,6 +89,10 @@ public class ImageSaveTask
     }
 
     public String getPostImageUrl() {
+        if (postImage.imageUrl == null) {
+            throw new NullPointerException("imageUrl is null! loadable = " + loadable.toShortString());
+        }
+
         return postImage.imageUrl.toString();
     }
 
