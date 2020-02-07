@@ -529,9 +529,7 @@ public abstract class CommonSite
 
         @Override
         public void boards(BoardsListener boardsListener) {
-            if (!site.staticBoards.isEmpty()) {
-                boardsListener.onBoardsReceived(new Boards(site.staticBoards));
-            }
+            boardsListener.onBoardsReceived(new Boards(site.staticBoards));
         }
 
         @Override

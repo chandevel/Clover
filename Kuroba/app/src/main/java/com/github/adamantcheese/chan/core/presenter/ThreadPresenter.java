@@ -220,7 +220,7 @@ public class ThreadPresenter
     }
 
     private void cancelPrefetching() {
-        if (activePrefetches == null || activePrefetches.isEmpty()) {
+        if (activePrefetches == null) {
             return;
         }
 
