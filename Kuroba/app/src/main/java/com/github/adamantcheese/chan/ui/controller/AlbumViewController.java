@@ -79,7 +79,7 @@ public class AlbumViewController
         if (!loadable.isLocal()) {
             // Navigation
             navigation.buildMenu()
-                    .withItem(1, R.drawable.ic_file_download_white_24dp, this::downloadAlbumClicked)
+                    .withItem(Integer.MAX_VALUE, R.drawable.ic_file_download_white_24dp, this::downloadAlbumClicked)
                     .build();
         }
 
