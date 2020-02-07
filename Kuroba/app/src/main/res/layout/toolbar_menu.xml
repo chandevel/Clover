@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:gravity="center_vertical"
             android:lines="1"
             android:minWidth="150dp"
-            android:paddingLeft="16dp"
+            android:paddingLeft="4dp"
             android:singleLine="true"
             android:textColor="?text_color_primary"
             android:textSize="20dp" />
@@ -51,7 +51,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:gravity="center_vertical"
             android:lines="1"
             android:minWidth="150dp"
-            android:paddingLeft="16dp"
+            android:paddingLeft="4dp"
             android:paddingTop="29dp"
             android:singleLine="true"
             android:textColor="?text_color_secondary"

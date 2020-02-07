@@ -456,7 +456,7 @@ public class ToolbarContainer
                 final Drawable arrowDrawable =
                         new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
                 titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowDrawable, null);
-                titleView.setOnClickListener(v -> item.middleMenu.show(titleView));
+                titleContainer.setOnClickListener(v -> item.middleMenu.show(titleView));
                 //Default stuff for nothing there
                 if (item.title.isEmpty()) {
                     titleView.setText("App Setup");

@@ -47,7 +47,7 @@ public class ToolbarMenuView
 
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER_VERTICAL);
-        setPadding(dp(9f), 0, dp(3f), 0);
+        setPadding(dp(6f), 0, dp(3f), 0);
     }
 
     public void attach(ToolbarMenu menu) {
