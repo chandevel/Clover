@@ -62,6 +62,7 @@ import com.github.adamantcheese.chan.ui.view.HidingFloatingActionButton;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -599,7 +600,7 @@ public class ThreadLayout
     @Override
     public void showNewPostsNotification(boolean show, int more) {
         if (show) {
-            if (!threadListLayout.scrolledToBottom()) {
+            if (!threadListLayout.scrolledToBottom() && BackgroundUtils.isInForeground()) {
                 String text = getQuantityString(R.plurals.thread_new_posts, more, more);
 
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
