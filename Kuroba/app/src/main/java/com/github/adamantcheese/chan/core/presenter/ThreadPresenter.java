@@ -920,7 +920,7 @@ public class ThreadPresenter
         return POST_OPTION_EXTRA;
     }
 
-    public void onPostOptionClicked(Post post, Object id) {
+    public void onPostOptionClicked(Post post, Object id, boolean inPopup) {
         switch ((Integer) id) {
             case POST_OPTION_QUOTE:
                 threadPresenterCallback.hidePostsPopup();
@@ -942,6 +942,9 @@ public class ThreadPresenter
                 threadPresenterCallback.clipboardPost(post);
                 break;
             case POST_OPTION_REPORT:
+                if(inPopup) {
+                    threadPresenterCallback.hidePostsPopup();
+                }
                 threadPresenterCallback.openReportView(post);
                 break;
             case POST_OPTION_HIGHLIGHT_ID:
