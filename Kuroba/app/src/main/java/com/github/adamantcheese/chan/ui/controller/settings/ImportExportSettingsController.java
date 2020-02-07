@@ -50,7 +50,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class ImportExportSettingsController
         extends SettingsController

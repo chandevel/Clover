@@ -66,7 +66,6 @@ import java.util.List;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";

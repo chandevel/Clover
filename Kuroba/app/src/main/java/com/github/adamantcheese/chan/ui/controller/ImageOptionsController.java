@@ -52,7 +52,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class ImageOptionsController
         extends Controller

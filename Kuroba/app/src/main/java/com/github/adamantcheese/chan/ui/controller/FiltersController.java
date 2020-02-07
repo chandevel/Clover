@@ -65,7 +65,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class FiltersController
         extends Controller

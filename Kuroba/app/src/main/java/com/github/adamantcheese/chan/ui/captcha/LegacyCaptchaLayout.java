@@ -40,7 +40,6 @@ import com.github.adamantcheese.chan.utils.IOUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class LegacyCaptchaLayout
         extends LinearLayout

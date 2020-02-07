@@ -59,7 +59,6 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class ReplyPresenter

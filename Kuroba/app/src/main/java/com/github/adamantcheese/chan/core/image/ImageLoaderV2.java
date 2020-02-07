@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
-
 public class ImageLoaderV2 {
     private static final String TAG = "ImageLoaderV2";
 

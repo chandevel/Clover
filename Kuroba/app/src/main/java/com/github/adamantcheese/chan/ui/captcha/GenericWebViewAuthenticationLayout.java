@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class GenericWebViewAuthenticationLayout
         extends WebView

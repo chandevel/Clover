@@ -31,7 +31,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 /**
  * Simple ImageDecoder. Taken from Volley ImageRequest.

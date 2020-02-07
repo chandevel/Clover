@@ -62,7 +62,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 /**
  * A ChanThreadLoader is the loader for Loadables.

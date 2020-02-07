@@ -53,7 +53,6 @@ import okhttp3.ResponseBody;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 /**
  * It directly loads the captcha2 fallback url into a webview, and on each requests it executes
