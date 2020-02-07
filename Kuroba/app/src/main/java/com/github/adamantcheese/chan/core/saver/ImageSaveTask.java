@@ -48,7 +48,6 @@ import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloa
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class ImageSaveTask
         extends FileCacheListener {
@@ -111,6 +110,7 @@ public class ImageSaveTask
 
     public Single<ImageSaver.BundledDownloadResult> run() {
         BackgroundUtils.ensureBackgroundThread();
+        Logger.d(TAG, "ImageSaveTask.run() destination = " + destination.getFullPath());
 
         @Nullable
         Action onDisposeFunc = null;

@@ -128,9 +128,10 @@ public class AlbumDownloadController
             if (checkCount == 0) {
                 showToast(context, R.string.album_download_none_checked);
             } else {
+                String siteNameSafe = StringUtils.dirNameRemoveBadCharacters(loadable.site.name());
                 String subFolder = ChanSettings.saveBoardFolder.get() ? (ChanSettings.saveThreadFolder.get()
-                        ? appendAdditionalSubDirectories(items.get(0).postImage)
-                        : loadable.site.name() + File.separator + loadable.boardCode) : null;
+                        ? appendAdditionalSubDirectories()
+                        : siteNameSafe + File.separator + loadable.boardCode) : null;
                 String message = getString(
                         R.string.album_download_confirm,
                         getQuantityString(R.plurals.image, checkCount, checkCount),
@@ -246,7 +247,7 @@ public class AlbumDownloadController
 
     //This method and the one in ImageViewerController should be roughly equivalent in function
     @NonNull
-    private String appendAdditionalSubDirectories(PostImage postImage) {
+    private String appendAdditionalSubDirectories() {
         // save to op no appended with the first 50 characters of the subject
         // should be unique and perfectly understandable title wise
         String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(loadable.site.name()) + File.separator
