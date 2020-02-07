@@ -30,6 +30,7 @@ import com.github.k1rakishou.fsaf.file.FileSegment
 import com.github.k1rakishou.fsaf.file.RawFile
 import org.joda.time.format.DateTimeFormatterBuilder
 import org.joda.time.format.ISODateTimeFormat
+import java.io.File
 import java.io.FileReader
 import java.io.IOException
 import java.io.PrintWriter
@@ -609,16 +610,26 @@ class CacheHandler(
     }
 
     private fun createDirectories() {
-        if (!fileManager.exists(cacheDirFile)
-                && fileManager.create(cacheDirFile) == null) {
-            throw RuntimeException(
-                    "Unable to create file cache dir " + cacheDirFile.getFullPath())
+        if (!fileManager.exists(cacheDirFile) && fileManager.create(cacheDirFile) == null) {
+            val rawFile = File(cacheDirFile.getFullPath())
+            if (!rawFile.mkdirs()) {
+                throw RuntimeException(
+                        "Unable to create file cache dir ${cacheDirFile.getFullPath()}")
+            } else {
+                Logger.e(TAG, "fileManager.create failed, " +
+                        "but rawFile.mkdirs() succeeded, cacheDirFile = ${cacheDirFile.getFullPath()}")
+            }
         }
 
-        if (!fileManager.exists(chunksCacheDirFile)
-                && fileManager.create(chunksCacheDirFile) == null) {
-            throw RuntimeException(
-                    "Unable to create file chunks cache dir " + chunksCacheDirFile.getFullPath())
+        if (!fileManager.exists(chunksCacheDirFile) && fileManager.create(chunksCacheDirFile) == null) {
+            val rawFile = File(chunksCacheDirFile.getFullPath())
+            if (!rawFile.mkdirs()) {
+                throw RuntimeException(
+                        "Unable to create file chunks cache dir ${chunksCacheDirFile.getFullPath()}")
+            } else {
+                Logger.e(TAG, "fileManager.create failed, " +
+                        "but rawFile.mkdirs() succeeded, chunksCacheDirFile = ${chunksCacheDirFile.getFullPath()}")
+            }
         }
     }
 
