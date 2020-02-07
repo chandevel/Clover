@@ -1352,7 +1352,7 @@ public class WatchManager
                 if (page != null && page.page >= pin.loadable.board.pages && !notified) {
                     Intent pageNotifyIntent = new Intent(getAppContext(), LastPageNotification.class);
                     pageNotifyIntent.putExtra("pin_id", pin.id);
-                    getAppContext().startService(pageNotifyIntent);
+                    ContextCompat.startForegroundService(getAppContext(), pageNotifyIntent);
                     notified = true;
                 } else if (page != null && page.page < pin.loadable.board.pages) {
                     getAppContext().stopService(new Intent(getAppContext(), LastPageNotification.class));

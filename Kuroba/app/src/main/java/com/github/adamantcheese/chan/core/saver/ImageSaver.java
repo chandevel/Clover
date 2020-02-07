@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -123,12 +124,9 @@ public class ImageSaver {
     @GuardedBy("itself")
     private final Set<String> activeDownloads = new HashSet<>(64);
 
-    private Scheduler workerScheduler = Schedulers.from(Executors.newFixedThreadPool(
-            THREADS_COUNT,
-            r -> new Thread(r,
-                    String.format(Locale.US, IMAGE_SAVER_THREAD_NAME_FORMAT, imagesSaverThreadIndex.getAndIncrement())
-            )
-    ));
+    private Scheduler workerScheduler = Schedulers.from(Executors.newFixedThreadPool(THREADS_COUNT, r -> new Thread(r,
+            String.format(Locale.US, IMAGE_SAVER_THREAD_NAME_FORMAT, imagesSaverThreadIndex.getAndIncrement())
+    )));
 
     /**
      * This is a singleton class so we don't care about the disposable since we will never should
@@ -396,7 +394,7 @@ public class ImageSaver {
         } else {
             service.putExtra(SavingNotification.DONE_TASKS_KEY, doneTasks.get());
             service.putExtra(SavingNotification.TOTAL_TASKS_KEY, totalTasks.get());
-            getAppContext().startService(service);
+            ContextCompat.startForegroundService(getAppContext(), service);
         }
     }
 
