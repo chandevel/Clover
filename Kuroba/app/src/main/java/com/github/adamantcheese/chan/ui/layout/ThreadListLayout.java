@@ -560,11 +560,9 @@ public class ThreadListLayout
                 PostCellInterface postView = (PostCellInterface) view;
                 Post post = postView.getPost();
 
-                if (!post.images.isEmpty()) {
-                    for (PostImage image : post.images) {
-                        if (image.equalUrl(postImage)) {
-                            return postView.getThumbnailView(postImage);
-                        }
+                for (PostImage image : post.images) {
+                    if (image.equalUrl(postImage)) {
+                        return postView.getThumbnailView(postImage);
                     }
                 }
             }

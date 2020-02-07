@@ -402,32 +402,30 @@ public class PostCell
 
         titleParts.add(date);
 
-        if (!post.images.isEmpty()) {
-            for (PostImage image : post.images) {
-                boolean postFileName = ChanSettings.postFilename.get();
-                if (postFileName) {
-                    //that special character forces it to be left-to-right, as textDirection didn't want to be obeyed
-                    String filename = '\u200E' + (image.spoiler
-                            ? getString(R.string.image_spoiler_filename)
-                            : image.filename + "." + image.extension);
-                    SpannableString fileInfo = new SpannableString("\n" + filename);
-                    fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
-                    fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
-                    fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
-                    titleParts.add(fileInfo);
-                }
+        for (PostImage image : post.images) {
+            boolean postFileName = ChanSettings.postFilename.get();
+            if (postFileName) {
+                //that special character forces it to be left-to-right, as textDirection didn't want to be obeyed
+                String filename = '\u200E' + (image.spoiler
+                        ? getString(R.string.image_spoiler_filename)
+                        : image.filename + "." + image.extension);
+                SpannableString fileInfo = new SpannableString("\n" + filename);
+                fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
+                titleParts.add(fileInfo);
+            }
 
-                if (ChanSettings.postFileInfo.get()) {
-                    SpannableStringBuilder fileInfo = new SpannableStringBuilder();
-                    fileInfo.append(postFileName ? " " : "\n");
-                    fileInfo.append(image.extension.toUpperCase());
-                    //if -1, linked image, no info
-                    fileInfo.append(image.size == -1 ? "" : " " + getReadableFileSize(image.size));
-                    fileInfo.append(image.size == -1 ? "" : " " + image.imageWidth + "x" + image.imageHeight);
-                    fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
-                    fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
-                    titleParts.add(fileInfo);
-                }
+            if (ChanSettings.postFileInfo.get()) {
+                SpannableStringBuilder fileInfo = new SpannableStringBuilder();
+                fileInfo.append(postFileName ? " " : "\n");
+                fileInfo.append(image.extension.toUpperCase());
+                //if -1, linked image, no info
+                fileInfo.append(image.size == -1 ? "" : " " + getReadableFileSize(image.size));
+                fileInfo.append(image.size == -1 ? "" : " " + image.imageWidth + "x" + image.imageHeight);
+                fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
+                titleParts.add(fileInfo);
             }
         }
 

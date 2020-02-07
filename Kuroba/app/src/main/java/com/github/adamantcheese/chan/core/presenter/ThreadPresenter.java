@@ -505,9 +505,7 @@ public class ThreadPresenter
         int index = 0;
         for (int i = 0; i < posts.size(); i++) {
             Post item = posts.get(i);
-            if (!item.images.isEmpty()) {
-                images.addAll(item.images);
-            }
+            images.addAll(item.images);
             if (i == displayPosition) {
                 index = images.size();
             }
@@ -561,23 +559,21 @@ public class ThreadPresenter
             }
 
             if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal() && !loadable.isDownloading()) {
-                List<PostImage> postImageList = new ArrayList<>(16);
+                List<PostImage> postImageList = new ArrayList<>();
                 cancelPrefetching();
 
                 for (Post p : result.getPosts()) {
-                    if (p.images != null) {
-                        for (PostImage postImage : p.images) {
-                            if (cacheHandler.exists(postImage.imageUrl.toString())) {
-                                continue;
-                            }
+                    for (PostImage postImage : p.images) {
+                        if (cacheHandler.exists(postImage.imageUrl.toString())) {
+                            continue;
+                        }
 
-                            if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
-                                    && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
-                                postImageList.add(postImage);
-                            } else if (postImage.type == PostImage.Type.MOVIE
-                                    && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
-                                postImageList.add(postImage);
-                            }
+                        if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
+                                && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
+                            postImageList.add(postImage);
+                        } else if (postImage.type == PostImage.Type.MOVIE
+                                && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
+                            postImageList.add(postImage);
                         }
                     }
                 }
@@ -737,12 +733,10 @@ public class ThreadPresenter
             out:
             for (int i = 0; i < posts.size(); i++) {
                 Post post = posts.get(i);
-                if (!post.images.isEmpty()) {
-                    for (int j = 0; j < post.images.size(); j++) {
-                        if (post.images.get(j) == postImage) {
-                            position = i;
-                            break out;
-                        }
+                for (int j = 0; j < post.images.size(); j++) {
+                    if (post.images.get(j) == postImage) {
+                        position = i;
+                        break out;
                     }
                 }
             }
@@ -778,13 +772,11 @@ public class ThreadPresenter
     public void selectPostImage(PostImage postImage) {
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (Post post : posts) {
-            if (!post.images.isEmpty()) {
-                for (PostImage image : post.images) {
-                    if (image == postImage) {
-                        scrollToPost(post, false);
-                        highlightPost(post);
-                        return;
-                    }
+            for (PostImage image : post.images) {
+                if (image == postImage) {
+                    scrollToPost(post, false);
+                    highlightPost(post);
+                    return;
                 }
             }
         }
@@ -793,11 +785,9 @@ public class ThreadPresenter
     public Post getPostFromPostImage(PostImage postImage) {
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (Post post : posts) {
-            if (!post.images.isEmpty()) {
-                for (PostImage image : post.images) {
-                    if (image == postImage) {
-                        return post;
-                    }
+            for (PostImage image : post.images) {
+                if (image == postImage) {
+                    return post;
                 }
             }
         }
@@ -841,14 +831,12 @@ public class ThreadPresenter
         int index = -1;
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (Post item : posts) {
-            if (!item.images.isEmpty()) {
-                for (PostImage image : item.images) {
-                    if (!item.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl.toString())) {
-                        //deleted posts always have 404'd images, but let it through if the file exists in cache
-                        images.add(image);
-                        if (image.equalUrl(postImage)) {
-                            index = images.size() - 1;
-                        }
+            for (PostImage image : item.images) {
+                if (!item.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl.toString())) {
+                    //deleted posts always have 404'd images, but let it through if the file exists in cache
+                    images.add(image);
+                    if (image.equalUrl(postImage)) {
+                        index = images.size() - 1;
                     }
                 }
             }
@@ -942,7 +930,7 @@ public class ThreadPresenter
                 threadPresenterCallback.clipboardPost(post);
                 break;
             case POST_OPTION_REPORT:
-                if(inPopup) {
+                if (inPopup) {
                     threadPresenterCallback.hidePostsPopup();
                 }
                 threadPresenterCallback.openReportView(post);
