@@ -132,7 +132,7 @@ public class PostImage {
         }
 
         public Builder imageUrl(HttpUrl imageUrl) {
-            this.imageUrl = imageUrl;
+            this.imageUrl = HttpUrl.parse(imageUrl.toString().replace("http://", "https://"));
             return this;
         }
 
