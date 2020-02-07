@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -90,6 +91,8 @@ public class ToolbarContainer
     @Nullable
     private ToolbarPresenter.TransitionAnimationStyle transitionAnimationStyle;
 
+    private Theme theme;
+
     private Map<View, Animator> animatorSet = new HashMap<>();
 
     public ToolbarContainer(Context context) {
@@ -117,9 +120,10 @@ public class ToolbarContainer
             throw new IllegalStateException("Currently in transition mode");
         }
 
+        this.theme = theme;
         endAnimations();
 
-        ItemView itemView = new ItemView(item, theme);
+        ItemView itemView = new ItemView(item);
 
         previousView = currentView;
         currentView = itemView;
@@ -147,26 +151,7 @@ public class ToolbarContainer
     }
 
     public void update(NavigationItem item) {
-        // TODO
-        View view = viewForItem(item);
-        if (view != null) {
-            TextView titleView = view.findViewById(R.id.title);
-            if (titleView != null) {
-                titleView.setText(item.title);
-            }
-
-            if (!isEmpty(item.subtitle)) {
-                TextView subtitleView = view.findViewById(R.id.subtitle);
-                if (subtitleView != null) {
-                    subtitleView.setText(item.subtitle);
-                }
-            }
-        }
-    }
-
-    public View viewForItem(NavigationItem item) {
-        ItemView itemView = itemViewForItem(item);
-        return itemView == null ? null : itemView.view;
+        set(item, theme, ToolbarPresenter.AnimationStyle.NONE);
     }
 
     private ItemView itemViewForItem(NavigationItem item) {
@@ -192,7 +177,7 @@ public class ToolbarContainer
 
         endAnimations();
 
-        ItemView itemView = new ItemView(item, null);
+        ItemView itemView = new ItemView(item);
 
         transitionView = itemView;
         transitionAnimationStyle = style;
@@ -399,19 +384,21 @@ public class ToolbarContainer
     }
 
     private void removeItem(ItemView item) {
-        item.remove();
-        removeView(item.view);
+        if (item != null) {
+            item.remove();
+            removeView(item.view);
+        }
     }
 
     private class ItemView {
-        final View view;
+        View view;
         final NavigationItem item;
 
         @Nullable
         private ToolbarMenuView menuView;
 
-        public ItemView(NavigationItem item, Theme theme) {
-            this.view = createNavigationItemView(item, theme);
+        public ItemView(NavigationItem item) {
+            createNavigationItemView(item);
             this.item = item;
         }
 
@@ -427,11 +414,11 @@ public class ToolbarContainer
             }
         }
 
-        private LinearLayout createNavigationItemView(final NavigationItem item, Theme theme) {
+        private void createNavigationItemView(final NavigationItem item) {
             if (item.search) {
-                return createSearchLayout(item);
+                this.view = createSearchLayout(item);
             } else {
-                return createNavigationLayout(item, theme);
+                this.view = createNavigationLayout(item, theme);
             }
         }
 
@@ -455,7 +442,12 @@ public class ToolbarContainer
                 int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
                 final Drawable arrowDrawable =
                         new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
-                titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowDrawable, null);
+                arrowDrawable.setBounds(0, 0, arrowDrawable.getIntrinsicWidth(), arrowDrawable.getIntrinsicHeight());
+                ImageView dropdown = new ImageView(getContext());
+                dropdown.setImageDrawable(arrowDrawable);
+                titleContainer.addView(dropdown,
+                        new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER_VERTICAL | Gravity.RIGHT)
+                );
                 titleContainer.setOnClickListener(v -> item.middleMenu.show(titleView));
                 //Default stuff for nothing there
                 if (item.title.isEmpty()) {

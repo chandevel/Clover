@@ -378,7 +378,8 @@ public class BrowseController
     public void loadBoard(Loadable loadable) {
         String name = BoardHelper.getName(loadable.board);
         loadable.title = name;
-        navigation.title = name;
+        navigation.title = "/" + loadable.board.code + "/";
+        navigation.subtitle = loadable.board.name;
 
         ThreadPresenter presenter = threadLayout.getPresenter();
         presenter.unbindLoadable();
