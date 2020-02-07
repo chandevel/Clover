@@ -37,7 +37,8 @@ public class LastPageNotification
 
     @Inject
     NotificationManager notificationManager;
-    private String NOTIFICATION_ID = "4";
+    private String NOTIFICATION_ID_STR = "4";
+    private int NOTIFICATION_ID = 4;
 
     @Inject
     WatchManager watchManager;
@@ -53,7 +54,7 @@ public class LastPageNotification
         super.onCreate();
         inject(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID,
+            NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID_STR,
                     "Last page notification",
                     NotificationManager.IMPORTANCE_HIGH
             );
@@ -68,6 +69,8 @@ public class LastPageNotification
             alert.setLightColor(Color.RED);
             notificationManager.createNotificationChannel(alert);
         }
+
+        startForeground(NOTIFICATION_ID, getNotification(-2));
     }
 
     @Override
@@ -104,7 +107,7 @@ public class LastPageNotification
                 .setAutoCancel(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder.setChannelId(NOTIFICATION_ID);
+            builder.setChannelId(NOTIFICATION_ID_STR);
         }
 
         return builder.build();
