@@ -43,15 +43,12 @@ public class TaimabaActions extends CommonSite.CommonActions {
     }
 
     int threadNo = 0;
-    int postNo = 0;
     String password = null;
 
     @Override
     public void setupPost(Reply reply, MultipartHttpCall call) {
-        //pass threadNo, postNo & password with correct variables
+        //pass threadNo & password with correct variables
         threadNo = reply.loadable.no;
-		//reply.loadable.id is not correct; need to find a way to fetch the newly created postNo
-        postNo = reply.loadable.id;
         password = reply.password;
 
         call.parameter("fart", Integer.toString((int) Math.random() * 15000 + 5000));
@@ -88,7 +85,6 @@ public class TaimabaActions extends CommonSite.CommonActions {
             replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
         } else {
             replyResponse.threadNo = threadNo;
-            replyResponse.postNo = postNo;
             replyResponse.password = password;
             replyResponse.posted = true;
         }
