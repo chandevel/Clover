@@ -89,6 +89,10 @@ public class ImageSaveTask
     }
 
     public String getPostImageUrl() {
+        if (postImage.imageUrl == null) {
+            throw new NullPointerException("imageUrl is null! loadable = " + loadable.toShortString());
+        }
+
         return postImage.imageUrl.toString();
     }
 

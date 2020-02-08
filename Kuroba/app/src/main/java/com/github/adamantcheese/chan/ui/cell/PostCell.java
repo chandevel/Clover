@@ -78,6 +78,7 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -640,6 +641,11 @@ public class PostCell
             boolean first = true;
             for (int i = 0; i < post.images.size(); i++) {
                 PostImage image = post.images.get(i);
+                if (image.imageUrl == null) {
+                    Logger.e(TAG, "buildThumbnails() image.imageUrl == null");
+                    continue;
+                }
+
                 PostImageThumbnailView v = new PostImageThumbnailView(getContext());
 
                 // Set the correct id.
