@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -59,6 +60,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -1350,12 +1352,10 @@ public class WatchManager
             if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get()
                     && ChanSettings.watchBackground.get()) {
                 if (page != null && page.page >= pin.loadable.board.pages && !notified) {
-                    Intent pageNotifyIntent = new Intent(getAppContext(), LastPageNotification.class);
-                    pageNotifyIntent.putExtra("pin_id", pin.id);
-                    ContextCompat.startForegroundService(getAppContext(), pageNotifyIntent);
+                    Chan.instance(NotificationManager.class).notify(pin.loadable.no, new LastPageNotification().getNotification(pin.id));
                     notified = true;
                 } else if (page != null && page.page < pin.loadable.board.pages) {
-                    getAppContext().stopService(new Intent(getAppContext(), LastPageNotification.class));
+                    Chan.instance(NotificationManager.class).cancel(pin.loadable.no);
                     notified = false;
                 }
             }

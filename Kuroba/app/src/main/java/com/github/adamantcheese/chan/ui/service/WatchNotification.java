@@ -124,17 +124,6 @@ public class WatchNotification
             alert.setLightColor(0xff91e466);
             notificationManager.createNotificationChannel(alert);
         }
-
-        Notification notification = createNotification();
-        if (notification == null) {
-            Logger.d(TAG, "onCreate() createNotification returned null");
-
-            stopSelf();
-            return;
-        }
-
-        // Do not remove this or the app will blow up on Android.Oreo and above
-        startForeground(NOTIFICATION_ID, notification);
     }
 
     @Override
@@ -156,7 +145,8 @@ public class WatchNotification
                 return START_NOT_STICKY;
             }
 
-            notificationManager.notify(NOTIFICATION_ID, notification);
+            // Do not remove this or the app will blow up on Android.Oreo and above
+            startForeground(NOTIFICATION_ID, notification);
         }
         return START_STICKY;
     }
