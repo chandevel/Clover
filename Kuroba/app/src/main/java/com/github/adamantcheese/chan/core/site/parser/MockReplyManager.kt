@@ -13,11 +13,8 @@ import java.util.*
  * post as yours beforehand (in case you want to test (You) notification show up) because this class
  * DOES NOT do that automatically for you.
  *
- * The new mock reply will also be stored in the database and in the local thread and it's
- * impossible to remove it.
- *
  * Also, the replies are not persisted across application lifecycle, so once the app dies all
- * replies in the queue will be gone and you will have to add them again.
+ * replies in the mockReplyMultiMap will be gone and you will have to add them again.
  *
  * ThreadSafe.
  * */
