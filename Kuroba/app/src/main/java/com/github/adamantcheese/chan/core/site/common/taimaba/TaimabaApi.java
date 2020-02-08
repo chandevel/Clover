@@ -147,6 +147,7 @@ public class TaimabaApi extends CommonSite.CommonApi {
                     postcom = postcom.replaceAll("(?i)\\[b\\](.*?)\\[/b\\]", "<b>$1</b>");
                     postcom = postcom.replaceAll("(?i)\\[\\*\\*\\](.*?)\\[/\\*\\*\\]", "<b>$1</b>");
                     postcom = postcom.replaceAll("(?i)\\[i\\](.*?)\\[/i\\]", "<i>$1</i>");
+                    postcom = postcom.replaceAll("(?i)\\[\\*\\](.*?)\\[/\\*\\]", "<i>$1</i>");
                     postcom = postcom.replaceAll("(?i)\\[spoiler\\](.*?)\\[/spoiler\\]", "<span class=\"spoiler\">$1</span>");
                     postcom = postcom.replaceAll("(?i)\\[%\\](.*?)\\[/%\\]", "<span class=\"spoiler\">$1</span>");
                     postcom = postcom.replaceAll("(?i)\\[s\\](.*?)\\[/s\\]", "<strike>$1</strike>");
