@@ -75,7 +75,7 @@ public class ToolbarMenuView
             imageView.setVisibility(item.visible ? VISIBLE : GONE);
 
             imageView.setLayoutParams(new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT));
-            imageView.setPadding(dp(6f), 0, dp(6f), 0);
+            imageView.setPadding(dp(10f), 0, dp(10f), 0);
 
             imageView.setImageDrawable(item.drawable);
             setRoundItemBackground(imageView);
