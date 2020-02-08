@@ -18,6 +18,8 @@ package com.github.adamantcheese.chan.core.manager;
 
 import android.util.LruCache;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -39,7 +41,7 @@ public class ChanLoaderManager {
     private LruCache<Loadable, ChanThreadLoader> threadLoadersCache = new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
 
     public ChanThreadLoader obtain(
-            Loadable loadable, WatchManager watchManager, ChanThreadLoader.ChanLoaderCallback listener
+            @NonNull Loadable loadable, WatchManager watchManager, ChanThreadLoader.ChanLoaderCallback listener
     ) {
         ChanThreadLoader chanLoader;
         if (loadable.isThreadMode()) {
@@ -73,7 +75,6 @@ public class ChanLoaderManager {
         Loadable loadable = chanLoader.getLoadable();
         if (loadable.isThreadMode()) {
             ChanThreadLoader foundChanLoader = threadLoaders.get(loadable);
-
             if (foundChanLoader == null) {
                 Logger.wtf(TAG, "Loader doesn't exist.");
                 throw new IllegalStateException("The released loader does not exist");
