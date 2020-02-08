@@ -25,6 +25,8 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -69,6 +71,8 @@ public class BrowseController
     BrowsePresenter presenter;
 
     private PostsFilter.Order order;
+    @Nullable
+    private HintPopup hint = null;
     public String searchQuery = null;
 
     public BrowseController(Context context) {
@@ -93,6 +97,11 @@ public class BrowseController
     public void onDestroy() {
         super.onDestroy();
 
+        if (hint != null) {
+            hint.dismiss();
+            hint = null;
+        }
+
         presenter.destroy();
     }
 
@@ -100,8 +109,13 @@ public class BrowseController
     public void showSitesNotSetup() {
         super.showSitesNotSetup();
 
+        if (hint != null) {
+            hint.dismiss();
+            hint = null;
+        }
+
         View hintView = getToolbar().findViewById(R.id.title_container);
-        HintPopup hint = HintPopup.show(context, hintView, R.string.thread_empty_setup_hint);
+        hint = HintPopup.show(context, hintView, R.string.thread_empty_setup_hint);
         hint.alignCenter();
         hint.wiggle();
     }

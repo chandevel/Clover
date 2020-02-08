@@ -40,6 +40,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
@@ -129,6 +130,8 @@ public class ReplyLayout
     private ImageView more;
     private ImageView submit;
     private DropdownArrowDrawable moreDropdown;
+    @Nullable
+    private HintPopup hintPopup = null;
 
     // Captcha views:
     private FrameLayout captchaContainer;
@@ -162,6 +165,12 @@ public class ReplyLayout
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+
+        if (hintPopup != null) {
+            hintPopup.dismiss();
+            hintPopup = null;
+        }
+
         EventBus.getDefault().unregister(this);
     }
 
@@ -780,7 +789,13 @@ public class ReplyLayout
     private void showReencodeImageHint() {
         if (!ChanSettings.reencodeHintShown.get()) {
             String message = getString(R.string.click_image_for_extra_options);
-            HintPopup hintPopup = HintPopup.show(getContext(), preview, message, dp(-32), dp(16));
+
+            if (hintPopup != null) {
+                hintPopup.dismiss();
+                hintPopup = null;
+            }
+
+            hintPopup = HintPopup.show(getContext(), preview, message, dp(-32), dp(16));
             hintPopup.wiggle();
 
             ChanSettings.reencodeHintShown.set(true);
