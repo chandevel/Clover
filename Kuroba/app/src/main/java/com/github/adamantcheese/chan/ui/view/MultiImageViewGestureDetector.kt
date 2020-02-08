@@ -2,8 +2,10 @@ package com.github.adamantcheese.chan.ui.view
 
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
+import android.view.View
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.AndroidUtils.dp
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerView
 import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifImageView
@@ -18,12 +20,25 @@ class MultiImageViewGestureDetector(
 ) : SimpleOnGestureListener() {
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        if (callbacks.findVideoPlayerView() != null) {
-            callbacks.togglePlayState()
-            return true
-        }
+        val activeView = callbacks.getActiveView()
+        if (activeView is PlayerView && activeView.player != null) {
+            val playing = activeView.player!!.playWhenReady && activeView.player!!.playbackState == Player.STATE_READY
 
-        if (tryHandleGifView()) {
+            if (activeView.isControllerVisible) {
+                callbacks.togglePlayState()
+                if (!playing) {
+                    activeView.setUseController(false)
+                    callbacks.setClickHandler(true)
+                }
+            } else {
+                if (playing) {
+                    activeView.setUseController(true)
+                    activeView.showController()
+                    callbacks.setClickHandler(false)
+                } else {
+                    callbacks.togglePlayState()
+                }
+            }
             return true
         }
 
@@ -31,29 +46,21 @@ class MultiImageViewGestureDetector(
         return true
     }
 
-    private fun tryHandleGifView(): Boolean {
-        val gifImageView = callbacks.findGifImageView()
-                ?: return false
-
-        // If a GifImageView is visible then toggle it's play state
-        val drawable = gifImageView.drawable as GifDrawable
-        if (drawable.isPlaying) {
-            drawable.pause()
-        } else {
-            drawable.start()
+    override fun onDoubleTap(e: MotionEvent?): Boolean {
+        val activeView = callbacks.getActiveView()
+        if (activeView is GifImageView) {
+            val gifImageViewDrawable = activeView.drawable as GifDrawable
+            if (gifImageViewDrawable.isPlaying) {
+                gifImageViewDrawable.pause()
+            } else {
+                gifImageViewDrawable.start()
+            }
+            return true
         }
 
-        return true
-    }
-
-    override fun onDoubleTap(e: MotionEvent?): Boolean {
-        if (!ChanSettings.imageViewerGestures.get()) {
-            if (callbacks.findGifImageView() != null || callbacks.findVideoPlayerView() != null) {
-                callbacks.onSwipeToCloseImage()
-                return true
-            }
-
-            // Big image has zoom-in on double tap, we don't want to override it
+        if (activeView is PlayerView) {
+            callbacks.togglePlayState()
+            return true
         }
 
         return false
@@ -75,23 +82,36 @@ class MultiImageViewGestureDetector(
             return false
         }
 
-        val bigImageView = callbacks.findBigImageView()
         if (diffY <= 0) {
             // Swiped up (swipe-to-close)
-            if (onSwipedUp(bigImageView)) {
+            if (onSwipedTop()) {
                 return true
             }
         } else {
             // Swiped bottom (swipe-to-save file)
-            return onSwipedBottom(bigImageView)
+            return onSwipedBottom()
         }
 
         return false
     }
 
-    private fun onSwipedBottom(bigImageView: CustomScaleImageView?): Boolean {
-        if (bigImageView != null) {
-            val imageViewportTouchSide = bigImageView.imageViewportTouchSide
+    private fun onSwipedTop(): Boolean {
+        // If either any view, other than the big image view, is visible (thumbnail, gif or video) OR
+        // big image is visible and the viewport is touching image bottom then use
+        // close-to-swipe gesture
+        val activeView = callbacks.getActiveView()
+        if (activeView !is CustomScaleImageView || activeView.imageViewportTouchSide.isTouchingBottom) {
+            callbacks.onSwipeToCloseImage()
+            return true
+        }
+
+        return false
+    }
+
+    private fun onSwipedBottom(): Boolean {
+        val activeView = callbacks.getActiveView()
+        if (activeView is CustomScaleImageView) {
+            val imageViewportTouchSide = activeView.imageViewportTouchSide
 
             // Current image is big image
             if (imageViewportTouchSide.isTouchingAllSides) {
@@ -115,7 +135,7 @@ class MultiImageViewGestureDetector(
                 return false
             }
         } else {
-            if (callbacks.findThumbnailImageView() != null) {
+            if (activeView is ThumbnailImageView) {
                 // Current image is thumbnail, we can't use swipe-to-save gesture
                 callbacks.onSwipeToCloseImage()
             } else {
@@ -141,26 +161,12 @@ class MultiImageViewGestureDetector(
         }
     }
 
-    private fun onSwipedUp(bigImageView: CustomScaleImageView?): Boolean {
-        // If either any view, other than the big image view, is visible (thumbnail, gif or video) OR
-        // big image is visible and the viewport is touching image bottom then use
-        // close-to-swipe gesture
-        if (bigImageView == null || bigImageView.imageViewportTouchSide.isTouchingBottom) {
-            callbacks.onSwipeToCloseImage()
-            return true
-        }
-
-        return false
-    }
-
     interface MultiImageViewGestureDetectorCallbacks {
-        fun findBigImageView(): CustomScaleImageView?
-        fun findGifImageView(): GifImageView?
-        fun findThumbnailImageView(): ThumbnailImageView?
-        fun findVideoPlayerView(): PlayerView?
+        fun getActiveView(): View
         fun isImageAlreadySaved(): Boolean
         fun setImageAlreadySaved()
         fun onTap()
+        fun setClickHandler(set: Boolean)
         fun togglePlayState()
         fun onSwipeToCloseImage()
         fun onSwipeToSaveImage()

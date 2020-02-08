@@ -26,6 +26,7 @@ import android.view.GestureDetector;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -123,6 +124,7 @@ public class MultiImageView
     private boolean transparentBackground = ChanSettings.transparencyOn.get();
     private boolean imageAlreadySaved = false;
     private GestureDetector gestureDetector;
+    private View exoClickHandler;
 
     public MultiImageView(Context context) {
         this(context, null);
@@ -137,6 +139,11 @@ public class MultiImageView
         this.context = context;
         this.cancellableToast = new CancellableToast();
         this.gestureDetector = new GestureDetector(context, new MultiImageViewGestureDetector(this));
+
+        exoClickHandler = new View(getContext());
+        exoClickHandler.setOnClickListener(null);
+        exoClickHandler.setId(Integer.MAX_VALUE);
+        exoClickHandler.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
 
         inject(this);
         setOnClickListener(null);
@@ -195,6 +202,28 @@ public class MultiImageView
         return mode;
     }
 
+    @NonNull
+    @Override
+    public View getActiveView() {
+        View ret = null;
+        switch (mode) {
+            case LOWRES:
+            case OTHER:
+                ret = findView(ThumbnailImageView.class);
+                break;
+            case BIGIMAGE:
+                ret = findView(CustomScaleImageView.class);
+                break;
+            case GIFIMAGE:
+                ret = findView(GifImageView.class);
+                break;
+            case VIDEO:
+                ret = findView(PlayerView.class);
+                break;
+        }
+        return ret == null ? new View(context) : ret;
+    }
+
     @Nullable
     private View findView(Class<? extends View> classType) {
         for (int i = 0; i < getChildCount(); i++) {
@@ -203,30 +232,6 @@ public class MultiImageView
             }
         }
         return null;
-    }
-
-    @Nullable
-    @Override
-    public CustomScaleImageView findBigImageView() {
-        return (CustomScaleImageView) findView(CustomScaleImageView.class);
-    }
-
-    @Nullable
-    @Override
-    public GifImageView findGifImageView() {
-        return (GifImageView) findView(GifImageView.class);
-    }
-
-    @Nullable
-    @Override
-    public ThumbnailImageView findThumbnailImageView() {
-        return (ThumbnailImageView) findView(ThumbnailImageView.class);
-    }
-
-    @Nullable
-    @Override
-    public PlayerView findVideoPlayerView() {
-        return (PlayerView) findView(PlayerView.class);
     }
 
     @Override
@@ -242,6 +247,15 @@ public class MultiImageView
     @Override
     public void onTap() {
         callback.onTap();
+    }
+
+    @Override
+    public void setClickHandler(boolean set) {
+        if (set) {
+            addView(exoClickHandler);
+        } else {
+            removeView(exoClickHandler);
+        }
     }
 
     @Override
@@ -518,8 +532,9 @@ public class MultiImageView
                         exoPlayer.addAudioListener(MultiImageView.this);
                         exoVideoView.setOnClickListener(null);
                         exoVideoView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
-
-                        addView(exoVideoView);
+                        exoVideoView.setUseController(false);
+                        exoVideoView.setControllerHideOnTouch(false);
+                        exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
                         exoPlayer.setPlayWhenReady(true);
                         onModeLoaded(Mode.VIDEO, exoVideoView);
                         callback.onVideoLoaded(MultiImageView.this);
@@ -623,8 +638,9 @@ public class MultiImageView
             exoPlayer.addAudioListener(this);
             exoVideoView.setOnClickListener(null);
             exoVideoView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
-
-            addView(exoVideoView);
+            exoVideoView.setUseController(false);
+            exoVideoView.setControllerHideOnTouch(false);
+            exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
             exoPlayer.setPlayWhenReady(true);
             onModeLoaded(Mode.VIDEO, exoVideoView);
             callback.onVideoLoaded(this);
@@ -649,21 +665,21 @@ public class MultiImageView
     public void toggleTransparency() {
         transparentBackground = !transparentBackground;
         final int BACKGROUND_COLOR = Color.argb(255, 211, 217, 241);
-        CustomScaleImageView imageView = findBigImageView();
-        GifImageView gifView = findGifImageView();
-        if (imageView == null && gifView == null) return;
-        boolean isImage = imageView != null && gifView == null;
+        View activeView = getActiveView();
+        if (!(activeView instanceof CustomScaleImageView || activeView instanceof GifImageView)) return;
+        boolean isImage = activeView instanceof CustomScaleImageView;
         int backgroundColor = !transparentBackground ? Color.TRANSPARENT : BACKGROUND_COLOR;
         if (isImage) {
-            imageView.setTileBackgroundColor(backgroundColor);
+            ((CustomScaleImageView) activeView).setTileBackgroundColor(backgroundColor);
         } else {
-            gifView.getDrawable().setColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER);
+            ((GifImageView) activeView).getDrawable().setColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER);
         }
     }
 
     public void rotateImage(int degrees) {
-        CustomScaleImageView imageView = findBigImageView();
-        if (imageView == null) return;
+        View activeView = getActiveView();
+        if (!(activeView instanceof CustomScaleImageView)) return;
+        CustomScaleImageView imageView = (CustomScaleImageView) activeView;
         if (degrees % 90 != 0 && degrees >= -90 && degrees <= 180)
             throw new IllegalArgumentException("Degrees must be a multiple of 90 and in the range -90 < deg < 180");
         //swap the current scale to the opposite one every 90 degree increment
@@ -697,7 +713,6 @@ public class MultiImageView
     private void setBitImageFileInternal(File file, boolean tiling, final Mode forMode) {
         final CustomScaleImageView image = new CustomScaleImageView(getContext());
         image.setImage(ImageSource.uri(file.getAbsolutePath()).tiling(tiling));
-        addView(image, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
         image.setCallback(new CustomScaleImageView.Callback() {
             @Override
             public void onReady() {
@@ -794,6 +809,9 @@ public class MultiImageView
 
             if (!alreadyAttached) {
                 addView(view, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+                if (view instanceof PlayerView) {
+                    addView(exoClickHandler);
+                }
             }
         }
 

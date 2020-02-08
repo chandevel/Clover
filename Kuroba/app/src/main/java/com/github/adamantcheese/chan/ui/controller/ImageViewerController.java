@@ -324,9 +324,7 @@ public class ImageViewerController
                 if (ChanSettings.saveThreadFolder.get()) {
                     subFolderName = appendAdditionalSubDirectories(postImage);
                 } else {
-                    String siteNameSafe = StringUtils.dirNameRemoveBadCharacters(
-                            presenter.getLoadable().site.name()
-                    );
+                    String siteNameSafe = StringUtils.dirNameRemoveBadCharacters(presenter.getLoadable().site.name());
 
                     subFolderName = siteNameSafe + File.separator + presenter.getLoadable().boardCode;
                 }
@@ -611,12 +609,13 @@ public class ImageViewerController
     private void doPreviewOutAnimation(PostImage postImage, Bitmap bitmap) {
         // Find translation and scale if the current displayed image was a bigimage
         MultiImageView multiImageView = ((ImageViewerAdapter) pager.getAdapter()).find(postImage);
-        CustomScaleImageView customScaleImageView = multiImageView.findBigImageView();
-        if (customScaleImageView != null) {
-            ImageViewState state = customScaleImageView.getState();
+        View activeView = multiImageView.getActiveView();
+        if (activeView instanceof CustomScaleImageView) {
+            CustomScaleImageView scaleImageView = (CustomScaleImageView) activeView;
+            ImageViewState state = scaleImageView.getState();
             if (state != null) {
-                PointF p = customScaleImageView.viewToSourceCoord(0f, 0f);
-                PointF bitmapSize = new PointF(customScaleImageView.getSWidth(), customScaleImageView.getSHeight());
+                PointF p = scaleImageView.viewToSourceCoord(0f, 0f);
+                PointF bitmapSize = new PointF(scaleImageView.getSWidth(), scaleImageView.getSHeight());
                 previewImage.setState(state.getScale(), p, bitmapSize);
             }
         }
