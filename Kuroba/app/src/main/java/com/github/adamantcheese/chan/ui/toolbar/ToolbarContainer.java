@@ -117,7 +117,10 @@ public class ToolbarContainer
 
     public void set(NavigationItem item, Theme theme, ToolbarPresenter.AnimationStyle animation) {
         if (transitionView != null) {
-            throw new IllegalStateException("Currently in transition mode");
+            // Happens when you are in Phone layout, moving the thread fragment and at the same time
+            // thread update occurs. We probably should just skip it. But maybe there is a better
+            // solution.
+            return;
         }
 
         this.theme = theme;
