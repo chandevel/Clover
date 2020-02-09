@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.cache
 
 import android.annotation.SuppressLint
+import android.net.ConnectivityManager
 import com.github.adamantcheese.chan.core.cache.downloader.*
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
 import com.github.adamantcheese.chan.core.model.PostImage
@@ -8,6 +9,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
+import com.github.adamantcheese.chan.utils.AndroidUtils.getNetworkClass
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread
 import com.github.adamantcheese.chan.utils.Logger
@@ -43,7 +45,8 @@ class FileCacheV2(
         private val fileManager: FileManager,
         private val cacheHandler: CacheHandler,
         private val siteResolver: SiteResolver,
-        private val okHttpClient: OkHttpClient
+        private val okHttpClient: OkHttpClient,
+        private val connectivityManager: ConnectivityManager
 ) {
     private val activeDownloads = ActiveDownloads()
 
@@ -626,9 +629,13 @@ class FileCacheV2(
                 purgeOutput(request.url, request.output)
             }
 
+            val networkClass = getNetworkClassOrDefaultText(result)
+
             when (result) {
                 is FileDownloadResult.Start -> {
-                    log(TAG, "Download (${request}) has started. Chunks count = ${result.chunksCount}")
+                    log(TAG, "Download (${request}) has started. " +
+                            "Chunks count = ${result.chunksCount}. " +
+                            "Network class = $networkClass")
 
                     // Start is not a terminal event so we don't want to remove request from the
                     // activeDownloads
@@ -658,7 +665,8 @@ class FileCacheV2(
                     log(TAG, "Success (" +
                             "downloaded = ${downloadedString} ($downloaded B), " +
                             "total = ${totalString} ($total B), " +
-                            "took ${result.requestTime}ms" +
+                            "took ${result.requestTime}ms, " +
+                            "network class = $networkClass" +
                             ") for request ${request}"
                     )
 
@@ -725,7 +733,10 @@ class FileCacheV2(
                         "stopped"
                     }
 
-                    log(TAG, "Request ${request} $causeText, downloaded = $downloaded, total = $total")
+                    log(TAG, "Request ${request} $causeText, " +
+                            "downloaded = $downloaded, " +
+                            "total = $total, " +
+                            "network class = $networkClass")
 
                     resultHandler(url, request, true) {
                         if (isCanceled) {
@@ -738,7 +749,11 @@ class FileCacheV2(
                     }
                 }
                 is FileDownloadResult.KnownException -> {
-                    logError(TAG, "Exception for request ${request}", result.fileCacheException)
+                    logError(
+                            TAG,
+                            "Exception for request ${request}, network class = $networkClass",
+                            result.fileCacheException
+                    )
 
                     resultHandler(url, request, true) {
                         when (result.fileCacheException) {
@@ -786,6 +801,20 @@ class FileCacheV2(
         } catch (error: Throwable) {
             Logger.e(TAG, "An error in result handler", error)
         }
+    }
+
+    private fun getNetworkClassOrDefaultText(result: FileDownloadResult): String {
+        return when (result) {
+            is FileDownloadResult.Start,
+            is FileDownloadResult.Success,
+            FileDownloadResult.Canceled,
+            FileDownloadResult.Stopped,
+            is FileDownloadResult.KnownException -> getNetworkClass(connectivityManager)
+            is FileDownloadResult.Progress,
+            is FileDownloadResult.UnknownException -> {
+                "Unsupported result: ${result::class.java.simpleName}"
+            }
+        }.exhaustive
     }
 
     private fun resultHandler(

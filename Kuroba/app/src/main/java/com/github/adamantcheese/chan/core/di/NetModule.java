@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
+import android.net.ConnectivityManager;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.github.adamantcheese.chan.BuildConfig;
@@ -75,13 +77,20 @@ public class NetModule {
     @Provides
     @Singleton
     public FileCacheV2 provideFileCacheV2(
+            ConnectivityManager connectivityManager,
             FileManager fileManager,
             CacheHandler cacheHandler,
             SiteResolver siteResolver,
             @Named(DOWNLOADER_OKHTTP_CLIENT_NAME) OkHttpClient okHttpClient
     ) {
         Logger.d(AppModule.DI_TAG, "File cache V2");
-        return new FileCacheV2(fileManager, cacheHandler, siteResolver, okHttpClient);
+        return new FileCacheV2(
+                fileManager,
+                cacheHandler,
+                siteResolver,
+                okHttpClient,
+                connectivityManager
+        );
     }
 
     @Provides

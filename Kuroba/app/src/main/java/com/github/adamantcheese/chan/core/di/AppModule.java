@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.di;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.net.ConnectivityManager;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -59,6 +60,22 @@ public class AppModule {
     public Context provideApplicationContext() {
         Logger.d(DI_TAG, "App Context");
         return applicationContext;
+    }
+
+    @Provides
+    @Singleton
+    public ConnectivityManager provideConnectivityManager() {
+        Logger.d(DI_TAG, "Connectivity Manager");
+
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (connectivityManager == null) {
+            throw new NullPointerException("What's working in this ROM: You tell me ;) " +
+                    "\nWhat doesn't work: Connectivity fucking manager");
+        }
+
+        return connectivityManager;
     }
 
     @Provides
