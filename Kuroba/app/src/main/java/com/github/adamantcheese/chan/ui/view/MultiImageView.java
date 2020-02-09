@@ -713,6 +713,7 @@ public class MultiImageView
     private void setBitImageFileInternal(File file, boolean tiling, final Mode forMode) {
         final CustomScaleImageView image = new CustomScaleImageView(getContext());
         image.setImage(ImageSource.uri(file.getAbsolutePath()).tiling(tiling));
+        addView(image, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
         image.setCallback(new CustomScaleImageView.Callback() {
             @Override
             public void onReady() {
