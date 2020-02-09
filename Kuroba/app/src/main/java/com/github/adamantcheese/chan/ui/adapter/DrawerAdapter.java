@@ -281,54 +281,9 @@ public class DrawerAdapter
         if (ChanSettings.watchEnabled.get()) {
             if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
                 WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
-                String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
-                //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
-                int postsCount = pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1;
-                String totalCount = PinHelper.getShortUnreadCount(postsCount);
-
-                String watchCountText = ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount;
-
-                watchCount.setText(watchCountText);
-                watchCount.setVisibility(View.VISIBLE);
-
-                if (pin.getNewQuoteCount() > 0) {
-                    watchCount.setTextColor(getColor(context, R.color.pin_posts_has_replies));
-                } else if (!pin.watching) {
-                    watchCount.setTextColor(getColor(context, R.color.pin_posts_not_watching)); // TODO material colors
-                } else {
-                    watchCount.setTextColor(getColor(context, R.color.pin_posts_normal));
+                if (pinWatcher != null) {
+                    updatePinViewHolderInternal(pin, watchCount, pinWatcher);
                 }
-
-                watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
-                watchCount.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
-                Board pinBoard = pin.loadable.board;
-                boolean italicize = false, bold = false;
-                //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
-                if ((pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1)
-                        >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) {
-                    //italics for bump limit
-                    italicize = true;
-                }
-
-                if (pinWatcher.getImageCount() >= pinBoard.imageLimit && pinBoard.imageLimit > 0) {
-                    //bold for image limit
-                    bold = true;
-                }
-
-                if (italicize && bold) {
-                    watchCount.setTypeface(watchCount.getTypeface(), Typeface.BOLD_ITALIC);
-                } else if (italicize) {
-                    watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
-                } else if (bold) {
-                    watchCount.setTypeface(watchCount.getTypeface(), Typeface.BOLD);
-                }
-
-                if (pinWatcher.latestKnownPage >= pinBoard.pages && pinBoard.pages > 0) {
-                    //underline for page limit
-                    watchCount.setPaintFlags(watchCount.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-                }
-
-                watchCount.setPaintFlags(watchCount.getPaintFlags());
             } else {
                 watchCount.setVisibility(GONE);
             }
@@ -350,6 +305,57 @@ public class DrawerAdapter
             holder.itemView.setBackground(attrDrawable);
             holder.highlighted = false;
         }
+    }
+
+    private void updatePinViewHolderInternal(Pin pin, TextView watchCount, WatchManager.PinWatcher pinWatcher) {
+        String newCount = PinHelper.getShortUnreadCount(pin.getNewPostCount());
+        //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
+        int postsCount = pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1;
+        String totalCount = PinHelper.getShortUnreadCount(postsCount);
+
+        String watchCountText = ChanSettings.shortPinInfo.get() ? newCount : totalCount + " / " + newCount;
+
+        watchCount.setText(watchCountText);
+        watchCount.setVisibility(View.VISIBLE);
+
+        if (pin.getNewQuoteCount() > 0) {
+            watchCount.setTextColor(getColor(context, R.color.pin_posts_has_replies));
+        } else if (!pin.watching) {
+            watchCount.setTextColor(getColor(context, R.color.pin_posts_not_watching)); // TODO material colors
+        } else {
+            watchCount.setTextColor(getColor(context, R.color.pin_posts_normal));
+        }
+
+        watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
+        watchCount.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
+        Board pinBoard = pin.loadable.board;
+        boolean italicize = false, bold = false;
+        //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
+        if ((pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1)
+                >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) {
+            //italics for bump limit
+            italicize = true;
+        }
+
+        if (pinWatcher.getImageCount() >= pinBoard.imageLimit && pinBoard.imageLimit > 0) {
+            //bold for image limit
+            bold = true;
+        }
+
+        if (italicize && bold) {
+            watchCount.setTypeface(watchCount.getTypeface(), Typeface.BOLD_ITALIC);
+        } else if (italicize) {
+            watchCount.setTypeface(watchCount.getTypeface(), Typeface.ITALIC);
+        } else if (bold) {
+            watchCount.setTypeface(watchCount.getTypeface(), Typeface.BOLD);
+        }
+
+        if (pinWatcher.latestKnownPage >= pinBoard.pages && pinBoard.pages > 0) {
+            //underline for page limit
+            watchCount.setPaintFlags(watchCount.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        }
+
+        watchCount.setPaintFlags(watchCount.getPaintFlags());
     }
 
     private void loadBookmarkImage(PinViewHolder holder, Pin pin) {

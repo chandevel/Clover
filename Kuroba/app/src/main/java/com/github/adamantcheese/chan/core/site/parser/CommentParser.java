@@ -157,13 +157,13 @@ public class CommentParser {
     ) {
         CommentParser.Link handlerLink = matchAnchor(post, text, anchor, callback);
 
-        MockReplyManager.MockReply mockReply =
+        int mockReplyPostNo =
                 mockReplyManager.getLastMockReply(post.board.siteId, post.board.code, post.opId);
 
         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
 
-        if (mockReply != null) {
-            addMockReply(theme, post, spannableStringBuilder, mockReply);
+        if (mockReplyPostNo >= 0) {
+            addMockReply(theme, post, spannableStringBuilder, mockReplyPostNo);
         }
 
         if (handlerLink != null) {
@@ -215,14 +215,14 @@ public class CommentParser {
             Theme theme,
             Post.Builder post,
             SpannableStringBuilder spannableStringBuilder,
-            MockReplyManager.MockReply mockReply
+            int mockReplyPostNo
     ) {
-        Logger.d(TAG, "Adding a new mock reply (replyTo: " + mockReply.getPostNo() + ", replyFrom: " + post.id + ")");
-        post.addReplyTo(mockReply.getPostNo());
+        Logger.d(TAG, "Adding a new mock reply (replyTo: " + mockReplyPostNo + ", replyFrom: " + post.id + ")");
+        post.addReplyTo(mockReplyPostNo);
 
-        CharSequence replyText = ">>" + mockReply.getPostNo() + " (MOCK)";
+        CharSequence replyText = ">>" + mockReplyPostNo + " (MOCK)";
         SpannableString res = new SpannableString(replyText);
-        PostLinkable pl = new PostLinkable(theme, replyText, mockReply.getPostNo(), PostLinkable.Type.QUOTE);
+        PostLinkable pl = new PostLinkable(theme, replyText, mockReplyPostNo, PostLinkable.Type.QUOTE);
         res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
         post.addLinkable(pl);
 

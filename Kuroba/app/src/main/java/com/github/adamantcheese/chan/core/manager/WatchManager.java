@@ -28,6 +28,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.ServerError;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.core.base.Debouncer;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
@@ -45,6 +46,7 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 
@@ -60,7 +62,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -132,6 +133,8 @@ public class WatchManager
     private static final long FOREGROUND_INTERVAL_ONLY_DOWNLOADS = MINUTES.toMillis(3);
     private static final int MESSAGE_UPDATE = 1;
 
+    private static final long STATE_UPDATE_DEBOUNCE_TIME_MS = 1000L;
+
     private final DatabaseManager databaseManager;
     private final DatabasePinManager databasePinManager;
     private final DatabaseSavedThreadManager databaseSavedThreadManager;
@@ -142,10 +145,10 @@ public class WatchManager
     private final FileManager fileManager;
 
     private IntervalType currentInterval = NONE;
-
     private final List<Pin> pins;
     private final List<SavedThread> savedThreads;
     private boolean prevIncrementalThreadSavingEnabled;
+    private Debouncer stateUpdateDebouncer;
 
     private Map<Pin, PinWatcher> pinWatchers = new HashMap<>();
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
@@ -168,6 +171,7 @@ public class WatchManager
         this.fileManager = fileManager;
         this.prevIncrementalThreadSavingEnabled = false;
 
+        stateUpdateDebouncer = new Debouncer(true);
         databasePinManager = databaseManager.getDatabasePinManager();
         databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadManager();
 
@@ -666,6 +670,7 @@ public class WatchManager
         }
     }
 
+    @Nullable
     public PinWatcher getPinWatcher(Pin pin) {
         return pinWatchers.get(pin);
     }
@@ -702,10 +707,30 @@ public class WatchManager
     // Update the interval type according to the current settings,
     // create and destroy PinWatchers where needed and update the notification
     private void updateState(boolean watchEnabled, boolean backgroundEnabled) {
+        BackgroundUtils.ensureMainThread();
+
+        // updateState() (which is now called updateStateInternal) was called way too often. It was
+        // called once per every active pin. Because of that startService/stopService was called way
+        // too often too, which also led to notification being updated too often, etc.
+        // All of that could sometimes cause the notification to turn into a silent notification.
+        // So to avoid this and to reduce the amount of pin updates per second a debouncer was
+        // introduced. It updateState() is called too often, it will skip all updates and will wait
+        // for at least STATE_UPDATE_DEBOUNCE_TIME_MS without any updates before calling
+        // updateStateInternal().
+        stateUpdateDebouncer.post(
+                () -> updateStateInternal(watchEnabled, backgroundEnabled),
+                STATE_UPDATE_DEBOUNCE_TIME_MS
+        );
+    }
+
+    private void updateStateInternal(boolean watchEnabled, boolean backgroundEnabled) {
+        BackgroundUtils.ensureMainThread();
+
         Logger.d(
                 TAG,
-                "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground="
-                        + isInForeground()
+                "updateState watchEnabled=" + watchEnabled +
+                        " backgroundEnabled=" + backgroundEnabled +
+                        " foreground=" + isInForeground()
         );
 
         updateDeletedOrArchivedPins();
@@ -1260,8 +1285,7 @@ public class WatchManager
             //@formatter:off
             if (thread.getOp() != null && thread.getOp().image() != null
                     && (pin.thumbnailUrl.isEmpty()
-                            || !pin.thumbnailUrl.equals(thread.getOp().image().getThumbnailUrl().toString())))
-            {
+                    || !pin.thumbnailUrl.equals(thread.getOp().image().getThumbnailUrl().toString()))) {
                 pin.thumbnailUrl = thread.getOp().image().getThumbnailUrl().toString();
             }
             //@formatter:on

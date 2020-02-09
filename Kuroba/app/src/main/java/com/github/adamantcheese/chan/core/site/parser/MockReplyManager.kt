@@ -13,52 +13,76 @@ import java.util.*
  * post as yours beforehand (in case you want to test (You) notification show up) because this class
  * DOES NOT do that automatically for you.
  *
- * The new mock reply will also be stored in the database and in the local thread and it's
- * impossible to remove it.
- *
  * Also, the replies are not persisted across application lifecycle, so once the app dies all
- * replies in the queue will be gone and you will have to add them again.
+ * replies in the mockReplyMultiMap will be gone and you will have to add them again.
  *
  * ThreadSafe.
  * */
 class MockReplyManager {
     @GuardedBy("this")
-    private val mockReplyQueue = LinkedList<MockReply>()
+    private val mockReplyMultiMap = mutableMapOf<ThreadDescriptor, LinkedList<Int>>()
 
     fun addMockReply(siteId: Int, boardCode: String, opNo: Int, postNo: Int) {
         synchronized(this) {
-            mockReplyQueue.addFirst(MockReply(siteId, boardCode, opNo, postNo))
-            Logger.d(TAG, "addMockReply() mock replies count = ${mockReplyQueue.size}")
-        }
-    }
+            val threadDescriptor = ThreadDescriptor(siteId, boardCode, opNo)
 
-    fun getLastMockReply(siteId: Int, code: String, opNo: Int): MockReply? {
-        return synchronized(this) {
-            val mockReply = mockReplyQueue.peekLast()
-                    ?: return@synchronized null
-
-            // The post we are about to add a new reply to must be from the same site, board
-            // and thread as the post it will be replying to. Basically, both posts must be
-            // in the same thread.
-            if (!mockReply.isSuitablePost(siteId, code, opNo)) {
-                return@synchronized null
+            if (!mockReplyMultiMap.containsKey(threadDescriptor)) {
+                mockReplyMultiMap[threadDescriptor] = LinkedList()
             }
 
-            val lastElement = mockReplyQueue.removeLast()
-            Logger.d(TAG, "getLastMockReplyOrNull() mock replies count = ${mockReplyQueue.size}")
-
-            return@synchronized lastElement
+            mockReplyMultiMap[threadDescriptor]!!.addFirst(postNo)
+            Logger.d(TAG, "addMockReply() mock replies count = ${mockReplyMultiMap.size}")
         }
     }
 
-    data class MockReply(
+    fun getLastMockReply(siteId: Int, boardCode: String, opNo: Int): Int {
+        return synchronized(this) {
+            val threadDescriptor = ThreadDescriptor(siteId, boardCode, opNo)
+
+            val repliesQueue = mockReplyMultiMap[threadDescriptor]
+                    ?: return@synchronized -1
+
+            if (repliesQueue.isEmpty()) {
+                mockReplyMultiMap.remove(threadDescriptor)
+                return@synchronized -1
+            }
+
+            val lastReply = repliesQueue.removeLast()
+            Logger.d(TAG, "getLastMockReplyOrNull() mock replies " +
+                    "count = ${mockReplyMultiMap.values.sumBy { queue -> queue.size }}")
+
+            if (repliesQueue.isEmpty()) {
+                mockReplyMultiMap.remove(threadDescriptor)
+            }
+
+            return@synchronized lastReply
+        }
+    }
+
+    data class ThreadDescriptor(
             val siteId: Int,
             val boardCode: String,
-            val opNo: Int,
-            val postNo: Int
+            val opNo: Int
     ) {
-        fun isSuitablePost(siteId: Int, boardCode: String, opNo: Int): Boolean {
-            return this.siteId == siteId && this.boardCode == boardCode && this.opNo == opNo
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as ThreadDescriptor
+
+            if (siteId != other.siteId) return false
+            if (boardCode != other.boardCode) return false
+            if (opNo != other.opNo) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = siteId
+            result = 31 * result + boardCode.hashCode()
+            result = 31 * result + opNo
+            return result
         }
     }
 

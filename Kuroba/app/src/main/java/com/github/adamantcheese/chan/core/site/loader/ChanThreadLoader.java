@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.site.loader;
 
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.android.volley.AuthFailureError;
@@ -73,8 +74,8 @@ import static com.github.adamantcheese.chan.Chan.inject;
 public class ChanThreadLoader
         implements Response.ErrorListener, Response.Listener<ChanLoaderResponse> {
     private static final String TAG = "ChanThreadLoader";
-    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
+    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private static final int[] WATCH_TIMEOUTS = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
 
     @Inject
@@ -86,27 +87,28 @@ public class ChanThreadLoader
     @Inject
     SavedThreadLoaderManager savedThreadLoaderManager;
 
-    private WatchManager watchManager;
-
+    private final WatchManager watchManager;
     private final List<ChanLoaderCallback> listeners = new ArrayList<>();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+    @NonNull
     private final Loadable loadable;
+    @Nullable
     private ChanThread thread;
-
+    @Nullable
     private ChanLoaderRequest request;
-
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    @Nullable
+    private ScheduledFuture<?> pendingFuture;
 
     private int currentTimeout = 0;
     private int lastPostCount;
     private long lastLoadTime;
-    private ScheduledFuture<?> pendingFuture;
-
     /**
      * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link ChanLoaderManager}</b>
      * Also, do not use feather().instance(WatchManager.class) here because it will create a cyclic
      * dependency instantiation
      */
-    public ChanThreadLoader(Loadable loadable, WatchManager watchManager) {
+    public ChanThreadLoader(@NonNull Loadable loadable, WatchManager watchManager) {
         this.loadable = loadable;
         this.watchManager = watchManager;
 
@@ -290,6 +292,7 @@ public class ChanThreadLoader
         }
     }
 
+    @NonNull
     public Loadable getLoadable() {
         return loadable;
     }
@@ -341,8 +344,8 @@ public class ChanThreadLoader
 
         ChanLoaderRequestParams requestParams = new ChanLoaderRequestParams(loadable, chanReader, cached, this, this);
         ChanReaderRequest readerRequest = new ChanReaderRequest(requestParams);
-        request = new ChanLoaderRequest(readerRequest);
 
+        request = new ChanLoaderRequest(readerRequest);
         volleyRequestQueue.add(request.getVolleyRequest());
 
         return request;
@@ -385,9 +388,7 @@ public class ChanThreadLoader
     private boolean onThreadArchived(boolean closed, boolean archived) {
         ChanThread chanThread = loadSavedThreadIfItExists();
         if (chanThread == null) {
-            if (loadable != null) {
-                Logger.d(TAG, "Thread " + loadable.no + " is archived but we don't have a local copy of the thread");
-            }
+            Logger.d(TAG, "Thread " + loadable.no + " is archived but we don't have a local copy of the thread");
 
             // We don't have this thread locally saved, so return false and DO NOT SET thread to
             // chanThread because this will close this thread (user will see 404 not found error)
@@ -468,6 +469,10 @@ public class ChanThreadLoader
     private void onPreparedResponseInternal(
             ChanThread chanThread, Loadable.LoadableDownloadingState state, boolean closed, boolean archived
     ) {
+        if (thread == null) {
+            throw new IllegalStateException("thread is null");
+        }
+
         Post.Builder fakeOp = new Post.Builder();
         Post savedOp = chanThread.getOp();
 
@@ -487,6 +492,10 @@ public class ChanThreadLoader
     }
 
     private void onResponseInternalNext(Post.Builder fakeOp) {
+        if (thread == null) {
+            throw new IllegalStateException("thread is null");
+        }
+
         processResponse(fakeOp);
 
         if (TextUtils.isEmpty(loadable.title)) {
@@ -545,7 +554,8 @@ public class ChanThreadLoader
 
         Disposable disposable = Single.fromCallable(() -> {
             // Thread was deleted (404), try to load a saved copy (if we have it)
-            if (error.networkResponse != null && error.networkResponse.statusCode == 404 && loadable != null
+            if (error.networkResponse != null
+                    && error.networkResponse.statusCode == 404
                     && loadable.mode == Loadable.Mode.THREAD) {
                 Logger.d(TAG, "Got 404 status for a thread " + loadable.no);
 
@@ -591,10 +601,6 @@ public class ChanThreadLoader
     @Nullable
     private ChanThread loadSavedThreadIfItExists() {
         Loadable loadable = getLoadable();
-        if (loadable == null) {
-            Logger.d(TAG, "Could not get current loadable, it's null");
-            return null;
-        }
 
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null) {
