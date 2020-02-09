@@ -736,7 +736,6 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_base_directory_is_already_registered">Cannot use this directory because it is already in use</string>
     <string name="setting_image_link_loading_title">Enable image link loading</string>
     <string name="setting_image_link_loading_description">Adds any JPG, PNG, GIF, WEBP, BMP, PDF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
-    <string name="media_settings_dont_keep_activities_setting_is_probably_turned_on">MediaSettingsController was detached during some IO background operation, callbacks is null. This is probably because you have the \"Don\'t keep activities\" developer setting turned on. Disable it and try again.</string>
     <string name="add_dubs_title">Add dubs to post cells</string>
     <string name="add_dubs_description">Appends your GET to your post number, for FUN!</string>
     <string name="setting_youtube_dur_title">Enable Youtube durations</string>

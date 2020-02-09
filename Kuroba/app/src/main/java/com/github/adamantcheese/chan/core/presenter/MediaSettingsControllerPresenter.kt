@@ -5,7 +5,7 @@ import android.net.Uri
 import android.widget.Toast
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.settings.ChanSettings
-import com.github.adamantcheese.chan.ui.controller.settings.MediaSettingsControllerCallbacks
+import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SharedLocationSetupDelegateCallbacks
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
@@ -22,10 +22,14 @@ import java.util.concurrent.Executors
 class MediaSettingsControllerPresenter(
         private val fileManager: FileManager,
         private val fileChooser: FileChooser,
-        private var callbacks: MediaSettingsControllerCallbacks?,
         private var context: Context
 ) {
     private val fileCopyingExecutor = Executors.newSingleThreadExecutor()
+    private var callbacks: SharedLocationSetupDelegateCallbacks? = null
+
+    fun onCreate(callbacks: SharedLocationSetupDelegateCallbacks) {
+        this.callbacks = callbacks
+    }
 
     fun onDestroy() {
         callbacks = null
@@ -77,21 +81,21 @@ class MediaSettingsControllerPresenter(
     }
 
     fun onLocalThreadsLocationChosen(dirPath: String) {
-        val oldLocalThreadsDirectory =
-                fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
-
-        if (oldLocalThreadsDirectory == null) {
-            showToast(context, R.string.media_settings_old_threads_base_dir_not_registered)
-            return
-        }
-
         if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(dirPath)) {
             showToast(context, R.string.media_settings_base_directory_is_already_registered)
             return
         }
 
+        val oldLocalThreadsDirectory =
+                fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
+
         Logger.d(TAG, "onLocalThreadsLocationChosen dir = $dirPath")
         ChanSettings.localThreadLocation.setFileBaseDir(dirPath)
+
+        if (oldLocalThreadsDirectory == null) {
+            showToast(context, R.string.done)
+            return
+        }
 
         val newLocalThreadsDirectory =
                 fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
@@ -154,20 +158,22 @@ class MediaSettingsControllerPresenter(
     }
 
     fun onSaveLocationChosen(dirPath: String) {
-        val oldSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
-
-        if (oldSaveFilesDirectory == null) {
-            showToast(context, R.string.media_settings_old_saved_files_base_dir_not_registered)
-            return
-        }
-
         if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(dirPath)) {
             showToast(context, R.string.media_settings_base_directory_is_already_registered)
             return
         }
 
+        // It is important to get old base directory before assigning a new one, i.e. before
+        // ChanSettings.saveLocation.setFileBaseDir(dirPath)
+        val oldSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
+
         Logger.d(TAG, "onSaveLocationChosen dir = $dirPath")
         ChanSettings.saveLocation.setFileBaseDir(dirPath)
+
+        if (oldSaveFilesDirectory == null) {
+            showToast(context, R.string.done)
+            return
+        }
 
         val newSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
         if (newSaveFilesDirectory == null) {
@@ -251,16 +257,10 @@ class MediaSettingsControllerPresenter(
         }
     }
 
-    private fun withCallbacks(func: MediaSettingsControllerCallbacks.() -> Unit) {
-        if (callbacks == null) {
-            // This may actually happen if the user has "Don't keep activities" developer setting
-            // turned on! In such case we want to notify the user that the setting is PROBABLY on
-            // so they should disable it if it's really turned on because that setting will kill
-            // any activity as soon as it goes into the "Paused" state.
-            showToast(context, R.string.media_settings_dont_keep_activities_setting_is_probably_turned_on, Toast.LENGTH_LONG)
-        } else {
+    private fun withCallbacks(func: SharedLocationSetupDelegateCallbacks.() -> Unit) {
+        callbacks?.let {
             runOnMainThread {
-                func(callbacks!!)
+                func(it)
             }
         }
     }
