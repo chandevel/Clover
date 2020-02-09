@@ -16,6 +16,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowLog
 import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
@@ -32,6 +33,7 @@ class ChunkDownloaderTest {
     @Before
     fun init() {
         AndroidUtils.init(testModule.provideApplication())
+        ShadowLog.stream = System.out;
 
         okHttpClient = testModule.provideOkHttpClient()
         activeDownloads = testModule.provideActiveDownloads()

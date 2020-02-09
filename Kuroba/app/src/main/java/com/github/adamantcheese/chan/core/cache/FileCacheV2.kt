@@ -27,7 +27,6 @@ import okhttp3.OkHttpClient
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.Executors
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.collections.ArrayList
@@ -234,8 +233,8 @@ class FileCacheV2(
                     file,
                     // Always 1 for media prefetching
                     chunksCount = 1,
-                    isBatchDownload = true,
-                    isPrefetch = true,
+                    isGalleryBatchDownload = true,
+                    isPrefetchDownload = true,
                     // Prefetch downloads always have default extra info (no file size, no file hash)
                     extraInfo = DownloadRequestExtraInfo()
             )
@@ -365,8 +364,8 @@ class FileCacheV2(
                 callback,
                 file,
                 chunksCount = chunksCount,
-                isBatchDownload = isBatchDownload,
-                isPrefetch = false,
+                isGalleryBatchDownload = isBatchDownload,
+                isPrefetchDownload = false,
                 extraInfo = extraInfo
         )
 
@@ -416,11 +415,11 @@ class FileCacheV2(
             callback: FileCacheListener?,
             file: RawFile,
             chunksCount: Int,
-            isBatchDownload: Boolean,
-            isPrefetch: Boolean,
+            isGalleryBatchDownload: Boolean,
+            isPrefetchDownload: Boolean,
             extraInfo: DownloadRequestExtraInfo
     ): Pair<Boolean, CancelableDownload> {
-        if (chunksCount > 1 && (isBatchDownload || isPrefetch)) {
+        if (chunksCount > 1 && (isGalleryBatchDownload || isPrefetchDownload)) {
             throw IllegalArgumentException("Cannot download file in chunks for media " +
                     "prefetching or gallery downloading!")
         }
@@ -447,7 +446,7 @@ class FileCacheV2(
             val cancelableDownload = CancelableDownload(
                     url = url,
                     requestCancellationThread = requestCancellationThread,
-                    isPartOfBatchDownload = AtomicBoolean(isPrefetch || isBatchDownload)
+                    downloadType = CancelableDownload.DownloadType(isPrefetchDownload, isGalleryBatchDownload)
             )
 
             if (callback != null) {

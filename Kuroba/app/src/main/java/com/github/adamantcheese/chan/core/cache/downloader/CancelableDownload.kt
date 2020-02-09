@@ -7,7 +7,6 @@ import com.github.adamantcheese.chan.utils.Logger
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -15,10 +14,8 @@ import java.util.concurrent.atomic.AtomicReference
  * */
 class CancelableDownload(
         val url: String,
-        private val requestCancellationThread: ExecutorService,
-        // If true that means that this CancelableDownload belongs to some kind of a batched request
-        // i.e. either thread media prefetch or gallery download
-        val isPartOfBatchDownload: AtomicBoolean = AtomicBoolean(false)
+        val downloadType: DownloadType,
+        private val requestCancellationThread: ExecutorService
 ) {
     private val state: AtomicReference<DownloadState> = AtomicReference(DownloadState.Running)
     private val callbacks: MutableMap<Class<*>, FileCacheListener> = mutableMapOf()
@@ -101,7 +98,7 @@ class CancelableDownload(
             return
         }
 
-        if (isPartOfBatchDownload.get() && !canStopBatchDownloads) {
+        if (downloadType.isAnyKindOfMultiDownload() && !canStopBatchDownloads) {
             // Do not stop the request in case of it being prefetch/batch download. Just wait until
             // it downloads normally.
             return
@@ -116,7 +113,7 @@ class CancelableDownload(
             return
         }
 
-        if (isPartOfBatchDownload.get() && !canCancelBatchDownloads) {
+        if (downloadType.isAnyKindOfMultiDownload() && !canCancelBatchDownloads) {
             // When prefetching media in a thread and viewing images in the same thread at the
             // same time we may accidentally cancel a prefetch download which we don't want.
             // We only want to cancel prefetch downloads when exiting a thread, not when swiping
@@ -170,9 +167,15 @@ class CancelableDownload(
 
             // Catch all the exceptions. Otherwise some request info won't be cleared when an error
             // occurs.
-            Logger.e(TAG, "Error while trying to dispose of a request for " +
-                    "url = ($url), error = ${error.javaClass.simpleName}")
+            Logger.e(TAG, "Error while trying to dispose of a request for url = ($url)", error)
         }
+    }
+
+    data class DownloadType(
+            val isPrefetchDownload: Boolean,
+            val isGalleryBatchDownload: Boolean
+    ) {
+        fun isAnyKindOfMultiDownload(): Boolean = isPrefetchDownload || isGalleryBatchDownload
     }
 
     companion object {

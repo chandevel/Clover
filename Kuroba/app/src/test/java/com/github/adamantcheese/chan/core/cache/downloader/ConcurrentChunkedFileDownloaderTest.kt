@@ -19,6 +19,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
 import java.util.concurrent.TimeUnit
 
 
@@ -38,6 +39,7 @@ class ConcurrentChunkedFileDownloaderTest {
     @Before
     fun setUp() {
         AndroidUtils.init(testModule.provideApplication())
+        ShadowLog.stream = System.out;
 
         activeDownloads = testModule.provideActiveDownloads()
         fileManager = testModule.provideFileManager()

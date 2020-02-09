@@ -12,6 +12,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -25,6 +26,7 @@ class CacheHandlerTest {
     @Before
     fun init() {
         AndroidUtils.init(testModule.provideApplication())
+        ShadowLog.stream = System.out;
 
         fileManager = testModule.provideFileManager()
         cacheHandler = testModule.provideCacheHandler()
