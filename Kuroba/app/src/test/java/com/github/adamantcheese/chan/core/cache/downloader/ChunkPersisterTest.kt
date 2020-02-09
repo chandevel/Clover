@@ -65,7 +65,7 @@ class ChunkPersisterTest {
     @Test
     fun `test try store two chunks one chunk fails`() {
         val url = "http://testUrl.com/123.jpg"
-        val fileBytes = javaClass.classLoader.getResourceAsStream("test_img1.jpg").readBytes()
+        val fileBytes = javaClass.classLoader!!.getResourceAsStream("test_img1.jpg").readBytes()
         val chunksCount = 2
         val chunks = chunkLong(fileBytes.size.toLong(), chunksCount, MIN_CHUNK_SIZE)
         val chunkResponses = createChunkResponses(url, chunks, fileBytes)
@@ -121,7 +121,7 @@ class ChunkPersisterTest {
     @Test
     fun `test store two chunks on the disk both succeed`() {
         val url = "http://testUrl.com/123.jpg"
-        val fileBytes = javaClass.classLoader.getResourceAsStream("test_img1.jpg").readBytes()
+        val fileBytes = javaClass.classLoader!!.getResourceAsStream("test_img1.jpg").readBytes()
         val chunksCount = 2
         val chunks = chunkLong(fileBytes.size.toLong(), chunksCount, MIN_CHUNK_SIZE)
         val chunkResponses = createChunkResponses(url, chunks, fileBytes)
@@ -186,6 +186,54 @@ class ChunkPersisterTest {
                 assertTrue(next.downloaded <= chunkSize)
             }
         }
+    }
+
+    @Test
+    fun `test server returns 404 for a chunk`() {
+        val url = "http://testUrl.com/123.jpg"
+        val chunksCount = 1
+        val chunkResponse = create404ChunkResponse(url)
+        val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
+        val request = createFileDownloadRequest(url, chunksCount, file = output)
+        activeDownloads.put(url, request)
+
+        val testObserver = chunkPersister.storeChunkInFile(
+                url,
+                chunkResponse,
+                AtomicLong(),
+                0,
+                chunksCount
+        )
+                .subscribeOn(Schedulers.newThread())
+                .test()
+
+        val (events, errors, completes) = testObserver
+                .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                .events
+
+        assertFalse(errors.isEmpty())
+        assertTrue(events.isEmpty())
+        assertTrue(completes.isEmpty())
+
+        val error = errors.first()
+        assertTrue(error is FileCacheException.FileNotFoundOnTheServerException)
+    }
+
+    private fun create404ChunkResponse(url: String): ChunkResponse {
+        val request = with(Request.Builder()) {
+            url(url)
+            build()
+        }
+
+        val badResponse = with(Response.Builder()) {
+            request(request)
+            protocol(Protocol.HTTP_1_1)
+            code(404)
+            message("")
+            build()
+        }
+
+        return ChunkResponse(Chunk.wholeFile(), badResponse)
     }
 
     private fun createChunkResponses(url: String, chunks: List<Chunk>, fileBytes: ByteArray): List<ChunkResponse> {

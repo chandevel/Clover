@@ -61,10 +61,11 @@ class ChunkDownloaderTest {
             server.start()
 
             val url = server.url("/${imageName}").toString()
-            val request = createFileDownloadRequest(url, chunks.size)
+            val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
+            val request = createFileDownloadRequest(url, chunks.size, file = output)
             activeDownloads.put(url, request)
 
-            val wholeFile = javaClass.classLoader.getResourceAsStream(imageName)
+            val wholeFile = javaClass.classLoader!!.getResourceAsStream(imageName)
                     .use { it.readBytes() }
 
             chunks.forEach { chunk ->

@@ -146,13 +146,13 @@ public class Chan
                 return;
             }
 
-            onUnhandledException(exceptionToString(e));
+            onUnhandledException(exceptionToString(true, e));
             Logger.e("APP", "RxJava undeliverable exception", e);
         });
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             //if there's any uncaught crash stuff, just dump them to the log and exit immediately
-            String errorText = exceptionToString(e);
+            String errorText = exceptionToString(false, e);
 
             Logger.e("UNCAUGHT", errorText);
             Logger.e("UNCAUGHT", "------------------------------");
@@ -172,11 +172,17 @@ public class Chan
         }
     }
 
-    private String exceptionToString(Throwable e) {
+    private String exceptionToString(boolean isCalledFromRxJavaHandler, Throwable e) {
         try (StringWriter sw = new StringWriter()) {
             try (PrintWriter pw = new PrintWriter(sw)) {
                 e.printStackTrace(pw);
-                return sw.toString();
+                String stackTrace = sw.toString();
+
+                if (isCalledFromRxJavaHandler) {
+                    return "Called from RxJava onError handler.\n" + stackTrace;
+                }
+
+                return "Called from unhandled exception handler.\n" + stackTrace;
             }
         } catch (IOException ex) {
             throw new RuntimeException("Error while trying to convert exception to string!", ex);

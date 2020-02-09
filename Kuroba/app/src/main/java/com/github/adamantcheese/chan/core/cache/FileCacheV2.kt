@@ -2,7 +2,6 @@ package com.github.adamantcheese.chan.core.cache
 
 import android.annotation.SuppressLint
 import com.github.adamantcheese.chan.core.cache.downloader.*
-import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
 import com.github.adamantcheese.chan.core.model.PostImage
 import com.github.adamantcheese.chan.core.model.orm.Loadable
@@ -20,7 +19,6 @@ import com.github.k1rakishou.fsaf.file.FileSegment
 import com.github.k1rakishou.fsaf.file.RawFile
 import com.github.k1rakishou.fsaf.file.Segment
 import io.reactivex.Flowable
-import io.reactivex.exceptions.CompositeException
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
@@ -149,7 +147,9 @@ class FileCacheV2(
                 .flatMap { url ->
                     return@flatMap Flowable.defer { handleFileDownload(url) }
                             .subscribeOn(workerScheduler)
-                            .onErrorReturn { throwable -> processErrors(url, throwable) }
+                            .onErrorReturn { throwable ->
+                                ErrorMapper.mapError(url, throwable, activeDownloads)
+                            }
                             .map { result -> Pair(url, result) }
                             .doOnNext { (url, result) -> handleResults(url, result) }
                 }
@@ -180,7 +180,9 @@ class FileCacheV2(
                             .subscribeOn(batchScheduler)
                             .concatMap { url ->
                                 return@concatMap handleFileDownload(url)
-                                        .onErrorReturn { throwable -> processErrors(url, throwable) }
+                                        .onErrorReturn { throwable ->
+                                            ErrorMapper.mapError(url, throwable, activeDownloads)
+                                        }
                                         .map { result -> Pair(url, result) }
                                         .doOnNext { (url, result) ->
                                             handleResults(url, result)
@@ -854,75 +856,6 @@ class FileCacheV2(
                             result.supportsPartialContentDownload
                     )
                 }
-    }
-
-    private fun processErrors(url: String, throwable: Throwable): FileDownloadResult? {
-        // CompositeException is a RxJava type of exception that is being thrown when multiple
-        // exceptions are being thrown concurrently from multiple threads (e.g. You have a reactive
-        // stream that splits into multiple streams and all those streams throw an exceptions).
-        // RxJava accumulates all those exceptions and stores them all in the CompositeException.
-        // It's pain in the ass to deal with because you have to log them all and then figure
-        // out which one of them is the most important to you to do some kind of handling.
-        val error = if (throwable is CompositeException) {
-            require(throwable.exceptions.size > 0) {
-                "Got CompositeException without exceptions!"
-            }
-
-            if (throwable.exceptions.size == 1) {
-                throwable.exceptions.first()
-            } else {
-                extractErrorFromCompositeException(throwable.exceptions)
-            }
-        } else {
-            throwable
-        }
-
-        if (error is FileCacheException.CancellationException) {
-            return when (error.state) {
-                DownloadState.Running -> {
-                    throw RuntimeException("Got cancellation exception but the state is still running!")
-                }
-                DownloadState.Stopped -> FileDownloadResult.Stopped
-                DownloadState.Canceled -> FileDownloadResult.Canceled
-            }
-        }
-
-        if (isCancellationError(error)) {
-            return when (activeDownloads.getState(url)) {
-                DownloadState.Running -> {
-                    throw RuntimeException("Got cancellation exception but the state is still running!")
-                }
-                DownloadState.Stopped -> FileDownloadResult.Stopped
-                else -> FileDownloadResult.Canceled
-            }
-        }
-
-        if (error is FileCacheException) {
-            return FileDownloadResult.KnownException(error)
-        }
-
-        return FileDownloadResult.UnknownException(error)
-    }
-
-    private fun extractErrorFromCompositeException(exceptions: List<Throwable>): Throwable {
-        val cancellationException = exceptions.firstOrNull { exception ->
-            exception is FileCacheException.CancellationException
-        }
-
-        if (cancellationException != null) {
-            return cancellationException
-        }
-
-        if (exceptions.all { it is FileCacheException.CancellationException }) {
-            return exceptions.first()
-        }
-
-        for (exception in exceptions) {
-            Logger.e(TAG, "Composite exception error: " +
-                    "${exception.javaClass.name}, message: ${exception.message}")
-        }
-
-        return exceptions.first()
     }
 
     private fun purgeOutput(url: String, output: RawFile) {
