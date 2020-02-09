@@ -259,7 +259,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:1.0-alpha24'
+    implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:1.0-alpha25'
     implementation 'joda-time:joda-time:2.10.5'
 
     testImplementation 'junit:junit:4.13'

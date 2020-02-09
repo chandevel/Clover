@@ -41,7 +41,6 @@ class SharedLocationSetupDelegate(
         }
 
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
-            forgetOldSAFBaseDirectory(oldBaseDirectory)
             showToast(context, R.string.done, Toast.LENGTH_LONG)
             return
         }
@@ -75,7 +74,6 @@ class SharedLocationSetupDelegate(
         }
 
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
-            forgetOldSAFBaseDirectory(oldBaseDirectory)
             showToast(context, R.string.done, Toast.LENGTH_LONG)
             return
         }
@@ -152,8 +150,6 @@ class SharedLocationSetupDelegate(
             showToast(context, R.string.media_settings_could_not_copy_files, Toast.LENGTH_LONG)
         } else {
             if (fileManager.isChildOfDirectory(oldBaseDirectory, newBaseDirectory)) {
-                forgetOldSAFBaseDirectory(oldBaseDirectory)
-
                 showToast(context, R.string.done, Toast.LENGTH_LONG)
                 return
             }
