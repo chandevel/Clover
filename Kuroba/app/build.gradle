@@ -59,7 +59,7 @@ android {
         buildConfigField "String", "GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba\""
         //this is for your development server endpoint
         //you WILL need to change the code in UpdateManager if your endpoint changes or you use a different API structure
-        buildConfigField "String", "DEV_API_ENDPOINT", "\"http://94.140.116.243:8080\""
+        buildConfigField "String", "DEV_API_ENDPOINT", "\"https://kuroba.io:8443\""
         //this is for checking who's built what in debug logs
         buildConfigField "String", "SIGNATURE", "\"8952c098\""
 
