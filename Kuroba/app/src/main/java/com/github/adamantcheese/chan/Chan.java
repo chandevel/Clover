@@ -162,6 +162,17 @@ public class Chan
             Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME);
             Logger.e("UNCAUGHT", "Development Build: " + (getIsOfficial() ? "No" : "Yes"));
             Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
+
+            /*
+            Runtime runtime = Runtime.getRuntime();
+            long usedMemInMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L;
+            long maxHeapSizeInMB = runtime.maxMemory() / 1048576L;
+            long availHeapSizeInMB = maxHeapSizeInMB - usedMemInMB;
+            Logger.e("UNCAUGHT", "Used memory (MB): " + usedMemInMB);
+            Logger.e("UNCAUGHT", "Max memory (MB): " + maxHeapSizeInMB);
+            Logger.e("UNCAUGHT", "Available memory (MB): " + availHeapSizeInMB);
+             */
+
             onUnhandledException(errorText);
 
             System.exit(999);

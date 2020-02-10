@@ -59,6 +59,10 @@ public class CustomScaleImageView
             @Override
             public void onImageLoadError(Exception e) {
                 Logger.w(TAG, "onImageLoadError", e);
+                if (e.getCause() instanceof OutOfMemoryError) {
+                    Logger.e(TAG, "OOM while trying to set a big image file", e);
+                    Runtime.getRuntime().gc();
+                }
                 if (callback != null) {
                     callback.onError(true);
                 }
