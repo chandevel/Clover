@@ -124,6 +124,7 @@ public class ThreadLayout
     private boolean replyButtonEnabled;
     private boolean showingReplyButton = false;
     private Snackbar newPostsNotification;
+    private final Object snackbarLock = new Object();
 
     public ThreadLayout(Context context) {
         this(context, null);
@@ -600,21 +601,23 @@ public class ThreadLayout
     @Override
     public void showNewPostsNotification(boolean show, int more) {
         if (show) {
-            if (!threadListLayout.scrolledToBottom() && BackgroundUtils.isInForeground()) {
-                String text = getQuantityString(R.plurals.thread_new_posts, more, more);
+            synchronized (snackbarLock) {
+                if (!threadListLayout.scrolledToBottom() && BackgroundUtils.isInForeground()) {
+                    String text = getQuantityString(R.plurals.thread_new_posts, more, more);
 
-                newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
-                newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
-                    presenter.onNewPostsViewClicked();
-                    if (newPostsNotification != null) {
+                    newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
+                    newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
+                        presenter.onNewPostsViewClicked();
+                        if (newPostsNotification != null) {
+                            newPostsNotification.dismiss();
+                        }
+                    }).show();
+                    fixSnackbarText(getContext(), newPostsNotification);
+                } else {
+                    if (newPostsNotification != null) { //just to be sure
                         newPostsNotification.dismiss();
                     }
-                }).show();
-                fixSnackbarText(getContext(), newPostsNotification);
-            }
-        } else {
-            if (newPostsNotification != null) { //just to be sure
-                newPostsNotification.dismiss();
+                }
             }
         }
     }
@@ -622,15 +625,19 @@ public class ThreadLayout
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
-        newPostsNotification = Snackbar.make(this, "", Snackbar.LENGTH_LONG); //so there's no null reference
+        synchronized (snackbarLock) {
+            newPostsNotification = Snackbar.make(this, "", Snackbar.LENGTH_LONG); //so there's no null reference
+        }
     }
 
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if (newPostsNotification != null) {
-            newPostsNotification.dismiss();
-            newPostsNotification = null;
+        synchronized (snackbarLock) {
+            if (newPostsNotification != null) {
+                newPostsNotification.dismiss();
+                newPostsNotification = null;
+            }
         }
     }
 
@@ -687,45 +694,47 @@ public class ThreadLayout
 
     private void switchVisible(Visible visible) {
         if (this.visible != visible) {
-            if (this.visible != null) {
-                if (this.visible == Visible.THREAD) {
-                    threadListLayout.cleanup();
-                    postPopupHelper.popAll();
-                    showSearch(false);
-                    showReplyButton(false);
-                    if (newPostsNotification != null) {
-                        newPostsNotification.dismiss();
+            synchronized (snackbarLock) {
+                if (this.visible != null) {
+                    if (this.visible == Visible.THREAD) {
+                        threadListLayout.cleanup();
+                        postPopupHelper.popAll();
+                        showSearch(false);
+                        showReplyButton(false);
+                        if (newPostsNotification != null) {
+                            newPostsNotification.dismiss();
+                        }
                     }
                 }
-            }
 
-            this.visible = visible;
-            switch (visible) {
-                case EMPTY:
-                    loadView.setView(inflateEmptyView());
-                    showReplyButton(false);
-                    break;
-                case LOADING:
-                    View view = loadView.setView(progressLayout);
+                this.visible = visible;
+                switch (visible) {
+                    case EMPTY:
+                        loadView.setView(inflateEmptyView());
+                        showReplyButton(false);
+                        break;
+                    case LOADING:
+                        View view = loadView.setView(progressLayout);
 
-                    // TODO: cleanup
-                    if (refreshedFromSwipe) {
-                        refreshedFromSwipe = false;
-                        view.setVisibility(GONE);
-                    }
+                        // TODO: cleanup
+                        if (refreshedFromSwipe) {
+                            refreshedFromSwipe = false;
+                            view.setVisibility(GONE);
+                        }
 
-                    showReplyButton(false);
-                    break;
-                case THREAD:
-                    callback.hideSwipeRefreshLayout();
-                    loadView.setView(threadListLayout);
-                    showReplyButton(true);
-                    break;
-                case ERROR:
-                    callback.hideSwipeRefreshLayout();
-                    loadView.setView(errorLayout);
-                    showReplyButton(false);
-                    break;
+                        showReplyButton(false);
+                        break;
+                    case THREAD:
+                        callback.hideSwipeRefreshLayout();
+                        loadView.setView(threadListLayout);
+                        showReplyButton(true);
+                        break;
+                    case ERROR:
+                        callback.hideSwipeRefreshLayout();
+                        loadView.setView(errorLayout);
+                        showReplyButton(false);
+                        break;
+                }
             }
         }
     }
