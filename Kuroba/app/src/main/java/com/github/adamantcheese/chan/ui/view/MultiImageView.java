@@ -171,6 +171,7 @@ public class MultiImageView
 
     public void setMode(Loadable loadable, final Mode newMode, boolean center) {
         this.mode = newMode;
+        hasContent = false;
         waitForMeasure(this, view -> {
             if (getWidth() == 0 || getHeight() == 0 || !isLaidOut()) {
                 Logger.e(TAG, "getWidth() or getHeight() returned 0, or view not laid out, not loading");
@@ -370,7 +371,7 @@ public class MultiImageView
                     public void onSuccess(RawFile file) {
                         BackgroundUtils.ensureMainThread();
 
-                        setBitImageFileInternal(new File(file.getFullPath()), true, Mode.BIGIMAGE);
+                        setBitImageFileInternal(new File(file.getFullPath()), true);
                         toggleTransparency();
 
                         callback.onDownloaded(postImage);
@@ -472,7 +473,7 @@ public class MultiImageView
             // have to use the more memory intensive non tiling mode.
             if (drawable.getNumberOfFrames() == 1) {
                 drawable.recycle();
-                setBitImageFileInternal(file, false, Mode.GIFIMAGE);
+                setBitImageFileInternal(file, false);
                 return;
             }
         } catch (IOException e) {
@@ -710,14 +711,16 @@ public class MultiImageView
         }
     }
 
-    private void setBitImageFileInternal(File file, boolean tiling, final Mode forMode) {
+    private void setBitImageFileInternal(File file, boolean tiling) {
         final CustomScaleImageView image = new CustomScaleImageView(getContext());
         image.setImage(ImageSource.uri(file.getAbsolutePath()).tiling(tiling));
+        //this is required because unlike the other views, if we don't have layout dimensions, the callback won't be called
+        //see https://github.com/davemorrissey/subsampling-scale-image-view/issues/143
         addView(image, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
         image.setCallback(new CustomScaleImageView.Callback() {
             @Override
             public void onReady() {
-                if (!hasContent || mode == forMode) {
+                if (!hasContent || mode == Mode.BIGIMAGE) {
                     callback.hideProgress(MultiImageView.this);
                     onModeLoaded(Mode.BIGIMAGE, image);
                 }
