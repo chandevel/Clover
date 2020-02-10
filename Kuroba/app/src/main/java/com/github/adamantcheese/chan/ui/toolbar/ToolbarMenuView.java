@@ -57,8 +57,10 @@ public class ToolbarMenuView
     }
 
     public void detach() {
-        for (ToolbarMenuItem item : menu.items) {
-            item.detach();
+        if(menu != null) {
+            for (ToolbarMenuItem item : menu.items) {
+                item.detach();
+            }
         }
     }
 
