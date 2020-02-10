@@ -270,7 +270,7 @@ public class BrowseController
 
     @Override
     public void onBoardClicked(Board item) {
-        presenter.onBoardsFloatingMenuBoardClicked(item);
+        presenter.setBoard(item);
     }
 
     @Override

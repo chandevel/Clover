@@ -70,10 +70,6 @@ public class BrowsePresenter
         loadBoard(board);
     }
 
-    public void onBoardsFloatingMenuBoardClicked(Board board) {
-        loadBoard(board);
-    }
-
     public void loadWithDefaultBoard() {
         Board first = firstBoard();
         if (first != null) {
