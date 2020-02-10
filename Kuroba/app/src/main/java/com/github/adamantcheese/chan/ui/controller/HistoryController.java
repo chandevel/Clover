@@ -24,6 +24,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -66,6 +67,9 @@ public class HistoryController
     private CrossfadeView crossfade;
     private HistoryAdapter adapter;
 
+    @Nullable
+    private HintPopup hintPopup = null;
+
     public HistoryController(Context context) {
         super(context);
     }
@@ -105,7 +109,17 @@ public class HistoryController
         adapter.load();
 
         if (ChanSettings.historyOpenCounter.increase() == 1) {
-            HintPopup.show(context, historyEnabledSwitch, R.string.history_toggle_hint);
+            hintPopup = HintPopup.show(context, historyEnabledSwitch, R.string.history_toggle_hint);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (hintPopup != null) {
+            hintPopup.dismiss();
+            hintPopup = null;
         }
     }
 

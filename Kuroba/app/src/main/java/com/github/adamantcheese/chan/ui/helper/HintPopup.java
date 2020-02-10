@@ -32,7 +32,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.cancelRunOnMainThreadRequest;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThreadCancelable;
 
 public class HintPopup {
     public static HintPopup show(Context context, View anchor, int text) {
@@ -62,6 +63,7 @@ public class HintPopup {
     //centered enough, not exact
     private boolean centered = false;
     private boolean wiggle = false;
+    private long token = -1L;
 
     public HintPopup(
             Context context,
@@ -94,7 +96,9 @@ public class HintPopup {
     }
 
     public void show() {
-        runOnMainThread(() -> {
+        cancelRunnable();
+
+        token = runOnMainThreadCancelable(() -> {
             if (!dismissed) {
                 popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
                 // TODO: cleanup
@@ -116,6 +120,13 @@ public class HintPopup {
         }, 400);
     }
 
+    private void cancelRunnable() {
+        if (token >= 0) {
+            cancelRunOnMainThreadRequest(token);
+            token = -1L;
+        }
+    }
+
     public void alignCenter() {
         centered = true;
     }
@@ -125,6 +136,7 @@ public class HintPopup {
     }
 
     public void dismiss() {
+        cancelRunnable();
         popupWindow.dismiss();
         dismissed = true;
     }

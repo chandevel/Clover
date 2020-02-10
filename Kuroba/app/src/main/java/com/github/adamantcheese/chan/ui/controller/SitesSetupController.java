@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -68,9 +69,8 @@ public class SitesSetupController
 
     private CrossfadeView crossfadeView;
     private FloatingActionButton addButton;
-
-    private HintPopup addBoardsHint;
-
+    @Nullable
+    private HintPopup hintPopup = null;
     private SitesAdapter sitesAdapter;
     private ItemTouchHelper itemTouchHelper;
     private List<SiteBoardCount> sites = new ArrayList<>();
@@ -142,6 +142,11 @@ public class SitesSetupController
     public void onDestroy() {
         super.onDestroy();
 
+        if (hintPopup != null) {
+            hintPopup.dismiss();
+            hintPopup = null;
+        }
+
         presenter.destroy();
     }
 
@@ -155,9 +160,15 @@ public class SitesSetupController
     @Override
     public void showHint() {
         String s = getString(R.string.setup_sites_add_hint);
-        HintPopup popup = new HintPopup(context, addButton, s, 0, 0, true);
-        popup.wiggle();
-        popup.show();
+
+        if (hintPopup != null) {
+            hintPopup.dismiss();
+            hintPopup = null;
+        }
+
+        hintPopup = new HintPopup(context, addButton, s, 0, 0, true);
+        hintPopup.wiggle();
+        hintPopup.show();
     }
 
     @Override
@@ -243,11 +254,13 @@ public class SitesSetupController
             holder.description.setText(descriptionText);
 
             if (site.boardCount == 0) {
-                if (addBoardsHint != null) {
-                    addBoardsHint.dismiss();
+                if (hintPopup != null) {
+                    hintPopup.dismiss();
+                    hintPopup = null;
                 }
-                addBoardsHint = HintPopup.show(context, holder.settings, R.string.setup_sites_add_boards_hint);
-                addBoardsHint.wiggle();
+
+                hintPopup = HintPopup.show(context, holder.settings, R.string.setup_sites_add_boards_hint);
+                hintPopup.wiggle();
             }
         }
 

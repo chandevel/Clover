@@ -20,18 +20,21 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.core.os.HandlerCompat;
+
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 
 public class BackgroundUtils {
-
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private static final AtomicLong mainHandlerTokenCounter = new AtomicLong(0);
 
     public static boolean isInForeground() {
         return ((Chan) instance(Context.class)).getApplicationInForeground();
@@ -47,6 +50,17 @@ public class BackgroundUtils {
 
     public static void runOnMainThread(Runnable runnable, long delay) {
         mainHandler.postDelayed(runnable, delay);
+    }
+
+    public static long runOnMainThreadCancelable(Runnable runnable, long delay) {
+        long token = mainHandlerTokenCounter.getAndIncrement();
+        HandlerCompat.postDelayed(mainHandler, runnable, token, delay);
+
+        return token;
+    }
+
+    public static void cancelRunOnMainThreadRequest(long token) {
+        mainHandler.removeCallbacksAndMessages(token);
     }
 
     private static boolean isMainThread() {

@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
@@ -101,6 +102,8 @@ public class ViewThreadController
     private Drawable downloadIconOutline;
     private Drawable downloadIconFilled;
     private AnimatedVectorDrawableCompat downloadAnimation;
+    @Nullable
+    private HintPopup hintPopup = null;
 
     private Animatable2Compat.AnimationCallback downloadAnimationCallback = new Animatable2Compat.AnimationCallback() {
         @Override
@@ -372,6 +375,8 @@ public class ViewThreadController
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        dismissHintPopup();
         updateDrawerHighlighting(null);
         updateLeftPaneHighlighting(null);
     }
@@ -579,14 +584,16 @@ public class ViewThreadController
             view.postDelayed(() -> {
                 View view = navigation.findItem(OVERFLOW_ID).getView();
                 if (view != null) {
-                    HintPopup.show(context, view, getString(R.string.thread_up_down_hint), -dp(1), 0);
+                    dismissHintPopup();
+                    hintPopup = HintPopup.show(context, view, getString(R.string.thread_up_down_hint), -dp(1), 0);
                 }
             }, 600);
         } else if (counter == 3) {
             view.postDelayed(() -> {
                 View view = navigation.findItem(PIN_ID).getView();
                 if (view != null) {
-                    HintPopup.show(context, view, getString(R.string.thread_pin_hint), -dp(1), 0);
+                    dismissHintPopup();
+                    hintPopup = HintPopup.show(context, view, getString(R.string.thread_pin_hint), -dp(1), 0);
                 }
             }, 600);
         } else if (counter == 4) {
@@ -595,10 +602,18 @@ public class ViewThreadController
                 if (saveThreadItem != null) {
                     View view = saveThreadItem.getView();
                     if (view != null) {
-                        HintPopup.show(context, view, getString(R.string.thread_save_hint), -dp(1), 0);
+                        dismissHintPopup();
+                        hintPopup = HintPopup.show(context, view, getString(R.string.thread_save_hint), -dp(1), 0);
                     }
                 }
             }, 600);
+        }
+    }
+
+    private void dismissHintPopup() {
+        if (hintPopup != null) {
+            hintPopup.dismiss();
+            hintPopup = null;
         }
     }
 
