@@ -123,6 +123,11 @@ public class BrowseController
         // Toolbar menu
         navigation.hasBack = false;
 
+        // this controller is used for catalog views; displaying things on two rows for them middle menu is how we want it done
+        // these need to be setup before the view is rendered, otherwise the subtitle view is removed
+        navigation.title = "App Setup";
+        navigation.subtitle = "Tap for site/board setup";
+
         NavigationItem.MenuOverflowBuilder overflowBuilder = navigation.buildMenu()
                 .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
                 .withItem(R.drawable.ic_refresh_white_24dp, this::reloadClicked)
@@ -376,9 +381,9 @@ public class BrowseController
 
     @Override
     public void loadBoard(Loadable loadable) {
-        String name = BoardHelper.getName(loadable.board);
-        loadable.title = name;
-        navigation.title = name;
+        loadable.title = BoardHelper.getName(loadable.board);
+        navigation.title = "/" + loadable.board.code + "/";
+        navigation.subtitle = loadable.board.name;
 
         ThreadPresenter presenter = threadLayout.getPresenter();
         presenter.unbindLoadable();

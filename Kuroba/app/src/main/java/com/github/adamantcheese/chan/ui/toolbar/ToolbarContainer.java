@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -458,12 +459,13 @@ public class ToolbarContainer
                 int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
                 final Drawable arrowDrawable =
                         new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
-                titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowDrawable, null);
+                arrowDrawable.setBounds(0, 0, arrowDrawable.getIntrinsicWidth(), arrowDrawable.getIntrinsicHeight());
+                ImageView dropdown = new ImageView(getContext());
+                dropdown.setImageDrawable(arrowDrawable);
+                titleContainer.addView(dropdown,
+                        new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER_VERTICAL | Gravity.RIGHT)
+                );
                 titleContainer.setOnClickListener(v -> item.middleMenu.show(titleView));
-                //Default stuff for nothing there
-                if (item.title.isEmpty()) {
-                    titleView.setText("App Setup");
-                }
             }
 
             // Possible subtitle.
