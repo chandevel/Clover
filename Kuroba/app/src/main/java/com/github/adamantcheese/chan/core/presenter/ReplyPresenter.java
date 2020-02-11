@@ -316,8 +316,8 @@ public class ReplyPresenter
                     ));
 
             lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
-            if (localLoadable.isCatalogMode()) {
-                lastReplyRepository.putLastThread(localLoadable.site, localLoadable.board);
+            if (loadable.isCatalogMode()) {
+                lastReplyRepository.putLastThread(loadable.site, loadable.board);
             }
 
             if (ChanSettings.postPinThread.get()) {
