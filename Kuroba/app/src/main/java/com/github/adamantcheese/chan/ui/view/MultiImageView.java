@@ -207,6 +207,7 @@ public class MultiImageView
     @Override
     public View getActiveView() {
         View ret = null;
+        if (!hasContent) return new View(context);
         switch (mode) {
             case LOWRES:
             case OTHER:
