@@ -1070,10 +1070,8 @@ public class PostCell
             extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            if (inPopup) {
-                callback.onPopupPostDoubleClicked(post);
-            }
-            return inPopup;
+            callback.onPostDoubleClicked(post);
+            return true;
         }
     }
 }

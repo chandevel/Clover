@@ -815,7 +815,7 @@ public class ThreadPresenter
     }
 
     @Override
-    public void onPopupPostDoubleClicked(Post post) {
+    public void onPostDoubleClicked(Post post) {
         if (!loadable.isCatalogMode()) {
             if (searchOpen) {
                 searchQuery = null;
