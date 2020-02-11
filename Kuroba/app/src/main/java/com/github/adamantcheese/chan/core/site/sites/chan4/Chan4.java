@@ -54,7 +54,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -466,6 +465,7 @@ public class Chan4
     }
 
     private OptionsSetting<CaptchaType> captchaType;
+    public static StringSetting flagType;
 
     public Chan4() {
         // we used these before multisite, and lets keep using them.
@@ -484,14 +484,15 @@ public class Chan4
         super.initializeSettings();
 
         captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, V2JS);
+        flagType = new StringSetting(settingsProvider, "preference_flag_chan4", "0");
     }
 
     @Override
     public List<SiteSetting> settings() {
-        return Collections.singletonList(SiteSetting.forOption(captchaType,
-                "Captcha type",
-                Arrays.asList("Javascript", "Noscript")
-        ));
+        List<SiteSetting> settings = new ArrayList<>();
+        settings.add(SiteSetting.forOption(captchaType, "Captcha type", Arrays.asList("Javascript", "Noscript")));
+        settings.add(SiteSetting.forString(flagType, "Country flag code"));
+        return settings;
     }
 
     @Override

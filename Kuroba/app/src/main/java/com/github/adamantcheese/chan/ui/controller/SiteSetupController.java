@@ -23,12 +23,14 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.SiteSetupPresenter;
 import com.github.adamantcheese.chan.core.settings.OptionsSetting;
+import com.github.adamantcheese.chan.core.settings.StringSetting;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +38,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
@@ -107,23 +108,31 @@ public class SiteSetupController
         SettingsGroup group = new SettingsGroup("Additional settings");
 
         for (SiteSetting setting : settings) {
-            if (setting.type == OPTIONS) {
+            switch (setting.type) {
+                case OPTIONS:
+                    // Turn the SiteSetting for a list of options into a proper setting with a
+                    // name and a list of options, both given in the SiteSetting.
+                    OptionsSetting optionsSetting = (OptionsSetting) setting.setting;
 
-                // Turn the SiteSetting for a list of options into a proper setting with a
-                // name and a list of options, both given in the SiteSetting.
-                OptionsSetting optionsSetting = (OptionsSetting) setting.setting;
+                    List<ListSettingView.Item<Enum>> items = new ArrayList<>();
+                    Enum[] settingItems = optionsSetting.getItems();
+                    for (int i = 0; i < settingItems.length; i++) {
+                        String name = setting.optionNames.get(i);
+                        Enum anEnum = settingItems[i];
+                        items.add(new ListSettingView.Item<>(name, anEnum));
+                    }
 
-                List<ListSettingView.Item<Enum>> items = new ArrayList<>();
-                Enum[] settingItems = optionsSetting.getItems();
-                for (int i = 0; i < settingItems.length; i++) {
-                    String name = setting.optionNames.get(i);
-                    Enum anEnum = settingItems[i];
-                    items.add(new ListSettingView.Item<>(name, anEnum));
-                }
+                    ListSettingView<?> v = getListSettingView(setting, optionsSetting, items);
 
-                ListSettingView<?> v = getListSettingView(setting, optionsSetting, items);
+                    group.add(v);
+                    break;
+                case STRING:
+                    // Turn the SiteSetting for a string setting into a proper setting with a name and input
+                    StringSetting stringSetting = (StringSetting) setting.setting;
+                    StringSettingView view = new StringSettingView(this, stringSetting, setting.name, setting.name);
 
-                group.add(v);
+                    group.add(view);
+                    break;
             }
         }
 
