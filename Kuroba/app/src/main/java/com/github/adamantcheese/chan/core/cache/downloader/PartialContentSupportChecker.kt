@@ -120,14 +120,14 @@ internal class PartialContentSupportChecker(
                     DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
                     DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
                     else -> {
-                        emitter.onError(
+                        emitter.tryOnError(
                                 RuntimeException("DownloadState must be either Stopped or Canceled")
                         )
                         return@create
                     }
                 }
 
-                emitter.onError(
+                emitter.tryOnError(
                         FileCacheException.CancellationException(downloadState, url)
                 )
                 return@create
@@ -140,7 +140,7 @@ internal class PartialContentSupportChecker(
                     }
 
                     if (!isCancellationError(e)) {
-                        emitter.onError(e)
+                        emitter.tryOnError(e)
                     } else {
                         val state = activeDownloads.get(url)?.cancelableDownload?.getState()
                                 ?: DownloadState.Canceled
@@ -149,7 +149,7 @@ internal class PartialContentSupportChecker(
                             throw RuntimeException("Expected Cancelled or Stopped but got Running")
                         }
 
-                        emitter.onError(
+                        emitter.tryOnError(
                                 FileCacheException.CancellationException(state, url)
                         )
                     }
@@ -213,7 +213,7 @@ internal class PartialContentSupportChecker(
             )
             cache(url, result)
 
-            emitter.onError(FileCacheException.FileNotFoundOnTheServerException())
+            emitter.tryOnError(FileCacheException.FileNotFoundOnTheServerException())
             return
         }
 
