@@ -629,12 +629,14 @@ class FileCacheV2(
             }
 
             val networkClass = getNetworkClassOrDefaultText(result)
+            val activeDownloadsCount = activeDownloads.count()
 
             when (result) {
                 is FileDownloadResult.Start -> {
                     log(TAG, "Download (${request}) has started. " +
                             "Chunks count = ${result.chunksCount}. " +
-                            "Network class = $networkClass")
+                            "Network class = $networkClass. " +
+                            "Downloads = $activeDownloadsCount")
 
                     // Start is not a terminal event so we don't want to remove request from the
                     // activeDownloads
@@ -665,7 +667,8 @@ class FileCacheV2(
                             "downloaded = ${downloadedString} ($downloaded B), " +
                             "total = ${totalString} ($total B), " +
                             "took ${result.requestTime}ms, " +
-                            "network class = $networkClass" +
+                            "network class = $networkClass, " +
+                            "downloads = $activeDownloadsCount" +
                             ") for request ${request}"
                     )
 
@@ -735,7 +738,8 @@ class FileCacheV2(
                     log(TAG, "Request ${request} $causeText, " +
                             "downloaded = $downloaded, " +
                             "total = $total, " +
-                            "network class = $networkClass")
+                            "network class = $networkClass, " +
+                            "downloads = $activeDownloadsCount")
 
                     resultHandler(url, request, true) {
                         if (isCanceled) {
@@ -748,11 +752,10 @@ class FileCacheV2(
                     }
                 }
                 is FileDownloadResult.KnownException -> {
-                    logError(
-                            TAG,
-                            "Exception for request ${request}, network class = $networkClass",
-                            result.fileCacheException
-                    )
+                    val message = "Exception for request ${request}, " +
+                            "network class = $networkClass, downloads = $activeDownloadsCount"
+
+                    logError(TAG, message, result.fileCacheException)
 
                     resultHandler(url, request, true) {
                         when (result.fileCacheException) {

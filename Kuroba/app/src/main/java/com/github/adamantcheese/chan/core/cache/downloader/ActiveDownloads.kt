@@ -31,7 +31,7 @@ internal open class ActiveDownloads {
 
     fun isGalleryBatchDownload(url: String): Boolean {
         return synchronized(activeDownloads) {
-            return activeDownloads[url]
+            return@synchronized activeDownloads[url]
                     ?.cancelableDownload
                     ?.downloadType
                     ?.isGalleryBatchDownload
@@ -140,8 +140,16 @@ internal open class ActiveDownloads {
     }
 
     fun getState(url: String): DownloadState {
-        return activeDownloads[url]?.cancelableDownload?.getState()
-                ?: DownloadState.Canceled
+        return synchronized(activeDownloads) {
+            activeDownloads[url]?.cancelableDownload?.getState()
+                    ?: DownloadState.Canceled
+        }
+    }
+
+    fun count(): Int {
+        return synchronized(activeDownloads) {
+            activeDownloads.count()
+        }
     }
 
     /**
