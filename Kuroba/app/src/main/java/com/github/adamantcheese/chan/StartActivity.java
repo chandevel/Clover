@@ -70,9 +70,9 @@ import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import javax.inject.Inject;
 
@@ -93,7 +93,7 @@ public class StartActivity
     private static final String STATE_KEY = "chan_state";
 
     private ViewGroup contentView;
-    private List<Controller> stack = new ArrayList<>();
+    private Stack<Controller> stack = new Stack<>();
 
     private DrawerController drawerController;
     private NavigationController mainNavigationController;
@@ -143,7 +143,7 @@ public class StartActivity
         setupLayout();
 
         setContentView(drawerController.view);
-        addController(drawerController);
+        pushController(drawerController);
 
         // Prevent overdraw
         // Do this after setContentView, or the decor creating will reset the background to a default non-null drawable
@@ -370,7 +370,7 @@ public class StartActivity
             return true;
         }
 
-        return stackTop().dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
+        return stack.peek().dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
     }
 
     public ViewThreadController currentViewThreadController() {
@@ -462,8 +462,8 @@ public class StartActivity
         }
     }
 
-    public void addController(Controller controller) {
-        stack.add(controller);
+    public void pushController(Controller controller) {
+        stack.push(controller);
     }
 
     public boolean isControllerAdded(Controller.ControllerPredicate predicate) {
@@ -476,7 +476,9 @@ public class StartActivity
         return false;
     }
 
-    public void removeController(Controller controller) {
+    public void popController(Controller controller) {
+        //we permit removal of things not on the top of the stack, but everything gets shifted down so the top of the stack
+        //remains the same
         stack.remove(controller);
     }
 
@@ -506,7 +508,7 @@ public class StartActivity
 
     @Override
     public void onBackPressed() {
-        if (!stackTop().onBack()) {
+        if (!stack.peek().onBack()) {
             if (!exitFlag) {
                 showToast(this, R.string.action_confirm_exit_title, Toast.LENGTH_LONG);
                 exitFlag = true;
@@ -538,14 +540,12 @@ public class StartActivity
         imagePickDelegate.onDestroy();
         fileChooser.removeCallbacks();
 
-        for (int i = stack.size() - 1; i >= 0; --i) {
-            Controller controller = stack.get(i);
+        while (!stack.isEmpty()) {
+            Controller controller = stack.pop();
 
             controller.onHide();
             controller.onDestroy();
         }
-
-        stack.clear();
     }
 
     @Override
@@ -557,10 +557,6 @@ public class StartActivity
         }
 
         imagePickDelegate.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private Controller stackTop() {
-        return stack.get(stack.size() - 1);
     }
 
     private boolean intentMismatchWorkaround() {
