@@ -218,8 +218,9 @@ public class BitmapUtils {
         }
     }
 
-    public static CompressFormat getImageFormat(File file)
+    public static CompressFormat getImageFormat(@NonNull File file)
             throws IOException {
+        if (file == null) throw new IOException("File is null!");
         if (!file.exists() || !file.isFile() || !file.canRead()) {
             throw new IOException(
                     "File " + file.getAbsolutePath() + " is inaccessible (exists = " + file.exists() + ", isFile = "

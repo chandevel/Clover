@@ -603,7 +603,7 @@ public class ReplyPresenter
     }
 
     public boolean isAttachedFileSupportedForReencoding() {
-        if (draft == null) {
+        if (draft == null || draft.file == null) {
             return false;
         }
 
