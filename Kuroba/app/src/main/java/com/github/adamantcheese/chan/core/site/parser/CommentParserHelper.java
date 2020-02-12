@@ -179,7 +179,7 @@ public class CommentParserHelper {
             //prepend two spaces for the youtube icon later
             String extraDur = ChanSettings.parseYoutubeDuration.get() ? (duration != null ? " " + duration : "") : "";
             titleURLMap.put("  " + title + extraDur, URL);
-            linkMatcher.appendReplacement(newString, "  " + title + extraDur);
+            linkMatcher.appendReplacement(newString, "  " + Matcher.quoteReplacement(title + extraDur));
         }
         linkMatcher.appendTail(newString);
 
