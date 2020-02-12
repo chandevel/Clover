@@ -75,7 +75,8 @@ public class StringSettingView
         container.addView(editText, MATCH_PARENT, WRAP_CONTENT);
 
         AlertDialog dialog = new AlertDialog.Builder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
-            setting.set(editText.getText().toString());
+            String input = editText.getText().toString();
+            setting.set(input.length() > 0 ? input : setting.getDefault());
             settingsController.onPreferenceChange(StringSettingView.this);
         }).setNegativeButton(R.string.cancel, null).setTitle(dialogTitle).setView(container).create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
