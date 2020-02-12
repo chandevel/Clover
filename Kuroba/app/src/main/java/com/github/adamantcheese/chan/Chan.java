@@ -105,13 +105,15 @@ public class Chan
         );
         feather.injectFields(this);
 
+        //Needs to happen before any sites are processed, in case they request archives
+        feather.instance(ArchivesManager.class);
+
         siteService.initialize();
         boardManager.initialize();
         databaseManager.initializeAndTrim();
 
         //create these classes here even if they aren't explicitly used, so they do their background startup tasks
         //and so that they're available for feather later on for archives/filter watch waking
-        feather.instance(ArchivesManager.class);
         feather.instance(FilterWatchManager.class);
 
         RxJavaPlugins.setErrorHandler(e -> {

@@ -287,6 +287,7 @@ public class CommentParser {
     ) {
         //crossboard thread links in the OP are likely not thread links, so just let them error out on the parseInt
         try {
+            if (!builder.board.site.name().equals("4chan")) return text; //4chan only
             int postNo = Integer.parseInt(deadlink.text().substring(2));
             List<ArchivesLayout.PairForAdapter> boards = instance(ArchivesManager.class).domainsForBoard(builder.board);
             if (!boards.isEmpty() && builder.op) {

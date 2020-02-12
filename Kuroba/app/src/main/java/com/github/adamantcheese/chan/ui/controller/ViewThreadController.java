@@ -167,9 +167,11 @@ public class ViewThreadController
         }
 
         menuOverflowBuilder.withSubItem(R.string.action_search, this::searchClicked)
-                .withSubItem(R.string.action_reload, this::reloadClicked)
-                .withSubItem(R.string.thread_show_archives, this::showArchives)
-                .withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
+                .withSubItem(R.string.action_reload, this::reloadClicked);
+        if (loadable.site.name().equals("4chan")) { //archives are 4chan only
+            menuOverflowBuilder.withSubItem(R.string.thread_show_archives, this::showArchives);
+        }
+        menuOverflowBuilder.withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)

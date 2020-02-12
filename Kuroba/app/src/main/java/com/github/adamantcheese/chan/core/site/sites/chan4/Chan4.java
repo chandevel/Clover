@@ -22,6 +22,7 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -324,6 +325,8 @@ public class Chan4
 
         @Override
         public void archives(ArchiveRequestListener archivesListener) {
+            //currently only used for 4chan, so if there are archives, don't send another request
+            if (Chan.instance(ArchivesManager.class).hasArchives()) return;
             requestQueue.add(new JsonReaderRequest<List<ArchivesManager.Archives>>(
                     "https://nstepien.github.io/archives.json/archives.json",
                     archivesListener::onArchivesReceived,

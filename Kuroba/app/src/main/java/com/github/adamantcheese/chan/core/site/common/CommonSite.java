@@ -539,6 +539,7 @@ public abstract class CommonSite
 
         @Override
         public void archives(ArchiveRequestListener archivesListener) {
+            archivesListener.onArchivesReceived(new ArrayList<>());
         }
 
         @Override

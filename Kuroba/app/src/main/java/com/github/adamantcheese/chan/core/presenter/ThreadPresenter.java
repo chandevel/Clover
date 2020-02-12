@@ -27,11 +27,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
@@ -197,6 +199,7 @@ public class ThreadPresenter
 
             startSavingThreadIfItIsNotBeingSaved(this.loadable);
             chanLoader = chanLoaderManager.obtain(loadable, watchManager, this);
+            loadable.site.actions().archives(Chan.instance(ArchivesManager.class));
             threadPresenterCallback.showLoading();
         }
     }
@@ -1133,14 +1136,18 @@ public class ThreadPresenter
         } else {
             @SuppressLint("InflateParams")
             final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
-            dialogView.setBoard(loadable.board);
+            boolean hasContents = dialogView.setBoard(loadable.board);
             dialogView.setCallback(this);
 
-            AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
-                    .setTitle(R.string.thread_show_archives)
-                    .create();
-            dialog.setCanceledOnTouchOutside(true);
-            dialog.show();
+            if (hasContents) {
+                AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
+                        .setTitle(R.string.thread_show_archives)
+                        .create();
+                dialog.setCanceledOnTouchOutside(true);
+                dialog.show();
+            } else {
+                showToast(context, "No archives for this board or site.");
+            }
         }
     }
 

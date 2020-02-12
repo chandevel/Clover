@@ -20,7 +20,6 @@ import android.content.res.AssetManager;
 import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -37,7 +36,7 @@ public class ArchivesManager
     private final String TAG = "ArchivesManager";
     private List<Archives> archivesList;
 
-    public ArchivesManager(Site s) {
+    public ArchivesManager() {
         //setup the archives list from the internal file, populated when you build the application
         AssetManager assetManager = getAppContext().getAssets();
         try {
@@ -47,13 +46,11 @@ public class ArchivesManager
         } catch (Exception e) {
             Logger.d(TAG, "Unable to load/parse internal archives list");
         }
-        //request a live version of the archives
-        s.actions().archives(this);
     }
 
     public List<ArchivesLayout.PairForAdapter> domainsForBoard(Board b) {
         List<ArchivesLayout.PairForAdapter> result = new ArrayList<>();
-        if (archivesList == null) return result;
+        if (archivesList == null || !b.site.name().equals("4chan")) return result; //4chan only
         for (Archives a : archivesList) {
             for (String code : a.boards) {
                 if (code.equals(b.code)) {
@@ -106,7 +103,12 @@ public class ArchivesManager
 
     @Override
     public void onArchivesReceived(List<Archives> archives) {
+        Logger.d(TAG, "Got archives");
         archivesList = archives;
+    }
+
+    public boolean hasArchives() {
+        return !archivesList.isEmpty();
     }
 
     public static class Archives {

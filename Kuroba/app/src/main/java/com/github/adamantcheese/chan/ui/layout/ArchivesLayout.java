@@ -47,8 +47,9 @@ public class ArchivesLayout
                 (PairForAdapter) parent.getItemAtPosition(position)));
     }
 
-    public void setBoard(Board b) {
+    public boolean setBoard(Board b) {
         adapter.addAll(archivesManager.domainsForBoard(b));
+        return !adapter.isEmpty();
     }
 
     public void setCallback(Callback c) {
