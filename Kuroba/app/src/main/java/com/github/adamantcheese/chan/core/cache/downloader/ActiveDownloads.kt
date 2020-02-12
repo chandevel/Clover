@@ -29,12 +29,22 @@ internal open class ActiveDownloads {
         }
     }
 
+    fun isGalleryBatchDownload(url: String): Boolean {
+        return synchronized(activeDownloads) {
+            return@synchronized activeDownloads[url]
+                    ?.cancelableDownload
+                    ?.downloadType
+                    ?.isGalleryBatchDownload
+                    ?: false
+        }
+    }
+
     fun isBatchDownload(url: String): Boolean {
         return synchronized(activeDownloads) {
             return@synchronized activeDownloads[url]
                     ?.cancelableDownload
-                    ?.isPartOfBatchDownload
-                    ?.get()
+                    ?.downloadType
+                    ?.isAnyKindOfMultiDownload()
                     ?: false
         }
     }
@@ -57,7 +67,10 @@ internal open class ActiveDownloads {
         }
     }
 
-    open fun updateDownloaded(url: String, downloaded: Long) {
+    /**
+     * [chunkIndex] is used for tests, do not change/remove it
+     * */
+    open fun updateDownloaded(url: String, chunkIndex: Int, downloaded: Long) {
         synchronized(activeDownloads) {
             activeDownloads[url]?.downloaded?.set(downloaded)
         }
@@ -127,8 +140,16 @@ internal open class ActiveDownloads {
     }
 
     fun getState(url: String): DownloadState {
-        return activeDownloads[url]?.cancelableDownload?.getState()
-                ?: DownloadState.Canceled
+        return synchronized(activeDownloads) {
+            activeDownloads[url]?.cancelableDownload?.getState()
+                    ?: DownloadState.Canceled
+        }
+    }
+
+    fun count(): Int {
+        return synchronized(activeDownloads) {
+            activeDownloads.count()
+        }
     }
 
     /**

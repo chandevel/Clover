@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.cache
 
 import android.annotation.SuppressLint
+import android.net.ConnectivityManager
 import com.github.adamantcheese.chan.core.cache.downloader.*
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
 import com.github.adamantcheese.chan.core.model.PostImage
@@ -8,6 +9,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
+import com.github.adamantcheese.chan.utils.AndroidUtils.getNetworkClass
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread
 import com.github.adamantcheese.chan.utils.Logger
@@ -25,7 +27,6 @@ import okhttp3.OkHttpClient
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.Executors
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.collections.ArrayList
@@ -43,7 +44,8 @@ class FileCacheV2(
         private val fileManager: FileManager,
         private val cacheHandler: CacheHandler,
         private val siteResolver: SiteResolver,
-        private val okHttpClient: OkHttpClient
+        private val okHttpClient: OkHttpClient,
+        private val connectivityManager: ConnectivityManager
 ) {
     private val activeDownloads = ActiveDownloads()
 
@@ -231,8 +233,8 @@ class FileCacheV2(
                     file,
                     // Always 1 for media prefetching
                     chunksCount = 1,
-                    isBatchDownload = true,
-                    isPrefetch = true,
+                    isGalleryBatchDownload = true,
+                    isPrefetchDownload = true,
                     // Prefetch downloads always have default extra info (no file size, no file hash)
                     extraInfo = DownloadRequestExtraInfo()
             )
@@ -362,8 +364,8 @@ class FileCacheV2(
                 callback,
                 file,
                 chunksCount = chunksCount,
-                isBatchDownload = isBatchDownload,
-                isPrefetch = false,
+                isGalleryBatchDownload = isBatchDownload,
+                isPrefetchDownload = false,
                 extraInfo = extraInfo
         )
 
@@ -413,11 +415,11 @@ class FileCacheV2(
             callback: FileCacheListener?,
             file: RawFile,
             chunksCount: Int,
-            isBatchDownload: Boolean,
-            isPrefetch: Boolean,
+            isGalleryBatchDownload: Boolean,
+            isPrefetchDownload: Boolean,
             extraInfo: DownloadRequestExtraInfo
     ): Pair<Boolean, CancelableDownload> {
-        if (chunksCount > 1 && (isBatchDownload || isPrefetch)) {
+        if (chunksCount > 1 && (isGalleryBatchDownload || isPrefetchDownload)) {
             throw IllegalArgumentException("Cannot download file in chunks for media " +
                     "prefetching or gallery downloading!")
         }
@@ -444,7 +446,7 @@ class FileCacheV2(
             val cancelableDownload = CancelableDownload(
                     url = url,
                     requestCancellationThread = requestCancellationThread,
-                    isPartOfBatchDownload = AtomicBoolean(isPrefetch || isBatchDownload)
+                    downloadType = CancelableDownload.DownloadType(isPrefetchDownload, isGalleryBatchDownload)
             )
 
             if (callback != null) {
@@ -626,9 +628,15 @@ class FileCacheV2(
                 purgeOutput(request.url, request.output)
             }
 
+            val networkClass = getNetworkClassOrDefaultText(result)
+            val activeDownloadsCount = activeDownloads.count()
+
             when (result) {
                 is FileDownloadResult.Start -> {
-                    log(TAG, "Download (${request}) has started. Chunks count = ${result.chunksCount}")
+                    log(TAG, "Download (${request}) has started. " +
+                            "Chunks count = ${result.chunksCount}. " +
+                            "Network class = $networkClass. " +
+                            "Downloads = $activeDownloadsCount")
 
                     // Start is not a terminal event so we don't want to remove request from the
                     // activeDownloads
@@ -658,7 +666,9 @@ class FileCacheV2(
                     log(TAG, "Success (" +
                             "downloaded = ${downloadedString} ($downloaded B), " +
                             "total = ${totalString} ($total B), " +
-                            "took ${result.requestTime}ms" +
+                            "took ${result.requestTime}ms, " +
+                            "network class = $networkClass, " +
+                            "downloads = $activeDownloadsCount" +
                             ") for request ${request}"
                     )
 
@@ -725,7 +735,11 @@ class FileCacheV2(
                         "stopped"
                     }
 
-                    log(TAG, "Request ${request} $causeText, downloaded = $downloaded, total = $total")
+                    log(TAG, "Request ${request} $causeText, " +
+                            "downloaded = $downloaded, " +
+                            "total = $total, " +
+                            "network class = $networkClass, " +
+                            "downloads = $activeDownloadsCount")
 
                     resultHandler(url, request, true) {
                         if (isCanceled) {
@@ -738,7 +752,10 @@ class FileCacheV2(
                     }
                 }
                 is FileDownloadResult.KnownException -> {
-                    logError(TAG, "Exception for request ${request}", result.fileCacheException)
+                    val message = "Exception for request ${request}, " +
+                            "network class = $networkClass, downloads = $activeDownloadsCount"
+
+                    logError(TAG, message, result.fileCacheException)
 
                     resultHandler(url, request, true) {
                         when (result.fileCacheException) {
@@ -786,6 +803,20 @@ class FileCacheV2(
         } catch (error: Throwable) {
             Logger.e(TAG, "An error in result handler", error)
         }
+    }
+
+    private fun getNetworkClassOrDefaultText(result: FileDownloadResult): String {
+        return when (result) {
+            is FileDownloadResult.Start,
+            is FileDownloadResult.Success,
+            FileDownloadResult.Canceled,
+            FileDownloadResult.Stopped,
+            is FileDownloadResult.KnownException -> getNetworkClass(connectivityManager)
+            is FileDownloadResult.Progress,
+            is FileDownloadResult.UnknownException -> {
+                "Unsupported result: ${result::class.java.simpleName}"
+            }
+        }.exhaustive
     }
 
     private fun resultHandler(

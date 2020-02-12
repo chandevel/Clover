@@ -14,6 +14,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
+import java.net.SocketException
 import java.util.concurrent.TimeUnit
 
 
@@ -30,6 +32,7 @@ class PartialContentSupportCheckerTest {
     @Before
     fun setUp() {
         AndroidUtils.init(testModule.provideApplication())
+        ShadowLog.stream = System.out;
 
         okHttpClient = testModule.provideOkHttpClient()
         activeDownloads = testModule.provideActiveDownloads()
@@ -159,15 +162,15 @@ class PartialContentSupportCheckerTest {
             Thread.sleep(150)
             request.cancelableDownload.cancel()
 
-            testObserver
-                    .awaitCount(1)
-                    .assertValue { value ->
-                        assertFalse(value.supportsPartialContentDownload)
-                        true
-                    }
-                    .assertComplete()
-                    .assertNoErrors()
-                    .assertNoTimeout()
+            val (events, errors, completes) = testObserver
+                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    .events
+
+            assertTrue(completes.isEmpty())
+            assertTrue(events.isEmpty())
+            assertEquals(1, errors.size)
+            assertTrue(errors.first() is SocketException)
+            assertTrue((errors.first() as SocketException).message.equals("Socket closed", ignoreCase = true))
 
             val state = activeDownloads.get(url)!!.cancelableDownload.getState()
             assertTrue(state is DownloadState.Canceled)
@@ -200,15 +203,15 @@ class PartialContentSupportCheckerTest {
             Thread.sleep(150)
             request.cancelableDownload.stop()
 
-            testObserver
-                    .awaitCount(1)
-                    .assertValue { value ->
-                        assertFalse(value.supportsPartialContentDownload)
-                        true
-                    }
-                    .assertComplete()
-                    .assertNoErrors()
-                    .assertNoTimeout()
+            val (events, errors, completes) = testObserver
+                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    .events
+
+            assertTrue(completes.isEmpty())
+            assertTrue(events.isEmpty())
+            assertEquals(1, errors.size)
+            assertTrue(errors.first() is SocketException)
+            assertTrue((errors.first() as SocketException).message.equals("Socket closed", ignoreCase = true))
 
             val state = activeDownloads.get(url)!!.cancelableDownload.getState()
             assertTrue(state is DownloadState.Stopped)
@@ -277,4 +280,7 @@ class PartialContentSupportCheckerTest {
         }
     }
 
+    companion object {
+        private const val MAX_AWAIT_TIME_SECONDS = 5L
+    }
 }

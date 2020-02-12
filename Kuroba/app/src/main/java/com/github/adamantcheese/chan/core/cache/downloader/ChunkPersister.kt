@@ -94,6 +94,9 @@ internal class ChunkPersister(
                             }
                         }
                     }
+
+                    log(TAG, "storeChunkInFile(${chunkIndex}) success, url = $url, " +
+                            "chunk ${chunk.start}..${chunk.end}")
                 } catch (error: Throwable) {
                     deleteChunkFile(chunkCacheFile)
                     throw error
@@ -132,7 +135,7 @@ internal class ChunkPersister(
                 DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
             }.exhaustive
 
-            log(TAG, "pipeChunk($chunkIndex) ($url) cancel for chunk ${chunk.start}..${chunk.end}")
+            log(TAG, "handleErrors($chunkIndex) ($url) cancel for chunk ${chunk.start}..${chunk.end}")
             if (isStoppedOrCanceled) {
                 // If already canceled or stopped we don't want to emit another error because
                 // when emitting more than one error concurrently they will be converted into
@@ -144,7 +147,7 @@ internal class ChunkPersister(
             }
         } else {
             emitter.tryOnError(error)
-            log(TAG, "pipeChunk($chunkIndex) ($url) fail for chunk ${chunk.start}..${chunk.end}")
+            log(TAG, "handleErrors($chunkIndex) ($url) fail for chunk ${chunk.start}..${chunk.end}")
         }
     }
 
@@ -214,7 +217,7 @@ internal class ChunkPersister(
                 bufferedSink.write(buffer, read)
 
                 val total = totalDownloaded.addAndGet(read)
-                activeDownloads.updateDownloaded(url, total)
+                activeDownloads.updateDownloaded(url, chunkIndex, total)
 
                 if (downloaded >= notifyTotal + notifySize) {
                     notifyTotal = downloaded
