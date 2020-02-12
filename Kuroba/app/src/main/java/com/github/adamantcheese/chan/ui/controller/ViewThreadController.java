@@ -223,7 +223,8 @@ public class ViewThreadController
             if (granted) {
                 saveClickedInternal();
             } else {
-                showToast(context, R.string.view_thread_controller_thread_downloading_requires_write_permission,
+                showToast(context,
+                        R.string.view_thread_controller_thread_downloading_requires_write_permission,
                         Toast.LENGTH_LONG
                 );
             }
