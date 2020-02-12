@@ -25,19 +25,12 @@ class MultiImageViewGestureDetector(
             val playing = activeView.player!!.playWhenReady && activeView.player!!.playbackState == Player.STATE_READY
 
             if (activeView.isControllerVisible) {
-                callbacks.togglePlayState()
-                if (!playing) {
-                    activeView.setUseController(false)
-                    callbacks.setClickHandler(true)
-                }
+                activeView.setUseController(false)
+                callbacks.setClickHandler(true)
             } else {
-                if (playing) {
-                    activeView.setUseController(true)
-                    activeView.showController()
-                    callbacks.setClickHandler(false)
-                } else {
-                    callbacks.togglePlayState()
-                }
+                activeView.setUseController(true)
+                activeView.showController()
+                callbacks.setClickHandler(false)
             }
             return true
         }
