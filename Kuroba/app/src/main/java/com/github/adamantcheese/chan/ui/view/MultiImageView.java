@@ -51,6 +51,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.file.RawFile;
@@ -107,8 +108,6 @@ public class MultiImageView
     @Inject
     ImageLoaderV2 imageLoaderV2;
 
-    @Nullable
-    private Context context;
     private PostImage postImage;
     private Callback callback;
     private Mode mode = Mode.UNLOADED;
@@ -136,7 +135,6 @@ public class MultiImageView
 
     public MultiImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        this.context = context;
         this.cancellableToast = new CancellableToast();
         this.gestureDetector = new GestureDetector(context, new MultiImageViewGestureDetector(this));
 
@@ -207,7 +205,7 @@ public class MultiImageView
     @Override
     public View getActiveView() {
         View ret = null;
-        if (!hasContent) return new View(context);
+        if (!hasContent) return new View(getContext());
         switch (mode) {
             case LOWRES:
             case OTHER:
@@ -223,7 +221,7 @@ public class MultiImageView
                 ret = findView(PlayerView.class);
                 break;
         }
-        return ret == null ? new View(context) : ret;
+        return ret == null ? new View(getContext()) : ret;
     }
 
     @Nullable
@@ -292,11 +290,9 @@ public class MultiImageView
         super.onDetachedFromWindow();
         cancelLoad();
 
-        if (context != null && context instanceof StartActivity) {
-            ((StartActivity) context).getLifecycle().removeObserver(this);
+        if (getContext() instanceof StartActivity) {
+            ((StartActivity) getContext()).getLifecycle().removeObserver(this);
         }
-
-        context = null;
     }
 
     private void setThumbnail(Loadable loadable, PostImage postImage, boolean center) {
@@ -373,7 +369,6 @@ public class MultiImageView
                         BackgroundUtils.ensureMainThread();
 
                         setBitImageFileInternal(new File(file.getFullPath()), true);
-                        toggleTransparency();
 
                         callback.onDownloaded(postImage);
                     }
@@ -434,7 +429,6 @@ public class MultiImageView
 
                         if (!hasContent || mode == Mode.GIFIMAGE) {
                             setGifFile(new File(file.getFullPath()));
-                            toggleTransparency();
                         }
 
                         callback.onDownloaded(postImage);
@@ -493,6 +487,7 @@ public class MultiImageView
         view.setOnClickListener(null);
         view.setOnTouchListener((view1, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
         onModeLoaded(Mode.GIFIMAGE, view);
+        toggleTransparency();
     }
 
     private void setVideo(Loadable loadable, PostImage postImage) {
@@ -548,7 +543,7 @@ public class MultiImageView
             @Override
             public void onError(@NotNull Throwable error) {
                 Logger.e(TAG, "Error while trying to stream a webm", error);
-                showToast(context, "Couldn't open webm in streaming mode, error = " + error.getMessage());
+                showToast(getContext(), "Couldn't open webm in streaming mode, error = " + error.getMessage());
             }
         });
     }
@@ -724,6 +719,7 @@ public class MultiImageView
                 if (!hasContent || mode == Mode.BIGIMAGE) {
                     callback.hideProgress(MultiImageView.this);
                     onModeLoaded(Mode.BIGIMAGE, image);
+                    toggleTransparency();
                 }
             }
 
@@ -737,17 +733,15 @@ public class MultiImageView
     }
 
     private void onError(Exception exception) {
-        if (context != null) {
-            String reason = exception.getMessage();
-            if (reason == null) {
-                reason = "Unknown reason";
-            }
-
-            String message = String.format("%s, reason: %s", context.getString(R.string.image_preview_failed), reason);
-
-            cancellableToast.showToast(message);
-            callback.hideProgress(MultiImageView.this);
+        String reason = exception.getMessage();
+        if (reason == null) {
+            reason = "Unknown reason";
         }
+
+        String message = String.format("%s, reason: %s", AndroidUtils.getString(R.string.image_preview_failed), reason);
+
+        cancellableToast.showToast(message);
+        callback.hideProgress(MultiImageView.this);
     }
 
     private void onNotFoundError() {

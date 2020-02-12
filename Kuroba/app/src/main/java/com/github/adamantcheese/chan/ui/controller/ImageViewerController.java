@@ -400,7 +400,7 @@ public class ImageViewerController
     }
 
     public void setPagerItems(Loadable loadable, List<PostImage> images, int initialIndex) {
-        ImageViewerAdapter adapter = new ImageViewerAdapter(context, images, loadable, presenter);
+        ImageViewerAdapter adapter = new ImageViewerAdapter(images, loadable, presenter);
         pager.setAdapter(adapter);
         pager.setCurrentItem(initialIndex);
     }
