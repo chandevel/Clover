@@ -114,8 +114,8 @@ class MultiImageViewGestureDetector(
 
                 return true
             } else if (
-                    imageViewportTouchSide.isTouchingBottom ||
-                    imageViewportTouchSide.isTouchingTop
+                    activeView.scale > activeView.minScale &&
+                    (imageViewportTouchSide.isTouchingBottom || imageViewportTouchSide.isTouchingTop)
             ) {
                 // We are zoomed in and the viewport is touching either top or bottom of an
                 // image. We don't want to use swipe-to-save image gesture, we want to use
