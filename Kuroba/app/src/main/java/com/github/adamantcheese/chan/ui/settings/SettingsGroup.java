@@ -19,12 +19,14 @@ package com.github.adamantcheese.chan.ui.settings;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 public class SettingsGroup {
     public final String name;
     public final List<SettingView> settingViews = new ArrayList<>();
 
     public SettingsGroup(int name) {
-        this(SettingView.getString(name));
+        this(getString(name));
     }
 
     public SettingsGroup(String name) {

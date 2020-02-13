@@ -147,10 +147,18 @@ public class CaptchaNoJsLayoutV2
             case ALREADY_SHUTDOWN:
                 break;
             case HOLD_YOUR_HORSES:
-                showToast(getContext(), R.string.captcha_layout_v2_you_are_requesting_captcha_too_fast, Toast.LENGTH_LONG);
+                showToast(
+                        getContext(),
+                        R.string.captcha_layout_v2_you_are_requesting_captcha_too_fast,
+                        Toast.LENGTH_LONG
+                );
                 break;
             case ALREADY_IN_PROGRESS:
-                showToast(getContext(), R.string.captcha_layout_v2_captcha_request_is_already_in_progress, Toast.LENGTH_LONG);
+                showToast(
+                        getContext(),
+                        R.string.captcha_layout_v2_captcha_request_is_already_in_progress,
+                        Toast.LENGTH_LONG
+                );
                 break;
         }
     }
@@ -258,10 +266,18 @@ public class CaptchaNoJsLayoutV2
                     captchaVerifyButton.setEnabled(false);
                     break;
                 case NO_IMAGES_SELECTED:
-                    showToast(getContext(), R.string.captcha_layout_v2_you_have_to_select_at_least_one_image, Toast.LENGTH_LONG);
+                    showToast(
+                            getContext(),
+                            R.string.captcha_layout_v2_you_have_to_select_at_least_one_image,
+                            Toast.LENGTH_LONG
+                    );
                     break;
                 case ALREADY_IN_PROGRESS:
-                    showToast(getContext(), R.string.captcha_layout_v2_verification_already_in_progress, Toast.LENGTH_LONG);
+                    showToast(
+                            getContext(),
+                            R.string.captcha_layout_v2_verification_already_in_progress,
+                            Toast.LENGTH_LONG
+                    );
                     break;
                 case ALREADY_SHUTDOWN:
                     // do nothing

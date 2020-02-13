@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ListSettingView<T>
         extends SettingView

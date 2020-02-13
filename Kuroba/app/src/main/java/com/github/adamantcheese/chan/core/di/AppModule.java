@@ -67,12 +67,12 @@ public class AppModule {
     public ConnectivityManager provideConnectivityManager() {
         Logger.d(DI_TAG, "Connectivity Manager");
 
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if (connectivityManager == null) {
-            throw new NullPointerException("What's working in this ROM: You tell me ;) " +
-                    "\nWhat doesn't work: Connectivity fucking manager");
+            throw new NullPointerException("What's working in this ROM: You tell me ;) "
+                    + "\nWhat doesn't work: Connectivity fucking manager");
         }
 
         return connectivityManager;

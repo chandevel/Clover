@@ -76,7 +76,7 @@ public class CommentParser {
     private Pattern boardSearchPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/catalog#s=(.*)");
     private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
     private Map<String, List<StyleRule>> rules = new HashMap<>();
-    
+
     private static final Typeface mona = Typeface.createFromAsset(getAppContext().getAssets(), "font/mona.ttf");
 
     public CommentParser() {

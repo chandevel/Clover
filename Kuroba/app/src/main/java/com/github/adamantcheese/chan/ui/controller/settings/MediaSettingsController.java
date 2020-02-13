@@ -560,8 +560,7 @@ public class MediaSettingsController
     ) {
         AlertDialog alertDialog =
                 new AlertDialog.Builder(context).setTitle(getString(R.string.media_settings_would_you_like_to_delete_file_in_old_dir))
-                        .setMessage(getString(
-                                R.string.media_settings_file_have_been_copied,
+                        .setMessage(getString(R.string.media_settings_file_have_been_copied,
                                 oldBaseDirectory.getFullPath()
                         ))
                         .setPositiveButton(R.string.delete,

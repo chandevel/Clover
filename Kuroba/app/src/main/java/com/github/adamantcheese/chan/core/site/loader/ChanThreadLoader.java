@@ -103,6 +103,7 @@ public class ChanThreadLoader
     private int currentTimeout = 0;
     private int lastPostCount;
     private long lastLoadTime;
+
     /**
      * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link ChanLoaderManager}</b>
      * Also, do not use feather().instance(WatchManager.class) here because it will create a cyclic
@@ -554,8 +555,7 @@ public class ChanThreadLoader
 
         Disposable disposable = Single.fromCallable(() -> {
             // Thread was deleted (404), try to load a saved copy (if we have it)
-            if (error.networkResponse != null
-                    && error.networkResponse.statusCode == 404
+            if (error.networkResponse != null && error.networkResponse.statusCode == 404
                     && loadable.mode == Loadable.Mode.THREAD) {
                 Logger.d(TAG, "Got 404 status for a thread " + loadable.no);
 

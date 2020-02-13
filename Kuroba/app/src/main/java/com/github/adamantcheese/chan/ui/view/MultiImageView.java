@@ -51,7 +51,6 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.file.RawFile;
@@ -81,6 +80,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
@@ -738,7 +738,7 @@ public class MultiImageView
             reason = "Unknown reason";
         }
 
-        String message = String.format("%s, reason: %s", AndroidUtils.getString(R.string.image_preview_failed), reason);
+        String message = String.format("%s, reason: %s", getString(R.string.image_preview_failed), reason);
 
         cancellableToast.showToast(message);
         callback.hideProgress(MultiImageView.this);

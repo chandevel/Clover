@@ -685,7 +685,7 @@ public class PostCell
     private void unbindPost(Post post) {
         bound = false;
         icons.cancelRequests();
-        for(PostImageThumbnailView view : thumbnailViews) {
+        for (PostImageThumbnailView view : thumbnailViews) {
             view.setPostImage(loadable, null, false, 0, 0);
         }
         setPostLinkableListener(post, false);

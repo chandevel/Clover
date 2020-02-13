@@ -261,7 +261,7 @@ public abstract class ThreadController
         // TODO cleanup
         Filter filter = new Filter();
         filter.type = FilterType.TRIPCODE.flag;
-        filter.pattern = String.format("/%s/", tripcode);
+        filter.pattern = '/' + tripcode + '/';
         filtersController.showFilterDialog(filter);
     }
 

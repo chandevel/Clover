@@ -90,7 +90,11 @@ public class AndroidUtils {
     }
 
     public static String getString(int res) {
-        return getRes().getString(res);
+        try {
+            return getRes().getString(res);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static String getString(int res, Object... formatArgs) {

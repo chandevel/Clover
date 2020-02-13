@@ -717,8 +717,7 @@ public class WatchManager
         // introduced. It updateState() is called too often, it will skip all updates and will wait
         // for at least STATE_UPDATE_DEBOUNCE_TIME_MS without any updates before calling
         // updateStateInternal().
-        stateUpdateDebouncer.post(
-                () -> updateStateInternal(watchEnabled, backgroundEnabled),
+        stateUpdateDebouncer.post(() -> updateStateInternal(watchEnabled, backgroundEnabled),
                 STATE_UPDATE_DEBOUNCE_TIME_MS
         );
     }
@@ -726,11 +725,9 @@ public class WatchManager
     private void updateStateInternal(boolean watchEnabled, boolean backgroundEnabled) {
         BackgroundUtils.ensureMainThread();
 
-        Logger.d(
-                TAG,
-                "updateState watchEnabled=" + watchEnabled +
-                        " backgroundEnabled=" + backgroundEnabled +
-                        " foreground=" + isInForeground()
+        Logger.d(TAG,
+                "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground="
+                        + isInForeground()
         );
 
         updateDeletedOrArchivedPins();
@@ -1034,8 +1031,7 @@ public class WatchManager
         }
 
         if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-            Logger.i(
-                    TAG,
+            Logger.i(TAG,
                     waitingForPinWatchersForBackgroundUpdate.size() + " pin watchers beginning updates, started at "
                             + DateFormat.getTimeInstance().format(new Date())
             );
@@ -1203,8 +1199,7 @@ public class WatchManager
 
         private void destroy() {
             if (chanLoader != null) {
-                Logger.d(
-                        TAG,
+                Logger.d(TAG,
                         "PinWatcher: destroyed for pin with id " + pin.id + " and loadable" + pin.loadable.toString()
                 );
                 chanLoaderManager.release(chanLoader, this);
@@ -1380,7 +1375,8 @@ public class WatchManager
             if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get()
                     && ChanSettings.watchBackground.get()) {
                 if (page != null && page.page >= pin.loadable.board.pages && !notified) {
-                    Chan.instance(NotificationManager.class).notify(pin.loadable.no, new LastPageNotification().getNotification(pin.id));
+                    Chan.instance(NotificationManager.class)
+                            .notify(pin.loadable.no, new LastPageNotification().getNotification(pin.id));
                     notified = true;
                 } else if (page != null && page.page < pin.loadable.board.pages) {
                     Chan.instance(NotificationManager.class).cancel(pin.loadable.no);

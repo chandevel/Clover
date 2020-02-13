@@ -47,7 +47,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -67,7 +66,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ImageSaver {
     private static final String TAG = "ImageSaver";
-    private static final String IMAGE_SAVER_THREAD_NAME_FORMAT = "ImageSaverThread-%d";
     /**
      * We don't want to process all images at once because that will freeze the phone. Also we don't
      * want to process images one by one because it will be way too slow. So we use this parameter
@@ -124,9 +122,9 @@ public class ImageSaver {
     @GuardedBy("itself")
     private final Set<String> activeDownloads = new HashSet<>(64);
 
-    private Scheduler workerScheduler = Schedulers.from(Executors.newFixedThreadPool(THREADS_COUNT, r -> new Thread(r,
-            String.format(Locale.US, IMAGE_SAVER_THREAD_NAME_FORMAT, imagesSaverThreadIndex.getAndIncrement())
-    )));
+    private Scheduler workerScheduler = Schedulers.from(Executors.newFixedThreadPool(THREADS_COUNT,
+            r -> new Thread(r, "ImageSaverThread-" + imagesSaverThreadIndex.getAndIncrement())
+    ));
 
     /**
      * This is a singleton class so we don't care about the disposable since we will never should

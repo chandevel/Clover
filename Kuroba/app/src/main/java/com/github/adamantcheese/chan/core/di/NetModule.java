@@ -84,13 +84,7 @@ public class NetModule {
             @Named(DOWNLOADER_OKHTTP_CLIENT_NAME) OkHttpClient okHttpClient
     ) {
         Logger.d(AppModule.DI_TAG, "File cache V2");
-        return new FileCacheV2(
-                fileManager,
-                cacheHandler,
-                siteResolver,
-                okHttpClient,
-                connectivityManager
-        );
+        return new FileCacheV2(fileManager, cacheHandler, siteResolver, okHttpClient, connectivityManager);
     }
 
     @Provides

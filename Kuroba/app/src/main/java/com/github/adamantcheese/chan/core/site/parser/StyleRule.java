@@ -238,7 +238,7 @@ public class StyleRule {
             spansToApply.add(new TypefaceSpan("monospace"));
         }
 
-        if(typeface != null) {
+        if (typeface != null) {
             spansToApply.add(new CustomTypefaceSpan("", typeface));
         }
 

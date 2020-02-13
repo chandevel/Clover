@@ -285,8 +285,10 @@ public class DrawerController
             ChanSettings.drawerAutoOpenCount.set(curCount + 1 > 5 ? 5 : curCount + 1);
             if (ChanSettings.drawerAutoOpenCount.get() < 5 && !ChanSettings.alwaysOpenDrawer.get()) {
                 int countLeft = 5 - ChanSettings.drawerAutoOpenCount.get();
-                showToast(context, "Drawer will auto-show " + countLeft + " more time" + (countLeft == 1 ? "" : "s")
-                        + " as a reminder.");
+                showToast(context,
+                        "Drawer will auto-show " + countLeft + " more time" + (countLeft == 1 ? "" : "s")
+                                + " as a reminder."
+                );
             }
         }
         updateBadge();

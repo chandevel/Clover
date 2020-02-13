@@ -137,7 +137,9 @@ public class ImageLoaderV2 {
                     Logger.w(TAG, "Base saved files directory does not exist");
 
                     if (imageListener != null && callback != null) {
-                        BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(), true));
+                        BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(),
+                                true
+                        ));
                     }
 
                     return;
@@ -163,7 +165,9 @@ public class ImageLoaderV2 {
                     Logger.d(TAG, "Local image does not exist (or is inaccessible)");
 
                     if (imageListener != null && callback != null) {
-                        BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(), true));
+                        BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(),
+                                true
+                        ));
                     }
                     return;
                 }
@@ -204,7 +208,9 @@ public class ImageLoaderV2 {
                 Logger.e(TAG, "Error while trying to load a local image", e);
 
                 if (imageListener != null && callback != null) {
-                    BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(), true));
+                    BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(),
+                            true
+                    ));
                 }
             }
         });

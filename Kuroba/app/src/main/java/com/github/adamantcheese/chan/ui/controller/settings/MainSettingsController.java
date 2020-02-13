@@ -166,14 +166,11 @@ public class MainSettingsController
         about.add(new LinkSettingView(this, R.string.settings_report, R.string.settings_report_description, v -> {
             navigationController.presentController(new ReportProblemController(context));
         }));
-        about.add(
-                new BooleanSettingView(
-                        this,
-                        ChanSettings.autoCrashLogsUpload,
-                        R.string.settings_auto_crash_report,
-                        R.string.settings_auto_crash_report_description
-                )
-        );
+        about.add(new BooleanSettingView(this,
+                ChanSettings.autoCrashLogsUpload,
+                R.string.settings_auto_crash_report,
+                R.string.settings_auto_crash_report_description
+        ));
 
         about.add(new LinkSettingView(this,
                 "Find " + getApplicationLabel() + " on GitHub",

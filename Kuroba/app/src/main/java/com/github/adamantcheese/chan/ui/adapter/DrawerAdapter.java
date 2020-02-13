@@ -331,8 +331,8 @@ public class DrawerAdapter
         Board pinBoard = pin.loadable.board;
         boolean italicize = false, bold = false;
         //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
-        if ((pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1)
-                >= pinBoard.bumpLimit && pinBoard.bumpLimit > 0) {
+        if ((pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1) >= pinBoard.bumpLimit
+                && pinBoard.bumpLimit > 0) {
             //italics for bump limit
             italicize = true;
         }

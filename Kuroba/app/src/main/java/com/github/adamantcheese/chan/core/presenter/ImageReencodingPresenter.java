@@ -62,8 +62,8 @@ public class ImageReencodingPresenter {
     private ImageOptions imageOptions;
     private BackgroundUtils.Cancelable cancelable;
 
-    public ImageReencodingPresenter(Context context,
-            ImageReencodingPresenterCallback callback, Loadable loadable, ImageOptions lastOptions
+    public ImageReencodingPresenter(
+            Context context, ImageReencodingPresenterCallback callback, Loadable loadable, ImageOptions lastOptions
     ) {
         inject(this);
 
