@@ -175,7 +175,10 @@ public class Chan
             Logger.e("UNCAUGHT", "Available memory (MB): " + availHeapSizeInMB);
              */
 
-            onUnhandledException(errorText);
+            //don't upload debug crashes
+            if (!"Debug crash".equals(e.getMessage())) {
+                onUnhandledException(errorText);
+            }
 
             System.exit(999);
         });
