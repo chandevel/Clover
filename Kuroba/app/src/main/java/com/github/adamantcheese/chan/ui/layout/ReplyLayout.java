@@ -642,10 +642,14 @@ public class ReplyLayout
             private MenuItem codeMenuItem;
             private MenuItem mathMenuItem;
             private MenuItem eqnMenuItem;
+            private MenuItem sjisMenuItem;
             private boolean processed;
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                if (callback.getThread() == null) return true;
+                Loadable threadLoadable = callback.getThread().getLoadable();
+                boolean is4chan = threadLoadable.board.site.name().equals("4chan");
                 //menu item cleanup, these aren't needed for this
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     menu.removeItem(android.R.id.shareText);
@@ -654,7 +658,7 @@ public class ReplyLayout
                 // >greentext
                 quoteMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_quote, 1, R.string.post_quote);
                 // [spoiler] tags
-                if (callback.getThread() != null && callback.getThread().getLoadable().board.spoilers) {
+                if (threadLoadable.board.spoilers) {
                     spoilerMenuItem = menu.add(Menu.NONE,
                             R.id.reply_selection_action_spoiler,
                             2,
@@ -665,8 +669,7 @@ public class ReplyLayout
                 //setup specific items in a submenu
                 SubMenu otherMods = menu.addSubMenu("Modify");
                 // g [code]
-                if (callback.getThread() != null && callback.getThread().getLoadable().board.site.name().equals("4chan")
-                        && callback.getThread().getLoadable().board.code.equals("g")) {
+                if (is4chan && threadLoadable.board.code.equals("g")) {
                     codeMenuItem = otherMods.add(Menu.NONE,
                             R.id.reply_selection_action_code,
                             1,
@@ -674,8 +677,7 @@ public class ReplyLayout
                     );
                 }
                 // sci [eqn] and [math]
-                if (callback.getThread() != null && callback.getThread().getLoadable().board.site.name().equals("4chan")
-                        && callback.getThread().getLoadable().board.code.equals("sci")) {
+                if (is4chan && threadLoadable.board.code.equals("sci")) {
                     eqnMenuItem = otherMods.add(Menu.NONE,
                             R.id.reply_selection_action_eqn,
                             2,
@@ -685,6 +687,14 @@ public class ReplyLayout
                             R.id.reply_selection_action_math,
                             3,
                             R.string.reply_comment_button_math
+                    );
+                }
+                // jp and vip [sjis]
+                if (is4chan && (threadLoadable.board.code.equals("jp") || threadLoadable.board.code.equals("vip"))) {
+                    eqnMenuItem = otherMods.add(Menu.NONE,
+                            R.id.reply_selection_action_sjis,
+                            4,
+                            R.string.reply_comment_button_sjis
                     );
                 }
                 return true;
@@ -719,6 +729,8 @@ public class ReplyLayout
                     insertTags("[eqn]", "[/eqn]");
                 } else if (item == mathMenuItem) {
                     insertTags("[math]", "[/math]");
+                } else if (item == sjisMenuItem) {
+                    insertTags("[sjis]", "[/sjis]");
                 }
 
                 if (processed) {

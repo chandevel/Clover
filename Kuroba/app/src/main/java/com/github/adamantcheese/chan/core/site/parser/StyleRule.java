@@ -30,6 +30,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
@@ -68,6 +69,7 @@ public class StyleRule {
     private boolean bold;
     private boolean italic;
     private boolean monospace;
+    private Typeface typeface;
     private int size = 0;
 
     private PostLinkable.Type link = null;
@@ -144,6 +146,11 @@ public class StyleRule {
 
     public StyleRule monospace() {
         monospace = true;
+        return this;
+    }
+
+    public StyleRule typeface(Typeface typeface) {
+        this.typeface = typeface;
         return this;
     }
 
@@ -229,6 +236,10 @@ public class StyleRule {
 
         if (monospace) {
             spansToApply.add(new TypefaceSpan("monospace"));
+        }
+
+        if(typeface != null) {
+            spansToApply.add(new CustomTypefaceSpan("", typeface));
         }
 
         if (size != 0) {

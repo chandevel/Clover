@@ -54,6 +54,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
@@ -75,6 +76,8 @@ public class CommentParser {
     private Pattern boardSearchPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/catalog#s=(.*)");
     private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
     private Map<String, List<StyleRule>> rules = new HashMap<>();
+    
+    private static final Typeface mona = Typeface.createFromAsset(getAppContext().getAssets(), "font/mona.ttf");
 
     public CommentParser() {
         inject(this);
@@ -96,6 +99,7 @@ public class CommentParser {
         rule(tagRule("span").cssClass("fortune").action(this::handleFortune));
         rule(tagRule("span").cssClass("abbr").nullify());
         rule(tagRule("span").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE).linkify());
+        rule(tagRule("span").cssClass("sjis").typeface(mona));
 
         rule(tagRule("table").action(this::handleTable));
 
