@@ -1081,13 +1081,17 @@ public class WatchManager
         updateState();
         postToEventBus(new PinMessages.PinChangedMessage(pinWatcher.pin));
 
-        if (waitingForPinWatchersForBackgroundUpdate != null) {
-            waitingForPinWatchersForBackgroundUpdate.remove(pinWatcher);
+        synchronized (WatchManager.this) {
+            if (waitingForPinWatchersForBackgroundUpdate != null) {
+                waitingForPinWatchersForBackgroundUpdate.remove(pinWatcher);
 
-            if (waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-                Logger.i(TAG, "All watchers updated, finished at " + DateFormat.getTimeInstance().format(new Date()));
-                waitingForPinWatchersForBackgroundUpdate = null;
-                wakeManager.manageLock(false, WatchManager.this);
+                if (waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
+                    Logger.i(TAG,
+                            "All watchers updated, finished at " + DateFormat.getTimeInstance().format(new Date())
+                    );
+                    waitingForPinWatchersForBackgroundUpdate = null;
+                    wakeManager.manageLock(false, WatchManager.this);
+                }
             }
         }
     }
