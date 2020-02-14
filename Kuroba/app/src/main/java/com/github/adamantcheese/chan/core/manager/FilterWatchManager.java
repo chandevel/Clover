@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -31,6 +32,9 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.text.DateFormat;
 import java.util.Arrays;
@@ -101,8 +105,12 @@ public class FilterWatchManager
             processing = true;
             populateFilterLoaders();
             Logger.d(TAG, "Number of filter loaders: " + numBoardsChecked);
-            for (ChanThreadLoader loader : filterLoaders.keySet()) {
-                loader.requestData();
+            if (!filterLoaders.keySet().isEmpty()) {
+                for (ChanThreadLoader loader : filterLoaders.keySet()) {
+                    loader.requestData();
+                }
+            } else {
+                wakeManager.manageLock(false, FilterWatchManager.this);
             }
         }
     }

@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.receiver.WakeUpdateReceiver;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -95,6 +96,12 @@ public class WakeManager {
             stopAlarm();
             startAlarm();
         }
+    }
+
+    // Called when the app changes foreground state
+    @Subscribe
+    public void onEvent(Chan.ForegroundChangedMessage message) {
+        if (message.inForeground) onBroadcastReceived();
     }
 
     public void registerWakeable(Wakeable wakeable) {
