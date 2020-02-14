@@ -210,6 +210,7 @@ public class Chan
 
     private void onUnhandledException(Throwable exception, String error) {
         //don't upload debug crashes
+
         if ("Debug crash".equals(exception.getMessage())) {
             return;
         }
