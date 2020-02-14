@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import com.github.adamantcheese.chan.BuildConfig
 import com.github.adamantcheese.chan.core.base.MResult
+import com.github.adamantcheese.chan.ui.controller.LogsController
 import com.github.adamantcheese.chan.utils.Logger
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
@@ -113,7 +114,19 @@ class ReportManager(
         }
 
         try {
-            newCrashLog.writeText(error)
+            val logs = LogsController.loadLogs(CRASH_REPORT_LOGS_LINES_COUNT)
+
+            val resultString = buildString {
+                append("=== LOGS ===")
+                append("\n")
+                logs?.let { append(it) }
+                append("\n\n")
+                append("=== STACKTRACE ===")
+                append("\n")
+                append(error)
+            }
+
+            newCrashLog.writeText(resultString)
         } catch (error: Throwable) {
             Logger.e(TAG, "Error writing to a crash log file", error)
             return
@@ -263,6 +276,8 @@ class ReportManager(
         private const val REPORT_URL = "${BuildConfig.DEV_API_ENDPOINT}/report"
         private const val CRASH_LOG_FILE_NAME_PREFIX = "crashlog"
         private const val UNBOUNDED_QUEUE_MIN_SIZE = 32
+
+        private const val CRASH_REPORT_LOGS_LINES_COUNT = 500
 
         const val MAX_TITLE_LENGTH = 512
         const val MAX_DESCRIPTION_LENGTH = 8192

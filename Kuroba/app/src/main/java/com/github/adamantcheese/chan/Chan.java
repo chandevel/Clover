@@ -175,7 +175,6 @@ public class Chan
             Logger.e("UNCAUGHT", "Available memory (MB): " + availHeapSizeInMB);
              */
 
-
             onUnhandledException(e, errorText);
 
             System.exit(999);

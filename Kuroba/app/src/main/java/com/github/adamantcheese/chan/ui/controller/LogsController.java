@@ -42,9 +42,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class LogsController
         extends Controller {
     private static final String TAG = "LogsController";
+    private static final int DEFAULT_LINES_COUNT = 250;
 
     private TextView logTextView;
-
     private String logText;
 
     public LogsController(Context context) {
@@ -85,9 +85,14 @@ public class LogsController
 
     @Nullable
     public static String loadLogs() {
+        return loadLogs(DEFAULT_LINES_COUNT);
+    }
+
+    @Nullable
+    public static String loadLogs(int linesCount) {
         Process process;
         try {
-            process = new ProcessBuilder().command("logcat", "-v", "tag", "-t", "250", "StrictMode:S").start();
+            process = new ProcessBuilder().command("logcat", "-v", "tag", "-t", String.valueOf(linesCount), "StrictMode:S").start();
         } catch (IOException e) {
             Logger.e(TAG, "Error starting logcat", e);
             return null;
