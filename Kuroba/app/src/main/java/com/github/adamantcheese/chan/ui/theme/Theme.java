@@ -78,6 +78,24 @@ public class Theme {
     public ThemeDrawable helpDrawable = new ThemeDrawable(R.drawable.ic_help_outline_white_24dp, 0.54f);
     public ThemeDrawable refreshDrawable = new ThemeDrawable(R.drawable.ic_refresh_white_24dp, 0.54f);
 
+    private static final Typeface ROBOTO_MEDIUM = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+    private static final Typeface ROBOTO_CONDENSED = Typeface.create("sans-serif-condensed", Typeface.NORMAL);
+
+    public Theme(
+            String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor
+    ) {
+        this.displayName = displayName;
+        this.name = name;
+        this.resValue = resValue;
+        this.primaryColor = primaryColor;
+        this.mainFont = ROBOTO_MEDIUM;
+        this.altFont = ROBOTO_CONDENSED;
+        accentColor = ThemeHelper.PrimaryColor.TEAL;
+
+        resolveSpanColors();
+        resolveDrawables();
+    }
+
     public Theme(
             String displayName,
             String name,
