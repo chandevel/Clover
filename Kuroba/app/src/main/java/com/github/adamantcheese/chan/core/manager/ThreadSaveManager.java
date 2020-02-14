@@ -275,6 +275,12 @@ public class ThreadSaveManager {
         return hasActiveDownloads;
     }
 
+    public int countActiveDownloads() {
+        synchronized (activeDownloads) {
+            return activeDownloads.size();
+        }
+    }
+
     /**
      * Cancels all downloads
      */

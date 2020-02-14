@@ -148,7 +148,7 @@ public class Chan
                 return;
             }
 
-            onUnhandledException(exceptionToString(true, e));
+            onUnhandledException(e, exceptionToString(true, e));
             Logger.e("APP", "RxJava undeliverable exception", e);
         });
 
@@ -175,10 +175,7 @@ public class Chan
             Logger.e("UNCAUGHT", "Available memory (MB): " + availHeapSizeInMB);
              */
 
-            //don't upload debug crashes
-            if (!"Debug crash".equals(e.getMessage())) {
-                onUnhandledException(errorText);
-            }
+            onUnhandledException(e, errorText);
 
             System.exit(999);
         });
@@ -186,6 +183,12 @@ public class Chan
         if (ChanSettings.autoCrashLogsUpload.get()) {
             reportManager.sendCollectedCrashLogs();
         }
+    }
+
+    private boolean isEmulator() {
+        return Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK");
     }
 
     private String exceptionToString(boolean isCalledFromRxJavaHandler, Throwable e) {
@@ -205,7 +208,17 @@ public class Chan
         }
     }
 
-    private void onUnhandledException(String error) {
+    private void onUnhandledException(Throwable exception, String error) {
+        //don't upload debug crashes
+
+        if ("Debug crash".equals(exception.getMessage())) {
+            return;
+        }
+
+        if (isEmulator()) {
+            return;
+        }
+
         if (ChanSettings.autoCrashLogsUpload.get()) {
             reportManager.storeCrashLog(error);
         }

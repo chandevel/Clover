@@ -172,10 +172,19 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public ReportManager provideReportManager(NetModule.ProxiedOkHttpClient okHttpClient, Gson gson) {
+    public ReportManager provideReportManager(
+            NetModule.ProxiedOkHttpClient okHttpClient,
+            Gson gson,
+            ThreadSaveManager threadSaveManager
+    ) {
         Logger.d(AppModule.DI_TAG, "Report manager");
         File cacheDir = getCacheDir();
 
-        return new ReportManager(okHttpClient.getProxiedClient(), gson, new File(cacheDir, CRASH_LOGS_DIR_NAME));
+        return new ReportManager(
+                okHttpClient.getProxiedClient(),
+                threadSaveManager,
+                gson,
+                new File(cacheDir, CRASH_LOGS_DIR_NAME)
+        );
     }
 }

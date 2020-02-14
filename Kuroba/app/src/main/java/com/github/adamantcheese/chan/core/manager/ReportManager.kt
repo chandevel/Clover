@@ -4,9 +4,13 @@ import android.annotation.SuppressLint
 import android.os.Build
 import com.github.adamantcheese.chan.BuildConfig
 import com.github.adamantcheese.chan.core.base.MResult
+import com.github.adamantcheese.chan.core.settings.ChanSettings
+import com.github.adamantcheese.chan.ui.controller.LogsController
+import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.PublishProcessor
@@ -23,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class ReportManager(
         private val okHttpClient: OkHttpClient,
+        private val threadSaveManager: ThreadSaveManager,
         private val gson: Gson,
         private val crashLogsDirPath: File
 ) {
@@ -82,6 +87,8 @@ class ReportManager(
     }
 
     private fun processSingleRequest(request: ReportRequest, crashLogFile: File): Single<MResult<Boolean>> {
+        BackgroundUtils.ensureBackgroundThread()
+
         return sendInternal(request)
                 .onErrorReturn { error -> MResult.error(error) }
                 .doOnSuccess { result ->
@@ -113,7 +120,21 @@ class ReportManager(
         }
 
         try {
-            newCrashLog.writeText(error)
+            val settings = getSettingsStateString()
+            val logs = LogsController.loadLogs(CRASH_REPORT_LOGS_LINES_COUNT)
+
+            val resultString = buildString {
+                appendln("=== LOGS ===")
+                logs?.let { append(it) }
+                append("\n\n")
+                appendln("=== STACKTRACE ===")
+                append(error)
+                append("\n\n")
+                appendln("=== SETTINGS ===")
+                append(settings)
+            }
+
+            newCrashLog.writeText(resultString)
         } catch (error: Throwable) {
             Logger.e(TAG, "Error writing to a crash log file", error)
             return
@@ -122,25 +143,100 @@ class ReportManager(
         Logger.d(TAG, "Stored new crash log, path = ${newCrashLog.absolutePath}")
     }
 
+    // Since this is a singleton we don't care about disposing of this thing because nothing may
+    // leak here
+    @SuppressLint("CheckResult")
     fun sendCollectedCrashLogs() {
         if (!createCrashLogsDirIfNotExists()) {
             return
         }
 
-        val potentialCrashLogs = crashLogsDirPath.listFiles()
-        if (potentialCrashLogs.isNullOrEmpty()) {
-            Logger.d(TAG, "No new crash logs")
-            return
+        // Collect and create reports on a background thread because logs may wait quite a lot now
+        // and it may lag the UI.
+        Completable.fromAction {
+            BackgroundUtils.ensureBackgroundThread()
+
+            val potentialCrashLogs = crashLogsDirPath.listFiles()
+            if (potentialCrashLogs.isNullOrEmpty()) {
+                Logger.d(TAG, "No new crash logs")
+                return@fromAction
+            }
+
+            potentialCrashLogs.asSequence()
+                    .filter { file -> file.name.startsWith(CRASH_LOG_FILE_NAME_PREFIX) }
+                    .map { file -> createReportRequest(file) }
+                    .filterNotNull()
+                    .forEach { request -> crashLogSenderQueue.onNext(request) }
+        }
+                .subscribeOn(senderScheduler)
+                .subscribe({
+                    // Do nothing
+                }, { error ->
+                    Logger.e(TAG, "Error while collecting logs: ${error}")
+                })
+    }
+
+    fun sendReport(title: String, description: String, logs: String?): Single<MResult<Boolean>> {
+        require(title.isNotEmpty()) { "title is empty" }
+        require(description.isNotEmpty() || logs != null) { "description is empty" }
+        require(title.length <= MAX_TITLE_LENGTH) { "title is too long ${title.length}" }
+        require(description.length <= MAX_DESCRIPTION_LENGTH) { "description is too long ${description.length}" }
+        logs?.let { require(it.length <= MAX_LOGS_LENGTH) { "logs are too long" } }
+
+        val request = ReportRequest(
+                buildFlavor = BuildConfig.FLAVOR,
+                versionName = BuildConfig.VERSION_NAME,
+                osInfo = getOsInfo(),
+                title = title,
+                description = description,
+                logs = logs
+        )
+
+        return sendInternal(request)
+    }
+
+    private fun getSettingsStateString(): String {
+        return buildString {
+            appendln("Prefetching enabled: ${ChanSettings.autoLoadThreadImages.get()}")
+            appendln("Thread downloading enabled: ${ChanSettings.incrementalThreadDownloadingEnabled.get()}, " +
+                    "active downloads = ${threadSaveManager.countActiveDownloads()}")
+            appendln("Hi-res thumbnails enabled: ${ChanSettings.highResCells.get()}")
+            appendln("Youtube titles parsing enabled: ${ChanSettings.parseYoutubeTitles.get()}")
+            appendln("Youtube durations parsing enabled: ${ChanSettings.parseYoutubeDuration.get()}")
+            appendln("Concurrent file loading chunks count: ${ChanSettings.concurrentDownloadChunkCount.get().toInt()}")
+            appendln("WEBM streaming enabled: ${ChanSettings.videoStream.get()}")
+            appendln("Saved files base dir info: ${getFilesLocationInfo()}")
+            appendln("Local threads base dir info: ${getLocalThreadsLocationInfo()}")
+        }
+    }
+
+    private fun getLocalThreadsLocationInfo(): String {
+        val localThreadsActiveDirType = when {
+            ChanSettings.localThreadLocation.isFileDirActive() -> "Java API"
+            ChanSettings.localThreadLocation.isSafDirActive() -> "SAF"
+            else -> "Neither of them is active, wtf?!"
         }
 
-        potentialCrashLogs.asSequence()
-                .filter { file -> file.name.startsWith(CRASH_LOG_FILE_NAME_PREFIX) }
-                .map { file -> createReportRequest(file) }
-                .filterNotNull()
-                .forEach { request -> crashLogSenderQueue.onNext(request) }
+        return "Java API location: ${ChanSettings.localThreadLocation.fileApiBaseDir.get()}, " +
+                "SAF location: ${ChanSettings.localThreadLocation.safBaseDir.get()}, " +
+                "active: $localThreadsActiveDirType"
+    }
+
+    private fun getFilesLocationInfo(): String {
+        val filesLocationActiveDirType = when {
+            ChanSettings.saveLocation.isFileDirActive() -> "Java API"
+            ChanSettings.saveLocation.isSafDirActive() -> "SAF"
+            else -> "Neither of them is active, wtf?!"
+        }
+
+        return "Java API location: ${ChanSettings.saveLocation.fileApiBaseDir.get()}, " +
+                "SAF location: ${ChanSettings.saveLocation.safBaseDir.get()}, " +
+                "active: $filesLocationActiveDirType"
     }
 
     private fun createReportRequest(file: File): ReportRequestWithFile? {
+        BackgroundUtils.ensureBackgroundThread()
+
         val log = try {
             file.readText()
         } catch (error: Throwable) {
@@ -161,25 +257,6 @@ class ReportManager(
                 reportRequest = request,
                 crashLogFile = file
         )
-    }
-
-    fun sendReport(title: String, description: String, logs: String?): Single<MResult<Boolean>> {
-        require(title.isNotEmpty()) { "title is empty" }
-        require(description.isNotEmpty() || logs != null) { "description is empty" }
-        require(title.length <= MAX_TITLE_LENGTH) { "title is too long ${title.length}" }
-        require(description.length <= MAX_DESCRIPTION_LENGTH) { "description is too long ${description.length}" }
-        logs?.let { require(it.length <= MAX_LOGS_LENGTH) { "logs are too long" } }
-
-        val request = ReportRequest(
-                buildFlavor = BuildConfig.FLAVOR,
-                versionName = BuildConfig.VERSION_NAME,
-                osInfo = getOsInfo(),
-                title = title,
-                description = description,
-                logs = logs
-        )
-
-        return sendInternal(request)
     }
 
     private fun getOsInfo(): String {
@@ -203,6 +280,8 @@ class ReportManager(
     }
 
     private fun sendInternal(reportRequest: ReportRequest): Single<MResult<Boolean>> {
+        BackgroundUtils.ensureBackgroundThread()
+
         val json = try {
             gson.toJson(reportRequest)
         } catch (error: Throwable) {
@@ -263,6 +342,8 @@ class ReportManager(
         private const val REPORT_URL = "${BuildConfig.DEV_API_ENDPOINT}/report"
         private const val CRASH_LOG_FILE_NAME_PREFIX = "crashlog"
         private const val UNBOUNDED_QUEUE_MIN_SIZE = 32
+
+        private const val CRASH_REPORT_LOGS_LINES_COUNT = 500
 
         const val MAX_TITLE_LENGTH = 512
         const val MAX_DESCRIPTION_LENGTH = 8192
