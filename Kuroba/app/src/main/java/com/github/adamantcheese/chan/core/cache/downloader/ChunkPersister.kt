@@ -31,6 +31,8 @@ internal class ChunkPersister(
     ): Flowable<ChunkDownloadEvent> {
         return Flowable.create<ChunkDownloadEvent>({ emitter ->
             BackgroundUtils.ensureBackgroundThread()
+
+            val serializedEmitter = emitter.serialize()
             val chunk = chunkResponse.chunk
 
             try {
@@ -86,7 +88,7 @@ internal class ChunkPersister(
                                         bufferedSource,
                                         bufferedSink,
                                         totalDownloaded,
-                                        emitter,
+                                        serializedEmitter,
                                         chunkIndex,
                                         chunkCacheFile,
                                         chunk
@@ -108,7 +110,7 @@ internal class ChunkPersister(
                         error,
                         chunkIndex,
                         chunk,
-                        emitter
+                        serializedEmitter
                 )
             }
         }, BackpressureStrategy.BUFFER)
@@ -121,7 +123,7 @@ internal class ChunkPersister(
             error: Throwable,
             chunkIndex: Int,
             chunk: Chunk,
-            emitter: FlowableEmitter<ChunkDownloadEvent>
+            serializedEmitter: FlowableEmitter<ChunkDownloadEvent>
     ) {
         val state = activeDownloads.getState(url)
         val isStoppedOrCanceled = state == DownloadState.Canceled || state == DownloadState.Stopped
@@ -141,12 +143,12 @@ internal class ChunkPersister(
                 // when emitting more than one error concurrently they will be converted into
                 // a CompositeException which is a set of exceptions and it's a pain in the
                 // ass to deal with.
-                emitter.onComplete()
+                serializedEmitter.onComplete()
             } else {
-                emitter.tryOnError(error)
+                serializedEmitter.tryOnError(error)
             }
         } else {
-            emitter.tryOnError(error)
+            serializedEmitter.tryOnError(error)
             log(TAG, "handleErrors($chunkIndex) ($url) fail for chunk ${chunk.start}..${chunk.end}")
         }
     }
@@ -187,7 +189,7 @@ internal class ChunkPersister(
             bufferedSource: BufferedSource,
             bufferedSink: BufferedSink,
             totalDownloaded: AtomicLong,
-            emitter: FlowableEmitter<ChunkDownloadEvent>,
+            serializedEmitter: FlowableEmitter<ChunkDownloadEvent>,
             chunkIndex: Int,
             chunkCacheFile: RawFile,
             chunk: Chunk
@@ -222,7 +224,7 @@ internal class ChunkPersister(
                 if (downloaded >= notifyTotal + notifySize) {
                     notifyTotal = downloaded
 
-                    emitter.onNext(
+                    serializedEmitter.onNext(
                             ChunkDownloadEvent.Progress(
                                     chunkIndex,
                                     downloaded,
@@ -236,7 +238,7 @@ internal class ChunkPersister(
 
             // So that we have 100% progress for every chunk
             if (chunkSize >= 0) {
-                emitter.onNext(
+                serializedEmitter.onNext(
                         ChunkDownloadEvent.Progress(
                                 chunkIndex,
                                 chunkSize,
@@ -256,14 +258,14 @@ internal class ChunkPersister(
                 )
             }
 
-            emitter.onNext(
+            serializedEmitter.onNext(
                     ChunkDownloadEvent.ChunkSuccess(
                             chunkIndex,
                             chunkCacheFile,
                             chunk
                     )
             )
-            emitter.onComplete()
+            serializedEmitter.onComplete()
         } finally {
             buffer.closeQuietly()
         }
