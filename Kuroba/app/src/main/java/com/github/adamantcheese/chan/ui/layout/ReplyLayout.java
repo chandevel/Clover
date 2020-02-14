@@ -69,6 +69,7 @@ import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -403,6 +404,7 @@ public class ReplyLayout
 
     @Override
     public void setPage(ReplyPresenter.Page page) {
+        Logger.d(TAG, "Switching to page " + page.name());
         switch (page) {
             case LOADING:
                 setWrappingMode(false);

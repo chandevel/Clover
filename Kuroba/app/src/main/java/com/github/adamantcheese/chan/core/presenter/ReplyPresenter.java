@@ -530,12 +530,12 @@ public class ReplyPresenter
                     callback.setPage(page);
                     break;
                 case AUTHENTICATION:
+                    callback.setPage(Page.AUTHENTICATION);
                     SiteAuthentication authentication = loadable.site.actions().postAuthenticate();
 
                     // cleanup resources tied to the new captcha layout/presenter
                     callback.destroyCurrentAuthentication();
                     callback.initializeAuthentication(loadable.site, authentication, this, useV2NoJsCaptcha, autoReply);
-                    callback.setPage(Page.AUTHENTICATION);
                     break;
             }
         }
