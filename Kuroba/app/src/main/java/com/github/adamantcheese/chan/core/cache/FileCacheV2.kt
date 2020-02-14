@@ -425,13 +425,9 @@ class FileCacheV2(
         }
 
         return synchronized(activeDownloads) {
-            if (activeDownloads.containsKey(url)) {
-                val prevRequest = checkNotNull(activeDownloads.get(url)) {
-                    "Request was removed inside a synchronized block. " +
-                            "Apparently it's not thread-safe anymore"
-                }
-
-                log(TAG, "Request ${url} is already active, re-subscribing to it")
+            val prevRequest = activeDownloads.get(url)
+            if (prevRequest != null) {
+                log(TAG, "Request $url is already active, re-subscribing to it")
 
                 val prevCancelableDownload = prevRequest.cancelableDownload
                 if (callback != null) {
@@ -892,10 +888,8 @@ class FileCacheV2(
     private fun purgeOutput(url: String, output: RawFile) {
         BackgroundUtils.ensureBackgroundThread()
 
-        val request = checkNotNull(activeDownloads.get(url)) {
-            "Request was removed inside a synchronized block. " +
-                    "Apparently it's not thread-safe anymore"
-        }
+        val request = activeDownloads.get(url)
+                ?: return
 
         if (request.cancelableDownload.getState() != DownloadState.Canceled) {
             // Not canceled, only purge output when canceled. Do not purge the output file when
