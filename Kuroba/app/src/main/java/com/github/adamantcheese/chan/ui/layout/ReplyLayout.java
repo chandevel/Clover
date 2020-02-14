@@ -346,18 +346,16 @@ public class ReplyLayout
     ) {
         if (authenticationLayout == null) {
             switch (authentication.type) {
-                case CAPTCHA1: {
+                case CAPTCHA1:
                     authenticationLayout = (LegacyCaptchaLayout) AndroidUtils.inflate(getContext(),
                             R.layout.layout_captcha_legacy,
                             captchaContainer,
                             false
                     );
                     break;
-                }
-                case CAPTCHA2: {
+                case CAPTCHA2:
                     authenticationLayout = new CaptchaLayout(getContext());
                     break;
-                }
                 case CAPTCHA2_NOJS:
                     if (useV2NoJsCaptcha) {
                         // new captcha window without webview
@@ -379,7 +377,7 @@ public class ReplyLayout
                     }
 
                     break;
-                case GENERIC_WEBVIEW: {
+                case GENERIC_WEBVIEW:
                     GenericWebViewAuthenticationLayout view = new GenericWebViewAuthenticationLayout(getContext());
 
                     FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
@@ -387,11 +385,9 @@ public class ReplyLayout
 
                     authenticationLayout = view;
                     break;
-                }
                 case NONE:
-                default: {
+                default:
                     throw new IllegalArgumentException();
-                }
             }
 
             captchaContainer.addView((View) authenticationLayout, 0);
@@ -426,9 +422,8 @@ public class ReplyLayout
                 break;
         }
 
-        if (page != ReplyPresenter.Page.AUTHENTICATION && authenticationLayout != null) {
-            captchaContainer.removeView((View) authenticationLayout);
-            authenticationLayout = null;
+        if (page != ReplyPresenter.Page.AUTHENTICATION) {
+            destroyCurrentAuthentication();
         }
     }
 
@@ -443,13 +438,12 @@ public class ReplyLayout
             return;
         }
 
-        if (!(authenticationLayout instanceof CaptchaNoJsLayoutV2)) {
-            return;
+        // cleanup resources when switching from the new to the old captcha view
+        if (authenticationLayout instanceof CaptchaNoJsLayoutV2) {
+            ((CaptchaNoJsLayoutV2) authenticationLayout).onDestroy();
         }
 
-        // cleanup resources when switching from the new to the old captcha view
-        ((CaptchaNoJsLayoutV2) authenticationLayout).onDestroy();
-        captchaContainer.removeView((CaptchaNoJsLayoutV2) authenticationLayout);
+        captchaContainer.removeView((View) authenticationLayout);
         authenticationLayout = null;
     }
 
@@ -817,7 +811,7 @@ public class ReplyLayout
     @Override
     public void onUploadingProgress(int percent) {
         if (currentProgress != null) {
-            if (percent <= 0) {
+            if (percent >= 0) {
                 currentProgress.setVisibility(VISIBLE);
             }
 

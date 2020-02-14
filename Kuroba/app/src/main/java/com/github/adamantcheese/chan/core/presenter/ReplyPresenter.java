@@ -526,10 +526,8 @@ public class ReplyPresenter
             this.page = page;
             switch (page) {
                 case LOADING:
-                    callback.setPage(Page.LOADING);
-                    break;
                 case INPUT:
-                    callback.setPage(Page.INPUT);
+                    callback.setPage(page);
                     break;
                 case AUTHENTICATION:
                     SiteAuthentication authentication = loadable.site.actions().postAuthenticate();
