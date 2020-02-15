@@ -26,6 +26,8 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Locale;
 
+import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
+
 /**
  * Something that can be loaded, like a board or thread.
  * Used instead of {@link Board} or {@link Post} because of the unique things a loadable can do and save in the database:<br>
@@ -234,9 +236,10 @@ public class Loadable
 
     @Override
     public String toString() {
-        return "Loadable{id=" + id + ", mode=" + mode + ", board='" + boardCode + '\'' + ", no=" + no + ", title='"
-                + title + '\'' + ", listViewIndex=" + listViewIndex + ", listViewTop=" + listViewTop + ", lastViewed="
-                + lastViewed + ", lastLoaded=" + lastLoaded + ", markedNo=" + markedNo + ", dirty=" + dirty + '}';
+        return "Loadable{id=" + id + ", mode=" + mode + ", board='" + boardCode + '\'' +
+                ", no=" + maskPostNo(no) + '\'' + ", listViewIndex=" + listViewIndex +
+                ", listViewTop=" + listViewTop + ", lastViewed=" + lastViewed + ", lastLoaded=" +
+                maskPostNo(lastLoaded) + ", markedNo=" + maskPostNo(markedNo) + ", dirty=" + dirty + '}';
     }
 
     public boolean isThreadMode() {
@@ -272,7 +275,7 @@ public class Loadable
      * Extracts and converts to a string only the info that we are interested in from this loadable
      */
     public String toShortString() {
-        return String.format(Locale.US, "[%s, %s, %d]", site.name(), boardCode, no);
+        return String.format(Locale.US, "[%s, %s, %s]", site.name(), boardCode, maskPostNo(no));
     }
 
     public String desktopUrl() {

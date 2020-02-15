@@ -14,6 +14,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.PostUtils
+import com.github.adamantcheese.chan.utils.StringUtils.maskUrl
 import com.github.adamantcheese.chan.utils.exhaustive
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
@@ -302,7 +303,7 @@ class FileCacheV2(
         val url = postImage.imageUrl.toString()
 
         if (loadable.isLocal || loadable.isDownloading) {
-            log(TAG, "Handling local thread file, url = $url")
+            log(TAG, "Handling local thread file, url = ${maskUrl(url)}")
 
             if (callback == null) {
                 logError(TAG, "Callback is null for a local thread")
@@ -377,7 +378,7 @@ class FileCacheV2(
             return null
         }
 
-        log(TAG, "Downloading a file, url = $url")
+        log(TAG, "Downloading a file, url = ${maskUrl(url)}")
         normalRequestQueue.onNext(url)
 
         return cancelableDownload
@@ -394,7 +395,7 @@ class FileCacheV2(
             return false
         }
 
-        log(TAG, "File already downloaded, url = $url")
+        log(TAG, "File already downloaded, url = ${maskUrl(url)}")
 
         try {
             handleFileImmediatelyAvailable(file, url)
@@ -427,7 +428,7 @@ class FileCacheV2(
         return synchronized(activeDownloads) {
             val prevRequest = activeDownloads.get(url)
             if (prevRequest != null) {
-                log(TAG, "Request $url is already active, re-subscribing to it")
+                log(TAG, "Request ${maskUrl(url)} is already active, re-subscribing to it")
 
                 val prevCancelableDownload = prevRequest.cancelableDownload
                 if (callback != null) {
@@ -897,7 +898,7 @@ class FileCacheV2(
             return
         }
 
-        log(TAG, "Purging $url, file = ${output.getFullPath()}")
+        log(TAG, "Purging ${maskUrl(url)}, file = ${output.getFullPath()}")
 
         if (!cacheHandler.deleteCacheFile(output)) {
             logError(TAG, "Could not delete the file in purgeOutput, output = ${output.getFullPath()}")

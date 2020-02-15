@@ -63,6 +63,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
 
 /**
  * A ChanThreadLoader is the loader for Loadables.
@@ -338,7 +339,7 @@ public class ChanThreadLoader
             }
         }
 
-        Logger.d(TAG, "Requested /" + loadable.boardCode + "/, " + loadable.no);
+        Logger.d(TAG, "Requested /" + loadable.boardCode + "/, " + maskPostNo(loadable.no));
 
         List<Post> cached = thread == null ? new ArrayList<>() : thread.getPosts();
         ChanReader chanReader = loadable.getSite().chanReader();
@@ -389,7 +390,8 @@ public class ChanThreadLoader
     private boolean onThreadArchived(boolean closed, boolean archived) {
         ChanThread chanThread = loadSavedThreadIfItExists();
         if (chanThread == null) {
-            Logger.d(TAG, "Thread " + loadable.no + " is archived but we don't have a local copy of the thread");
+            Logger.d(TAG, "Thread " + maskPostNo(loadable.no) +
+                    " is archived but we don't have a local copy of the thread");
 
             // We don't have this thread locally saved, so return false and DO NOT SET thread to
             // chanThread because this will close this thread (user will see 404 not found error)
@@ -398,7 +400,8 @@ public class ChanThreadLoader
         }
 
         Logger.d(TAG,
-                "Thread " + chanThread.getLoadable().no + " is archived (" + archived + ") or closed (" + closed + ")"
+                "Thread " + maskPostNo(chanThread.getLoadable().no)
+                        + " is archived (" + archived + ") or closed (" + closed + ")"
         );
         thread = chanThread;
 
@@ -424,7 +427,7 @@ public class ChanThreadLoader
             );
             return true;
         } else {
-            Logger.d(TAG, "Thread " + chanThread.getLoadable().no + " has no posts");
+            Logger.d(TAG, "Thread " + maskPostNo(chanThread.getLoadable().no) + " has no posts");
         }
 
         return false;
@@ -464,7 +467,8 @@ public class ChanThreadLoader
             return null;
         });
 
-        Logger.d(TAG, "Successfully updated thread " + chanThread.getLoadable().no + " as fully downloaded");
+        Logger.d(TAG, "Successfully updated thread "
+                + maskPostNo(chanThread.getLoadable().no) + " as fully downloaded");
     }
 
     private void onPreparedResponseInternal(
@@ -557,14 +561,14 @@ public class ChanThreadLoader
             // Thread was deleted (404), try to load a saved copy (if we have it)
             if (error.networkResponse != null && error.networkResponse.statusCode == 404
                     && loadable.mode == Loadable.Mode.THREAD) {
-                Logger.d(TAG, "Got 404 status for a thread " + loadable.no);
+                Logger.d(TAG, "Got 404 status for a thread " + maskPostNo(loadable.no));
 
                 ChanThread chanThread = loadSavedThreadIfItExists();
                 if (chanThread != null && chanThread.getPostsCount() > 0) {
                     thread = chanThread;
 
                     Logger.d(TAG,
-                            "Successfully loaded local thread " + loadable.no + " from disk, isClosed = "
+                            "Successfully loaded local thread " + maskPostNo(loadable.no) + " from disk, isClosed = "
                                     + chanThread.isClosed() + ", isArchived = " + chanThread.isArchived()
                     );
 

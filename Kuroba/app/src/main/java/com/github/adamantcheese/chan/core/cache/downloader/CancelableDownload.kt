@@ -4,6 +4,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingDataSource
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource
 import com.github.adamantcheese.chan.utils.Logger
+import com.github.adamantcheese.chan.utils.StringUtils.maskUrl
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -155,7 +156,7 @@ class CancelableDownload(
                     DownloadState.Canceled -> "Cancelling"
                 }
 
-                Logger.d(TAG, "$action file download request, url = $url")
+                Logger.d(TAG, "$action file download request, url = ${maskUrl(url)}")
             }
                     // We use timeout here just in case to not get deadlocked
                     .get(MAX_CANCELLATION_WAIT_TIME_SECONDS, TimeUnit.SECONDS)
@@ -167,7 +168,7 @@ class CancelableDownload(
 
             // Catch all the exceptions. Otherwise some request info won't be cleared when an error
             // occurs.
-            Logger.e(TAG, "Error while trying to dispose of a request for url = ($url)", error)
+            Logger.e(TAG, "Error while trying to dispose of a request for url = (${maskUrl(url)})", error)
         }
     }
 

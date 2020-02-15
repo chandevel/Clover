@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static com.github.adamantcheese.chan.utils.StringUtils.maskUrl;
+
 public class ImageLoaderV2 {
     private static final String TAG = "ImageLoaderV2";
 
@@ -70,7 +72,7 @@ public class ImageLoaderV2 {
                     if (extension == null) {
                         // We expect images to have extensions
                         throw new NullPointerException(
-                                "Could not get extension from thumbnailUrl = " + postImage.thumbnailUrl.toString());
+                                "Could not get extension from thumbnailUrl = " + maskUrl(postImage.thumbnailUrl.toString()));
                     }
 
                     formattedName = ThreadSaveManager.formatThumbnailImageName(postImage.serverFilename, extension);
@@ -220,9 +222,9 @@ public class ImageLoaderV2 {
 
     private String getImageUrlForLogs(PostImage postImage) {
         if (postImage.imageUrl != null) {
-            return postImage.imageUrl.toString();
+            return maskUrl(postImage.imageUrl.toString());
         } else if (postImage.thumbnailUrl != null) {
-            return postImage.thumbnailUrl.toString();
+            return maskUrl(postImage.thumbnailUrl.toString());
         }
 
         return "No image url";

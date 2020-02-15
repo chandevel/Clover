@@ -90,4 +90,31 @@ public class StringUtils {
 
         return bytesToHex(bytes);
     }
+
+    public static String maskPostNo(int postNo) {
+        String postNoString = String.valueOf(postNo);
+        if (postNoString.length() >= 4) {
+            return postNoString.substring(0, postNoString.length() - 3) + "XXX";
+        }
+
+        return postNoString;
+    }
+
+    public static String maskUrl(@NonNull String url) {
+        if (url.length() < 4) {
+            return url;
+        }
+
+        String extension = extractFileNameExtension(url);
+
+        int extensionLength = extension == null ? 0 : (extension.length() + 1);
+        int charactersToTrim = 3 + extensionLength;
+
+        if (url.length() < charactersToTrim) {
+            return url;
+        }
+
+        String trimmedUrl = url.substring(0, url.length() - charactersToTrim);
+        return trimmedUrl + "XXX" + (extension == null ? "" : "." + extension);
+    }
 }

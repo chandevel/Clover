@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
+import com.github.adamantcheese.chan.utils.StringUtils.maskUrl
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import io.reactivex.exceptions.CompositeException
 
@@ -7,7 +8,7 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
 
     internal class CancellationException(val state: DownloadState, url: String)
         : FileCacheException("CancellationException for request with " +
-            "url = ${url}, state = ${state.javaClass.simpleName}")
+            "url = ${maskUrl(url)}, state = ${state.javaClass.simpleName}")
 
     internal class FileNotFoundOnTheServerException
         : FileCacheException("FileNotFoundOnTheServerException")
@@ -58,7 +59,7 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
             val actualFileHash: String
     ) : FileCacheException("Downloaded file's hash differs from the one we got from the server!" +
             "\nSomething is wrong with the file, use force reload!" +
-            "\nexpected = \"$expectedFileHash\", actual = \"$actualFileHash\", url = ${url}, file name = ${fileName}")
+            "\nexpected = \"$expectedFileHash\", actual = \"$actualFileHash\", url = ${maskUrl(url)}, file name = ${fileName}")
 }
 
 internal fun logErrorsAndExtractErrorMessage(tag: String, prefix: String, error: Throwable): String {
