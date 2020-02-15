@@ -18,19 +18,24 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.PorterDuff;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatImageView;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
@@ -39,8 +44,13 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import io.reactivex.disposables.CompositeDisposable;
+
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.findViewsById;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
@@ -51,18 +61,22 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 public class SettingsController
         extends Controller
         implements AndroidUtils.OnMeasuredCallback {
+
+    @Inject
+    protected SettingsNotificationManager settingsNotificationManager;
+
     protected LinearLayout content;
     protected List<SettingsGroup> groups = new ArrayList<>();
-
     protected List<SettingView> requiresUiRefresh = new ArrayList<>();
-
     // Very user unfriendly.
     protected List<SettingView> requiresRestart = new ArrayList<>();
-
+    protected CompositeDisposable compositeDisposable;
     private boolean needRestart = false;
 
     public SettingsController(Context context) {
         super(context);
+
+        inject(this);
     }
 
     @Override
@@ -73,11 +87,27 @@ public class SettingsController
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+
+        resetDisposables();
+        compositeDisposable = new CompositeDisposable();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        resetDisposables();
 
         if (needRestart) {
             ((StartActivity) context).restartApp();
+        }
+    }
+
+    private void resetDisposables() {
+        if (compositeDisposable != null) {
+            compositeDisposable.dispose();
+            compositeDisposable = null;
         }
     }
 
@@ -178,12 +208,44 @@ public class SettingsController
 
                     groupLayout.addView(preferenceView);
                     settingView.setView(preferenceView);
+
+                    // TODO: check whether we actually have something to notify the user
+                    updateNotificationAlertIcon(settingView.getSettingNotificationType(), preferenceView);
                 }
 
                 if (i < group.settingViews.size() - 1) {
                     settingView.divider = inflate(context, R.layout.setting_divider, groupLayout, false);
                     groupLayout.addView(settingView.divider);
                 }
+            }
+        }
+    }
+
+    protected void updateNotificationAlertIcon(
+            SettingNotificationType settingNotificationType,
+            ViewGroup preferenceView
+    ) {
+        AppCompatImageView notificationIcon =
+                preferenceView.findViewById(R.id.setting_notification_icon);
+
+        if (settingNotificationType != SettingNotificationType.Default) {
+            if (notificationIcon == null) {
+                throw new NullPointerException("SettingNotificationType is not default ("
+                        + settingNotificationType +
+                        "), but notificationIcon was not found!");
+            }
+
+            if (notificationIcon.getVisibility() != VISIBLE) {
+                int tintColor = context.getResources().getColor(
+                        settingNotificationType.getNotificationIconTintColor()
+                );
+
+                notificationIcon.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN);
+                notificationIcon.setVisibility(VISIBLE);
+            }
+        } else {
+            if (notificationIcon != null && notificationIcon.getVisibility() != GONE) {
+                notificationIcon.setVisibility(GONE);
             }
         }
     }

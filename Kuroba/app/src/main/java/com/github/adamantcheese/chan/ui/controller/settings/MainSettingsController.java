@@ -17,10 +17,12 @@
 package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
+import android.view.ViewGroup;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.presenter.SettingsPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
@@ -29,9 +31,14 @@ import com.github.adamantcheese.chan.ui.controller.ReportProblemController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
+import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
+import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import javax.inject.Inject;
+
+import io.reactivex.disposables.Disposable;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
@@ -43,12 +50,16 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 public class MainSettingsController
         extends SettingsController
         implements SettingsPresenter.Callback {
+    private static final String TAG = "MainSettingsController";
+
     @Inject
     private SettingsPresenter presenter;
 
     private LinkSettingView watchLink;
     private LinkSettingView sitesSetting;
     private LinkSettingView filtersSetting;
+    private LinkSettingView updateSettingView;
+    private LinkSettingView reportSettingView;
 
     public MainSettingsController(Context context) {
         super(context);
@@ -63,6 +74,13 @@ public class MainSettingsController
         setupLayout();
         populatePreferences();
         buildPreferences();
+
+        Disposable disposable = settingsNotificationManager.getSubject()
+                .subscribe(this::onNotificationsChanged, (error) -> {
+                    Logger.e(TAG, "Unknown error received from SettingsNotificationManager", error);
+                });
+
+        compositeDisposable.add(disposable);
 
         presenter.create(this);
     }
@@ -91,6 +109,25 @@ public class MainSettingsController
         watchLink.setDescription(enabled
                 ? R.string.setting_watch_summary_enabled
                 : R.string.setting_watch_summary_disabled);
+    }
+
+    private void onNotificationsChanged(SettingsNotificationManager.ActiveNotifications activeNotifications) {
+        updateNotificationAlertIcon(
+                activeNotifications.getOrDefault(SettingNotificationType.HasApkUpdate),
+                getViewGroupOrThrow(updateSettingView)
+        );
+        updateNotificationAlertIcon(
+                activeNotifications.getOrDefault(SettingNotificationType.HasCrashLogs),
+                getViewGroupOrThrow(reportSettingView)
+        );
+    }
+
+    private ViewGroup getViewGroupOrThrow(SettingView settingView) {
+        if (!(settingView.getView() instanceof ViewGroup)) {
+            throw new IllegalStateException("updateSettingView must have ViewGroup attached to it");
+        }
+
+        return  (ViewGroup) settingView.getView();
     }
 
     private void populatePreferences() {
@@ -157,15 +194,9 @@ public class MainSettingsController
     private void setupAboutGroup() {
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
-        about.add(new LinkSettingView(this,
-                getApplicationLabel() + " " + BuildConfig.VERSION_NAME + " " + (getIsOfficial() ? "✓" : "✗"),
-                "Tap to check for updates",
-                v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
-        ));
+        about.add(createUpdateSettingView());
+        about.add(createReportSettingView());
 
-        about.add(new LinkSettingView(this, R.string.settings_report, R.string.settings_report_description, v -> {
-            navigationController.presentController(new ReportProblemController(context));
-        }));
         about.add(new BooleanSettingView(this,
                 ChanSettings.autoCrashLogsUpload,
                 R.string.settings_auto_crash_report,
@@ -203,5 +234,28 @@ public class MainSettingsController
         ));
 
         groups.add(about);
+    }
+
+    private LinkSettingView createReportSettingView() {
+        reportSettingView = new LinkSettingView(
+                this,
+                R.string.settings_report,
+                R.string.settings_report_description, v -> {
+            navigationController.presentController(new ReportProblemController(context));
+        });
+
+        reportSettingView.setSettingNotificationType(SettingNotificationType.HasCrashLogs);
+        return reportSettingView;
+    }
+
+    private LinkSettingView createUpdateSettingView() {
+        updateSettingView = new LinkSettingView(this,
+                getApplicationLabel() + " " + BuildConfig.VERSION_NAME + " " + (getIsOfficial() ? "✓" : "✗"),
+                "Tap to check for updates",
+                v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
+        );
+
+        updateSettingView.setSettingNotificationType(SettingNotificationType.HasApkUpdate);
+        return updateSettingView;
     }
 }

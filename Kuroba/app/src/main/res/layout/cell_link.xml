@@ -44,4 +44,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:textColor="?text_color_primary"
         android:textSize="14sp" />
 
+    <include layout="@layout/setting_notification"/>
+
 </LinearLayout>

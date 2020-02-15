@@ -36,6 +36,7 @@ import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
@@ -44,9 +45,11 @@ import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.PinHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
+import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AnimationUtils;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import javax.inject.Inject;
@@ -65,6 +68,10 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 public class DrawerAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String TAG = "DrawerAdapter";
+
+    private static final int SETTINGS_OFFSET = 0;
+
     //PIN_OFFSET is the number of items before the pins
     //(in this case, settings, history, and the bookmarked threads title)
     private static final int PIN_OFFSET = 3;
@@ -79,6 +86,8 @@ public class DrawerAdapter
 
     @Inject
     WatchManager watchManager;
+    @Inject
+    SettingsNotificationManager settingsNotificationManager;
 
     private Context context;
     private Drawable downloadIconOutline;
@@ -87,6 +96,7 @@ public class DrawerAdapter
     private final Callback callback;
     private Pin highlighted;
     private Bitmap archivedIcon;
+
 
     public DrawerAdapter(Callback callback, Context context) {
         inject(this);
@@ -180,6 +190,8 @@ public class DrawerAdapter
                 switch (position) {
                     case 0:
                         linkHolder.text.setText(R.string.drawer_settings);
+                        updateNotificationIcon(linkHolder);
+
                         ThemeHelper.getTheme().settingsDrawable.apply(linkHolder.image);
                         break;
                     case 1:
@@ -193,6 +205,26 @@ public class DrawerAdapter
                 break;
             default:
                 break;
+        }
+    }
+
+    private void updateNotificationIcon(LinkHolder linkHolder) {
+        SettingNotificationType notificationType
+                = settingsNotificationManager.getNotificationByPriority();
+
+        if (notificationType != null) {
+            int color = context.getResources().getColor(
+                    notificationType.getNotificationIconTintColor()
+            );
+
+            if (linkHolder.notificationIcon.getVisibility() != VISIBLE) {
+                linkHolder.notificationIcon.setVisibility(VISIBLE);
+                linkHolder.notificationIcon.setColorFilter(color);
+            }
+        } else {
+            if (linkHolder.notificationIcon.getVisibility() != GONE) {
+                linkHolder.notificationIcon.setVisibility(GONE);
+            }
         }
     }
 
@@ -236,6 +268,11 @@ public class DrawerAdapter
             default:
                 return TYPE_PIN;
         }
+    }
+
+    public void onNotificationsChanged() {
+        BackgroundUtils.ensureMainThread();
+        notifyItemChanged(SETTINGS_OFFSET);
     }
 
     public void onPinAdded(Pin pin) {
@@ -505,12 +542,14 @@ public class DrawerAdapter
             extends RecyclerView.ViewHolder {
         private ImageView image;
         private TextView text;
+        private AppCompatImageView notificationIcon;
 
         private LinkHolder(View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
             text = itemView.findViewById(R.id.text);
             text.setTypeface(ThemeHelper.getTheme().mainFont);
+            notificationIcon = itemView.findViewById(R.id.setting_notification_icon);
 
             itemView.setOnClickListener(v -> {
                 switch (getAdapterPosition()) {

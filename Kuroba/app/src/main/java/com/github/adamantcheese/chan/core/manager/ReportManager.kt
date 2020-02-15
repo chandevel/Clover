@@ -143,6 +143,15 @@ class ReportManager(
         Logger.d(TAG, "Stored new crash log, path = ${newCrashLog.absolutePath}")
     }
 
+    fun hasCrashLogs(): Boolean {
+        if (!createCrashLogsDirIfNotExists()) {
+            return false
+        }
+
+        val crashLogs = crashLogsDirPath.listFiles()
+        return crashLogs != null && crashLogs.isNotEmpty()
+    }
+
     // Since this is a singleton we don't care about disposing of this thing because nothing may
     // leak here
     @SuppressLint("CheckResult")

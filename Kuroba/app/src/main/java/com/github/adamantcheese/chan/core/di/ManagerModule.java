@@ -28,6 +28,7 @@ import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -186,5 +187,11 @@ public class ManagerModule {
                 gson,
                 new File(cacheDir, CRASH_LOGS_DIR_NAME)
         );
+    }
+
+    @Provides
+    @Singleton
+    public SettingsNotificationManager provideSettingsNotificationManager() {
+        return new SettingsNotificationManager();
     }
 }

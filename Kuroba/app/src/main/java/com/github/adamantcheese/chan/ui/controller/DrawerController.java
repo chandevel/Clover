@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -32,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -41,6 +43,7 @@ import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
 import com.github.adamantcheese.chan.ui.controller.settings.MainSettingsController;
+import com.github.adamantcheese.chan.utils.Logger;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -49,6 +52,10 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.adapter.DrawerAdapter.TYPE_PIN;
@@ -62,14 +69,20 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class DrawerController
         extends Controller
         implements DrawerAdapter.Callback, View.OnClickListener {
+    private static final String TAG = "DrawerController";
+
     protected FrameLayout container;
     protected DrawerLayout drawerLayout;
     protected LinearLayout drawer;
     protected RecyclerView recyclerView;
     protected DrawerAdapter drawerAdapter;
+    @Nullable
+    private CompositeDisposable compositeDisposable = null;
 
     @Inject
     WatchManager watchManager;
+    @Inject
+    SettingsNotificationManager settingsNotificationManager;
 
     public DrawerController(Context context) {
         super(context);
@@ -92,6 +105,9 @@ public class DrawerController
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_PIN, 0);
 
+        resetDisposables();
+        compositeDisposable = new CompositeDisposable();
+
         drawerAdapter = new DrawerAdapter(this, context);
         recyclerView.setAdapter(drawerAdapter);
 
@@ -99,12 +115,23 @@ public class DrawerController
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         updateBadge();
+
+        Disposable disposable = settingsNotificationManager.getSubject()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(activeNotifications -> {
+                    drawerAdapter.onNotificationsChanged();
+                }, (error) -> {
+                    Logger.e(TAG, "Unknown error from SettingsNotificationManager", error);
+                });
+
+        compositeDisposable.add(disposable);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
+        resetDisposables();
         recyclerView.setAdapter(null);
         EventBus.getDefault().unregister(this);
     }
@@ -209,6 +236,13 @@ public class DrawerController
             }
 
             onHeaderClickedInternal(all, hasDownloadFlag);
+        }
+    }
+
+    private void resetDisposables() {
+        if (compositeDisposable != null) {
+            compositeDisposable.dispose();
+            compositeDisposable = null;
         }
     }
 

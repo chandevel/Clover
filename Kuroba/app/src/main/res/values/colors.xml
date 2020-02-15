@@ -4,4 +4,6 @@
     <color name="pin_posts_has_replies">#ff4444</color>
     <color name="pin_posts_normal">#33B5E5</color>
     <color name="highlighted_pin_view_holder">#22000000</color>
+    <color name="new_apk_update_icon_color">#CC8400</color>
+    <color name="new_crash_log_icon_color">#008080</color>
 </resources>

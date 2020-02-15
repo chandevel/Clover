@@ -25,6 +25,7 @@ public abstract class SettingView {
     public final String name;
     public View view;
     public View divider;
+    public SettingNotificationType settingNotificationType = SettingNotificationType.Default;
 
     public SettingView(SettingsController settingsController, String name) {
         this.settingsController = settingsController;
@@ -35,7 +36,15 @@ public abstract class SettingView {
         this.view = view;
     }
 
+    public View getView() {
+        return view;
+    }
+
     public void setEnabled(boolean enabled) {
+    }
+
+    public void setSettingNotificationType(SettingNotificationType type) {
+        this.settingNotificationType = type;
     }
 
     public String getTopDescription() {
@@ -44,5 +53,9 @@ public abstract class SettingView {
 
     public String getBottomDescription() {
         return null;
+    }
+
+    public SettingNotificationType getSettingNotificationType() {
+        return settingNotificationType;
     }
 }
