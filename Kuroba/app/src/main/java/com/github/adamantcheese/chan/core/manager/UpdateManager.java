@@ -218,7 +218,8 @@ public class UpdateManager {
     }
 
     private boolean processUpdateApiResponse(UpdateApiResponse response) {
-        if (response.versionCode > BuildConfig.VERSION_CODE || BuildConfig.DEV_BUILD) {
+        if ((response.versionCode > BuildConfig.VERSION_CODE || BuildConfig.DEV_BUILD)
+                && BackgroundUtils.isInForeground()) {
             boolean concat = !response.updateTitle.isEmpty();
             CharSequence updateMessage =
                     concat ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body;
