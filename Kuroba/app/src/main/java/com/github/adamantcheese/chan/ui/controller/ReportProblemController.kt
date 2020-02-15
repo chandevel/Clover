@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.ui.controller
 
 import android.content.Context
+import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.controller.Controller
 import com.github.adamantcheese.chan.ui.layout.ReportProblemLayout
 
@@ -9,6 +10,9 @@ class ReportProblemController(context: Context)
     private var loadingViewController: LoadingViewController? = null
 
     override fun onCreate() {
+        super.onCreate()
+        navigation.setTitle(R.string.report_controller_report_an_error_problem)
+
         view = ReportProblemLayout(context).apply {
             onReady(this@ReportProblemController)
         }
@@ -33,6 +37,6 @@ class ReportProblemController(context: Context)
     }
 
     override fun onFinished() {
-        this.stopPresenting()
+        this.navigationController.popController()
     }
 }

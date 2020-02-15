@@ -176,7 +176,8 @@ public class ManagerModule {
     public ReportManager provideReportManager(
             NetModule.ProxiedOkHttpClient okHttpClient,
             Gson gson,
-            ThreadSaveManager threadSaveManager
+            ThreadSaveManager threadSaveManager,
+            SettingsNotificationManager settingsNotificationManager
     ) {
         Logger.d(AppModule.DI_TAG, "Report manager");
         File cacheDir = getCacheDir();
@@ -184,6 +185,7 @@ public class ManagerModule {
         return new ReportManager(
                 okHttpClient.getProxiedClient(),
                 threadSaveManager,
+                settingsNotificationManager,
                 gson,
                 new File(cacheDir, CRASH_LOGS_DIR_NAME)
         );

@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -913,7 +912,7 @@ public class ThreadPresenter
 
         if (!loadable.isLocal()) {
             boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
-            extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, isSaved ? R.string.unsave : R.string.save));
+            extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, isSaved ? R.string.unmark_as_my_post : R.string.mark_as_my_post));
 
             if (BuildConfig.DEV_BUILD && loadable.no > 0) {
                 extraMenu.add(new FloatingMenuItem(POST_OPTION_MOCK_REPLY, R.string.mock_reply));

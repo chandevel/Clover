@@ -16,12 +16,14 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.ViewGroup;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.presenter.SettingsPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -29,6 +31,7 @@ import com.github.adamantcheese.chan.ui.controller.FiltersController;
 import com.github.adamantcheese.chan.ui.controller.LicensesController;
 import com.github.adamantcheese.chan.ui.controller.ReportProblemController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
+import com.github.adamantcheese.chan.ui.controller.crashlogs.ReviewCrashLogsController;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
@@ -38,6 +41,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import javax.inject.Inject;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 import static com.github.adamantcheese.chan.Chan.inject;
@@ -54,6 +58,8 @@ public class MainSettingsController
 
     @Inject
     private SettingsPresenter presenter;
+    @Inject
+    ReportManager reportManager;
 
     private LinkSettingView watchLink;
     private LinkSettingView sitesSetting;
@@ -76,6 +82,7 @@ public class MainSettingsController
         buildPreferences();
 
         Disposable disposable = settingsNotificationManager.getSubject()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onNotificationsChanged, (error) -> {
                     Logger.e(TAG, "Unknown error received from SettingsNotificationManager", error);
                 });
@@ -112,6 +119,8 @@ public class MainSettingsController
     }
 
     private void onNotificationsChanged(SettingsNotificationManager.ActiveNotifications activeNotifications) {
+        Logger.d(TAG, "onNotificationsChanged called");
+
         updateNotificationAlertIcon(
                 activeNotifications.getOrDefault(SettingNotificationType.HasApkUpdate),
                 getViewGroupOrThrow(updateSettingView)
@@ -241,11 +250,47 @@ public class MainSettingsController
                 this,
                 R.string.settings_report,
                 R.string.settings_report_description, v -> {
-            navigationController.presentController(new ReportProblemController(context));
+            onReportSettingClick();
         });
 
         reportSettingView.setSettingNotificationType(SettingNotificationType.HasCrashLogs);
         return reportSettingView;
+    }
+
+    private void onReportSettingClick() {
+        int crashLogsCount = reportManager.countCrashLogs();
+
+        if (crashLogsCount > 0) {
+            suggestSendingCrashLogs(crashLogsCount);
+            return;
+        }
+
+        openReportProblemController();
+    }
+
+    private void suggestSendingCrashLogs(int crashLogsCount) {
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.settings_report_suggest_sending_logs_title, crashLogsCount))
+                .setMessage(R.string.settings_report_suggest_sending_logs_message)
+                .setPositiveButton(R.string.settings_report_review_button_text, (dialog, which) -> {
+                    openReviewCrashLogsController();
+                })
+                .setNeutralButton(R.string.settings_report_review_later_button_text, (dialog, which) -> openReportProblemController())
+                .setNegativeButton(R.string.settings_report_delete_all_crash_logs, (dialog, which) -> {
+                    reportManager.removeAllCrashLogs();
+                    openReportProblemController();
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    private void openReviewCrashLogsController() {
+        navigationController.pushController(new ReviewCrashLogsController(context));
+    }
+
+    private void openReportProblemController() {
+        navigationController.pushController(new ReportProblemController(context));
     }
 
     private LinkSettingView createUpdateSettingView() {

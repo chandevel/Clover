@@ -6,6 +6,8 @@ import com.github.adamantcheese.chan.BuildConfig
 import com.github.adamantcheese.chan.core.base.MResult
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.controller.LogsController
+import com.github.adamantcheese.chan.ui.layout.crashlogs.CrashLog
+import com.github.adamantcheese.chan.ui.settings.SettingNotificationType
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
 import com.google.gson.Gson
@@ -28,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class ReportManager(
         private val okHttpClient: OkHttpClient,
         private val threadSaveManager: ThreadSaveManager,
+        private val settingsNotificationManager: SettingsNotificationManager,
         private val gson: Gson,
         private val crashLogsDirPath: File
 ) {
@@ -73,6 +76,13 @@ class ReportManager(
                                 return@flatMapSingle processSingleRequest(request, crashLogFile)
                             }
                 }
+                .debounce(1, TimeUnit.SECONDS)
+                .doOnNext {
+                    // If no more crash logs left, remove the notification
+                    if (!hasCrashLogs()) {
+                        settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
+                    }
+                }
                 .subscribe({
                     // Do nothing
                 }, { error ->
@@ -112,7 +122,7 @@ class ReportManager(
             return
         }
 
-        val time = System.nanoTime()
+        val time = System.currentTimeMillis()
         val newCrashLog = File(crashLogsDirPath, "${CRASH_LOG_FILE_NAME_PREFIX}_${time}.txt")
 
         if (newCrashLog.exists()) {
@@ -152,37 +162,67 @@ class ReportManager(
         return crashLogs != null && crashLogs.isNotEmpty()
     }
 
-    // Since this is a singleton we don't care about disposing of this thing because nothing may
-    // leak here
-    @SuppressLint("CheckResult")
-    fun sendCollectedCrashLogs() {
+    fun countCrashLogs(): Int {
         if (!createCrashLogsDirIfNotExists()) {
+            return 0
+        }
+
+        return crashLogsDirPath.listFiles()?.size ?: 0
+    }
+
+    fun getCrashLogs(): List<File> {
+        if (!createCrashLogsDirIfNotExists()) {
+            return emptyList()
+        }
+
+        return crashLogsDirPath.listFiles()
+                ?.sortedByDescending { file -> file.lastModified() }
+                ?.toList() ?: emptyList()
+    }
+
+    fun removeAllCrashLogs() {
+        if (!createCrashLogsDirIfNotExists()) {
+            settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
             return
+        }
+
+        val potentialCrashLogs = crashLogsDirPath.listFiles()
+        if (potentialCrashLogs.isNullOrEmpty()) {
+            Logger.d(TAG, "No new crash logs")
+            settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
+            return
+        }
+
+        potentialCrashLogs.asSequence()
+                .filter { file -> file.name.startsWith(CRASH_LOG_FILE_NAME_PREFIX) }
+                .forEach { crashLogFile -> crashLogFile.delete() }
+
+        val remainingCrashLogs = crashLogsDirPath.listFiles()?.size ?: 0
+        if (remainingCrashLogs == 0) {
+            settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
+            return
+        }
+    }
+
+    fun sendCrashLogs(crashLogs: List<CrashLog>): Completable {
+        if (!createCrashLogsDirIfNotExists()) {
+            return Completable.complete()
+        }
+
+        if (crashLogs.isEmpty()) {
+            return Completable.complete()
         }
 
         // Collect and create reports on a background thread because logs may wait quite a lot now
         // and it may lag the UI.
-        Completable.fromAction {
+        return Completable.fromAction {
             BackgroundUtils.ensureBackgroundThread()
 
-            val potentialCrashLogs = crashLogsDirPath.listFiles()
-            if (potentialCrashLogs.isNullOrEmpty()) {
-                Logger.d(TAG, "No new crash logs")
-                return@fromAction
-            }
-
-            potentialCrashLogs.asSequence()
-                    .filter { file -> file.name.startsWith(CRASH_LOG_FILE_NAME_PREFIX) }
-                    .map { file -> createReportRequest(file) }
-                    .filterNotNull()
+            crashLogs
+                    .mapNotNull { crashLog -> createReportRequest(crashLog) }
                     .forEach { request -> crashLogSenderQueue.onNext(request) }
         }
-                .subscribeOn(senderScheduler)
-                .subscribe({
-                    // Do nothing
-                }, { error ->
-                    Logger.e(TAG, "Error while collecting logs: ${error}")
-                })
+        .subscribeOn(senderScheduler)
     }
 
     fun sendReport(title: String, description: String, logs: String?): Single<MResult<Boolean>> {
@@ -243,11 +283,11 @@ class ReportManager(
                 "active: $filesLocationActiveDirType"
     }
 
-    private fun createReportRequest(file: File): ReportRequestWithFile? {
+    private fun createReportRequest(crashLog: CrashLog): ReportRequestWithFile? {
         BackgroundUtils.ensureBackgroundThread()
 
         val log = try {
-            file.readText()
+            crashLog.file.readText()
         } catch (error: Throwable) {
             Logger.e(TAG, "Error reading crash log file", error)
             return null
@@ -264,7 +304,7 @@ class ReportManager(
 
         return ReportRequestWithFile(
                 reportRequest = request,
-                crashLogFile = file
+                crashLogFile = crashLog.file
         )
     }
 

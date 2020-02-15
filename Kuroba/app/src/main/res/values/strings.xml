@@ -91,13 +91,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="delete">Delete</string>
     <string name="undo">Undo</string>
     <string name="reset">Reset</string>
-    <string name="save">Mark as my post</string>
-    <string name="unsave">Unmark as my post</string>
     <string name="done">Done</string>
     <string name="continue_text">Continue</string>
     <string name="create">Create</string>
     <string name="do_not">Do not</string>
     <string name="move">Move</string>
+    <string name="save">Save</string>
+    <string name="send">Send</string>
+
+    <string name="mark_as_my_post">Mark as my post</string>
+    <string name="unmark_as_my_post">Unmark as my post</string>
 
     <string name="permission_app_settings">App settings</string>
     <string name="permission_grant">Grant</string>
@@ -763,19 +766,19 @@ Don't have a 4chan Pass?<br>
         The standard Lorem Ipsum passage, used since the 1500s
 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     </string>
-    <string name="report_activity_report_an_error_problem">Report an error/crash or other problem</string>
-    <string name="report_activity_i_have_a_problem_with">I have a problem with:</string>
-    <string name="report_activity_problem_description">Problem description:</string>
-    <string name="report_activity_attach_logs">Attach logs (You can remove some parts of them you don\'t want to send):</string>
-    <string name="report_activity_no_logs">No logs</string>
-    <string name="report_activity_cancel">Cancel</string>
-    <string name="report_activity_send_report">Send report</string>
-    <string name="report_activity_title_cannot_be_empty_error">Title cannot be empty!</string>
-    <string name="report_activity_description_cannot_be_empty_error">If description is empty, logs cannot be empty!</string>
-    <string name="report_activity_logs_are_empty_error">\"Attach logs\" option is checked, but logs are empty!</string>
-    <string name="report_activity_sending_report_message">Sending report…</string>
-    <string name="report_activity_report_sent_message">Sent \;)</string>
-    <string name="report_activity_error_while_trying_to_send_report">Error while trying to send report: %1$s</string>
+    <string name="report_controller_report_an_error_problem">Report an error/crash/other problem</string>
+    <string name="report_controller_i_have_a_problem_with">I have a problem with:</string>
+    <string name="report_controller_problem_description">Problem description:</string>
+    <string name="report_controller_attach_logs">Attach logs (You can remove some parts of them you don\'t want to send):</string>
+    <string name="report_controller_no_logs">No logs</string>
+    <string name="report_controller_cancel">Cancel</string>
+    <string name="report_controller_send_report">Send report</string>
+    <string name="report_controller_title_cannot_be_empty_error">Title cannot be empty!</string>
+    <string name="report_controller_description_cannot_be_empty_error">If description is empty, logs cannot be empty!</string>
+    <string name="report_controller_logs_are_empty_error">\"Attach logs\" option is checked, but logs are empty!</string>
+    <string name="report_controller_sending_report_message">Sending report…</string>
+    <string name="report_controller_report_sent_message">Sent \;)</string>
+    <string name="report_controller_error_while_trying_to_send_report">Error while trying to send report: %1$s</string>
 
     <string name="hsid_cookie_text">HSID</string>
     <string name="ssid_cookie_text">SSID</string>
@@ -794,4 +797,10 @@ Don't have a 4chan Pass?<br>
     <string name="settings_report_description">Report a problem/crash</string>
     <string name="settings_auto_crash_report">Automatic crash reporting</string>
     <string name="settings_auto_crash_report_description">By enabling this setting, all collected crash logs will be uploaded automatically on every app restart. Crash reports only collect the crash log itself, app version and basic OS information.</string>
+    <string name="review_crashlogs_controller_title">Review crash logs</string>
+    <string name="settings_report_suggest_sending_logs_title">You have %1$d unsent crash logs</string>
+    <string name="settings_report_suggest_sending_logs_message">Would you like to review and send them to developers?</string>
+    <string name="settings_report_review_button_text">Review crash logs</string>
+    <string name="settings_report_review_later_button_text">Review later</string>
+    <string name="settings_report_delete_all_crash_logs">Delete all crash logs</string>
 </resources>

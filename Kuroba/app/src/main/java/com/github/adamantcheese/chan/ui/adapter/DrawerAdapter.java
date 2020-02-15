@@ -50,6 +50,7 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AnimationUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import javax.inject.Inject;
@@ -271,6 +272,8 @@ public class DrawerAdapter
     }
 
     public void onNotificationsChanged() {
+        Logger.d(TAG, "onNotificationsChanged called");
+
         BackgroundUtils.ensureMainThread();
         notifyItemChanged(SETTINGS_OFFSET);
     }

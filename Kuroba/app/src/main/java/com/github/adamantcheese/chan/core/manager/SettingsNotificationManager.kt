@@ -1,43 +1,19 @@
 package com.github.adamantcheese.chan.core.manager
 
-import android.annotation.SuppressLint
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType
+import com.github.adamantcheese.chan.utils.Logger
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 
 class SettingsNotificationManager {
     private val activeNotificationsSubject = BehaviorProcessor.createDefault(ActiveNotifications())
 
-    init {
-        initSubject()
-    }
-
-    /**
-     * This is a singleton class so we don't care about the disposable since we will never should
-     * dispose of this stream
-     * */
-    @SuppressLint("CheckResult")
-    private fun initSubject() {
-        activeNotificationsSubject
-                .subscribe({
-                    // Do nothing
-                }, { error ->
-                    throw RuntimeException("$TAG Uncaught exception!!! " +
-                            "activeNotificationsSubject is in error state now!!! " +
-                            "This should not happen!!!, original error = " + error.message)
-                }, {
-                    throw RuntimeException(
-                            "$TAG activeNotificationsSubject stream has completed!!! " +
-                                    "This should not happen!!!"
-                    )
-                })
-    }
-
     @Synchronized
     fun notify(notificationType: SettingNotificationType) {
         val prev = activeNotificationsSubject.value!!
 
         if (prev.notifications.add(notificationType)) {
+            Logger.d(TAG, "Added ${notificationType.name} notification")
             activeNotificationsSubject.onNext(prev)
         }
     }
@@ -65,13 +41,12 @@ class SettingsNotificationManager {
         val prev = activeNotificationsSubject.value!!
 
         if (prev.notifications.remove(notificationType)) {
+            Logger.d(TAG, "Removed ${notificationType.name} notification")
             activeNotificationsSubject.onNext(prev)
         }
     }
 
     fun getSubject(): Flowable<ActiveNotifications> = activeNotificationsSubject
-            // Do not emit anything if previous ActiveNotifications are the same as new ones
-            .distinctUntilChanged()
 
     data class ActiveNotifications(
             val notifications: MutableSet<SettingNotificationType> = mutableSetOf()
