@@ -209,7 +209,6 @@ public class SettingsController
                     groupLayout.addView(preferenceView);
                     settingView.setView(preferenceView);
 
-                    // TODO: check whether we actually have something to notify the user
                     updateNotificationAlertIcon(settingView.getSettingNotificationType(), preferenceView);
                 }
 
