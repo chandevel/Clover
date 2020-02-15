@@ -11,9 +11,7 @@ import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.k1rakishou.fsaf.FileChooser
 import com.github.k1rakishou.fsaf.FileManager
-import com.github.k1rakishou.fsaf.document_file.CachingDocumentFile
 import com.github.k1rakishou.fsaf.file.AbstractFile
-import com.github.k1rakishou.fsaf.file.ExternalFile
 
 class SharedLocationSetupDelegate(
         private val context: Context,
@@ -159,25 +157,6 @@ class SharedLocationSetupDelegate(
         }
     }
 
-    private fun forgetOldSAFBaseDirectory(oldBaseDirectory: AbstractFile) {
-        if (oldBaseDirectory is ExternalFile) {
-            forgetPreviousExternalBaseDirectory(oldBaseDirectory)
-        }
-    }
-
-    private fun forgetPreviousExternalBaseDirectory(oldLocalThreadsDirectory: AbstractFile) {
-        if (oldLocalThreadsDirectory is ExternalFile) {
-            val safTreeUri = oldLocalThreadsDirectory.getFileRoot<CachingDocumentFile>().holder.uri()
-            if (!fileChooser.forgetSAFTree(safTreeUri)) {
-                showToast(
-                        context,
-                        R.string.media_settings_could_not_release_uri_permissions,
-                        Toast.LENGTH_SHORT
-                )
-            }
-        }
-    }
-
     private fun showDeleteOldFilesDialog(oldBaseDirectory: AbstractFile) {
         val alertDialog = AlertDialog.Builder(context)
                 .setTitle(getString(R.string.media_settings_would_you_like_to_delete_file_in_old_dir))
@@ -187,7 +166,6 @@ class SharedLocationSetupDelegate(
                 ))
                 .setPositiveButton(R.string.delete) { _, _ -> onDeleteOldFilesClicked(oldBaseDirectory) }
                 .setNegativeButton(R.string.do_not) { dialog, _ ->
-                    forgetOldSAFBaseDirectory(oldBaseDirectory)
                     dialog.dismiss()
                 }
                 .create()
@@ -201,7 +179,6 @@ class SharedLocationSetupDelegate(
             return
         }
         
-        forgetOldSAFBaseDirectory(oldBaseDirectory)
         showToast(context, R.string.media_settings_old_files_deleted, Toast.LENGTH_LONG)
     }
 
