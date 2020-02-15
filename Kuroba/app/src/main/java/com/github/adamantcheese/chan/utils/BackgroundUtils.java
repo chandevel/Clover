@@ -20,8 +20,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.core.os.HandlerCompat;
-
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 
@@ -50,17 +48,6 @@ public class BackgroundUtils {
 
     public static void runOnMainThread(Runnable runnable, long delay) {
         mainHandler.postDelayed(runnable, delay);
-    }
-
-    public static long runOnMainThreadCancelable(Runnable runnable, long delay) {
-        long token = mainHandlerTokenCounter.getAndIncrement();
-        HandlerCompat.postDelayed(mainHandler, runnable, token, delay);
-
-        return token;
-    }
-
-    public static void cancelRunOnMainThreadRequest(long token) {
-        mainHandler.removeCallbacksAndMessages(token);
     }
 
     private static boolean isMainThread() {
