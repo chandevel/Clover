@@ -66,6 +66,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvide
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 import static java.util.concurrent.TimeUnit.DAYS;
 
@@ -264,16 +265,21 @@ public class UpdateManager {
                     public void onProgress(int chunkIndex, long downloaded, long total) {
                         BackgroundUtils.ensureMainThread();
 
-                        updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded
-                                / (double) total)));
+                        if (updateDownloadDialog != null) {
+                            updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded
+                                    / (double) total)));
+                        }
                     }
 
                     @Override
                     public void onSuccess(RawFile file) {
                         BackgroundUtils.ensureMainThread();
 
-                        updateDownloadDialog.dismiss();
-                        updateDownloadDialog = null;
+                        if (updateDownloadDialog != null) {
+                            updateDownloadDialog.setOnDismissListener(null);
+                            updateDownloadDialog.dismiss();
+                            updateDownloadDialog = null;
+                        }
 
                         String fileName = getApplicationLabel() + "_" + response.versionCodeString + ".apk";
 
@@ -310,8 +316,11 @@ public class UpdateManager {
                                 exception.getMessage()
                         );
 
-                        updateDownloadDialog.dismiss();
-                        updateDownloadDialog = null;
+                        if (updateDownloadDialog != null) {
+                            updateDownloadDialog.setOnDismissListener(null);
+                            updateDownloadDialog.dismiss();
+                            updateDownloadDialog = null;
+                        }
                         new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
                                 .setMessage(description)
                                 .setPositiveButton(R.string.ok, null)
@@ -322,8 +331,11 @@ public class UpdateManager {
                     public void onCancel() {
                         BackgroundUtils.ensureMainThread();
 
-                        updateDownloadDialog.dismiss();
-                        updateDownloadDialog = null;
+                        if (updateDownloadDialog != null) {
+                            updateDownloadDialog.setOnDismissListener(null);
+                            updateDownloadDialog.dismiss();
+                            updateDownloadDialog = null;
+                        }
                         new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
                                 .setPositiveButton(R.string.ok, null)
                                 .show();
@@ -364,7 +376,11 @@ public class UpdateManager {
         runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
             if (granted) {
                 updateDownloadDialog = new ProgressDialog(context);
-                updateDownloadDialog.setCancelable(false);
+                updateDownloadDialog.setCanceledOnTouchOutside(true);
+                updateDownloadDialog.setOnDismissListener((dialog) -> {
+                    showToast(context, "Download will continue in background.");
+                    updateDownloadDialog = null;
+                });
                 updateDownloadDialog.setTitle(R.string.update_install_downloading);
                 updateDownloadDialog.setMax(10000);
                 updateDownloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
