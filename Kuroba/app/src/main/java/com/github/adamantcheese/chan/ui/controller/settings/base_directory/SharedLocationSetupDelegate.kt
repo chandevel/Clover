@@ -9,7 +9,6 @@ import com.github.adamantcheese.chan.ui.controller.LoadingViewController
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
 import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
 import com.github.adamantcheese.chan.utils.BackgroundUtils
-import com.github.k1rakishou.fsaf.FileChooser
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.ExternalFile
@@ -18,8 +17,7 @@ class SharedLocationSetupDelegate(
         private val context: Context,
         private val callbacks: SaveLocationSetupDelegate.MediaControllerCallbacks,
         private val presenter: MediaSettingsControllerPresenter,
-        private val fileManager: FileManager,
-        private val fileChooser: FileChooser
+        private val fileManager: FileManager
 ) : SharedLocationSetupDelegateCallbacks {
     private var loadingViewController: LoadingViewController? = null
 
@@ -52,6 +50,11 @@ class SharedLocationSetupDelegate(
         }
 
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
+            showToast(context, R.string.done, Toast.LENGTH_LONG)
+            return
+        }
+
+        if (fileManager.isChildOfDirectory(oldBaseDirectory, newBaseDirectory)) {
             showToast(context, R.string.done, Toast.LENGTH_LONG)
             return
         }
@@ -97,6 +100,11 @@ class SharedLocationSetupDelegate(
         }
 
         if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
+            showToast(context, R.string.done, Toast.LENGTH_LONG)
+            return
+        }
+
+        if (fileManager.isChildOfDirectory(oldBaseDirectory, newBaseDirectory)) {
             showToast(context, R.string.done, Toast.LENGTH_LONG)
             return
         }
@@ -172,11 +180,6 @@ class SharedLocationSetupDelegate(
         if (!result) {
             showToast(context, R.string.media_settings_could_not_copy_files, Toast.LENGTH_LONG)
         } else {
-            if (fileManager.isChildOfDirectory(oldBaseDirectory, newBaseDirectory)) {
-                showToast(context, R.string.done, Toast.LENGTH_LONG)
-                return
-            }
-
             showDeleteOldFilesDialog(oldBaseDirectory)
             showToast(context, R.string.media_settings_files_copied, Toast.LENGTH_LONG)
         }

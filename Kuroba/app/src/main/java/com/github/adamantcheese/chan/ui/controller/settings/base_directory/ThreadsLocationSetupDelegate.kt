@@ -10,6 +10,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.controller.SaveLocationController
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
 import com.github.adamantcheese.chan.utils.BackgroundUtils
+import java.io.File
 
 class ThreadsLocationSetupDelegate(
         private val context: Context,
@@ -53,6 +54,17 @@ class ThreadsLocationSetupDelegate(
                     .setMessage(R.string.media_settings_use_saf_for_local_threads_location_dialog_message)
                     .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text) { _, _ ->
                         presenter.onLocalThreadsLocationUseSAFClicked()
+                    }
+                    .setNeutralButton(R.string.reset) { _, _ ->
+                        presenter.resetLocalThreadsBaseDir()
+
+                        val defaultBaseDirFile = File(ChanSettings.localThreadLocation.fileApiBaseDir.get())
+                        if (!defaultBaseDirFile.exists() && !defaultBaseDirFile.mkdirs()) {
+                            callbacks.onCouldNotCreateDefaultBaseDir(defaultBaseDirFile.absolutePath)
+                            return@setNeutralButton
+                        }
+
+                        callbacks.onLocalThreadsBaseDirectoryReset()
                     }
                     .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text) { _, _ ->
                         onLocalThreadsLocationUseOldApiClicked()
@@ -109,5 +121,7 @@ class ThreadsLocationSetupDelegate(
     interface MediaControllerCallbacks {
         fun runWithWritePermissionsOrShowErrorToast(func: Runnable)
         fun pushController(saveLocationController: SaveLocationController)
+        fun onLocalThreadsBaseDirectoryReset()
+        fun onCouldNotCreateDefaultBaseDir(path: String)
     }
 }

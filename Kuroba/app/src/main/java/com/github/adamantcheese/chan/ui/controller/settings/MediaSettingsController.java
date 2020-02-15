@@ -114,8 +114,7 @@ public class MediaSettingsController
                 context,
                 this,
                 presenter,
-                fileManager,
-                fileChooser
+                fileManager
         );
         saveLocationSetupDelegate = new SaveLocationSetupDelegate(
                 context,
@@ -360,6 +359,30 @@ public class MediaSettingsController
     public void presentController(@NotNull LoadingViewController loadingViewController) {
         BackgroundUtils.ensureMainThread();
         navigationController.presentController(loadingViewController);
+    }
+
+    @Override
+    public void onFilesBaseDirectoryReset() {
+        BackgroundUtils.ensureMainThread();
+        showToast(context, R.string.media_settings_base_dir_reset_message);
+    }
+
+    @Override
+    public void onLocalThreadsBaseDirectoryReset() {
+        BackgroundUtils.ensureMainThread();
+        showToast(context, R.string.media_settings_base_dir_reset_message);
+    }
+
+    @Override
+    public void onCouldNotCreateDefaultBaseDir(@NotNull String path) {
+        BackgroundUtils.ensureMainThread();
+        showToast(
+                context,
+                context.getResources().getString(
+                        R.string.media_settings_could_not_create_default_baseDir,
+                        path
+                )
+        );
     }
 
     private void setupMediaLoadTypesSetting(SettingsGroup loading) {

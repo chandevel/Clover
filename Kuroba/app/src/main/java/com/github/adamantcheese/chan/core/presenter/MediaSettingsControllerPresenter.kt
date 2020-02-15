@@ -265,6 +265,18 @@ class MediaSettingsControllerPresenter(
         }
     }
 
+    fun resetSaveLocationBaseDir() {
+        ChanSettings.saveLocation.resetActiveDir()
+        ChanSettings.saveLocation.resetFileDir()
+        ChanSettings.saveLocation.resetSafDir()
+    }
+
+    fun resetLocalThreadsBaseDir() {
+        ChanSettings.localThreadLocation.resetActiveDir()
+        ChanSettings.localThreadLocation.resetFileDir()
+        ChanSettings.localThreadLocation.resetSafDir()
+    }
+
     companion object {
         private const val TAG = "MediaSettingsControllerPresenter"
     }

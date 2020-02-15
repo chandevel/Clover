@@ -704,8 +704,8 @@ Don't have a 4chan Pass?<br>
 
     <string name="media_settings_use_saf_for_save_location_dialog_title">Use the new Storage Access Framework API to choose images download directory?</string>
     <string name="media_settings_use_saf_for_local_threads_location_dialog_title">Use the new Storage Access Framework API to choose local threads download directory?</string>
-    <string name="media_settings_use_saf_for_save_location_dialog_message">If you choose to use the SAF you will be able to choose an SD-card (or even something like Google Drive) as a place to store downloaded images</string>
-    <string name="media_settings_use_saf_for_local_threads_location_dialog_message">If you choose to use the SAF you will be able to choose the SD-card (or even something like Google Drive) as a place to store local threads images</string>
+    <string name="media_settings_use_saf_for_save_location_dialog_message">If you choose to use the SAF you will be able to choose an SD-card as a place to store downloaded images</string>
+    <string name="media_settings_use_saf_for_local_threads_location_dialog_message">If you choose to use the SAF you will be able to choose the SD-card as a place to store local threads images</string>
     <string name="media_settings_use_saf_dialog_positive_button_text">Use SAF API</string>
     <string name="media_settings_use_saf_dialog_negative_button_text">Use old API</string>
     <string name="media_settings_local_threads_location_title">Local threads location</string>
@@ -792,4 +792,6 @@ Don't have a 4chan Pass?<br>
     <string name="settings_report_description">Report a problem/crash</string>
     <string name="settings_auto_crash_report">Automatic crash reporting</string>
     <string name="settings_auto_crash_report_description">By enabling this setting, all collected crash logs will be uploaded automatically on every app restart. Crash reports only collect the crash log itself, app version and basic OS information.</string>
+    <string name="media_settings_base_dir_reset_message">Base directory reset to default</string>
+    <string name="media_settings_could_not_create_default_baseDir">Could not create default base dir: %1$s</string>
 </resources>
