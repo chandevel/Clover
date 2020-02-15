@@ -43,6 +43,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
@@ -175,7 +176,7 @@ public class AndroidUtils {
         }
     }
 
-    public static void openLinkInBrowser(Activity activity, String link) {
+    public static void openLinkInBrowser(Context context, String link) {
         // Hack that's sort of the same as openLink
         // The link won't be opened in a custom tab if this app is the default handler for that link.
         // Manually check if this app opens it instead of a custom tab, and use the logic of
@@ -192,10 +193,10 @@ public class AndroidUtils {
             CustomTabsIntent tabsIntent =
                     new CustomTabsIntent.Builder().setToolbarColor(ThemeHelper.getTheme().primaryColor.color).build();
             try {
-                tabsIntent.launchUrl(activity, Uri.parse(link));
+                tabsIntent.launchUrl(context, Uri.parse(link));
             } catch (ActivityNotFoundException e) {
                 // Can't check it beforehand so catch the exception
-                showToast(activity, R.string.open_link_failed, Toast.LENGTH_LONG);
+                showToast(context, R.string.open_link_failed, Toast.LENGTH_LONG);
             }
         } else {
             openLink(link);
@@ -428,6 +429,14 @@ public class AndroidUtils {
         WindowManager windowManager = (WindowManager) application.getSystemService(Activity.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getSize(displaySize);
         return displaySize;
+    }
+
+    public static Window getWindow(Context context) {
+        if (context instanceof Activity) {
+            return ((Activity) context).getWindow();
+        } else {
+            return null;
+        }
     }
 
     public static void showToast(Context context, String message, int duration) {

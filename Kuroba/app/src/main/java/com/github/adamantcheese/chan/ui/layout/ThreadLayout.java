@@ -355,7 +355,7 @@ public class ThreadLayout
         if (ChanSettings.openLinkBrowser.get()) {
             AndroidUtils.openLink(link);
         } else {
-            openLinkInBrowser((Activity) getContext(), link);
+            openLinkInBrowser(getContext(), link);
         }
     }
 

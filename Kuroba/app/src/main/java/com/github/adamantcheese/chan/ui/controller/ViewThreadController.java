@@ -298,7 +298,7 @@ public class ViewThreadController
         }
 
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        openLinkInBrowser((Activity) context, loadable.desktopUrl());
+        openLinkInBrowser(context, loadable.desktopUrl());
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
@@ -760,7 +760,7 @@ public class ViewThreadController
         Loadable loadable = threadLayout.getPresenter().getLoadable();
         String link = loadable.desktopUrl();
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
-        openLinkInBrowser((Activity) context, link);
+        openLinkInBrowser(context, link);
     }
 
     @Override

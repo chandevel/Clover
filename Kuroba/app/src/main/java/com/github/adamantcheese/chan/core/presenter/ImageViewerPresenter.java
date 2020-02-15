@@ -17,9 +17,11 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.media.AudioManager;
 
+import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
@@ -30,6 +32,12 @@ import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraI
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.ImageSearch;
+import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
+import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
+import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
+import com.github.adamantcheese.chan.ui.view.FloatingMenu;
+import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -44,6 +52,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
+
 import static android.content.Context.AUDIO_SERVICE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
@@ -57,6 +67,7 @@ import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.OTHER;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageViewerPresenter
@@ -640,6 +651,48 @@ public class ImageViewerPresenter
 
         callback.setImageMode(currentImage, LOWRES, false);
         return true;
+    }
+
+    public void showImageSearchOptions(NavigationItem navigation) {
+        List<FloatingMenuItem> items = new ArrayList<>();
+        for (ImageSearch imageSearch : ImageSearch.engines) {
+            items.add(new FloatingMenuItem(imageSearch.getId(), imageSearch.getName()));
+        }
+        ToolbarMenuItem overflowMenuItem = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
+        FloatingMenu menu = new FloatingMenu(context, overflowMenuItem.getView(), items);
+        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+            @Override
+            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                for (ImageSearch imageSearch : ImageSearch.engines) {
+                    if (((Integer) item.getId()) == imageSearch.getId()) {
+                        final HttpUrl searchImageUrl = getSearchImageUrl(getCurrentPostImage());
+                        if (searchImageUrl == null) {
+                            Logger.e(TAG, "onFloatingMenuItemClicked() searchImageUrl == null");
+                            break;
+                        }
+
+                        openLinkInBrowser(context, imageSearch.getUrl(searchImageUrl.toString()));
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onFloatingMenuDismissed(FloatingMenu menu) {
+            }
+        });
+        menu.show();
+    }
+
+    /**
+     * Send thumbnail image of movie posts because none of the image search providers support movies (such as webm) directly
+     *
+     * @param postImage the post image
+     * @return url of an image to be searched
+     */
+    @Nullable
+    private HttpUrl getSearchImageUrl(final PostImage postImage) {
+        return postImage.type == PostImage.Type.MOVIE ? postImage.thumbnailUrl : postImage.imageUrl;
     }
 
     private enum SwipeDirection {

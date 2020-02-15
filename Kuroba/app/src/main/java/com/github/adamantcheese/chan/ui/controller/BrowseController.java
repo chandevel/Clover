@@ -316,7 +316,7 @@ public class BrowseController
             if (share) {
                 shareLink(link);
             } else {
-                openLinkInBrowser((Activity) context, link);
+                openLinkInBrowser(context, link);
             }
         }
     }

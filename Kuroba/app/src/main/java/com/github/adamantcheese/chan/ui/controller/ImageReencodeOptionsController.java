@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
 
@@ -141,9 +142,9 @@ public class ImageReencodeOptionsController
             reencodeImageAsJpeg.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textSecondary));
         }
 
-        statusBarColorPrevious = getWindow().getStatusBarColor();
+        statusBarColorPrevious = getWindow(context).getStatusBarColor();
         if (statusBarColorPrevious != 0) {
-            animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(context), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
 
         currentImageReduce.setText(getString(R.string.scale_reduce,
@@ -193,7 +194,7 @@ public class ImageReencodeOptionsController
         super.stopPresenting();
 
         if (statusBarColorPrevious != 0) {
-            animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(context), false, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -237,10 +238,6 @@ public class ImageReencodeOptionsController
         ImageReencodingPresenter.ReencodeType reencodeType = ImageReencodingPresenter.ReencodeType.fromInt(index);
 
         return new ImageReencodingPresenter.ReencodeSettings(reencodeType, quality.getProgress(), reduce.getProgress());
-    }
-
-    private Window getWindow() {
-        return ((Activity) context).getWindow();
     }
 
     public interface ImageReencodeOptionsCallbacks {

@@ -50,6 +50,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
 
@@ -184,9 +185,9 @@ public class ImageOptionsController
 
         presenter.loadImagePreview();
 
-        statusBarColorPrevious = getWindow().getStatusBarColor();
+        statusBarColorPrevious = getWindow(context).getStatusBarColor();
         if (statusBarColorPrevious != 0) {
-            animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(context), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -195,7 +196,7 @@ public class ImageOptionsController
         super.stopPresenting();
 
         if (statusBarColorPrevious != 0) {
-            animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(context), false, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -290,10 +291,6 @@ public class ImageOptionsController
             cancel.setEnabled(enabled);
             ok.setEnabled(enabled);
         });
-    }
-
-    private Window getWindow() {
-        return ((Activity) context).getWindow();
     }
 
     public interface ImageOptionsControllerCallbacks {

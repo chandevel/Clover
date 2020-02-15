@@ -101,13 +101,7 @@ public class HintPopup {
         token = runOnMainThreadCancelable(() -> {
             if (!dismissed) {
                 popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                // TODO: cleanup
-                int xoff;
-                if (!centered) {
-                    xoff = -popupView.getMeasuredWidth() + anchor.getWidth() + offsetX - dp(2);
-                } else {
-                    xoff = -popupView.getMeasuredWidth() + offsetX - dp(2);
-                }
+                int xoff = -popupView.getMeasuredWidth() + offsetX - dp(2) + (centered ? 0 : anchor.getWidth());
                 int yoff = -dp(25) + offsetY + (top ? -anchor.getHeight() - dp(30) : 0);
                 popupWindow.showAsDropDown(anchor, xoff, yoff);
 

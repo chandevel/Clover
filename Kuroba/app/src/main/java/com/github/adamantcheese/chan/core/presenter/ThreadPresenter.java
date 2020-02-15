@@ -1345,7 +1345,7 @@ public class ThreadPresenter
     public void openArchive(Pair<String, String> domainNamePair) {
         String link = loadable.desktopUrl();
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
-        openLinkInBrowser((Activity) context, link);
+        openLinkInBrowser(context, link);
     }
 
     public void setContext(Context context) {

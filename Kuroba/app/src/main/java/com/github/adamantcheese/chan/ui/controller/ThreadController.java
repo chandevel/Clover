@@ -258,10 +258,11 @@ public abstract class ThreadController
         } else {
             navigationController.pushController(filtersController);
         }
-        // TODO cleanup
+
         Filter filter = new Filter();
         filter.type = FilterType.TRIPCODE.flag;
         filter.pattern = '/' + tripcode + '/';
+
         filtersController.showFilterDialog(filter);
     }
 

@@ -92,6 +92,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
@@ -181,7 +182,7 @@ public class ImageViewerController
         hideSystemUI();
 
         // View setup
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow(context).addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         view = inflate(context, R.layout.controller_image_viewer);
         previewImage = view.findViewById(R.id.preview_image);
@@ -248,7 +249,7 @@ public class ImageViewerController
         if (ChanSettings.openLinkBrowser.get()) {
             openLink(postImage.imageUrl.toString());
         } else {
-            openLinkInBrowser((Activity) context, postImage.imageUrl.toString());
+            openLinkInBrowser(context, postImage.imageUrl.toString());
         }
     }
 
@@ -258,7 +259,7 @@ public class ImageViewerController
     }
 
     private void searchClicked(ToolbarMenuSubItem item) {
-        showImageSearchOptions();
+        presenter.showImageSearchOptions(navigation);
     }
 
     private void downloadAlbumClicked(ToolbarMenuSubItem item) {
@@ -304,7 +305,7 @@ public class ImageViewerController
 
         showSystemUI();
         mainHandler.removeCallbacks(uiHideCall);
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow(context).clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private void saveShare(boolean share, PostImage postImage) {
@@ -487,38 +488,6 @@ public class ImageViewerController
         return ChanSettings.useImmersiveModeForGallery.get() && isInImmersiveMode;
     }
 
-    private void showImageSearchOptions() {
-        // TODO: move to presenter
-        List<FloatingMenuItem> items = new ArrayList<>();
-        for (ImageSearch imageSearch : ImageSearch.engines) {
-            items.add(new FloatingMenuItem(imageSearch.getId(), imageSearch.getName()));
-        }
-        ToolbarMenuItem overflowMenuItem = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
-        FloatingMenu menu = new FloatingMenu(context, overflowMenuItem.getView(), items);
-        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
-            @Override
-            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                for (ImageSearch imageSearch : ImageSearch.engines) {
-                    if (((Integer) item.getId()) == imageSearch.getId()) {
-                        final HttpUrl searchImageUrl = getSearchImageUrl(presenter.getCurrentPostImage());
-                        if (searchImageUrl == null) {
-                            Logger.e(TAG, "onFloatingMenuItemClicked() searchImageUrl == null");
-                            break;
-                        }
-
-                        openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageUrl.toString()));
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void onFloatingMenuDismissed(FloatingMenu menu) {
-            }
-        });
-        menu.show();
-    }
-
     public void startPreviewInTransition(Loadable loadable, PostImage postImage) {
         ThumbnailView startImageView = getTransitionImageView(postImage);
 
@@ -527,7 +496,7 @@ public class ImageViewerController
             return; // TODO
         }
 
-        statusBarColorPrevious = getWindow().getStatusBarColor();
+        statusBarColorPrevious = getWindow(context).getStatusBarColor();
 
         setBackgroundAlpha(0f);
 
@@ -688,12 +657,12 @@ public class ImageViewerController
         ));
 
         if (alpha == 0f) {
-            getWindow().setStatusBarColor(statusBarColorPrevious);
+            getWindow(context).setStatusBarColor(statusBarColorPrevious);
         } else {
             int r = (int) ((1f - alpha) * Color.red(statusBarColorPrevious));
             int g = (int) ((1f - alpha) * Color.green(statusBarColorPrevious));
             int b = (int) ((1f - alpha) * Color.blue(statusBarColorPrevious));
-            getWindow().setStatusBarColor(Color.argb(255, r, g, b));
+            getWindow(context).setStatusBarColor(Color.argb(255, r, g, b));
         }
 
         toolbar.setAlpha(alpha);
@@ -704,10 +673,6 @@ public class ImageViewerController
         return imageViewerCallback.getPreviewImageTransitionView(postImage);
     }
 
-    private Window getWindow() {
-        return ((Activity) context).getWindow();
-    }
-
     private void hideSystemUI() {
         if (!ChanSettings.useImmersiveModeForGallery.get() || isInImmersiveMode) {
             return;
@@ -715,7 +680,7 @@ public class ImageViewerController
 
         isInImmersiveMode = true;
 
-        View decorView = getWindow().getDecorView();
+        View decorView = getWindow(context).getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
@@ -750,7 +715,7 @@ public class ImageViewerController
 
         isInImmersiveMode = false;
 
-        View decorView = getWindow().getDecorView();
+        View decorView = getWindow(context).getDecorView();
         decorView.setOnSystemUiVisibilityChangeListener(null);
         decorView.setSystemUiVisibility(0);
 
@@ -770,16 +735,5 @@ public class ImageViewerController
 
     public interface GoPostCallback {
         ImageViewerCallback goToPost(PostImage postImage);
-    }
-
-    /**
-     * Send thumbnail image of movie posts because none of the image search providers support movies (such as webm) directly
-     *
-     * @param postImage the post image
-     * @return url of an image to be searched
-     */
-    @Nullable
-    private HttpUrl getSearchImageUrl(final PostImage postImage) {
-        return postImage.type == PostImage.Type.MOVIE ? postImage.thumbnailUrl : postImage.imageUrl;
     }
 }
