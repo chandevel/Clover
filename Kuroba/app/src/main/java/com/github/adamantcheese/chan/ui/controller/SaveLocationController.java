@@ -127,7 +127,11 @@ public class SaveLocationController
                     fileWatcher.getCurrentPath().getAbsolutePath() + File.separator + dialogView.getFolderName());
 
             if (!newDir.exists() && !newDir.mkdir()) {
-                throw new IllegalStateException("Could not create directory " + newDir.getAbsolutePath());
+                String additionalInfo = "Can write: " + newDir.canWrite()
+                        + ", isDirectory: " + newDir.isDirectory();
+
+                throw new IllegalStateException("Could not create directory: "
+                        + newDir.getAbsolutePath() + ", additional info: " + additionalInfo);
             }
 
             fileWatcher.navigateTo(newDir);
