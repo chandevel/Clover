@@ -185,7 +185,7 @@ public class Chan
             System.exit(999);
         });
 
-        if (ChanSettings.autoCrashLogsUpload.get()) {
+        if (ChanSettings.collectCrashLogs.get()) {
             if (reportManager.hasCrashLogs()) {
                 settingsNotificationManager.notify(SettingNotificationType.CrashLogs);
             }
@@ -226,7 +226,7 @@ public class Chan
             return;
         }
 
-        if (ChanSettings.autoCrashLogsUpload.get()) {
+        if (ChanSettings.collectCrashLogs.get()) {
             reportManager.storeCrashLog(error);
         }
     }

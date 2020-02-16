@@ -793,8 +793,8 @@ Don't have a 4chan Pass?<br>
     <string name="mock_reply">Mock reply</string>
     <string name="settings_report">Report</string>
     <string name="settings_report_description">Report a problem/crash</string>
-    <string name="settings_auto_crash_report">Automatic crash reporting</string>
-    <string name="settings_auto_crash_report_description">By enabling this setting, all collected crash logs will be uploaded automatically on every app restart. Crash reports only collect the crash log itself, app version and basic OS information.</string>
+    <string name="settings_collect_crash_logs">Collect crash logs</string>
+    <string name="settings_collect_crash_logs_description">By enabling this setting, the app will start collecting crash logs. They are NOT uploaded automatically. Crash logs only collect the stacktrace itself, app version and basic OS information. You can review and upload them manually (or delete) by clicking the \"Report\" setting.</string>
     <string name="media_settings_base_dir_reset_message">Base directory reset to default</string>
     <string name="media_settings_could_not_create_default_baseDir">Could not create default base dir: %1$s</string>
     <string name="review_crashlogs_controller_title">Review crash logs</string>

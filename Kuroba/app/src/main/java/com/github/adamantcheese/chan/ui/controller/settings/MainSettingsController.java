@@ -64,6 +64,7 @@ public class MainSettingsController
     private LinkSettingView filtersSetting;
     private LinkSettingView updateSettingView;
     private LinkSettingView reportSettingView;
+    private BooleanSettingView collectCrashLogsSettingView;
 
     public MainSettingsController(Context context) {
         super(context);
@@ -126,6 +127,20 @@ public class MainSettingsController
                 settingsNotificationManager.getOrDefault(SettingNotificationType.CrashLogs),
                 getViewGroupOrThrow(reportSettingView)
         );
+    }
+
+    @Override
+    public void onPreferenceChange(SettingView item) {
+        super.onPreferenceChange(item);
+
+        if (item == collectCrashLogsSettingView) {
+            if (!ChanSettings.collectCrashLogs.get()) {
+                // If disabled delete all already collected crash logs to cancel the notification
+                // (if it's shown) and to avoid showing notification afterwards.
+
+                reportManager.deleteAllCrashLogs();
+            }
+        }
     }
 
     private ViewGroup getViewGroupOrThrow(SettingView settingView) {
@@ -202,12 +217,7 @@ public class MainSettingsController
 
         about.add(createUpdateSettingView());
         about.add(createReportSettingView());
-
-        about.add(new BooleanSettingView(this,
-                ChanSettings.autoCrashLogsUpload,
-                R.string.settings_auto_crash_report,
-                R.string.settings_auto_crash_report_description
-        ));
+        about.add(createCollectCrashLogsSettingView());
 
         about.add(new LinkSettingView(this,
                 "Find " + getApplicationLabel() + " on GitHub",
@@ -240,6 +250,16 @@ public class MainSettingsController
         ));
 
         groups.add(about);
+    }
+
+    private BooleanSettingView createCollectCrashLogsSettingView() {
+        collectCrashLogsSettingView = new BooleanSettingView(this,
+                ChanSettings.collectCrashLogs,
+                R.string.settings_collect_crash_logs,
+                R.string.settings_collect_crash_logs_description
+        );
+
+        return collectCrashLogsSettingView;
     }
 
     private LinkSettingView createReportSettingView() {

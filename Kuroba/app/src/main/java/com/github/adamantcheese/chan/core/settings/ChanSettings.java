@@ -268,7 +268,7 @@ public class ChanSettings {
     public static final OptionsSetting<ImageClickPreloadStrategy> imageClickPreloadStrategy;
     public static final BooleanSetting imageViewerGestures;
     public static final BooleanSetting allowFilePickChooser;
-    public static final BooleanSetting autoCrashLogsUpload;
+    public static final BooleanSetting collectCrashLogs;
 
     public static final BooleanSetting captchaOnBottom;
 
@@ -415,7 +415,9 @@ public class ChanSettings {
             );
             imageViewerGestures = new BooleanSetting(p, "image_viewer_gestures", true);
             allowFilePickChooser = new BooleanSetting(p, "allow_file_picker_chooser", false);
-            autoCrashLogsUpload = new BooleanSetting(p, "auto_upload_crash_logs", true);
+            // "auto_upload_crash_logs" is the old name of this setting. To avoid compatibility
+            // issues it was decided to leave it's name as is.
+            collectCrashLogs = new BooleanSetting(p, "auto_upload_crash_logs", true);
             captchaOnBottom = new BooleanSetting(p, "captcha_on_bottom", true);
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
