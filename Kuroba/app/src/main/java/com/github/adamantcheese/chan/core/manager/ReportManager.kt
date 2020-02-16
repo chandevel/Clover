@@ -180,7 +180,25 @@ class ReportManager(
                 ?.toList() ?: emptyList()
     }
 
-    fun removeAllCrashLogs() {
+    fun deleteCrashLogs(crashLogs: List<CrashLog>) {
+        if (!createCrashLogsDirIfNotExists()) {
+            settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
+            return
+        }
+
+        crashLogs.forEach { crashLog -> crashLog.file.delete() }
+
+        val remainingCrashLogs = crashLogsDirPath.listFiles()?.size ?: 0
+        if (remainingCrashLogs == 0) {
+            settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
+            return
+        }
+
+        // There are still crash logs left, so show the notifications if they are not shown yet
+        settingsNotificationManager.notify(SettingNotificationType.HasCrashLogs)
+    }
+
+    fun deleteAllCrashLogs() {
         if (!createCrashLogsDirIfNotExists()) {
             settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
             return
@@ -202,6 +220,9 @@ class ReportManager(
             settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
             return
         }
+
+        // There are still crash logs left, so show the notifications if they are not shown yet
+        settingsNotificationManager.notify(SettingNotificationType.HasCrashLogs)
     }
 
     fun sendCrashLogs(crashLogs: List<CrashLog>): Completable {

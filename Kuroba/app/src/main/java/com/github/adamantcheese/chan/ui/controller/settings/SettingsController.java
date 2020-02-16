@@ -208,8 +208,6 @@ public class SettingsController
 
                     groupLayout.addView(preferenceView);
                     settingView.setView(preferenceView);
-
-                    updateNotificationAlertIcon(settingView.getSettingNotificationType(), preferenceView);
                 }
 
                 if (i < group.settingViews.size() - 1) {
@@ -220,14 +218,17 @@ public class SettingsController
         }
     }
 
-    protected void updateNotificationAlertIcon(
+    protected void updateSettingNotificationIcon(
             SettingNotificationType settingNotificationType,
             ViewGroup preferenceView
     ) {
         AppCompatImageView notificationIcon =
                 preferenceView.findViewById(R.id.setting_notification_icon);
 
-        if (settingNotificationType != SettingNotificationType.Default) {
+        boolean hasNotifications
+                = settingsNotificationManager.hasNotifications(settingNotificationType);
+
+        if (settingNotificationType != SettingNotificationType.Default && hasNotifications) {
             if (notificationIcon == null) {
                 throw new NullPointerException("SettingNotificationType is not default ("
                         + settingNotificationType +

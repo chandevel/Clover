@@ -37,6 +37,11 @@ class SettingsNotificationManager {
     }
 
     @Synchronized
+    fun hasNotifications(notificationType: SettingNotificationType): Boolean {
+        return activeNotificationsSubject.value!!.contains(notificationType)
+    }
+
+    @Synchronized
     fun cancel(notificationType: SettingNotificationType) {
         val prev = activeNotificationsSubject.value!!
 

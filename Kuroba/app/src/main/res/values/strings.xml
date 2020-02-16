@@ -798,9 +798,11 @@ Don't have a 4chan Pass?<br>
     <string name="settings_auto_crash_report">Automatic crash reporting</string>
     <string name="settings_auto_crash_report_description">By enabling this setting, all collected crash logs will be uploaded automatically on every app restart. Crash reports only collect the crash log itself, app version and basic OS information.</string>
     <string name="review_crashlogs_controller_title">Review crash logs</string>
-    <string name="settings_report_suggest_sending_logs_title">You have %1$d unsent crash logs</string>
-    <string name="settings_report_suggest_sending_logs_message">Would you like to review and send them to developers?</string>
+    <string name="settings_report_suggest_sending_logs_title">You have %1$d collected crash logs</string>
+    <string name="settings_report_suggest_sending_logs_message">Would you like to review and maybe send them to developers?</string>
     <string name="settings_report_review_button_text">Review crash logs</string>
     <string name="settings_report_review_later_button_text">Review later</string>
     <string name="settings_report_delete_all_crash_logs">Delete all crash logs</string>
+    <string name="deleted_n_crashlogs">Deleted %1$d crash log(s)</string>
+    <string name="sent_n_crashlogs">Sent %1$d crash log(s)</string>
 </resources>

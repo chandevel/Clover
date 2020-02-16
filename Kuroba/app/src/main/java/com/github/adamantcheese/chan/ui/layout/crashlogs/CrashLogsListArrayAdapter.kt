@@ -15,7 +15,7 @@ import com.github.adamantcheese.chan.R
 
 internal class CrashLogsListArrayAdapter(
         context: Context,
-        private val crashLogs: List<CrashLog>,
+        crashLogs: List<CrashLog>,
         private val callbacks: CrashLogsListCallbacks
 ) : ArrayAdapter<CrashLog>(context, R.layout.cell_crashlog_item) {
     private val inflater: LayoutInflater =
@@ -29,7 +29,9 @@ internal class CrashLogsListArrayAdapter(
 
     @SuppressLint("ViewHolder")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val crashLog = crashLogs[position]
+        val crashLog = checkNotNull(getItem(position)) {
+            "Item with position $position is null! Items count = ${count}"
+        }
 
         val cellView = inflater.inflate(R.layout.cell_crashlog_item, parent, false)
         val fileNameView = cellView.findViewById<TextView>(R.id.cell_crashlog_file_name)
@@ -58,19 +60,35 @@ internal class CrashLogsListArrayAdapter(
         return cellView
     }
 
-    override fun getCount(): Int {
-        return crashLogs.size
-    }
-
     fun updateAll() {
         notifyDataSetChanged()
     }
 
-    fun onDestroy() {
-        handler.removeCallbacksAndMessages(null)
+    fun deleteSelectedCrashLogs(selectedCrashLogs: List<CrashLog>): Int {
+        if (selectedCrashLogs.isNotEmpty()) {
+            selectedCrashLogs.forEach { crashLog -> remove(crashLog) }
+            notifyDataSetChanged()
+        }
+
+        return count
     }
 
     fun getSelectedCrashLogs(): List<CrashLog> {
-        return crashLogs.filter { crashLog -> crashLog.send }
+        val selectedCrashLogs = mutableListOf<CrashLog>()
+
+        for (i in 0 until count) {
+            val item = getItem(i)
+                    ?: continue
+
+            if (item.send) {
+                selectedCrashLogs += item
+            }
+        }
+
+        return selectedCrashLogs
+    }
+
+    fun onDestroy() {
+        handler.removeCallbacksAndMessages(null)
     }
 }

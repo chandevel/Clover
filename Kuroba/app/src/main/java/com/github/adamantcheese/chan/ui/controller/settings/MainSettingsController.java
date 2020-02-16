@@ -121,11 +121,11 @@ public class MainSettingsController
     private void onNotificationsChanged(SettingsNotificationManager.ActiveNotifications activeNotifications) {
         Logger.d(TAG, "onNotificationsChanged called");
 
-        updateNotificationAlertIcon(
+        updateSettingNotificationIcon(
                 activeNotifications.getOrDefault(SettingNotificationType.HasApkUpdate),
                 getViewGroupOrThrow(updateSettingView)
         );
-        updateNotificationAlertIcon(
+        updateSettingNotificationIcon(
                 activeNotifications.getOrDefault(SettingNotificationType.HasCrashLogs),
                 getViewGroupOrThrow(reportSettingView)
         );
@@ -277,7 +277,7 @@ public class MainSettingsController
                 })
                 .setNeutralButton(R.string.settings_report_review_later_button_text, (dialog, which) -> openReportProblemController())
                 .setNegativeButton(R.string.settings_report_delete_all_crash_logs, (dialog, which) -> {
-                    reportManager.removeAllCrashLogs();
+                    reportManager.deleteAllCrashLogs();
                     openReportProblemController();
                 })
                 .create();

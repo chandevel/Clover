@@ -7,6 +7,7 @@ import androidx.appcompat.widget.AppCompatButton
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.manager.ReportManager
+import com.github.adamantcheese.chan.utils.AndroidUtils.getString
 import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.plusAssign
@@ -23,6 +24,7 @@ internal class ReviewCrashLogsLayout(context: Context) : FrameLayout(context), C
     private lateinit var compositeDisposable: CompositeDisposable
     private var callbacks: ReviewCrashLogsLayoutCallbacks? = null
     private val crashLogsList: ListView
+    private val deleteCrashLogsButton: AppCompatButton
     private val sendCrashLogsButton: AppCompatButton
 
     init {
@@ -30,6 +32,7 @@ internal class ReviewCrashLogsLayout(context: Context) : FrameLayout(context), C
 
         inflate(context, R.layout.controller_review_crashlogs, this).apply {
             crashLogsList = findViewById(R.id.review_crashlogs_controller_crashlogs_list)
+            deleteCrashLogsButton = findViewById(R.id.review_crashlogs_controller_delete_crashlogs_button)
             sendCrashLogsButton = findViewById(R.id.review_crashlogs_controller_send_crashlogs_button)
 
             val crashLogs = reportManager.getCrashLogs()
@@ -44,23 +47,49 @@ internal class ReviewCrashLogsLayout(context: Context) : FrameLayout(context), C
             crashLogsList.adapter = adapter
             adapter.updateAll()
 
+            deleteCrashLogsButton.setOnClickListener { onDeleteCrashLogsButtonClicked(adapter) }
             sendCrashLogsButton.setOnClickListener { onSendCrashLogsButtonClicked(adapter) }
         }
     }
 
+    private fun onDeleteCrashLogsButtonClicked(adapter: CrashLogsListArrayAdapter) {
+        val selectedCrashLogs = adapter.getSelectedCrashLogs()
+        if (selectedCrashLogs.isEmpty()) {
+            return
+        }
+
+        reportManager.deleteCrashLogs(selectedCrashLogs)
+
+        val newCrashLogsAmount = adapter.deleteSelectedCrashLogs(selectedCrashLogs)
+        if (newCrashLogsAmount == 0) {
+            callbacks?.onFinished()
+        }
+
+        showToast(context, getString(R.string.deleted_n_crashlogs, selectedCrashLogs.size))
+    }
+
     private fun onSendCrashLogsButtonClicked(adapter: CrashLogsListArrayAdapter) {
-        compositeDisposable += reportManager.sendCrashLogs(adapter.getSelectedCrashLogs())
+        val selectedCrashLogs = adapter.getSelectedCrashLogs()
+
+        compositeDisposable += reportManager.sendCrashLogs(selectedCrashLogs)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { callbacks?.showProgressDialog() }
                 .subscribe({
                     callbacks?.hideProgressDialog()
-                    callbacks?.onFinished()
+
+                    if (selectedCrashLogs.size == adapter.count) {
+                        callbacks?.onFinished()
+                    } else {
+                        adapter.deleteSelectedCrashLogs(selectedCrashLogs)
+                    }
+
+                    showToast(context, getString(R.string.sent_n_crashlogs, selectedCrashLogs.size))
                 }, { error ->
                     val message = "Error while trying to send logs: ${error.message}"
                     Logger.e(TAG, message, error)
                     showToast(context, message)
 
-                    callbacks?.onFinished()
+                    callbacks?.hideProgressDialog()
                 })
     }
 
