@@ -37,8 +37,11 @@ import java.util.List;
 import okhttp3.HttpUrl;
 
 public class Chan420 extends CommonSite {
+    private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
     private static final String TAG = "420Chan";
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
+        private final String[] mediaHosts = new String[]{"boards.20chan.org"};
+
         @Override
         public Class<? extends Site> getSiteClass() {
             return Chan420.class;
@@ -52,6 +55,11 @@ public class Chan420 extends CommonSite {
         @Override
         public String[] getNames() {
             return new String[]{"420chan"};
+        }
+
+        @Override
+        public String[] getMediaHosts() {
+            return mediaHosts;
         }
 
         @Override
@@ -69,6 +77,10 @@ public class Chan420 extends CommonSite {
             }
         }
     };
+
+    public Chan420() {
+        chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(false, false);
+    }
 
     @Override
     public void setup() {
@@ -109,5 +121,11 @@ public class Chan420 extends CommonSite {
         });
         setApi(new TaimabaApi(this));
         setParser(new TaimabaCommentParser());
+    }
+
+    @NonNull
+    @Override
+    public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
+        return chunkDownloaderSiteProperties;
     }
 }
