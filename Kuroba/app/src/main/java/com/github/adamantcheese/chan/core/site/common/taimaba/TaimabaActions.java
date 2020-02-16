@@ -73,7 +73,7 @@ public class TaimabaActions extends CommonSite.CommonActions {
             call.fileParameter("file", reply.fileName, reply.file);
         }
 
-        if (reply.options == "sage") {
+        if (reply.options.equals("sage")) {
             call.parameter("sage", "on");
         }
     }
