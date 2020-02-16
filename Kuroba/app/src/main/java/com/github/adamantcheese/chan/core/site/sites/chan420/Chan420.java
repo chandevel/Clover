@@ -16,11 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan420;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.site.ChunkDownloaderSiteProperties;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -39,6 +40,7 @@ import okhttp3.HttpUrl;
 public class Chan420 extends CommonSite {
     private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
     private static final String TAG = "420Chan";
+
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private final String[] mediaHosts = new String[]{"boards.20chan.org"};
 
@@ -62,18 +64,22 @@ public class Chan420 extends CommonSite {
             return mediaHosts;
         }
 
-        @Override
-        public String desktopUrl(Loadable loadable, @Nullable Post post) {
+       @Override
+        public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
-                return "https://boards.420chan.org/" + loadable.board.code + "/";
+                if(postNo > 0) {
+                    return "https://boards.420chan.org/" + loadable.board.code + "/thread/" + postNo;
+                } else {
+                    return "https://boards.420chan.org/" + loadable.board.code + "/";
+                }
             } else if (loadable.isThreadMode()) {
                 String url = "https://boards.420chan.org/" + loadable.board.code + "/thread/" + loadable.no;
-                if (post != null) {
-                    url += "#" + post.no;
+                if (postNo > 0 && loadable.no != postNo) {
+                    url += "#" + postNo;
                 }
                 return url;
             } else {
-                throw new IllegalArgumentException();
+                return "https://boards.420chan.org/" + loadable.board.code + "/";
             }
         }
     };
