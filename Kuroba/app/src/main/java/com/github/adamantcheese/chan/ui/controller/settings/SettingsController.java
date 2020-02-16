@@ -56,6 +56,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.findViewsById;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class SettingsController
@@ -225,6 +226,10 @@ public class SettingsController
         AppCompatImageView notificationIcon =
                 preferenceView.findViewById(R.id.setting_notification_icon);
 
+        if (notificationIcon != null) {
+            updatePaddings(notificationIcon, dp(16), dp(16), -1, -1);
+        }
+
         boolean hasNotifications
                 = settingsNotificationManager.hasNotifications(settingNotificationType);
 
@@ -235,16 +240,14 @@ public class SettingsController
                         "), but notificationIcon was not found!");
             }
 
-            if (notificationIcon.getVisibility() != VISIBLE) {
-                int tintColor = context.getResources().getColor(
-                        settingNotificationType.getNotificationIconTintColor()
-                );
+            int tintColor = context.getResources().getColor(
+                    settingNotificationType.getNotificationIconTintColor()
+            );
 
-                notificationIcon.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN);
-                notificationIcon.setVisibility(VISIBLE);
-            }
+            notificationIcon.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN);
+            notificationIcon.setVisibility(VISIBLE);
         } else {
-            if (notificationIcon != null && notificationIcon.getVisibility() != GONE) {
+            if (notificationIcon != null) {
                 notificationIcon.setVisibility(GONE);
             }
         }

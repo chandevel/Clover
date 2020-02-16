@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
@@ -66,6 +67,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class DrawerAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -213,19 +215,31 @@ public class DrawerAdapter
         SettingNotificationType notificationType
                 = settingsNotificationManager.getNotificationByPriority();
 
+        String notificationTypeString = "null";
+        if (notificationType != null) {
+            notificationTypeString = notificationType.name();
+        }
+
+        Logger.d(TAG, "updateNotificationIcon() called notificationType = " + notificationTypeString);
+
         if (notificationType != null) {
             int color = context.getResources().getColor(
                     notificationType.getNotificationIconTintColor()
             );
 
-            if (linkHolder.notificationIcon.getVisibility() != VISIBLE) {
-                linkHolder.notificationIcon.setVisibility(VISIBLE);
-                linkHolder.notificationIcon.setColorFilter(color);
+            linkHolder.notificationIcon.setVisibility(VISIBLE);
+            linkHolder.notificationIcon.setColorFilter(color);
+
+            int totalNotificationsCount = settingsNotificationManager.notificationsCount();
+            if (totalNotificationsCount > 1) {
+                linkHolder.totalNotificationsCount.setVisibility(VISIBLE);
+                linkHolder.totalNotificationsCount.setText(String.valueOf(totalNotificationsCount));
+            } else {
+                linkHolder.totalNotificationsCount.setVisibility(GONE);
             }
         } else {
-            if (linkHolder.notificationIcon.getVisibility() != GONE) {
-                linkHolder.notificationIcon.setVisibility(GONE);
-            }
+            linkHolder.notificationIcon.setVisibility(GONE);
+            linkHolder.totalNotificationsCount.setVisibility(GONE);
         }
     }
 
@@ -546,6 +560,7 @@ public class DrawerAdapter
         private ImageView image;
         private TextView text;
         private AppCompatImageView notificationIcon;
+        private AppCompatTextView totalNotificationsCount;
 
         private LinkHolder(View itemView) {
             super(itemView);
@@ -553,6 +568,8 @@ public class DrawerAdapter
             text = itemView.findViewById(R.id.text);
             text.setTypeface(ThemeHelper.getTheme().mainFont);
             notificationIcon = itemView.findViewById(R.id.setting_notification_icon);
+            totalNotificationsCount = itemView.findViewById(R.id.setting_notification_total_count);
+            updatePaddings(notificationIcon, dp(4), dp(4), dp(4), dp(4));
 
             itemView.setOnClickListener(v -> {
                 switch (getAdapterPosition()) {

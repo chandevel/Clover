@@ -92,4 +92,14 @@ public class SharedPreferencesSettingProvider
     public void putIntSync(String key, Integer value) {
         prefs.edit().putInt(key, value).commit();
     }
+
+    @Override
+    public void putLongSync(String key, Long value) {
+        prefs.edit().putLong(key, value).commit();
+    }
+
+    @Override
+    public void putBooleanSync(String key, Boolean value) {
+        prefs.edit().putBoolean(key, value).commit();
+    }
 }

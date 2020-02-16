@@ -38,4 +38,8 @@ public interface SettingProvider {
     void removeSync(String key);
 
     void putIntSync(String key, Integer value);
+
+    void putLongSync(String key, Long value);
+
+    void putBooleanSync(String key, Boolean value);
 }

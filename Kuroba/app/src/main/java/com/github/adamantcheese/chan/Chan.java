@@ -187,7 +187,7 @@ public class Chan
 
         if (ChanSettings.autoCrashLogsUpload.get()) {
             if (reportManager.hasCrashLogs()) {
-                settingsNotificationManager.notify(SettingNotificationType.HasCrashLogs);
+                settingsNotificationManager.notify(SettingNotificationType.CrashLogs);
             }
         }
     }

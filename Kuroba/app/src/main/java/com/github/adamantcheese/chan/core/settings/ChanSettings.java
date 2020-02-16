@@ -48,6 +48,7 @@ public class ChanSettings {
     public static final String EMPTY_JSON = "{}";
     public static final String NOTIFY_ALL_POSTS = "all";
     public static final String NOTIFY_ONLY_QUOTES = "quotes";
+    public static final String NO_HASH_SET = "NO_HASH_SET";
 
     public enum MediaAutoLoadMode
             implements OptionSettingItem {
@@ -256,6 +257,7 @@ public class ChanSettings {
     public static final BooleanSetting parsePostImageLinks;
 
     public static final StringSetting previousDevHash;
+    public static final BooleanSetting hasNewApkUpdate;
     public static final BooleanSetting addDubs;
     public static final BooleanSetting transparencyOn;
     public static final StringSetting youtubeTitleCache;
@@ -393,7 +395,8 @@ public class ChanSettings {
 
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
 
-            previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
+            previousDevHash = new StringSetting(p, "previous_dev_hash", NO_HASH_SET);
+            hasNewApkUpdate = new BooleanSetting(p, "has_new_apk_update", false);
             addDubs = new BooleanSetting(p, "add_dubs", false);
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
             youtubeTitleCache = new StringSetting(p, "yt_title_cache", EMPTY_JSON);

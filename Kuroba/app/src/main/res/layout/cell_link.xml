@@ -46,4 +46,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <include layout="@layout/setting_notification"/>
 
+    <View
+        android:layout_width="11dp"
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
+
 </LinearLayout>

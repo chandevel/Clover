@@ -53,7 +53,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -116,8 +115,7 @@ public class DrawerController
 
         updateBadge();
 
-        Disposable disposable = settingsNotificationManager.getSubject()
-                .observeOn(AndroidSchedulers.mainThread())
+        Disposable disposable = settingsNotificationManager.listenForNotificationUpdates()
                 .subscribe(activeNotifications -> {
                     drawerAdapter.onNotificationsChanged();
                 }, (error) -> {

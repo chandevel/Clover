@@ -24,7 +24,6 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.presenter.SettingsPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
@@ -41,7 +40,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import javax.inject.Inject;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 
 import static com.github.adamantcheese.chan.Chan.inject;
@@ -81,9 +79,8 @@ public class MainSettingsController
         populatePreferences();
         buildPreferences();
 
-        Disposable disposable = settingsNotificationManager.getSubject()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::onNotificationsChanged, (error) -> {
+        Disposable disposable = settingsNotificationManager.listenForNotificationUpdates()
+                .subscribe((event) -> onNotificationsChanged(), (error) -> {
                     Logger.e(TAG, "Unknown error received from SettingsNotificationManager", error);
                 });
 
@@ -118,15 +115,15 @@ public class MainSettingsController
                 : R.string.setting_watch_summary_disabled);
     }
 
-    private void onNotificationsChanged(SettingsNotificationManager.ActiveNotifications activeNotifications) {
+    private void onNotificationsChanged() {
         Logger.d(TAG, "onNotificationsChanged called");
 
         updateSettingNotificationIcon(
-                activeNotifications.getOrDefault(SettingNotificationType.HasApkUpdate),
+                settingsNotificationManager.getOrDefault(SettingNotificationType.ApkUpdate),
                 getViewGroupOrThrow(updateSettingView)
         );
         updateSettingNotificationIcon(
-                activeNotifications.getOrDefault(SettingNotificationType.HasCrashLogs),
+                settingsNotificationManager.getOrDefault(SettingNotificationType.CrashLogs),
                 getViewGroupOrThrow(reportSettingView)
         );
     }
@@ -136,7 +133,7 @@ public class MainSettingsController
             throw new IllegalStateException("updateSettingView must have ViewGroup attached to it");
         }
 
-        return  (ViewGroup) settingView.getView();
+        return (ViewGroup) settingView.getView();
     }
 
     private void populatePreferences() {
@@ -253,7 +250,7 @@ public class MainSettingsController
             onReportSettingClick();
         });
 
-        reportSettingView.setSettingNotificationType(SettingNotificationType.HasCrashLogs);
+        reportSettingView.setSettingNotificationType(SettingNotificationType.CrashLogs);
         return reportSettingView;
     }
 
@@ -300,7 +297,7 @@ public class MainSettingsController
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
         );
 
-        updateSettingView.setSettingNotificationType(SettingNotificationType.HasApkUpdate);
+        updateSettingView.setSettingNotificationType(SettingNotificationType.ApkUpdate);
         return updateSettingView;
     }
 }

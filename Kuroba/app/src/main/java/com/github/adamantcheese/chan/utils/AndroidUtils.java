@@ -282,6 +282,30 @@ public class AndroidUtils {
         }
     }
 
+    public static void updatePaddings(View view, int left, int right, int top, int bottom) {
+        int newLeft = left;
+        if (newLeft < 0) {
+            newLeft = view.getPaddingLeft();
+        }
+
+        int newRight = right;
+        if (newRight < 0) {
+            newRight = view.getPaddingRight();
+        }
+
+        int newTop = top;
+        if (newTop < 0) {
+            newTop = view.getPaddingTop();
+        }
+
+        int newBottom = bottom;
+        if (newBottom < 0) {
+            newBottom = view.getPaddingBottom();
+        }
+
+        view.setPadding(newLeft, newTop, newRight, newBottom);
+    }
+
     public interface OnMeasuredCallback {
         /**
          * Called when the layout is done.

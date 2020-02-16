@@ -80,7 +80,7 @@ class ReportManager(
                 .doOnNext {
                     // If no more crash logs left, remove the notification
                     if (!hasCrashLogs()) {
-                        settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
+                        settingsNotificationManager.cancel(SettingNotificationType.CrashLogs)
                     }
                 }
                 .subscribe({
@@ -182,7 +182,7 @@ class ReportManager(
 
     fun deleteCrashLogs(crashLogs: List<CrashLog>) {
         if (!createCrashLogsDirIfNotExists()) {
-            settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
+            settingsNotificationManager.cancel(SettingNotificationType.CrashLogs)
             return
         }
 
@@ -190,24 +190,24 @@ class ReportManager(
 
         val remainingCrashLogs = crashLogsDirPath.listFiles()?.size ?: 0
         if (remainingCrashLogs == 0) {
-            settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
+            settingsNotificationManager.cancel(SettingNotificationType.CrashLogs)
             return
         }
 
         // There are still crash logs left, so show the notifications if they are not shown yet
-        settingsNotificationManager.notify(SettingNotificationType.HasCrashLogs)
+        settingsNotificationManager.notify(SettingNotificationType.CrashLogs)
     }
 
     fun deleteAllCrashLogs() {
         if (!createCrashLogsDirIfNotExists()) {
-            settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
+            settingsNotificationManager.cancel(SettingNotificationType.CrashLogs)
             return
         }
 
         val potentialCrashLogs = crashLogsDirPath.listFiles()
         if (potentialCrashLogs.isNullOrEmpty()) {
             Logger.d(TAG, "No new crash logs")
-            settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
+            settingsNotificationManager.cancel(SettingNotificationType.CrashLogs)
             return
         }
 
@@ -217,12 +217,12 @@ class ReportManager(
 
         val remainingCrashLogs = crashLogsDirPath.listFiles()?.size ?: 0
         if (remainingCrashLogs == 0) {
-            settingsNotificationManager.cancel(SettingNotificationType.HasCrashLogs)
+            settingsNotificationManager.cancel(SettingNotificationType.CrashLogs)
             return
         }
 
         // There are still crash logs left, so show the notifications if they are not shown yet
-        settingsNotificationManager.notify(SettingNotificationType.HasCrashLogs)
+        settingsNotificationManager.notify(SettingNotificationType.CrashLogs)
     }
 
     fun sendCrashLogs(crashLogs: List<CrashLog>): Completable {
