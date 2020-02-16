@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.site;
 import android.util.SparseArray;
 
 import com.github.adamantcheese.chan.core.site.sites.Arisuchan;
+import com.github.adamantcheese.chan.core.site.sites.Kun8;
 import com.github.adamantcheese.chan.core.site.sites.Lainchan;
 import com.github.adamantcheese.chan.core.site.sites.Sushichan;
 import com.github.adamantcheese.chan.core.site.sites.Wired7;
@@ -44,6 +45,7 @@ public class SiteRegistry {
         URL_HANDLERS.add(Dvach.URL_HANDLER);
         URL_HANDLERS.add(Wired7.URL_HANDLER);
         //chan55 was here but was removed
+        URL_HANDLERS.add(Kun8.URL_HANDLER);
     }
 
     static {
@@ -59,5 +61,6 @@ public class SiteRegistry {
         SITE_CLASSES.put(5, Dvach.class);
         SITE_CLASSES.put(6, Wired7.class);
         //chan55 was here but was removed; don't use ID 7
+        SITE_CLASSES.put(8, Kun8.class);
     }
 }

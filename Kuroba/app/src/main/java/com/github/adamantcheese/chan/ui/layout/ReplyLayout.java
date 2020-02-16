@@ -578,20 +578,20 @@ public class ReplyLayout
 
     @Override
     public void openPreview(boolean show, File previewFile) {
-        if (show) {
-            ThemeHelper.getTheme().clearDrawable.apply(attach);
-        } else {
-            ThemeHelper.getTheme().imageDrawable.apply(attach);
-        }
-
+        previewHolder.setClickable(false);
         if (show) {
             ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(400), dp(300), this);
+            ThemeHelper.getTheme().clearDrawable.apply(attach);
         } else {
             spoiler.setVisibility(GONE);
             previewHolder.setVisibility(GONE);
             previewMessage.setVisibility(GONE);
             callback.updatePadding();
+            ThemeHelper.getTheme().imageDrawable.apply(attach);
         }
+        // the delay is taken from LayoutTransition, as this class is set to automatically animate layout changes
+        // only allow the preview to be clicked if it is fully visible
+        postDelayed(() -> previewHolder.setClickable(true), 300);
     }
 
     @Override

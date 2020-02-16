@@ -95,8 +95,10 @@ internal class ChunkDownloader(
             call.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     val diff = System.currentTimeMillis() - startTime
+                    val exceptionMessage = e.message ?: "No message"
+
                     log(TAG,
-                            "Couldn't get chunk response, reason = ${e.javaClass.simpleName}" +
+                            "Couldn't get chunk response, reason = ${e.javaClass.simpleName} ($exceptionMessage)" +
                                     " (${maskUrl(url)}) ${chunk.start}..${chunk.end}, time = ${diff}ms"
                     )
 

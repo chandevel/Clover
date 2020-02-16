@@ -67,6 +67,10 @@ public class Theme {
     public int textColorRevealSpoiler;
     public int backColor;
     public int backColorSecondary;
+    public int highlightedPinViewHolderColor;
+    public int pinPostsNotWatchingColor;
+    public int pinPostsHasRepliesColor;
+    public int pinPostsNormalColor;
 
     public ThemeDrawable settingsDrawable = new ThemeDrawable(R.drawable.ic_settings_white_24dp, 0.54f);
     public ThemeDrawable imageDrawable = new ThemeDrawable(R.drawable.ic_image_white_24dp, 0.54f);
@@ -160,7 +164,11 @@ public class Theme {
             R.attr.text_color_hint,
             R.attr.text_color_reveal_spoiler,
             R.attr.backcolor,
-            R.attr.backcolor_secondary
+            R.attr.backcolor_secondary,
+            R.attr.highlighted_pin_view_holder_color,
+            R.attr.pin_posts_not_watching_color,
+            R.attr.pin_posts_has_replies_color,
+            R.attr.pin_posts_normal_color
         });
         //@formatter:on
         quoteColor = ta.getColor(0, 0);
@@ -183,6 +191,10 @@ public class Theme {
         textColorRevealSpoiler = ta.getColor(17, 0);
         backColor = ta.getColor(18, 0);
         backColorSecondary = ta.getColor(19, 0);
+        highlightedPinViewHolderColor = ta.getColor(20, 0);
+        pinPostsNotWatchingColor = ta.getColor(21, 0);
+        pinPostsHasRepliesColor = ta.getColor(22, 0);
+        pinPostsNormalColor = ta.getColor(23, 0);
 
         ta.recycle();
     }

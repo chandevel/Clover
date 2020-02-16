@@ -16,6 +16,7 @@ abstract class BaseDirectorySetting {
     abstract fun setFileBaseDir(dir: String)
     abstract fun setSafBaseDir(dir: Uri)
     abstract fun resetFileDir()
+    abstract fun resetSafDir()
     abstract fun resetActiveDir()
 
     /**
