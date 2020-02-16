@@ -92,7 +92,7 @@ public class Chan420BoardsRequest extends JsonReaderRequest<List<Board>> {
                     }
                     break;
                 case "title":
-                    board.description = reader.nextString();
+                    board.name = reader.nextString();
                     break;
                 case "nws_board":
                     board.workSafe = reader.nextInt() == 1;
