@@ -239,7 +239,8 @@ public class Loadable
         return "Loadable{id=" + id + ", mode=" + mode + ", board='" + boardCode + '\'' +
                 ", no=" + maskPostNo(no) + '\'' + ", listViewIndex=" + listViewIndex +
                 ", listViewTop=" + listViewTop + ", lastViewed=" + lastViewed + ", lastLoaded=" +
-                maskPostNo(lastLoaded) + ", markedNo=" + maskPostNo(markedNo) + ", dirty=" + dirty + '}';
+                maskPostNo(lastLoaded) + ", markedNo=" + maskPostNo(markedNo) + ", dirty=" + dirty +
+                ", loadableDownloadingState=" + loadableDownloadingState.name() + '}';
     }
 
     public boolean isThreadMode() {
