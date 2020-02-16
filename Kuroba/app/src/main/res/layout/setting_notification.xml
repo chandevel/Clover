@@ -22,7 +22,7 @@
             android:background="@drawable/circle_background"
             android:gravity="center"
             android:maxLength="2"
-            android:textColor="?attr/text_color_primary"
+            android:textColor="@android:color/white"
             android:textSize="11sp"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="@+id/setting_notification_icon"

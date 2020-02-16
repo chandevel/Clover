@@ -707,24 +707,23 @@ Don't have a 4chan Pass?<br>
 
     <string name="media_settings_use_saf_for_save_location_dialog_title">Use the new Storage Access Framework API to choose images download directory?</string>
     <string name="media_settings_use_saf_for_local_threads_location_dialog_title">Use the new Storage Access Framework API to choose local threads download directory?</string>
-    <string name="media_settings_use_saf_for_save_location_dialog_message">If you choose to use the SAF you will be able to choose an SD-card (or even something like Google Drive) as a place to store downloaded images</string>
-    <string name="media_settings_use_saf_for_local_threads_location_dialog_message">If you choose to use the SAF you will be able to choose the SD-card (or even something like Google Drive) as a place to store local threads images</string>
+    <string name="media_settings_use_saf_for_save_location_dialog_message">If you choose to use the SAF you will be able to choose an SD-card as a place to store downloaded images</string>
+    <string name="media_settings_use_saf_for_local_threads_location_dialog_message">If you choose to use the SAF you will be able to choose the SD-card as a place to store local threads images</string>
     <string name="media_settings_use_saf_dialog_positive_button_text">Use SAF API</string>
     <string name="media_settings_use_saf_dialog_negative_button_text">Use old API</string>
     <string name="media_settings_local_threads_location_title">Local threads location</string>
     <string name="media_settings_could_not_copy_files">Could not copy one directory\'s file into another one</string>
     <string name="media_settings_files_copied">Successfully copied files</string>
     <string name="media_settings_would_you_like_to_delete_file_in_old_dir">Would you like to delete files in the old directory?</string>
-    <string name="media_settings_file_have_been_copied">Files have been copied and now exist in two directories. You may want to remove files in the old directory \"%1$s\" since you won\'t need them anymore.</string>
+    <string name="media_settings_file_have_been_copied">Files have been copied and now exist in two directories. You may want to remove files in the old directory \n\n\"%1$s\"\n\nsince you won\'t need them anymore. \nThis operation will DELETE ALL the files in that directory, so if you had some files not related to this app you probably should do that manually.</string>
     <string name="media_settings_could_not_delete_files_in_old_dir">Couldn\'t delete files in the old directory</string>
     <string name="media_settings_old_files_deleted">Successfully deleted files in the old directory</string>
     <string name="media_settings_copy_files">Copy files</string>
     <string name="media_settings_do_you_want_to_copy_files">Do you want to copy %1$d files from old directory to the new one?"</string>
-    <string name="media_settings_could_not_release_uri_permissions">Couldn\'t release uri permissions</string>
     <string name="media_settings_move_saved_files_to_new_dir">Move old saved files to the new directory?</string>
-    <string name="media_settings_move_saved_files_to_new_dir_description">Move files from \"%1$s\" directory to \"%2$s\" directory? This operation may take quite some time. Once started this operation must not be canceled.</string>
+    <string name="media_settings_move_saved_files_to_new_dir_description">Move files from \n\n\"%1$s\"\n\n directory to \n\n\"%2$s\"\n\ndirectory? This operation may take quite some time. Once started this operation must not be canceled. \nThis operation will move ALL the files, so if you had some files not related to this app you probably should do that manually.</string>
     <string name="media_settings_move_threads_to_new_dir">Move old local threads to the new directory?</string>
-    <string name="media_settings_move_threads_to_new_dir_description">Move threads from \"%1$s\" directory to \"%2$s\" directory? This operation may take quite some time. Once started this operation must not be canceled.</string>
+    <string name="media_settings_move_threads_to_new_dir_description">Move threads from \n\n\"%1$s\"\n\n directory to \n\n\"%2$s\"\n\ndirectory? This operation may take quite some time. Once started this operation must not be canceled. \nThis operation will move ALL the files, so if you had some files not related to this app you probably should do that manually.</string>
     <string name="media_settings_old_threads_base_dir_not_registered">Old local threads base directory is probably not registered (newBaseDirectoryFile returned null)</string>
     <string name="media_settings_new_threads_base_dir_not_registered">New local threads base directory is probably not registered</string>
     <string name="media_settings_old_saved_files_base_dir_not_registered">Old saved files base directory is probably not registered (newBaseDirectoryFile returned null)</string>
@@ -739,7 +738,6 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_base_directory_is_already_registered">Cannot use this directory because it is already in use</string>
     <string name="setting_image_link_loading_title">Enable image link loading</string>
     <string name="setting_image_link_loading_description">Adds any JPG, PNG, GIF, WEBP, BMP, PDF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
-    <string name="media_settings_dont_keep_activities_setting_is_probably_turned_on">MediaSettingsController was detached during some IO background operation, callbacks is null. This is probably because you have the \"Don\'t keep activities\" developer setting turned on. Disable it and try again.</string>
     <string name="add_dubs_title">Add dubs to post cells</string>
     <string name="add_dubs_description">Appends your GET to your post number, for FUN!</string>
     <string name="setting_youtube_dur_title">Enable Youtube durations</string>
@@ -797,6 +795,8 @@ Don't have a 4chan Pass?<br>
     <string name="settings_report_description">Report a problem/crash</string>
     <string name="settings_auto_crash_report">Automatic crash reporting</string>
     <string name="settings_auto_crash_report_description">By enabling this setting, all collected crash logs will be uploaded automatically on every app restart. Crash reports only collect the crash log itself, app version and basic OS information.</string>
+    <string name="media_settings_base_dir_reset_message">Base directory reset to default</string>
+    <string name="media_settings_could_not_create_default_baseDir">Could not create default base dir: %1$s</string>
     <string name="review_crashlogs_controller_title">Review crash logs</string>
     <string name="settings_report_suggest_sending_logs_title">You have %1$d collected crash logs</string>
     <string name="settings_report_suggest_sending_logs_message">Would you like to review and maybe send them to developers?</string>

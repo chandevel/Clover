@@ -58,6 +58,10 @@ class SavedFilesBaseDirSetting(
         fileApiBaseDir.setSyncNoCheck(getDefaultSaveLocationDir())
     }
 
+    override fun resetSafDir() {
+        safBaseDir.setSyncNoCheck("")
+    }
+
     override fun resetActiveDir() {
         activeBaseDir.setSync(ActiveBaseDir.FileBaseDir.ordinal)
     }

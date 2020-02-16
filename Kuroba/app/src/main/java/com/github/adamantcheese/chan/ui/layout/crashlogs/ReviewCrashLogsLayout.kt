@@ -70,6 +70,9 @@ internal class ReviewCrashLogsLayout(context: Context) : FrameLayout(context), C
 
     private fun onSendCrashLogsButtonClicked(adapter: CrashLogsListArrayAdapter) {
         val selectedCrashLogs = adapter.getSelectedCrashLogs()
+        if (selectedCrashLogs.isEmpty()) {
+            return
+        }
 
         compositeDisposable += reportManager.sendCrashLogs(selectedCrashLogs)
                 .observeOn(AndroidSchedulers.mainThread())

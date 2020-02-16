@@ -62,7 +62,6 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
@@ -350,7 +349,7 @@ public class DrawerAdapter
 
         boolean highlighted = pin == this.highlighted;
         if (highlighted && !holder.highlighted) {
-            holder.itemView.setBackgroundColor(getColor(context, R.color.highlighted_pin_view_holder));
+            holder.itemView.setBackgroundColor(ThemeHelper.getTheme().highlightedPinViewHolderColor);
             holder.highlighted = true;
         } else if (!highlighted && holder.highlighted) {
             Drawable attrDrawable =
@@ -373,11 +372,11 @@ public class DrawerAdapter
         watchCount.setVisibility(View.VISIBLE);
 
         if (pin.getNewQuoteCount() > 0) {
-            watchCount.setTextColor(getColor(context, R.color.pin_posts_has_replies));
+            watchCount.setTextColor(ThemeHelper.getTheme().pinPostsHasRepliesColor);
         } else if (!pin.watching) {
-            watchCount.setTextColor(getColor(context, R.color.pin_posts_not_watching)); // TODO material colors
+            watchCount.setTextColor(ThemeHelper.getTheme().pinPostsNotWatchingColor);
         } else {
-            watchCount.setTextColor(getColor(context, R.color.pin_posts_normal));
+            watchCount.setTextColor(ThemeHelper.getTheme().pinPostsNormalColor);
         }
 
         watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
