@@ -280,22 +280,23 @@ class ReportManager(
     }
 
     private fun sendInternal(reportRequest: ReportRequest): Single<MResult<Boolean>> {
-        BackgroundUtils.ensureBackgroundThread()
-
-        val json = try {
-            gson.toJson(reportRequest)
-        } catch (error: Throwable) {
-            Logger.e(TAG, "Couldn't convert $reportRequest to json", error)
-            return Single.error(error)
-        }
-
-        val requestBody = json.toRequestBody("application/json".toMediaType())
-        val request = Request.Builder()
-                .url(REPORT_URL)
-                .post(requestBody)
-                .build()
-
         return Single.create<MResult<Boolean>> { emitter ->
+            BackgroundUtils.ensureBackgroundThread()
+
+            val json = try {
+                gson.toJson(reportRequest)
+            } catch (error: Throwable) {
+                Logger.e(TAG, "Couldn't convert $reportRequest to json", error)
+                emitter.tryOnError(error)
+                return@create
+            }
+
+            val requestBody = json.toRequestBody("application/json".toMediaType())
+            val request = Request.Builder()
+                    .url(REPORT_URL)
+                    .post(requestBody)
+                    .build()
+
             okHttpClient.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     emitter.onSuccess(MResult.error(e))
