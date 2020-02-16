@@ -29,11 +29,13 @@ import okhttp3.HttpUrl;
 public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
     protected final CommonSite.SimpleHttpUrl root;
     protected final CommonSite.SimpleHttpUrl sys;
+    protected final CommonSite.SimpleHttpUrl swfthumb;
 
     public TaimabaEndpoints(CommonSite commonSite, String rootUrl, String sysUrl) {
         super(commonSite);
         root = new CommonSite.SimpleHttpUrl(rootUrl);
         sys = new CommonSite.SimpleHttpUrl(sysUrl);
+        swfthumb = new CommonSite.SimpleHttpUrl("https://abload.de/img/swf5dklf.jpg");
     }
 
     @Override
@@ -53,7 +55,12 @@ public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
 
     @Override
     public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
-        return sys.builder().s(post.board.code).s("thumb").s(arg.get("tim") + "s.jpg").url();
+        switch(arg.get("ext")) {
+            case "swf":
+                return swfthumb.builder().url();
+            default:
+                return sys.builder().s(post.board.code).s("thumb").s(arg.get("tim") + "s.jpg").url();
+        }
     }
 
     @Override
