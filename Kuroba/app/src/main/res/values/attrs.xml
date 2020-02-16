@@ -50,4 +50,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <attr name="setting_description_top" format="reference" />
     <attr name="setting_description_bottom" format="reference" />
+
+    <attr name="highlighted_pin_view_holder_color" format="color" />
+
+    <attr name="pin_posts_not_watching_color" format="color" />
+    <attr name="pin_posts_has_replies_color" format="color" />
+    <attr name="pin_posts_normal_color" format="color" />
 </resources>
