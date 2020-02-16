@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.LoadingViewController;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -49,7 +50,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class ImportExportSettingsController
         extends SettingsController
@@ -223,7 +223,7 @@ public class ImportExportSettingsController
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showToast(reason, Toast.LENGTH_LONG);
+                showToast(context, reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -242,7 +242,7 @@ public class ImportExportSettingsController
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showToast(reason, Toast.LENGTH_LONG);
+                showToast(context, reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -255,7 +255,7 @@ public class ImportExportSettingsController
             String message = "onFileChosen() fileManager.fromUri() returned null, uri = " + uri;
 
             Logger.d(TAG, message);
-            showToast(message, Toast.LENGTH_LONG);
+            showToast(context, message, Toast.LENGTH_LONG);
             return;
         }
 
@@ -272,7 +272,7 @@ public class ImportExportSettingsController
                     String message = "onImportClicked() fileManager.fromUri() returned null, uri = " + uri;
 
                     Logger.d(TAG, message);
-                    showToast(message, Toast.LENGTH_LONG);
+                    showToast(context, message, Toast.LENGTH_LONG);
                     return;
                 }
 
@@ -282,7 +282,7 @@ public class ImportExportSettingsController
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showToast(reason, Toast.LENGTH_LONG);
+                showToast(context, reason, Toast.LENGTH_LONG);
             }
         });
     }
@@ -291,12 +291,12 @@ public class ImportExportSettingsController
     public void onSuccess(ImportExportRepository.ImportExport importExport) {
         // called on background thread
         if (context instanceof StartActivity) {
-            runOnUiThread(() -> {
+            BackgroundUtils.runOnMainThread(() -> {
                 if (importExport == ImportExportRepository.ImportExport.Import) {
                     ((StartActivity) context).restartApp();
                 } else {
                     loadingViewController.stopPresenting();
-                    showToast(R.string.successfully_exported_text, Toast.LENGTH_LONG);
+                    showToast(context, R.string.successfully_exported_text, Toast.LENGTH_LONG);
 
                     if (callbacks != null) {
                         callbacks.finish();
@@ -308,9 +308,9 @@ public class ImportExportSettingsController
 
     @Override
     public void onError(String message) {
-        runOnUiThread(() -> {
+        BackgroundUtils.runOnMainThread(() -> {
             loadingViewController.stopPresenting();
-            showToast(message, Toast.LENGTH_LONG);
+            showToast(context, message, Toast.LENGTH_LONG);
         });
     }
 

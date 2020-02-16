@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.settings;
 import android.view.View;
 
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 public abstract class SettingView {
     public SettingsController settingsController;
@@ -45,9 +44,5 @@ public abstract class SettingView {
 
     public String getBottomDescription() {
         return null;
-    }
-
-    public static String getString(int id) {
-        return id == 0 ? null : AndroidUtils.getString(id);
     }
 }

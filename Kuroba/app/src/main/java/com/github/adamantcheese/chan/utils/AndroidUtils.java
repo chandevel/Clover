@@ -40,19 +40,19 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.core.content.ContextCompat;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
@@ -68,7 +68,6 @@ import java.util.List;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
@@ -91,7 +90,11 @@ public class AndroidUtils {
     }
 
     public static String getString(int res) {
-        return getRes().getString(res);
+        try {
+            return getRes().getString(res);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static String getString(int res, Object... formatArgs) {
@@ -143,7 +146,7 @@ public class AndroidUtils {
 
         ComponentName resolvedActivity = intent.resolveActivity(pm);
         if (resolvedActivity == null) {
-            showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
+            showToast(application, R.string.open_link_failed, Toast.LENGTH_LONG);
         } else {
             boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(application.getPackageName());
             if (!thisAppIsDefault) {
@@ -166,13 +169,13 @@ public class AndroidUtils {
                     chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, filteredIntents.toArray(new Intent[0]));
                     openIntent(chooser);
                 } else {
-                    showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
+                    showToast(application, R.string.open_link_failed, Toast.LENGTH_LONG);
                 }
             }
         }
     }
 
-    public static void openLinkInBrowser(Activity activity, String link) {
+    public static void openLinkInBrowser(Context context, String link) {
         // Hack that's sort of the same as openLink
         // The link won't be opened in a custom tab if this app is the default handler for that link.
         // Manually check if this app opens it instead of a custom tab, and use the logic of
@@ -189,10 +192,10 @@ public class AndroidUtils {
             CustomTabsIntent tabsIntent =
                     new CustomTabsIntent.Builder().setToolbarColor(ThemeHelper.getTheme().primaryColor.color).build();
             try {
-                tabsIntent.launchUrl(activity, Uri.parse(link));
+                tabsIntent.launchUrl(context, Uri.parse(link));
             } catch (ActivityNotFoundException e) {
                 // Can't check it beforehand so catch the exception
-                showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
+                showToast(context, R.string.open_link_failed, Toast.LENGTH_LONG);
             }
         } else {
             openLink(link);
@@ -212,7 +215,7 @@ public class AndroidUtils {
         if (intent.resolveActivity(application.getPackageManager()) != null) {
             application.startActivity(intent);
         } else {
-            showToast(R.string.open_link_failed, Toast.LENGTH_LONG);
+            showToast(application, R.string.open_link_failed, Toast.LENGTH_LONG);
         }
     }
 
@@ -221,11 +224,6 @@ public class AndroidUtils {
         int color = typedArray.getColor(0, 0);
         typedArray.recycle();
         return color;
-    }
-
-    @ColorInt
-    public static int getColor(Context context, @ColorRes int colorId) {
-        return ContextCompat.getColor(context, colorId);
     }
 
     public static Drawable getAttrDrawable(Context context, int attr) {
@@ -427,20 +425,28 @@ public class AndroidUtils {
         return displaySize;
     }
 
-    public static void showToast(String message, int duration) {
-        runOnUiThread(() -> Toast.makeText(application, message, duration).show());
+    public static Window getWindow(Context context) {
+        if (context instanceof Activity) {
+            return ((Activity) context).getWindow();
+        } else {
+            return null;
+        }
     }
 
-    public static void showToast(String message) {
-        runOnUiThread(() -> Toast.makeText(application, message, Toast.LENGTH_SHORT).show());
+    public static void showToast(Context context, String message, int duration) {
+        BackgroundUtils.runOnMainThread(() -> Toast.makeText(application, message, duration).show());
     }
 
-    public static void showToast(int resId, int duration) {
-        runOnUiThread(() -> Toast.makeText(application, getString(resId), duration).show());
+    public static void showToast(Context context, String message) {
+        showToast(context, message, Toast.LENGTH_SHORT);
     }
 
-    public static void showToast(int resId) {
-        runOnUiThread(() -> Toast.makeText(application, getString(resId), Toast.LENGTH_SHORT).show());
+    public static void showToast(Context context, int resId, int duration) {
+        showToast(context, getString(resId), duration);
+    }
+
+    public static void showToast(Context context, int resId) {
+        showToast(context, getString(resId));
     }
 
     private static InputMethodManager getInputManager() {
@@ -503,5 +509,51 @@ public class AndroidUtils {
         windowManager.getDefaultDisplay().getRealSize(point);
 
         return Math.max(point.x, point.y);
+    }
+
+    /**
+     * Change to ConnectivityManager#registerDefaultNetworkCallback when minSdk == 24, basically never
+     */
+    public static String getNetworkClass(@NonNull ConnectivityManager connectivityManager) {
+        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+        if (info == null || !info.isConnected()) {
+            return "No connected"; // not connected
+        }
+
+        if (info.getType() == ConnectivityManager.TYPE_WIFI) {
+            return "WIFI";
+        }
+
+        if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
+            int networkType = info.getSubtype();
+            switch (networkType) {
+                case TelephonyManager.NETWORK_TYPE_GPRS:
+                case TelephonyManager.NETWORK_TYPE_EDGE:
+                case TelephonyManager.NETWORK_TYPE_CDMA:
+                case TelephonyManager.NETWORK_TYPE_1xRTT:
+                case TelephonyManager.NETWORK_TYPE_IDEN:     // api< 8: replace by 11
+                case TelephonyManager.NETWORK_TYPE_GSM:      // api<25: replace by 16
+                    return "2G";
+                case TelephonyManager.NETWORK_TYPE_UMTS:
+                case TelephonyManager.NETWORK_TYPE_EVDO_0:
+                case TelephonyManager.NETWORK_TYPE_EVDO_A:
+                case TelephonyManager.NETWORK_TYPE_HSDPA:
+                case TelephonyManager.NETWORK_TYPE_HSUPA:
+                case TelephonyManager.NETWORK_TYPE_HSPA:
+                case TelephonyManager.NETWORK_TYPE_EVDO_B:   // api< 9: replace by 12
+                case TelephonyManager.NETWORK_TYPE_EHRPD:    // api<11: replace by 14
+                case TelephonyManager.NETWORK_TYPE_HSPAP:    // api<13: replace by 15
+                case TelephonyManager.NETWORK_TYPE_TD_SCDMA: // api<25: replace by 17
+                    return "3G";
+                case TelephonyManager.NETWORK_TYPE_LTE:      // api<11: replace by 13
+                case TelephonyManager.NETWORK_TYPE_IWLAN:    // api<25: replace by 18
+                case 19: // LTE_CA
+                    return "4G";
+                case TelephonyManager.NETWORK_TYPE_NR:       // api<29: replace by 20
+                    return "5G";
+            }
+        }
+
+        return "Unknown";
     }
 }

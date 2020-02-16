@@ -99,7 +99,7 @@ public class ThemeSettingsController
         }
 
         @Override
-        public void onPopupPostDoubleClicked(Post post) {
+        public void onPostDoubleClicked(Post post) {
         }
 
         @Override
@@ -117,7 +117,7 @@ public class ThemeSettingsController
         }
 
         @Override
-        public void onPostOptionClicked(Post post, Object id) {
+        public void onPostOptionClicked(Post post, Object id, boolean inPopup) {
         }
 
         @Override

@@ -48,7 +48,6 @@ import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloa
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class ImageSaveTask
         extends FileCacheListener {
@@ -90,6 +89,10 @@ public class ImageSaveTask
     }
 
     public String getPostImageUrl() {
+        if (postImage.imageUrl == null) {
+            throw new NullPointerException("imageUrl is null! loadable = " + loadable.toShortString());
+        }
+
         return postImage.imageUrl.toString();
     }
 
@@ -110,13 +113,18 @@ public class ImageSaveTask
     }
 
     public Single<ImageSaver.BundledDownloadResult> run() {
+        BackgroundUtils.ensureBackgroundThread();
+        Logger.d(TAG, "ImageSaveTask.run() destination = " + destination.getFullPath());
+
         @Nullable
         Action onDisposeFunc = null;
 
         try {
             if (fileManager.exists(destination)) {
-                onDestination();
-                onEnd();
+                BackgroundUtils.runOnMainThread(() -> {
+                    onDestination();
+                    onEnd();
+                });
             } else {
                 CancelableDownload cancelableDownload =
                         fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, isBatchDownload, this);
@@ -158,7 +166,6 @@ public class ImageSaveTask
     @Override
     public void onEnd() {
         BackgroundUtils.ensureMainThread();
-
         imageSaveTaskAsyncResult.onSuccess(success ? Success : Failure);
     }
 
@@ -178,11 +185,11 @@ public class ImageSaveTask
             MediaScannerConnection.scanFile(getAppContext(),
                     paths,
                     null,
-                    (path, uri) -> runOnUiThread(() -> afterScan(uri))
+                    (path, uri) -> BackgroundUtils.runOnMainThread(() -> afterScan(uri))
             );
         } else if (destination instanceof ExternalFile) {
             Uri uri = Uri.parse(destination.getFullPath());
-            runOnUiThread(() -> afterScan(uri));
+            BackgroundUtils.runOnMainThread(() -> afterScan(uri));
         } else {
             throw new NotImplementedError("Not implemented for " + destination.getClass().getName());
         }

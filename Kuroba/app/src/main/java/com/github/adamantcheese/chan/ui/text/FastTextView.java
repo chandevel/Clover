@@ -41,10 +41,10 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 public class FastTextView
         extends View {
     private static final String TAG = "FastTextView";
-    private static LruCache<FastTextViewItem, StaticLayout> textCache = new LruCache<>(250);
+    private static LruCache<FastTextViewItem, StaticLayout> textCache = new LruCache<>(75);
 
     private TextPaint paint;
-    private boolean singleLine;
+    private boolean singleLine = false;
 
     private CharSequence text;
 
@@ -65,12 +65,17 @@ public class FastTextView
         super(context, attrs, defStyleAttr);
 
         paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(0xff000000);
+        paint.setTextSize(sp(15));
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FastTextView);
-        setTextColor(a.getColor(R.styleable.FastTextView_textColor, 0xff000000));
-        setTextSize(a.getDimensionPixelSize(R.styleable.FastTextView_textSize, 15));
-        singleLine = a.getBoolean(R.styleable.FastTextView_singleLine, false);
-        a.recycle();
+        try {
+            setTextColor(a.getColor(R.styleable.FastTextView_textColor, 0xff000000));
+            setTextSize(a.getDimensionPixelSize(R.styleable.FastTextView_textSize, 15));
+            singleLine = a.getBoolean(R.styleable.FastTextView_singleLine, false);
+        } finally {
+            a.recycle();
+        }
     }
 
     public void setText(CharSequence text) {

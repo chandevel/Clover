@@ -18,13 +18,13 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
@@ -101,6 +101,8 @@ public class ViewThreadController
     private Drawable downloadIconOutline;
     private Drawable downloadIconFilled;
     private AnimatedVectorDrawableCompat downloadAnimation;
+    @Nullable
+    private HintPopup hintPopup = null;
 
     private Animatable2Compat.AnimationCallback downloadAnimationCallback = new Animatable2Compat.AnimationCallback() {
         @Override
@@ -145,9 +147,7 @@ public class ViewThreadController
     protected void buildMenu() {
         prevState = DownloadThreadState.Default;
 
-        NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu()
-                .withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
-                .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked);
+        NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
 
         if (ChanSettings.incrementalThreadDownloadingEnabled.get()) {
             // This method recreates the menu (and if there was the download animation running it
@@ -156,6 +156,9 @@ public class ViewThreadController
             menuBuilder.withItem(SAVE_THREAD_ID, downloadIconOutline, this::saveClicked);
         }
 
+        menuBuilder.withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
+                .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked);
+
         NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow();
 
         if (!ChanSettings.enableReplyFab.get()) {
@@ -163,9 +166,11 @@ public class ViewThreadController
         }
 
         menuOverflowBuilder.withSubItem(R.string.action_search, this::searchClicked)
-                .withSubItem(R.string.action_reload, this::reloadClicked)
-                .withSubItem(R.string.thread_show_archives, this::showArchives)
-                .withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
+                .withSubItem(R.string.action_reload, this::reloadClicked);
+        if (loadable.site.name().equals("4chan")) { //archives are 4chan only
+            menuOverflowBuilder.withSubItem(R.string.thread_show_archives, this::showArchives);
+        }
+        menuOverflowBuilder.withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
@@ -219,7 +224,8 @@ public class ViewThreadController
             if (granted) {
                 saveClickedInternal();
             } else {
-                showToast(R.string.view_thread_controller_thread_downloading_requires_write_permission,
+                showToast(context,
+                        R.string.view_thread_controller_thread_downloading_requires_write_permission,
                         Toast.LENGTH_LONG
                 );
             }
@@ -231,19 +237,19 @@ public class ViewThreadController
 
         if (baseLocalThreadsDir == null) {
             Logger.e(TAG, "saveClickedInternal() fileManager.newLocalThreadFile() returned null");
-            showToast(R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
+            showToast(context, R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
             return;
         }
 
         if (!fileManager.exists(baseLocalThreadsDir) && fileManager.create(baseLocalThreadsDir) == null) {
             Logger.e(TAG, "saveClickedInternal() Couldn't create baseLocalThreadsDir");
-            showToast(R.string.could_not_create_base_local_threads_dir, Toast.LENGTH_LONG);
+            showToast(context, R.string.could_not_create_base_local_threads_dir, Toast.LENGTH_LONG);
             return;
         }
 
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
             Logger.e(TAG, "Base local threads directory does not exist");
-            showToast(R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
+            showToast(context, R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
             return;
         }
 
@@ -286,17 +292,17 @@ public class ViewThreadController
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            showToast(R.string.cannot_open_in_browser_already_deleted);
+            showToast(context, R.string.cannot_open_in_browser_already_deleted);
             return;
         }
 
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        openLinkInBrowser((Activity) context, loadable.desktopUrl());
+        openLinkInBrowser(context, loadable.desktopUrl());
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            showToast(R.string.cannot_shared_thread_already_deleted);
+            showToast(context, R.string.cannot_shared_thread_already_deleted);
             return;
         }
 
@@ -371,6 +377,8 @@ public class ViewThreadController
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        dismissHintPopup();
         updateDrawerHighlighting(null);
         updateLeftPaneHighlighting(null);
     }
@@ -578,14 +586,16 @@ public class ViewThreadController
             view.postDelayed(() -> {
                 View view = navigation.findItem(OVERFLOW_ID).getView();
                 if (view != null) {
-                    HintPopup.show(context, view, getString(R.string.thread_up_down_hint), -dp(1), 0);
+                    dismissHintPopup();
+                    hintPopup = HintPopup.show(context, view, getString(R.string.thread_up_down_hint), -dp(1), 0);
                 }
             }, 600);
         } else if (counter == 3) {
             view.postDelayed(() -> {
                 View view = navigation.findItem(PIN_ID).getView();
                 if (view != null) {
-                    HintPopup.show(context, view, getString(R.string.thread_pin_hint), -dp(1), 0);
+                    dismissHintPopup();
+                    hintPopup = HintPopup.show(context, view, getString(R.string.thread_pin_hint), -dp(1), 0);
                 }
             }, 600);
         } else if (counter == 4) {
@@ -594,10 +604,18 @@ public class ViewThreadController
                 if (saveThreadItem != null) {
                     View view = saveThreadItem.getView();
                     if (view != null) {
-                        HintPopup.show(context, view, getString(R.string.thread_save_hint), -dp(1), 0);
+                        dismissHintPopup();
+                        hintPopup = HintPopup.show(context, view, getString(R.string.thread_save_hint), -dp(1), 0);
                     }
                 }
             }, 600);
+        }
+    }
+
+    private void dismissHintPopup() {
+        if (hintPopup != null) {
+            hintPopup.dismiss();
+            hintPopup = null;
         }
     }
 
@@ -741,7 +759,7 @@ public class ViewThreadController
         Loadable loadable = threadLayout.getPresenter().getLoadable();
         String link = loadable.desktopUrl();
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
-        openLinkInBrowser((Activity) context, link);
+        openLinkInBrowser(context, link);
     }
 
     @Override

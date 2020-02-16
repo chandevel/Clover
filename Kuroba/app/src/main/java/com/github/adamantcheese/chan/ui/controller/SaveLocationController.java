@@ -121,13 +121,17 @@ public class SaveLocationController
 
     private void onPositionButtonClick(NewFolderLayout dialogView, DialogInterface dialog) {
         if (!dialogView.getFolderName().matches("\\A\\w+\\z")) {
-            showToast("Folder must be a word, no spaces");
+            showToast(context, "Folder must be a word, no spaces");
         } else {
             File newDir = new File(
                     fileWatcher.getCurrentPath().getAbsolutePath() + File.separator + dialogView.getFolderName());
 
-            if (!newDir.mkdir()) {
-                throw new IllegalStateException("Could not create directory " + newDir.getAbsolutePath());
+            if (!newDir.exists() && !newDir.mkdir()) {
+                String additionalInfo = "Can write: " + newDir.canWrite()
+                        + ", isDirectory: " + newDir.isDirectory();
+
+                throw new IllegalStateException("Could not create directory: "
+                        + newDir.getAbsolutePath() + ", additional info: " + additionalInfo);
             }
 
             fileWatcher.navigateTo(newDir);

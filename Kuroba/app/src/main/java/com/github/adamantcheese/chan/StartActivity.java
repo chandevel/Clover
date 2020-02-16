@@ -23,7 +23,6 @@ import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.LruCache;
 import android.util.Pair;
@@ -70,12 +69,10 @@ import com.google.gson.reflect.TypeToken;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import javax.inject.Inject;
 
@@ -85,7 +82,6 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getIsOfficial;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
@@ -99,7 +95,7 @@ public class StartActivity
     private static final String STATE_KEY = "chan_state";
 
     private ViewGroup contentView;
-    private List<Controller> stack = new ArrayList<>();
+    private Stack<Controller> stack = new Stack<>();
 
     private DrawerController drawerController;
     private NavigationController mainNavigationController;
@@ -149,7 +145,7 @@ public class StartActivity
         setupLayout();
 
         setContentView(drawerController.view);
-        addController(drawerController);
+        pushController(drawerController);
 
         // Prevent overdraw
         // Do this after setContentView, or the decor creating will reset the background to a default non-null drawable
@@ -161,24 +157,7 @@ public class StartActivity
         }
 
         setupFromStateOrFreshLaunch(savedInstanceState);
-
         updateManager.autoUpdateCheck();
-
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-            //if there's any uncaught crash stuff, just dump them to the log and exit immediately
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            Logger.e("UNCAUGHT", sw.toString());
-            Logger.e("UNCAUGHT", "------------------------------");
-            Logger.e("UNCAUGHT", "END OF CURRENT RUNTIME MESSAGES");
-            Logger.e("UNCAUGHT", "------------------------------");
-            Logger.e("UNCAUGHT", "Android API Level: " + Build.VERSION.SDK_INT);
-            Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME);
-            Logger.e("UNCAUGHT", "Development Build: " + (getIsOfficial() ? "No" : "Yes"));
-            Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
-            System.exit(999);
-        });
 
         if (ChanSettings.fullUserRotationEnable.get()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
@@ -393,7 +372,7 @@ public class StartActivity
             return true;
         }
 
-        return stackTop().dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
+        return stack.peek().dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
     }
 
     public ViewThreadController currentViewThreadController() {
@@ -485,8 +464,8 @@ public class StartActivity
         }
     }
 
-    public void addController(Controller controller) {
-        stack.add(controller);
+    public void pushController(Controller controller) {
+        stack.push(controller);
     }
 
     public boolean isControllerAdded(Function1<Controller, Boolean> predicate) {
@@ -499,7 +478,9 @@ public class StartActivity
         return false;
     }
 
-    public void removeController(Controller controller) {
+    public void popController(Controller controller) {
+        //we permit removal of things not on the top of the stack, but everything gets shifted down so the top of the stack
+        //remains the same
         stack.remove(controller);
     }
 
@@ -529,9 +510,9 @@ public class StartActivity
 
     @Override
     public void onBackPressed() {
-        if (!stackTop().onBack()) {
+        if (!stack.peek().onBack()) {
             if (!exitFlag) {
-                showToast(R.string.action_confirm_exit_title, Toast.LENGTH_LONG);
+                showToast(this, R.string.action_confirm_exit_title, Toast.LENGTH_LONG);
                 exitFlag = true;
             } else {
                 exitFlag = false;
@@ -561,14 +542,12 @@ public class StartActivity
         imagePickDelegate.onDestroy();
         fileChooser.removeCallbacks();
 
-        for (int i = stack.size() - 1; i >= 0; --i) {
-            Controller controller = stack.get(i);
+        while (!stack.isEmpty()) {
+            Controller controller = stack.pop();
 
             controller.onHide();
             controller.onDestroy();
         }
-
-        stack.clear();
     }
 
     @Override
@@ -580,10 +559,6 @@ public class StartActivity
         }
 
         imagePickDelegate.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private Controller stackTop() {
-        return stack.get(stack.size() - 1);
     }
 
     private boolean intentMismatchWorkaround() {

@@ -19,6 +19,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
 import java.util.concurrent.TimeUnit
 
 
@@ -38,6 +39,7 @@ class ConcurrentChunkedFileDownloaderTest {
     @Before
     fun setUp() {
         AndroidUtils.init(testModule.provideApplication())
+        ShadowLog.stream = System.out;
 
         activeDownloads = testModule.provideActiveDownloads()
         fileManager = testModule.provideFileManager()
@@ -59,7 +61,7 @@ class ConcurrentChunkedFileDownloaderTest {
     fun `test cancel one chunk download request`() {
         withServer { server ->
             val buffer = Buffer()
-                    .readFrom(javaClass.classLoader.getResourceAsStream("test_img1.jpg"))
+                    .readFrom(javaClass.classLoader!!.getResourceAsStream("test_img1.jpg"))
 
             val response = MockResponse()
                     .setResponseCode(200)
@@ -141,7 +143,7 @@ class ConcurrentChunkedFileDownloaderTest {
             )
 
             val imageSizeList = imageNameList.map { imageName ->
-                return@map javaClass.classLoader.getResourceAsStream(imageName).use { stream ->
+                return@map javaClass.classLoader!!.getResourceAsStream(imageName).use { stream ->
                     stream.available()
                 }
             }
@@ -272,7 +274,7 @@ class ConcurrentChunkedFileDownloaderTest {
     fun `test download the whole image in one chunk when everything is ok`() {
         withServer { server ->
             val buffer = Buffer()
-                    .readFrom(javaClass.classLoader.getResourceAsStream("test_img1.jpg"))
+                    .readFrom(javaClass.classLoader!!.getResourceAsStream("test_img1.jpg"))
 
             val response = MockResponse()
                     .setResponseCode(200)
@@ -306,7 +308,7 @@ class ConcurrentChunkedFileDownloaderTest {
         withServer { server ->
             val imageName = "test_img1.jpg"
 
-            val fileSize = javaClass.classLoader.getResourceAsStream(imageName).use { stream ->
+            val fileSize = javaClass.classLoader!!.getResourceAsStream(imageName).use { stream ->
                 stream.available()
             }
 

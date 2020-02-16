@@ -1,15 +1,16 @@
 package com.github.adamantcheese.chan.core.presenter
 
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.settings.ChanSettings
-import com.github.adamantcheese.chan.ui.controller.settings.MediaSettingsControllerCallbacks
+import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SharedLocationSetupDelegateCallbacks
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
 import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
-import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread
+import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileChooser
 import com.github.k1rakishou.fsaf.FileManager
@@ -21,9 +22,14 @@ import java.util.concurrent.Executors
 class MediaSettingsControllerPresenter(
         private val fileManager: FileManager,
         private val fileChooser: FileChooser,
-        private var callbacks: MediaSettingsControllerCallbacks?
+        private var context: Context
 ) {
     private val fileCopyingExecutor = Executors.newSingleThreadExecutor()
+    private var callbacks: SharedLocationSetupDelegateCallbacks? = null
+
+    fun onCreate(callbacks: SharedLocationSetupDelegateCallbacks) {
+        this.callbacks = callbacks
+    }
 
     fun onDestroy() {
         callbacks = null
@@ -40,7 +46,7 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
                 if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(uri)) {
-                    showToast(R.string.media_settings_base_directory_is_already_registered)
+                    showToast(context, R.string.media_settings_base_directory_is_already_registered)
                     return
                 }
 
@@ -56,7 +62,7 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
                 if (newLocalThreadsDirectory == null) {
-                    showToast(R.string.media_settings_new_threads_base_dir_not_registered)
+                    showToast(context, R.string.media_settings_new_threads_base_dir_not_registered)
                     return
                 }
 
@@ -69,33 +75,33 @@ class MediaSettingsControllerPresenter(
             }
 
             override fun onCancel(reason: String) {
-                showToast(reason, Toast.LENGTH_LONG)
+                showToast(context, reason, Toast.LENGTH_LONG)
             }
         })
     }
 
     fun onLocalThreadsLocationChosen(dirPath: String) {
+        if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(dirPath)) {
+            showToast(context, R.string.media_settings_base_directory_is_already_registered)
+            return
+        }
+
         val oldLocalThreadsDirectory =
                 fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
-        if (oldLocalThreadsDirectory == null) {
-            showToast(R.string.media_settings_old_threads_base_dir_not_registered)
-            return
-        }
-
-        if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(dirPath)) {
-            showToast(R.string.media_settings_base_directory_is_already_registered)
-            return
-        }
-
         Logger.d(TAG, "onLocalThreadsLocationChosen dir = $dirPath")
         ChanSettings.localThreadLocation.setFileBaseDir(dirPath)
+
+        if (oldLocalThreadsDirectory == null) {
+            showToast(context, R.string.done)
+            return
+        }
 
         val newLocalThreadsDirectory =
                 fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
 
         if (newLocalThreadsDirectory == null) {
-            showToast(R.string.media_settings_new_threads_base_dir_not_registered)
+            showToast(context, R.string.media_settings_new_threads_base_dir_not_registered)
             return
         }
 
@@ -117,7 +123,7 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
                 if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(uri)) {
-                    showToast(R.string.media_settings_base_directory_is_already_registered)
+                    showToast(context, R.string.media_settings_base_directory_is_already_registered)
                     return
                 }
 
@@ -133,7 +139,7 @@ class MediaSettingsControllerPresenter(
                         fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
                 if (newSavedFilesBaseDirectory == null) {
-                    showToast(R.string.media_settings_new_saved_files_base_dir_not_registered)
+                    showToast(context, R.string.media_settings_new_saved_files_base_dir_not_registered)
                     return
                 }
 
@@ -146,30 +152,32 @@ class MediaSettingsControllerPresenter(
             }
 
             override fun onCancel(reason: String) {
-                showToast(reason, Toast.LENGTH_LONG)
+                showToast(context, reason, Toast.LENGTH_LONG)
             }
         })
     }
 
     fun onSaveLocationChosen(dirPath: String) {
-        val oldSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
-
-        if (oldSaveFilesDirectory == null) {
-            showToast(R.string.media_settings_old_saved_files_base_dir_not_registered)
-            return
-        }
-
         if (fileManager.isBaseDirAlreadyRegistered<SavedFilesBaseDirectory>(dirPath)) {
-            showToast(R.string.media_settings_base_directory_is_already_registered)
+            showToast(context, R.string.media_settings_base_directory_is_already_registered)
             return
         }
+
+        // It is important to get old base directory before assigning a new one, i.e. before
+        // ChanSettings.saveLocation.setFileBaseDir(dirPath)
+        val oldSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
 
         Logger.d(TAG, "onSaveLocationChosen dir = $dirPath")
         ChanSettings.saveLocation.setFileBaseDir(dirPath)
 
+        if (oldSaveFilesDirectory == null) {
+            showToast(context, R.string.done)
+            return
+        }
+
         val newSaveFilesDirectory = fileManager.newBaseDirectoryFile<SavedFilesBaseDirectory>()
         if (newSaveFilesDirectory == null) {
-            showToast(R.string.media_settings_new_saved_files_base_dir_not_registered)
+            showToast(context, R.string.media_settings_new_saved_files_base_dir_not_registered)
             return
         }
 
@@ -204,7 +212,7 @@ class MediaSettingsControllerPresenter(
         }
 
         if (filesCount == 0) {
-            showToast(R.string.media_settings_no_files_to_copy)
+            showToast(context, R.string.media_settings_no_files_to_copy)
             return
         }
 
@@ -249,18 +257,24 @@ class MediaSettingsControllerPresenter(
         }
     }
 
-    private fun withCallbacks(func: MediaSettingsControllerCallbacks.() -> Unit) {
-        if (callbacks == null) {
-            // This may actually happen if the user has "Don't keep activities" developer setting
-            // turned on! In such case we want to notify the user that the setting is PROBABLY on
-            // so they should disable it if it's really turned on because that setting will kill
-            // any activity as soon as it goes into the "Paused" state.
-            showToast(R.string.media_settings_dont_keep_activities_setting_is_probably_turned_on, Toast.LENGTH_LONG)
-        } else {
-            runOnUiThread {
-                func(callbacks!!)
+    private fun withCallbacks(func: SharedLocationSetupDelegateCallbacks.() -> Unit) {
+        callbacks?.let {
+            runOnMainThread {
+                func(it)
             }
         }
+    }
+
+    fun resetSaveLocationBaseDir() {
+        ChanSettings.saveLocation.resetActiveDir()
+        ChanSettings.saveLocation.resetFileDir()
+        ChanSettings.saveLocation.resetSafDir()
+    }
+
+    fun resetLocalThreadsBaseDir() {
+        ChanSettings.localThreadLocation.resetActiveDir()
+        ChanSettings.localThreadLocation.resetFileDir()
+        ChanSettings.localThreadLocation.resetSafDir()
     }
 
     companion object {

@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
@@ -59,7 +60,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class ImagePickDelegate {
     private static final String TAG = "ImagePickActivity";
@@ -123,7 +123,7 @@ public class ImagePickDelegate {
             intents.add(newIntent);
         }
 
-        if (intents.size() == 1) {
+        if (intents.size() == 1 || !ChanSettings.allowFilePickChooser.get()) {
             activity.startActivityForResult(intents.get(0), IMAGE_PICK_RESULT);
         } else if (intents.size() > 1) {
             Intent chooser = Intent.createChooser(intents.remove(intents.size() - 1),
@@ -133,7 +133,7 @@ public class ImagePickDelegate {
             chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new Intent[0]));
             activity.startActivityForResult(chooser, IMAGE_PICK_RESULT);
         } else {
-            showToast(R.string.open_file_picker_failed, Toast.LENGTH_LONG);
+            showToast(activity, R.string.open_file_picker_failed, Toast.LENGTH_LONG);
             callback.onFilePickError(false);
             reset();
         }
@@ -264,7 +264,7 @@ public class ImagePickDelegate {
             }
         }
 
-        runOnUiThread(() -> {
+        BackgroundUtils.runOnMainThread(() -> {
             if (success) {
                 callback.onFilePicked(fileName, new File(cacheFile.getFullPath()));
             } else {

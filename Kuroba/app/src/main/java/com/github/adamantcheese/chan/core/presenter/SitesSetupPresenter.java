@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.content.Context;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
@@ -38,7 +39,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class SitesSetupPresenter
         implements Observer {
     private static final String TAG = "SitesSetupPresenter";
-
+    private Context context;
     private final SiteService siteService;
     private final SiteRepository siteRepository;
     private final BoardManager boardManager;
@@ -50,7 +51,10 @@ public class SitesSetupPresenter
     private List<Site> sitesShown = new ArrayList<>();
 
     @Inject
-    public SitesSetupPresenter(SiteService siteService, SiteRepository siteRepository, BoardManager boardManager) {
+    public SitesSetupPresenter(
+            Context context, SiteService siteService, SiteRepository siteRepository, BoardManager boardManager
+    ) {
+        this.context = context;
         this.siteService = siteService;
         this.siteRepository = siteRepository;
         this.boardManager = boardManager;
@@ -156,7 +160,7 @@ public class SitesSetupPresenter
         } catch (Throwable error) {
             Logger.e(TAG, "Could not delete site: " + site.name(), error);
             String message = getString(R.string.could_not_remove_site_error_message, site.name(), error.getMessage());
-            showToast(message, Toast.LENGTH_LONG);
+            showToast(context, message, Toast.LENGTH_LONG);
         }
     }
 

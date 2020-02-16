@@ -96,7 +96,7 @@ public class DeveloperSettingsController
 
         clearCacheButton.setOnClickListener(v -> {
             fileCacheV2.clearCache();
-            showToast("Cleared image cache");
+            showToast(context, "Cleared image cache");
             clearCacheButton.setText("Clear image cache (currently " + cacheHandler.getSize() / 1024 / 1024 + "MB)");
         });
         clearCacheButton.setText("Clear image cache (currently " + cacheHandler.getSize() / 1024 / 1024 + "MB)");
@@ -125,9 +125,9 @@ public class DeveloperSettingsController
                 Field ignoredField = filterWatchManager.getClass().getDeclaredField("ignoredPosts");
                 ignoredField.setAccessible(true);
                 ignoredField.set(filterWatchManager, Collections.synchronizedSet(new HashSet<Integer>()));
-                showToast("Cleared ignores");
+                showToast(context, "Cleared ignores");
             } catch (Exception e) {
-                showToast("Failed to clear ignores");
+                showToast(context, "Failed to clear ignores");
             }
         });
         clearFilterWatchIgnores.setText("Clear ignored filter watches");
@@ -175,9 +175,9 @@ public class DeveloperSettingsController
                 for (WakeManager.Wakeable wakeable : (Set<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
                     wakeable.onWake();
                 }
-                showToast("Woke all wakeables");
+                showToast(context, "Woke all wakeables");
             } catch (Exception e) {
-                showToast("Failed to run wakeables");
+                showToast(context, "Failed to run wakeables");
             }
         });
         forceWake.setText("Force wakemanager wake");
@@ -187,7 +187,7 @@ public class DeveloperSettingsController
         Button resetThreadOpenCounter = new Button(context);
         resetThreadOpenCounter.setOnClickListener(v -> {
             ChanSettings.threadOpenCounter.reset();
-            showToast("Done");
+            showToast(context, "Done");
         });
         resetThreadOpenCounter.setText("Reset thread open counter");
         wrapper.addView(resetThreadOpenCounter);
@@ -205,10 +205,10 @@ public class DeveloperSettingsController
             ChanSettings.verboseLogs.set(!ChanSettings.verboseLogs.get());
 
             if (ChanSettings.verboseLogs.get()) {
-                showToast("Verbose logs enabled");
+                showToast(context, "Verbose logs enabled");
                 verboseLogsButton.setText(R.string.settings_disable_verbose_logs);
             } else {
-                showToast("Verbose logs disabled");
+                showToast(context, "Verbose logs disabled");
                 verboseLogsButton.setText(R.string.settings_enable_verbose_logs);
             }
         });

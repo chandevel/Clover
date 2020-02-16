@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -114,7 +115,10 @@ public class ToolbarContainer
 
     public void set(NavigationItem item, Theme theme, ToolbarPresenter.AnimationStyle animation) {
         if (transitionView != null) {
-            throw new IllegalStateException("Currently in transition mode");
+            // Happens when you are in Phone layout, moving the thread fragment and at the same time
+            // thread update occurs. We probably should just skip it. But maybe there is a better
+            // solution.
+            return;
         }
 
         endAnimations();
@@ -455,12 +459,13 @@ public class ToolbarContainer
                 int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
                 final Drawable arrowDrawable =
                         new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
-                titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowDrawable, null);
-                titleView.setOnClickListener(v -> item.middleMenu.show(titleView));
-                //Default stuff for nothing there
-                if (item.title.isEmpty()) {
-                    titleView.setText("App Setup");
-                }
+                arrowDrawable.setBounds(0, 0, arrowDrawable.getIntrinsicWidth(), arrowDrawable.getIntrinsicHeight());
+                ImageView dropdown = new ImageView(getContext());
+                dropdown.setImageDrawable(arrowDrawable);
+                titleContainer.addView(dropdown,
+                        new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER_VERTICAL | Gravity.RIGHT)
+                );
+                titleContainer.setOnClickListener(v -> item.middleMenu.show(titleView));
             }
 
             // Possible subtitle.

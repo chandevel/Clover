@@ -65,6 +65,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="dropdown_light_pressed_color">#88ffffff</item>
         <item name="dropdown_dark_color">#757575</item>
         <item name="dropdown_dark_pressed_color">#887d7d7d</item>
+
+        <item name="highlighted_pin_view_holder_color">#22000000</item>
+
+        <item name="pin_posts_not_watching_color">#898989</item>
+        <item name="pin_posts_has_replies_color">#ff4444</item>
+        <item name="pin_posts_normal_color">#33B5E5</item>
     </style>
 
     <style name="Chan.Theme.Dark" parent="Theme.AppCompat.NoActionBar">
@@ -100,6 +106,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor_secondary">#212121</item>
 
         <item name="post_spoiler_color">#2c2c2c</item>
+
+        <item name="highlighted_pin_view_holder_color">#282828</item>
     </style>
 
     <style name="Chan.Theme.YotsubaB">
@@ -166,6 +174,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor_secondary">#212121</item>
 
         <item name="post_spoiler_color">#2c2c2c</item>
+
+        <item name="highlighted_pin_view_holder_color">#282828</item>
     </style>
 
     <style name="Chan.Theme.Insomnia" parent="Chan.Theme.Dark">

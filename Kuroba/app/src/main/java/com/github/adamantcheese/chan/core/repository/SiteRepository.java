@@ -11,7 +11,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.SiteRegistry;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -21,6 +20,8 @@ import java.util.Map;
 import java.util.Observable;
 
 import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.core.site.SiteRegistry.SITE_CLASSES;
 
 public class SiteRepository {
     private static final String TAG = "SiteRepository";
@@ -109,7 +110,7 @@ public class SiteRepository {
         JsonSettings settings = new JsonSettings();
 
         //the index doesn't necessarily match the key value to get the class ID anymore since sites were removed
-        config.classId = SiteRegistry.SITE_CLASSES.keyAt(SiteRegistry.SITE_CLASSES.indexOfValue(site.getClass()));
+        config.classId = SITE_CLASSES.keyAt(SITE_CLASSES.indexOfValue(site.getClass()));
         config.external = false;
 
         SiteModel model = createFromClass(config, settings);
@@ -143,9 +144,9 @@ public class SiteRepository {
     }
 
     private Site instantiateSiteClass(int classId) {
-        Class<? extends Site> clazz = SiteRegistry.SITE_CLASSES.get(classId);
+        Class<? extends Site> clazz = SITE_CLASSES.get(classId);
         if (clazz == null) {
-            throw new IllegalArgumentException("Unknown class id");
+            throw new IllegalArgumentException("Unknown class id: " + classId);
         }
         return instantiateSiteClass(clazz);
     }

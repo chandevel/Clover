@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
-
 public class ImageLoaderV2 {
     private static final String TAG = "ImageLoaderV2";
 
@@ -59,7 +57,7 @@ public class ImageLoaderV2 {
 
         if (loadable.isLocal() || loadable.isDownloading()) {
             String formattedName;
-            Logger.d(TAG, "Loading image " + postImage.imageUrl.toString() + " from the disk");
+            Logger.d(TAG, "Loading image " + getImageUrlForLogs(postImage) + " from the disk");
 
             if (postImage.spoiler) {
                 String extension = StringUtils.extractFileNameExtension(postImage.spoilerThumbnailUrl.toString());
@@ -84,12 +82,12 @@ public class ImageLoaderV2 {
             }
 
             return getFromDisk(loadable, formattedName, postImage.spoiler, imageListener, width, height, () -> {
-                Logger.d(TAG, "Falling back to imageLoaderV1 load the image " + postImage.imageUrl.toString());
+                Logger.d(TAG, "Falling back to imageLoaderV1 load the image " + getImageUrlForLogs(postImage));
 
                 return imageLoader.get(postImage.getThumbnailUrl().toString(), imageListener, width, height);
             });
         } else {
-            Logger.d(TAG, "Loading image " + postImage.imageUrl.toString() + " via the imageLoaderV1");
+            Logger.d(TAG, "Loading image " + getImageUrlForLogs(postImage) + " via the imageLoaderV1");
 
             return imageLoader.get(postImage.getThumbnailUrl().toString(), imageListener, width, height);
         }
@@ -139,7 +137,9 @@ public class ImageLoaderV2 {
                     Logger.w(TAG, "Base saved files directory does not exist");
 
                     if (imageListener != null && callback != null) {
-                        runOnUiThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(), true));
+                        BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(),
+                                true
+                        ));
                     }
 
                     return;
@@ -165,7 +165,9 @@ public class ImageLoaderV2 {
                     Logger.d(TAG, "Local image does not exist (or is inaccessible)");
 
                     if (imageListener != null && callback != null) {
-                        runOnUiThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(), true));
+                        BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(),
+                                true
+                        ));
                     }
                     return;
                 }
@@ -206,12 +208,24 @@ public class ImageLoaderV2 {
                 Logger.e(TAG, "Error while trying to load a local image", e);
 
                 if (imageListener != null && callback != null) {
-                    runOnUiThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(), true));
+                    BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(),
+                            true
+                    ));
                 }
             }
         });
 
         return container;
+    }
+
+    private String getImageUrlForLogs(PostImage postImage) {
+        if (postImage.imageUrl != null) {
+            return postImage.imageUrl.toString();
+        } else if (postImage.thumbnailUrl != null) {
+            return postImage.thumbnailUrl.toString();
+        }
+
+        return "No image url";
     }
 
     private void postError(ImageListener imageListener, String message) {

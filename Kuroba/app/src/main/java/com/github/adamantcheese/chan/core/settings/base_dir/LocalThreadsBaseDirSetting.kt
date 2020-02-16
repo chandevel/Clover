@@ -59,6 +59,10 @@ class LocalThreadsBaseDirSetting(
         fileApiBaseDir.setSyncNoCheck(getDefaultLocalThreadsLocation())
     }
 
+    override fun resetSafDir() {
+        safBaseDir.setSyncNoCheck("")
+    }
+
     override fun resetActiveDir() {
         activeBaseDir.setSync(ActiveBaseDir.FileBaseDir.ordinal)
     }

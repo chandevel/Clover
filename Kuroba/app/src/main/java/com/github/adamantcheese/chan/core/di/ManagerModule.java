@@ -26,30 +26,32 @@ import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
+import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
-import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
-import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.parser.MockReplyManager;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
+import com.google.gson.Gson;
 
 import org.codejargon.feather.Provides;
+
+import java.io.File;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import okhttp3.OkHttpClient;
 
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.core.di.NetModule.THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME;
 
 public class ManagerModule {
+    private static final String CRASH_LOGS_DIR_NAME = "crashlogs";
 
     @Provides
     @Singleton
@@ -90,7 +92,8 @@ public class ManagerModule {
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
-        return new WatchManager(databaseManager, chanLoaderManager,
+        return new WatchManager(databaseManager,
+                chanLoaderManager,
                 wakeManager,
                 pageRequestManager,
                 threadSaveManager,
@@ -118,7 +121,8 @@ public class ManagerModule {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
         return new FilterWatchManager(wakeManager,
                 filterEngine,
-                watchManager, chanLoaderManager,
+                watchManager,
+                chanLoaderManager,
                 boardRepository,
                 databaseManager
         );
@@ -133,14 +137,9 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public ArchivesManager provideArchivesManager()
-            throws Exception {
+    public ArchivesManager provideArchivesManager() {
         Logger.d(AppModule.DI_TAG, "Archives manager (4chan only)");
-        //archives are only for 4chan, make a dummy site instance for this method
-        Site chan4 = Chan4.class.newInstance();
-        chan4.initialize(9999, new SiteConfig(), new JsonSettings());
-        chan4.postInitialize();
-        return new ArchivesManager(chan4);
+        return new ArchivesManager();
     }
 
     @Provides
@@ -169,5 +168,23 @@ public class ManagerModule {
     public MockReplyManager provideMockReplyManager() {
         Logger.d(AppModule.DI_TAG, "Mock reply manager");
         return new MockReplyManager();
+    }
+
+    @Provides
+    @Singleton
+    public ReportManager provideReportManager(
+            NetModule.ProxiedOkHttpClient okHttpClient,
+            Gson gson,
+            ThreadSaveManager threadSaveManager
+    ) {
+        Logger.d(AppModule.DI_TAG, "Report manager");
+        File cacheDir = getCacheDir();
+
+        return new ReportManager(
+                okHttpClient.getProxiedClient(),
+                threadSaveManager,
+                gson,
+                new File(cacheDir, CRASH_LOGS_DIR_NAME)
+        );
     }
 }

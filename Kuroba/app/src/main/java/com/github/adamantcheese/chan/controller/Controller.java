@@ -208,7 +208,7 @@ public abstract class Controller {
             transition.perform();
         }
 
-        ((StartActivity) context).addController(controller);
+        ((StartActivity) context).pushController(controller);
     }
 
     public boolean isAlreadyPresenting(Function1<Controller, Boolean> predicate) {
@@ -229,7 +229,7 @@ public abstract class Controller {
             finishPresenting();
         }
 
-        ((StartActivity) context).removeController(this);
+        ((StartActivity) context).popController(this);
         presentedByController.presentingThisController = null;
     }
 

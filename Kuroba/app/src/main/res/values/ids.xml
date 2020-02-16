@@ -23,4 +23,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item name="reply_selection_action_code" type="id" />
     <item name="reply_selection_action_math" type="id" />
     <item name="reply_selection_action_eqn" type="id" />
+    <item name="reply_selection_action_sjis" type="id" />
 </resources>

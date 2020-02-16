@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.model;
 
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -41,6 +42,7 @@ public class PostImage {
     public final String serverFilename;
     public final HttpUrl thumbnailUrl;
     public final HttpUrl spoilerThumbnailUrl;
+    @Nullable
     public final HttpUrl imageUrl;
     public final String filename;
     public final String extension;
@@ -131,8 +133,12 @@ public class PostImage {
             return this;
         }
 
-        public Builder imageUrl(HttpUrl imageUrl) {
-            this.imageUrl = imageUrl;
+        public Builder imageUrl(@NonNull HttpUrl imageUrl) {
+            if (imageUrl == null) {
+                throw new NullPointerException("imageUrl must not be null!");
+            }
+
+            this.imageUrl = HttpUrl.parse(imageUrl.toString().replace("http://", "https://"));
             return this;
         }
 

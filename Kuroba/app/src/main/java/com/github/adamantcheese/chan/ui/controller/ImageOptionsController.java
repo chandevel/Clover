@@ -16,14 +16,12 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.util.Pair;
 import android.view.View;
-import android.view.Window;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -41,6 +39,7 @@ import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -49,9 +48,9 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class ImageOptionsController
         extends Controller
@@ -95,7 +94,7 @@ public class ImageOptionsController
         lastSettings = lastOptions;
         reencodeEnabled = supportsReencode;
 
-        presenter = new ImageReencodingPresenter(this, loadable, lastOptions);
+        presenter = new ImageReencodingPresenter(context, this, loadable, lastOptions);
     }
 
     @Override
@@ -184,9 +183,9 @@ public class ImageOptionsController
 
         presenter.loadImagePreview();
 
-        statusBarColorPrevious = getWindow().getStatusBarColor();
+        statusBarColorPrevious = getWindow(context).getStatusBarColor();
         if (statusBarColorPrevious != 0) {
-            animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(context), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -195,7 +194,7 @@ public class ImageOptionsController
         super.stopPresenting();
 
         if (statusBarColorPrevious != 0) {
-            animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
+            animateStatusBar(getWindow(context), false, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -270,7 +269,7 @@ public class ImageOptionsController
     public void onImageOptionsApplied(Reply reply, boolean filenameRemoved) {
         //called on the background thread!
 
-        runOnUiThread(() -> {
+        BackgroundUtils.runOnMainThread(() -> {
             imageReencodingHelper.pop();
             callbacks.onImageOptionsApplied(reply, filenameRemoved);
         });
@@ -280,7 +279,7 @@ public class ImageOptionsController
     public void disableOrEnableButtons(boolean enabled) {
         //called on the background thread!
 
-        runOnUiThread(() -> {
+        BackgroundUtils.runOnMainThread(() -> {
             fixExif.setEnabled(enabled);
             removeMetadata.setEnabled(enabled);
             removeFilename.setEnabled(enabled);
@@ -290,10 +289,6 @@ public class ImageOptionsController
             cancel.setEnabled(enabled);
             ok.setEnabled(enabled);
         });
-    }
-
-    private Window getWindow() {
-        return ((Activity) context).getWindow();
     }
 
     public interface ImageOptionsControllerCallbacks {

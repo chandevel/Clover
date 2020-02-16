@@ -21,6 +21,8 @@ import android.view.View;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 public class LinkSettingView
         extends SettingView {
     private final View.OnClickListener clickListener;

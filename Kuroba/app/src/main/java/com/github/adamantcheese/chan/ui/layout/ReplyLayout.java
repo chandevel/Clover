@@ -40,6 +40,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
@@ -68,6 +69,7 @@ import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -129,6 +131,8 @@ public class ReplyLayout
     private ImageView more;
     private ImageView submit;
     private DropdownArrowDrawable moreDropdown;
+    @Nullable
+    private HintPopup hintPopup = null;
 
     // Captcha views:
     private FrameLayout captchaContainer;
@@ -162,6 +166,12 @@ public class ReplyLayout
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+
+        if (hintPopup != null) {
+            hintPopup.dismiss();
+            hintPopup = null;
+        }
+
         EventBus.getDefault().unregister(this);
     }
 
@@ -337,18 +347,16 @@ public class ReplyLayout
     ) {
         if (authenticationLayout == null) {
             switch (authentication.type) {
-                case CAPTCHA1: {
+                case CAPTCHA1:
                     authenticationLayout = (LegacyCaptchaLayout) AndroidUtils.inflate(getContext(),
                             R.layout.layout_captcha_legacy,
                             captchaContainer,
                             false
                     );
                     break;
-                }
-                case CAPTCHA2: {
+                case CAPTCHA2:
                     authenticationLayout = new CaptchaLayout(getContext());
                     break;
-                }
                 case CAPTCHA2_NOJS:
                     if (useV2NoJsCaptcha) {
                         // new captcha window without webview
@@ -370,7 +378,7 @@ public class ReplyLayout
                     }
 
                     break;
-                case GENERIC_WEBVIEW: {
+                case GENERIC_WEBVIEW:
                     GenericWebViewAuthenticationLayout view = new GenericWebViewAuthenticationLayout(getContext());
 
                     FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
@@ -378,11 +386,9 @@ public class ReplyLayout
 
                     authenticationLayout = view;
                     break;
-                }
                 case NONE:
-                default: {
+                default:
                     throw new IllegalArgumentException();
-                }
             }
 
             captchaContainer.addView((View) authenticationLayout, 0);
@@ -398,6 +404,7 @@ public class ReplyLayout
 
     @Override
     public void setPage(ReplyPresenter.Page page) {
+        Logger.d(TAG, "Switching to page " + page.name());
         switch (page) {
             case LOADING:
                 setWrappingMode(false);
@@ -417,9 +424,8 @@ public class ReplyLayout
                 break;
         }
 
-        if (page != ReplyPresenter.Page.AUTHENTICATION && authenticationLayout != null) {
-            captchaContainer.removeView((View) authenticationLayout);
-            authenticationLayout = null;
+        if (page != ReplyPresenter.Page.AUTHENTICATION) {
+            destroyCurrentAuthentication();
         }
     }
 
@@ -434,13 +440,12 @@ public class ReplyLayout
             return;
         }
 
-        if (!(authenticationLayout instanceof CaptchaNoJsLayoutV2)) {
-            return;
+        // cleanup resources when switching from the new to the old captcha view
+        if (authenticationLayout instanceof CaptchaNoJsLayoutV2) {
+            ((CaptchaNoJsLayoutV2) authenticationLayout).onDestroy();
         }
 
-        // cleanup resources when switching from the new to the old captcha view
-        ((CaptchaNoJsLayoutV2) authenticationLayout).onDestroy();
-        captchaContainer.removeView((CaptchaNoJsLayoutV2) authenticationLayout);
+        captchaContainer.removeView((View) authenticationLayout);
         authenticationLayout = null;
     }
 
@@ -482,7 +487,7 @@ public class ReplyLayout
 
     @Override
     public void onPosted() {
-        showToast(R.string.reply_success);
+        showToast(getContext(), R.string.reply_success);
         callback.openReply(false);
         callback.requestNewPostLoad();
     }
@@ -573,20 +578,20 @@ public class ReplyLayout
 
     @Override
     public void openPreview(boolean show, File previewFile) {
-        if (show) {
-            ThemeHelper.getTheme().clearDrawable.apply(attach);
-        } else {
-            ThemeHelper.getTheme().imageDrawable.apply(attach);
-        }
-
+        previewHolder.setClickable(false);
         if (show) {
             ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(400), dp(300), this);
+            ThemeHelper.getTheme().clearDrawable.apply(attach);
         } else {
             spoiler.setVisibility(GONE);
             previewHolder.setVisibility(GONE);
             previewMessage.setVisibility(GONE);
             callback.updatePadding();
+            ThemeHelper.getTheme().imageDrawable.apply(attach);
         }
+        // the delay is taken from LayoutTransition, as this class is set to automatically animate layout changes
+        // only allow the preview to be clicked if it is fully visible
+        postDelayed(() -> previewHolder.setClickable(true), 300);
     }
 
     @Override
@@ -633,10 +638,14 @@ public class ReplyLayout
             private MenuItem codeMenuItem;
             private MenuItem mathMenuItem;
             private MenuItem eqnMenuItem;
+            private MenuItem sjisMenuItem;
             private boolean processed;
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                if (callback.getThread() == null) return true;
+                Loadable threadLoadable = callback.getThread().getLoadable();
+                boolean is4chan = threadLoadable.board.site.name().equals("4chan");
                 //menu item cleanup, these aren't needed for this
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     menu.removeItem(android.R.id.shareText);
@@ -645,7 +654,7 @@ public class ReplyLayout
                 // >greentext
                 quoteMenuItem = menu.add(Menu.NONE, R.id.reply_selection_action_quote, 1, R.string.post_quote);
                 // [spoiler] tags
-                if (callback.getThread() != null && callback.getThread().getLoadable().board.spoilers) {
+                if (threadLoadable.board.spoilers) {
                     spoilerMenuItem = menu.add(Menu.NONE,
                             R.id.reply_selection_action_spoiler,
                             2,
@@ -656,8 +665,7 @@ public class ReplyLayout
                 //setup specific items in a submenu
                 SubMenu otherMods = menu.addSubMenu("Modify");
                 // g [code]
-                if (callback.getThread() != null && callback.getThread().getLoadable().board.site.name().equals("4chan")
-                        && callback.getThread().getLoadable().board.code.equals("g")) {
+                if (is4chan && threadLoadable.board.code.equals("g")) {
                     codeMenuItem = otherMods.add(Menu.NONE,
                             R.id.reply_selection_action_code,
                             1,
@@ -665,8 +673,7 @@ public class ReplyLayout
                     );
                 }
                 // sci [eqn] and [math]
-                if (callback.getThread() != null && callback.getThread().getLoadable().board.site.name().equals("4chan")
-                        && callback.getThread().getLoadable().board.code.equals("sci")) {
+                if (is4chan && threadLoadable.board.code.equals("sci")) {
                     eqnMenuItem = otherMods.add(Menu.NONE,
                             R.id.reply_selection_action_eqn,
                             2,
@@ -676,6 +683,14 @@ public class ReplyLayout
                             R.id.reply_selection_action_math,
                             3,
                             R.string.reply_comment_button_math
+                    );
+                }
+                // jp and vip [sjis]
+                if (is4chan && (threadLoadable.board.code.equals("jp") || threadLoadable.board.code.equals("vip"))) {
+                    eqnMenuItem = otherMods.add(Menu.NONE,
+                            R.id.reply_selection_action_sjis,
+                            4,
+                            R.string.reply_comment_button_sjis
                     );
                 }
                 return true;
@@ -710,6 +725,8 @@ public class ReplyLayout
                     insertTags("[eqn]", "[/eqn]");
                 } else if (item == mathMenuItem) {
                     insertTags("[math]", "[/math]");
+                } else if (item == sjisMenuItem) {
+                    insertTags("[sjis]", "[/sjis]");
                 }
 
                 if (processed) {
@@ -780,7 +797,13 @@ public class ReplyLayout
     private void showReencodeImageHint() {
         if (!ChanSettings.reencodeHintShown.get()) {
             String message = getString(R.string.click_image_for_extra_options);
-            HintPopup hintPopup = HintPopup.show(getContext(), preview, message, dp(-32), dp(16));
+
+            if (hintPopup != null) {
+                hintPopup.dismiss();
+                hintPopup = null;
+            }
+
+            hintPopup = HintPopup.show(getContext(), preview, message, dp(-32), dp(16));
             hintPopup.wiggle();
 
             ChanSettings.reencodeHintShown.set(true);
@@ -790,7 +813,7 @@ public class ReplyLayout
     @Override
     public void onUploadingProgress(int percent) {
         if (currentProgress != null) {
-            if (percent <= 0) {
+            if (percent >= 0) {
                 currentProgress.setVisibility(VISIBLE);
             }
 

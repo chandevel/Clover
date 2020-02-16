@@ -12,6 +12,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.ui.controller.RemovedPostsController;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class RemovedPostsHelper {
     private final String TAG = "RemovedPostsHelper";
@@ -51,13 +51,13 @@ public class RemovedPostsHelper {
             List<Post> removedPosts = getRemovedPosts(threadPosts, threadNo);
 
             if (removedPosts.isEmpty()) {
-                showToast(R.string.no_removed_posts_for_current_thread);
+                showToast(context, R.string.no_removed_posts_for_current_thread);
                 return null;
             }
 
             Collections.sort(removedPosts, (o1, o2) -> Integer.compare(o1.no, o2.no));
 
-            runOnUiThread(() -> {
+            BackgroundUtils.runOnMainThread(() -> {
                 present();
 
                 // controller should not be null here, thus no null check

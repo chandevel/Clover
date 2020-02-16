@@ -27,12 +27,13 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class HintPopup {
     public static HintPopup show(Context context, View anchor, int text) {
@@ -54,7 +55,6 @@ public class HintPopup {
     private PopupWindow popupWindow;
     private ViewGroup popupView;
     private final View anchor;
-    private String text;
     private final int offsetX;
     private final int offsetY;
     private final boolean top;
@@ -72,16 +72,15 @@ public class HintPopup {
             final boolean top
     ) {
         this.anchor = anchor;
-        this.text = text;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.top = top;
 
-        createView(context);
+        createView(context, text);
     }
 
     @SuppressLint("InflateParams")
-    private void createView(Context context) {
+    private void createView(Context context, String text) {
         popupView = inflate(context, top ? R.layout.popup_hint_top : R.layout.popup_hint);
         popupView.setOnClickListener((view) -> dismiss());
 
@@ -94,16 +93,10 @@ public class HintPopup {
     }
 
     public void show() {
-        runOnUiThread(() -> {
-            if (!dismissed) {
+        runOnMainThread(() -> {
+            if (!dismissed && BackgroundUtils.isInForeground()) {
                 popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                // TODO: cleanup
-                int xoff;
-                if (!centered) {
-                    xoff = -popupView.getMeasuredWidth() + anchor.getWidth() + offsetX - dp(2);
-                } else {
-                    xoff = -popupView.getMeasuredWidth() + offsetX - dp(2);
-                }
+                int xoff = -popupView.getMeasuredWidth() + offsetX - dp(2) + (centered ? 0 : anchor.getWidth());
                 int yoff = -dp(25) + offsetY + (top ? -anchor.getHeight() - dp(30) : 0);
                 popupWindow.showAsDropDown(anchor, xoff, yoff);
 

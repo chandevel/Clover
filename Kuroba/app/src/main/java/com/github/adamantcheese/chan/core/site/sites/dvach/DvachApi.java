@@ -108,11 +108,11 @@ public class DvachApi
                     break;
                 case "op":
                     int opId = reader.nextInt();
-                    builder.op(opId == 0);
+                    builder.op(opId == 0 && queue.getLoadable().no == builder.id);
                     builder.opId(opId);
                     break;
                 case "sticky":
-                    builder.sticky(reader.nextInt() == 1);
+                    builder.sticky(reader.nextInt() == 1 && builder.op);
                     break;
                 case "closed":
                     builder.closed(reader.nextInt() == 1);

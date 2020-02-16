@@ -101,8 +101,12 @@ public class FilterWatchManager
             processing = true;
             populateFilterLoaders();
             Logger.d(TAG, "Number of filter loaders: " + numBoardsChecked);
-            for (ChanThreadLoader loader : filterLoaders.keySet()) {
-                loader.requestData();
+            if (!filterLoaders.keySet().isEmpty()) {
+                for (ChanThreadLoader loader : filterLoaders.keySet()) {
+                    loader.requestData();
+                }
+            } else {
+                wakeManager.manageLock(false, FilterWatchManager.this);
             }
         }
     }

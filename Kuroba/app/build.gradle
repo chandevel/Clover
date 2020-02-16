@@ -39,8 +39,8 @@ android {
         //or if there are big application level changes like tearing out/adding major features
         //bump the PATCH (ZZ) version otherwise, for anything small
         int major = 4
-        int minor = 10
-        int patch = 2
+        int minor = 11
+        int patch = 0
 
         /**
          * ------------------------------------------------------------
@@ -59,7 +59,7 @@ android {
         buildConfigField "String", "GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba\""
         //this is for your development server endpoint
         //you WILL need to change the code in UpdateManager if your endpoint changes or you use a different API structure
-        buildConfigField "String", "DEV_API_ENDPOINT", "\"http://94.140.116.243:8080\""
+        buildConfigField "String", "DEV_API_ENDPOINT", "\"https://kuroba.io:8443\""
         //this is for checking who's built what in debug logs
         buildConfigField "String", "SIGNATURE", "\"8952c098\""
 
@@ -259,7 +259,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha21'
+    implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:1.0-alpha28'
     implementation 'joda-time:joda-time:2.10.5'
 
     testImplementation 'junit:junit:4.13'
@@ -268,7 +268,7 @@ dependencies {
     testImplementation "org.mockito:mockito-core:3.2.4"
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
 }
 
 // Download the current archives.json file for the build

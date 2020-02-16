@@ -265,6 +265,11 @@ public class ChanSettings {
     public static final OptionsSetting<ConcurrentFileDownloadingChunks> concurrentDownloadChunkCount;
     public static final BooleanSetting verboseLogs;
     public static final OptionsSetting<ImageClickPreloadStrategy> imageClickPreloadStrategy;
+    public static final BooleanSetting imageViewerGestures;
+    public static final BooleanSetting allowFilePickChooser;
+    public static final BooleanSetting autoCrashLogsUpload;
+
+    public static final BooleanSetting captchaOnBottom;
 
     static {
         try {
@@ -406,6 +411,10 @@ public class ChanSettings {
                     ImageClickPreloadStrategy.class,
                     ImageClickPreloadStrategy.PreloadNext
             );
+            imageViewerGestures = new BooleanSetting(p, "image_viewer_gestures", true);
+            allowFilePickChooser = new BooleanSetting(p, "allow_file_picker_chooser", false);
+            autoCrashLogsUpload = new BooleanSetting(p, "auto_upload_crash_logs", true);
+            captchaOnBottom = new BooleanSetting(p, "captcha_on_bottom", true);
             androidTenGestureZones = new StringSetting(p, "android_ten_gesture_zones", EMPTY_JSON);
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the

@@ -65,7 +65,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <ImageView
         android:id="@+id/remove_site"
-        android:layout_width="56dp"
+        android:layout_width="wrap_content"
         android:layout_height="56dp"
         android:layout_gravity="center_vertical"
         android:clickable="true"
@@ -75,7 +75,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <ImageView
         android:id="@+id/settings"
-        android:layout_width="56dp"
+        android:layout_width="wrap_content"
         android:layout_height="56dp"
         android:layout_gravity="center_vertical"
         android:padding="12dp"
@@ -83,7 +83,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <ImageView
         android:id="@+id/reorder"
-        android:layout_width="56dp"
+        android:layout_width="wrap_content"
         android:layout_height="56dp"
         android:layout_gravity="center_vertical"
         android:padding="12dp"

@@ -30,7 +30,7 @@ class PartialContentOkHttpDispatcher : Dispatcher() {
             val (start, end) = rangeList.filterNotNull()
 
             val buffer = Buffer()
-                    .readFrom(javaClass.classLoader.getResourceAsStream(imageName))
+                    .readFrom(javaClass.classLoader!!.getResourceAsStream(imageName))
 
             val outputBuffer = buffer.use { buff ->
                 if (start > 0) {

@@ -43,6 +43,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
+import com.github.adamantcheese.chan.core.net.UpdateApiRequest.UpdateApiResponse;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -65,7 +66,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvide
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 /**
@@ -110,7 +112,7 @@ public class UpdateManager {
 
             final Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             button.setEnabled(false);
-            runOnUiThread(() -> {
+            runOnMainThread(() -> {
                 dialog.setCanceledOnTouchOutside(true);
                 button.setEnabled(true);
             }, 1500);
@@ -162,77 +164,53 @@ public class UpdateManager {
                             .setPositiveButton(R.string.ok, null)
                             .show();
                 }
-            }, error -> {
-                Logger.e(TAG, "Failed to process stable API call for updating", error);
-
-                if (manual) {
-                    new AlertDialog.Builder(context).setTitle(R.string.update_check_failed)
-                            .setPositiveButton(R.string.ok, null)
-                            .show();
-                }
-            }));
+            }, error -> failedUpdate(manual)));
             //endregion
         } else {
             //region Dev build
             //@formatter:off
-            JsonObjectRequest request =
-                    new JsonObjectRequest(BuildConfig.DEV_API_ENDPOINT + "/latest_apk_uuid",
-                                          null,
-                                          response -> {
-                                              try {
-                                                  int versionCode = response.getInt("apk_version");
-                                                  String commitHash = response.getString("commit_hash");
-                                                  if (versionCode == BuildConfig.VERSION_CODE
-                                                          && commitHash.equals(BuildConfig.COMMIT_HASH)
-                                                          && manual)
-                                                  {
-                                                      //same version and commit, no update needed
-                                                      new AlertDialog.Builder(context)
-                                                              .setTitle(getString(R.string.update_none,
-                                                                                          getApplicationLabel()
-                                                              ))
-                                                              .setPositiveButton(R.string.ok, null)
-                                                              .show();
-                                                  } else {
-                                                      //new version or commit, update
-                                                      Matcher versionCodeStringMatcher =
-                                                              Pattern.compile("(\\d+)(\\d{2})(\\d{2})")
-                                                              .matcher(String.valueOf(versionCode));
-                                                      if (versionCodeStringMatcher.matches()) {
-                                                          UpdateApiRequest.UpdateApiResponse fauxResponse
-                                                                  = new UpdateApiRequest.UpdateApiResponse();
-                                                          fauxResponse.versionCode = versionCode;
-                                                          fauxResponse.versionCodeString =
-                                                                  "v" + Integer.valueOf(versionCodeStringMatcher.group(1))
-                                                                  + "." + Integer.valueOf(versionCodeStringMatcher.group(2))
-                                                                  + "." + Integer.valueOf(versionCodeStringMatcher.group(3))
-                                                                  + "-" + commitHash.substring(0, 7);
-                                                          fauxResponse.apkURL = HttpUrl.parse(
-                                                                  BuildConfig.DEV_API_ENDPOINT
-                                                                          + "/apk/" + versionCode
-                                                                          + "_" + commitHash
-                                                                          + ".apk");
-                                                          fauxResponse.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
-                                                          processUpdateApiResponse(fauxResponse);
-                                                      } else {
-                                                          throw new Exception(); // to reuse the failed code below
-                                                      }
-                                                  }
-                                              } catch (Exception e) { // any exceptions just fail out
-                                                  Logger.e(TAG, "Failed to process API call for updating");
-                                                  new AlertDialog.Builder(context)
-                                                          .setTitle(R.string.update_check_failed)
-                                                          .setPositiveButton(R.string.ok, null)
-                                                          .show();
-                                              }
-                                          },
-                                          response -> {
-                                              Logger.e(TAG, "Failed to process dev API call for updating");
-                                              new AlertDialog.Builder(context)
-                                                      .setTitle(R.string.update_check_failed)
-                                                      .setPositiveButton(R.string.ok, null)
-                                                      .show();
-                                          }
+            JsonObjectRequest request = new JsonObjectRequest(
+            BuildConfig.DEV_API_ENDPOINT + "/latest_apk_uuid",
+                  null,
+                  response -> {
+                      try {
+                          int versionCode = response.getInt("apk_version");
+                          String commitHash = response.getString("commit_hash");
+                          if (commitHash.equals(BuildConfig.COMMIT_HASH)) {
+                              //same version and commit, no update needed
+                              if (manual) {
+                                  new AlertDialog.Builder(context)
+                                          .setTitle(getString(R.string.update_none,
+                                                                      getApplicationLabel()
+                                          ))
+                                          .setPositiveButton(R.string.ok, null)
+                                          .show();
+                              }
+                          } else {
+                              //new version or commit, update
+                              Matcher versionCodeStringMatcher = Pattern.compile("(\\d+)(\\d{2})(\\d{2})")
+                                      .matcher(String.valueOf(versionCode));
+                              if (versionCodeStringMatcher.matches()) {
+                                  UpdateApiResponse fauxResponse = new UpdateApiResponse();
+                                  fauxResponse.versionCode = versionCode;
+                                  fauxResponse.versionCodeString =
+                                          "v" + Integer.valueOf(versionCodeStringMatcher.group(1))
+                                          + "." + Integer.valueOf(versionCodeStringMatcher.group(2))
+                                          + "." + Integer.valueOf(versionCodeStringMatcher.group(3))
+                                          + "-" + commitHash.substring(0, 7);
+                                  fauxResponse.apkURL = HttpUrl.parse(BuildConfig.DEV_API_ENDPOINT
+                                          + "/apk/" + versionCode + "_" + commitHash + ".apk");
+                                  fauxResponse.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
+                                  processUpdateApiResponse(fauxResponse);
+                              } else {
+                                  throw new Exception(); // to reuse the failed code below
+                              }
+                          }
+                      } catch (Exception e) { // any exceptions just fail out
+                          failedUpdate(manual);
+                      }
+                  },
+                  response -> failedUpdate(manual)
             );
             volleyRequestQueue.add(request);
             //@formatter:on
@@ -240,8 +218,9 @@ public class UpdateManager {
         }
     }
 
-    private boolean processUpdateApiResponse(UpdateApiRequest.UpdateApiResponse response) {
-        if (response.versionCode > BuildConfig.VERSION_CODE || BuildConfig.DEV_BUILD) {
+    private boolean processUpdateApiResponse(UpdateApiResponse response) {
+        if ((response.versionCode > BuildConfig.VERSION_CODE || BuildConfig.DEV_BUILD)
+                && BackgroundUtils.isInForeground()) {
             boolean concat = !response.updateTitle.isEmpty();
             CharSequence updateMessage =
                     concat ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body;
@@ -258,12 +237,21 @@ public class UpdateManager {
         return false;
     }
 
+    private void failedUpdate(boolean manual) {
+        Logger.e(TAG, "Failed to process " + (BuildConfig.DEV_BUILD ? "dev" : "stable") + " API call for updating");
+        if (manual) {
+            new AlertDialog.Builder(context).setTitle(R.string.update_check_failed)
+                    .setPositiveButton(R.string.ok, null)
+                    .show();
+        }
+    }
+
     /**
      * Install the APK file specified in {@code update}. This methods needs the storage permission.
      *
      * @param response that contains the APK file URL
      */
-    public void doUpdate(UpdateApiRequest.UpdateApiResponse response) {
+    public void doUpdate(UpdateApiResponse response) {
         BackgroundUtils.ensureMainThread();
 
         if (cancelableDownload != null) {
@@ -277,16 +265,21 @@ public class UpdateManager {
                     public void onProgress(int chunkIndex, long downloaded, long total) {
                         BackgroundUtils.ensureMainThread();
 
-                        updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded
-                                / (double) total)));
+                        if (updateDownloadDialog != null) {
+                            updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded
+                                    / (double) total)));
+                        }
                     }
 
                     @Override
                     public void onSuccess(RawFile file) {
                         BackgroundUtils.ensureMainThread();
 
-                        updateDownloadDialog.dismiss();
-                        updateDownloadDialog = null;
+                        if (updateDownloadDialog != null) {
+                            updateDownloadDialog.setOnDismissListener(null);
+                            updateDownloadDialog.dismiss();
+                            updateDownloadDialog = null;
+                        }
 
                         String fileName = getApplicationLabel() + "_" + response.versionCodeString + ".apk";
 
@@ -323,8 +316,11 @@ public class UpdateManager {
                                 exception.getMessage()
                         );
 
-                        updateDownloadDialog.dismiss();
-                        updateDownloadDialog = null;
+                        if (updateDownloadDialog != null) {
+                            updateDownloadDialog.setOnDismissListener(null);
+                            updateDownloadDialog.dismiss();
+                            updateDownloadDialog = null;
+                        }
                         new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
                                 .setMessage(description)
                                 .setPositiveButton(R.string.ok, null)
@@ -335,8 +331,11 @@ public class UpdateManager {
                     public void onCancel() {
                         BackgroundUtils.ensureMainThread();
 
-                        updateDownloadDialog.dismiss();
-                        updateDownloadDialog = null;
+                        if (updateDownloadDialog != null) {
+                            updateDownloadDialog.setOnDismissListener(null);
+                            updateDownloadDialog.dismiss();
+                            updateDownloadDialog = null;
+                        }
                         new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
                                 .setPositiveButton(R.string.ok, null)
                                 .show();
@@ -372,12 +371,16 @@ public class UpdateManager {
         StrictMode.setVmPolicy(vmPolicy);
     }
 
-    private void updateInstallRequested(final UpdateApiRequest.UpdateApiResponse response) {
+    private void updateInstallRequested(final UpdateApiResponse response) {
         RuntimePermissionsHelper runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
         runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
             if (granted) {
                 updateDownloadDialog = new ProgressDialog(context);
-                updateDownloadDialog.setCancelable(false);
+                updateDownloadDialog.setCanceledOnTouchOutside(true);
+                updateDownloadDialog.setOnDismissListener((dialog) -> {
+                    showToast(context, "Download will continue in background.");
+                    updateDownloadDialog = null;
+                });
                 updateDownloadDialog.setTitle(R.string.update_install_downloading);
                 updateDownloadDialog.setMax(10000);
                 updateDownloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);

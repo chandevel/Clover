@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
+import android.net.ConnectivityManager;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.github.adamantcheese.chan.BuildConfig;
@@ -39,6 +41,7 @@ import javax.inject.Singleton;
 
 import okhttp3.OkHttpClient;
 
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -74,13 +77,14 @@ public class NetModule {
     @Provides
     @Singleton
     public FileCacheV2 provideFileCacheV2(
+            ConnectivityManager connectivityManager,
             FileManager fileManager,
             CacheHandler cacheHandler,
             SiteResolver siteResolver,
             @Named(DOWNLOADER_OKHTTP_CLIENT_NAME) OkHttpClient okHttpClient
     ) {
         Logger.d(AppModule.DI_TAG, "File cache V2");
-        return new FileCacheV2(fileManager, cacheHandler, siteResolver, okHttpClient);
+        return new FileCacheV2(fileManager, cacheHandler, siteResolver, okHttpClient, connectivityManager);
     }
 
     @Provides
@@ -90,15 +94,6 @@ public class NetModule {
     ) {
         Logger.d(AppModule.DI_TAG, "WebmStreamingSource");
         return new WebmStreamingSource(fileManager, fileCacheV2, cacheHandler);
-    }
-
-    private File getCacheDir() {
-        // See also res/xml/filepaths.xml for the fileprovider.
-        if (getAppContext().getExternalCacheDir() != null) {
-            return getAppContext().getExternalCacheDir();
-        } else {
-            return getAppContext().getCacheDir();
-        }
     }
 
     @Provides

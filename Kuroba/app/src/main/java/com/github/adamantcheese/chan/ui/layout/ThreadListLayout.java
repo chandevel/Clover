@@ -477,8 +477,25 @@ public class ThreadListLayout
     }
 
     public boolean canChildScrollUp() {
-        if (replyOpen || searchOpen) {
+        if (replyOpen) {
             return true;
+        }
+
+        if (searchOpen) {
+            if (getTopAdapterPosition() == 0) {
+                View top = layoutManager.findViewByPosition(0);
+                int searchExtraHeight = findViewById(R.id.search_status).getHeight();
+                if (postViewMode == ChanSettings.PostViewMode.LIST) {
+                    return top.getTop() != searchExtraHeight;
+                } else {
+                    if (top instanceof PostStubCell) {
+                        // PostStubCell does not have grid_card_margin
+                        return top.getTop() != searchExtraHeight + dp(1);
+                    } else {
+                        return top.getTop() != getDimen(R.dimen.grid_card_margin) + dp(1) + searchExtraHeight;
+                    }
+                }
+            }
         }
 
         switch (postViewMode) {
@@ -543,11 +560,9 @@ public class ThreadListLayout
                 PostCellInterface postView = (PostCellInterface) view;
                 Post post = postView.getPost();
 
-                if (!post.images.isEmpty()) {
-                    for (PostImage image : post.images) {
-                        if (image.equalUrl(postImage)) {
-                            return postView.getThumbnailView(postImage);
-                        }
+                for (PostImage image : post.images) {
+                    if (image.equalUrl(postImage)) {
+                        return postView.getThumbnailView(postImage);
                     }
                 }
             }

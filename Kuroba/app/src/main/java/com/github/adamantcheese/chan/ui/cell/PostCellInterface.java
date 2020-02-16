@@ -51,7 +51,7 @@ public interface PostCellInterface {
 
         void onPostClicked(Post post);
 
-        void onPopupPostDoubleClicked(Post post);
+        void onPostDoubleClicked(Post post);
 
         void onThumbnailClicked(PostImage image, ThumbnailView thumbnail);
 
@@ -59,7 +59,7 @@ public interface PostCellInterface {
 
         Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu, List<FloatingMenuItem> extraMenu);
 
-        void onPostOptionClicked(Post post, Object id);
+        void onPostOptionClicked(Post post, Object id, boolean inPopup);
 
         void onPostLinkableClicked(Post post, PostLinkable linkable);
 

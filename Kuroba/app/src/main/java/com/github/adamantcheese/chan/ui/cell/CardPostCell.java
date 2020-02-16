@@ -115,7 +115,7 @@ public class CardPostCell
                     showOptions(anchor, extraItems, null, null);
                 }
 
-                callback.onPostOptionClicked(post, item.getId());
+                callback.onPostOptionClicked(post, item.getId(), false);
             }
 
             @Override
@@ -139,6 +139,7 @@ public class CardPostCell
         super.onDetachedFromWindow();
 
         if (post != null && bound) {
+            thumbView.setPostImage(loadable, null, false, 0, 0);
             bound = false;
         }
     }

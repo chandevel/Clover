@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 /**
  * Created by Zetsubou on 02.07.2015

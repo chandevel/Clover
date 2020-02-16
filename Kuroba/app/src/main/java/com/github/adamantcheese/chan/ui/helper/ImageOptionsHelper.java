@@ -78,7 +78,7 @@ public class ImageOptionsHelper
             );
             callbacks.presentReencodeOptionsController(imageReencodeOptionsController);
         } else {
-            showToast(R.string.image_reencode_format_error, Toast.LENGTH_LONG);
+            showToast(context, R.string.image_reencode_format_error, Toast.LENGTH_LONG);
         }
     }
 

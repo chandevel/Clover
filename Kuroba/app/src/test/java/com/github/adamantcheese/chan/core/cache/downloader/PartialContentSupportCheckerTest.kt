@@ -1,8 +1,10 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
+import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.cache.createFileDownloadRequest
 import com.github.adamantcheese.chan.core.cache.withServer
 import com.github.adamantcheese.chan.utils.AndroidUtils
+import com.github.k1rakishou.fsaf.file.RawFile
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import org.junit.After
@@ -12,6 +14,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLog
+import java.net.SocketException
 import java.util.concurrent.TimeUnit
 
 
@@ -23,14 +27,17 @@ class PartialContentSupportCheckerTest {
     private lateinit var okHttpClient: OkHttpClient
     private lateinit var activeDownloads: ActiveDownloads
     private lateinit var partialContentSupportChecker: PartialContentSupportChecker
+    private lateinit var cacheHandler: CacheHandler
 
     @Before
     fun setUp() {
         AndroidUtils.init(testModule.provideApplication())
+        ShadowLog.stream = System.out;
 
         okHttpClient = testModule.provideOkHttpClient()
         activeDownloads = testModule.provideActiveDownloads()
         partialContentSupportChecker = testModule.providePartialContentSupportChecker()
+        cacheHandler = testModule.provideCacheHandler()
     }
 
     @After
@@ -43,7 +50,8 @@ class PartialContentSupportCheckerTest {
     @Test
     fun `test check for batch request should return supportsPartialContentDownload == false`() {
         val url = "http://4chan.org/image1.jpg"
-        val request = createFileDownloadRequest(url, isBatchDownload = true)
+        val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
+        val request = createFileDownloadRequest(url, isBatchDownload = true, file = output)
         activeDownloads.put(url, request)
 
         partialContentSupportChecker.check(url)
@@ -71,7 +79,8 @@ class PartialContentSupportCheckerTest {
             server.start()
 
             val url = server.url("/image1.jpg").toString()
-            val request = createFileDownloadRequest(url)
+            val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
+            val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)
 
             partialContentSupportChecker.check(url)
@@ -108,7 +117,8 @@ class PartialContentSupportCheckerTest {
             server.start()
 
             val url = server.url("/image1.jpg").toString()
-            val request = createFileDownloadRequest(url)
+            val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
+            val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)
 
 
@@ -142,7 +152,8 @@ class PartialContentSupportCheckerTest {
             server.start()
 
             val url = server.url("/image1.jpg").toString()
-            val request = createFileDownloadRequest(url)
+            val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
+            val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)
 
             val testObserver = partialContentSupportChecker.check(url)
@@ -151,15 +162,15 @@ class PartialContentSupportCheckerTest {
             Thread.sleep(150)
             request.cancelableDownload.cancel()
 
-            testObserver
-                    .awaitCount(1)
-                    .assertValue { value ->
-                        assertFalse(value.supportsPartialContentDownload)
-                        true
-                    }
-                    .assertComplete()
-                    .assertNoErrors()
-                    .assertNoTimeout()
+            val (events, errors, completes) = testObserver
+                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    .events
+
+            assertTrue(completes.isEmpty())
+            assertTrue(events.isEmpty())
+            assertEquals(1, errors.size)
+            assertTrue(errors.first() is SocketException)
+            assertTrue((errors.first() as SocketException).message.equals("Socket closed", ignoreCase = true))
 
             val state = activeDownloads.get(url)!!.cancelableDownload.getState()
             assertTrue(state is DownloadState.Canceled)
@@ -182,7 +193,8 @@ class PartialContentSupportCheckerTest {
             server.start()
 
             val url = server.url("/image1.jpg").toString()
-            val request = createFileDownloadRequest(url)
+            val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
+            val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)
 
             val testObserver = partialContentSupportChecker.check(url)
@@ -191,15 +203,15 @@ class PartialContentSupportCheckerTest {
             Thread.sleep(150)
             request.cancelableDownload.stop()
 
-            testObserver
-                    .awaitCount(1)
-                    .assertValue { value ->
-                        assertFalse(value.supportsPartialContentDownload)
-                        true
-                    }
-                    .assertComplete()
-                    .assertNoErrors()
-                    .assertNoTimeout()
+            val (events, errors, completes) = testObserver
+                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    .events
+
+            assertTrue(completes.isEmpty())
+            assertTrue(events.isEmpty())
+            assertEquals(1, errors.size)
+            assertTrue(errors.first() is SocketException)
+            assertTrue((errors.first() as SocketException).message.equals("Socket closed", ignoreCase = true))
 
             val state = activeDownloads.get(url)!!.cancelableDownload.getState()
             assertTrue(state is DownloadState.Stopped)
@@ -216,7 +228,8 @@ class PartialContentSupportCheckerTest {
             server.start()
 
             val url = server.url("/image1.jpg").toString()
-            val request = createFileDownloadRequest(url)
+            val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
+            val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)
 
             partialContentSupportChecker.check(url)
@@ -247,7 +260,8 @@ class PartialContentSupportCheckerTest {
             server.start()
 
             val url = server.url("/image1.jpg").toString()
-            val request = createFileDownloadRequest(url)
+            val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
+            val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)
 
             partialContentSupportChecker.check(url)
@@ -266,4 +280,7 @@ class PartialContentSupportCheckerTest {
         }
     }
 
+    companion object {
+        private const val MAX_AWAIT_TIME_SECONDS = 5L
+    }
 }

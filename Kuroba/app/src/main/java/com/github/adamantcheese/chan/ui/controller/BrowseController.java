@@ -18,12 +18,13 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -69,6 +70,8 @@ public class BrowseController
     BrowsePresenter presenter;
 
     private PostsFilter.Order order;
+    @Nullable
+    private HintPopup hint = null;
     public String searchQuery = null;
 
     public BrowseController(Context context) {
@@ -93,6 +96,11 @@ public class BrowseController
     public void onDestroy() {
         super.onDestroy();
 
+        if (hint != null) {
+            hint.dismiss();
+            hint = null;
+        }
+
         presenter.destroy();
     }
 
@@ -100,8 +108,13 @@ public class BrowseController
     public void showSitesNotSetup() {
         super.showSitesNotSetup();
 
+        if (hint != null) {
+            hint.dismiss();
+            hint = null;
+        }
+
         View hintView = getToolbar().findViewById(R.id.title_container);
-        HintPopup hint = HintPopup.show(context, hintView, R.string.thread_empty_setup_hint);
+        hint = HintPopup.show(context, hintView, R.string.thread_empty_setup_hint);
         hint.alignCenter();
         hint.wiggle();
     }
@@ -122,6 +135,11 @@ public class BrowseController
 
         // Toolbar menu
         navigation.hasBack = false;
+
+        // this controller is used for catalog views; displaying things on two rows for them middle menu is how we want it done
+        // these need to be setup before the view is rendered, otherwise the subtitle view is removed
+        navigation.title = "App Setup";
+        navigation.subtitle = "Tap for site/board setup";
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = navigation.buildMenu()
                 .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
@@ -251,7 +269,7 @@ public class BrowseController
 
     @Override
     public void onBoardClicked(Board item) {
-        presenter.onBoardsFloatingMenuBoardClicked(item);
+        presenter.setBoard(item);
     }
 
     @Override
@@ -288,7 +306,7 @@ public class BrowseController
     private void handleShareAndOpenInBrowser(ThreadPresenter presenter, boolean share) {
         if (presenter.isBound()) {
             if (presenter.getChanThread() == null) {
-                showToast(R.string.cannot_open_in_browser_already_deleted);
+                showToast(context, R.string.cannot_open_in_browser_already_deleted);
                 return;
             }
 
@@ -297,7 +315,7 @@ public class BrowseController
             if (share) {
                 shareLink(link);
             } else {
-                openLinkInBrowser((Activity) context, link);
+                openLinkInBrowser(context, link);
             }
         }
     }
@@ -376,9 +394,9 @@ public class BrowseController
 
     @Override
     public void loadBoard(Loadable loadable) {
-        String name = BoardHelper.getName(loadable.board);
-        loadable.title = name;
-        navigation.title = name;
+        loadable.title = BoardHelper.getName(loadable.board);
+        navigation.title = "/" + loadable.board.code + "/";
+        navigation.subtitle = loadable.board.name;
 
         ThreadPresenter presenter = threadLayout.getPresenter();
         presenter.unbindLoadable();

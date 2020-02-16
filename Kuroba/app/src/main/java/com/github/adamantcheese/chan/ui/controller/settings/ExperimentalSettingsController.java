@@ -32,7 +32,6 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ExperimentalSettingsController
         extends SettingsController {
@@ -105,6 +104,13 @@ public class ExperimentalSettingsController
         setupConcurrentFileDownloadingChunksSetting(group);
         setupZonesEditor(group);
         setupZonesResetButton(group);
+
+        group.add(new BooleanSettingView(
+                this,
+                ChanSettings.imageViewerGestures,
+                R.string.setting_image_viewer_gestures,
+                R.string.setting_image_viewer_gestures_description
+        ));
 
         groups.add(group);
     }

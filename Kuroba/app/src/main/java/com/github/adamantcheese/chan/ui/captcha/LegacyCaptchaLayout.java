@@ -35,11 +35,11 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class LegacyCaptchaLayout
         extends LinearLayout
@@ -132,7 +132,7 @@ public class LegacyCaptchaLayout
     @Override
     public void reset() {
         input.setText("");
-        String html = IOUtils.assetAsString(getContext(), "captcha/captcha_legacy.html");
+        String html = IOUtils.assetAsString(getContext(), "html/captcha_legacy.html");
         html = html.replace("__site_key__", siteKey);
         internalWebView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
         image.setUrl(null);
@@ -158,7 +158,7 @@ public class LegacyCaptchaLayout
 
         @JavascriptInterface
         public void onCaptchaLoaded(final String imageUrl, final String challenge) {
-            runOnUiThread(() -> layout.onCaptchaLoaded(imageUrl, challenge));
+            BackgroundUtils.runOnMainThread(() -> layout.onCaptchaLoaded(imageUrl, challenge));
         }
     }
 }

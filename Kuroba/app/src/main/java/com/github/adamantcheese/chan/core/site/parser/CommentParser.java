@@ -54,6 +54,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
@@ -76,6 +77,8 @@ public class CommentParser {
     private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
     private Map<String, List<StyleRule>> rules = new HashMap<>();
 
+    private static final Typeface mona = Typeface.createFromAsset(getAppContext().getAssets(), "font/mona.ttf");
+
     public CommentParser() {
         inject(this);
 
@@ -96,6 +99,7 @@ public class CommentParser {
         rule(tagRule("span").cssClass("fortune").action(this::handleFortune));
         rule(tagRule("span").cssClass("abbr").nullify());
         rule(tagRule("span").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE).linkify());
+        rule(tagRule("span").cssClass("sjis").typeface(mona));
 
         rule(tagRule("table").action(this::handleTable));
 
@@ -157,13 +161,12 @@ public class CommentParser {
     ) {
         CommentParser.Link handlerLink = matchAnchor(post, text, anchor, callback);
 
-        MockReplyManager.MockReply mockReply =
-                mockReplyManager.getLastMockReply(post.board.siteId, post.board.code, post.opId);
+        int mockReplyPostNo = mockReplyManager.getLastMockReply(post.board.siteId, post.board.code, post.opId);
 
         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
 
-        if (mockReply != null) {
-            addMockReply(theme, post, spannableStringBuilder, mockReply);
+        if (mockReplyPostNo >= 0) {
+            addMockReply(theme, post, spannableStringBuilder, mockReplyPostNo);
         }
 
         if (handlerLink != null) {
@@ -212,17 +215,14 @@ public class CommentParser {
     }
 
     private void addMockReply(
-            Theme theme,
-            Post.Builder post,
-            SpannableStringBuilder spannableStringBuilder,
-            MockReplyManager.MockReply mockReply
+            Theme theme, Post.Builder post, SpannableStringBuilder spannableStringBuilder, int mockReplyPostNo
     ) {
-        Logger.d(TAG, "Adding a new mock reply (replyTo: " + mockReply.getPostNo() + ", replyFrom: " + post.id + ")");
-        post.addReplyTo(mockReply.getPostNo());
+        Logger.d(TAG, "Adding a new mock reply (replyTo: " + mockReplyPostNo + ", replyFrom: " + post.id + ")");
+        post.addReplyTo(mockReplyPostNo);
 
-        CharSequence replyText = ">>" + mockReply.getPostNo() + " (MOCK)";
+        CharSequence replyText = ">>" + mockReplyPostNo + " (MOCK)";
         SpannableString res = new SpannableString(replyText);
-        PostLinkable pl = new PostLinkable(theme, replyText, mockReply.getPostNo(), PostLinkable.Type.QUOTE);
+        PostLinkable pl = new PostLinkable(theme, replyText, mockReplyPostNo, PostLinkable.Type.QUOTE);
         res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
         post.addLinkable(pl);
 
@@ -291,6 +291,7 @@ public class CommentParser {
     ) {
         //crossboard thread links in the OP are likely not thread links, so just let them error out on the parseInt
         try {
+            if (!builder.board.site.name().equals("4chan")) return text; //4chan only
             int postNo = Integer.parseInt(deadlink.text().substring(2));
             List<ArchivesLayout.PairForAdapter> boards = instance(ArchivesManager.class).domainsForBoard(builder.board);
             if (!boards.isEmpty() && builder.op) {

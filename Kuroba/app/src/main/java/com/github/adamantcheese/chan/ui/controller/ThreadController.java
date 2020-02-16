@@ -86,10 +86,8 @@ public abstract class ThreadController
 
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        if (navigation.handlesToolbarInset) {
-            int toolbarHeight = getToolbar().getToolbarHeight();
-            swipeRefreshLayout.setProgressViewOffset(false, toolbarHeight - dp(40), toolbarHeight + dp(64 - 40));
-        }
+        int toolbarHeight = getToolbar().getToolbarHeight();
+        swipeRefreshLayout.setProgressViewOffset(false, toolbarHeight - dp(40), toolbarHeight + dp(64 - 40));
 
         view = swipeRefreshLayout;
     }
@@ -147,7 +145,7 @@ public abstract class ThreadController
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
         if (threadLayout.getPresenter().getChanThread() == null) {
-            showToast(R.string.cannot_send_thread_via_nfc_already_deleted);
+            showToast(context, R.string.cannot_send_thread_via_nfc_already_deleted);
             return null;
         }
 
@@ -270,10 +268,11 @@ public abstract class ThreadController
         } else {
             navigationController.pushController(filtersController);
         }
-        // TODO cleanup
+
         Filter filter = new Filter();
         filter.type = FilterType.TRIPCODE.flag;
-        filter.pattern = String.format("/%s/", tripcode);
+        filter.pattern = '/' + tripcode + '/';
+
         filtersController.showFilterDialog(filter);
     }
 

@@ -33,6 +33,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.PrimaryColor.BLACK;
+import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.PrimaryColor.BROWN;
+import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.PrimaryColor.DARK;
+import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.PrimaryColor.GREEN;
+import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.PrimaryColor.ORANGE;
+import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.PrimaryColor.RED;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class ThemeHelper {
@@ -41,105 +47,26 @@ public class ThemeHelper {
     private List<Theme> themes = new ArrayList<>();
 
     private Theme theme;
-    private static final Typeface ROBOTO_MEDIUM = Typeface.create("sans-serif-medium", Typeface.NORMAL);
-    private static final Typeface ROBOTO_CONDENSED = Typeface.create("sans-serif-condensed", Typeface.NORMAL);
+
     private static final Typeface TALLEYRAND =
             Typeface.createFromAsset(getAppContext().getAssets(), "font/Talleyrand.ttf");
     private static final Typeface OPTI_CUBA_LIBRE_TWO =
             Typeface.createFromAsset(getAppContext().getAssets(), "font/OPTICubaLibreTwo.otf");
 
     public ThemeHelper() {
-        themes.add(new Theme("Light",
-                "light",
-                R.style.Chan_Theme,
-                PrimaryColor.GREEN,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        themes.add(new DarkTheme("Dark",
-                "dark",
-                R.style.Chan_Theme_Dark,
-                PrimaryColor.DARK,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        themes.add(new DarkTheme("Black",
-                "black",
-                R.style.Chan_Theme_Black,
-                PrimaryColor.BLACK,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        themes.add(new DarkTheme("Tomorrow",
-                "tomorrow",
-                R.style.Chan_Theme_Tomorrow,
-                PrimaryColor.DARK,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        themes.add(new DarkTheme("Tomorrow Black",
-                "tomorrow_black",
-                R.style.Chan_Theme_TomorrowBlack,
-                PrimaryColor.BLACK,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        themes.add(new Theme("Yotsuba",
-                "yotsuba",
-                R.style.Chan_Theme_Yotsuba,
-                PrimaryColor.RED,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        themes.add(new Theme("Yotsuba B",
-                "yotsuba_b",
-                R.style.Chan_Theme_YotsubaB,
-                PrimaryColor.RED,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        themes.add(new Theme("Photon",
-                "photon",
-                R.style.Chan_Theme_Photon,
-                PrimaryColor.ORANGE,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        themes.add(new DarkTheme("Insomnia",
-                "insomnia",
-                R.style.Chan_Theme_Insomnia,
-                PrimaryColor.DARK,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        themes.add(new DarkTheme("Gruvbox",
-                "gruvbox",
-                R.style.Chan_Theme_Gruvbox,
-                PrimaryColor.DARK,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        themes.add(new DarkTheme("Neon",
-                "neon",
-                R.style.Chan_Theme_Neon,
-                PrimaryColor.DARK,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        themes.add(new DarkTheme("Solarized Dark",
-                "solarized_dark",
-                R.style.Chan_Theme_SolarizedDark,
-                PrimaryColor.ORANGE,
-                ROBOTO_MEDIUM,
-                ROBOTO_CONDENSED
-        ));
-        Theme holo = new DarkTheme("Holo",
-                "holo",
-                R.style.Chan_Theme_Holo,
-                PrimaryColor.BROWN,
-                TALLEYRAND,
-                OPTI_CUBA_LIBRE_TWO
-        );
+        themes.add(new Theme("Light", "light", R.style.Chan_Theme, GREEN));
+        themes.add(new DarkTheme("Dark", "dark", R.style.Chan_Theme_Dark, DARK));
+        themes.add(new DarkTheme("Black", "black", R.style.Chan_Theme_Black, BLACK));
+        themes.add(new DarkTheme("Tomorrow", "tomorrow", R.style.Chan_Theme_Tomorrow, DARK));
+        themes.add(new DarkTheme("Tomorrow Black", "tomorrow_black", R.style.Chan_Theme_TomorrowBlack, BLACK));
+        themes.add(new Theme("Yotsuba", "yotsuba", R.style.Chan_Theme_Yotsuba, RED));
+        themes.add(new Theme("Yotsuba B", "yotsuba_b", R.style.Chan_Theme_YotsubaB, RED));
+        themes.add(new Theme("Photon", "photon", R.style.Chan_Theme_Photon, ORANGE));
+        themes.add(new DarkTheme("Insomnia", "insomnia", R.style.Chan_Theme_Insomnia, DARK));
+        themes.add(new DarkTheme("Gruvbox", "gruvbox", R.style.Chan_Theme_Gruvbox, DARK));
+        themes.add(new DarkTheme("Neon", "neon", R.style.Chan_Theme_Neon, DARK));
+        themes.add(new DarkTheme("Solarized Dark", "solarized_dark", R.style.Chan_Theme_SolarizedDark, ORANGE));
+        Theme holo = new DarkTheme("Holo", "holo", R.style.Chan_Theme_Holo, BROWN, TALLEYRAND, OPTI_CUBA_LIBRE_TWO);
         holo.altFontIsMain = true;
         themes.add(holo);
 
@@ -177,7 +104,7 @@ public class ThemeHelper {
     private void patchTheme(Theme theme, ChanSettings.ThemeColor setting) {
         // Patch the theme primary and accent color when set in the settings
         if (setting.color != null) {
-            theme.primaryColor = getColor(setting.color, PrimaryColor.BLACK);
+            theme.primaryColor = getColor(setting.color, BLACK);
         }
         if (setting.accentColor != null) {
             theme.accentColor = getColor(setting.accentColor, PrimaryColor.TEAL);

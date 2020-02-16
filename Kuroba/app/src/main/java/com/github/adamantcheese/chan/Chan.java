@@ -19,8 +19,10 @@ package com.github.adamantcheese.chan;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 
+import com.github.adamantcheese.chan.core.cache.downloader.FileCacheException;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.di.DatabaseModule;
@@ -32,6 +34,8 @@ import com.github.adamantcheese.chan.core.di.SiteModule;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
+import com.github.adamantcheese.chan.core.manager.ReportManager;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -39,12 +43,15 @@ import com.github.adamantcheese.chan.utils.Logger;
 import org.codejargon.feather.Feather;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import javax.inject.Inject;
 
 import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getIsOfficial;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static java.lang.Thread.currentThread;
 
@@ -61,6 +68,9 @@ public class Chan
 
     @Inject
     BoardManager boardManager;
+
+    @Inject
+    ReportManager reportManager;
 
     private static Feather feather;
 
@@ -95,25 +105,36 @@ public class Chan
         );
         feather.injectFields(this);
 
+        //Needs to happen before any sites are processed, in case they request archives
+        feather.instance(ArchivesManager.class);
+
         siteService.initialize();
         boardManager.initialize();
         databaseManager.initializeAndTrim();
 
         //create these classes here even if they aren't explicitly used, so they do their background startup tasks
         //and so that they're available for feather later on for archives/filter watch waking
-        feather.instance(ArchivesManager.class);
         feather.instance(FilterWatchManager.class);
 
         RxJavaPlugins.setErrorHandler(e -> {
             if (e instanceof UndeliverableException) {
                 e = e.getCause();
             }
+
+            if (e == null) {
+                return;
+            }
+
             if (e instanceof IOException) {
                 // fine, irrelevant network problem or API that throws on cancellation
                 return;
             }
             if (e instanceof InterruptedException) {
                 // fine, some blocking code was interrupted by a dispose call
+                return;
+            }
+            if (e instanceof FileCacheException.CancellationException) {
+                // fine, sometimes they get through all the checks but it doesn't really matter
                 return;
             }
             if ((e instanceof NullPointerException) || (e instanceof IllegalArgumentException)) {
@@ -127,8 +148,80 @@ public class Chan
                 return;
             }
 
+            onUnhandledException(e, exceptionToString(true, e));
             Logger.e("APP", "RxJava undeliverable exception", e);
         });
+
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            //if there's any uncaught crash stuff, just dump them to the log and exit immediately
+            String errorText = exceptionToString(false, e);
+
+            Logger.e("UNCAUGHT", errorText);
+            Logger.e("UNCAUGHT", "------------------------------");
+            Logger.e("UNCAUGHT", "END OF CURRENT RUNTIME MESSAGES");
+            Logger.e("UNCAUGHT", "------------------------------");
+            Logger.e("UNCAUGHT", "Android API Level: " + Build.VERSION.SDK_INT);
+            Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME);
+            Logger.e("UNCAUGHT", "Development Build: " + (getIsOfficial() ? "No" : "Yes"));
+            Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
+
+            /*
+            Runtime runtime = Runtime.getRuntime();
+            long usedMemInMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L;
+            long maxHeapSizeInMB = runtime.maxMemory() / 1048576L;
+            long availHeapSizeInMB = maxHeapSizeInMB - usedMemInMB;
+            Logger.e("UNCAUGHT", "Used memory (MB): " + usedMemInMB);
+            Logger.e("UNCAUGHT", "Max memory (MB): " + maxHeapSizeInMB);
+            Logger.e("UNCAUGHT", "Available memory (MB): " + availHeapSizeInMB);
+             */
+
+            onUnhandledException(e, errorText);
+
+            System.exit(999);
+        });
+
+        if (ChanSettings.autoCrashLogsUpload.get()) {
+            reportManager.sendCollectedCrashLogs();
+        }
+    }
+
+    private boolean isEmulator() {
+        return Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK");
+    }
+
+    private String exceptionToString(boolean isCalledFromRxJavaHandler, Throwable e) {
+        try (StringWriter sw = new StringWriter()) {
+            try (PrintWriter pw = new PrintWriter(sw)) {
+                e.printStackTrace(pw);
+                String stackTrace = sw.toString();
+
+                if (isCalledFromRxJavaHandler) {
+                    return "Called from RxJava onError handler.\n" + stackTrace;
+                }
+
+                return "Called from unhandled exception handler.\n" + stackTrace;
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException("Error while trying to convert exception to string!", ex);
+        }
+    }
+
+    private void onUnhandledException(Throwable exception, String error) {
+        //don't upload debug crashes
+
+        if ("Debug crash".equals(exception.getMessage())) {
+            return;
+        }
+
+        if (isEmulator()) {
+            return;
+        }
+
+        if (ChanSettings.autoCrashLogsUpload.get()) {
+            reportManager.storeCrashLog(error);
+        }
     }
 
     private void activityEnteredForeground() {

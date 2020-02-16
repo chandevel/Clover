@@ -50,6 +50,8 @@ internal class ChunkDownloader(
 
         return Flowable.create<Response>({ emitter ->
             BackgroundUtils.ensureBackgroundThread()
+
+            val serializedEmitter = emitter.serialize()
             val call = okHttpClient.newCall(httpRequest)
 
             // This function will be used to cancel a CHUNK (not the whole file) download upon
@@ -74,14 +76,14 @@ internal class ChunkDownloader(
                     DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
                     DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
                     else -> {
-                        emitter.tryOnError(
+                        serializedEmitter.tryOnError(
                                 RuntimeException("DownloadState must be either Stopped or Canceled")
                         )
                         return@create
                     }
                 }
 
-                emitter.tryOnError(
+                serializedEmitter.tryOnError(
                         FileCacheException.CancellationException(
                                 activeDownloads.getState(url),
                                 url)
@@ -92,15 +94,17 @@ internal class ChunkDownloader(
             call.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     val diff = System.currentTimeMillis() - startTime
+                    val exceptionMessage = e.message ?: "No message"
+
                     log(TAG,
-                            "Couldn't get chunk response, reason = ${e.javaClass.simpleName}" +
+                            "Couldn't get chunk response, reason = ${e.javaClass.simpleName} ($exceptionMessage)" +
                                     " ($url) ${chunk.start}..${chunk.end}, time = ${diff}ms"
                     )
 
                     if (!isCancellationError(e)) {
-                        emitter.tryOnError(e)
+                        serializedEmitter.tryOnError(e)
                     } else {
-                        emitter.tryOnError(
+                        serializedEmitter.tryOnError(
                                 FileCacheException.CancellationException(
                                         activeDownloads.getState(url),
                                         url
@@ -115,8 +119,8 @@ internal class ChunkDownloader(
                         log(TAG, "Got chunk response in ($url) ${chunk.start}..${chunk.end} in ${diff}ms")
                     }
 
-                    emitter.onNext(response)
-                    emitter.onComplete()
+                    serializedEmitter.onNext(response)
+                    serializedEmitter.onComplete()
                 }
             })
         }, BackpressureStrategy.BUFFER)

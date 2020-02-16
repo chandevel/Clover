@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
-import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -33,7 +32,6 @@ public class ImageViewerAdapter
         extends ViewPagerAdapter {
     private static final String TAG = "ImageViewerAdapter";
 
-    private final Context context;
     private final List<PostImage> images;
     private final Loadable loadable;
     private final MultiImageView.Callback multiImageViewCallback;
@@ -42,9 +40,8 @@ public class ImageViewerAdapter
     private List<ModeChange> pendingModeChanges = new ArrayList<>();
 
     public ImageViewerAdapter(
-            Context context, List<PostImage> images, Loadable loadable, MultiImageView.Callback multiImageViewCallback
+            List<PostImage> images, Loadable loadable, MultiImageView.Callback multiImageViewCallback
     ) {
-        this.context = context;
         this.images = images;
         this.loadable = loadable;
         this.multiImageViewCallback = multiImageViewCallback;
@@ -53,7 +50,7 @@ public class ImageViewerAdapter
     @Override
     public View getView(int position, ViewGroup parent) {
         PostImage postImage = images.get(position);
-        MultiImageView view = new MultiImageView(context);
+        MultiImageView view = new MultiImageView(parent.getContext());
         view.bindPostImage(postImage, multiImageViewCallback);
 
         loadedViews.add(view);
@@ -129,6 +126,13 @@ public class ImageViewerAdapter
     public void rotateImage(PostImage postImage, int degrees) {
         MultiImageView view = find(postImage);
         view.rotateImage(degrees);
+    }
+
+    public void onImageSaved(PostImage postImage) {
+        MultiImageView view = find(postImage);
+        if (view != null) {
+            view.setImageAlreadySaved();
+        }
     }
 
     private static class ModeChange {

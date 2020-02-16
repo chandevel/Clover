@@ -160,8 +160,8 @@ public class DrawerController
                         if (savedThread.isFullyDownloaded) {
                             state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
                         } else {
-                            boolean hasNoNetwork = !isConnected(ConnectivityManager.TYPE_MOBILE)
-                                    && !isConnected(ConnectivityManager.TYPE_WIFI);
+                            boolean hasNoNetwork = !isConnected(ConnectivityManager.TYPE_MOBILE) && !isConnected(
+                                    ConnectivityManager.TYPE_WIFI);
 
                             if (hasNoNetwork) {
                                 // No internet connection, but we have a local copy of this thread,
@@ -285,8 +285,10 @@ public class DrawerController
             ChanSettings.drawerAutoOpenCount.set(curCount + 1 > 5 ? 5 : curCount + 1);
             if (ChanSettings.drawerAutoOpenCount.get() < 5 && !ChanSettings.alwaysOpenDrawer.get()) {
                 int countLeft = 5 - ChanSettings.drawerAutoOpenCount.get();
-                showToast("Drawer will auto-show " + countLeft + " more time" + (countLeft == 1 ? "" : "s")
-                        + " as a reminder.");
+                showToast(context,
+                        "Drawer will auto-show " + countLeft + " more time" + (countLeft == 1 ? "" : "s")
+                                + " as a reminder."
+                );
             }
         }
         updateBadge();

@@ -22,6 +22,7 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -54,7 +55,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -325,6 +325,8 @@ public class Chan4
 
         @Override
         public void archives(ArchiveRequestListener archivesListener) {
+            //currently only used for 4chan, so if there are archives, don't send another request
+            if (Chan.instance(ArchivesManager.class).hasArchives()) return;
             requestQueue.add(new JsonReaderRequest<List<ArchivesManager.Archives>>(
                     "https://nstepien.github.io/archives.json/archives.json",
                     archivesListener::onArchivesReceived,
@@ -466,6 +468,7 @@ public class Chan4
     }
 
     private OptionsSetting<CaptchaType> captchaType;
+    public static StringSetting flagType;
 
     public Chan4() {
         // we used these before multisite, and lets keep using them.
@@ -484,14 +487,15 @@ public class Chan4
         super.initializeSettings();
 
         captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, V2JS);
+        flagType = new StringSetting(settingsProvider, "preference_flag_chan4", "0");
     }
 
     @Override
     public List<SiteSetting> settings() {
-        return Collections.singletonList(SiteSetting.forOption(captchaType,
-                "Captcha type",
-                Arrays.asList("Javascript", "Noscript")
-        ));
+        List<SiteSetting> settings = new ArrayList<>();
+        settings.add(SiteSetting.forOption(captchaType, "Captcha type", Arrays.asList("Javascript", "Noscript")));
+        settings.add(SiteSetting.forString(flagType, "Country flag code"));
+        return settings;
     }
 
     @Override

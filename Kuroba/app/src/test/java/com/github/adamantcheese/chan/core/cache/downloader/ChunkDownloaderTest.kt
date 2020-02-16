@@ -16,6 +16,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowLog
 import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
@@ -32,6 +33,7 @@ class ChunkDownloaderTest {
     @Before
     fun init() {
         AndroidUtils.init(testModule.provideApplication())
+        ShadowLog.stream = System.out;
 
         okHttpClient = testModule.provideOkHttpClient()
         activeDownloads = testModule.provideActiveDownloads()
@@ -61,10 +63,11 @@ class ChunkDownloaderTest {
             server.start()
 
             val url = server.url("/${imageName}").toString()
-            val request = createFileDownloadRequest(url, chunks.size)
+            val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
+            val request = createFileDownloadRequest(url, chunks.size, file = output)
             activeDownloads.put(url, request)
 
-            val wholeFile = javaClass.classLoader.getResourceAsStream(imageName)
+            val wholeFile = javaClass.classLoader!!.getResourceAsStream(imageName)
                     .use { it.readBytes() }
 
             chunks.forEach { chunk ->

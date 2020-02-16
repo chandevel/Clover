@@ -104,6 +104,7 @@ public class FutabaChanReader
         boolean fileSpoiler = false;
         String fileName = null;
         String fileHash = null;
+        boolean fileDeleted = false;
 
         List<PostImage> files = new ArrayList<>();
 
@@ -176,6 +177,9 @@ public class FutabaChanReader
                     builder.op(opId == 0);
                     builder.opId(opId);
                     break;
+                case "filedeleted":
+                    fileDeleted = reader.nextInt() == 1;
+                    break;
                 case "sticky":
                     builder.sticky(reader.nextInt() == 1);
                     break;
@@ -230,7 +234,7 @@ public class FutabaChanReader
         reader.endObject();
 
         // The file from between the other values.
-        if (fileId != null && fileName != null && fileExt != null) {
+        if (fileId != null && fileName != null && fileExt != null && !fileDeleted) {
             Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
             PostImage image = new PostImage.Builder().serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))

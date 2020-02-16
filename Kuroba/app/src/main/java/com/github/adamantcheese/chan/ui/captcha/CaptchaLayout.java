@@ -38,11 +38,11 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesJar;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -55,7 +55,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 
 public class CaptchaLayout
         extends WebView
@@ -64,7 +63,6 @@ public class CaptchaLayout
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
     private static final String COOKIE_DOMAIN = "google.com";
-    private static final String COOKIE_FORMAT = "HSID=%s; SSID=%s; SID=%s; NID=%s; path=/; domain=.google.com";
 
     private AuthenticationLayoutCallback callback;
     private boolean loaded = false;
@@ -79,21 +77,15 @@ public class CaptchaLayout
     Gson gson;
 
     public CaptchaLayout(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public CaptchaLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
     public CaptchaLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
-    }
-
-    private void init() {
         inject(this);
     }
 
@@ -148,17 +140,11 @@ public class CaptchaLayout
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
         cookieManager.setAcceptThirdPartyCookies(this, true);
+        cookieManager.removeAllCookie();
 
-        String cookies = String.format(
-                Locale.US,
-                COOKIE_FORMAT,
-                jsCaptchaCookiesJar.getHsidCookie(),
-                jsCaptchaCookiesJar.getSsidCookie(),
-                jsCaptchaCookiesJar.getSidCookie(),
-                jsCaptchaCookiesJar.getNidCookie()
-        );
-
-        cookieManager.setCookie(COOKIE_DOMAIN, cookies);
+        for (String c : jsCaptchaCookiesJar.getCookies()) {
+            cookieManager.setCookie(COOKIE_DOMAIN, c);
+        }
     }
 
     public void reset() {
@@ -176,7 +162,7 @@ public class CaptchaLayout
 
     @Override
     public void hardReset() {
-        String html = IOUtils.assetAsString(getContext(), "captcha/captcha2.html");
+        String html = IOUtils.assetAsString(getContext(), "html/captcha2.html");
         html = html.replace("__site_key__", siteKey);
         html = html.replace("__theme__", ThemeHelper.getTheme().isLightTheme ? "light" : "dark");
 
@@ -198,7 +184,12 @@ public class CaptchaLayout
         html = html.replace(
                 "__positioning_horizontal__",
                 //equal is left, greater is right
-                (isSplitMode ? (containerWidth == displaySize.x * 0.35 ? "left: 0" : "right: 0") : "left: 0")
+                isSplitMode ? (containerWidth == displaySize.x * 0.35 ? "left" : "right") : "left"
+        );
+        html = html.replace(
+                "__positioning_vertical__",
+                //split mode should always be on the bottom
+                isSplitMode ? "bottom" : (ChanSettings.captchaOnBottom.get() ? "bottom" : "top")
         );
 
         loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
@@ -240,12 +231,12 @@ public class CaptchaLayout
 
         @JavascriptInterface
         public void onCaptchaEntered(final String response) {
-            runOnUiThread(() -> layout.onCaptchaEntered(null, response));
+            BackgroundUtils.runOnMainThread(() -> layout.onCaptchaEntered(null, response));
         }
 
         @JavascriptInterface
         public void onCaptchaEnteredv1(final String challenge, final String response) {
-            runOnUiThread(() -> layout.onCaptchaEntered(challenge, response));
+            BackgroundUtils.runOnMainThread(() -> layout.onCaptchaEntered(challenge, response));
         }
     }
 }

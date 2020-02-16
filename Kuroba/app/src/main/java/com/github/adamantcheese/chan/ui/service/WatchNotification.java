@@ -124,17 +124,6 @@ public class WatchNotification
             alert.setLightColor(0xff91e466);
             notificationManager.createNotificationChannel(alert);
         }
-
-        Notification notification = createNotification();
-        if (notification == null) {
-            Logger.d(TAG, "onCreate() createNotification returned null");
-
-            stopSelf();
-            return;
-        }
-
-        // Do not remove this or the app will blow up on Android.Oreo and above
-        startForeground(NOTIFICATION_ID, notification);
     }
 
     @Override
@@ -156,7 +145,8 @@ public class WatchNotification
                 return START_NOT_STICKY;
             }
 
-            notificationManager.notify(NOTIFICATION_ID, notification);
+            // Do not remove this or the app will blow up on Android.Oreo and above
+            startForeground(NOTIFICATION_ID, notification);
         }
         return START_STICKY;
     }
@@ -464,59 +454,64 @@ public class WatchNotification
             Pin target,
             boolean hasWatchPins
     ) {
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(this, alertIcon ? NOTIFICATION_ID_ALERT_STR : NOTIFICATION_ID_STR);
-        builder.setContentTitle(title);
-        builder.setContentText(TextUtils.join(", ", expandedLines));
-        builder.setOngoing(true);
+        synchronized (this) {
+            NotificationCompat.Builder builder =
+                    new NotificationCompat.Builder(this, alertIcon ? NOTIFICATION_ID_ALERT_STR : NOTIFICATION_ID_STR);
+            builder.setContentTitle(title);
+            builder.setContentText(TextUtils.join(", ", expandedLines));
+            builder.setOngoing(true);
 
-        //setup launch action, add pin if there's only one thread watching
-        Intent intent = new Intent(this, StartActivity.class);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        intent.putExtra("pin_id", target != null ? target.id : -1);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(pendingIntent);
+            //setup launch action, add pin if there's only one thread watching
+            Intent intent = new Intent(this, StartActivity.class);
+            intent.setAction(Intent.ACTION_MAIN)
+                    .addCategory(Intent.CATEGORY_LAUNCHER)
+                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                    .putExtra("pin_id", target != null ? target.id : -1);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(pendingIntent);
 
-        //setup lights, sound, and peek
-        if ((flags & NOTIFICATION_SOUND) != 0 || (flags & NOTIFICATION_PEEK) != 0) {
-            builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
+            //setup lights, sound, and peek
+            if ((flags & NOTIFICATION_SOUND) != 0 || (flags & NOTIFICATION_PEEK) != 0) {
+                builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
+            }
+
+            if ((flags & NOTIFICATION_LIGHT) != 0) {
+                builder.setLights(0xff91e466, 1000, 1000);
+            }
+
+            //set the alert icon if necessary
+            //if the last notification was an alert, continue it having that icon until it goes to zero
+            //also keep the priority so it shows up in the status bar
+            if (alertIcon || alertIconOverride) {
+                builder.setSmallIcon(R.drawable.ic_stat_notify_alert).setPriority(NotificationCompat.PRIORITY_HIGH);
+            } else {
+                builder.setSmallIcon(R.drawable.ic_stat_notify).setPriority(NotificationCompat.PRIORITY_MIN);
+            }
+
+            if (hasWatchPins) {
+                //setup the pause watch button
+                Intent pauseWatching = new Intent(this, WatchNotification.class);
+                pauseWatching.putExtra("pause_pins", true);
+                PendingIntent pauseWatchingPending =
+                        PendingIntent.getService(this, 0, pauseWatching, PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.addAction(R.drawable.ic_action_pause,
+                        getString(R.string.watch_pause_pins),
+                        pauseWatchingPending
+                );
+            }
+
+            //setup the display in the notification
+            NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
+            for (CharSequence line : expandedLines.subList(Math.max(0, expandedLines.size() - 10),
+                    expandedLines.size()
+            )) {
+                style.addLine(line);
+            }
+            style.setBigContentTitle(title);
+            builder.setStyle(style);
+
+            return builder.build();
         }
-
-        if ((flags & NOTIFICATION_LIGHT) != 0) {
-            builder.setLights(0xff91e466, 1000, 1000);
-        }
-
-        //set the alert icon if necessary
-        //if the last notification was an alert, continue it having that icon until it goes to zero
-        //also keep the priority so it shows up in the status bar
-        if (alertIcon || alertIconOverride) {
-            builder.setSmallIcon(R.drawable.ic_stat_notify_alert);
-            builder.setPriority(NotificationCompat.PRIORITY_HIGH);
-        } else {
-            builder.setSmallIcon(R.drawable.ic_stat_notify);
-            builder.setPriority(NotificationCompat.PRIORITY_MIN);
-        }
-
-        if (hasWatchPins) {
-            //setup the pause watch button
-            Intent pauseWatching = new Intent(this, WatchNotification.class);
-            pauseWatching.putExtra("pause_pins", true);
-            PendingIntent pauseWatchingPending =
-                    PendingIntent.getService(this, 0, pauseWatching, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(R.drawable.ic_action_pause, getString(R.string.watch_pause_pins), pauseWatchingPending);
-        }
-
-        //setup the display in the notification
-        NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
-        for (CharSequence line : expandedLines.subList(Math.max(0, expandedLines.size() - 10), expandedLines.size())) {
-            style.addLine(line);
-        }
-        style.setBigContentTitle(title);
-        builder.setStyle(style);
-
-        return builder.build();
     }
 }

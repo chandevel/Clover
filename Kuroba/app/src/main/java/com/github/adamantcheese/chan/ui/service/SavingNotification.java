@@ -68,8 +68,6 @@ public class SavingNotification
                     NotificationManager.IMPORTANCE_LOW
             ));
         }
-
-        startForeground(NOTIFICATION_ID, getNotification());
     }
 
     @Override
@@ -88,7 +86,7 @@ public class SavingNotification
             } else {
                 doneTasks = extras.getInt(DONE_TASKS_KEY);
                 totalTasks = extras.getInt(TOTAL_TASKS_KEY);
-                notificationManager.notify(NOTIFICATION_ID, getNotification());
+                startForeground(NOTIFICATION_ID, getNotification());
             }
         }
 

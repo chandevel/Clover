@@ -17,6 +17,8 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -29,7 +31,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.cell.AlbumViewCell;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
+import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
@@ -78,11 +80,9 @@ public class AlbumViewController
 
         if (!loadable.isLocal()) {
             // Navigation
-            navigation.buildMenu()
-                    .withOverflow()
-                    .withSubItem(R.string.action_download_album, this::downloadAlbumClicked)
-                    .build()
-                    .build();
+            Drawable downloadDrawable = context.getDrawable(R.drawable.ic_file_download_white_24dp);
+            downloadDrawable.setTint(Color.WHITE);
+            navigation.buildMenu().withItem(Integer.MAX_VALUE, downloadDrawable, this::downloadAlbumClicked).build();
         }
 
         navigation.title = title;
@@ -90,7 +90,7 @@ public class AlbumViewController
         targetIndex = index;
     }
 
-    private void downloadAlbumClicked(ToolbarMenuSubItem item) {
+    private void downloadAlbumClicked(ToolbarMenuItem item) {
         AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
         albumDownloadController.setPostImages(loadable, postImages);
         navigationController.pushController(albumDownloadController);
@@ -123,8 +123,10 @@ public class AlbumViewController
         ThreadController threadController = null;
 
         if (previousSiblingController instanceof ThreadController) {
+            //phone mode
             threadController = (ThreadController) previousSiblingController;
         } else if (previousSiblingController instanceof DoubleNavigationController) {
+            //slide mode
             DoubleNavigationController doubleNav = (DoubleNavigationController) previousSiblingController;
             if (doubleNav.getRightController() instanceof ThreadController) {
                 threadController = (ThreadController) doubleNav.getRightController();

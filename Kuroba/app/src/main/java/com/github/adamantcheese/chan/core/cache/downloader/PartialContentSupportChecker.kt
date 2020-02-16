@@ -120,14 +120,14 @@ internal class PartialContentSupportChecker(
                     DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
                     DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
                     else -> {
-                        emitter.onError(
+                        emitter.tryOnError(
                                 RuntimeException("DownloadState must be either Stopped or Canceled")
                         )
                         return@create
                     }
                 }
 
-                emitter.onError(
+                emitter.tryOnError(
                         FileCacheException.CancellationException(downloadState, url)
                 )
                 return@create
@@ -140,7 +140,7 @@ internal class PartialContentSupportChecker(
                     }
 
                     if (!isCancellationError(e)) {
-                        emitter.onError(e)
+                        emitter.tryOnError(e)
                     } else {
                         val state = activeDownloads.get(url)?.cancelableDownload?.getState()
                                 ?: DownloadState.Canceled
@@ -149,7 +149,7 @@ internal class PartialContentSupportChecker(
                             throw RuntimeException("Expected Cancelled or Stopped but got Running")
                         }
 
-                        emitter.onError(
+                        emitter.tryOnError(
                                 FileCacheException.CancellationException(state, url)
                         )
                     }
@@ -213,7 +213,7 @@ internal class PartialContentSupportChecker(
             )
             cache(url, result)
 
-            emitter.onError(FileCacheException.FileNotFoundOnTheServerException())
+            emitter.tryOnError(FileCacheException.FileNotFoundOnTheServerException())
             return
         }
 
@@ -233,13 +233,23 @@ internal class PartialContentSupportChecker(
 
         val contentLengthValue = response.header(CONTENT_LENGTH_HEADER)
         if (contentLengthValue == null) {
-            log(TAG, "($url) does not support partial content (CONTENT_LENGTH_HEADER is null")
-            emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
-            return
+            // 8kun doesn't send Content-Length header whatsoever, but it sends correct file size
+            // in thread.json. So we can try using that.
+
+            if (!canWeUseFileSizeFromJson(url)) {
+                log(TAG, "($url) does not support partial content (CONTENT_LENGTH_HEADER is null")
+                emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
+                return
+            }
         }
 
-        val length = contentLengthValue.toLongOrNull()
-        if (length == null) {
+        val length = if (contentLengthValue != null) {
+            contentLengthValue.toLongOrNull()
+        } else {
+            activeDownloads.get(url)?.extraInfo?.fileSize ?: -1L
+        }
+
+        if (length == null || length <= 0) {
             log(TAG, "($url) does not support partial content " +
                     "(bad CONTENT_LENGTH_HEADER = ${contentLengthValue})")
             emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
@@ -271,6 +281,24 @@ internal class PartialContentSupportChecker(
         )
 
         emitter.onSuccess(cache(url, result))
+    }
+
+    private fun canWeUseFileSizeFromJson(url: String): Boolean {
+        val fileSize = activeDownloads.get(url)?.extraInfo?.fileSize ?: -1L
+        if (fileSize <= 0) {
+            return false
+        }
+
+        val host = url.toHttpUrlOrNull()?.host
+        if (host == null) {
+            logError(TAG, "Bad url, can't extract host: $url")
+            return false
+        }
+
+        return siteResolver.findSiteForUrl(host)
+                ?.chunkDownloaderSiteProperties
+                ?.siteSendsCorrectFileSizeInBytes
+                ?: false
     }
 
     private fun cache(

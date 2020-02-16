@@ -16,14 +16,15 @@ import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
+import okhttp3.internal.closeQuietly
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anyLong
-import org.mockito.ArgumentMatchers.anyString
+import org.mockito.ArgumentMatchers.*
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowLog
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -42,6 +43,7 @@ class ChunkPersisterTest {
     @Before
     fun init() {
         AndroidUtils.init(testModule.provideApplication())
+        ShadowLog.stream = System.out;
 
         fileManager = testModule.provideFileManager()
         cacheHandler = testModule.provideCacheHandler()
@@ -65,7 +67,7 @@ class ChunkPersisterTest {
     @Test
     fun `test try store two chunks one chunk fails`() {
         val url = "http://testUrl.com/123.jpg"
-        val fileBytes = javaClass.classLoader.getResourceAsStream("test_img1.jpg").readBytes()
+        val fileBytes = javaClass.classLoader!!.getResourceAsStream("test_img1.jpg").readBytes()
         val chunksCount = 2
         val chunks = chunkLong(fileBytes.size.toLong(), chunksCount, MIN_CHUNK_SIZE)
         val chunkResponses = createChunkResponses(url, chunks, fileBytes)
@@ -76,15 +78,18 @@ class ChunkPersisterTest {
 
         activeDownloads.put(url, request)
 
-        doAnswer {
-            if (timesCalled.getAndIncrement() == 10) {
+        doAnswer { invocationOnMock ->
+            val chunkIndexParam = invocationOnMock.getArgument<Int>(1)
+
+            if (chunkIndexParam == 1 && timesCalled.getAndIncrement() == 5) {
                 throw IOException("BAM!!!")
             }
         }
-                .whenever(activeDownloads)
-                .updateDownloaded(anyString(), anyLong())
+        .whenever(activeDownloads)
+        .updateDownloaded(anyString(), anyInt(), anyLong())
 
         val testObserver = Flowable.fromIterable(chunkResponses)
+                .observeOn(Schedulers.newThread())
                 .flatMap { chunkResponse ->
                     chunkPersister.storeChunkInFile(
                             url,
@@ -92,7 +97,7 @@ class ChunkPersisterTest {
                             AtomicLong(),
                             chunkIndex.getAndIncrement(),
                             chunksCount
-                    ).subscribeOn(Schedulers.newThread())
+                    )
                 }
                 .test()
 
@@ -102,26 +107,27 @@ class ChunkPersisterTest {
 
         assertTrue(completes.isEmpty())
         assertEquals(1, errors.size)
-
         assertTrue(errors.first() is IOException)
         assertEquals("BAM!!!", (errors.first() as IOException).message)
 
-        assertTrue(events.last() is ChunkDownloadEvent.ChunkSuccess)
+        val successEvent = events.first { event -> event is ChunkDownloadEvent.ChunkSuccess }
+        successEvent as ChunkDownloadEvent.ChunkSuccess
         assertEquals(1, fileManager.listFiles(chunksCacheDirFile).size)
 
-        val successEvent = events.last() as ChunkDownloadEvent.ChunkSuccess
         val fileName = fileManager.getName(successEvent.chunkCacheFile)
         val fileSize = fileManager.getLength(successEvent.chunkCacheFile)
 
         val chunkString = String.format("%d_%d", successEvent.chunk.start, successEvent.chunk.end)
         assertTrue(fileName.contains(chunkString))
         assertEquals(fileSize, successEvent.chunk.chunkSize())
+
+        chunkResponses.forEach { chunkResponse -> chunkResponse.response.closeQuietly() }
     }
 
     @Test
     fun `test store two chunks on the disk both succeed`() {
         val url = "http://testUrl.com/123.jpg"
-        val fileBytes = javaClass.classLoader.getResourceAsStream("test_img1.jpg").readBytes()
+        val fileBytes = javaClass.classLoader!!.getResourceAsStream("test_img1.jpg").readBytes()
         val chunksCount = 2
         val chunks = chunkLong(fileBytes.size.toLong(), chunksCount, MIN_CHUNK_SIZE)
         val chunkResponses = createChunkResponses(url, chunks, fileBytes)
@@ -186,6 +192,56 @@ class ChunkPersisterTest {
                 assertTrue(next.downloaded <= chunkSize)
             }
         }
+
+        chunkResponses.forEach { chunkResponse -> chunkResponse.response.closeQuietly() }
+    }
+
+    @Test
+    fun `test server returns 404 for a chunk`() {
+        val url = "http://testUrl.com/123.jpg"
+        val chunksCount = 1
+        val chunkResponse = create404ChunkResponse(url)
+        val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
+        val request = createFileDownloadRequest(url, chunksCount, file = output)
+        activeDownloads.put(url, request)
+
+        val testObserver = chunkPersister.storeChunkInFile(
+                url,
+                chunkResponse,
+                AtomicLong(),
+                0,
+                chunksCount
+        )
+                .subscribeOn(Schedulers.newThread())
+                .test()
+
+        val (events, errors, completes) = testObserver
+                .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                .events
+
+        assertFalse(errors.isEmpty())
+        assertTrue(events.isEmpty())
+        assertTrue(completes.isEmpty())
+
+        val error = errors.first()
+        assertTrue(error is FileCacheException.FileNotFoundOnTheServerException)
+    }
+
+    private fun create404ChunkResponse(url: String): ChunkResponse {
+        val request = with(Request.Builder()) {
+            url(url)
+            build()
+        }
+
+        val badResponse = with(Response.Builder()) {
+            request(request)
+            protocol(Protocol.HTTP_1_1)
+            code(404)
+            message("")
+            build()
+        }
+
+        return ChunkResponse(Chunk.wholeFile(), badResponse)
     }
 
     private fun createChunkResponses(url: String, chunks: List<Chunk>, fileBytes: ByteArray): List<ChunkResponse> {

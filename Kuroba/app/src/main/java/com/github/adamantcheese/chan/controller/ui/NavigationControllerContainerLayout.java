@@ -307,9 +307,7 @@ public class NavigationControllerContainerLayout
     }
 
     private void startTracking(MotionEvent startEvent) {
-        if (tracking) {
-            throw new IllegalStateException("startTracking called but already tracking");
-        }
+        if (tracking) return; //this method was already called previously
 
         tracking = true;
         trackingController = navigationController.getTop();
@@ -326,9 +324,7 @@ public class NavigationControllerContainerLayout
     }
 
     private void endTracking(boolean finishTransition) {
-        if (!tracking) {
-            throw new IllegalStateException("endTracking called but was not tracking");
-        }
+        if (!tracking) return; //this method was already called previously
 
         navigationController.endSwipeTransition(trackingController, behindTrackingController, finishTransition);
         tracking = false;
@@ -344,9 +340,8 @@ public class NavigationControllerContainerLayout
     private Runnable flingRunnable = new Runnable() {
         @Override
         public void run() {
-            if (!tracking) {
-                throw new IllegalStateException("fling animation running while not tracking");
-            }
+            if (!tracking)
+                return; //this method was called one extra time, but it isn't needed anymore. return to prevent a race condition
 
             boolean finished = false;
 

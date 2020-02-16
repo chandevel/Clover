@@ -1,10 +1,12 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler
+import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
 import com.github.k1rakishou.fsaf.manager.base_directory.DirectoryManager
+import com.nhaarman.mockitokotlin2.mock
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import org.junit.Assert.assertNotNull
@@ -23,6 +25,7 @@ class TestModule {
     private var partialContentSupportChecker: PartialContentSupportChecker? = null
     private var chunkPersister: ChunkPersister? = null
     private var chunkMerger: ChunkMerger? = null
+    private var siteResolver: SiteResolver? = null
 
     private var cacheDirFile: RawFile? = null
     private var chunksCacheDirFile: RawFile? = null
@@ -43,11 +46,20 @@ class TestModule {
         return chunkPersister!!
     }
 
+    internal fun provideSiteResolver(): SiteResolver {
+        if (siteResolver == null) {
+            siteResolver = mock<SiteResolver>()
+        }
+
+        return siteResolver!!
+    }
+
     internal fun provideChunkPersister(): ChunkMerger {
         if (chunkMerger == null) {
             chunkMerger = ChunkMerger(
                     provideFileManager(),
                     provideCacheHandler(),
+                    provideSiteResolver(),
                     provideActiveDownloads(),
                     false
             )
@@ -61,6 +73,7 @@ class TestModule {
             partialContentSupportChecker = PartialContentSupportChecker(
                     provideOkHttpClient(),
                     provideActiveDownloads(),
+                    provideSiteResolver(),
                     250L
             )
         }
@@ -110,7 +123,7 @@ class TestModule {
             fileManager = FileManager(
                     provideContext(),
                     BadPathSymbolResolutionStrategy.ThrowAnException,
-                    DirectoryManager()
+                    DirectoryManager(provideContext())
             )
         }
 

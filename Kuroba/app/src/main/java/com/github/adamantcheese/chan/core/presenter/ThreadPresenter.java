@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -27,11 +26,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
@@ -197,6 +198,7 @@ public class ThreadPresenter
 
             startSavingThreadIfItIsNotBeingSaved(this.loadable);
             chanLoader = chanLoaderManager.obtain(loadable, watchManager, this);
+            loadable.site.actions().archives(Chan.instance(ArchivesManager.class));
             threadPresenterCallback.showLoading();
         }
     }
@@ -215,13 +217,12 @@ public class ThreadPresenter
             addToLocalBackHistory = true;
             cancelPrefetching();
 
-            threadPresenterCallback.showNewPostsNotification(false, -1);
             threadPresenterCallback.showLoading();
         }
     }
 
     private void cancelPrefetching() {
-        if (activePrefetches == null || activePrefetches.isEmpty()) {
+        if (activePrefetches == null) {
             return;
         }
 
@@ -436,7 +437,7 @@ public class ThreadPresenter
         }
 
         if (!ChanSettings.watchEnabled.get() || !ChanSettings.watchBackground.get()) {
-            showToast(R.string.thread_layout_background_watcher_is_disabled_message, Toast.LENGTH_LONG);
+            showToast(context, R.string.thread_layout_background_watcher_is_disabled_message, Toast.LENGTH_LONG);
         }
 
         return true;
@@ -494,9 +495,7 @@ public class ThreadPresenter
     }
 
     public void refreshUI() {
-        if (chanLoader != null && chanLoader.getThread() != null) {
-            showPosts(true);
-        }
+        showPosts(true);
     }
 
     public void showAlbum() {
@@ -508,9 +507,7 @@ public class ThreadPresenter
         int index = 0;
         for (int i = 0; i < posts.size(); i++) {
             Post item = posts.get(i);
-            if (!item.images.isEmpty()) {
-                images.addAll(item.images);
-            }
+            images.addAll(item.images);
             if (i == displayPosition) {
                 index = images.size();
             }
@@ -554,7 +551,7 @@ public class ThreadPresenter
 
             loadable.setLastLoaded(result.getPosts().get(result.getPostsCount() - 1).no);
 
-            if (more > 0) {
+            if (more > 0 && loadable.no == result.getLoadable().no) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
                 //deal with any "requests" for a page update
                 if (forcePageUpdate) {
@@ -563,24 +560,27 @@ public class ThreadPresenter
                 }
             }
 
-            if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal()) {
-                List<PostImage> postImageList = new ArrayList<>(16);
+            if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal() && !loadable.isDownloading()) {
+                List<PostImage> postImageList = new ArrayList<>();
                 cancelPrefetching();
 
                 for (Post p : result.getPosts()) {
-                    if (p.images != null) {
-                        for (PostImage postImage : p.images) {
-                            if (cacheHandler.exists(postImage.imageUrl.toString())) {
-                                continue;
-                            }
+                    for (PostImage postImage : p.images) {
+                        if (postImage.imageUrl == null) {
+                            Logger.e(TAG, "onChanLoaderData() postImage.imageUrl == null");
+                            continue;
+                        }
 
-                            if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
-                                    && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
-                                postImageList.add(postImage);
-                            } else if (postImage.type == PostImage.Type.MOVIE
-                                    && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
-                                postImageList.add(postImage);
-                            }
+                        if (cacheHandler.exists(postImage.imageUrl.toString())) {
+                            continue;
+                        }
+
+                        if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
+                                && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
+                            postImageList.add(postImage);
+                        } else if (postImage.type == PostImage.Type.MOVIE
+                                && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
+                            postImageList.add(postImage);
                         }
                     }
                 }
@@ -595,7 +595,9 @@ public class ThreadPresenter
             Post markedPost = PostUtils.findPostById(loadable.markedNo, chanLoader.getThread());
             if (markedPost != null) {
                 highlightPost(markedPost);
-                scrollToPost(markedPost, false);
+                if(BackgroundUtils.isInForeground()) {
+                    scrollToPost(markedPost, false);
+                }
             }
             loadable.markedNo = -1;
         }
@@ -740,12 +742,10 @@ public class ThreadPresenter
             out:
             for (int i = 0; i < posts.size(); i++) {
                 Post post = posts.get(i);
-                if (!post.images.isEmpty()) {
-                    for (int j = 0; j < post.images.size(); j++) {
-                        if (post.images.get(j) == postImage) {
-                            position = i;
-                            break out;
-                        }
+                for (int j = 0; j < post.images.size(); j++) {
+                    if (post.images.get(j) == postImage) {
+                        position = i;
+                        break out;
                     }
                 }
             }
@@ -781,13 +781,11 @@ public class ThreadPresenter
     public void selectPostImage(PostImage postImage) {
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (Post post : posts) {
-            if (!post.images.isEmpty()) {
-                for (PostImage image : post.images) {
-                    if (image == postImage) {
-                        scrollToPost(post, false);
-                        highlightPost(post);
-                        return;
-                    }
+            for (PostImage image : post.images) {
+                if (image == postImage) {
+                    scrollToPost(post, false);
+                    highlightPost(post);
+                    return;
                 }
             }
         }
@@ -796,11 +794,9 @@ public class ThreadPresenter
     public Post getPostFromPostImage(PostImage postImage) {
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (Post post : posts) {
-            if (!post.images.isEmpty()) {
-                for (PostImage image : post.images) {
-                    if (image == postImage) {
-                        return post;
-                    }
+            for (PostImage image : post.images) {
+                if (image == postImage) {
+                    return post;
                 }
             }
         }
@@ -823,7 +819,7 @@ public class ThreadPresenter
     }
 
     @Override
-    public void onPopupPostDoubleClicked(Post post) {
+    public void onPostDoubleClicked(Post post) {
         if (!loadable.isCatalogMode()) {
             if (searchOpen) {
                 searchQuery = null;
@@ -844,14 +840,17 @@ public class ThreadPresenter
         int index = -1;
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (Post item : posts) {
-            if (!item.images.isEmpty()) {
-                for (PostImage image : item.images) {
-                    if (!item.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl.toString())) {
-                        //deleted posts always have 404'd images, but let it through if the file exists in cache
-                        images.add(image);
-                        if (image.equalUrl(postImage)) {
-                            index = images.size() - 1;
-                        }
+            for (PostImage image : item.images) {
+                if (image.imageUrl == null) {
+                    Logger.e(TAG, "onThumbnailClicked() image.imageUrl == null");
+                    continue;
+                }
+
+                if (!item.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl.toString())) {
+                    //deleted posts always have 404'd images, but let it through if the file exists in cache
+                    images.add(image);
+                    if (image.equalUrl(postImage)) {
+                        index = images.size() - 1;
                     }
                 }
             }
@@ -923,7 +922,7 @@ public class ThreadPresenter
         return POST_OPTION_EXTRA;
     }
 
-    public void onPostOptionClicked(Post post, Object id) {
+    public void onPostOptionClicked(Post post, Object id, boolean inPopup) {
         switch ((Integer) id) {
             case POST_OPTION_QUOTE:
                 threadPresenterCallback.hidePostsPopup();
@@ -945,6 +944,9 @@ public class ThreadPresenter
                 threadPresenterCallback.clipboardPost(post);
                 break;
             case POST_OPTION_REPORT:
+                if (inPopup) {
+                    threadPresenterCallback.hidePostsPopup();
+                }
                 threadPresenterCallback.openReportView(post);
                 break;
             case POST_OPTION_HIGHLIGHT_ID:
@@ -1024,8 +1026,7 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_MOCK_REPLY:
                 mockReplyManager.addMockReply(post.board.siteId, post.board.code, loadable.no, post.no);
-                //force reload to display the change
-                requestData();
+                showToast(context, "Refresh to add mock replies");
                 break;
         }
     }
@@ -1136,14 +1137,18 @@ public class ThreadPresenter
         } else {
             @SuppressLint("InflateParams")
             final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
-            dialogView.setBoard(loadable.board);
+            boolean hasContents = dialogView.setBoard(loadable.board);
             dialogView.setCallback(this);
 
-            AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
-                    .setTitle(R.string.thread_show_archives)
-                    .create();
-            dialog.setCanceledOnTouchOutside(true);
-            dialog.show();
+            if (hasContents) {
+                AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
+                        .setTitle(R.string.thread_show_archives)
+                        .create();
+                dialog.setCanceledOnTouchOutside(true);
+                dialog.show();
+            } else {
+                showToast(context, "No archives for this board or site.");
+            }
         }
     }
 
@@ -1341,7 +1346,7 @@ public class ThreadPresenter
     public void openArchive(Pair<String, String> domainNamePair) {
         String link = loadable.desktopUrl();
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
-        openLinkInBrowser((Activity) context, link);
+        openLinkInBrowser(context, link);
     }
 
     public void setContext(Context context) {

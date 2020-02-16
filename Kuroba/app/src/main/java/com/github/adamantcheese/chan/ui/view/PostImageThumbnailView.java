@@ -39,8 +39,8 @@ public class PostImageThumbnailView
         implements View.OnLongClickListener {
     private PostImage postImage;
     private Drawable playIcon;
-    private Rect bounds = new Rect();
     private float ratio = 0f;
+    private Rect bounds = new Rect();
 
     public PostImageThumbnailView(Context context) {
         this(context, null);
@@ -109,10 +109,16 @@ public class PostImageThumbnailView
         super.draw(canvas);
 
         if (postImage != null && postImage.type == PostImage.Type.MOVIE && !error) {
-            int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() / 2.0);
-            int y = (int) (getHeight() / 2.0 - playIcon.getIntrinsicHeight() / 2.0);
+            int iconScale = 1;
+            double scalar = (Math.pow(2.0, iconScale) - 1) / Math.pow(2.0, iconScale);
+            int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() * scalar);
+            int y = (int) (getHeight() / 2.0 - playIcon.getIntrinsicHeight() * scalar);
 
-            bounds.set(x, y, x + playIcon.getIntrinsicWidth(), y + playIcon.getIntrinsicHeight());
+            bounds.set(x,
+                    y,
+                    x + playIcon.getIntrinsicWidth() * iconScale,
+                    y + playIcon.getIntrinsicHeight() * iconScale
+            );
             playIcon.setBounds(bounds);
             playIcon.draw(canvas);
         }
@@ -145,7 +151,7 @@ public class PostImageThumbnailView
 
         ClipData clip = ClipData.newPlainText("Image URL", postImage.imageUrl.toString());
         getClipboardManager().setPrimaryClip(clip);
-        showToast(R.string.image_url_copied_to_clipboard);
+        showToast(getContext(), R.string.image_url_copied_to_clipboard);
 
         return true;
     }

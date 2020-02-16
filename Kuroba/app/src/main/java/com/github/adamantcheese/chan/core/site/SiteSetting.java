@@ -18,17 +18,20 @@ package com.github.adamantcheese.chan.core.site;
 
 import com.github.adamantcheese.chan.core.settings.OptionsSetting;
 import com.github.adamantcheese.chan.core.settings.Setting;
+import com.github.adamantcheese.chan.core.settings.StringSetting;
 
 import java.util.List;
 
 import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
+import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.STRING;
 
 /**
  * Hacky stuff to give the site settings a good UI.
  */
 public class SiteSetting {
     public enum Type {
-        OPTIONS
+        OPTIONS,
+        STRING
     }
 
     public final String name;
@@ -37,15 +40,19 @@ public class SiteSetting {
 
     public List<String> optionNames;
 
-    private SiteSetting(String name, Setting<?> setting) {
+    private SiteSetting(String name, Setting<?> setting, Type type) {
         this.name = name;
-        this.type = OPTIONS;
+        this.type = type;
         this.setting = setting;
     }
 
     public static SiteSetting forOption(OptionsSetting<?> options, String name, List<String> optionNames) {
-        SiteSetting setting = new SiteSetting(name, options);
+        SiteSetting setting = new SiteSetting(name, options, OPTIONS);
         setting.optionNames = optionNames;
         return setting;
+    }
+
+    public static SiteSetting forString(StringSetting setting, String name) {
+        return new SiteSetting(name, setting, STRING);
     }
 }

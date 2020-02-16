@@ -30,13 +30,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <!-- !!!! REMOVE usesCleartextTraffic in a couple of months, like in april-may !!!! -->
+
     <application
         android:name=".Chan"
         android:allowBackup="true"
         android:icon="${iconLoc}"
         android:label="${appName}"
         android:theme="@style/Chan.Theme"
-        android:usesCleartextTraffic="${devBuild}">
+        android:usesCleartextTraffic="${devBuild}"
+        android:requestLegacyExternalStorage="true">
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -94,10 +97,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <service
             android:name=".ui.service.SavingNotification"
-            android:exported="false" />
-
-        <service
-            android:name=".ui.service.LastPageNotification"
             android:exported="false" />
 
         <receiver

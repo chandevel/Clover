@@ -21,6 +21,13 @@ import android.graphics.Typeface;
 public class DarkTheme
         extends Theme {
     public DarkTheme(
+            String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor
+    ) {
+        super(displayName, name, resValue, primaryColor);
+        isLightTheme = false;
+    }
+
+    public DarkTheme(
             String displayName,
             String name,
             int resValue,

@@ -3,14 +3,14 @@ package com.github.adamantcheese.chan.core.cache
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload
 import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo
 import com.github.adamantcheese.chan.core.cache.downloader.FileDownloadRequest
-import com.github.k1rakishou.fsaf.file.AbstractFile
-import com.nhaarman.mockitokotlin2.mock
+import com.github.k1rakishou.fsaf.file.RawFile
 import com.nhaarman.mockitokotlin2.spy
 import okhttp3.mockwebserver.MockWebServer
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+
+private val executor = Executors.newSingleThreadExecutor()
 
 internal fun withServer(func: (MockWebServer) -> Unit) {
     val server = MockWebServer()
@@ -26,14 +26,12 @@ internal fun createFileDownloadRequest(
         url: String,
         chunksCount: Int = 1,
         isBatchDownload: Boolean = false,
-        file: AbstractFile = mock()
+        file: RawFile
 ): FileDownloadRequest {
-    val executor = mock<ExecutorService>()
-
     val cancelableDownload = CancelableDownload(
             url,
-            executor,
-            AtomicBoolean(isBatchDownload)
+            CancelableDownload.DownloadType(isPrefetchDownload = false, isGalleryBatchDownload = isBatchDownload),
+            executor
     )
 
     return spy(

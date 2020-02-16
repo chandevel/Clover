@@ -26,12 +26,13 @@ import com.github.adamantcheese.chan.Chan;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 
 public class BackgroundUtils {
-
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private static final AtomicLong mainHandlerTokenCounter = new AtomicLong(0);
 
     public static boolean isInForeground() {
         return ((Chan) instance(Context.class)).getApplicationInForeground();
@@ -41,11 +42,11 @@ public class BackgroundUtils {
      * Causes the runnable to be added to the message queue. The runnable will
      * be run on the ui thread.
      */
-    public static void runOnUiThread(Runnable runnable) {
+    public static void runOnMainThread(Runnable runnable) {
         mainHandler.post(runnable);
     }
 
-    public static void runOnUiThread(Runnable runnable, long delay) {
+    public static void runOnMainThread(Runnable runnable, long delay) {
         mainHandler.postDelayed(runnable, delay);
     }
 
@@ -86,13 +87,13 @@ public class BackgroundUtils {
             if (!canceled.get()) {
                 try {
                     final T res = background.call();
-                    runOnUiThread(() -> {
+                    runOnMainThread(() -> {
                         if (!canceled.get()) {
                             result.onResult(res);
                         }
                     });
                 } catch (final Exception e) {
-                    runOnUiThread(() -> {
+                    runOnMainThread(() -> {
                         throw new RuntimeException(e);
                     });
                 }
@@ -111,7 +112,7 @@ public class BackgroundUtils {
                 try {
                     background.run();
                 } catch (final Exception e) {
-                    runOnUiThread(() -> {
+                    runOnMainThread(() -> {
                         throw new RuntimeException(e);
                     });
                 }

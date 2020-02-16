@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -42,6 +43,7 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -57,7 +59,6 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnUiThread;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class ReplyPresenter
@@ -70,6 +71,7 @@ public class ReplyPresenter
     }
 
     private static final String TAG = "ReplyPresenter";
+    private Context context;
     private static final Pattern QUOTE_PATTERN = Pattern.compile(">>\\d+");
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
@@ -93,11 +95,13 @@ public class ReplyPresenter
 
     @Inject
     public ReplyPresenter(
+            Context context,
             ReplyManager replyManager,
             WatchManager watchManager,
             DatabaseManager databaseManager,
             LastReplyRepository lastReplyRepository
     ) {
+        this.context = context;
         this.replyManager = replyManager;
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
@@ -312,8 +316,8 @@ public class ReplyPresenter
                     ));
 
             lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
-            if (localLoadable.isCatalogMode()) {
-                lastReplyRepository.putLastThread(localLoadable.site, localLoadable.board);
+            if (loadable.isCatalogMode()) {
+                lastReplyRepository.putLastThread(loadable.site, loadable.board);
             }
 
             if (ChanSettings.postPinThread.get()) {
@@ -369,7 +373,7 @@ public class ReplyPresenter
     @Override
     public void onUploadingProgress(int percent) {
         //called on a background thread!
-        runOnUiThread(() -> callback.onUploadingProgress(percent));
+        BackgroundUtils.runOnMainThread(() -> callback.onUploadingProgress(percent));
     }
 
     @Override
@@ -489,7 +493,7 @@ public class ReplyPresenter
     public void onFilePickError(boolean canceled) {
         pickingFile = false;
         if (!canceled) {
-            showToast(R.string.reply_file_open_failed, Toast.LENGTH_LONG);
+            showToast(context, R.string.reply_file_open_failed, Toast.LENGTH_LONG);
         }
     }
 
@@ -522,18 +526,16 @@ public class ReplyPresenter
             this.page = page;
             switch (page) {
                 case LOADING:
-                    callback.setPage(Page.LOADING);
-                    break;
                 case INPUT:
-                    callback.setPage(Page.INPUT);
+                    callback.setPage(page);
                     break;
                 case AUTHENTICATION:
+                    callback.setPage(Page.AUTHENTICATION);
                     SiteAuthentication authentication = loadable.site.actions().postAuthenticate();
 
                     // cleanup resources tied to the new captcha layout/presenter
                     callback.destroyCurrentAuthentication();
                     callback.initializeAuthentication(loadable.site, authentication, this, useV2NoJsCaptcha, autoReply);
-                    callback.setPage(Page.AUTHENTICATION);
                     break;
             }
         }
@@ -599,7 +601,7 @@ public class ReplyPresenter
     }
 
     public boolean isAttachedFileSupportedForReencoding() {
-        if (draft == null) {
+        if (draft == null || draft.file == null) {
             return false;
         }
 
