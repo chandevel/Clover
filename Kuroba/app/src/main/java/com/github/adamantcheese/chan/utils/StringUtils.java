@@ -100,7 +100,7 @@ public class StringUtils {
         return postNoString;
     }
 
-    public static String maskUrl(@NonNull String url) {
+    public static String maskImageUrl(@NonNull String url) {
         if (url.length() < 4) {
             return url;
         }

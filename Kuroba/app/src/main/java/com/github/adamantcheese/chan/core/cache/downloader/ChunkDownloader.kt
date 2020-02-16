@@ -3,7 +3,7 @@ package com.github.adamantcheese.chan.core.cache.downloader
 import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
 import com.github.adamantcheese.chan.core.di.NetModule
 import com.github.adamantcheese.chan.utils.BackgroundUtils
-import com.github.adamantcheese.chan.utils.StringUtils.maskUrl
+import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import okhttp3.*
@@ -29,7 +29,7 @@ internal class ChunkDownloader(
         }
 
         if (verboseLogs) {
-            log(TAG, "Start downloading (${maskUrl(url)}), chunk ${chunk.start}..${chunk.end}")
+            log(TAG, "Start downloading (${maskImageUrl(url)}), chunk ${chunk.start}..${chunk.end}")
         }
 
         val builder = Request.Builder()
@@ -99,7 +99,7 @@ internal class ChunkDownloader(
 
                     log(TAG,
                             "Couldn't get chunk response, reason = ${e.javaClass.simpleName} ($exceptionMessage)" +
-                                    " (${maskUrl(url)}) ${chunk.start}..${chunk.end}, time = ${diff}ms"
+                                    " (${maskImageUrl(url)}) ${chunk.start}..${chunk.end}, time = ${diff}ms"
                     )
 
                     if (!isCancellationError(e)) {
@@ -117,7 +117,7 @@ internal class ChunkDownloader(
                 override fun onResponse(call: Call, response: Response) {
                     if (verboseLogs) {
                         val diff = System.currentTimeMillis() - startTime
-                        log(TAG, "Got chunk response in (${maskUrl(url)}) " +
+                        log(TAG, "Got chunk response in (${maskImageUrl(url)}) " +
                                 "${chunk.start}..${chunk.end} in ${diff}ms")
                     }
 

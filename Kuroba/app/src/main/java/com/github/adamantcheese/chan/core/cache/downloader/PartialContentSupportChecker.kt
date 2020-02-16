@@ -7,7 +7,7 @@ import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCan
 import com.github.adamantcheese.chan.core.di.NetModule
 import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.utils.Logger
-import com.github.adamantcheese.chan.utils.StringUtils.maskUrl
+import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
 import okhttp3.*
@@ -43,7 +43,7 @@ internal class PartialContentSupportChecker(
         if (fileSize > 0) {
             val host = url.toHttpUrlOrNull()?.host
             if (host == null) {
-                logError(TAG, "Bad url, can't extract host: ${maskUrl(url)}")
+                logError(TAG, "Bad url, can't extract host: ${maskImageUrl(url)}")
             }
 
             val hostAlreadyChecked = synchronized(checkedChanHosts) {
@@ -95,7 +95,7 @@ internal class PartialContentSupportChecker(
             return Single.just(cached)
         }
 
-        Logger.d(TAG, "Sending HEAD request to url (${maskUrl(url)})")
+        Logger.d(TAG, "Sending HEAD request to url (${maskImageUrl(url)})")
 
         val headRequest = Request.Builder()
                 .head()
@@ -110,7 +110,7 @@ internal class PartialContentSupportChecker(
 
             val disposeFunc = {
                 if (!call.isCanceled()) {
-                    log(TAG, "Disposing of HEAD request for url (${maskUrl(url)})")
+                    log(TAG, "Disposing of HEAD request for url (${maskImageUrl(url)})")
                     call.cancel()
                 }
             }
@@ -172,11 +172,11 @@ internal class PartialContentSupportChecker(
                 .timeout(maxTimeoutMs, TimeUnit.MILLISECONDS)
                 .doOnSuccess {
                     val diff = System.currentTimeMillis() - startTime
-                    Logger.d(TAG, "HEAD request to url (${maskUrl(url)}) has succeeded, time = ${diff}ms")
+                    Logger.d(TAG, "HEAD request to url (${maskImageUrl(url)}) has succeeded, time = ${diff}ms")
                 }
                 .doOnError { error ->
                     val diff = System.currentTimeMillis() - startTime
-                    Logger.e(TAG, "HEAD request to url (${maskUrl(url)}) has failed " +
+                    Logger.e(TAG, "HEAD request to url (${maskImageUrl(url)}) has failed " +
                             "because of \"${error.javaClass.simpleName}\" exception, time = ${diff}ms")
                 }
                 .onErrorResumeNext { error ->
@@ -185,7 +185,7 @@ internal class PartialContentSupportChecker(
                     }
 
                     val diff = System.currentTimeMillis() - startTime
-                    log(TAG, "HEAD request took for url (${maskUrl(url)}) too much time, " +
+                    log(TAG, "HEAD request took for url (${maskImageUrl(url)}) too much time, " +
                             "canceled by timeout() operator, took = ${diff}ms")
 
                     // Do not cache this result because after this request the file should be cached by the
@@ -220,13 +220,13 @@ internal class PartialContentSupportChecker(
 
         val acceptsRangesValue = response.header(ACCEPT_RANGES_HEADER)
         if (acceptsRangesValue == null) {
-            log(TAG, "(${maskUrl(url)}) does not support partial content (ACCEPT_RANGES_HEADER is null")
+            log(TAG, "(${maskImageUrl(url)}) does not support partial content (ACCEPT_RANGES_HEADER is null")
             emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
             return
         }
 
         if (!acceptsRangesValue.equals(ACCEPT_RANGES_HEADER_VALUE, true)) {
-            log(TAG, "(${maskUrl(url)}) does not support partial content " +
+            log(TAG, "(${maskImageUrl(url)}) does not support partial content " +
                     "(bad ACCEPT_RANGES_HEADER = ${acceptsRangesValue})")
             emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
             return
@@ -238,7 +238,7 @@ internal class PartialContentSupportChecker(
             // in thread.json. So we can try using that.
 
             if (!canWeUseFileSizeFromJson(url)) {
-                log(TAG, "(${maskUrl(url)}) does not support partial content (CONTENT_LENGTH_HEADER is null")
+                log(TAG, "(${maskImageUrl(url)}) does not support partial content (CONTENT_LENGTH_HEADER is null")
                 emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
                 return
             }
@@ -251,14 +251,14 @@ internal class PartialContentSupportChecker(
         }
 
         if (length == null || length <= 0) {
-            log(TAG, "(${maskUrl(url)}) does not support partial content " +
+            log(TAG, "(${maskImageUrl(url)}) does not support partial content " +
                     "(bad CONTENT_LENGTH_HEADER = ${contentLengthValue})")
             emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
             return
         }
 
         if (length < FileCacheV2.MIN_CHUNK_SIZE) {
-            log(TAG, "(${maskUrl(url)}) download file normally (file length < MIN_CHUNK_SIZE, length = $length)")
+            log(TAG, "(${maskImageUrl(url)}) download file normally (file length < MIN_CHUNK_SIZE, length = $length)")
             // Download tiny files normally, no need to chunk them
             emitter.onSuccess(cache(url, PartialContentCheckResult(false, length = length)))
             return
@@ -267,7 +267,7 @@ internal class PartialContentSupportChecker(
         val cfCacheStatusHeader = response.header(CF_CACHE_STATUS_HEADER)
         val diff = System.currentTimeMillis() - startTime
 
-        log(TAG, "url = ${maskUrl(url)}, fileSize = $length, " +
+        log(TAG, "url = ${maskImageUrl(url)}, fileSize = $length, " +
                 "cfCacheStatusHeader = $cfCacheStatusHeader, took = ${diff}ms")
 
         val host = url.toHttpUrlOrNull()?.host
