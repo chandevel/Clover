@@ -12,7 +12,6 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
-import com.github.adamantcheese.chan.utils.AndroidUtils.getColor
 import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -30,15 +29,15 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
 
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = getColor(context, R.color.gestures_zone_view_background)
+        color = context.resources.getColor(R.color.gestures_zone_view_background)
     }
     private val addedZonesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = getColor(context, R.color.gestures_zone_view_added_zones)
+        color = context.resources.getColor(R.color.gestures_zone_view_added_zones)
     }
     private val currentEditableZonePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = getColor(context, R.color.gestures_zone_view_current_zone)
+        color = context.resources.getColor(R.color.gestures_zone_view_current_zone)
     }
     private val handlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL

@@ -82,7 +82,7 @@ class AdjustAndroid10GestureZonesController(context: Context) : Controller(conte
         )
 
         adjustZonesView.setOnZoneAddedCallback {
-            showToast(R.string.setting_exclusion_zones_zone_added_message)
+            showToast(context, R.string.setting_exclusion_zones_zone_added_message)
             stopPresenting()
         }
     }

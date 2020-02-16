@@ -32,6 +32,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ExperimentalSettingsController
         extends SettingsController {
@@ -144,7 +145,7 @@ public class ExperimentalSettingsController
                 R.string.setting_exclusion_zones_reset_zones_description,
                 (v) -> {
                     if (!isAndroid10()) {
-                        showToast(R.string.setting_exclusion_zones_can_only_be_used_on_android_10);
+                        showToast(context, R.string.setting_exclusion_zones_can_only_be_used_on_android_10);
                         return;
                     }
 
@@ -169,7 +170,7 @@ public class ExperimentalSettingsController
 
     private void showZonesDialog() {
         if (!isAndroid10()) {
-            showToast(R.string.setting_exclusion_zones_can_only_be_used_on_android_10);
+            showToast(context, R.string.setting_exclusion_zones_can_only_be_used_on_android_10);
             return;
         }
 
@@ -197,7 +198,7 @@ public class ExperimentalSettingsController
         }
 
         if (getScreenOrientation() != orientation) {
-            showToast(R.string.setting_exclusion_zones_wrong_phone_orientation);
+            showToast(context, R.string.setting_exclusion_zones_wrong_phone_orientation);
             return;
         }
 
@@ -233,7 +234,7 @@ public class ExperimentalSettingsController
                 })
                 .setNegativeButton(R.string.remove, ((dialog, which) -> {
                     exclusionZonesHolder.removeZone(orientation, attachSide);
-                    showToast(R.string.setting_exclusion_zones_zone_remove_message);
+                    showToast(context, R.string.setting_exclusion_zones_zone_remove_message);
                     dialog.dismiss();
                 }))
                 .create()
