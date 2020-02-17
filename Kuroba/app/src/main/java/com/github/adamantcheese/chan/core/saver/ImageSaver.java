@@ -63,6 +63,7 @@ import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSa
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.UnknownError;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl;
 
 public class ImageSaver {
     private static final String TAG = "ImageSaver";
@@ -276,7 +277,7 @@ public class ImageSaver {
             onBatchCompleted();
         }
 
-        Logger.e(TAG, "imageSaveTaskFailed imageUrl = " + task.getPostImageUrl());
+        Logger.e(TAG, "imageSaveTaskFailed imageUrl = " + maskImageUrl(task.getPostImageUrl()));
 
         String errorMessage = getString(R.string.image_saver_failed_to_save_image, error.getMessage());
         cancellableToast.showToast(errorMessage, Toast.LENGTH_LONG);
@@ -294,7 +295,7 @@ public class ImageSaver {
             callbacks.onImageProcessed(doneTasks.get(), failedTasks.get(), totalTasks.get());
         }
 
-        Logger.d(TAG, "imageSaveTaskFinished imageUrl = " + task.getPostImageUrl());
+        Logger.d(TAG, "imageSaveTaskFinished imageUrl = " + maskImageUrl(task.getPostImageUrl()));
         boolean wasAlbumSave = false;
 
         if (checkBatchCompleted()) {

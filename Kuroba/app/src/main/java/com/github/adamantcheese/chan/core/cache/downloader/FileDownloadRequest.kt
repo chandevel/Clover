@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
+import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.k1rakishou.fsaf.file.RawFile
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -30,7 +31,7 @@ internal open class FileDownloadRequest(
 
     override fun toString(): String {
         return "[FileDownloadRequest: " +
-                "url = ${url}, " +
+                "url = ${maskImageUrl(url)}, " +
                 "outputFileName = ${File(output.getFullPath()).name}]"
     }
 }
