@@ -291,12 +291,16 @@ public class UpdateManager {
 
                         AbstractFile copyFile = fileManager.fromRawFile(downloadAPKcopy);
 
-                        if (fileManager.create(copyFile) != null) {
-                            if (!fileManager.copyFileContents(file, copyFile)) {
-                                Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory");
+                        try {
+                            if (fileManager.create(copyFile) != null) {
+                                if (!fileManager.copyFileContents(file, copyFile)) {
+                                    Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory");
+                                }
+                            } else {
+                                Logger.e(TAG, "Couldn't create backup apk file to: " + downloadAPKcopy.getAbsolutePath());
                             }
-                        } else {
-                            Logger.e(TAG, "Couldn't create backup apk file: " + downloadAPKcopy.getAbsolutePath());
+                        } catch (Exception e) {
+                            Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory, " + e.getMessage());
                         }
 
                         //install from the filecache rather than downloads, as the Environment.DIRECTORY_DOWNLOADS may not be "Download"
