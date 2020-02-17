@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -169,7 +168,7 @@ public class ViewThreadController
         menuOverflowBuilder.withSubItem(R.string.action_search, this::searchClicked)
                 .withSubItem(R.string.action_reload, this::reloadClicked);
         if (loadable.site.name().equals("4chan")) { //archives are 4chan only
-            menuOverflowBuilder.withSubItem(R.string.thread_show_archives, this::showArchives);
+            menuOverflowBuilder.withSubItem(R.string.thread_show_archives, this::showArchivesInternal);
         }
         menuOverflowBuilder.withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
@@ -275,7 +274,11 @@ public class ViewThreadController
         threadLayout.getPresenter().requestData();
     }
 
-    public void showArchives(ToolbarMenuSubItem item) {
+    public void showArchives() {
+        showArchivesInternal(null);
+    }
+
+    private void showArchivesInternal(ToolbarMenuSubItem item) {
         @SuppressLint("InflateParams")
         final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
         dialogView.setBoard(threadLayout.getPresenter().getLoadable().board);

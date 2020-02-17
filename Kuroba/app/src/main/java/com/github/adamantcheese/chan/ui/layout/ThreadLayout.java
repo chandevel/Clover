@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.layout;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.Context;
@@ -38,7 +37,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -191,7 +189,7 @@ public class ThreadLayout
             if (!archiveButton) {
                 presenter.requestData();
             } else {
-                ((StartActivity) getContext()).currentViewThreadController().showArchives(null);
+                callback.showArchives();
             }
         } else if (v == replyButton) {
             threadListLayout.openReply(true);
@@ -800,6 +798,8 @@ public class ThreadLayout
         void showBoard(Loadable catalogLoadable);
 
         void showBoardAndSearch(Loadable catalogLoadable, String searchQuery);
+
+        void showArchives();
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
 
