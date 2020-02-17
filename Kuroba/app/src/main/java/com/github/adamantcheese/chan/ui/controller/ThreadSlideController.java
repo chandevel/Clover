@@ -92,7 +92,7 @@ public class ThreadSlideController
         }
         if (restoredOpen != leftOpen) {
             leftOpen = restoredOpen;
-            slideStateChanged(leftOpen);
+            slideStateChanged();
         }
     }
 
@@ -104,7 +104,7 @@ public class ThreadSlideController
     public void onPanelOpened(View panel) {
         if (this.leftOpen != leftOpen()) {
             this.leftOpen = leftOpen();
-            slideStateChanged(leftOpen());
+            slideStateChanged();
         }
     }
 
@@ -112,7 +112,7 @@ public class ThreadSlideController
     public void onPanelClosed(View panel) {
         if (this.leftOpen != leftOpen()) {
             this.leftOpen = leftOpen();
-            slideStateChanged(leftOpen());
+            slideStateChanged();
         }
     }
 
@@ -130,7 +130,7 @@ public class ThreadSlideController
             if (slidingPaneLayout.getWidth() == 0) {
                 // It won't tell us it switched when it's not laid out yet.
                 leftOpen = leftController;
-                slideStateChanged(leftController);
+                slideStateChanged();
             }
         }
     }
@@ -266,7 +266,7 @@ public class ThreadSlideController
         return slidingPaneLayout.isOpen();
     }
 
-    private void slideStateChanged(boolean leftOpen) {
+    private void slideStateChanged() {
         setParentNavigationItem(leftOpen);
 
         notifySlideChanged(leftOpen ? leftController : rightController);
