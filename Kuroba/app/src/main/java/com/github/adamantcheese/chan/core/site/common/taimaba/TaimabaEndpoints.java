@@ -30,6 +30,7 @@ public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
     protected final CommonSite.SimpleHttpUrl root;
     protected final CommonSite.SimpleHttpUrl sys;
     protected final CommonSite.SimpleHttpUrl swfthumb;
+    private final HttpUrl report = new HttpUrl.Builder().scheme("https").host("cdn.420chan.org").port(8443).build();
 
     public TaimabaEndpoints(CommonSite commonSite, String rootUrl, String sysUrl) {
         super(commonSite);
@@ -87,5 +88,17 @@ public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
     @Override
     public HttpUrl reply(Loadable loadable) {
         return sys.builder().s(loadable.board.code).s("taimaba.pl").url();
+    }
+
+    @Override
+    public HttpUrl report(Post post) {
+        return report.newBuilder()
+            .addPathSegment("narcbot")
+            .addPathSegment("ajaxReport.jsp")
+            .addQueryParameter("postId", String.valueOf(post.no))
+            .addQueryParameter("reason", "RULE_VIOLATION")
+            .addQueryParameter("note", "Kuroba generated report")
+            .addQueryParameter("location", "http://boards.420chan.org/" + post.board.code + "/" + String.valueOf(post.no))
+            .build();
     }
 }

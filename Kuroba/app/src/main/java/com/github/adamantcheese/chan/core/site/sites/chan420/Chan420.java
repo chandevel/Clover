@@ -99,7 +99,14 @@ public class Chan420 extends CommonSite {
         setConfig(new CommonConfig() {
             @Override
             public boolean feature(Feature feature) {
-                return feature == Feature.POSTING;
+                switch(feature) {
+                    case POSTING:
+                        return true;
+                    case POST_REPORT:
+                        return true;
+                    default:
+                        return false;
+                }
             }
         });
 
