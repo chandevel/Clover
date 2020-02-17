@@ -1,12 +1,10 @@
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.util.Pair;
 import android.view.View;
-import android.view.Window;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;

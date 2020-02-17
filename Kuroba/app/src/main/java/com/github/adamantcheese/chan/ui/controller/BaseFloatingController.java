@@ -1,8 +1,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.app.Activity;
 import android.content.Context;
-import android.view.Window;
 
 import com.github.adamantcheese.chan.controller.Controller;
 
