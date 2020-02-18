@@ -289,7 +289,8 @@ public class ThreadSlideController
     private void setParentNavigationItem(boolean left) {
         Toolbar toolbar = ((ToolbarNavigationController) navigationController).toolbar;
 
-        NavigationItem item = null;
+        //default, blank navigation item with no menus or titles, so other layouts don't mess up
+        NavigationItem item = new NavigationItem();
         if (left) {
             if (leftController != null) {
                 item = leftController.navigation;
@@ -300,13 +301,11 @@ public class ThreadSlideController
             }
         }
 
-        if (item != null) {
-            navigation = item;
-            navigation.swipeable = false;
-            navigation.handlesToolbarInset = true;
-            navigation.hasDrawer = true;
-            toolbar.setNavigationItem(true, true, navigation, null);
-        }
+        navigation = item;
+        navigation.swipeable = false;
+        navigation.handlesToolbarInset = true;
+        navigation.hasDrawer = true;
+        toolbar.setNavigationItem(true, true, navigation, null);
     }
 
     public interface SlideChangeListener {
