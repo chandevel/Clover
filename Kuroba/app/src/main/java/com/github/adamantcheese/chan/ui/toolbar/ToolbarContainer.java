@@ -114,11 +114,10 @@ public class ToolbarContainer
     }
 
     public void set(NavigationItem item, Theme theme, ToolbarPresenter.AnimationStyle animation) {
-        if (transitionView != null || (currentView != null && currentView.item == item)) {
+        if (transitionView != null) {
             // Happens when you are in Phone layout, moving the thread fragment and at the same time
             // thread update occurs. We probably should just skip it. But maybe there is a better
             // solution.
-            // Also prevent setting of an item that already exists in the current view
             return;
         }
 
