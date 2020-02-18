@@ -646,7 +646,7 @@ public class MultiImageView
 
     @Override
     public void onAudioSessionId(int audioSessionId) {
-        if (exoPlayer.getAudioFormat() != null) {
+        if (exoPlayer != null && exoPlayer.getAudioFormat() != null) {
             callback.onAudioLoaded(this);
         }
     }
