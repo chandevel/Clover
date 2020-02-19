@@ -30,6 +30,7 @@ import androidx.core.util.Pair;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -57,6 +58,7 @@ import com.github.adamantcheese.chan.utils.AnimationUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -74,6 +76,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE;
 
 public class ViewThreadController
         extends ThreadController
@@ -175,6 +178,9 @@ public class ViewThreadController
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
                 .withSubItem(R.string.action_scroll_to_bottom, this::downClicked);
+        if (BuildConfig.DEV_BUILD) {
+            menuOverflowBuilder.withSubItem("Debug option", this::debugClicked);
+        }
 
         // These items are dynamic; create them here by default if settings permit
         if (ChanSettings.incrementalThreadDownloadingEnabled.get()
@@ -320,6 +326,12 @@ public class ViewThreadController
 
     private void downClicked(ToolbarMenuSubItem item) {
         threadLayout.scrollTo(-1, false);
+    }
+
+    private void debugClicked(ToolbarMenuSubItem item) {
+        Snackbar testbar = Snackbar.make(threadLayout, "Test forever snackbar", LENGTH_INDEFINITE);
+        testbar.setAction("Close", v1 -> testbar.dismiss());
+        testbar.show();
     }
 
     /**
