@@ -302,6 +302,10 @@ public class ImageViewerPresenter
                 callback.setImageMode(postImage, VIDEO, true);
             } else if (postImage.type == PDF) {
                 callback.setImageMode(postImage, OTHER, true);
+           } else if (postImage.type == SWF) {
+                callback.setImageMode(postImage, OTHER, true);
+            } else if (postImage.type == MP3) {
+                callback.setImageMode(postImage, OTHER, true);
             }
         }
 
@@ -488,6 +492,10 @@ public class ImageViewerPresenter
                 } else if (postImage.type == MOVIE && currentMode != VIDEO) {
                     callback.setImageMode(postImage, VIDEO, true);
                 } else if (postImage.type == PDF && currentMode != OTHER) {
+                    callback.setImageMode(postImage, OTHER, true);
+                } else if (postImage.type == SWF && currentMode != OTHER) {
+                    callback.setImageMode(postImage, OTHER, true);
+                } else if (postImage.type == MP3 && currentMode != OTHER) {
                     callback.setImageMode(postImage, OTHER, true);
                 } else {
                     if (callback.isImmersive()) {

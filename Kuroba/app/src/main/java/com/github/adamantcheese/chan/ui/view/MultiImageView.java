@@ -656,6 +656,12 @@ public class MultiImageView
             cancellableToast.showToast(R.string.pdf_not_viewable);
             //this lets the user download the PDF, even though we haven't actually downloaded anything
             callback.onDownloaded(image);
+        } else if (image.type == PostImage.Type.SWF) {
+            cancellableToast.showToast(R.string.swf_not_viewable);
+            callback.onDownloaded(image);
+        } else if (image.type == PostImage.Type.MP3) {
+            cancellableToast.showToast(R.string.mp3_not_viewable);
+            callback.onDownloaded(image);
         }
     }
 
