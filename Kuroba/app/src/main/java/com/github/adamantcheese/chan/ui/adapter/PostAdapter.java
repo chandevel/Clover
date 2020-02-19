@@ -128,8 +128,7 @@ public class PostAdapter
                 boolean highlight =
                         post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo
                                 || post.tripcode.equals(highlightedPostTripcode);
-                ((PostCellInterface) postViewHolder.itemView).setPost(
-                        loadable,
+                ((PostCellInterface) postViewHolder.itemView).setPost(loadable,
                         post,
                         postCellCallback,
                         false,

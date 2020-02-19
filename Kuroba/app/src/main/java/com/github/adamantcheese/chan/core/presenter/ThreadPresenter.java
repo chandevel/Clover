@@ -595,7 +595,7 @@ public class ThreadPresenter
             Post markedPost = PostUtils.findPostById(loadable.markedNo, chanLoader.getThread());
             if (markedPost != null) {
                 highlightPost(markedPost);
-                if(BackgroundUtils.isInForeground()) {
+                if (BackgroundUtils.isInForeground()) {
                     scrollToPost(markedPost, false);
                 }
             }

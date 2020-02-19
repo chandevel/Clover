@@ -68,6 +68,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.CARD;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.TYPE_POST;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -202,7 +204,7 @@ public class ThreadListLayout
             compactMode = false;
         }
 
-        if (postViewMode == ChanSettings.PostViewMode.CARD) {
+        if (postViewMode == CARD) {
             postAdapter.setCompact(compactMode);
 
             ((GridLayoutManager) layoutManager).setSpanCount(spanCount);
@@ -485,7 +487,7 @@ public class ThreadListLayout
             if (getTopAdapterPosition() == 0) {
                 View top = layoutManager.findViewByPosition(0);
                 int searchExtraHeight = findViewById(R.id.search_status).getHeight();
-                if (postViewMode == ChanSettings.PostViewMode.LIST) {
+                if (postViewMode == LIST) {
                     return top.getTop() != searchExtraHeight;
                 } else {
                     if (top instanceof PostStubCell) {
@@ -713,7 +715,7 @@ public class ThreadListLayout
 
     private void setRecyclerViewPadding() {
         int defaultPadding = 0;
-        if (postViewMode == ChanSettings.PostViewMode.CARD) {
+        if (postViewMode == CARD) {
             defaultPadding = dp(1);
         }
 
