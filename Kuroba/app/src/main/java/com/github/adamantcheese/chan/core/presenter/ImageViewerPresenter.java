@@ -302,7 +302,7 @@ public class ImageViewerPresenter
                 callback.setImageMode(postImage, VIDEO, true);
             } else if (postImage.type == PDF) {
                 callback.setImageMode(postImage, OTHER, true);
-           } else if (postImage.type == SWF) {
+            } else if (postImage.type == SWF) {
                 callback.setImageMode(postImage, OTHER, true);
             } else if (postImage.type == MP3) {
                 callback.setImageMode(postImage, OTHER, true);
