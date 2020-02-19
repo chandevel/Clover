@@ -256,7 +256,9 @@ public class ThreadLayout
     }
 
     @Override
-    public void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts) {
+    public void showPosts(
+            ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts, boolean newReply
+    ) {
         if (thread.getLoadable().isLocal()) {
             if (replyButton.getVisibility() == VISIBLE) {
                 replyButton.hide();
@@ -269,7 +271,7 @@ public class ThreadLayout
 
         getPresenter().updateLoadable(thread.getLoadable().loadableDownloadingState);
 
-        threadListLayout.showPosts(thread, filter, visible != Visible.THREAD, refreshAfterHideOrRemovePosts);
+        threadListLayout.showPosts(thread, filter, visible != Visible.THREAD, refreshAfterHideOrRemovePosts, newReply);
 
         switchVisible(Visible.THREAD);
         callback.onShowPosts();
@@ -431,6 +433,11 @@ public class ThreadLayout
     @Override
     public void smoothScrollNewPosts(int displayPosition) {
         threadListLayout.smoothScrollNewPosts(displayPosition);
+    }
+
+    @Override
+    public void scrollToLastLocation() {
+        threadListLayout.scrollToLastLocation(presenter.getLoadable());
     }
 
     @Override
@@ -617,6 +624,11 @@ public class ThreadLayout
                 }
             }
         }
+    }
+
+    @Override
+    public Loadable getLoadable() {
+        return getPresenter().getLoadable();
     }
 
     @Override
