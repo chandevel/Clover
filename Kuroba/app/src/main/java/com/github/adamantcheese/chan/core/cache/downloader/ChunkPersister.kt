@@ -30,7 +30,7 @@ internal class ChunkPersister(
             chunkIndex: Int,
             totalChunksCount: Int
     ): Flowable<ChunkDownloadEvent> {
-        return Flowable.create<ChunkDownloadEvent>({ emitter ->
+        return Flowable.create({ emitter ->
             BackgroundUtils.ensureBackgroundThread()
 
             val serializedEmitter = emitter.serialize()
@@ -62,10 +62,7 @@ internal class ChunkPersister(
                         chunk.end,
                         url
                 )
-
-                if (chunkCacheFile == null) {
-                    throw IOException("Couldn't create chunk cache file")
-                }
+                        ?: throw IOException("Couldn't create chunk cache file")
 
                 try {
                     chunkResponse.response.useAsResponseBody { responseBody ->

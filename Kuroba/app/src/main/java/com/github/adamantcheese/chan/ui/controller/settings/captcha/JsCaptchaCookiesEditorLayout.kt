@@ -89,22 +89,22 @@ class JsCaptchaCookiesEditorLayout(context: Context) : FrameLayout(context) {
         val nidCookie = nidCookieEditText.text?.toString() ?: ""
 
         if (hsidCookie.isEmpty()) {
-            hsidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, hsidCookieEditText.hint);
+            hsidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, hsidCookieEditText.hint)
             return
         }
 
         if (ssidCookie.isEmpty()) {
-            ssidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, ssidCookieEditText.hint);
+            ssidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, ssidCookieEditText.hint)
             return
         }
 
         if (sidCookie.isEmpty()) {
-            sidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, sidCookieEditText.hint);
+            sidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, sidCookieEditText.hint)
             return
         }
 
         if (nidCookie.isEmpty()) {
-            nidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, nidCookieEditText.hint);
+            nidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, nidCookieEditText.hint)
             return
         }
 
