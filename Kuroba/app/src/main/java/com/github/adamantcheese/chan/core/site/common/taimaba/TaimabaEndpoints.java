@@ -101,7 +101,7 @@ public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
             .addPathSegment("ajaxReport.jsp")
             .addQueryParameter("postId", String.valueOf(post.no))
             .addQueryParameter("reason", "RULE_VIOLATION")
-            .addQueryParameter("note", "Kuroba generated report")
+            .addQueryParameter("note", "")
             .addQueryParameter("location", "http://boards.420chan.org/" + post.board.code + "/" + String.valueOf(post.no))
             .build();
     }
