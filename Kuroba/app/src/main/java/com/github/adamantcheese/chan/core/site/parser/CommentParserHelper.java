@@ -220,7 +220,8 @@ public class CommentParserHelper {
                     if (matcher.matches()) {
                         boolean noThumbnail =
                                 ((String) linkable.value).endsWith("webm") || ((String) linkable.value).endsWith("pdf")
-                                        || ((String) linkable.value).endsWith("mp4");
+                                        || ((String) linkable.value).endsWith("mp4") || ((String) linkable.value).endsWith("mp3")
+                                            || ((String) linkable.value).endsWith("swf");
                         String spoilerThumbnail =
                                 "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png";
 
