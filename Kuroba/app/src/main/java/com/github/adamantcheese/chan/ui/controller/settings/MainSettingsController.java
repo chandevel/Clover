@@ -278,14 +278,14 @@ public class MainSettingsController
         int crashLogsCount = reportManager.countCrashLogs();
 
         if (crashLogsCount > 0) {
-            suggestSendingCrashLogs(crashLogsCount);
+            suggestReviewingCrashLogs(crashLogsCount);
             return;
         }
 
         openReportProblemController();
     }
 
-    private void suggestSendingCrashLogs(int crashLogsCount) {
+    private void suggestReviewingCrashLogs(int crashLogsCount) {
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.settings_report_suggest_sending_logs_title, crashLogsCount))
                 .setMessage(R.string.settings_report_suggest_sending_logs_message)

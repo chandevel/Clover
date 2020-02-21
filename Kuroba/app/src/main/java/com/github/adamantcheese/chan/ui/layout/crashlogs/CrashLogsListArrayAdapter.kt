@@ -39,7 +39,7 @@ internal class CrashLogsListArrayAdapter(
         val clickArea = cellView.findViewById<FrameLayout>(R.id.cell_crashlog_click_area)
 
         fileNameView.text = crashLog.fileName
-        checkBox.isChecked = crashLog.send
+        checkBox.isChecked = crashLog.markedToSend
 
         fileNameView.setOnClickListener {
             callbacks.onCrashLogClicked(crashLog)
@@ -48,8 +48,8 @@ internal class CrashLogsListArrayAdapter(
             val crashLogItem = getItem(position)
                     ?: return@setOnClickListener
 
-            crashLogItem.send = !crashLogItem.send
-            checkBox.isChecked = crashLogItem.send
+            crashLogItem.markedToSend = !crashLogItem.markedToSend
+            checkBox.isChecked = crashLogItem.markedToSend
 
             handler.removeCallbacksAndMessages(null)
 
@@ -80,7 +80,7 @@ internal class CrashLogsListArrayAdapter(
             val item = getItem(i)
                     ?: continue
 
-            if (item.send) {
+            if (item.markedToSend) {
                 selectedCrashLogs += item
             }
         }
