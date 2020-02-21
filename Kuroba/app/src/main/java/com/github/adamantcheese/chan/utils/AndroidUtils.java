@@ -316,9 +316,19 @@ public class AndroidUtils {
     public static void waitForMeasure(final View view, final OnMeasuredCallback callback) {
         if (view.getWindowToken() == null) {
             // If you call getViewTreeObserver on a view when it's not attached to a window will result in the creation of a temporarily viewtreeobserver.
-            // This is almost always not what you want.
-            throw new IllegalArgumentException(
-                    "The view given to waitForMeasure is not attached to the window and does not have a ViewTreeObserver.");
+            view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View v) {
+                    waitForLayoutInternal(true, view.getViewTreeObserver(), view, callback);
+                    view.removeOnAttachStateChangeListener(this);
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(View v) {
+                    view.removeOnAttachStateChangeListener(this);
+                }
+            });
+            return;
         }
 
         waitForLayoutInternal(true, view.getViewTreeObserver(), view, callback);
@@ -331,8 +341,19 @@ public class AndroidUtils {
     public static void waitForLayout(final View view, final OnMeasuredCallback callback) {
         if (view.getWindowToken() == null) {
             // See comment above
-            throw new IllegalArgumentException(
-                    "The view given to waitForLayout is not attached to the window and does not have a ViewTreeObserver.");
+            view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View v) {
+                    waitForLayoutInternal(true, view.getViewTreeObserver(), view, callback);
+                    view.removeOnAttachStateChangeListener(this);
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(View v) {
+                    view.removeOnAttachStateChangeListener(this);
+                }
+            });
+            return;
         }
 
         waitForLayoutInternal(false, view.getViewTreeObserver(), view, callback);

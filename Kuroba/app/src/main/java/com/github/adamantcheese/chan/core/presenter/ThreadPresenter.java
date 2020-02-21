@@ -134,7 +134,7 @@ public class ThreadPresenter
     private ChanThreadLoader chanLoader;
     private boolean searchOpen;
     private String searchQuery;
-    private boolean forcePageUpdate = true;
+    private boolean forcePageUpdate;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded;
     private boolean addToLocalBackHistory;
@@ -595,7 +595,7 @@ public class ThreadPresenter
             Post markedPost = PostUtils.findPostById(loadable.markedNo, chanLoader.getThread());
             if (markedPost != null) {
                 highlightPost(markedPost);
-                if(BackgroundUtils.isInForeground()) {
+                if (BackgroundUtils.isInForeground()) {
                     scrollToPost(markedPost, false);
                 }
             }
@@ -1171,6 +1171,11 @@ public class ThreadPresenter
         threadPresenterCallback.unhideOrUnremovePost(post);
     }
 
+    @Override
+    public void scrollToLastLocation() {
+        threadPresenterCallback.scrollToLastLocation();
+    }
+
     public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
         threadPresenterCallback.showDeleting();
 
@@ -1276,7 +1281,8 @@ public class ThreadPresenter
         if (chanLoader != null && chanLoader.getThread() != null) {
             threadPresenterCallback.showPosts(chanLoader.getThread(),
                     new PostsFilter(order, searchQuery),
-                    refreshAfterHideOrRemovePosts
+                    refreshAfterHideOrRemovePosts,
+                    forcePageUpdate
             );
         }
     }
@@ -1373,7 +1379,7 @@ public class ThreadPresenter
     }
 
     public interface ThreadPresenterCallback {
-        void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts);
+        void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts, boolean newReply);
 
         void postClicked(Post post);
 
@@ -1414,6 +1420,8 @@ public class ThreadPresenter
         void scrollTo(int displayPosition, boolean smooth);
 
         void smoothScrollNewPosts(int displayPosition);
+
+        void scrollToLastLocation();
 
         void highlightPost(Post post);
 

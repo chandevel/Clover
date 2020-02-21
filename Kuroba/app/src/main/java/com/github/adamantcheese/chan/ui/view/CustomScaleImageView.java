@@ -133,7 +133,7 @@ public class CustomScaleImageView
         }
 
         public boolean isTouchingAllSides() {
-            return isTouchingLeft() && isTouchingRight() && isTouchingTop() && isTouchingBottom();
+            return side == (LEFT_SIDE | RIGHT_SIDE | TOP_SIDE | BOTTOM_SIDE);
         }
     }
 

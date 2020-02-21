@@ -373,20 +373,6 @@ public class StartActivity
         return stack.peek().dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
     }
 
-    public ViewThreadController currentViewThreadController() {
-        for (Controller c : mainNavigationController.childControllers) {
-            if (c instanceof ViewThreadController) {
-                return (ViewThreadController) c;
-            } else if (c instanceof ThreadSlideController) {
-                ThreadSlideController controller = (ThreadSlideController) c;
-                if (controller.getRightController() instanceof ViewThreadController) {
-                    return (ViewThreadController) controller.getRightController();
-                }
-            }
-        }
-        return null;
-    }
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.core.cache.downloader
 import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.utils.HashingUtil
+import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.RawFile
@@ -26,7 +27,7 @@ internal class ChunkMerger(
     ): Flowable<ChunkDownloadEvent> {
         return Flowable.fromCallable {
             if (verboseLogs) {
-                log(TAG, "mergeChunksIntoCacheFile called ($url), " +
+                log(TAG, "mergeChunksIntoCacheFile called (${maskImageUrl(url)}), " +
                         "chunks count = ${chunkSuccessEvents.size}")
             }
 
@@ -99,7 +100,7 @@ internal class ChunkMerger(
     private fun canSiteFileHashBeTrusted(url: String): Boolean {
         val host = url.toHttpUrlOrNull()?.host
         if (host == null) {
-            logError(TAG, "Bad url, can't extract host: $url")
+            logError(TAG, "Bad url, can't extract host: ${maskImageUrl(url)}")
             return false
         }
 

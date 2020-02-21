@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -448,6 +447,9 @@ public class BrowseController
         //set the board just in case?
         setBoard(catalogLoadable.board);
     }
+
+    @Override
+    public void showArchives() { }
 
     // Creates or updates the target ThreadViewController
     // This controller can be in various places depending on the layout

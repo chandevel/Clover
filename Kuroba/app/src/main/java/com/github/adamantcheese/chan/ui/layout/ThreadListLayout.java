@@ -31,6 +31,7 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
+import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -68,6 +69,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.CARD;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.TYPE_POST;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -202,7 +205,7 @@ public class ThreadListLayout
             compactMode = false;
         }
 
-        if (postViewMode == ChanSettings.PostViewMode.CARD) {
+        if (postViewMode == CARD) {
             postAdapter.setCompact(compactMode);
 
             ((GridLayoutManager) layoutManager).setSpanCount(spanCount);
@@ -272,7 +275,11 @@ public class ThreadListLayout
     }
 
     public void showPosts(
-            ChanThread thread, PostsFilter filter, boolean initial, boolean refreshAfterHideOrRemovePosts
+            ChanThread thread,
+            PostsFilter filter,
+            boolean initial,
+            boolean refreshAfterHideOrRemovePosts,
+            boolean newReply
     ) {
         showingThread = thread;
         if (initial) {
@@ -332,7 +339,7 @@ public class ThreadListLayout
             filteredPosts.removeAll(toRemove);
         }
 
-        postAdapter.setThread(thread.getLoadable(), filteredPosts, refreshAfterHideOrRemovePosts);
+        postAdapter.setThread(thread.getLoadable(), filteredPosts, refreshAfterHideOrRemovePosts, newReply);
     }
 
     public boolean onBack() {
@@ -477,15 +484,15 @@ public class ThreadListLayout
     }
 
     public boolean canChildScrollUp() {
-        if (replyOpen) {
-            return true;
-        }
+        if (replyOpen) return true;
 
-        if (searchOpen) {
-            if (getTopAdapterPosition() == 0) {
-                View top = layoutManager.findViewByPosition(0);
+        if (getTopAdapterPosition() == 0) {
+            View top = layoutManager.findViewByPosition(0);
+            if (top == null) return true;
+
+            if (searchOpen) {
                 int searchExtraHeight = findViewById(R.id.search_status).getHeight();
-                if (postViewMode == ChanSettings.PostViewMode.LIST) {
+                if (postViewMode == LIST) {
                     return top.getTop() != searchExtraHeight;
                 } else {
                     if (top instanceof PostStubCell) {
@@ -496,27 +503,18 @@ public class ThreadListLayout
                     }
                 }
             }
-        }
 
-        switch (postViewMode) {
-            case LIST:
-                if (getTopAdapterPosition() == 0) {
-                    View top = layoutManager.findViewByPosition(0);
+            switch (postViewMode) {
+                case LIST:
                     return top.getTop() != toolbarHeight();
-                }
-                break;
-            case CARD:
-                if (getTopAdapterPosition() == 0) {
-                    View top = layoutManager.findViewByPosition(0);
-
+                case CARD:
                     if (top instanceof PostStubCell) {
                         // PostStubCell does not have grid_card_margin
                         return top.getTop() != toolbarHeight() + dp(1);
                     } else {
                         return top.getTop() != getDimen(R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
                     }
-                }
-                break;
+            }
         }
         return true;
     }
@@ -535,6 +533,29 @@ public class ThreadListLayout
         } else {
             Logger.wtf(TAG, "Layout manager is grid inside thread??");
         }
+    }
+
+    public void scrollToLastLocation(final Loadable loadable) {
+        final int index = loadable.listViewIndex;
+        final int top = loadable.listViewTop;
+        ViewTreeObserver.OnGlobalLayoutListener layoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                Loadable checkingLoadable = threadListLayoutCallback.getLoadable();
+                if (checkingLoadable == loadable) {
+                    //just to be sure that loadables haven't changed, so we don't scroll in a different thread than the one posted in
+                    if (postViewMode == LIST) {
+                        ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(index, top);
+                    } else {
+                        throw new IllegalArgumentException(
+                                "Should only be used for scrolling to the last location in a thread");
+                    }
+                }
+            }
+        };
+        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+        postDelayed(() -> recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener), 2000);
     }
 
     public void cleanup() {
@@ -713,7 +734,7 @@ public class ThreadListLayout
 
     private void setRecyclerViewPadding() {
         int defaultPadding = 0;
-        if (postViewMode == ChanSettings.PostViewMode.CARD) {
+        if (postViewMode == CARD) {
             defaultPadding = dp(1);
         }
 
@@ -838,5 +859,7 @@ public class ThreadListLayout
         void showImageReencodingWindow(boolean supportsReencode);
 
         boolean threadBackPressed();
+
+        Loadable getLoadable();
     }
 }
