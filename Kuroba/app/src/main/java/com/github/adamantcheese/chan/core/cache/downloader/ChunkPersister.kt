@@ -22,7 +22,6 @@ internal class ChunkPersister(
         private val activeDownloads: ActiveDownloads,
         private val verboseLogs: Boolean
 ) {
-
     fun storeChunkInFile(
             url: String,
             chunkResponse: ChunkResponse,
@@ -132,13 +131,9 @@ internal class ChunkPersister(
         // If totalChunksCount == 1 then there is nothing else to stop so we can just emit
         // one error
         if (isStoppedOrCanceled || totalChunksCount > 1 && error !is IOException) {
-            when (state) {
-                DownloadState.Running,
-                DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
-                DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
-            }.exhaustive
-
             log(TAG, "handleErrors($chunkIndex) (${maskImageUrl(url)}) cancel for chunk ${chunk.start}..${chunk.end}")
+
+            // First emit an error
             if (isStoppedOrCanceled) {
                 // If already canceled or stopped we don't want to emit another error because
                 // when emitting more than one error concurrently they will be converted into
@@ -148,9 +143,18 @@ internal class ChunkPersister(
             } else {
                 serializedEmitter.tryOnError(error)
             }
+
+            // Only after that do the cancellation because otherwise we will always end up with
+            // CancellationException (because almost all dispose callbacks throw it) which is not
+            // an indicator of what had originally happened
+            when (state) {
+                DownloadState.Running,
+                DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
+                DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
+            }.exhaustive
         } else {
-            serializedEmitter.tryOnError(error)
             log(TAG, "handleErrors($chunkIndex) (${maskImageUrl(url)}) fail for chunk ${chunk.start}..${chunk.end}")
+            serializedEmitter.tryOnError(error)
         }
     }
 
