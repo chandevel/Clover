@@ -611,6 +611,8 @@ public class ThreadLayout
             } else {
                 dismissSnackbar();
             }
+        } else {
+            dismissSnackbar();
         }
     }
 
