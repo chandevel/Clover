@@ -29,7 +29,7 @@ import okhttp3.HttpUrl;
 public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
     protected final CommonSite.SimpleHttpUrl root;
     protected final CommonSite.SimpleHttpUrl sys;
-    protected final CommonSite.SimpleHttpUrl mp3thumb;
+    protected final CommonSite.SimpleHttpUrl audiothumb;
     protected final CommonSite.SimpleHttpUrl swfthumb;
     private final HttpUrl report = new HttpUrl.Builder().scheme("https").host("cdn.420chan.org").port(8443).build();
 
@@ -37,7 +37,7 @@ public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
         super(commonSite);
         root = new CommonSite.SimpleHttpUrl(rootUrl);
         sys = new CommonSite.SimpleHttpUrl(sysUrl);
-        mp3thumb = new CommonSite.SimpleHttpUrl("https://abload.de/img/mp3utjr6.png");
+        audiothumb = new CommonSite.SimpleHttpUrl("https://abload.de/img/file-document-pngrepoumk85.png");
         swfthumb = new CommonSite.SimpleHttpUrl("https://abload.de/img/swfuhji6.png");
     }
 
@@ -62,7 +62,10 @@ public class TaimabaEndpoints extends CommonSite.CommonEndpoints {
             case "swf":
                 return swfthumb.builder().url();
             case "mp3":
-                return mp3thumb.builder().url();
+            case "m4a":
+            case "ogg":
+            case "flac":
+                return audiothumb.builder().url();
             default:
                 return sys.builder().s(post.board.code).s("thumb").s(arg.get("tim") + "s.jpg").url();
         }
