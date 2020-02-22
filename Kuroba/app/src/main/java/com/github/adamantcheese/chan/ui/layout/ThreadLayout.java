@@ -272,11 +272,6 @@ public class ThreadLayout
     }
 
     @Override
-    public void setThread(ChanThread thread) {
-        threadListLayout.setShowingThread(thread);
-    }
-
-    @Override
     public void postClicked(Post post) {
         if (postPopupHelper.isOpen()) {
             postPopupHelper.postClicked(post);

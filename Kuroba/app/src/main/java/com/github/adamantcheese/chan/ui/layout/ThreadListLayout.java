@@ -275,10 +275,6 @@ public class ThreadListLayout
         }
     }
 
-    public void setShowingThread(ChanThread showingThread) {
-        this.showingThread = showingThread;
-    }
-
     public void showPosts(
             ChanThread thread,
             PostsFilter filter,

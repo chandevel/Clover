@@ -103,7 +103,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="permission_grant">Grant</string>
 
     <string name="update_later">Later</string>
-    <string name="update_none">%1$s is up-to-date</string>
+    <string name="update_none">Already on the latest %1$s version.</string>
     <string name="update_check_failed">Failed to check for updates.</string>
     <string name="update_install">Install</string>
     <string name="update_install_downloading">Downloading update…</string>
