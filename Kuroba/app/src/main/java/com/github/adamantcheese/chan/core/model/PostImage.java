@@ -37,8 +37,7 @@ public class PostImage {
         GIF,
         MOVIE,
         PDF,
-        SWF,
-        MP3
+        SWF
     }
 
     public final String serverFilename;
@@ -76,6 +75,8 @@ public class PostImage {
                 break;
             case "webm":
             case "mp4":
+            case "mp3":
+            case "m4a":
                 type = MOVIE;
                 break;
             case "pdf":
@@ -83,9 +84,6 @@ public class PostImage {
                 break;
             case "swf":
                 type = Type.SWF;
-                break;
-            case "mp3":
-                type = Type.MP3;
                 break;
             default:
                 type = STATIC;

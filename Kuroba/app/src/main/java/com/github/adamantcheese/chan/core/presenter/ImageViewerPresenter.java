@@ -304,8 +304,6 @@ public class ImageViewerPresenter
                 callback.setImageMode(postImage, OTHER, true);
             } else if (postImage.type == SWF) {
                 callback.setImageMode(postImage, OTHER, true);
-            } else if (postImage.type == MP3 && videoAutoLoad(loadable, postImage)) {
-                callback.setImageMode(postImage, VIDEO, true);
             }
         }
 
@@ -495,8 +493,6 @@ public class ImageViewerPresenter
                     callback.setImageMode(postImage, OTHER, true);
                 } else if (postImage.type == SWF && currentMode != OTHER) {
                     callback.setImageMode(postImage, OTHER, true);
-                } else if (postImage.type == MP3 && currentMode != VIDEO) {
-                    callback.setImageMode(postImage, VIDEO, true);
                 } else {
                     if (callback.isImmersive()) {
                         callback.showSystemUI(true);
