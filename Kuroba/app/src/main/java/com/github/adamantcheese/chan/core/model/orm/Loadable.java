@@ -238,7 +238,7 @@ public class Loadable
     public String toString() {
         return "Loadable{id=" + id + ", mode=" + mode + ", board='" + boardCode + '\'' +
                 ", no=" + maskPostNo(no) + '\'' + ", listViewIndex=" + listViewIndex +
-                ", listViewTop=" + listViewTop + ", lastViewed=" + lastViewed + ", lastLoaded=" +
+                ", listViewTop=" + listViewTop + ", lastViewed=" + maskPostNo(lastViewed) + ", lastLoaded=" +
                 maskPostNo(lastLoaded) + ", markedNo=" + maskPostNo(markedNo) + ", dirty=" + dirty +
                 ", loadableDownloadingState=" + loadableDownloadingState.name() + '}';
     }

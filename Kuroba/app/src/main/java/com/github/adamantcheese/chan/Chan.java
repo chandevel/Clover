@@ -133,7 +133,9 @@ public class Chan
                 // fine, some blocking code was interrupted by a dispose call
                 return;
             }
-            if (e instanceof FileCacheException.CancellationException) {
+            if (e instanceof FileCacheException.CancellationException ||
+                e instanceof FileCacheException.FileNotFoundOnTheServerException
+            ) {
                 // fine, sometimes they get through all the checks but it doesn't really matter
                 return;
             }
@@ -150,6 +152,10 @@ public class Chan
 
             onUnhandledException(e, exceptionToString(true, e));
             Logger.e("APP", "RxJava undeliverable exception", e);
+
+            // Do not exit the app here! Most of the time an exception that comes here is not a
+            // fatal one. We only want to log and report them to analyze later. The app should be
+            // able to continue running after that.
         });
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
