@@ -327,7 +327,10 @@ public class DrawerAdapter
 
         watchCount.setTypeface(watchCount.getTypeface(), Typeface.NORMAL);
         watchCount.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
-        Board pinBoard = pin.loadable.board;
+        Board pinBoard = pin.loadable.board == null ? Board.fromSiteNameCode(pin.loadable.site,
+                pin.loadable.boardCode,
+                pin.loadable.boardCode
+        ) : pin.loadable.board;
         boolean italicize = false, bold = false;
         //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
         if ((pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1) >= pinBoard.bumpLimit
