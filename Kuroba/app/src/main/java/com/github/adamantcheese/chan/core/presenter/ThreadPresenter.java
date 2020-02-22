@@ -536,10 +536,8 @@ public class ThreadPresenter
         }
 
         //allow for search refreshes inside the catalog
-        if (result.getLoadable().isCatalogMode()) {
-            if (!TextUtils.isEmpty(searchQuery)) {
-                onSearchEntered(searchQuery);
-            }
+        if (result.getLoadable().isCatalogMode() && !TextUtils.isEmpty(searchQuery)) {
+            onSearchEntered(searchQuery);
         } else {
             showPosts();
         }
