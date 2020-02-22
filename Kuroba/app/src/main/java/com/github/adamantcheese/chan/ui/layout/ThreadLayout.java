@@ -134,7 +134,6 @@ public class ThreadLayout
     public ThreadLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         inject(this);
-        newPostsNotification = Snackbar.make(this, "", Snackbar.LENGTH_LONG); //so there's no null reference
     }
 
     public void create(ThreadLayoutCallback callback) {
@@ -238,11 +237,6 @@ public class ThreadLayout
     @Override
     public Toolbar getToolbar() {
         return callback.getToolbar();
-    }
-
-    @Override
-    public boolean shouldToolbarCollapse() {
-        return callback.shouldToolbarCollapse();
     }
 
     @Override
@@ -611,18 +605,19 @@ public class ThreadLayout
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
                 newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
                     presenter.onNewPostsViewClicked();
-                    if (newPostsNotification != null) {
-                        newPostsNotification.dismiss();
-                        newPostsNotification = null;
-                    }
+                    dismissSnackbar();
                 }).show();
                 fixSnackbarText(getContext(), newPostsNotification);
             } else {
-                if (newPostsNotification != null) { //just to be sure
-                    newPostsNotification.dismiss();
-                    newPostsNotification = null;
-                }
+                dismissSnackbar();
             }
+        }
+    }
+
+    private void dismissSnackbar() {
+        if (newPostsNotification != null) {
+            newPostsNotification.dismiss();
+            newPostsNotification = null;
         }
     }
 
@@ -633,11 +628,8 @@ public class ThreadLayout
 
     @Override
     public void onDetachedFromWindow() {
+        dismissSnackbar();
         super.onDetachedFromWindow();
-        if (newPostsNotification != null) {
-            newPostsNotification.dismiss();
-            newPostsNotification = null;
-        }
     }
 
     @Override
@@ -699,10 +691,7 @@ public class ThreadLayout
                     postPopupHelper.popAll();
                     showSearch(false);
                     showReplyButton(false);
-                    if (newPostsNotification != null) {
-                        newPostsNotification.dismiss();
-                        newPostsNotification = null;
-                    }
+                    dismissSnackbar();
                 }
             }
 
@@ -814,8 +803,6 @@ public class ThreadLayout
         void hideSwipeRefreshLayout();
 
         Toolbar getToolbar();
-
-        boolean shouldToolbarCollapse();
 
         void openFilterForTripcode(String tripcode);
 

@@ -78,6 +78,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 /**
@@ -688,8 +689,12 @@ public class ThreadListLayout
         return new int[]{index, top};
     }
 
+    private boolean shouldToolbarCollapse() {
+        return !isTablet() && !ChanSettings.neverHideToolbar.get();
+    }
+
     private void attachToolbarScroll(boolean attach) {
-        if (threadListLayoutCallback.shouldToolbarCollapse()) {
+        if (shouldToolbarCollapse()) {
             Toolbar toolbar = threadListLayoutCallback.getToolbar();
             if (attach) {
                 toolbar.attachRecyclerViewScrollStateListener(recyclerView);
@@ -701,7 +706,7 @@ public class ThreadListLayout
     }
 
     private void showToolbarIfNeeded() {
-        if (threadListLayoutCallback.shouldToolbarCollapse()) {
+        if (shouldToolbarCollapse()) {
             // Of coming back to focus from a dual controller, like the threadlistcontroller,
             // check if we should show the toolbar again (after the other controller made it hide).
             // It should show if the search or reply is open, or if the thread was scrolled at the
@@ -853,8 +858,6 @@ public class ThreadListLayout
         void replyLayoutOpen(boolean open);
 
         Toolbar getToolbar();
-
-        boolean shouldToolbarCollapse();
 
         void showImageReencodingWindow(boolean supportsReencode);
 

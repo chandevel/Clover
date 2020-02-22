@@ -34,7 +34,6 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
@@ -48,7 +47,6 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public abstract class ThreadController
@@ -233,11 +231,6 @@ public abstract class ThreadController
         } else {
             return null;
         }
-    }
-
-    @Override
-    public boolean shouldToolbarCollapse() {
-        return !isTablet() && !ChanSettings.neverHideToolbar.get();
     }
 
     @Override
