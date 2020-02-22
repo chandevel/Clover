@@ -32,7 +32,7 @@ class PartialContentSupportCheckerTest {
     @Before
     fun setUp() {
         AndroidUtils.init(testModule.provideApplication())
-        ShadowLog.stream = System.out;
+        ShadowLog.stream = System.out
 
         okHttpClient = testModule.provideOkHttpClient()
         activeDownloads = testModule.provideActiveDownloads()
