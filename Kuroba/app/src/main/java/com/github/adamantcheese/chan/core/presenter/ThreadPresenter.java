@@ -1054,6 +1054,13 @@ public class ThreadPresenter
         } else if (linkable.type == PostLinkable.Type.BOARD) {
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, (String) linkable.value));
+
+            if (board == null) {
+                // Throw the exception so we can report it
+                throw new NullPointerException("databaseManager.getDatabaseBoardManager().getBoard() returned null!, " +
+                        "site = " + loadable.site.name() + ", linkable.value = " + linkable.value);
+            }
+
             Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
 
             threadPresenterCallback.showBoard(catalog);
@@ -1061,6 +1068,13 @@ public class ThreadPresenter
             CommentParser.SearchLink search = (CommentParser.SearchLink) linkable.value;
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, search.board));
+
+            if (board == null) {
+                // Throw the exception so we can report it
+                throw new NullPointerException("databaseManager.getDatabaseBoardManager().getBoard() returned null!, " +
+                        "site = " + loadable.site.name() + ", linkable.value = " + linkable.value);
+            }
+
             Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
 
             threadPresenterCallback.showBoardAndSearch(catalog, search.search);
