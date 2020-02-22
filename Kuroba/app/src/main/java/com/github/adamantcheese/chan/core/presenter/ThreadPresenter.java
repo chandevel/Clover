@@ -1068,14 +1068,18 @@ public class ThreadPresenter
         } else if (linkable.type == PostLinkable.Type.BOARD) {
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, (String) linkable.value));
-            Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
+            Board backup = Board.fromSiteNameCode(loadable.site, (String) linkable.value, (String) linkable.value);
+            Loadable catalog = databaseManager.getDatabaseLoadableManager()
+                    .get(Loadable.forCatalog(board == null ? backup : board));
 
             threadPresenterCallback.showBoard(catalog);
         } else if (linkable.type == PostLinkable.Type.SEARCH) {
             CommentParser.SearchLink search = (CommentParser.SearchLink) linkable.value;
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, search.board));
-            Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
+            Board backup = Board.fromSiteNameCode(loadable.site, search.board, search.board);
+            Loadable catalog = databaseManager.getDatabaseLoadableManager()
+                    .get(Loadable.forCatalog(board == null ? backup : board));
 
             threadPresenterCallback.showBoardAndSearch(catalog, search.search);
         }
