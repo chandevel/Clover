@@ -275,6 +275,10 @@ public class ThreadListLayout
         }
     }
 
+    public void setShowingThread(ChanThread showingThread) {
+        this.showingThread = showingThread;
+    }
+
     public void showPosts(
             ChanThread thread,
             PostsFilter filter,
@@ -563,7 +567,9 @@ public class ThreadListLayout
         postAdapter.cleanup();
         reply.cleanup();
         openReply(false);
-        openSearch(false);
+        if (showingThread.getLoadable().isThreadMode()) {
+            openSearch(false);
+        }
         showingThread = null;
         lastPostCount = 0;
         noParty();

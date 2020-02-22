@@ -235,7 +235,7 @@ public abstract class ThreadController
 
     @Override
     public void onSearchVisibilityChanged(boolean visible) {
-        threadLayout.getPresenter().onSearchVisibilityChanged(visible);
+        threadLayout.getPresenter().onSearchVisibilityChanged(visible, false);
     }
 
     @Override

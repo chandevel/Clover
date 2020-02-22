@@ -460,7 +460,12 @@ public class ThreadPresenter
         return PinType.hasWatchNewPostsFlag(pin.pinType);
     }
 
-    public void onSearchVisibilityChanged(boolean visible) {
+    public void onSearchVisibilityChanged(boolean visible, boolean internal) {
+        if (internal && chanLoader != null && chanLoader.getThread() != null) {
+            //we need something to be shown in order to close the search when a catalog search is refreshed and is empty
+            threadPresenterCallback.setThread(chanLoader.getThread());
+        }
+
         searchOpen = visible;
         threadPresenterCallback.showSearch(visible);
         if (!visible) {
@@ -535,7 +540,16 @@ public class ThreadPresenter
             chanLoader.setTimer();
         }
 
-        showPosts();
+        //allow for search refreshes inside the catalog
+        if (result.getLoadable().isCatalogMode()) {
+            if (!TextUtils.isEmpty(searchQuery)) {
+                onSearchEntered(searchQuery);
+            } else {
+                onSearchVisibilityChanged(false, true);
+            }
+        } else {
+            showPosts();
+        }
 
         if (loadable.isThreadMode()) {
             int lastLoaded = loadable.lastLoaded;
@@ -1380,6 +1394,8 @@ public class ThreadPresenter
 
     public interface ThreadPresenterCallback {
         void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts, boolean newReply);
+
+        void setThread(ChanThread thread);
 
         void postClicked(Post post);
 

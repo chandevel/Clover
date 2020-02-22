@@ -272,6 +272,11 @@ public class ThreadLayout
     }
 
     @Override
+    public void setThread(ChanThread thread) {
+        threadListLayout.setShowingThread(thread);
+    }
+
+    @Override
     public void postClicked(Post post) {
         if (postPopupHelper.isOpen()) {
             postPopupHelper.postClicked(post);
@@ -689,7 +694,9 @@ public class ThreadLayout
                 if (this.visible == Visible.THREAD) {
                     threadListLayout.cleanup();
                     postPopupHelper.popAll();
-                    showSearch(false);
+                    if (getLoadable() == null || getLoadable().isThreadMode()) {
+                        showSearch(false);
+                    }
                     showReplyButton(false);
                     dismissSnackbar();
                 }
