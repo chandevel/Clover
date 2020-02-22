@@ -794,4 +794,6 @@ Don't have a 4chan Pass?<br>
     <string name="settings_auto_crash_report_description">By enabling this setting, all collected crash logs will be uploaded automatically on every app restart. Crash reports only collect the crash log itself, app version and basic OS information.</string>
     <string name="media_settings_base_dir_reset_message">Base directory reset to default</string>
     <string name="media_settings_could_not_create_default_baseDir">Could not create default base dir: %1$s</string>
+
+    <string name="site_uses_dynamic_boards">"Unable to go to board (site likely has dynamic boards). Add the board using the boards menu first."</string>
 </resources>

@@ -1068,16 +1068,22 @@ public class ThreadPresenter
         } else if (linkable.type == PostLinkable.Type.BOARD) {
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, (String) linkable.value));
-            Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
-
-            threadPresenterCallback.showBoard(catalog);
+            if (board == null) {
+                showToast(context, R.string.site_uses_dynamic_boards);
+            } else {
+                Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
+                threadPresenterCallback.showBoard(catalog);
+            }
         } else if (linkable.type == PostLinkable.Type.SEARCH) {
             CommentParser.SearchLink search = (CommentParser.SearchLink) linkable.value;
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, search.board));
-            Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
-
-            threadPresenterCallback.showBoardAndSearch(catalog, search.search);
+            if (board == null) {
+                showToast(context, R.string.site_uses_dynamic_boards);
+            } else {
+                Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
+                threadPresenterCallback.showBoardAndSearch(catalog, search.search);
+            }
         }
     }
 
