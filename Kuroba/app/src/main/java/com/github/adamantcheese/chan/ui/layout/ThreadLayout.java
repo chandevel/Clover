@@ -526,6 +526,7 @@ public class ThreadLayout
         int snackbarStringId = hide ? R.string.thread_hidden : R.string.thread_removed;
 
         Snackbar snackbar = Snackbar.make(this, snackbarStringId, Snackbar.LENGTH_LONG);
+        snackbar.setGestureInsetBottomIgnored(true);
         snackbar.setAction(R.string.undo, v -> {
             databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostHide(postHide));
             presenter.refreshUI();
@@ -557,6 +558,7 @@ public class ThreadLayout
         }
 
         Snackbar snackbar = Snackbar.make(this, formattedString, Snackbar.LENGTH_LONG);
+        snackbar.setGestureInsetBottomIgnored(true);
         snackbar.setAction(R.string.undo, v -> {
             databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostsHide(hideList));
             presenter.refreshUI();
@@ -591,7 +593,7 @@ public class ThreadLayout
 
         Snackbar snackbar =
                 Snackbar.make(this, getString(R.string.restored_n_posts, postsToRestore.size()), Snackbar.LENGTH_LONG);
-
+        snackbar.setGestureInsetBottomIgnored(true);
         snackbar.show();
         fixSnackbarText(getContext(), snackbar);
     }
@@ -603,6 +605,7 @@ public class ThreadLayout
                 String text = getQuantityString(R.plurals.thread_new_posts, more, more);
 
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
+                newPostsNotification.setGestureInsetBottomIgnored(true);
                 newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
                     presenter.onNewPostsViewClicked();
                     dismissSnackbar();

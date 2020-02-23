@@ -330,6 +330,7 @@ public class ViewThreadController
 
     private void debugClicked(ToolbarMenuSubItem item) {
         Snackbar testbar = Snackbar.make(threadLayout, "Test forever snackbar", LENGTH_INDEFINITE);
+        testbar.setGestureInsetBottomIgnored(true);
         testbar.setAction("Close", v1 -> testbar.dismiss());
         testbar.show();
     }

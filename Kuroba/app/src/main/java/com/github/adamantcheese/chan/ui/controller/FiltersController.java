@@ -249,6 +249,7 @@ public class FiltersController
             filterEngine.createOrUpdateFilter(clone);
             adapter.reload();
         });
+        s.setGestureInsetBottomIgnored(true);
         fixSnackbarText(context, s);
         s.show();
     }
