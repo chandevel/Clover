@@ -354,7 +354,6 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="image_save_notification_cancel">Tap to cancel</string>
     <string name="image_save_saved">Image saved</string>
     <string name="image_saver_saved_as_message">Saved as \"%1$s\"</string>
-    <string name="image_saver_failed_to_save_image_message">Saving image failed</string>
 
     <string name="thread_page_limit">Thread hit last page</string>
 
@@ -796,4 +795,5 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_could_not_create_default_baseDir">Could not create default base dir: %1$s</string>
 
     <string name="site_uses_dynamic_boards">"Unable to go to board (site likely has dynamic boards). Add the board using the boards menu first."</string>
+    <string name="could_not_start_saving_no_permissions">Could not start downloading images, no WRITE_ACCESS permission was granted</string>
 </resources>
