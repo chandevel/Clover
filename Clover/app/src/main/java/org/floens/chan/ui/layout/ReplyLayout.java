@@ -493,6 +493,7 @@ public class ReplyLayout extends LoadView implements
 
     @Override
     public void openPreview(boolean show, File previewFile) {
+        preview.setClickable(false);
         if (show) {
             theme().clearDrawable.apply(attach);
         } else {
@@ -506,6 +507,9 @@ public class ReplyLayout extends LoadView implements
             preview.setVisibility(View.GONE);
             previewMessage.setVisibility(View.GONE);
         }
+        // the delay is taken from LayoutTransition, as this class is set to automatically animate layout changes
+        // only allow the preview to be clicked if it is fully visible
+        postDelayed(() -> preview.setClickable(true), 300);
     }
 
     @Override
