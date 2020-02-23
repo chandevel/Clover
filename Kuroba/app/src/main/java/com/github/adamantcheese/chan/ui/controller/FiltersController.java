@@ -79,6 +79,7 @@ public class FiltersController
     private FloatingActionButton add;
     private FloatingActionButton enable;
     private FilterAdapter adapter;
+    private boolean locked;
 
     private ItemTouchHelper itemTouchHelper;
     private boolean attached;
@@ -162,21 +163,22 @@ public class FiltersController
             //add to the end of the filter list
             f.order = adapter.getItemCount();
             showFilterDialog(f);
-        } else if (v == enable) {
+        } else if (v == enable && !locked) {
             FloatingActionButton enableButton = (FloatingActionButton) v;
+            locked = true;
             //if every filter is disabled, enable all of them and set the drawable to be an x
             //if every filter is enabled, disable all of them and set the drawable to be a checkmark
             //if some filters are enabled, disable them and set the drawable to be a checkmark
             List<Filter> enabledFilters = filterEngine.getEnabledFilters();
             List<Filter> allFilters = filterEngine.getAllFilters();
             if (enabledFilters.isEmpty()) {
-                BackgroundUtils.runOnMainThread(() -> setFilters(allFilters, true));
+                setFilters(allFilters, true);
                 enableButton.setImageResource(R.drawable.ic_clear_white_24dp);
             } else if (enabledFilters.size() == allFilters.size()) {
-                BackgroundUtils.runOnMainThread(() -> setFilters(allFilters, false));
+                setFilters(allFilters, false);
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             } else {
-                BackgroundUtils.runOnMainThread(() -> setFilters(enabledFilters, false));
+                setFilters(enabledFilters, false);
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
             ThemeHelper.getTheme().applyFabColor(enable);
@@ -184,14 +186,11 @@ public class FiltersController
     }
 
     private void setFilters(List<Filter> filters, boolean enabled) {
-        //noinspection SynchronizeOnNonFinalField
-        synchronized (context) {
-            for (Filter filter : filters) {
-                filter.enabled = enabled;
-                filterEngine.createOrUpdateFilter(filter);
-            }
-            adapter.reload();
+        for (Filter filter : filters) {
+            filter.enabled = enabled;
+            filterEngine.createOrUpdateFilter(filter);
         }
+        adapter.reload();
     }
 
     private void searchClicked(ToolbarMenuItem item) {
@@ -372,6 +371,7 @@ public class FiltersController
             Collections.sort(displayList, (o1, o2) -> o1.order - o2.order);
 
             notifyDataSetChanged();
+            locked = false;
         }
     }
 
@@ -396,7 +396,7 @@ public class FiltersController
             reorder.setImageDrawable(drawableMutable);
 
             reorder.setOnTouchListener((v, event) -> {
-                if (event.getActionMasked() == MotionEvent.ACTION_DOWN && attached) {
+                if (!locked && event.getActionMasked() == MotionEvent.ACTION_DOWN && attached) {
                     itemTouchHelper.startDrag(FilterCell.this);
                 }
                 return false;
@@ -408,7 +408,7 @@ public class FiltersController
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
-            if (position >= 0 && position < adapter.getItemCount() && v == itemView) {
+            if (!locked && position >= 0 && position < adapter.getItemCount() && v == itemView) {
                 showFilterDialog(adapter.displayList.get(position));
             }
         }
