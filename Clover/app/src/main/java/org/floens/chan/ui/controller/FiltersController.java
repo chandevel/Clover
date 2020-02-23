@@ -67,6 +67,7 @@ public class FiltersController extends Controller implements
     private FloatingActionButton add;
     private FloatingActionButton enable;
     private FilterAdapter adapter;
+    private boolean locked;
 
     public FiltersController(Context context) {
         super(context);
@@ -136,34 +137,33 @@ public class FiltersController extends Controller implements
     public void onClick(View v) {
         if (v == add) {
             showFilterDialog(new Filter());
-        } else if (v == enable) {
+        } else if (v == enable && !locked) {
             FloatingActionButton enableButton = (FloatingActionButton) v;
+            locked = true;
             //if every filter is disabled, enable all of them and set the drawable to be an x
             //if every filter is enabled, disable all of them and set the drawable to be a checkmark
             //if some filters are enabled, disable them and set the drawable to be a checkmark
             List<Filter> enabledFilters = filterEngine.getEnabledFilters();
             List<Filter> allFilters = filterEngine.getAllFilters();
             if (enabledFilters.isEmpty()) {
-                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, true));
+                setFilters(allFilters, true);
                 enableButton.setImageResource(R.drawable.ic_clear_white_24dp);
             } else if (enabledFilters.size() == allFilters.size()) {
-                AndroidUtils.runOnUiThread(() -> setFilters(allFilters, false));
+                setFilters(allFilters, false);
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             } else {
-                AndroidUtils.runOnUiThread(() -> setFilters(enabledFilters, false));
+                setFilters(enabledFilters, false);
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
         }
     }
 
     private void setFilters(List<Filter> filters, boolean enabled) {
-        synchronized (context) {
-            for (Filter filter : filters) {
-                filter.enabled = enabled;
-                filterEngine.createOrUpdateFilter(filter);
-            }
-            adapter.load();
+        for (Filter filter : filters) {
+            filter.enabled = enabled;
+            filterEngine.createOrUpdateFilter(filter);
         }
+        adapter.load();
     }
 
     private void searchClicked(ToolbarMenuItem item) {
@@ -291,6 +291,7 @@ public class FiltersController extends Controller implements
             }
 
             notifyDataSetChanged();
+            locked = false;
         }
     }
 
@@ -316,7 +317,7 @@ public class FiltersController extends Controller implements
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
-            if (position >= 0 && position < adapter.getItemCount()) {
+            if (!locked && position >= 0 && position < adapter.getItemCount()) {
                 Filter filter = adapter.displayList.get(position);
                 if (v == itemView) {
                     showFilterDialog(filter);

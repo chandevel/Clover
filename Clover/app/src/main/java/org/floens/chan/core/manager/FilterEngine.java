@@ -74,19 +74,16 @@ public class FilterEngine {
     private final DatabaseFilterManager databaseFilterManager;
 
     private final Map<String, Pattern> patternCache = new HashMap<>();
-    private final List<Filter> enabledFilters = new ArrayList<>();
 
     @Inject
     public FilterEngine(DatabaseManager databaseManager, BoardManager boardManager) {
         this.databaseManager = databaseManager;
         this.boardManager = boardManager;
         databaseFilterManager = databaseManager.getDatabaseFilterManager();
-        update();
     }
 
     public void deleteFilter(Filter filter) {
         databaseManager.runTask(databaseFilterManager.deleteFilter(filter));
-        update();
     }
 
     public void createOrUpdateFilter(Filter filter) {
@@ -95,11 +92,18 @@ public class FilterEngine {
         } else {
             databaseManager.runTask(databaseFilterManager.updateFilter(filter));
         }
-        update();
     }
 
     public List<Filter> getEnabledFilters() {
-        return enabledFilters;
+        List<Filter> filters = databaseManager.runTask(databaseFilterManager.getFilters());
+        List<Filter> enabled = new ArrayList<>();
+        for (Filter filter : filters) {
+            if (filter.enabled) {
+                enabled.add(filter);
+            }
+        }
+
+        return enabled;
     }
 
     public List<Filter> getAllFilters() {
@@ -273,18 +277,5 @@ public class FilterEngine {
 
     private String escapeRegex(String filthy) {
         return filterFilthyPattern.matcher(filthy).replaceAll("\\\\$1"); // Escape regex special characters with a \
-    }
-
-    private void update() {
-        List<Filter> filters = databaseManager.runTask(databaseFilterManager.getFilters());
-        List<Filter> enabled = new ArrayList<>();
-        for (Filter filter : filters) {
-            if (filter.enabled) {
-                enabled.add(filter);
-            }
-        }
-
-        enabledFilters.clear();
-        enabledFilters.addAll(enabled);
     }
 }
