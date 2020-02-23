@@ -740,6 +740,7 @@ Don't have a 4chan Pass?<br>
     <string name="setting_youtube_dur_title">Enable Youtube durations</string>
     <string name="setting_youtube_dur_description">Adds duration parsing to Youtube titles; does not do anything with titles off</string>
     <string name="pdf_not_viewable">PDFs are not internally viewable; you can still download this file.</string>
+    <string name="swf_not_viewable">SWFs are not internally viewable; you can still download this file.</string>
     <string name="files_base_dir_does_not_exist"><![CDATA[Base directory for files does not exist! Set it manually in the settings (Media -> Save location)]]></string>
     <string name="local_threads_base_dir_does_not_exist"><![CDATA[Base directory for local threads does not exist! Set it manually in the settings (Media -> Local threads location). All active download has been stopped! Resume them manually after setting the base directory.]]></string>
     <string name="image_saver_could_not_figure_out_save_location">Couldn\'t figure out save location</string>

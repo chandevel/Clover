@@ -73,7 +73,7 @@ public class CommentParserHelper {
     public static LruCache<String, String> youtubeDurCache = new LruCache<>(500);
 
     //@formatter:off
-    private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp)", Pattern.CASE_INSENSITIVE);
+    private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)", Pattern.CASE_INSENSITIVE);
     //@formatter:on
 
     private static final Pattern dubsPattern = Pattern.compile("(\\d)\\1$");
@@ -220,7 +220,9 @@ public class CommentParserHelper {
                     if (matcher.matches()) {
                         boolean noThumbnail =
                                 ((String) linkable.value).endsWith("webm") || ((String) linkable.value).endsWith("pdf")
-                                        || ((String) linkable.value).endsWith("mp4");
+                                        || ((String) linkable.value).endsWith("mp4") || ((String) linkable.value).endsWith("mp3")
+                                            || ((String) linkable.value).endsWith("swf") || ((String) linkable.value).endsWith("m4a")
+                                                || ((String) linkable.value).endsWith("ogg") || ((String) linkable.value).endsWith("flac");
                         String spoilerThumbnail =
                                 "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png";
 

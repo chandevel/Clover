@@ -31,8 +31,6 @@ import java.util.List;
 
 public class Chan4BoardsRequest
         extends JsonReaderRequest<List<Board>> {
-    public static List<String> BLOCKED = Collections.singletonList("f");
-
     private final Site site;
 
     public Chan4BoardsRequest(Site site, Listener<List<Board>> listener, ErrorListener errorListener) {
@@ -169,10 +167,6 @@ public class Chan4BoardsRequest
 
         if (board.hasMissingInfo()) {
             // Invalid data, ignore
-            return null;
-        }
-
-        if (BLOCKED.contains(board.code)) {
             return null;
         }
 
