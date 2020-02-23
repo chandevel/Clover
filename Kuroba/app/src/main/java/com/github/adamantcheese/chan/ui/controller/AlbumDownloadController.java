@@ -268,6 +268,12 @@ public class AlbumDownloadController
         this.loadable = loadable;
         for (int i = 0, postImagesSize = postImages.size(); i < postImagesSize; i++) {
             PostImage postImage = postImages.get(i);
+            if (postImage.isInlined) {
+                // Do not allow downloading inlined files via the Album downloads (because they often
+                // fail with SSL exceptions) and we can't really trust those files.
+                continue;
+            }
+
             items.add(new AlbumDownloadItem(postImage, true, i));
         }
     }
