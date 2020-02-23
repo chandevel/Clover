@@ -258,7 +258,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             }
         }
 
-        if(oldVersion < 26) {
+        if (oldVersion < 26) {
             try {
                 //reset all settings, key was never saved which caused issues
                 siteDao.executeRawNoArgs("UPDATE site SET userSettings='{}'");
