@@ -117,4 +117,13 @@ public class StringUtils {
         String trimmedUrl = url.substring(0, url.length() - charactersToTrim);
         return trimmedUrl + "XXX" + (extension == null ? "" : "." + extension);
     }
+
+    public static boolean endsWithAny(String s, String[] suffixes) {
+        for (String suffix : suffixes) {
+            if (s.endsWith(suffix)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

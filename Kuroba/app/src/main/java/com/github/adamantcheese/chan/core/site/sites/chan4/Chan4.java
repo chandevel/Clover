@@ -175,7 +175,6 @@ public class Chan4
         private final HttpUrl s = new HttpUrl.Builder().scheme("https").host("s.4cdn.org").build();
         private final HttpUrl sys = new HttpUrl.Builder().scheme("https").host("sys.4chan.org").build();
         private final HttpUrl b = new HttpUrl.Builder().scheme("https").host("boards.4chan.org").build();
-        private final HttpUrl swfthumb = new HttpUrl.Builder().scheme("https").host("www.abload.de").build();
 
         @Override
         public HttpUrl catalog(Board board) {
@@ -211,9 +210,7 @@ public class Chan4
             } else {
                 switch(arg.get("ext")) {
                     case "swf":
-                        return swfthumb.newBuilder()
-                            .addPathSegment("/img/swfuhji6.png")
-                            .build();
+                        return HttpUrl.parse("https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/swf_thumb.png");
                     default:
                         return t.newBuilder().addPathSegment(post.board.code).addPathSegment(arg.get("tim") + "s.jpg").build();
                 }

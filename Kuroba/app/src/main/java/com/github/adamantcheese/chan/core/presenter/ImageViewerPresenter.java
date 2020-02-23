@@ -59,6 +59,7 @@ import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.PDF;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.SWF;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.BIGIMAGE;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.GIFIMAGE;
@@ -300,9 +301,7 @@ public class ImageViewerPresenter
                 callback.setImageMode(postImage, GIFIMAGE, true);
             } else if (postImage.type == MOVIE && videoAutoLoad(loadable, postImage)) {
                 callback.setImageMode(postImage, VIDEO, true);
-            } else if (postImage.type == PDF) {
-                callback.setImageMode(postImage, OTHER, true);
-            } else if (postImage.type == SWF) {
+            } else if (postImage.type == PDF || postImage.type == SWF) {
                 callback.setImageMode(postImage, OTHER, true);
             }
         }
@@ -489,9 +488,7 @@ public class ImageViewerPresenter
                     callback.setImageMode(postImage, GIFIMAGE, true);
                 } else if (postImage.type == MOVIE && currentMode != VIDEO) {
                     callback.setImageMode(postImage, VIDEO, true);
-                } else if (postImage.type == PDF && currentMode != OTHER) {
-                    callback.setImageMode(postImage, OTHER, true);
-                } else if (postImage.type == SWF && currentMode != OTHER) {
+                } else if ((postImage.type == PDF || postImage.type == SWF)&& currentMode != OTHER) {
                     callback.setImageMode(postImage, OTHER, true);
                 } else {
                     if (callback.isImmersive()) {
