@@ -697,6 +697,7 @@ public class ThreadSaveManager {
         for (Post post : newPosts) {
             for (PostImage postImage : post.images) {
                 if (postImage.isInlined) {
+                    // Skip inlined files
                     continue;
                 }
 
@@ -780,6 +781,11 @@ public class ThreadSaveManager {
             BaseFileManager snapshotFileManager, AbstractFile threadSaveDirImages, Post post
     ) {
         for (PostImage postImage : post.images) {
+            if (postImage.isInlined) {
+                // Skip inlined files
+                continue;
+            }
+
             {
                 String originalImageFilename =
                         postImage.serverFilename + "_" + ORIGINAL_FILE_NAME + "." + postImage.extension;
