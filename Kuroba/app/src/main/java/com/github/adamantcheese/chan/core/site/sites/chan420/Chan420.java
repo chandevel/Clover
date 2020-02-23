@@ -42,7 +42,7 @@ public class Chan420 extends CommonSite {
     private static final String TAG = "420Chan";
 
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
-        private final String[] mediaHosts = new String[]{"boards.20chan.org"};
+        private final String[] mediaHosts = new String[]{"boards.420chan.org"};
 
         @Override
         public Class<? extends Site> getSiteClass() {
