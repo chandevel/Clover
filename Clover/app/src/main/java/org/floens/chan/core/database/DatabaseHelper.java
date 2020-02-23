@@ -45,7 +45,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 25;
+    private static final int DATABASE_VERSION = 26;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -255,6 +255,15 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 boardsDao.executeRawNoArgs("CREATE INDEX board_value_idx ON board(value);");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 25", e);
+            }
+        }
+
+        if(oldVersion < 26) {
+            try {
+                //reset all settings, key was never saved which caused issues
+                siteDao.executeRawNoArgs("UPDATE site SET userSettings='{}'");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 26", e);
             }
         }
     }

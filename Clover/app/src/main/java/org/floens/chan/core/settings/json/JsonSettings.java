@@ -17,13 +17,12 @@
  */
 package org.floens.chan.core.settings.json;
 
-
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JsonSettings {
     @SerializedName("settings")
-    List<JsonSetting> settings = new ArrayList<>();
+    Map<String, JsonSetting> settings = new HashMap<>();
 }
