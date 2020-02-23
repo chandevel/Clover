@@ -269,6 +269,7 @@ public class ImageViewerPresenter
         PostImage postImage = images.get(selectedPosition);
         setTitle(postImage, position);
         callback.scrollToImage(postImage);
+        callback.updatePreviewImage(postImage);
 
         for (PostImage other : getOther(position)) {
             callback.setImageMode(other, LOWRES, false);
@@ -719,6 +720,8 @@ public class ImageViewerPresenter
         void setTitle(PostImage postImage, int index, int count, boolean spoiler);
 
         void scrollToImage(PostImage postImage);
+
+        void updatePreviewImage(PostImage postImage);
 
         void saveImage();
 

@@ -424,6 +424,29 @@ public class ImageViewerController
         imageViewerCallback.scrollToImage(postImage);
     }
 
+    @Override
+    public void updatePreviewImage(PostImage postImage) {
+        imageLoaderV2.getImage(true,
+                loadable,
+                postImage,
+                previewImage.getWidth(),
+                previewImage.getHeight(),
+                new ImageListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // the preview image will just remain as the last successful response; good enough
+                    }
+
+                    @Override
+                    public void onResponse(ImageContainer response, boolean isImmediate) {
+                        if (response.getBitmap() != null) {
+                            previewImage.setBitmap(response.getBitmap());
+                        }
+                    }
+                }
+        );
+    }
+
     public void saveImage() {
         ToolbarMenuItem saveMenuItem = navigation.findItem(SAVE_ID);
         if (saveMenuItem != null) {
@@ -540,32 +563,10 @@ public class ImageViewerController
             return;
         }
 
-        imageLoaderV2.getImage(true,
-                loadable,
-                postImage,
-                previewImage.getWidth(),
-                previewImage.getHeight(),
-                new ImageListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(
-                                TAG,
-                                "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap"
-                        );
-                        doPreviewOutAnimation(postImage, null);
-                    }
-
-                    @Override
-                    public void onResponse(ImageContainer response, boolean isImmediate) {
-                        if (response.getBitmap() != null) {
-                            doPreviewOutAnimation(postImage, response.getBitmap());
-                        }
-                    }
-                }
-        );
+        doPreviewOutAnimation(postImage);
     }
 
-    private void doPreviewOutAnimation(PostImage postImage, Bitmap bitmap) {
+    private void doPreviewOutAnimation(PostImage postImage) {
         // Find translation and scale if the current displayed image was a bigimage
         MultiImageView multiImageView = ((ImageViewerAdapter) pager.getAdapter()).find(postImage);
         View activeView = multiImageView.getActiveView();
@@ -582,10 +583,7 @@ public class ImageViewerController
         ThumbnailView startImage = getTransitionImageView(postImage);
 
         endAnimation = new AnimatorSet();
-        if (!setTransitionViewData(startImage) || bitmap == null) {
-            if (bitmap != null) {
-                previewImage.setBitmap(bitmap);
-            }
+        if (!setTransitionViewData(startImage)) {
             ValueAnimator backgroundAlpha = ValueAnimator.ofFloat(1f, 0f);
             backgroundAlpha.addUpdateListener(animation -> setBackgroundAlpha((float) animation.getAnimatedValue()));
 
