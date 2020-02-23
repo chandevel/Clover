@@ -603,7 +603,7 @@ public class ThreadLayout
         if (show) {
             if (!threadListLayout.scrolledToBottom() && BackgroundUtils.isInForeground()) {
                 String text = getQuantityString(R.plurals.thread_new_posts, more, more);
-
+                dismissSnackbar();
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
                 newPostsNotification.setGestureInsetBottomIgnored(true);
                 newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
