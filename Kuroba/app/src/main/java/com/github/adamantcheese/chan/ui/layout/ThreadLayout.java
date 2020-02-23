@@ -37,7 +37,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -123,7 +122,6 @@ public class ThreadLayout
     private boolean replyButtonEnabled;
     private boolean showingReplyButton = false;
     private Snackbar newPostsNotification;
-    private final Object snackbarLock = new Object();
 
     public ThreadLayout(Context context) {
         this(context, null);
@@ -136,7 +134,6 @@ public class ThreadLayout
     public ThreadLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         inject(this);
-        newPostsNotification = Snackbar.make(this, "", Snackbar.LENGTH_LONG); //so there's no null reference
     }
 
     public void create(ThreadLayoutCallback callback) {
@@ -190,7 +187,7 @@ public class ThreadLayout
             if (!archiveButton) {
                 presenter.requestData();
             } else {
-                ((StartActivity) getContext()).currentViewThreadController().showArchives(null);
+                callback.showArchives();
             }
         } else if (v == replyButton) {
             threadListLayout.openReply(true);
@@ -243,11 +240,6 @@ public class ThreadLayout
     }
 
     @Override
-    public boolean shouldToolbarCollapse() {
-        return callback.shouldToolbarCollapse();
-    }
-
-    @Override
     public void showImageReencodingWindow(boolean supportsReencode) {
         presenter.showImageReencodingWindow(supportsReencode);
     }
@@ -258,7 +250,9 @@ public class ThreadLayout
     }
 
     @Override
-    public void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts) {
+    public void showPosts(
+            ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts, boolean newReply
+    ) {
         if (thread.getLoadable().isLocal()) {
             if (replyButton.getVisibility() == VISIBLE) {
                 replyButton.hide();
@@ -271,7 +265,7 @@ public class ThreadLayout
 
         getPresenter().updateLoadable(thread.getLoadable().loadableDownloadingState);
 
-        threadListLayout.showPosts(thread, filter, visible != Visible.THREAD, refreshAfterHideOrRemovePosts);
+        threadListLayout.showPosts(thread, filter, visible != Visible.THREAD, refreshAfterHideOrRemovePosts, newReply);
 
         switchVisible(Visible.THREAD);
         callback.onShowPosts();
@@ -433,6 +427,11 @@ public class ThreadLayout
     @Override
     public void smoothScrollNewPosts(int displayPosition) {
         threadListLayout.smoothScrollNewPosts(displayPosition);
+    }
+
+    @Override
+    public void scrollToLastLocation() {
+        threadListLayout.scrollToLastLocation(presenter.getLoadable());
     }
 
     @Override
@@ -600,44 +599,39 @@ public class ThreadLayout
     @Override
     public void showNewPostsNotification(boolean show, int more) {
         if (show) {
-            synchronized (snackbarLock) {
-                if (!threadListLayout.scrolledToBottom() && BackgroundUtils.isInForeground()) {
-                    String text = getQuantityString(R.plurals.thread_new_posts, more, more);
+            if (!threadListLayout.scrolledToBottom() && BackgroundUtils.isInForeground()) {
+                String text = getQuantityString(R.plurals.thread_new_posts, more, more);
 
-                    newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
-                    newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
-                        presenter.onNewPostsViewClicked();
-                        if (newPostsNotification != null) {
-                            newPostsNotification.dismiss();
-                        }
-                    }).show();
-                    fixSnackbarText(getContext(), newPostsNotification);
-                } else {
-                    if (newPostsNotification != null) { //just to be sure
-                        newPostsNotification.dismiss();
-                    }
-                }
+                newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
+                newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
+                    presenter.onNewPostsViewClicked();
+                    dismissSnackbar();
+                }).show();
+                fixSnackbarText(getContext(), newPostsNotification);
+            } else {
+                dismissSnackbar();
             }
+        } else {
+            dismissSnackbar();
+        }
+    }
+
+    private void dismissSnackbar() {
+        if (newPostsNotification != null) {
+            newPostsNotification.dismiss();
+            newPostsNotification = null;
         }
     }
 
     @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        synchronized (snackbarLock) {
-            newPostsNotification = Snackbar.make(this, "", Snackbar.LENGTH_LONG); //so there's no null reference
-        }
+    public Loadable getLoadable() {
+        return getPresenter().getLoadable();
     }
 
     @Override
     public void onDetachedFromWindow() {
+        dismissSnackbar();
         super.onDetachedFromWindow();
-        synchronized (snackbarLock) {
-            if (newPostsNotification != null) {
-                newPostsNotification.dismiss();
-                newPostsNotification = null;
-            }
-        }
     }
 
     @Override
@@ -693,47 +687,45 @@ public class ThreadLayout
 
     private void switchVisible(Visible visible) {
         if (this.visible != visible) {
-            synchronized (snackbarLock) {
-                if (this.visible != null) {
-                    if (this.visible == Visible.THREAD) {
-                        threadListLayout.cleanup();
-                        postPopupHelper.popAll();
+            if (this.visible != null) {
+                if (this.visible == Visible.THREAD) {
+                    threadListLayout.cleanup();
+                    postPopupHelper.popAll();
+                    if (getLoadable() == null || getLoadable().isThreadMode()) {
                         showSearch(false);
-                        showReplyButton(false);
-                        if (newPostsNotification != null) {
-                            newPostsNotification.dismiss();
-                        }
                     }
+                    showReplyButton(false);
+                    dismissSnackbar();
                 }
+            }
 
-                this.visible = visible;
-                switch (visible) {
-                    case EMPTY:
-                        loadView.setView(inflateEmptyView());
-                        showReplyButton(false);
-                        break;
-                    case LOADING:
-                        View view = loadView.setView(progressLayout);
+            this.visible = visible;
+            switch (visible) {
+                case EMPTY:
+                    loadView.setView(inflateEmptyView());
+                    showReplyButton(false);
+                    break;
+                case LOADING:
+                    View view = loadView.setView(progressLayout);
 
-                        // TODO: cleanup
-                        if (refreshedFromSwipe) {
-                            refreshedFromSwipe = false;
-                            view.setVisibility(GONE);
-                        }
+                    // TODO: cleanup
+                    if (refreshedFromSwipe) {
+                        refreshedFromSwipe = false;
+                        view.setVisibility(GONE);
+                    }
 
-                        showReplyButton(false);
-                        break;
-                    case THREAD:
-                        callback.hideSwipeRefreshLayout();
-                        loadView.setView(threadListLayout);
-                        showReplyButton(true);
-                        break;
-                    case ERROR:
-                        callback.hideSwipeRefreshLayout();
-                        loadView.setView(errorLayout);
-                        showReplyButton(false);
-                        break;
-                }
+                    showReplyButton(false);
+                    break;
+                case THREAD:
+                    callback.hideSwipeRefreshLayout();
+                    loadView.setView(threadListLayout);
+                    showReplyButton(true);
+                    break;
+                case ERROR:
+                    callback.hideSwipeRefreshLayout();
+                    loadView.setView(errorLayout);
+                    showReplyButton(false);
+                    break;
             }
         }
     }
@@ -800,6 +792,8 @@ public class ThreadLayout
 
         void showBoardAndSearch(Loadable catalogLoadable, String searchQuery);
 
+        void showArchives();
+
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
 
         void showAlbum(List<PostImage> images, int index);
@@ -813,8 +807,6 @@ public class ThreadLayout
         void hideSwipeRefreshLayout();
 
         Toolbar getToolbar();
-
-        boolean shouldToolbarCollapse();
 
         void openFilterForTripcode(String tripcode);
 

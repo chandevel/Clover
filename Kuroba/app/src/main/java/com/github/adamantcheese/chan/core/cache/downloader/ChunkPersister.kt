@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.utils.BackgroundUtils
+import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.adamantcheese.chan.utils.exhaustive
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
@@ -21,7 +22,6 @@ internal class ChunkPersister(
         private val activeDownloads: ActiveDownloads,
         private val verboseLogs: Boolean
 ) {
-
     fun storeChunkInFile(
             url: String,
             chunkResponse: ChunkResponse,
@@ -29,7 +29,7 @@ internal class ChunkPersister(
             chunkIndex: Int,
             totalChunksCount: Int
     ): Flowable<ChunkDownloadEvent> {
-        return Flowable.create<ChunkDownloadEvent>({ emitter ->
+        return Flowable.create({ emitter ->
             BackgroundUtils.ensureBackgroundThread()
 
             val serializedEmitter = emitter.serialize()
@@ -38,7 +38,7 @@ internal class ChunkPersister(
             try {
                 if (verboseLogs) {
                     log(TAG,
-                            "storeChunkInFile($chunkIndex) ($url) " +
+                            "storeChunkInFile($chunkIndex) (${maskImageUrl(url)}) " +
                                     "called for chunk ${chunk.start}..${chunk.end}"
                     )
                 }
@@ -61,10 +61,7 @@ internal class ChunkPersister(
                         chunk.end,
                         url
                 )
-
-                if (chunkCacheFile == null) {
-                    throw IOException("Couldn't create chunk cache file")
-                }
+                        ?: throw IOException("Couldn't create chunk cache file")
 
                 try {
                     chunkResponse.response.useAsResponseBody { responseBody ->
@@ -97,7 +94,7 @@ internal class ChunkPersister(
                         }
                     }
 
-                    log(TAG, "storeChunkInFile(${chunkIndex}) success, url = $url, " +
+                    log(TAG, "storeChunkInFile(${chunkIndex}) success, url = ${maskImageUrl(url)}, " +
                             "chunk ${chunk.start}..${chunk.end}")
                 } catch (error: Throwable) {
                     deleteChunkFile(chunkCacheFile)
@@ -131,13 +128,9 @@ internal class ChunkPersister(
         // If totalChunksCount == 1 then there is nothing else to stop so we can just emit
         // one error
         if (isStoppedOrCanceled || totalChunksCount > 1 && error !is IOException) {
-            when (state) {
-                DownloadState.Running,
-                DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
-                DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
-            }.exhaustive
+            log(TAG, "handleErrors($chunkIndex) (${maskImageUrl(url)}) cancel for chunk ${chunk.start}..${chunk.end}")
 
-            log(TAG, "handleErrors($chunkIndex) ($url) cancel for chunk ${chunk.start}..${chunk.end}")
+            // First emit an error
             if (isStoppedOrCanceled) {
                 // If already canceled or stopped we don't want to emit another error because
                 // when emitting more than one error concurrently they will be converted into
@@ -147,9 +140,18 @@ internal class ChunkPersister(
             } else {
                 serializedEmitter.tryOnError(error)
             }
+
+            // Only after that do the cancellation because otherwise we will always end up with
+            // CancellationException (because almost all dispose callbacks throw it) which is not
+            // an indicator of what had originally happened
+            when (state) {
+                DownloadState.Running,
+                DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
+                DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
+            }.exhaustive
         } else {
+            log(TAG, "handleErrors($chunkIndex) (${maskImageUrl(url)}) fail for chunk ${chunk.start}..${chunk.end}")
             serializedEmitter.tryOnError(error)
-            log(TAG, "handleErrors($chunkIndex) ($url) fail for chunk ${chunk.start}..${chunk.end}")
         }
     }
 
@@ -254,7 +256,8 @@ internal class ChunkPersister(
 
             if (verboseLogs) {
                 log(TAG,
-                        "pipeChunk($chunkIndex) ($url) SUCCESS for chunk ${chunk.start}..${chunk.end}"
+                        "pipeChunk($chunkIndex) (${maskImageUrl(url)}) SUCCESS for chunk " +
+                                "${chunk.start}..${chunk.end}"
                 )
             }
 

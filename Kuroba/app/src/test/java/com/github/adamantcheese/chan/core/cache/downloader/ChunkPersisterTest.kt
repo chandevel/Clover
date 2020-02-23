@@ -15,7 +15,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
-import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.internal.closeQuietly
 import org.junit.After
 import org.junit.Assert.*
@@ -43,7 +43,7 @@ class ChunkPersisterTest {
     @Before
     fun init() {
         AndroidUtils.init(testModule.provideApplication())
-        ShadowLog.stream = System.out;
+        ShadowLog.stream = System.out
 
         fileManager = testModule.provideFileManager()
         cacheHandler = testModule.provideCacheHandler()
@@ -265,10 +265,8 @@ class ChunkPersisterTest {
             code(206)
             message("")
             body(
-                    ResponseBody.create(
-                            "image/jpg".toMediaType(),
-                            fileBytes
-                    )
+                    fileBytes
+                            .toResponseBody("image/jpg".toMediaType())
             )
 
             build()

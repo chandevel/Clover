@@ -36,6 +36,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
@@ -73,7 +74,8 @@ public class CommentParserHelper {
     public static LruCache<String, String> youtubeDurCache = new LruCache<>(500);
 
     //@formatter:off
-    private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp)", Pattern.CASE_INSENSITIVE);
+    private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)", Pattern.CASE_INSENSITIVE);
+    private static String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
     //@formatter:on
 
     private static final Pattern dubsPattern = Pattern.compile("(\\d)\\1$");
@@ -218,9 +220,7 @@ public class CommentParserHelper {
                 if (linkable.type == PostLinkable.Type.LINK) {
                     Matcher matcher = imageUrlPattern.matcher(((String) linkable.value));
                     if (matcher.matches()) {
-                        boolean noThumbnail =
-                                ((String) linkable.value).endsWith("webm") || ((String) linkable.value).endsWith("pdf")
-                                        || ((String) linkable.value).endsWith("mp4");
+                        boolean noThumbnail = StringUtils.endsWithAny((String) linkable.value, noThumbLinkSuffixes);
                         String spoilerThumbnail =
                                 "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png";
 

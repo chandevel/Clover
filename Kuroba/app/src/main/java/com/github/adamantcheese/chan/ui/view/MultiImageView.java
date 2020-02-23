@@ -646,7 +646,7 @@ public class MultiImageView
 
     @Override
     public void onAudioSessionId(int audioSessionId) {
-        if (exoPlayer.getAudioFormat() != null) {
+        if (exoPlayer != null && exoPlayer.getAudioFormat() != null) {
             callback.onAudioLoaded(this);
         }
     }
@@ -655,6 +655,9 @@ public class MultiImageView
         if (image.type == PostImage.Type.PDF) {
             cancellableToast.showToast(R.string.pdf_not_viewable);
             //this lets the user download the PDF, even though we haven't actually downloaded anything
+            callback.onDownloaded(image);
+        } else if (image.type == PostImage.Type.SWF) {
+            cancellableToast.showToast(R.string.swf_not_viewable);
             callback.onDownloaded(image);
         }
     }

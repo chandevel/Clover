@@ -75,7 +75,7 @@ public class ImageViewerAdapter
     public void finishUpdate(ViewGroup container) {
         for (ModeChange change : pendingModeChanges) {
             MultiImageView view = find(change.postImage);
-            if (view == null) {
+            if (view == null || view.getWindowToken() == null) {
                 Logger.w(TAG, "finishUpdate setMode view still not found");
             } else {
                 view.setMode(loadable, change.mode, change.center);
@@ -86,7 +86,7 @@ public class ImageViewerAdapter
 
     public void setMode(final PostImage postImage, MultiImageView.Mode mode, boolean center) {
         MultiImageView view = find(postImage);
-        if (view == null) {
+        if (view == null || view.getWindowToken() == null) {
             pendingModeChanges.add(new ModeChange(mode, postImage, center));
         } else {
             view.setMode(loadable, mode, center);

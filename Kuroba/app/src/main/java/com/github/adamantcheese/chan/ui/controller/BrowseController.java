@@ -448,6 +448,9 @@ public class BrowseController
         setBoard(catalogLoadable.board);
     }
 
+    @Override
+    public void showArchives() { }
+
     // Creates or updates the target ThreadViewController
     // This controller can be in various places depending on the layout
     // We dynamically search for it

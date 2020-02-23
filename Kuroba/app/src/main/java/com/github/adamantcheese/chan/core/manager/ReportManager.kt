@@ -207,6 +207,7 @@ class ReportManager(
             appendln("WEBM streaming enabled: ${ChanSettings.videoStream.get()}")
             appendln("Saved files base dir info: ${getFilesLocationInfo()}")
             appendln("Local threads base dir info: ${getLocalThreadsLocationInfo()}")
+            appendln("Phone layout mode: ${ChanSettings.layoutMode.get().name}")
         }
     }
 

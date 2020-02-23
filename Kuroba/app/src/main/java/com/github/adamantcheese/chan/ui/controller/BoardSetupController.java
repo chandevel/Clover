@@ -270,6 +270,7 @@ public class BoardSetupController
         private TextView text;
         private TextView description;
 
+        @SuppressLint("ClickableViewAccessibility")
         public SavedBoardCell(View itemView) {
             super(itemView);
 

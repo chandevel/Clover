@@ -159,7 +159,7 @@ public class UpdateManager {
         if (!BuildConfig.DEV_BUILD) {
             //region Release build
             volleyRequestQueue.add(new UpdateApiRequest(response -> {
-                if (!processUpdateApiResponse(response) && manual) {
+                if (!processUpdateApiResponse(response) && manual && BackgroundUtils.isInForeground()) {
                     new AlertDialog.Builder(context).setTitle(getString(R.string.update_none, getApplicationLabel()))
                             .setPositiveButton(R.string.ok, null)
                             .show();
@@ -178,7 +178,7 @@ public class UpdateManager {
                           String commitHash = response.getString("commit_hash");
                           if (commitHash.equals(BuildConfig.COMMIT_HASH)) {
                               //same version and commit, no update needed
-                              if (manual) {
+                              if (manual && BackgroundUtils.isInForeground()) {
                                   new AlertDialog.Builder(context)
                                           .setTitle(getString(R.string.update_none,
                                                                       getApplicationLabel()
@@ -239,7 +239,7 @@ public class UpdateManager {
 
     private void failedUpdate(boolean manual) {
         Logger.e(TAG, "Failed to process " + (BuildConfig.DEV_BUILD ? "dev" : "stable") + " API call for updating");
-        if (manual) {
+        if (manual && BackgroundUtils.isInForeground()) {
             new AlertDialog.Builder(context).setTitle(R.string.update_check_failed)
                     .setPositiveButton(R.string.ok, null)
                     .show();
@@ -291,12 +291,16 @@ public class UpdateManager {
 
                         AbstractFile copyFile = fileManager.fromRawFile(downloadAPKcopy);
 
-                        if (fileManager.create(copyFile) != null) {
-                            if (!fileManager.copyFileContents(file, copyFile)) {
-                                Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory");
+                        try {
+                            if (fileManager.create(copyFile) != null) {
+                                if (!fileManager.copyFileContents(file, copyFile)) {
+                                    Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory");
+                                }
+                            } else {
+                                Logger.e(TAG, "Couldn't create backup apk file to: " + downloadAPKcopy.getAbsolutePath());
                             }
-                        } else {
-                            Logger.e(TAG, "Couldn't create backup apk file: " + downloadAPKcopy.getAbsolutePath());
+                        } catch (Exception e) {
+                            Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory, " + e.getMessage());
                         }
 
                         //install from the filecache rather than downloads, as the Environment.DIRECTORY_DOWNLOADS may not be "Download"
@@ -310,6 +314,7 @@ public class UpdateManager {
 
                     @Override
                     public void onFail(Exception exception) {
+                        if (!BackgroundUtils.isInForeground()) return;
                         BackgroundUtils.ensureMainThread();
 
                         String description = context.getString(R.string.update_install_download_failed_description,
@@ -329,6 +334,7 @@ public class UpdateManager {
 
                     @Override
                     public void onCancel() {
+                        if (!BackgroundUtils.isInForeground()) return;
                         BackgroundUtils.ensureMainThread();
 
                         if (updateDownloadDialog != null) {
@@ -344,6 +350,7 @@ public class UpdateManager {
     }
 
     private void installApk(RawFile apk) {
+        if (!BackgroundUtils.isInForeground()) return;
         // First open the dialog that asks to retry and calls this method again.
         new AlertDialog.Builder(context).setTitle(R.string.update_retry_title)
                 .setMessage(getString(R.string.update_retry, getApplicationLabel()))

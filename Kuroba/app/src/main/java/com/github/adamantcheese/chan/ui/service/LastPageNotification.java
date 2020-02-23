@@ -4,6 +4,8 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.job.JobParameters;
+import android.app.job.JobService;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioAttributes;
@@ -15,32 +17,33 @@ import androidx.core.app.NotificationCompat;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
+import com.github.adamantcheese.chan.core.model.orm.Pin;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Random;
 
 import javax.inject.Inject;
 
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
 
-public class LastPageNotification {
-    //random notification ID's, so one notification per thread
-    private Random random = new Random();
-
-    @Inject
-    NotificationManager notificationManager;
-    private String NOTIFICATION_ID_STR = "4";
+public class LastPageNotification
+        extends JobService {
+    public static final String PIN_ID_KEY = "pin_id";
+    public static final String NOTIFY_KEY = "notify";
+    private static final String NOTIFICATION_ID_STR = "4";
 
     @Inject
     WatchManager watchManager;
 
     public LastPageNotification() {
         inject(this);
+    }
+
+    public static void setupChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID_STR,
                     "Last page notification",
@@ -55,11 +58,29 @@ public class LastPageNotification {
             );
             alert.enableLights(true);
             alert.setLightColor(Color.RED);
-            notificationManager.createNotificationChannel(alert);
+            getNotificationManager().createNotificationChannel(alert);
         }
     }
 
-    public Notification getNotification(int pinId) {
+    @Override
+    public boolean onStartJob(JobParameters params) {
+        int pinId = params.getExtras().getInt(PIN_ID_KEY);
+        boolean notify = params.getExtras().getInt(NOTIFY_KEY) == 1;
+        Pin forPin = watchManager.findPinById(pinId);
+        if (notify) {
+            getNotificationManager().notify(forPin.loadable.no, getNotification(forPin, pinId));
+        } else {
+            getNotificationManager().cancel(forPin.loadable.no);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        return false;
+    }
+
+    public Notification getNotification(Pin pin, int pinId) {
         Intent intent = new Intent(getAppContext(), StartActivity.class);
         intent.setAction(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_LAUNCHER)
@@ -69,13 +90,13 @@ public class LastPageNotification {
                 .putExtra("pin_id", pinId);
 
         PendingIntent pendingIntent =
-                PendingIntent.getActivity(getAppContext(), random.nextInt(), intent, PendingIntent.FLAG_ONE_SHOT);
-        DateFormat time = SimpleDateFormat.getTimeInstance(DateFormat.SHORT);
+                PendingIntent.getActivity(getAppContext(), pin.loadable.no, intent, PendingIntent.FLAG_ONE_SHOT);
+        String time = SimpleDateFormat.getTimeInstance(DateFormat.SHORT).format(new Date());
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext());
         builder.setSmallIcon(R.drawable.ic_stat_notify_alert)
-                .setContentTitle(time.format(new Date()) + " - " + getString(R.string.thread_page_limit))
-                .setContentText(watchManager.findPinById(pinId).loadable.title)
+                .setContentTitle(time + " - " + getString(R.string.thread_page_limit))
+                .setContentText(pin.loadable.title)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)

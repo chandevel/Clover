@@ -36,7 +36,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
- * An item for the Toolbar menu. These are ImageViews with an icon, that wehen pressed call
+ * An item for the Toolbar menu. These are ImageViews with an icon, that when pressed call
  * some callback. Add them with the NavigationItem MenuBuilder.
  */
 public class ToolbarMenuItem {

@@ -77,11 +77,13 @@ public class CaptchaLayout
     Gson gson;
 
     public CaptchaLayout(Context context) {
-        this(context, null);
+        super(context);
+        inject(this);
     }
 
     public CaptchaLayout(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
+        inject(this);
     }
 
     public CaptchaLayout(Context context, AttributeSet attrs, int defStyle) {

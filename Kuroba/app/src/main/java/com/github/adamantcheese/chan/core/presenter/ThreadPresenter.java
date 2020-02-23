@@ -134,7 +134,7 @@ public class ThreadPresenter
     private ChanThreadLoader chanLoader;
     private boolean searchOpen;
     private String searchQuery;
-    private boolean forcePageUpdate = true;
+    private boolean forcePageUpdate;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded;
     private boolean addToLocalBackHistory;
@@ -535,7 +535,12 @@ public class ThreadPresenter
             chanLoader.setTimer();
         }
 
-        showPosts();
+        //allow for search refreshes inside the catalog
+        if (result.getLoadable().isCatalogMode() && !TextUtils.isEmpty(searchQuery)) {
+            onSearchEntered(searchQuery);
+        } else {
+            showPosts();
+        }
 
         if (loadable.isThreadMode()) {
             int lastLoaded = loadable.lastLoaded;
@@ -595,7 +600,7 @@ public class ThreadPresenter
             Post markedPost = PostUtils.findPostById(loadable.markedNo, chanLoader.getThread());
             if (markedPost != null) {
                 highlightPost(markedPost);
-                if(BackgroundUtils.isInForeground()) {
+                if (BackgroundUtils.isInForeground()) {
                     scrollToPost(markedPost, false);
                 }
             }
@@ -1054,16 +1059,22 @@ public class ThreadPresenter
         } else if (linkable.type == PostLinkable.Type.BOARD) {
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, (String) linkable.value));
-            Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
-
-            threadPresenterCallback.showBoard(catalog);
+            if (board == null) {
+                showToast(context, R.string.site_uses_dynamic_boards);
+            } else {
+                Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
+                threadPresenterCallback.showBoard(catalog);
+            }
         } else if (linkable.type == PostLinkable.Type.SEARCH) {
             CommentParser.SearchLink search = (CommentParser.SearchLink) linkable.value;
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, search.board));
-            Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
-
-            threadPresenterCallback.showBoardAndSearch(catalog, search.search);
+            if (board == null) {
+                showToast(context, R.string.site_uses_dynamic_boards);
+            } else {
+                Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
+                threadPresenterCallback.showBoardAndSearch(catalog, search.search);
+            }
         }
     }
 
@@ -1171,6 +1182,11 @@ public class ThreadPresenter
         threadPresenterCallback.unhideOrUnremovePost(post);
     }
 
+    @Override
+    public void scrollToLastLocation() {
+        threadPresenterCallback.scrollToLastLocation();
+    }
+
     public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
         threadPresenterCallback.showDeleting();
 
@@ -1276,7 +1292,8 @@ public class ThreadPresenter
         if (chanLoader != null && chanLoader.getThread() != null) {
             threadPresenterCallback.showPosts(chanLoader.getThread(),
                     new PostsFilter(order, searchQuery),
-                    refreshAfterHideOrRemovePosts
+                    refreshAfterHideOrRemovePosts,
+                    forcePageUpdate
             );
         }
     }
@@ -1373,7 +1390,7 @@ public class ThreadPresenter
     }
 
     public interface ThreadPresenterCallback {
-        void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts);
+        void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts, boolean newReply);
 
         void postClicked(Post post);
 
@@ -1414,6 +1431,8 @@ public class ThreadPresenter
         void scrollTo(int displayPosition, boolean smooth);
 
         void smoothScrollNewPosts(int displayPosition);
+
+        void scrollToLastLocation();
 
         void highlightPost(Post post);
 

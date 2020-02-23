@@ -37,9 +37,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:allowBackup="true"
         android:icon="${iconLoc}"
         android:label="${appName}"
+        android:requestLegacyExternalStorage="true"
         android:theme="@style/Chan.Theme"
-        android:usesCleartextTraffic="${devBuild}"
-        android:requestLegacyExternalStorage="true">
+        android:usesCleartextTraffic="${devBuild}">
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -98,6 +98,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <service
             android:name=".ui.service.SavingNotification"
             android:exported="false" />
+
+        <service
+            android:name=".ui.service.LastPageNotification"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver
             android:name=".core.receiver.WakeUpdateReceiver"

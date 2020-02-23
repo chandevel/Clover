@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.core.cache.downloader
 import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.cache.FileCacheV2
 import com.github.adamantcheese.chan.utils.BackgroundUtils
+import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.Flowable
@@ -74,9 +75,9 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                             output
                     )
                 }
-                        .doOnSubscribe { log(TAG, "Starting downloading (${url})") }
+                        .doOnSubscribe { log(TAG, "Starting downloading (${maskImageUrl(url)})") }
                         .doOnComplete {
-                            log(TAG, "Completed downloading (${url})")
+                            log(TAG, "Completed downloading (${maskImageUrl(url)})")
                             removeChunksFromDisk(url)
                         }
                         .doOnError { error ->
@@ -119,7 +120,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             output: RawFile
     ): Flowable<FileDownloadResult> {
         if (verboseLogs) {
-            log(TAG, "File (${url}) was split into chunks: ${chunks}")
+            log(TAG, "File (${maskImageUrl(url)}) was split into chunks: ${chunks}")
         }
 
         if (!partialContentCheckResult.couldDetermineFileSize() && chunks.size != 1) {
@@ -197,13 +198,17 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                                 .filterIsInstance<ChunkDownloadEvent.ChunkError>()
                                 .map { event -> event.error }
 
-                        // If any of the chunks errored out with CancellationException - rethrow it
-                        if (errors.any { error -> error is FileCacheException.CancellationException }) {
-                            activeDownloads.throwCancellationException(url)
+                        val nonCancellationException = errors.firstOrNull { error ->
+                            error !is FileCacheException.CancellationException
                         }
 
-                        // Otherwise rethrow the first exception
-                        throw errors.first()
+                        if (nonCancellationException != null) {
+                            // If there are any exceptions other than CancellationException - throw it
+                            throw nonCancellationException
+                        } else {
+                            // Otherwise rethrow the first exception (which is CancellationException)
+                            throw errors.first()
+                        }
                     }
 
                     @Suppress("UNCHECKED_CAST")
@@ -289,7 +294,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
                     // Only use retry-on-IO-error with batch gallery downloads
                     if (isGalleryBatchDownload && retry) {
-                        log(TAG, "Retrying chunk ($chunk) for url ${url}, " +
+                        log(TAG, "Retrying chunk ($chunk) for url ${maskImageUrl(url)}, " +
                                 "error = ${error.javaClass.simpleName}, msg = ${error.message}")
                     }
 
