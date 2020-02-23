@@ -18,13 +18,9 @@ class Android10GesturesExclusionZonesHolder(
         val zones = mutableMapOf<Int, MutableSet<ExclusionZone>>()
 
         val json = ChanSettings.androidTenGestureZones.get()
-        if (json.isEmpty()) {
+        if (json.isEmpty() || json == EMPTY_JSON) {
             Logger.d(TAG, "Json setting string is empty, reset.")
             ChanSettings.androidTenGestureZones.set(EMPTY_JSON)
-            return zones
-        }
-
-        if (json == EMPTY_JSON) {
             return zones
         }
 
@@ -73,10 +69,10 @@ class Android10GesturesExclusionZonesHolder(
             val zoneRect = ExclusionZone(
                     screenOrientation = zoneJson.screenOrientation,
                     attachSide = AttachSide.fromInt(zoneJson.attachSide),
-                    left = zoneJson.left.toInt(),
-                    right = zoneJson.right.toInt(),
-                    top = zoneJson.top.toInt(),
-                    bottom = zoneJson.bottom.toInt()
+                    left = zoneJson.left,
+                    right = zoneJson.right,
+                    top = zoneJson.top,
+                    bottom = zoneJson.bottom
             )
 
             zoneRect.checkValid()
@@ -117,10 +113,10 @@ class Android10GesturesExclusionZonesHolder(
                     newExclusionZones += ExclusionZoneJson(
                             screenOrientation = orientation,
                             attachSide = zone.attachSide.id,
-                            left = zone.left.toFloat(),
-                            right = zone.right.toFloat(),
-                            top = zone.top.toFloat(),
-                            bottom = zone.bottom.toFloat()
+                            left = zone.left,
+                            right = zone.right,
+                            top = zone.top,
+                            bottom = zone.bottom
                     )
                 }
             }
@@ -156,10 +152,10 @@ class Android10GesturesExclusionZonesHolder(
                     newExclusionZones += ExclusionZoneJson(
                             screenOrientation = orientation,
                             attachSide = zone.attachSide.id,
-                            left = zone.left.toFloat(),
-                            right = zone.right.toFloat(),
-                            top = zone.top.toFloat(),
-                            bottom = zone.bottom.toFloat()
+                            left = zone.left,
+                            right = zone.right,
+                            top = zone.top,
+                            bottom = zone.bottom
                     )
                 }
             }

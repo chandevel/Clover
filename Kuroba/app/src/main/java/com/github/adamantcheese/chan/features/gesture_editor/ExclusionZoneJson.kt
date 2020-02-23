@@ -8,7 +8,7 @@ data class ExclusionZonesJson(
         val minScreenSize: Int,
         @SerializedName("max_screen_size")
         val maxScreenSize: Int,
-        @SerializedName("exclusion_zone")
+        @SerializedName("exclusion_zones")
         val zones: List<ExclusionZoneJson>
 )
 
@@ -36,11 +36,11 @@ data class ExclusionZoneJson(
         @SerializedName("attach_side")
         val attachSide: Int,
         @SerializedName("zone_left")
-        val left: Float,
+        val left: Int,
         @SerializedName("zone_right")
-        val right: Float,
+        val right: Int,
         @SerializedName("zone_top")
-        val top: Float,
+        val top: Int,
         @SerializedName("zone_bottom")
-        val bottom: Float
+        val bottom: Int
 )

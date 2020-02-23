@@ -91,6 +91,8 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
         currentEditableZone = null
         addedZones.clear()
         shown = false
+
+        invalidate()
     }
 
     fun onAddZoneButtonClicked() {
@@ -111,7 +113,9 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        check(shown) { "View is not shown but onTouchEvent is called!" }
+        if (!shown) {
+            return super.onTouchEvent(event)
+        }
 
         if (gestureZoneEditorTouchHandler.onTouchEvent(event)) {
             return true
@@ -126,9 +130,11 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
     }
 
     override fun onTouchInProgress(x: Float, y: Float, dx: Float, dy: Float) {
-        check(shown) { "View is not shown but onMoving is called!" }
-        val editableZone = checkNotNull(currentEditableZone) { "currentEditableZone is null" }
+        if (!shown) {
+            return
+        }
 
+        val editableZone = checkNotNull(currentEditableZone) { "currentEditableZone is null" }
         if (editableZone.onTouchInProgress(x, y, dx, dy)) {
             invalidate()
         }
@@ -141,7 +147,10 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        check(shown) { "View is not shown but onDraw is called!" }
+
+        if (!shown) {
+            return
+        }
 
         // Draw the background
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)

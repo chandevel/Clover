@@ -144,11 +144,6 @@ public class ExperimentalSettingsController
                 R.string.setting_exclusion_zones_reset_zones,
                 R.string.setting_exclusion_zones_reset_zones_description,
                 (v) -> {
-                    if (!isAndroid10()) {
-                        showToast(context, R.string.setting_exclusion_zones_can_only_be_used_on_android_10);
-                        return;
-                    }
-
                     exclusionZonesHolder.resetZones();
                     ((StartActivity) context).restartApp();
                 }
@@ -170,7 +165,6 @@ public class ExperimentalSettingsController
 
     private void showZonesDialog() {
         if (!isAndroid10()) {
-            showToast(context, R.string.setting_exclusion_zones_can_only_be_used_on_android_10);
             return;
         }
 

@@ -23,7 +23,7 @@ import android.graphics.RectF
  *                                      |                                     |
  * -------------------------------------+-------------------------------------+------------------------------------
  * */
-class SafeRectF {
+class ScreenRectF {
     private var _x = 0f
     private var _y = 0f
     private var _width = 0f
@@ -45,18 +45,18 @@ class SafeRectF {
     val height: Float
         get() = _height
 
-    constructor(other: SafeRectF) {
+    constructor(other: ScreenRectF) {
         this.minSize = other.minSize
         this.maxSize = other.maxSize
 
-        SafeRectF(other.x, other.y, other.width, other.height, other.minSize, other.maxSize)
+        ScreenRectF(other.x, other.y, other.width, other.height, other.minSize, other.maxSize)
     }
 
     constructor(rect: RectF, minSize: Float, maxSize: Float) {
         this.minSize = minSize
         this.maxSize = maxSize
 
-        SafeRectF(rect.left, rect.bottom, rect.width(), rect.height(), minSize, maxSize)
+        ScreenRectF(rect.left, rect.bottom, rect.width(), rect.height(), minSize, maxSize)
     }
 
     constructor(x: Float, y: Float, width: Float, height: Float, minSize: Float, maxSize: Float) {

@@ -20,8 +20,8 @@ class EditableZone {
     private val zoneDefaultWidth = dp(32f).toFloat()
     private val zoneDefaultHeight = dp(32f).toFloat()
     private val handleSize = dp(16f).toFloat()
-    private val zone = SafeRectF(0f, 0f, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE, MAXIMUM_SIZE)
-    private val handle = SafeRectF(0f, 0f, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE)
+    private val zone = ScreenRectF(0f, 0f, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE, MAXIMUM_SIZE)
+    private val handle = ScreenRectF(0f, 0f, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE)
 
     fun init(
             attachSide: AttachSide,
@@ -56,7 +56,8 @@ class EditableZone {
         zone.moveTo(x, y)
         zone.setSize(zoneWidth, zoneHeight)
 
-        initHandle(attachSide)
+        updateHandlePosition(attachSide)
+        handle.setSize(handleSize, handleSize)
     }
 
     private fun calculateDefaultZoneCoordinates(
@@ -121,7 +122,7 @@ class EditableZone {
             val newY = y - zoneOriginToTouchPosDeltaWhenMoving.y
 
             onMoving(newY, newX)
-            updateHandlePosition()
+            updateHandlePosition(currentAttachSide)
 
             return true
         }
@@ -129,7 +130,7 @@ class EditableZone {
         if (isResizing) {
             // We are resizing the zone by moving the handle
             onResizing(dx, dy)
-            updateHandlePosition()
+            updateHandlePosition(currentAttachSide)
 
             return true
         }
@@ -143,7 +144,7 @@ class EditableZone {
     }
 
     fun getCurrentAttachSide(): AttachSide = currentAttachSide
-    fun getCurrentZone(): SafeRectF = zone
+    fun getCurrentZone(): ScreenRectF = zone
 
     private fun onMoving(newY: Float, newX: Float) {
         when (currentAttachSide) {
@@ -203,8 +204,8 @@ class EditableZone {
         }
     }
 
-    private fun updateHandlePosition() {
-        when (currentAttachSide) {
+    private fun updateHandlePosition(attachSide: AttachSide) {
+        when (attachSide) {
             AttachSide.Left -> {
                 handle.moveTo(zone.right() + handleSize, zone.bottom() + handleSize)
             }
@@ -218,37 +219,6 @@ class EditableZone {
                 handle.moveTo(zone.left() - (handleSize * 2f), zone.top() - (handleSize * 2f))
             }
         }
-    }
-
-    private fun initHandle(attachSide: AttachSide) {
-        when (attachSide) {
-            AttachSide.Left -> {
-                handle.moveTo(
-                        zone.right() + handleSize,
-                        zone.bottom() + handleSize
-                )
-            }
-            AttachSide.Right -> {
-                handle.moveTo(
-                        zone.left() - (handleSize * 2f),
-                        zone.bottom() + handleSize
-                )
-            }
-            AttachSide.Top -> {
-                handle.moveTo(
-                        zone.left() - (handleSize * 2f),
-                        zone.bottom() + handleSize
-                )
-            }
-            AttachSide.Bottom -> {
-                handle.moveTo(
-                        zone.left() - (handleSize * 2f),
-                        zone.top() - (handleSize * 2f)
-                )
-            }
-        }
-
-        handle.setSize(handleSize, handleSize)
     }
 
     data class EditableZoneParams(
