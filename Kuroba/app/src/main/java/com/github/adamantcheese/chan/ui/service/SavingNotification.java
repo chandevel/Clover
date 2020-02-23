@@ -31,10 +31,8 @@ import androidx.core.app.NotificationCompat;
 
 import com.github.adamantcheese.chan.R;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 
 public class SavingNotification
@@ -43,14 +41,20 @@ public class SavingNotification
     public static final String TOTAL_TASKS_KEY = "total_tasks";
     private static final String CANCEL_KEY = "cancel";
 
-    private String NOTIFICATION_ID_STR = "3";
+    private static String NOTIFICATION_ID_STR = "3";
     private int NOTIFICATION_ID = 3;
-
-    @Inject
-    NotificationManager notificationManager;
 
     private int doneTasks;
     private int totalTasks;
+
+    public static void setupChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getNotificationManager().createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR,
+                    "Save notification",
+                    NotificationManager.IMPORTANCE_LOW
+            ));
+        }
+    }
 
     @Nullable
     @Override
@@ -59,21 +63,9 @@ public class SavingNotification
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        inject(this);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR,
-                    "Save notification",
-                    NotificationManager.IMPORTANCE_LOW
-            ));
-        }
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
-        notificationManager.cancel(NOTIFICATION_ID);
+        getNotificationManager().cancel(NOTIFICATION_ID);
     }
 
     @Override

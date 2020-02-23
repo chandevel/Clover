@@ -16,10 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
-import android.app.NotificationManager;
+import android.app.job.JobInfo;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PersistableBundle;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -72,6 +74,7 @@ import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalTy
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ALL_POSTS;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ONLY_QUOTES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getJobScheduler;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.isInForeground;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -1375,14 +1378,24 @@ public class WatchManager
             if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get()
                     && ChanSettings.watchBackground.get()) {
                 if (page != null && page.page >= pin.loadable.board.pages && !notified) {
-                    Chan.instance(NotificationManager.class)
-                            .notify(pin.loadable.no, new LastPageNotification().getNotification(pin.id));
+                    lastPageNotify(true); //schedules a job to notify the user of a last page
                     notified = true;
                 } else if (page != null && page.page < pin.loadable.board.pages) {
-                    Chan.instance(NotificationManager.class).cancel(pin.loadable.no);
+                    lastPageNotify(false); //schedules a job to cancel the notification; don't use cancel!
                     notified = false;
                 }
             }
+        }
+
+        private void lastPageNotify(boolean notify) {
+            ComponentName lastPageNotifyClass = new ComponentName(getAppContext(), LastPageNotification.class);
+            JobInfo.Builder builder = new JobInfo.Builder(pin.loadable.no, lastPageNotifyClass);
+            builder.setOverrideDeadline(MINUTES.toMillis(1));
+            PersistableBundle extras = new PersistableBundle();
+            extras.putInt(LastPageNotification.PIN_ID_KEY, pin.id);
+            extras.putInt(LastPageNotification.NOTIFY_KEY, notify ? 1 : 0);
+            builder.setExtras(extras);
+            getJobScheduler().schedule(builder.build());
         }
     }
 }

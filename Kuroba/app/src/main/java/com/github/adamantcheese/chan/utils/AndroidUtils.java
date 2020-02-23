@@ -20,6 +20,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.app.job.JobScheduler;
 import android.content.ActivityNotFoundException;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -65,6 +67,8 @@ import java.util.List;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.content.Context.JOB_SCHEDULER_SERVICE;
+import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 
 public class AndroidUtils {
@@ -474,6 +478,14 @@ public class AndroidUtils {
 
     public static ClipboardManager getClipboardManager() {
         return (ClipboardManager) application.getSystemService(CLIPBOARD_SERVICE);
+    }
+
+    public static NotificationManager getNotificationManager() {
+        return (NotificationManager) application.getSystemService(NOTIFICATION_SERVICE);
+    }
+
+    public static JobScheduler getJobScheduler() {
+        return (JobScheduler) application.getSystemService(JOB_SCHEDULER_SERVICE);
     }
 
     public static View inflate(Context context, int resId, ViewGroup root) {

@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import android.app.NotificationManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
 
@@ -42,7 +41,6 @@ import java.io.File;
 
 import javax.inject.Singleton;
 
-import static android.content.Context.NOTIFICATION_SERVICE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ReplaceBadSymbols;
 import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ThrowAnException;
@@ -88,13 +86,6 @@ public class AppModule {
         ImageLoader imageLoader = new ImageLoader(requestQueue, new BitmapLruImageCache(lruImageCacheSize));
         Logger.d(DI_TAG, "Image loader v2");
         return new ImageLoaderV2(imageLoader, fileManager);
-    }
-
-    @Provides
-    @Singleton
-    public NotificationManager provideNotificationManager() {
-        Logger.d(DI_TAG, "Notification manager");
-        return (NotificationManager) applicationContext.getSystemService(NOTIFICATION_SERVICE);
     }
 
     @Provides

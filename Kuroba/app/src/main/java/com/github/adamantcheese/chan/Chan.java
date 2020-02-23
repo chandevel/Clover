@@ -37,6 +37,9 @@ import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteService;
+import com.github.adamantcheese.chan.ui.service.LastPageNotification;
+import com.github.adamantcheese.chan.ui.service.SavingNotification;
+import com.github.adamantcheese.chan.ui.service.WatchNotification;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -116,6 +119,10 @@ public class Chan
         //and so that they're available for feather later on for archives/filter watch waking
         feather.instance(FilterWatchManager.class);
 
+        WatchNotification.setupChannel();
+        SavingNotification.setupChannel();
+        LastPageNotification.setupChannel();
+
         RxJavaPlugins.setErrorHandler(e -> {
             if (e instanceof UndeliverableException) {
                 e = e.getCause();
@@ -133,9 +140,8 @@ public class Chan
                 // fine, some blocking code was interrupted by a dispose call
                 return;
             }
-            if (e instanceof FileCacheException.CancellationException ||
-                e instanceof FileCacheException.FileNotFoundOnTheServerException
-            ) {
+            if (e instanceof FileCacheException.CancellationException
+                    || e instanceof FileCacheException.FileNotFoundOnTheServerException) {
                 // fine, sometimes they get through all the checks but it doesn't really matter
                 return;
             }
@@ -192,9 +198,8 @@ public class Chan
     }
 
     private boolean isEmulator() {
-        return Build.MODEL.contains("google_sdk")
-                || Build.MODEL.contains("Emulator")
-                || Build.MODEL.contains("Android SDK");
+        return Build.MODEL.contains("google_sdk") || Build.MODEL.contains("Emulator") || Build.MODEL.contains(
+                "Android SDK");
     }
 
     private String exceptionToString(boolean isCalledFromRxJavaHandler, Throwable e) {

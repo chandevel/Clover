@@ -65,13 +65,14 @@ import javax.inject.Inject;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ONLY_QUOTES;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 
 public class WatchNotification
         extends Service {
     private static final String TAG = "WatchNotification";
-    private String NOTIFICATION_ID_STR = "1";
-    private String NOTIFICATION_ID_ALERT_STR = "2";
+    private static String NOTIFICATION_ID_STR = "1";
+    private static String NOTIFICATION_ID_ALERT_STR = "2";
     private int NOTIFICATION_ID = 1;
     private static final String NOTIFICATION_NAME = "Watch notification";
     private static final String NOTIFICATION_NAME_ALERT = "Watch notification alert";
@@ -83,29 +84,16 @@ public class WatchNotification
     private int NOTIFICATION_PEEK = 0x4;
 
     @Inject
-    NotificationManager notificationManager;
-    @Inject
     WatchManager watchManager;
     @Inject
     ThreadSaveManager threadSaveManager;
     @Inject
     FileManager fileManager;
 
-    @Override
-    public IBinder onBind(final Intent intent) {
-        return null;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        inject(this);
-
-        ChanSettings.watchLastCount.set(0);
-
+    public static void setupChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //notification channel for non-alerts
-            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR,
+            getNotificationManager().createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR,
                     NOTIFICATION_NAME,
                     NotificationManager.IMPORTANCE_MIN
             ));
@@ -122,14 +110,27 @@ public class WatchNotification
             );
             alert.enableLights(true);
             alert.setLightColor(0xff91e466);
-            notificationManager.createNotificationChannel(alert);
+            getNotificationManager().createNotificationChannel(alert);
         }
+    }
+
+    @Override
+    public IBinder onBind(final Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        inject(this);
+
+        ChanSettings.watchLastCount.set(0);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        notificationManager.cancel(NOTIFICATION_ID);
+        getNotificationManager().cancel(NOTIFICATION_ID);
     }
 
     @Override
