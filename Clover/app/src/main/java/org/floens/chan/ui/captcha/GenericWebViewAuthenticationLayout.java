@@ -26,8 +26,8 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.utils.AndroidUtils;
 
 public class GenericWebViewAuthenticationLayout extends WebView implements AuthenticationLayoutInterface {

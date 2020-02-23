@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.update;
 
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
@@ -27,8 +26,8 @@ import android.text.TextUtils;
 import com.android.volley.RequestQueue;
 
 import org.floens.chan.BuildConfig;
-import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCache;
+import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.net.UpdateApiRequest;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.IOUtils;

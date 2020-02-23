@@ -22,9 +22,9 @@ import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 
-import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.cache.FileCacheDownloader;
+import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;

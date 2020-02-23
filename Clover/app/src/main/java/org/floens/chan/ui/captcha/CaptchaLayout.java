@@ -30,8 +30,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;

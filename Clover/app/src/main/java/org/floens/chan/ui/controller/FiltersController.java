@@ -39,7 +39,6 @@ import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.FilterLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
-import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;

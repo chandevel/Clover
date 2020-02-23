@@ -19,11 +19,6 @@ package org.floens.chan.core.settings.json;
 
 import org.floens.chan.core.settings.SettingProvider;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 
 public class JsonSettingsProvider implements SettingProvider {
     public final JsonSettings jsonSettings;

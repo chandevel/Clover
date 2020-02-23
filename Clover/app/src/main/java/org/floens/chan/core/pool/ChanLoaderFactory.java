@@ -19,8 +19,8 @@ package org.floens.chan.core.pool;
 
 import android.util.LruCache;
 
-import org.floens.chan.core.site.loader.ChanThreadLoader;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.site.loader.ChanThreadLoader;
 
 import java.util.HashMap;
 import java.util.Map;
