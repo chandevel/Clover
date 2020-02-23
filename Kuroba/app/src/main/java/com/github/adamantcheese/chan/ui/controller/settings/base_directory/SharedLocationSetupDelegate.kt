@@ -41,7 +41,7 @@ class SharedLocationSetupDelegate(
         val isNewBaseDirExternal = newBaseDirectory is ExternalFile
 
         if (isOldBaseDirExternal xor isNewBaseDirExternal) {
-            // oldBaseDirectory and newBaseDirectory do not use the same provider (one of the uses a
+            // oldBaseDirectory and newBaseDirectory do not use the same provider (one of them uses a
             // RawFile and the other one uses ExternalFile). It's kinda hard to determine whether
             // they are the same directory or whether one is a parent of the other. So we are just
             // not gonna do in such case.
@@ -91,7 +91,7 @@ class SharedLocationSetupDelegate(
         val isNewBaseDirExternal = newBaseDirectory is ExternalFile
 
         if (isOldBaseDirExternal xor isNewBaseDirExternal) {
-            // oldBaseDirectory and newBaseDirectory do not use the same provider (one of the uses a
+            // oldBaseDirectory and newBaseDirectory do not use the same provider (one of them uses a
             // RawFile and the other one uses ExternalFile). It's kinda hard to determine whether
             // they are the same directory or whether one is a parent of the other. So we are just
             // not gonna do in such case.
