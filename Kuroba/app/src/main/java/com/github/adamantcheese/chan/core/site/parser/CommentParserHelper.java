@@ -238,6 +238,7 @@ public class CommentParserHelper {
                                 .filename(matcher.group(1))
                                 .extension(matcher.group(2))
                                 .spoiler(true)
+                                .isInlined(true)
                                 .size(-1)
                                 .build()));
                     }

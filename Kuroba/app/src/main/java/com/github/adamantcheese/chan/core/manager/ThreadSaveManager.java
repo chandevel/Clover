@@ -26,6 +26,7 @@ import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.DirectorySegment;
 import com.github.k1rakishou.fsaf.file.FileSegment;
 import com.github.k1rakishou.fsaf.file.Segment;
+import com.github.k1rakishou.fsaf.manager.BaseFileManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -135,7 +136,7 @@ public class ThreadSaveManager {
                 .onBackpressureBuffer()
                 .filter((requests) -> !requests.isEmpty())
                 .concatMap(this::processCollectedRequests)
-                .subscribe(res -> {},
+                .subscribe(res -> { },
                         // OK
                         error -> {
                             throw new RuntimeException(
@@ -168,7 +169,10 @@ public class ThreadSaveManager {
          * all of the collected request in one big batch and then release the snapshot.
          * */
         Logger.d(TAG, "Snapshot created");
-        fileManager.createSnapshot(baseLocalThreadsDirectory, true);
+        BaseFileManager snapshotFileManager = fileManager.createSnapshot(
+                baseLocalThreadsDirectory,
+                true
+        );
 
         return Flowable.fromIterable(loadableList).concatMap(loadable -> {
             SaveThreadParameters parameters;
@@ -192,7 +196,7 @@ public class ThreadSaveManager {
                 return Flowable.just(false);
             }
 
-            return saveThreadInternal(loadable, postsToSave)
+            return saveThreadInternal(loadable, postsToSave, snapshotFileManager)
                     // Use the executor's thread to process the queue elements. Everything above
                     // will executed on this executor's threads.
                     .subscribeOn(Schedulers.from(executorService))
@@ -211,17 +215,6 @@ public class ThreadSaveManager {
                     })
                     // Suppress all of the exceptions so that the stream does not complete
                     .onErrorReturnItem(false).toFlowable();
-        }).doOnTerminate(() -> {
-            /**
-             * Release the snapshot. It is important to do this. Otherwise the cached files
-             * will stay in memory and if one of the files will get deleted from the disk
-             * by the user the snapshot will become dirty meaning that it doesn't contain
-             * the actual information of the directory. And this may lead to unexpected bugs.
-             *
-             * !!! Always release snapshots when you have executed all of your file operations. !!!
-             * */
-            Logger.d(TAG, "Snapshot released");
-            fileManager.releaseSnapshot(baseLocalThreadsDirectory);
         });
     }
 
@@ -435,10 +428,17 @@ public class ThreadSaveManager {
      * being downloaded. Checks for images that couldn't be downloaded on the previous attempt
      * (because of IO errors/bad network/server being down etc)
      *
-     * @param loadable    is a unique identifier of a thread we are saving.
-     * @param postsToSave posts of a thread to be saved.
+     * @param loadable            is a unique identifier of a thread we are saving.
+     * @param postsToSave         posts of a thread to be saved.
+     * @param snapshotFileManager is either a RawFileManager (in case of local threads base directory
+     *                            using Java File API) or SnapshotFileManager (basically an in-memory
+     *                            snapshot of the whole directory).
      */
-    private Single<Boolean> saveThreadInternal(@NonNull Loadable loadable, List<Post> postsToSave) {
+    private Single<Boolean> saveThreadInternal(
+            @NonNull Loadable loadable,
+            List<Post> postsToSave,
+            BaseFileManager snapshotFileManager
+    ) {
         return Single.fromCallable(() -> {
             BackgroundUtils.ensureBackgroundThread();
 
@@ -457,39 +457,45 @@ public class ThreadSaveManager {
             );
 
             AbstractFile threadSaveDir = getThreadSaveDir(loadable);
-            if (!fileManager.exists(threadSaveDir) && fileManager.create(threadSaveDir) == null) {
+            if (!snapshotFileManager.exists(threadSaveDir) && snapshotFileManager.create(threadSaveDir) == null) {
                 throw new CouldNotCreateThreadDirectoryException(threadSaveDir);
             }
 
             AbstractFile threadSaveDirImages = threadSaveDir.clone(new DirectorySegment(IMAGES_DIR_NAME));
 
-            if (!fileManager.exists(threadSaveDirImages) && fileManager.create(threadSaveDirImages) == null) {
+            if (!snapshotFileManager.exists(threadSaveDirImages) && snapshotFileManager.create(threadSaveDirImages) == null) {
                 throw new CouldNotCreateImagesDirectoryException(threadSaveDirImages);
             }
 
             AbstractFile boardSaveDir = getBoardSaveDir(loadable);
-            if (!fileManager.exists(boardSaveDir) && fileManager.create(boardSaveDir) == null) {
+            if (!snapshotFileManager.exists(boardSaveDir) && snapshotFileManager.create(boardSaveDir) == null) {
                 throw new CouldNotCreateSpoilerImageDirectoryException(boardSaveDir);
             }
 
-            dealWithMediaScanner(threadSaveDirImages);
+            dealWithMediaScanner(snapshotFileManager, threadSaveDirImages);
 
             // Filter out already saved posts and sort new posts in ascending order
-            List<Post> newPosts = filterAndSortPosts(threadSaveDirImages, loadable, postsToSave);
+            List<Post> newPosts = filterAndSortPosts(
+                    snapshotFileManager,
+                    threadSaveDirImages,
+                    loadable,
+                    postsToSave
+            );
+
             if (newPosts.isEmpty()) {
                 Logger.d(TAG, "No new posts for a thread " + loadable.toShortString());
                 throw new NoNewPostsToSaveException();
             }
 
-            int postsWithImages = calculateAmountOfPostsWithImages(newPosts);
-            int maxImageIoErrors = calculateMaxImageIoErrors(postsWithImages);
+            int imagesTotalCount = calculateAmountOfImages(newPosts);
+            int maxImageIoErrors = calculateMaxImageIoErrors(imagesTotalCount);
 
             Logger.d(TAG,
-                    "" + newPosts.size() + " new posts for a thread " + loadable.no + ", with images " + postsWithImages
+                    "" + newPosts.size() + " new posts for a thread " + loadable.no + ", images total " + imagesTotalCount
             );
 
             // Get spoiler image url
-            final HttpUrl spoilerImageUrl = getSpoilerImageUrl(newPosts);
+            @Nullable final HttpUrl spoilerImageUrl = getSpoilerImageUrl(newPosts);
 
             // Try to load old serialized thread
             @Nullable
@@ -503,11 +509,13 @@ public class ThreadSaveManager {
             AtomicInteger imageDownloadsWithIoError = new AtomicInteger(0);
 
             try {
-                downloadInternal(loadable,
+                downloadInternal(
+                        snapshotFileManager,
+                        loadable,
                         threadSaveDirImages,
                         boardSaveDir,
                         newPosts,
-                        postsWithImages,
+                        imagesTotalCount,
                         maxImageIoErrors,
                         spoilerImageUrl,
                         currentImageDownloadIndex,
@@ -521,7 +529,7 @@ public class ThreadSaveManager {
                         Logger.d(TAG, "Thread with loadable " + loadable.toShortString() + " has been canceled");
                     }
 
-                    deleteThreadFilesFromDisk(loadable);
+                    deleteThreadFilesFromDisk(snapshotFileManager, loadable);
                 } else {
                     Logger.d(TAG, "Thread with loadable " + loadable.toShortString() + " has been updated");
                 }
@@ -533,49 +541,71 @@ public class ThreadSaveManager {
 
     @SuppressLint("CheckResult")
     private void downloadInternal(
+            BaseFileManager snapshotFileManager,
             @NonNull Loadable loadable,
             AbstractFile threadSaveDirImages,
             AbstractFile boardSaveDir,
             List<Post> newPosts,
-            int postsWithImages,
+            int imagesTotalCount,
             int maxImageIoErrors,
-            HttpUrl spoilerImageUrl,
+            @Nullable HttpUrl spoilerImageUrl,
             AtomicInteger currentImageDownloadIndex,
             AtomicInteger imageDownloadsWithIoError
     ) {
-        Single.fromCallable(() -> downloadSpoilerImage(loadable, boardSaveDir, spoilerImageUrl)).flatMap(res -> {
-            // For each post create a new inner rx stream (so they can be processed in parallel)
-            return Flowable.fromIterable(newPosts)
-                    // Here we create a separate reactive stream for each image request.
-                    // But we use an executor service with limited threads amount, so there
-                    // will be only this much at a time.
-                    //                   |
-                    //                 / | \
-                    //                /  |  \
-                    //               /   |   \
-                    //               V   V   V // Separate streams.
-                    //               |   |   |
-                    //               o   o   o // Download images in parallel.
-                    //               |   |   |
-                    //               V   V   V // Combine them back to a single stream.
-                    //               \   |   /
-                    //                \  |  /
-                    //                 \ | /
-                    //                   |
-                    .flatMap(post -> downloadImages(loadable,
-                            threadSaveDirImages,
-                            post,
-                            currentImageDownloadIndex,
-                            postsWithImages,
-                            imageDownloadsWithIoError,
-                            maxImageIoErrors
-                    ))
-
-                    .toList().doOnSuccess(list -> Logger.d(TAG, "PostImage download result list = " + list));
-        }).flatMap(res -> Single.defer(() -> tryUpdateLastSavedPostNo(loadable, newPosts)))
+        Single.fromCallable(() -> downloadSpoilerImage(snapshotFileManager, loadable, boardSaveDir, spoilerImageUrl))
+                .flatMap(res -> {
+                    // For each post create a new inner rx stream (so they can be processed in parallel)
+                    return Flowable.fromIterable(newPosts)
+                            // Here we create a separate reactive stream for each image request.
+                            // But we use an executor service with limited threads amount, so there
+                            // will be only this much at a time.
+                            //                   |
+                            //                 / | \
+                            //                /  |  \
+                            //               /   |   \
+                            //               V   V   V // Separate streams.
+                            //               |   |   |
+                            //               o   o   o // Download images in parallel.
+                            //               |   |   |
+                            //               V   V   V // Combine them back to a single stream.
+                            //               \   |   /
+                            //                \  |  /
+                            //                 \ | /
+                            //                   |
+                            .flatMap(post -> downloadImages(
+                                    snapshotFileManager,
+                                    loadable,
+                                    threadSaveDirImages,
+                                    post,
+                                    currentImageDownloadIndex,
+                                    imagesTotalCount,
+                                    imageDownloadsWithIoError,
+                                    maxImageIoErrors
+                            ))
+                            .toList()
+                            .doOnSuccess(this::printBatchDownloadResults);
+                }).flatMap(res -> Single.defer(() -> tryUpdateLastSavedPostNo(loadable, newPosts)))
                 // Have to use blockingGet here. This is a place where all of the exception will come
                 // out from
                 .blockingGet();
+    }
+
+    private void printBatchDownloadResults(List<Boolean> results) {
+        int successCount = 0;
+        int failedCount = 0;
+
+        for (Boolean result : results) {
+            if (result) {
+                ++successCount;
+            } else {
+                ++failedCount;
+            }
+        }
+
+        Logger.d(TAG,
+                "Thread downloaded, images downloaded: " + successCount
+                        + ", images failed to download: " + failedCount
+        );
     }
 
     private Single<Boolean> tryUpdateLastSavedPostNo(@NonNull Loadable loadable, List<Post> newPosts) {
@@ -623,25 +653,25 @@ public class ThreadSaveManager {
         return baseDir.clone(getThreadSubDir(loadable));
     }
 
-    private void dealWithMediaScanner(AbstractFile threadSaveDirImages)
+    private void dealWithMediaScanner(BaseFileManager snapshotFileManager, AbstractFile threadSaveDirImages)
             throws CouldNotCreateNoMediaFile {
         AbstractFile noMediaFile = threadSaveDirImages.clone(new FileSegment(NO_MEDIA_FILE_NAME));
 
         if (!ChanSettings.allowMediaScannerToScanLocalThreads.get()) {
             // .nomedia file being in the images directory "should" prevent media scanner from
             // scanning this directory
-            if (!fileManager.exists(noMediaFile) && fileManager.create(noMediaFile) == null) {
+            if (!snapshotFileManager.exists(noMediaFile) && snapshotFileManager.create(noMediaFile) == null) {
                 throw new CouldNotCreateNoMediaFile(threadSaveDirImages);
             }
         } else {
-            if (fileManager.exists(noMediaFile) && !fileManager.delete(noMediaFile)) {
+            if (snapshotFileManager.exists(noMediaFile) && !snapshotFileManager.delete(noMediaFile)) {
                 Logger.e(TAG, "Could not delete .nomedia file from directory " + threadSaveDirImages.getFullPath());
             }
         }
     }
 
-    private int calculateMaxImageIoErrors(int postsWithImages) {
-        int maxIoErrors = (int) (((float) postsWithImages / 100f) * 5f);
+    private int calculateMaxImageIoErrors(int imagesTotalCount) {
+        int maxIoErrors = (int) (((float) imagesTotalCount / 100f) * 5f);
         if (maxIoErrors == 0) {
             maxIoErrors = 1;
         }
@@ -659,13 +689,17 @@ public class ThreadSaveManager {
     }
 
     /**
-     * Calculates how many posts with images we have in total
+     * Calculates how many images we have in total
      */
-    private int calculateAmountOfPostsWithImages(List<Post> newPosts) {
+    private int calculateAmountOfImages(List<Post> newPosts) {
         int count = 0;
 
         for (Post post : newPosts) {
-            if (post.images.size() > 0) {
+            for (PostImage postImage : post.images) {
+                if (postImage.isInlined) {
+                    continue;
+                }
+
                 ++count;
             }
         }
@@ -679,7 +713,10 @@ public class ThreadSaveManager {
      * redownloaded again
      */
     private List<Post> filterAndSortPosts(
-            AbstractFile threadSaveDirImages, Loadable loadable, List<Post> inputPosts
+            BaseFileManager snapshotFileManager,
+            AbstractFile threadSaveDirImages,
+            Loadable loadable,
+            List<Post> inputPosts
     ) {
         long start = System.currentTimeMillis();
 
@@ -693,7 +730,11 @@ public class ThreadSaveManager {
             // lastSavedPostNo == 0 means that we don't have this thread downloaded yet
             if (lastSavedPostNo > 0) {
                 for (Post post : inputPosts) {
-                    if (!checkWhetherAllPostImagesAreAlreadySaved(threadSaveDirImages, post)) {
+                    if (!checkWhetherAllPostImagesAreAlreadySaved(
+                            snapshotFileManager,
+                            threadSaveDirImages,
+                            post
+                    )) {
                         // Some of the post's images could not be downloaded during the previous download
                         // so we need to download them now
                         if (verboseLogsEnabled) {
@@ -736,7 +777,7 @@ public class ThreadSaveManager {
     }
 
     private boolean checkWhetherAllPostImagesAreAlreadySaved(
-            AbstractFile threadSaveDirImages, Post post
+            BaseFileManager snapshotFileManager, AbstractFile threadSaveDirImages, Post post
     ) {
         for (PostImage postImage : post.images) {
             {
@@ -745,18 +786,18 @@ public class ThreadSaveManager {
 
                 AbstractFile originalImage = threadSaveDirImages.clone(new FileSegment(originalImageFilename));
 
-                if (!fileManager.exists(originalImage)) {
+                if (!snapshotFileManager.exists(originalImage)) {
                     return false;
                 }
 
-                if (!fileManager.canRead(originalImage)) {
-                    if (!fileManager.delete(originalImage)) {
+                if (!snapshotFileManager.canRead(originalImage)) {
+                    if (!snapshotFileManager.delete(originalImage)) {
                         Logger.e(TAG, "Could not delete originalImage with path " + originalImage.getFullPath());
                     }
                     return false;
                 }
 
-                long length = fileManager.getLength(originalImage);
+                long length = snapshotFileManager.getLength(originalImage);
                 if (length == -1L) {
                     Logger.e(TAG,
                             "originalImage.getLength() returned -1, originalImagePath = " + originalImage.getFullPath()
@@ -765,7 +806,7 @@ public class ThreadSaveManager {
                 }
 
                 if (length == 0L) {
-                    if (!fileManager.delete(originalImage)) {
+                    if (!snapshotFileManager.delete(originalImage)) {
                         Logger.e(TAG, "Could not delete originalImage with path " + originalImage.getFullPath());
                     }
                     return false;
@@ -779,18 +820,18 @@ public class ThreadSaveManager {
 
                 AbstractFile thumbnailImage = threadSaveDirImages.clone(new FileSegment(thumbnailImageFilename));
 
-                if (!fileManager.exists(thumbnailImage)) {
+                if (!snapshotFileManager.exists(thumbnailImage)) {
                     return false;
                 }
 
-                if (!fileManager.canRead(thumbnailImage)) {
-                    if (!fileManager.delete(thumbnailImage)) {
+                if (!snapshotFileManager.canRead(thumbnailImage)) {
+                    if (!snapshotFileManager.delete(thumbnailImage)) {
                         Logger.e(TAG, "Could not delete thumbnailImage with path " + thumbnailImage.getFullPath());
                     }
                     return false;
                 }
 
-                long length = fileManager.getLength(thumbnailImage);
+                long length = snapshotFileManager.getLength(thumbnailImage);
                 if (length == -1L) {
                     Logger.e(TAG,
                             "thumbnailImage.getLength() returned -1, thumbnailImagePath = "
@@ -800,7 +841,7 @@ public class ThreadSaveManager {
                 }
 
                 if (length == 0L) {
-                    if (!fileManager.delete(thumbnailImage)) {
+                    if (!snapshotFileManager.delete(thumbnailImage)) {
                         Logger.e(TAG, "Could not delete thumbnailImage with path " + thumbnailImage.getFullPath());
                     }
                     return false;
@@ -812,9 +853,11 @@ public class ThreadSaveManager {
     }
 
     private boolean downloadSpoilerImage(
-            Loadable loadable, AbstractFile threadSaveDirImages, HttpUrl spoilerImageUrl
-    )
-            throws IOException {
+            BaseFileManager snapshotFileManager,
+            Loadable loadable,
+            AbstractFile threadSaveDirImages,
+            @Nullable HttpUrl spoilerImageUrl
+    ) throws IOException {
         // If the board uses spoiler image - download it
         if (loadable.board.spoilers && spoilerImageUrl != null) {
             String spoilerImageExtension = StringUtils.extractFileNameExtension(spoilerImageUrl.toString());
@@ -829,13 +872,18 @@ public class ThreadSaveManager {
             String spoilerImageName = SPOILER_FILE_NAME + "." + spoilerImageExtension;
 
             AbstractFile spoilerImageFullPath = threadSaveDirImages.clone(new FileSegment(spoilerImageName));
-            if (fileManager.exists(spoilerImageFullPath)) {
+            if (snapshotFileManager.exists(spoilerImageFullPath)) {
                 // Do nothing if already downloaded
                 return false;
             }
 
             try {
-                downloadImage(loadable, threadSaveDirImages, spoilerImageName, spoilerImageUrl);
+                downloadImage(
+                        snapshotFileManager,
+                        threadSaveDirImages,
+                        spoilerImageName,
+                        spoilerImageUrl
+                );
             } catch (ImageWasAlreadyDeletedException e) {
                 // If this ever happens that means that something has changed on the server
                 Logger.e(TAG, "Could not download spoiler image, got 404 for loadable " + loadable.toShortString());
@@ -858,11 +906,12 @@ public class ThreadSaveManager {
     }
 
     private Flowable<Boolean> downloadImages(
+            BaseFileManager snapshotFileManager,
             Loadable loadable,
             AbstractFile threadSaveDirImages,
             Post post,
             AtomicInteger currentImageDownloadIndex,
-            int postsWithImagesCount,
+            int imagesTotalCount,
             AtomicInteger imageDownloadsWithIoError,
             int maxImageIoErrors
     ) {
@@ -881,81 +930,119 @@ public class ThreadSaveManager {
             return Flowable.just(false);
         }
 
-        return Flowable.fromIterable(post.images).flatMapSingle(postImage -> {
-            // Download each image in parallel using executorService
-            return Single.defer(() -> {
-                if (imageDownloadsWithIoError.get() >= maxImageIoErrors) {
-                    Logger.d(TAG, "downloadImages terminated due to amount of IOExceptions");
-                    return Single.just(false);
-                }
-
-                String thumbnailExtension = StringUtils.extractFileNameExtension(postImage.thumbnailUrl.toString());
-
-                if (thumbnailExtension == null) {
-                    Logger.d(TAG,
-                            "Could not extract thumbnail image extension, thumbnailUrl = "
-                                    + postImage.thumbnailUrl.toString()
-                    );
-                    return Single.just(false);
-                }
-
-                if (postImage.imageUrl == null) {
-                    Logger.d(TAG, "postImage.imageUrl == null");
-                    return Single.just(false);
-                }
-
-                try {
-                    downloadImageIntoFile(threadSaveDirImages,
-                            postImage.serverFilename,
-                            postImage.extension,
-                            thumbnailExtension,
-                            postImage.imageUrl,
-                            postImage.thumbnailUrl,
-                            loadable
-                    );
-                } catch (IOException error) {
-                    Logger.e(TAG,
-                            "downloadImageIntoFile error for image " + postImage.serverFilename
-                                    + ", error message = %s",
-                            error.getMessage()
-                    );
-
-                    deleteImageCompletely(threadSaveDirImages, postImage.serverFilename, postImage.extension);
-                    throw error;
-                } catch (ImageWasAlreadyDeletedException error) {
-                    Logger.e(TAG,
-                            "Could not download an image " + postImage.serverFilename + " for loadable "
-                                    + loadable.toShortString() + ", got 404, adding it to the deletedImages set"
-                    );
-
-                    addImageToAlreadyDeletedImage(loadable, postImage.serverFilename);
-
-                    deleteImageCompletely(threadSaveDirImages, postImage.serverFilename, postImage.extension);
-                    return Single.just(false);
-                }
-
-                return Single.just(true);
-            })
-                    // We don't really want to use a lot of threads here so we use an executor with
-                    // specified amount of threads
-                    .subscribeOn(Schedulers.from(executorService))
-                    // Retry couple of times upon exceptions
-                    .retry(MAX_RETRY_ATTEMPTS)
-                    .doOnError(error -> {
-                        Logger.e(TAG, "Error while trying to download image " + postImage.serverFilename, error);
-
-                        if (error instanceof IOException) {
-                            imageDownloadsWithIoError.incrementAndGet();
-                        }
+        return Flowable.fromIterable(post.images)
+                // We don't want to download inlined images/files
+                .filter((postImage) -> !postImage.isInlined)
+                .flatMapSingle(postImage -> {
+                    // Download each image in parallel using executorService
+                    return Single.defer(() -> {
+                        return downloadInternal(
+                                snapshotFileManager,
+                                loadable,
+                                threadSaveDirImages,
+                                imageDownloadsWithIoError,
+                                maxImageIoErrors,
+                                postImage
+                        );
                     })
-                    .doOnEvent((result, event) -> logThreadDownloadingProgress(loadable,
-                            currentImageDownloadIndex,
-                            postsWithImagesCount
-                    ))
-                    // Do nothing if an error occurs (like timeout exception) because we don't want
-                    // to lose what we have already downloaded
-                    .onErrorReturnItem(false);
-        });
+                            // We don't really want to use a lot of threads here so we use an executor with
+                            // specified amount of threads
+                            .subscribeOn(Schedulers.from(executorService))
+                            // Retry couple of times upon exceptions
+                            .retry(MAX_RETRY_ATTEMPTS)
+                            .doOnError(error -> {
+                                Logger.e(TAG, "Error while trying to download image "
+                                        + postImage.serverFilename, error);
+
+                                if (error instanceof IOException) {
+                                    imageDownloadsWithIoError.incrementAndGet();
+                                }
+                            })
+                            .doOnEvent((result, event) -> logThreadDownloadingProgress(loadable,
+                                    currentImageDownloadIndex,
+                                    imagesTotalCount
+                            ))
+                            // Do nothing if an error occurs (like timeout exception) because we don't want
+                            // to lose what we have already downloaded
+                            .onErrorReturnItem(false);
+                });
+    }
+
+    private Single<Boolean> downloadInternal(
+            BaseFileManager snapshotFileManager,
+            Loadable loadable,
+            AbstractFile threadSaveDirImages,
+            AtomicInteger imageDownloadsWithIoError,
+            int maxImageIoErrors,
+            PostImage postImage
+    ) throws IOException {
+        if (imageDownloadsWithIoError.get() >= maxImageIoErrors) {
+            Logger.d(TAG, "downloadImages terminated due to amount of IOExceptions");
+            return Single.just(false);
+        }
+
+        String thumbnailExtension = StringUtils.extractFileNameExtension(
+                postImage.thumbnailUrl.toString()
+        );
+
+        if (thumbnailExtension == null) {
+            Logger.d(TAG,
+                    "Could not extract thumbnail image extension, thumbnailUrl = "
+                            + postImage.thumbnailUrl.toString()
+            );
+            return Single.just(false);
+        }
+
+        if (postImage.imageUrl == null) {
+            Logger.d(TAG, "postImage.imageUrl == null");
+            return Single.just(false);
+        }
+
+        try {
+            downloadImageIntoFile(
+                    snapshotFileManager,
+                    threadSaveDirImages,
+                    postImage.serverFilename,
+                    postImage.extension,
+                    thumbnailExtension,
+                    postImage.imageUrl,
+                    postImage.thumbnailUrl,
+                    loadable
+            );
+        } catch (IOException error) {
+            Logger.e(TAG,
+                    "downloadImageIntoFile error for image " + postImage.serverFilename
+                            + ", error message = %s",
+                    error.getMessage()
+            );
+
+            deleteImageCompletely(
+                    snapshotFileManager,
+                    threadSaveDirImages,
+                    postImage.serverFilename,
+                    postImage.extension
+            );
+
+            throw error;
+        } catch (ImageWasAlreadyDeletedException error) {
+            Logger.e(TAG,
+                    "Could not download an image " + postImage.serverFilename +
+                            " for loadable " + loadable.toShortString() +
+                            ", got 404, adding it to the deletedImages set"
+            );
+
+            addImageToAlreadyDeletedImage(loadable, postImage.serverFilename);
+
+            deleteImageCompletely(
+                    snapshotFileManager,
+                    threadSaveDirImages,
+                    postImage.serverFilename,
+                    postImage.extension
+            );
+            return Single.just(false);
+        }
+
+        return Single.just(true);
     }
 
     private boolean isImageAlreadyDeletedFromServer(Loadable loadable, String filename) {
@@ -987,10 +1074,10 @@ public class ThreadSaveManager {
     }
 
     private void logThreadDownloadingProgress(
-            Loadable loadable, AtomicInteger currentImageDownloadIndex, int postsWithImagesCount
+            Loadable loadable, AtomicInteger currentImageDownloadIndex, int imagesTotalCount
     ) {
-        // postsWithImagesCount may be 0 so we need to avoid division by zero
-        int count = postsWithImagesCount == 0 ? 1 : postsWithImagesCount;
+        // imagesTotalCount may be 0 so we need to avoid division by zero
+        int count = imagesTotalCount == 0 ? 1 : imagesTotalCount;
         int index = currentImageDownloadIndex.incrementAndGet();
         int percent = (int) (((float) index / (float) count) * 100f);
 
@@ -1000,15 +1087,20 @@ public class ThreadSaveManager {
         );
     }
 
-    private void deleteImageCompletely(AbstractFile threadSaveDirImages, String filename, String extension) {
+    private void deleteImageCompletely(
+            BaseFileManager snapshotFileManager,
+            AbstractFile threadSaveDirImages,
+            String filename,
+            String extension
+    ) {
         Logger.d(TAG, "Deleting a file with name " + filename);
         boolean error = false;
 
         AbstractFile originalFile =
                 threadSaveDirImages.clone(new FileSegment(filename + "_" + ORIGINAL_FILE_NAME + "." + extension));
 
-        if (fileManager.exists(originalFile)) {
-            if (!fileManager.delete(originalFile)) {
+        if (snapshotFileManager.exists(originalFile)) {
+            if (!snapshotFileManager.delete(originalFile)) {
                 error = true;
             }
         }
@@ -1016,8 +1108,8 @@ public class ThreadSaveManager {
         AbstractFile thumbnailFile =
                 threadSaveDirImages.clone(new FileSegment(filename + "_" + THUMBNAIL_FILE_NAME + "." + extension));
 
-        if (fileManager.exists(thumbnailFile)) {
-            if (!fileManager.delete(thumbnailFile)) {
+        if (snapshotFileManager.exists(thumbnailFile)) {
+            if (!snapshotFileManager.delete(thumbnailFile)) {
                 error = true;
             }
         }
@@ -1031,6 +1123,7 @@ public class ThreadSaveManager {
      * Downloads an image with it's thumbnail and stores them to the disk
      */
     private void downloadImageIntoFile(
+            BaseFileManager snapshotFileManager,
             AbstractFile threadSaveDirImages,
             String filename,
             String originalExtension,
@@ -1057,12 +1150,14 @@ public class ThreadSaveManager {
             );
         }
 
-        downloadImage(loadable,
+        downloadImage(
+                snapshotFileManager,
                 threadSaveDirImages,
                 filename + "_" + ORIGINAL_FILE_NAME + "." + originalExtension,
                 imageUrl
         );
-        downloadImage(loadable,
+        downloadImage(
+                snapshotFileManager,
                 threadSaveDirImages,
                 filename + "_" + THUMBNAIL_FILE_NAME + "." + thumbnailExtension,
                 thumbnailUrl
@@ -1080,8 +1175,12 @@ public class ThreadSaveManager {
     /**
      * Downloads an image and stores it to the disk
      */
-    private void downloadImage(Loadable loadable, AbstractFile threadSaveDirImages, String filename, HttpUrl imageUrl)
-            throws IOException, ImageWasAlreadyDeletedException {
+    private void downloadImage(
+            BaseFileManager snapshotFileManager,
+            AbstractFile threadSaveDirImages,
+            String filename,
+            HttpUrl imageUrl
+    ) throws IOException, ImageWasAlreadyDeletedException {
         if (!shouldDownloadImages()) {
             if (verboseLogsEnabled) {
                 Logger.d(TAG, "Cannot load images or videos with the current network");
@@ -1091,7 +1190,7 @@ public class ThreadSaveManager {
 
         AbstractFile imageFile = threadSaveDirImages.clone(new FileSegment(filename));
 
-        if (!fileManager.exists(imageFile)) {
+        if (!snapshotFileManager.exists(imageFile)) {
             Request request = new Request.Builder().url(imageUrl).build();
 
             try (Response response = okHttpClient.newCall(request).execute()) {
@@ -1103,7 +1202,7 @@ public class ThreadSaveManager {
                     throw new IOException("Download image request returned bad status code: " + response.code());
                 }
 
-                storeImageToFile(imageFile, response);
+                storeImageToFile(snapshotFileManager, imageFile, response);
 
                 if (verboseLogsEnabled) {
                     Logger.d(TAG, "Downloaded a file with name " + filename);
@@ -1159,9 +1258,9 @@ public class ThreadSaveManager {
     /**
      * Writes image's bytes to a file
      */
-    private void storeImageToFile(AbstractFile imageFile, Response response)
+    private void storeImageToFile(BaseFileManager snapshotFileManager, AbstractFile imageFile, Response response)
             throws IOException {
-        if (fileManager.create(imageFile) == null) {
+        if (snapshotFileManager.create(imageFile) == null) {
             throw new IOException(
                     "Could not create a file to save an image to (path: " + imageFile.getFullPath() + ")");
         }
@@ -1176,7 +1275,7 @@ public class ThreadSaveManager {
             }
 
             try (InputStream is = body.byteStream()) {
-                try (OutputStream os = fileManager.getOutputStream(imageFile)) {
+                try (OutputStream os = snapshotFileManager.getOutputStream(imageFile)) {
                     if (os == null) {
                         throw new IOException("Could not get OutputStream, imageFilePath = " + imageFile.getFullPath());
                     }
@@ -1199,7 +1298,7 @@ public class ThreadSaveManager {
     /**
      * When user cancels a download we need to delete the thread from the disk as well
      */
-    private void deleteThreadFilesFromDisk(Loadable loadable) {
+    private void deleteThreadFilesFromDisk(BaseFileManager snapshotFileManager, Loadable loadable) {
         AbstractFile baseDirectory = fileManager.newBaseDirectoryFile(LocalThreadsBaseDirectory.class);
 
         if (baseDirectory == null) {
@@ -1211,7 +1310,7 @@ public class ThreadSaveManager {
             return;
         }
 
-        fileManager.delete(threadSaveDir);
+        snapshotFileManager.delete(threadSaveDir);
     }
 
     public static String formatThumbnailImageName(String originalName, String extension) {

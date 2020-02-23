@@ -24,6 +24,7 @@ import android.os.SystemClock;
 import android.widget.Toast;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
@@ -40,11 +41,15 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.DirectorySegment;
 import com.github.k1rakishou.fsaf.file.FileSegment;
+import com.github.k1rakishou.fsaf.util.FSAFUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -189,8 +194,15 @@ public class ImageSaver {
 
     private void startDownloadTaskInternal(ImageSaveTask task, DownloadTaskCallbacks callbacks) {
         if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
-            callbacks.onError(getString(R.string.files_base_dir_does_not_exist));
-            return;
+            // If current base dir is File API backed and it's not set, attempt to create it
+            // manually
+            if (ChanSettings.saveLocation.isFileDirActive()) {
+                File baseDirFile = new File(ChanSettings.saveLocation.getFileApiBaseDir().get());
+                if (!baseDirFile.exists() && !baseDirFile.mkdirs()) {
+                    callbacks.onError(getString(R.string.files_base_dir_does_not_exist));
+                    return;
+                }
+            }
         }
 
         AbstractFile saveLocation = getSaveLocation(task);
@@ -200,7 +212,7 @@ public class ImageSaver {
         }
 
         PostImage postImage = task.getPostImage();
-        task.setDestination(deduplicateFile(postImage, task));
+        task.setDestination(deduplicateFile(postImage, task, saveLocation));
 
         // At this point we already have disk permissions
         startTask(task);
@@ -209,7 +221,14 @@ public class ImageSaver {
 
     public BundledImageSaveResult startBundledTask(Context context, final List<ImageSaveTask> tasks) {
         if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
-            return BaseDirectoryDoesNotExist;
+            // If current base dir is File API backed and it's not set, attempt to create it
+            // manually
+            if (ChanSettings.saveLocation.isFileDirActive()) {
+                File baseDirFile = new File(ChanSettings.saveLocation.getFileApiBaseDir().get());
+                if (!baseDirFile.exists() && !baseDirFile.mkdirs()) {
+                    return BaseDirectoryDoesNotExist;
+                }
+            }
         }
 
         if (hasPermission(context)) {
@@ -234,7 +253,7 @@ public class ImageSaver {
     }
 
     @Nullable
-    public AbstractFile getSaveLocation(ImageSaveTask task) {
+    private AbstractFile getSaveLocation(ImageSaveTask task) {
         AbstractFile baseSaveDir = fileManager.newBaseDirectoryFile(SavedFilesBaseDirectory.class);
         if (baseSaveDir == null) {
             Logger.e(TAG, "getSaveLocation() fileManager.newSaveLocationFile() returned null");
@@ -244,18 +263,41 @@ public class ImageSaver {
         AbstractFile createdBaseSaveDir = fileManager.create(baseSaveDir);
 
         if (!fileManager.exists(baseSaveDir) || createdBaseSaveDir == null) {
-            Logger.e(TAG, "Couldn't create base image save directory");
+            Logger.e(TAG, "getSaveLocation() Couldn't create base image save directory");
             return null;
         }
 
         if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
-            Logger.e(TAG, "Base save local directory does not exist");
+            Logger.e(TAG, "getSaveLocation() Base save local directory does not exist");
             return null;
         }
 
         String subFolder = task.getSubFolder();
         if (subFolder != null) {
-            return baseSaveDir.cloneUnsafe(subFolder);
+            List<String> segments = FSAFUtils.splitIntoSegments(subFolder);
+            if (segments.isEmpty()) {
+                return baseSaveDir;
+            }
+
+            List<DirectorySegment> directorySegments = new ArrayList<>(segments.size());
+
+            // All segments should be directory segments since we are creating sub-directories so it
+            // should be safe to get rid of cloneUnsafe() and use regular clone()
+            for (String dirSegment : segments) {
+                directorySegments.add(new DirectorySegment(dirSegment));
+            }
+
+            // Get rid of the intermediate segments to make access to this file a little bit faster
+            AbstractFile flattenedFile = fileManager.flattenSegments(
+                    baseSaveDir.clone(directorySegments)
+            );
+
+            if (flattenedFile == null) {
+                Logger.e(TAG, "getSaveLocation() failed to flatten segments " +
+                        "(" + subFolder + ") for a base dir: " + baseSaveDir.getFullPath());
+            }
+
+            return flattenedFile;
         }
 
         return baseSaveDir;
@@ -353,13 +395,13 @@ public class ImageSaver {
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
 
-            AbstractFile deduplicateFile = deduplicateFile(postImage, task);
-            if (deduplicateFile == null) {
+            AbstractFile saveLocation = getSaveLocation(task);
+            if (saveLocation == null) {
                 allSuccess = false;
                 continue;
             }
 
-            task.setDestination(deduplicateFile);
+            task.setDestination(deduplicateFile(postImage, task, saveLocation));
             startTask(task);
         }
 
@@ -463,19 +505,12 @@ public class ImageSaver {
         return filteredName;
     }
 
-    @Nullable
-    private AbstractFile deduplicateFile(PostImage postImage, ImageSaveTask task) {
+    @NonNull
+    private AbstractFile deduplicateFile(PostImage postImage, ImageSaveTask task, @NonNull AbstractFile saveLocation) {
         String name = ChanSettings.saveServerFilename.get() ? postImage.serverFilename : postImage.filename;
 
         //dedupe shared files to have their own file name; ok to overwrite, prevents lots of downloads for multiple shares
         String fileName = filterName(name + (task.getShare() ? "_shared" : "") + "." + postImage.extension, true);
-
-        AbstractFile saveLocation = getSaveLocation(task);
-        if (saveLocation == null) {
-            Logger.e(TAG, "Save location is null!");
-            return null;
-        }
-
         AbstractFile saveFile = saveLocation.clone(new FileSegment(fileName));
 
         //shared files don't need deduplicating

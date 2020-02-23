@@ -49,6 +49,7 @@ public class PostImage {
     public final int imageWidth;
     public final int imageHeight;
     public final boolean spoiler;
+    public final boolean isInlined;
     public final long size;
     @Nullable
     public final String fileHash;
@@ -65,6 +66,7 @@ public class PostImage {
         this.imageWidth = builder.imageWidth;
         this.imageHeight = builder.imageHeight;
         this.spoiler = builder.spoiler;
+        this.isInlined = builder.isInlined;
         this.size = builder.size;
         this.fileHash = builder.fileHash;
 
@@ -111,6 +113,7 @@ public class PostImage {
         private int imageWidth;
         private int imageHeight;
         private boolean spoiler;
+        private boolean isInlined = false;
         private long size;
         @Nullable
         private String fileHash;
@@ -164,6 +167,11 @@ public class PostImage {
 
         public Builder spoiler(boolean spoiler) {
             this.spoiler = spoiler;
+            return this;
+        }
+
+        public Builder isInlined(boolean inlined) {
+            this.isInlined = inlined;
             return this;
         }
 
