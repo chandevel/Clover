@@ -76,6 +76,7 @@ public class WatchNotification
     private int NOTIFICATION_ID = 1;
     private static final String NOTIFICATION_NAME = "Watch notification";
     private static final String NOTIFICATION_NAME_ALERT = "Watch notification alert";
+    public static final String PAUSE_PINS_KEY = "pause_pins";
 
     private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
 
@@ -135,20 +136,19 @@ public class WatchNotification
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && intent.getExtras() != null && intent.getExtras().getBoolean("pause_pins", false)) {
+        if (intent != null && intent.getExtras() != null && intent.getExtras().getBoolean(PAUSE_PINS_KEY, false)) {
             watchManager.pauseAll();
-        } else {
-            Notification notification = createNotification();
-            if (notification == null) {
-                Logger.d(TAG, "onStartCommand() createNotification returned null");
-
-                stopSelf();
-                return START_NOT_STICKY;
-            }
-
-            // Do not remove this or the app will blow up on Android.Oreo and above
-            startForeground(NOTIFICATION_ID, notification);
         }
+        Notification notification = createNotification();
+        if (notification == null) {
+            Logger.d(TAG, "onStartCommand() createNotification returned null");
+
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+
+        // Do not remove this or the app will blow up on Android.Oreo and above
+        startForeground(NOTIFICATION_ID, notification);
         return START_STICKY;
     }
 
@@ -493,13 +493,10 @@ public class WatchNotification
             if (hasWatchPins) {
                 //setup the pause watch button
                 Intent pauseWatching = new Intent(this, WatchNotification.class);
-                pauseWatching.putExtra("pause_pins", true);
-                PendingIntent pauseWatchingPending =
+                pauseWatching.putExtra(PAUSE_PINS_KEY, true);
+                PendingIntent pauseWatchIntent =
                         PendingIntent.getService(this, 0, pauseWatching, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_action_pause,
-                        getString(R.string.watch_pause_pins),
-                        pauseWatchingPending
-                );
+                builder.addAction(R.drawable.ic_action_pause, getString(R.string.watch_pause_pins), pauseWatchIntent);
             }
 
             //setup the display in the notification
