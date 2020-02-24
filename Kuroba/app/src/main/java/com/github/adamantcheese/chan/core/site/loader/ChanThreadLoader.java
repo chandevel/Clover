@@ -45,6 +45,7 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReaderRequest;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.JsonSyntaxException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -359,7 +360,7 @@ public class ChanThreadLoader
 
         Disposable disposable = Single.fromCallable(() -> onResponseInternal(response))
                 .subscribeOn(Schedulers.io())
-                .subscribe(result -> {}, error -> Logger.e(TAG, "onResponse error", error));
+                .subscribe(result -> { }, error -> Logger.e(TAG, "onResponse error", error));
 
         compositeDisposable.add(disposable);
     }
@@ -577,26 +578,47 @@ public class ChanThreadLoader
                             chanThread.isClosed(),
                             chanThread.isArchived()
                     );
+
+                    // We managed to load local thread, do no need to show the error screen
                     return false;
                 }
             }
 
+            // No local thread, show the error screen
             return true;
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
-            if (!result) {
-                return;
-            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(showError -> {
+                    if (!showError) {
+                        return;
+                    }
 
-            Logger.i(TAG, "Loading error", error);
-            clearTimer();
-            ChanLoaderException loaderException = new ChanLoaderException(error);
+                    Logger.i(TAG, "Loading error", error);
+                    notifyAboutError(error);
+                }, throwable -> {
+                    Logger.i(TAG, "Loading unhandled error", throwable);
 
-            for (ChanLoaderCallback l : listeners) {
-                l.onChanLoaderError(loaderException);
-            }
-        });
+                    notifyAboutError(createError(throwable));
+                });
 
         compositeDisposable.add(disposable);
+    }
+
+    private VolleyError createError(Throwable throwable) {
+        if (throwable instanceof JsonSyntaxException) {
+            return new VolleyError("Error while trying to load local thread", throwable);
+        }
+
+        return new VolleyError("Unhandled exception", throwable);
+    }
+
+    private void notifyAboutError(VolleyError error) {
+        clearTimer();
+        ChanLoaderException loaderException = new ChanLoaderException(error);
+
+        for (ChanLoaderCallback l : listeners) {
+            l.onChanLoaderError(loaderException);
+        }
     }
 
     /**
