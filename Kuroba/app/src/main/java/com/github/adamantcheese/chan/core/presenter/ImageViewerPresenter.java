@@ -59,6 +59,7 @@ import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.PDF;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.SWF;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.BIGIMAGE;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.GIFIMAGE;
@@ -268,6 +269,7 @@ public class ImageViewerPresenter
         PostImage postImage = images.get(selectedPosition);
         setTitle(postImage, position);
         callback.scrollToImage(postImage);
+        callback.updatePreviewImage(postImage);
 
         for (PostImage other : getOther(position)) {
             callback.setImageMode(other, LOWRES, false);
@@ -300,7 +302,7 @@ public class ImageViewerPresenter
                 callback.setImageMode(postImage, GIFIMAGE, true);
             } else if (postImage.type == MOVIE && videoAutoLoad(loadable, postImage)) {
                 callback.setImageMode(postImage, VIDEO, true);
-            } else if (postImage.type == PDF) {
+            } else if (postImage.type == PDF || postImage.type == SWF) {
                 callback.setImageMode(postImage, OTHER, true);
             }
         }
@@ -487,7 +489,7 @@ public class ImageViewerPresenter
                     callback.setImageMode(postImage, GIFIMAGE, true);
                 } else if (postImage.type == MOVIE && currentMode != VIDEO) {
                     callback.setImageMode(postImage, VIDEO, true);
-                } else if (postImage.type == PDF && currentMode != OTHER) {
+                } else if ((postImage.type == PDF || postImage.type == SWF) && currentMode != OTHER) {
                     callback.setImageMode(postImage, OTHER, true);
                 } else {
                     if (callback.isImmersive()) {
@@ -497,6 +499,13 @@ public class ImageViewerPresenter
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void checkImmersive() {
+        if (callback.isImmersive()) {
+            callback.showSystemUI(true);
         }
     }
 
@@ -718,6 +727,8 @@ public class ImageViewerPresenter
         void setTitle(PostImage postImage, int index, int count, boolean spoiler);
 
         void scrollToImage(PostImage postImage);
+
+        void updatePreviewImage(PostImage postImage);
 
         void saveImage();
 

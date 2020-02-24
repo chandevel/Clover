@@ -208,7 +208,12 @@ public class Chan4
                 }
                 return image.build();
             } else {
-                return t.newBuilder().addPathSegment(post.board.code).addPathSegment(arg.get("tim") + "s.jpg").build();
+                switch(arg.get("ext")) {
+                    case "swf":
+                        return HttpUrl.parse("https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/swf_thumb.png");
+                    default:
+                        return t.newBuilder().addPathSegment(post.board.code).addPathSegment(arg.get("tim") + "s.jpg").build();
+                }
             }
         }
 

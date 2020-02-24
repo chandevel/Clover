@@ -205,10 +205,7 @@ constructor(
             val exportedSavedThreads = appSettings.exportedSavedThreads
 
             for (exportedPin in exportedSite.exportedPins) {
-                val exportedLoadable = exportedPin.exportedLoadable
-                if (exportedLoadable == null) {
-                    continue
-                }
+                val exportedLoadable = exportedPin.exportedLoadable ?: continue
 
                 val loadable = Loadable.importLoadable(
                         inserted.id,

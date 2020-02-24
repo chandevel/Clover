@@ -36,7 +36,8 @@ public class PostImage {
         STATIC,
         GIF,
         MOVIE,
-        PDF
+        PDF,
+        SWF
     }
 
     public final String serverFilename;
@@ -49,6 +50,7 @@ public class PostImage {
     public final int imageWidth;
     public final int imageHeight;
     public final boolean spoiler;
+    public final boolean isInlined;
     public final long size;
     @Nullable
     public final String fileHash;
@@ -65,6 +67,7 @@ public class PostImage {
         this.imageWidth = builder.imageWidth;
         this.imageHeight = builder.imageHeight;
         this.spoiler = builder.spoiler;
+        this.isInlined = builder.isInlined;
         this.size = builder.size;
         this.fileHash = builder.fileHash;
 
@@ -74,10 +77,17 @@ public class PostImage {
                 break;
             case "webm":
             case "mp4":
+            case "mp3":
+            case "m4a":
+            case "ogg":
+            case "flac":
                 type = MOVIE;
                 break;
             case "pdf":
                 type = PDF;
+                break;
+            case "swf":
+                type = Type.SWF;
                 break;
             default:
                 type = STATIC;
@@ -111,6 +121,7 @@ public class PostImage {
         private int imageWidth;
         private int imageHeight;
         private boolean spoiler;
+        private boolean isInlined = false;
         private long size;
         @Nullable
         private String fileHash;
@@ -164,6 +175,11 @@ public class PostImage {
 
         public Builder spoiler(boolean spoiler) {
             this.spoiler = spoiler;
+            return this;
+        }
+
+        public Builder isInlined(boolean inlined) {
+            this.isInlined = inlined;
             return this;
         }
 

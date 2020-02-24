@@ -21,6 +21,7 @@ import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.FileSegment
 import com.github.k1rakishou.fsaf.file.RawFile
 import com.github.k1rakishou.fsaf.file.Segment
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
@@ -311,7 +312,12 @@ class FileCacheV2(
             }
 
             return try {
-                handleLocalThreadFile(loadable, postImage, callback)
+                // Run this thing on a background thread
+                Completable.fromAction { handleLocalThreadFile(loadable, postImage, callback) }
+                        .subscribeOn(workerScheduler)
+                        .subscribe()
+
+                null
             } catch (error: Throwable) {
                 logError(TAG, "Error while trying to load local thread file", error)
 
@@ -469,7 +475,9 @@ class FileCacheV2(
             loadable: Loadable,
             postImage: PostImage,
             callback: FileCacheListener
-    ): CancelableDownload? {
+    ) {
+        BackgroundUtils.ensureBackgroundThread()
+
         val filename = ThreadSaveManager.formatOriginalImageName(
                 postImage.serverFilename,
                 postImage.extension
@@ -483,7 +491,7 @@ class FileCacheV2(
                 callback.onEnd()
             }
 
-            return null
+            return
         }
 
         val baseDirFile = fileManager.newBaseDirectoryFile(
@@ -498,7 +506,7 @@ class FileCacheV2(
                 callback.onEnd()
             }
 
-            return null
+            return
         }
 
         val imagesSubDirSegments = ThreadSaveManager.getImagesSubDir(loadable)
@@ -526,7 +534,7 @@ class FileCacheV2(
             }
         }
 
-        return null
+        return
     }
 
     private fun handleFileImmediatelyAvailable(file: RawFile, url: String) {

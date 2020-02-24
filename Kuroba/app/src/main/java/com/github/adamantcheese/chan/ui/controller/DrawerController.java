@@ -253,6 +253,7 @@ public class DrawerController
                 // every time he deletes one pin.
                 String text = getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
                 Snackbar snackbar = Snackbar.make(drawerLayout, getString(R.string.drawer_pins_cleared, text), 4000);
+                snackbar.setGestureInsetBottomIgnored(true);
                 fixSnackbarText(context, snackbar);
                 snackbar.setAction(R.string.undo, v -> watchManager.addAll(pins));
                 snackbar.show();
@@ -262,6 +263,7 @@ public class DrawerController
                     ? R.string.drawer_pins_non_cleared
                     : R.string.drawer_pins_non_cleared_try_all;
             Snackbar snackbar = Snackbar.make(drawerLayout, text, Snackbar.LENGTH_LONG);
+            snackbar.setGestureInsetBottomIgnored(true);
             fixSnackbarText(context, snackbar);
             snackbar.show();
         }
@@ -287,7 +289,7 @@ public class DrawerController
                     Snackbar.LENGTH_LONG
             );
         }
-
+        snackbar.setGestureInsetBottomIgnored(true);
         fixSnackbarText(context, snackbar);
         snackbar.show();
     }

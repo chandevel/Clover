@@ -38,6 +38,9 @@ import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteService;
+import com.github.adamantcheese.chan.ui.service.LastPageNotification;
+import com.github.adamantcheese.chan.ui.service.SavingNotification;
+import com.github.adamantcheese.chan.ui.service.WatchNotification;
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -121,6 +124,10 @@ public class Chan
         //and so that they're available for feather later on for archives/filter watch waking
         feather.instance(FilterWatchManager.class);
 
+        WatchNotification.setupChannel();
+        SavingNotification.setupChannel();
+        LastPageNotification.setupChannel();
+
         RxJavaPlugins.setErrorHandler(e -> {
             if (e instanceof UndeliverableException) {
                 e = e.getCause();
@@ -138,7 +145,8 @@ public class Chan
                 // fine, some blocking code was interrupted by a dispose call
                 return;
             }
-            if (e instanceof FileCacheException.CancellationException) {
+            if (e instanceof FileCacheException.CancellationException
+                    || e instanceof FileCacheException.FileNotFoundOnTheServerException) {
                 // fine, sometimes they get through all the checks but it doesn't really matter
                 return;
             }
@@ -155,6 +163,10 @@ public class Chan
 
             onUnhandledException(e, exceptionToString(true, e));
             Logger.e("APP", "RxJava undeliverable exception", e);
+
+            // Do not exit the app here! Most of the time an exception that comes here is not a
+            // fatal one. We only want to log and report them to analyze later. The app should be
+            // able to continue running after that.
         });
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
@@ -193,9 +205,8 @@ public class Chan
     }
 
     private boolean isEmulator() {
-        return Build.MODEL.contains("google_sdk")
-                || Build.MODEL.contains("Emulator")
-                || Build.MODEL.contains("Android SDK");
+        return Build.MODEL.contains("google_sdk") || Build.MODEL.contains("Emulator") || Build.MODEL.contains(
+                "Android SDK");
     }
 
     private String exceptionToString(boolean isCalledFromRxJavaHandler, Throwable e) {

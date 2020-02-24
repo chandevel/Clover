@@ -26,7 +26,7 @@ class CacheHandlerTest {
     @Before
     fun init() {
         AndroidUtils.init(testModule.provideApplication())
-        ShadowLog.stream = System.out;
+        ShadowLog.stream = System.out
 
         fileManager = testModule.provideFileManager()
         cacheHandler = testModule.provideCacheHandler()

@@ -12,6 +12,9 @@ import java.util.regex.Pattern;
 public class StringUtils {
     private static final Pattern IMAGE_THUMBNAIL_EXTRACTOR_PATTERN = Pattern.compile("/(\\d{12,32}+)s.(.*)");
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toLowerCase(Locale.US).toCharArray();
+    private static final String RESERVED_CHARACTERS = "|?*<\":>+\\[\\]/'\\\\\\s";
+    private static final String RESERVED_CHARACTERS_DIR = "[" + RESERVED_CHARACTERS + "." + "]";
+    private static final String RESERVED_CHARACTERS_FILE = "[" + RESERVED_CHARACTERS + "]";
 
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
@@ -67,14 +70,14 @@ public class StringUtils {
     }
 
     public static String dirNameRemoveBadCharacters(String dirName) {
-        return dirName.replaceAll(" ", "_").replaceAll("[^a-zA-Z0-9_-]", "");
+        return dirName.replaceAll(" ", "_").replaceAll(RESERVED_CHARACTERS_DIR, "");
     }
 
     /**
      * The same as dirNameRemoveBadCharacters but allows dots since file names can have extensions
      */
     public static String fileNameRemoveBadCharacters(String filename) {
-        return filename.replaceAll(" ", "_").replaceAll("[^a-zA-Z0-9_.-]", "");
+        return filename.replaceAll(" ", "_").replaceAll(RESERVED_CHARACTERS_FILE, "");
     }
 
     @Nullable
@@ -116,5 +119,14 @@ public class StringUtils {
 
         String trimmedUrl = url.substring(0, url.length() - charactersToTrim);
         return trimmedUrl + "XXX" + (extension == null ? "" : "." + extension);
+    }
+
+    public static boolean endsWithAny(String s, String[] suffixes) {
+        for (String suffix : suffixes) {
+            if (s.endsWith(suffix)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

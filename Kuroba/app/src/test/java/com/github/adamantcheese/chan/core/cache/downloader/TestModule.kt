@@ -48,7 +48,7 @@ class TestModule {
 
     internal fun provideSiteResolver(): SiteResolver {
         if (siteResolver == null) {
-            siteResolver = mock<SiteResolver>()
+            siteResolver = mock()
         }
 
         return siteResolver!!

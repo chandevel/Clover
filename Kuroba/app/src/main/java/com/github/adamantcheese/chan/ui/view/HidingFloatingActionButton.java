@@ -88,10 +88,7 @@ public class HidingFloatingActionButton
 
     @Override
     public void onCollapseTranslation(float offset) {
-        if (isSnackbarShowing()) {
-            currentCollapseTranslation = -1;
-            return;
-        }
+        if (isSnackbarShowing()) return;
 
         int translation = (int) (getTotalHeight() * offset);
         if (translation != currentCollapseTranslation) {
@@ -108,10 +105,7 @@ public class HidingFloatingActionButton
 
     @Override
     public void onCollapseAnimation(boolean collapse) {
-        if (isSnackbarShowing()) {
-            currentCollapseTranslation = -1;
-            return;
-        }
+        if (isSnackbarShowing()) return;
 
         int translation = collapse ? getTotalHeight() : 0;
         if (translation != currentCollapseTranslation) {
@@ -128,6 +122,7 @@ public class HidingFloatingActionButton
     private boolean isSnackbarShowing() {
         for (int i = 0; i < coordinatorLayout.getChildCount(); i++) {
             if (coordinatorLayout.getChildAt(i) instanceof Snackbar.SnackbarLayout) {
+                currentCollapseTranslation = -1;
                 return true;
             }
         }

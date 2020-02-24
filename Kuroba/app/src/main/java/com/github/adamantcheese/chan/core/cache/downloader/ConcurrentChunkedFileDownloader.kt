@@ -198,13 +198,17 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                                 .filterIsInstance<ChunkDownloadEvent.ChunkError>()
                                 .map { event -> event.error }
 
-                        // If any of the chunks errored out with CancellationException - rethrow it
-                        if (errors.any { error -> error is FileCacheException.CancellationException }) {
-                            activeDownloads.throwCancellationException(url)
+                        val nonCancellationException = errors.firstOrNull { error ->
+                            error !is FileCacheException.CancellationException
                         }
 
-                        // Otherwise rethrow the first exception
-                        throw errors.first()
+                        if (nonCancellationException != null) {
+                            // If there are any exceptions other than CancellationException - throw it
+                            throw nonCancellationException
+                        } else {
+                            // Otherwise rethrow the first exception (which is CancellationException)
+                            throw errors.first()
+                        }
                     }
 
                     @Suppress("UNCHECKED_CAST")

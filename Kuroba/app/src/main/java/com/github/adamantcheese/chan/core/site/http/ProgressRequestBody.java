@@ -83,11 +83,13 @@ public class ProgressRequestBody
             }
 
             bytesWritten += byteCount;
-            int percent = (int) (maxPercent * bytesWritten / contentLength());
+            if(contentLength() > 0) {
+                int percent = (int) (maxPercent * bytesWritten / contentLength());
 
-            if (percent - lastPercent >= percentStep) {
-                lastPercent = percent;
-                listener.onRequestProgress(percent);
+                if (percent - lastPercent >= percentStep) {
+                    lastPercent = percent;
+                    listener.onRequestProgress(percent);
+                }
             }
         }
     }

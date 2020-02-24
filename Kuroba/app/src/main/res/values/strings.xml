@@ -96,6 +96,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="create">Create</string>
     <string name="do_not">Do not</string>
     <string name="move">Move</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="save">Save</string>
     <string name="send">Send</string>
 
@@ -106,7 +108,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="permission_grant">Grant</string>
 
     <string name="update_later">Later</string>
-    <string name="update_none">%1$s is up-to-date</string>
+    <string name="update_none">Already on the latest %1$s version.</string>
     <string name="update_check_failed">Failed to check for updates.</string>
     <string name="update_install">Install</string>
     <string name="update_install_downloading">Downloading update…</string>
@@ -357,7 +359,6 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="image_save_notification_cancel">Tap to cancel</string>
     <string name="image_save_saved">Image saved</string>
     <string name="image_saver_saved_as_message">Saved as \"%1$s\"</string>
-    <string name="image_saver_failed_to_save_image_message">Saving image failed</string>
 
     <string name="thread_page_limit">Thread hit last page</string>
 
@@ -743,6 +744,7 @@ Don't have a 4chan Pass?<br>
     <string name="setting_youtube_dur_title">Enable Youtube durations</string>
     <string name="setting_youtube_dur_description">Adds duration parsing to Youtube titles; does not do anything with titles off</string>
     <string name="pdf_not_viewable">PDFs are not internally viewable; you can still download this file.</string>
+    <string name="swf_not_viewable">SWFs are not internally viewable; you can still download this file.</string>
     <string name="files_base_dir_does_not_exist"><![CDATA[Base directory for files does not exist! Set it manually in the settings (Media -> Save location)]]></string>
     <string name="local_threads_base_dir_does_not_exist"><![CDATA[Base directory for local threads does not exist! Set it manually in the settings (Media -> Local threads location). All active download has been stopped! Resume them manually after setting the base directory.]]></string>
     <string name="image_saver_could_not_figure_out_save_location">Couldn\'t figure out save location</string>
@@ -797,6 +799,18 @@ Don't have a 4chan Pass?<br>
     <string name="settings_collect_crash_logs_description">By enabling this setting, the app will start collecting crash logs. They are NOT uploaded automatically. Crash logs only collect the stacktrace itself, app version and basic OS information. You can review and upload them manually (or delete) by clicking the \"Report\" setting.</string>
     <string name="media_settings_base_dir_reset_message">Base directory reset to default</string>
     <string name="media_settings_could_not_create_default_baseDir">Could not create default base dir: %1$s</string>
+
+    <string name="site_uses_dynamic_boards">"Unable to go to board (site likely has dynamic boards). Add the board using the boards menu first."</string>
+    <string name="could_not_start_saving_no_permissions">Could not start downloading images, no WRITE_ACCESS permission was granted</string>
+    <string name="update_manager_copy_apk_title">Copy apk?</string>
+    <string name="update_manager_copy_apk_message">Would you like to store this apk?</string>
+    <string name="update_manager_could_not_convert_uri">Couldn\'t convert uri (%1$s) into an ExternalFile</string>
+    <string name="update_manager_input_file_does_not_exist">Input apk file (%1$s) does not exist</string>
+    <string name="update_manager_output_file_does_not_exist">Output file (%1$s) does not exist</string>
+    <string name="update_manager_could_not_copy_apk">Couldn\'t copy file contents from file (%1$s) into (%2$s)</string>
+    <string name="update_manager_apk_copied">Apk successfully copied</string>
+    <string name="settings_show_copy_apk_dialog_title">Show copy apk dialog when downloading an update</string>
+    <string name="settings_show_copy_apk_dialog_message">Every time you download a new update a dialog with suggestion to copy that apk to some other directory will be shown</string>
     <string name="review_crashlogs_controller_title">Review crash logs</string>
     <string name="settings_report_suggest_sending_logs_title">You have %1$d collected crash logs</string>
     <string name="settings_report_suggest_sending_logs_message">Would you like to review and maybe send them to developers?</string>

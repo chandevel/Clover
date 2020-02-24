@@ -48,7 +48,7 @@ public abstract class NavigationController
         final Controller from = getTop();
 
         if (from == null && controllerTransition != null) {
-            throw new IllegalArgumentException("Cannot animate push when from is null");
+            controllerTransition = null; //can't animate push if from is null, just disable the animation
         }
 
         transition(from, to, true, controllerTransition);

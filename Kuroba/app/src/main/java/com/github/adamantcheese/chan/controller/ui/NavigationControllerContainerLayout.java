@@ -119,8 +119,9 @@ public class NavigationControllerContainerLayout
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (!swipeEnabled || tracking || navigationController.isBlockingInput()
-                || !navigationController.getTop().navigation.swipeable || getBelowTop() == null) {
+        if (!swipeEnabled || tracking || navigationController.isBlockingInput() || (
+                navigationController.getTop().navigation != null && !navigationController.getTop().navigation.swipeable)
+                || getBelowTop() == null) {
             return false;
         }
 

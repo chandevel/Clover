@@ -39,7 +39,7 @@ class ConcurrentChunkedFileDownloaderTest {
     @Before
     fun setUp() {
         AndroidUtils.init(testModule.provideApplication())
-        ShadowLog.stream = System.out;
+        ShadowLog.stream = System.out
 
         activeDownloads = testModule.provideActiveDownloads()
         fileManager = testModule.provideFileManager()

@@ -193,6 +193,7 @@ public class BoardSetupController
                 getString(R.string.setup_board_removed, BoardHelper.getName(board)),
                 Snackbar.LENGTH_LONG
         );
+        snackbar.setGestureInsetBottomIgnored(true);
         fixSnackbarText(context, snackbar);
 
         snackbar.setAction(R.string.undo, v -> presenter.undoRemoveBoard(board));
@@ -207,6 +208,7 @@ public class BoardSetupController
                 getString(R.string.setup_board_added, getQuantityString(R.plurals.board, count, count)),
                 Snackbar.LENGTH_LONG
         );
+        snackbar.setGestureInsetBottomIgnored(true);
         fixSnackbarText(context, snackbar);
         snackbar.show();
     }
@@ -270,6 +272,7 @@ public class BoardSetupController
         private TextView text;
         private TextView description;
 
+        @SuppressLint("ClickableViewAccessibility")
         public SavedBoardCell(View itemView) {
             super(itemView);
 
