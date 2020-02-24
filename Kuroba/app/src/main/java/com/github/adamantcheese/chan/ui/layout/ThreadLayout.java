@@ -47,7 +47,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -579,12 +578,12 @@ public class ThreadLayout
     }
 
     @Override
-    public void onRestoreRemovedPostsClicked(int threadNo, Site site, String boardCode, List<Integer> selectedPosts) {
+    public void onRestoreRemovedPostsClicked(Loadable threadLoadable, List<Integer> selectedPosts) {
 
         List<PostHide> postsToRestore = new ArrayList<>();
 
         for (Integer postNo : selectedPosts) {
-            postsToRestore.add(PostHide.unhidePost(site.id(), boardCode, postNo));
+            postsToRestore.add(PostHide.unhidePost(threadLoadable.site.id(), threadLoadable.board.code, postNo));
         }
 
         databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostsHide(postsToRestore));
