@@ -118,6 +118,7 @@ public class ImagePickDelegate {
             Intent newIntent = new Intent(Intent.ACTION_GET_CONTENT);
             newIntent.addCategory(Intent.CATEGORY_OPENABLE);
             newIntent.setPackage(info.activityInfo.packageName);
+            newIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             newIntent.setType("*/*");
 
             intents.add(newIntent);
