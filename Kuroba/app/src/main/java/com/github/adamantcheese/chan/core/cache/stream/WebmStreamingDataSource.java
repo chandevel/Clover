@@ -391,10 +391,10 @@ public class WebmStreamingDataSource
             for (Callback c : listeners) {
                 c.dataSourceAddedFile(innerFile);
             }
-        });
 
-        listeners.clear();
-        partialFileCache.clearListeners();
+            listeners.clear();
+            partialFileCache.clearListeners();
+        });
     }
 
     public void addListener(Callback c) {
