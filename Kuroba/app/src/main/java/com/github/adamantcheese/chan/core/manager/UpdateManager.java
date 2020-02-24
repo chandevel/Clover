@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.StrictMode;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
@@ -48,9 +47,13 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
-import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.callback.FileCreateCallback;
+import com.github.k1rakishou.fsaf.file.ExternalFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +62,8 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
@@ -86,6 +91,9 @@ public class UpdateManager {
 
     @Inject
     FileManager fileManager;
+
+    @Inject
+    FileChooser fileChooser;
 
     private ProgressDialog updateDownloadDialog;
     private Context context;
@@ -282,29 +290,13 @@ public class UpdateManager {
                         }
 
                         String fileName = getApplicationLabel() + "_" + response.versionCodeString + ".apk";
+                        suggestCopyingApkToAnotherDirectory(file, fileName, () -> {
+                            //install from the filecache rather than downloads, as the
+                            // Environment.DIRECTORY_DOWNLOADS may not be "Download"
+                            installApk(file);
 
-                        //put a copy into the Downloads folder, for archive/rollback purposes
-                        File downloadAPKcopy =
-                                new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                                        fileName
-                                );
-
-                        AbstractFile copyFile = fileManager.fromRawFile(downloadAPKcopy);
-
-                        try {
-                            if (fileManager.create(copyFile) != null) {
-                                if (!fileManager.copyFileContents(file, copyFile)) {
-                                    Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory");
-                                }
-                            } else {
-                                Logger.e(TAG, "Couldn't create backup apk file to: " + downloadAPKcopy.getAbsolutePath());
-                            }
-                        } catch (Exception e) {
-                            Logger.e(TAG, "Couldn't copy downloaded apk file into Downloads directory, " + e.getMessage());
-                        }
-
-                        //install from the filecache rather than downloads, as the Environment.DIRECTORY_DOWNLOADS may not be "Download"
-                        installApk(file);
+                            return Unit.INSTANCE;
+                        });
                     }
 
                     @Override
@@ -347,6 +339,82 @@ public class UpdateManager {
                                 .show();
                     }
                 });
+    }
+
+    private void suggestCopyingApkToAnotherDirectory(RawFile file, String fileName, Function0<Unit> onDone) {
+        if (!BackgroundUtils.isInForeground()) {
+            onDone.invoke();
+            return;
+        }
+
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(R.string.update_manager_copy_apk_title)
+                .setMessage(R.string.update_manager_copy_apk_message)
+                .setNegativeButton(R.string.no, (dialog, which) -> onDone.invoke())
+                .setPositiveButton(R.string.yes, (dialog, which) -> {
+                    fileChooser.openCreateFileDialog(fileName, new FileCreateCallback() {
+                        @Override
+                        public void onResult(@NotNull Uri uri) {
+                            onApkFilePathSelected(file, uri);
+                            onDone.invoke();
+                        }
+
+                        @Override
+                        public void onCancel(@NotNull String reason) {
+                            showToast(context, reason);
+                            onDone.invoke();
+                        }
+                    });
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    private void onApkFilePathSelected(RawFile downloadedFile, Uri uri) {
+        ExternalFile newApkFile = fileManager.fromUri(uri);
+        if (newApkFile == null) {
+            String message = context.getString(
+                    R.string.update_manager_could_not_convert_uri,
+                    uri.toString()
+            );
+
+            showToast(context, message);
+            return;
+        }
+
+        if (!fileManager.exists(downloadedFile)) {
+            String message = context.getString(
+                    R.string.update_manager_input_file_does_not_exist,
+                    downloadedFile.getFullPath()
+            );
+
+            showToast(context, message);
+            return;
+        }
+
+        if (!fileManager.exists(newApkFile)) {
+            String message = context.getString(
+                    R.string.update_manager_output_file_does_not_exist,
+                    newApkFile.toString()
+            );
+
+            showToast(context, message);
+            return;
+        }
+
+        if (!fileManager.copyFileContents(downloadedFile, newApkFile)) {
+            String message = context.getString(
+                    R.string.update_manager_could_not_copy_apk,
+                    downloadedFile.getFullPath(),
+                    newApkFile.getFullPath()
+            );
+
+            showToast(context, message);
+            return;
+        }
+
+        showToast(context, R.string.update_manager_apk_copied);
     }
 
     private void installApk(RawFile apk) {
