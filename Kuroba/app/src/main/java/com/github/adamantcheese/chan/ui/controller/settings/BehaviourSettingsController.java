@@ -200,6 +200,12 @@ public class BehaviourSettingsController
                     R.string.settings_allow_media_scanner_scan_local_threads_description
             ));
 
+            other.add(new BooleanSettingView(this,
+                    ChanSettings.showCopyApkUpdateDialog,
+                    R.string.settings_show_copy_apk_dialog_title,
+                    R.string.settings_show_copy_apk_dialog_message
+            ));
+
             groups.add(other);
         }
 

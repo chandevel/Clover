@@ -805,4 +805,6 @@ Don't have a 4chan Pass?<br>
     <string name="update_manager_output_file_does_not_exist">Output file (%1$s) does not exist</string>
     <string name="update_manager_could_not_copy_apk">Couldn\'t copy file contents from file (%1$s) into (%2$s)</string>
     <string name="update_manager_apk_copied">Apk successfully copied</string>
+    <string name="settings_show_copy_apk_dialog_title">Show copy apk dialog when downloading an update</string>
+    <string name="settings_show_copy_apk_dialog_message">Every time you download a new update a dialog with suggestion to copy that apk to some other directory will be shown</string>
 </resources>

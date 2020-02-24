@@ -57,6 +57,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -291,9 +292,15 @@ public class UpdateManager {
 
                         String fileName = getApplicationLabel() + "_" + response.versionCodeString + ".apk";
                         suggestCopyingApkToAnotherDirectory(file, fileName, () -> {
-                            //install from the filecache rather than downloads, as the
-                            // Environment.DIRECTORY_DOWNLOADS may not be "Download"
-                            installApk(file);
+                            BackgroundUtils.runOnMainThread(() -> {
+                                //install from the filecache rather than downloads, as the
+                                // Environment.DIRECTORY_DOWNLOADS may not be "Download"
+                                installApk(file);
+
+                                // Run the installApk a little bit later so the activity has time
+                                // to switch to the foreground state after we exit the SAF file
+                                // chooser
+                            }, TimeUnit.SECONDS.toMillis(1));
 
                             return Unit.INSTANCE;
                         });
@@ -342,7 +349,7 @@ public class UpdateManager {
     }
 
     private void suggestCopyingApkToAnotherDirectory(RawFile file, String fileName, Function0<Unit> onDone) {
-        if (!BackgroundUtils.isInForeground()) {
+        if (!BackgroundUtils.isInForeground() || !ChanSettings.showCopyApkUpdateDialog.get()) {
             onDone.invoke();
             return;
         }
