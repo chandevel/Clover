@@ -47,7 +47,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -526,6 +525,7 @@ public class ThreadLayout
         int snackbarStringId = hide ? R.string.thread_hidden : R.string.thread_removed;
 
         Snackbar snackbar = Snackbar.make(this, snackbarStringId, Snackbar.LENGTH_LONG);
+        snackbar.setGestureInsetBottomIgnored(true);
         snackbar.setAction(R.string.undo, v -> {
             databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostHide(postHide));
             presenter.refreshUI();
@@ -557,6 +557,7 @@ public class ThreadLayout
         }
 
         Snackbar snackbar = Snackbar.make(this, formattedString, Snackbar.LENGTH_LONG);
+        snackbar.setGestureInsetBottomIgnored(true);
         snackbar.setAction(R.string.undo, v -> {
             databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostsHide(hideList));
             presenter.refreshUI();
@@ -577,12 +578,12 @@ public class ThreadLayout
     }
 
     @Override
-    public void onRestoreRemovedPostsClicked(int threadNo, Site site, String boardCode, List<Integer> selectedPosts) {
+    public void onRestoreRemovedPostsClicked(Loadable threadLoadable, List<Integer> selectedPosts) {
 
         List<PostHide> postsToRestore = new ArrayList<>();
 
         for (Integer postNo : selectedPosts) {
-            postsToRestore.add(PostHide.unhidePost(site.id(), boardCode, postNo));
+            postsToRestore.add(PostHide.unhidePost(threadLoadable.site.id(), threadLoadable.board.code, postNo));
         }
 
         databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostsHide(postsToRestore));
@@ -591,7 +592,7 @@ public class ThreadLayout
 
         Snackbar snackbar =
                 Snackbar.make(this, getString(R.string.restored_n_posts, postsToRestore.size()), Snackbar.LENGTH_LONG);
-
+        snackbar.setGestureInsetBottomIgnored(true);
         snackbar.show();
         fixSnackbarText(getContext(), snackbar);
     }
@@ -601,8 +602,9 @@ public class ThreadLayout
         if (show) {
             if (!threadListLayout.scrolledToBottom() && BackgroundUtils.isInForeground()) {
                 String text = getQuantityString(R.plurals.thread_new_posts, more, more);
-
+                dismissSnackbar();
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
+                newPostsNotification.setGestureInsetBottomIgnored(true);
                 newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
                     presenter.onNewPostsViewClicked();
                     dismissSnackbar();

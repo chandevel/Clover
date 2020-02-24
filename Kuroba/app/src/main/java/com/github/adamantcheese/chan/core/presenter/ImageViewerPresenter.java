@@ -269,6 +269,7 @@ public class ImageViewerPresenter
         PostImage postImage = images.get(selectedPosition);
         setTitle(postImage, position);
         callback.scrollToImage(postImage);
+        callback.updatePreviewImage(postImage);
 
         for (PostImage other : getOther(position)) {
             callback.setImageMode(other, LOWRES, false);
@@ -488,7 +489,7 @@ public class ImageViewerPresenter
                     callback.setImageMode(postImage, GIFIMAGE, true);
                 } else if (postImage.type == MOVIE && currentMode != VIDEO) {
                     callback.setImageMode(postImage, VIDEO, true);
-                } else if ((postImage.type == PDF || postImage.type == SWF)&& currentMode != OTHER) {
+                } else if ((postImage.type == PDF || postImage.type == SWF) && currentMode != OTHER) {
                     callback.setImageMode(postImage, OTHER, true);
                 } else {
                     if (callback.isImmersive()) {
@@ -498,6 +499,13 @@ public class ImageViewerPresenter
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void checkImmersive() {
+        if (callback.isImmersive()) {
+            callback.showSystemUI(true);
         }
     }
 
@@ -719,6 +727,8 @@ public class ImageViewerPresenter
         void setTitle(PostImage postImage, int index, int count, boolean spoiler);
 
         void scrollToImage(PostImage postImage);
+
+        void updatePreviewImage(PostImage postImage);
 
         void saveImage();
 

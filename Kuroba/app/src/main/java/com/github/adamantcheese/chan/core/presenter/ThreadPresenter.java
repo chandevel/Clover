@@ -302,7 +302,7 @@ public class ThreadPresenter
     }
 
     public void requestInitialData() {
-        if (chanLoader != null) {
+        if (isBound()) {
             if (chanLoader.getThread() == null) {
                 requestData();
             } else {
@@ -312,14 +312,14 @@ public class ThreadPresenter
     }
 
     public void requestData() {
-        if (chanLoader != null) {
+        if (isBound()) {
             threadPresenterCallback.showLoading();
             chanLoader.requestData();
         }
     }
 
     public void onForegroundChanged(boolean foreground) {
-        if (chanLoader != null) {
+        if (isBound()) {
             if (foreground && isWatching()) {
                 chanLoader.requestMoreDataAndResetTimer();
                 if (chanLoader.getThread() != null) {
@@ -333,14 +333,15 @@ public class ThreadPresenter
     }
 
     public boolean pin() {
+        if (!isBound()) return false;
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null) {
-            if (chanLoader.getThread() == null) {
-                return false;
+            if (chanLoader.getThread() != null) {
+                Post op = chanLoader.getThread().getOp();
+                watchManager.createPin(loadable, op, PinType.WATCH_NEW_POSTS);
+            } else {
+                watchManager.createPin(loadable);
             }
-
-            Post op = chanLoader.getThread().getOp();
-            watchManager.createPin(loadable, op, PinType.WATCH_NEW_POSTS);
             return true;
         }
 
@@ -361,6 +362,7 @@ public class ThreadPresenter
     }
 
     public boolean save() {
+        if (!isBound()) return false;
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
             boolean startedSaving = saveInternal();
@@ -452,6 +454,7 @@ public class ThreadPresenter
     }
 
     public boolean isPinned() {
+        if (!isBound()) return false;
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null) {
             return false;
@@ -528,12 +531,17 @@ public class ThreadPresenter
     public void onChanLoaderData(ChanThread result) {
         BackgroundUtils.ensureMainThread();
 
+        if (isBound()) {
+            if (isWatching()) {
+                chanLoader.setTimer();
+            }
+        } else {
+            Logger.e(TAG, "onChanLoaderData when not bound!");
+            return;
+        }
+
         loadable.loadableDownloadingState = result.getLoadable().loadableDownloadingState;
         Logger.d(TAG, "onChanLoaderData() loadableDownloadingState = " + loadable.loadableDownloadingState.name());
-
-        if (isWatching() && chanLoader != null) {
-            chanLoader.setTimer();
-        }
 
         //allow for search refreshes inside the catalog
         if (result.getLoadable().isCatalogMode() && !TextUtils.isEmpty(searchQuery)) {
@@ -596,7 +604,7 @@ public class ThreadPresenter
             }
         }
 
-        if (loadable.markedNo >= 0 && chanLoader != null) {
+        if (isBound() && loadable.markedNo >= 0) {
             Post markedPost = PostUtils.findPostById(loadable.markedNo, chanLoader.getThread());
             if (markedPost != null) {
                 highlightPost(markedPost);
@@ -607,7 +615,7 @@ public class ThreadPresenter
             loadable.markedNo = -1;
         }
 
-        storeNewPostsIfThreadIsBeingDownloaded(loadable, result.getPosts());
+        storeNewPostsIfThreadIsBeingDownloaded(result.getPosts());
         addHistory();
 
         // Update loadable in the database
@@ -637,7 +645,7 @@ public class ThreadPresenter
         }
     }
 
-    private void storeNewPostsIfThreadIsBeingDownloaded(Loadable loadable, List<Post> posts) {
+    private void storeNewPostsIfThreadIsBeingDownloaded(List<Post> posts) {
         if (loadable.mode != Loadable.Mode.THREAD) {
             // We are not in a thread
             return;
@@ -695,9 +703,8 @@ public class ThreadPresenter
      */
     @Override
     public void onListScrolledToBottom() {
-        if (loadable == null) return; //null loadable means no thread loaded, possibly unbinding?
-        if (loadable.isThreadMode() && chanLoader != null && chanLoader.getThread() != null
-                && chanLoader.getThread().getPostsCount() > 0) {
+        if (!isBound()) return; //null loadable means no thread loaded, possibly unbinding?
+        if (chanLoader.getThread() != null && loadable.isThreadMode() && chanLoader.getThread().getPostsCount() > 0) {
             List<Post> posts = chanLoader.getThread().getPosts();
             loadable.setLastViewed(posts.get(posts.size() - 1).no);
         }
@@ -717,7 +724,7 @@ public class ThreadPresenter
     }
 
     public void onNewPostsViewClicked() {
-        if (chanLoader != null) {
+        if (isBound()) {
             Post post = PostUtils.findPostById(loadable.lastViewed, chanLoader.getThread());
             int position = -1;
             if (post != null) {
@@ -813,7 +820,7 @@ public class ThreadPresenter
      */
     @Override
     public void onPostClicked(Post post) {
-        if (loadable.isCatalogMode()) {
+        if (isBound() && loadable.isCatalogMode()) {
             Loadable newLoadable =
                     Loadable.forThread(loadable.site, post.board, post.no, PostHelper.getTitle(post, loadable));
 
@@ -825,7 +832,7 @@ public class ThreadPresenter
 
     @Override
     public void onPostDoubleClicked(Post post) {
-        if (!loadable.isCatalogMode()) {
+        if (isBound() && loadable.isThreadMode()) {
             if (searchOpen) {
                 searchQuery = null;
                 showPosts();
@@ -861,14 +868,15 @@ public class ThreadPresenter
             }
         }
 
-        if (chanLoader != null && !images.isEmpty()) {
-            threadPresenterCallback.showImages(images, index, chanLoader.getLoadable(), thumbnail);
+        if (isBound() && !images.isEmpty()) {
+            threadPresenterCallback.showImages(images, index, loadable, thumbnail);
         }
     }
 
     @Override
     public Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu, List<FloatingMenuItem> extraMenu) {
-        if (!loadable.isThreadMode()) {
+        if (!isBound()) return null;
+        if (loadable.isCatalogMode()) {
             menu.add(new FloatingMenuItem(POST_OPTION_PIN, R.string.action_pin));
         } else if (!loadable.isLocal()) {
             menu.add(new FloatingMenuItem(POST_OPTION_QUOTE, R.string.post_quote));
@@ -995,10 +1003,14 @@ public class ThreadPresenter
                 watchManager.createPin(pinLoadable, post, PinType.WATCH_NEW_POSTS);
                 break;
             case POST_OPTION_OPEN_BROWSER:
-                openLink(loadable.site.resolvable().desktopUrl(loadable, post.no));
+                if (isBound()) {
+                    openLink(loadable.site.resolvable().desktopUrl(loadable, post.no));
+                }
                 break;
             case POST_OPTION_SHARE:
-                shareLink(loadable.site.resolvable().desktopUrl(loadable, post.no));
+                if (isBound()) {
+                    shareLink(loadable.site.resolvable().desktopUrl(loadable, post.no));
+                }
                 break;
             case POST_OPTION_REMOVE:
             case POST_OPTION_HIDE:
@@ -1030,15 +1042,18 @@ public class ThreadPresenter
                 }
                 break;
             case POST_OPTION_MOCK_REPLY:
-                mockReplyManager.addMockReply(post.board.siteId, post.board.code, loadable.no, post.no);
-                showToast(context, "Refresh to add mock replies");
+                if (isBound()) {
+                    mockReplyManager.addMockReply(post.board.siteId, post.board.code, loadable.no, post.no);
+                    showToast(context, "Refresh to add mock replies");
+                }
                 break;
         }
     }
 
     @Override
     public void onPostLinkableClicked(Post post, PostLinkable linkable) {
-        if (linkable.type == PostLinkable.Type.QUOTE && chanLoader != null) {
+        if (!isBound()) return;
+        if (linkable.type == PostLinkable.Type.QUOTE) {
             Post linked = PostUtils.findPostById((int) linkable.value, chanLoader.getThread());
             if (linked != null) {
                 threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
@@ -1093,7 +1108,7 @@ public class ThreadPresenter
         List<Post> posts = new ArrayList<>();
         synchronized (post.repliesFrom) {
             for (int no : post.repliesFrom) {
-                if (chanLoader != null) {
+                if (isBound()) {
                     Post replyPost = PostUtils.findPostById(no, chanLoader.getThread());
                     if (replyPost != null) {
                         posts.add(replyPost);
@@ -1111,7 +1126,7 @@ public class ThreadPresenter
      */
     @Override
     public long getTimeUntilLoadMore() {
-        if (chanLoader != null) {
+        if (isBound()) {
             return chanLoader.getTimeUntilLoadMore();
         } else {
             return 0L;
@@ -1124,7 +1139,7 @@ public class ThreadPresenter
         return loadable.isThreadMode()
             && ChanSettings.autoRefreshThread.get()
             && BackgroundUtils.isInForeground()
-            && chanLoader != null
+            && isBound()
             && chanLoader.getThread() != null
             && !chanLoader.getThread().isClosed()
             && !chanLoader.getThread().isArchived();
@@ -1134,7 +1149,7 @@ public class ThreadPresenter
     @Nullable
     @Override
     public ChanThread getChanThread() {
-        return chanLoader == null ? null : chanLoader.getThread();
+        return isBound() ? chanLoader.getThread() : null;
     }
 
     public Chan4PagesRequest.Page getPage(Post op) {
@@ -1170,7 +1185,7 @@ public class ThreadPresenter
 
     @Override
     public void requestNewPostLoad() {
-        if (chanLoader != null && loadable != null && loadable.isThreadMode()) {
+        if (isBound() && loadable.isThreadMode()) {
             chanLoader.requestMoreDataAndResetTimer();
             //put in a "request" for a page update whenever the next set of data comes in
             forcePageUpdate = true;
@@ -1193,26 +1208,26 @@ public class ThreadPresenter
         SavedReply reply = databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager()
                 .findSavedReply(post.board, post.no));
         if (reply != null) {
-            Site site = loadable.getSite();
-            site.actions().delete(new DeleteRequest(post, reply, onlyImageDelete), new SiteActions.DeleteListener() {
-                @Override
-                public void onDeleteComplete(HttpCall httpPost, DeleteResponse deleteResponse) {
-                    String message;
-                    if (deleteResponse.deleted) {
-                        message = getString(R.string.delete_success);
-                    } else if (!TextUtils.isEmpty(deleteResponse.errorMessage)) {
-                        message = deleteResponse.errorMessage;
-                    } else {
-                        message = getString(R.string.delete_error);
-                    }
-                    threadPresenterCallback.hideDeleting(message);
-                }
+            reply.site.actions()
+                    .delete(new DeleteRequest(post, reply, onlyImageDelete), new SiteActions.DeleteListener() {
+                        @Override
+                        public void onDeleteComplete(HttpCall httpPost, DeleteResponse deleteResponse) {
+                            String message;
+                            if (deleteResponse.deleted) {
+                                message = getString(R.string.delete_success);
+                            } else if (!TextUtils.isEmpty(deleteResponse.errorMessage)) {
+                                message = deleteResponse.errorMessage;
+                            } else {
+                                message = getString(R.string.delete_error);
+                            }
+                            threadPresenterCallback.hideDeleting(message);
+                        }
 
-                @Override
-                public void onDeleteError(HttpCall httpCall) {
-                    threadPresenterCallback.hideDeleting(getString(R.string.delete_error));
-                }
-            });
+                        @Override
+                        public void onDeleteError(HttpCall httpCall) {
+                            threadPresenterCallback.hideDeleting(getString(R.string.delete_error));
+                        }
+                    });
         }
     }
 
@@ -1299,7 +1314,7 @@ public class ThreadPresenter
     }
 
     private void addHistory() {
-        if (chanLoader == null || chanLoader.getThread() == null) {
+        if (!isBound() || chanLoader.getThread() == null) {
             return;
         }
 
@@ -1322,7 +1337,7 @@ public class ThreadPresenter
     public void hideOrRemovePosts(boolean hide, boolean wholeChain, Post post, int threadNo) {
         Set<Post> posts = new HashSet<>();
 
-        if (chanLoader != null) {
+        if (isBound()) {
             if (wholeChain) {
                 ChanThread thread = chanLoader.getThread();
                 if (thread != null) {
@@ -1337,33 +1352,26 @@ public class ThreadPresenter
     }
 
     public void showRemovedPostsDialog() {
-        if (chanLoader == null || chanLoader.getThread() == null
-                || chanLoader.getThread().getLoadable().mode != Loadable.Mode.THREAD) {
+        if (chanLoader == null || chanLoader.getThread() == null || loadable.isCatalogMode()) {
             return;
         }
 
-        threadPresenterCallback.viewRemovedPostsForTheThread(chanLoader.getThread().getPosts(),
-                chanLoader.getThread().getOp().no
-        );
+        threadPresenterCallback.viewRemovedPostsForTheThread(chanLoader.getThread().getPosts(), loadable.no);
     }
 
     public void onRestoreRemovedPostsClicked(List<Integer> selectedPosts) {
-        if (chanLoader == null || chanLoader.getThread() == null) {
-            return;
-        }
+        if (!isBound()) return;
 
-        int threadNo = chanLoader.getThread().getOp().no;
-        Site site = chanLoader.getThread().getLoadable().site;
-        String boardCode = chanLoader.getThread().getLoadable().boardCode;
-
-        threadPresenterCallback.onRestoreRemovedPostsClicked(threadNo, site, boardCode, selectedPosts);
+        threadPresenterCallback.onRestoreRemovedPostsClicked(loadable, selectedPosts);
     }
 
     @Override
     public void openArchive(Pair<String, String> domainNamePair) {
-        String link = loadable.desktopUrl();
-        link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
-        openLinkInBrowser(context, link);
+        if (isBound()) {
+            String link = loadable.desktopUrl();
+            link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
+            openLinkInBrowser(context, link);
+        }
     }
 
     public void setContext(Context context) {
@@ -1371,10 +1379,13 @@ public class ThreadPresenter
     }
 
     public void updateLoadable(Loadable.LoadableDownloadingState loadableDownloadingState) {
-        loadable.loadableDownloadingState = loadableDownloadingState;
+        if (isBound()) {
+            loadable.loadableDownloadingState = loadableDownloadingState;
+        }
     }
 
     public void markAllPostsAsSeen() {
+        if (!isBound()) return;
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
             SavedThread savedThread = null;
@@ -1472,6 +1483,6 @@ public class ThreadPresenter
 
         void viewRemovedPostsForTheThread(List<Post> threadPosts, int threadNo);
 
-        void onRestoreRemovedPostsClicked(int threadNo, Site site, String boardCode, List<Integer> selectedPosts);
+        void onRestoreRemovedPostsClicked(Loadable threadLoadable, List<Integer> selectedPosts);
     }
 }

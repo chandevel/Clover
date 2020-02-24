@@ -59,12 +59,8 @@ public class CustomScaleImageView
             @Override
             public void onImageLoadError(Exception e) {
                 Logger.w(TAG, "onImageLoadError", e);
-                if (e.getCause() instanceof OutOfMemoryError) {
-                    Logger.e(TAG, "OOM while trying to set a big image file", e);
-                    Runtime.getRuntime().gc();
-                }
                 if (callback != null) {
-                    callback.onError(true);
+                    callback.onError(e,true);
                 }
             }
 
@@ -72,7 +68,7 @@ public class CustomScaleImageView
             public void onTileLoadError(Exception e) {
                 Logger.w(TAG, "onTileLoadError", e);
                 if (callback != null) {
-                    callback.onError(false);
+                    callback.onError(e,false);
                 }
             }
         });
@@ -140,6 +136,6 @@ public class CustomScaleImageView
     public interface Callback {
         void onReady();
 
-        void onError(boolean wasInitial);
+        void onError(Exception e, boolean wasInitial);
     }
 }

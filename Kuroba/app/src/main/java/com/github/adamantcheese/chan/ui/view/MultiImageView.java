@@ -250,6 +250,11 @@ public class MultiImageView
     }
 
     @Override
+    public void checkImmersive() {
+        callback.checkImmersive();
+    }
+
+    @Override
     public void setClickHandler(boolean set) {
         if (set) {
             addView(exoClickHandler);
@@ -727,8 +732,14 @@ public class MultiImageView
             }
 
             @Override
-            public void onError(boolean wasInitial) {
-                onBigImageError(wasInitial);
+            public void onError(Exception e, boolean wasInitial) {
+                if (e.getCause() instanceof OutOfMemoryError) {
+                    Logger.e(TAG, "OOM while trying to set a big image file", e);
+                    Runtime.getRuntime().gc();
+                    onOutOfMemoryError();
+                } else {
+                    onBigImageError(wasInitial);
+                }
             }
         });
         image.setOnClickListener(null);
@@ -823,6 +834,8 @@ public class MultiImageView
 
     public interface Callback {
         void onTap();
+
+        void checkImmersive();
 
         void onSwipeToCloseImage();
 

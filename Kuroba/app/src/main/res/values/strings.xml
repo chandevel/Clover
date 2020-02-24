@@ -100,6 +100,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="move">Move</string>
     <string name="edit">Edit</string>
     <string name="remove">Remove</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
     <string name="permission_app_settings">App settings</string>
     <string name="permission_grant">Grant</string>
@@ -356,7 +358,6 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="image_save_notification_cancel">Tap to cancel</string>
     <string name="image_save_saved">Image saved</string>
     <string name="image_saver_saved_as_message">Saved as \"%1$s\"</string>
-    <string name="image_saver_failed_to_save_image_message">Saving image failed</string>
 
     <string name="thread_page_limit">Thread hit last page</string>
 
@@ -799,6 +800,16 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_could_not_create_default_baseDir">Could not create default base dir: %1$s</string>
 
     <string name="site_uses_dynamic_boards">"Unable to go to board (site likely has dynamic boards). Add the board using the boards menu first."</string>
+    <string name="could_not_start_saving_no_permissions">Could not start downloading images, no WRITE_ACCESS permission was granted</string>
+    <string name="update_manager_copy_apk_title">Copy apk?</string>
+    <string name="update_manager_copy_apk_message">Would you like to store this apk?</string>
+    <string name="update_manager_could_not_convert_uri">Couldn\'t convert uri (%1$s) into an ExternalFile</string>
+    <string name="update_manager_input_file_does_not_exist">Input apk file (%1$s) does not exist</string>
+    <string name="update_manager_output_file_does_not_exist">Output file (%1$s) does not exist</string>
+    <string name="update_manager_could_not_copy_apk">Couldn\'t copy file contents from file (%1$s) into (%2$s)</string>
+    <string name="update_manager_apk_copied">Apk successfully copied</string>
+    <string name="settings_show_copy_apk_dialog_title">Show copy apk dialog when downloading an update</string>
+    <string name="settings_show_copy_apk_dialog_message">Every time you download a new update a dialog with suggestion to copy that apk to some other directory will be shown</string>
     <string name="setting_enable_image_link_loading">Enable image link loading</string>
     <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
     <string name="add_new_zone">Add new zone</string>
