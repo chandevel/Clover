@@ -250,6 +250,11 @@ public class MultiImageView
     }
 
     @Override
+    public void checkImmersive() {
+        callback.checkImmersive();
+    }
+
+    @Override
     public void setClickHandler(boolean set) {
         if (set) {
             addView(exoClickHandler);
@@ -823,6 +828,8 @@ public class MultiImageView
 
     public interface Callback {
         void onTap();
+
+        void checkImmersive();
 
         void onSwipeToCloseImage();
 

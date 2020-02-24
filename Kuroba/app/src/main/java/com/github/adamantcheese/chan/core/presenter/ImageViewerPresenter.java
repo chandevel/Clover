@@ -489,7 +489,7 @@ public class ImageViewerPresenter
                     callback.setImageMode(postImage, GIFIMAGE, true);
                 } else if (postImage.type == MOVIE && currentMode != VIDEO) {
                     callback.setImageMode(postImage, VIDEO, true);
-                } else if ((postImage.type == PDF || postImage.type == SWF)&& currentMode != OTHER) {
+                } else if ((postImage.type == PDF || postImage.type == SWF) && currentMode != OTHER) {
                     callback.setImageMode(postImage, OTHER, true);
                 } else {
                     if (callback.isImmersive()) {
@@ -499,6 +499,13 @@ public class ImageViewerPresenter
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void checkImmersive() {
+        if (callback.isImmersive()) {
+            callback.showSystemUI(true);
         }
     }
 

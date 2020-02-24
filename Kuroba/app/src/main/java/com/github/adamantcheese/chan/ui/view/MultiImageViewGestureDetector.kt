@@ -22,8 +22,6 @@ class MultiImageViewGestureDetector(
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val activeView = callbacks.getActiveView()
         if (activeView is PlayerView && activeView.player != null) {
-            val playing = activeView.player!!.playWhenReady && activeView.player!!.playbackState == Player.STATE_READY
-
             if (activeView.isControllerVisible) {
                 activeView.useController = false
                 callbacks.setClickHandler(true)
@@ -31,6 +29,7 @@ class MultiImageViewGestureDetector(
                 activeView.useController = true
                 activeView.showController()
                 callbacks.setClickHandler(false)
+                callbacks.checkImmersive()
             }
             return true
         }
@@ -159,6 +158,7 @@ class MultiImageViewGestureDetector(
         fun isImageAlreadySaved(): Boolean
         fun setImageAlreadySaved()
         fun onTap()
+        fun checkImmersive()
         fun setClickHandler(set: Boolean)
         fun togglePlayState()
         fun onSwipeToCloseImage()
