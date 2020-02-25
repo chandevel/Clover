@@ -41,6 +41,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -142,6 +143,10 @@ public class AndroidUtils {
      * @param link url to open
      */
     public static void openLink(String link) {
+        if(TextUtils.isEmpty(link)) {
+            showToast(application, R.string.open_link_failed, Toast.LENGTH_LONG);
+            return;
+        }
         PackageManager pm = application.getPackageManager();
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
@@ -178,6 +183,10 @@ public class AndroidUtils {
     }
 
     public static void openLinkInBrowser(Context context, String link) {
+        if(TextUtils.isEmpty(link)) {
+            showToast(context, R.string.open_link_failed);
+            return;
+        }
         // Hack that's sort of the same as openLink
         // The link won't be opened in a custom tab if this app is the default handler for that link.
         // Manually check if this app opens it instead of a custom tab, and use the logic of
