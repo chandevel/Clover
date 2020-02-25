@@ -41,6 +41,7 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -50,6 +51,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -73,6 +78,7 @@ public class AlbumDownloadController
     @Inject
     ImageSaver imageSaver;
 
+    private CompositeDisposable compositeDisposable;
     private boolean allChecked = true;
 
     public AlbumDownloadController(Context context) {
@@ -103,11 +109,13 @@ public class AlbumDownloadController
         recyclerView.setAdapter(adapter);
 
         imageSaver.setBundledTaskCallback(this);
+        compositeDisposable = new CompositeDisposable();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        compositeDisposable.dispose();
         imageSaver.removeBundleTaskCallback();
     }
 
@@ -141,6 +149,12 @@ public class AlbumDownloadController
                 //generate tasks before prompting
                 List<ImageSaveTask> tasks = new ArrayList<>(items.size());
                 for (AlbumDownloadItem item : items) {
+                    if (item.postImage.isInlined) {
+                        // Do not download inlined files via the Album downloads (because they often
+                        // fail with SSL exceptions) and we can't really trust those files.
+                        continue;
+                    }
+
                     if (item.checked) {
                         ImageSaveTask imageTask = new ImageSaveTask(loadable, item.postImage, true);
                         if (subFolder != null) {
@@ -152,36 +166,52 @@ public class AlbumDownloadController
 
                 new AlertDialog.Builder(context).setMessage(message)
                         .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.ok, (dialog, which) -> handleDownloadResult(tasks))
+                        .setPositiveButton(R.string.ok, (dialog, which) -> startAlbumDownloadTask(tasks))
                         .show();
             }
         }
     }
 
-    private void handleDownloadResult(List<ImageSaveTask> tasks) {
-        ImageSaver.BundledImageSaveResult result = imageSaver.startBundledTask(context, tasks);
+    private void startAlbumDownloadTask(List<ImageSaveTask> tasks) {
+        showLoadingView();
+
+        Disposable disposable = imageSaver.startBundledTask(context, tasks)
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorReturnItem(ImageSaver.BundledImageSaveResult.UnknownError)
+                .subscribe(this::onResultEvent);
+
+        compositeDisposable.add(disposable);
+    }
+
+    private void onResultEvent(ImageSaver.BundledImageSaveResult result) {
+        BackgroundUtils.ensureMainThread();
+
+        if (result == ImageSaver.BundledImageSaveResult.Ok) {
+            // Do nothing, we got the permissions and started downloading an album
+            return;
+        }
 
         switch (result) {
-            case Ok:
-                if (loadingViewController != null) {
-                    loadingViewController.stopPresenting();
-                }
-
-                loadingViewController = new LoadingViewController(context, false);
-                loadingViewController.enableBack();
-                navigationController.presentController(loadingViewController);
-                break;
             case BaseDirectoryDoesNotExist:
                 showToast(context, R.string.files_base_dir_does_not_exist);
+                break;
+            case NoWriteExternalStoragePermission:
+                showToast(context, R.string.could_not_start_saving_no_permissions);
                 break;
             case UnknownError:
                 showToast(context, R.string.album_download_could_not_save_one_or_more_images);
                 break;
         }
+
+        // Only hide in case of an error. If everything is fine the loading view will be hidden when
+        // onBundleDownloadCompleted() is called
+        hideLoadingView();
     }
 
     @Override
     public void onImageProcessed(int downloaded, int failed, int total) {
+        BackgroundUtils.ensureMainThread();
+
         if (loadingViewController != null) {
             String message =
                     getString(R.string.album_download_batch_image_processed_message, downloaded, total, failed);
@@ -192,13 +222,29 @@ public class AlbumDownloadController
 
     @Override
     public void onBundleDownloadCompleted() {
+        BackgroundUtils.ensureMainThread();
+        hideLoadingView();
+
+        //extra pop to get out of this controller
+        navigationController.popController();
+    }
+
+    private void hideLoadingView() {
+        BackgroundUtils.ensureMainThread();
+
         if (loadingViewController != null) {
             loadingViewController.stopPresenting();
             loadingViewController = null;
         }
+    }
 
-        //extra pop to get out of this controller
-        navigationController.popController();
+    private void showLoadingView() {
+        BackgroundUtils.ensureMainThread();
+        hideLoadingView();
+
+        loadingViewController = new LoadingViewController(context, false);
+        loadingViewController.enableBack();
+        navigationController.presentController(loadingViewController);
     }
 
     private void onCheckAllClicked(ToolbarMenuItem menuItem) {
@@ -222,6 +268,12 @@ public class AlbumDownloadController
         this.loadable = loadable;
         for (int i = 0, postImagesSize = postImages.size(); i < postImagesSize; i++) {
             PostImage postImage = postImages.get(i);
+            if (postImage.isInlined) {
+                // Do not allow downloading inlined files via the Album downloads (because they often
+                // fail with SSL exceptions) and we can't really trust those files.
+                continue;
+            }
+
             items.add(new AlbumDownloadItem(postImage, true, i));
         }
     }

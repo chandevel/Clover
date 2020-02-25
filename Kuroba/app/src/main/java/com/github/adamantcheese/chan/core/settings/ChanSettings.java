@@ -267,8 +267,8 @@ public class ChanSettings {
     public static final BooleanSetting imageViewerGestures;
     public static final BooleanSetting allowFilePickChooser;
     public static final BooleanSetting autoCrashLogsUpload;
-
     public static final BooleanSetting captchaOnBottom;
+    public static final BooleanSetting showCopyApkUpdateDialog;
 
     static {
         try {
@@ -414,6 +414,7 @@ public class ChanSettings {
             allowFilePickChooser = new BooleanSetting(p, "allow_file_picker_chooser", false);
             autoCrashLogsUpload = new BooleanSetting(p, "auto_upload_crash_logs", true);
             captchaOnBottom = new BooleanSetting(p, "captcha_on_bottom", true);
+            showCopyApkUpdateDialog = new BooleanSetting(p, "show_copy_apk_update_dialog", true);
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.
