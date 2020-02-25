@@ -388,6 +388,7 @@ public class WatchManager
 
         destroyPinWatcher(pin);
         deleteSavedThread(pin.loadable.id);
+        pin.loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
 
         threadSaveManager.cancelDownloading(pin.loadable);
 
