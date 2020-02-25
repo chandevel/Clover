@@ -740,36 +740,57 @@ public class ThreadListLayout
     }
 
     private void setRecyclerViewPadding() {
-        int defaultPadding = 0;
-        if (postViewMode == CARD) {
-            defaultPadding = dp(1);
+        int defaultPadding = postViewMode == CARD ? dp(1) : 0;
+        int recyclerTop = defaultPadding + toolbarHeight();
+        int recyclerBottom = defaultPadding;
+        //reply view padding calculations (before measure)
+        if (ChanSettings.moveInputToBottom.get()) {
+            reply.setPadding(0, 0, 0, 0);
+        } else {
+            if (!replyOpen && searchOpen) {
+                reply.setPadding(0, searchStatus.getMeasuredHeight(), 0, 0); // (2)
+            } else {
+                reply.setPadding(0, toolbarHeight(), 0, 0); // (1)
+            }
         }
 
-        int left = defaultPadding;
-        int top = defaultPadding;
-        int right = defaultPadding;
-        int bottom = defaultPadding;
-
+        //measurements
         if (replyOpen) {
             reply.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
-            if (ChanSettings.moveInputToBottom.get()) {
-                bottom += reply.getMeasuredHeight();
-                top += toolbarHeight();
-            } else {
-                top += reply.getMeasuredHeight();
-            }
-        } else if (searchOpen) {
+        }
+        if (searchOpen) {
             searchStatus.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
-            top += searchStatus.getMeasuredHeight();
-        } else {
-            top += toolbarHeight();
         }
 
-        recyclerView.setPadding(left, top, right, bottom);
+        //recycler view padding calculations
+        if (replyOpen) {
+            if (ChanSettings.moveInputToBottom.get()) {
+                recyclerBottom += reply.getMeasuredHeight();
+            } else {
+                recyclerTop += reply.getMeasuredHeight();
+                recyclerTop -= toolbarHeight(); // reply has built-in padding for the toolbar height when input at top
+            }
+        }
+        if (searchOpen) {
+            recyclerTop += searchStatus.getMeasuredHeight(); //search status has built-in padding for the toolbar height
+            recyclerTop -= toolbarHeight();
+        }
+        recyclerView.setPadding(defaultPadding, recyclerTop, defaultPadding, recyclerBottom);
+
+        //reply view padding calculations (after measure)
+        if (ChanSettings.moveInputToBottom.get()) {
+            reply.setPadding(0, 0, 0, 0);
+        } else {
+            if (replyOpen && searchOpen) {
+                reply.setPadding(0, searchStatus.getMeasuredHeight(), 0, 0); // (2)
+            } else {
+                reply.setPadding(0, toolbarHeight(), 0, 0); // (1)
+            }
+        }
     }
 
     @Override
