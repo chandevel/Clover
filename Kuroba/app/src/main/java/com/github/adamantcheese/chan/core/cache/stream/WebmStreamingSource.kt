@@ -27,8 +27,10 @@ class WebmStreamingSource(
         val fileCacheSource = WebmStreamingDataSource(uri, rawFile, fileManager)
 
         fileCacheSource.addListener { file ->
-            BackgroundUtils.ensureMainThread()
-            cacheHandler.fileWasAdded(file.length())
+            run {
+                BackgroundUtils.ensureMainThread()
+                cacheHandler.fileWasAdded(file.length())
+            }
         }
 
         if (alreadyExists
