@@ -231,7 +231,7 @@ public class Chan
         }
 
         if (ChanSettings.autoCrashLogsUpload.get()) {
-            reportManager.storeCrashLog(error);
+            reportManager.storeCrashLog(exception.getMessage(), error);
         }
     }
 
