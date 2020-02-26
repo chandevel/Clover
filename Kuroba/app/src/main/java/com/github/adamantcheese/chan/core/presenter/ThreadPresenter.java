@@ -98,6 +98,7 @@ public class ThreadPresenter
         implements ChanThreadLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback,
                    PostCellInterface.PostCellCallback, ThreadStatusCell.Callback,
                    ThreadListLayout.ThreadListLayoutPresenterCallback, ArchivesLayout.Callback {
+    //region Private Variables
     private static final String TAG = "ThreadPresenter";
 
     private static final int POST_OPTION_QUOTE = 0;
@@ -142,6 +143,7 @@ public class ThreadPresenter
 
     @Nullable
     private List<CancelableDownload> activePrefetches = null;
+    //endregion
 
     @Inject
     public ThreadPresenter(

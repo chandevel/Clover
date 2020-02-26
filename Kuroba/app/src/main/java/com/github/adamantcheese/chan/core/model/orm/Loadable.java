@@ -49,8 +49,7 @@ public class Loadable
     public transient Site site;
 
     /**
-     * Mode for the loadable.
-     * Either thread or catalog. Board is deprecated.
+     * Mode for the loadable. Either thread or catalog.
      */
     @DatabaseField
     public int mode = Mode.INVALID;
