@@ -249,7 +249,7 @@ public class ThreadLayout
 
     @Override
     public void showPosts(
-            ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts, boolean newReply
+            ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts
     ) {
         if (thread.getLoadable().isLocal()) {
             if (replyButton.getVisibility() == VISIBLE) {
@@ -263,7 +263,7 @@ public class ThreadLayout
 
         getPresenter().updateLoadable(thread.getLoadable().loadableDownloadingState);
 
-        threadListLayout.showPosts(thread, filter, visible != Visible.THREAD, refreshAfterHideOrRemovePosts, newReply);
+        threadListLayout.showPosts(thread, filter, visible != Visible.THREAD, refreshAfterHideOrRemovePosts);
 
         switchVisible(Visible.THREAD);
         callback.onShowPosts();
@@ -424,11 +424,6 @@ public class ThreadLayout
     @Override
     public void smoothScrollNewPosts(int displayPosition) {
         threadListLayout.smoothScrollNewPosts(displayPosition);
-    }
-
-    @Override
-    public void scrollToLastLocation() {
-        threadListLayout.scrollToLastLocation(presenter.getLoadable());
     }
 
     @Override

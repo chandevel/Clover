@@ -31,7 +31,6 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
-import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -276,11 +275,7 @@ public class ThreadListLayout
     }
 
     public void showPosts(
-            ChanThread thread,
-            PostsFilter filter,
-            boolean initial,
-            boolean refreshAfterHideOrRemovePosts,
-            boolean newReply
+            ChanThread thread, PostsFilter filter, boolean initial, boolean refreshAfterHideOrRemovePosts
     ) {
         showingThread = thread;
         if (initial) {
@@ -340,7 +335,7 @@ public class ThreadListLayout
             filteredPosts.removeAll(toRemove);
         }
 
-        postAdapter.setThread(thread.getLoadable(), filteredPosts, refreshAfterHideOrRemovePosts, newReply);
+        postAdapter.setThread(thread.getLoadable(), filteredPosts, refreshAfterHideOrRemovePosts);
     }
 
     public boolean onBack() {
@@ -534,29 +529,6 @@ public class ThreadListLayout
         } else {
             Logger.wtf(TAG, "Layout manager is grid inside thread??");
         }
-    }
-
-    public void scrollToLastLocation(final Loadable loadable) {
-        final int index = loadable.listViewIndex;
-        final int top = loadable.listViewTop;
-        ViewTreeObserver.OnGlobalLayoutListener layoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                Loadable checkingLoadable = threadListLayoutCallback.getLoadable();
-                if (checkingLoadable == loadable) {
-                    //just to be sure that loadables haven't changed, so we don't scroll in a different thread than the one posted in
-                    if (postViewMode == LIST) {
-                        ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(index, top);
-                    } else {
-                        throw new IllegalArgumentException(
-                                "Should only be used for scrolling to the last location in a thread");
-                    }
-                }
-            }
-        };
-        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
-        postDelayed(() -> recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener), 2000);
     }
 
     public void cleanup() {

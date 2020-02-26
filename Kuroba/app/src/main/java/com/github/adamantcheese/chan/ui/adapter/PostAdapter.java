@@ -214,11 +214,10 @@ public class PostAdapter
     }
 
     public void setThread(
-            Loadable threadLoadable, List<Post> posts, boolean refreshAfterHideOrRemovePosts, boolean newReply
+            Loadable threadLoadable, List<Post> posts, boolean refreshAfterHideOrRemovePosts
     ) {
         BackgroundUtils.ensureMainThread();
-        boolean changed = (this.loadable != null && !this.loadable.equals(threadLoadable))
-                || newReply; //changed threads or new reply, update
+        boolean changed = (this.loadable != null && !this.loadable.equals(threadLoadable)); //changed threads, update
 
         this.loadable = threadLoadable;
         showError(null);
@@ -257,11 +256,6 @@ public class PostAdapter
                 // so we need to refresh the UI
                 || refreshAfterHideOrRemovePosts) {
             notifyDataSetChanged();
-            if (ChanSettings.shiftPostFormat.get() && loadable.isThreadMode()) {
-                //sometimes the layout manager likes to just reset the scroll location with dynamic views
-                //this ensures that the thread ends up staying at the right location
-                postAdapterCallback.scrollToLastLocation();
-            }
         }
     }
 
@@ -392,7 +386,5 @@ public class PostAdapter
         Loadable getLoadable();
 
         void onUnhidePostClick(Post post);
-
-        void scrollToLastLocation();
     }
 }

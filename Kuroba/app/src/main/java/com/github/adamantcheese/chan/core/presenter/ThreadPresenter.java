@@ -458,10 +458,7 @@ public class ThreadPresenter
     public boolean isPinned() {
         if (!isBound()) return false;
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null) {
-            return false;
-        }
-
+        if (pin == null) return false;
         return PinType.hasWatchNewPostsFlag(pin.pinType);
     }
 
@@ -606,7 +603,7 @@ public class ThreadPresenter
             }
         }
 
-        if (isBound() && loadable.markedNo >= 0) {
+        if (loadable.markedNo >= 0) {
             Post markedPost = PostUtils.findPostById(loadable.markedNo, chanLoader.getThread());
             if (markedPost != null) {
                 highlightPost(markedPost);
@@ -648,35 +645,21 @@ public class ThreadPresenter
     }
 
     private void storeNewPostsIfThreadIsBeingDownloaded(List<Post> posts) {
-        if (loadable.mode != Loadable.Mode.THREAD) {
-            // We are not in a thread
-            return;
-        }
-
-        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
-            // Do not save posts from already saved thread
+        if (posts.isEmpty() || loadable.isCatalogMode()
+                || loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
             return;
         }
 
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null) {
+        if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
             // No pin for this loadable we are probably not downloading this thread
-            return;
-        }
-
-        if (!PinType.hasDownloadFlag(pin.pinType)) {
-            // Pin has no downloading flag
+            // or no downloading flag
             return;
         }
 
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
         if (savedThread == null || savedThread.isStopped || savedThread.isFullyDownloaded) {
             // Either the thread is not being downloaded or it is stopped or already fully downloaded
-            return;
-        }
-
-        if (posts.isEmpty()) {
-            // No posts to save
             return;
         }
 
@@ -1054,15 +1037,14 @@ public class ThreadPresenter
 
     @Override
     public void onPostLinkableClicked(Post post, PostLinkable linkable) {
-        if (!isBound()) return;
-        if (linkable.type == PostLinkable.Type.QUOTE) {
+        if (linkable.type == PostLinkable.Type.QUOTE && isBound()) {
             Post linked = PostUtils.findPostById((int) linkable.value, chanLoader.getThread());
             if (linked != null) {
                 threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
             }
         } else if (linkable.type == PostLinkable.Type.LINK) {
             threadPresenterCallback.openLink((String) linkable.value);
-        } else if (linkable.type == PostLinkable.Type.THREAD) {
+        } else if (linkable.type == PostLinkable.Type.THREAD && isBound()) {
             CommentParser.ThreadLink link = (CommentParser.ThreadLink) linkable.value;
 
             Board board = loadable.site.board(link.board);
@@ -1073,7 +1055,7 @@ public class ThreadPresenter
 
                 threadPresenterCallback.showThread(thread);
             }
-        } else if (linkable.type == PostLinkable.Type.BOARD) {
+        } else if (linkable.type == PostLinkable.Type.BOARD && isBound()) {
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, (String) linkable.value));
             if (board == null) {
@@ -1082,7 +1064,7 @@ public class ThreadPresenter
                 Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
                 threadPresenterCallback.showBoard(catalog);
             }
-        } else if (linkable.type == PostLinkable.Type.SEARCH) {
+        } else if (linkable.type == PostLinkable.Type.SEARCH && isBound()) {
             CommentParser.SearchLink search = (CommentParser.SearchLink) linkable.value;
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, search.board));
@@ -1160,7 +1142,9 @@ public class ThreadPresenter
 
     @Override
     public void onListStatusClicked() {
-        if (getChanThread() != null && !getChanThread().isArchived()) {
+        if (!isBound()) return;
+        //noinspection ConstantConditions
+        if (!chanLoader.getThread().isArchived()) {
             chanLoader.requestMoreDataAndResetTimer();
         } else {
             @SuppressLint("InflateParams")
@@ -1197,11 +1181,6 @@ public class ThreadPresenter
     @Override
     public void onUnhidePostClick(Post post) {
         threadPresenterCallback.unhideOrUnremovePost(post);
-    }
-
-    @Override
-    public void scrollToLastLocation() {
-        threadPresenterCallback.scrollToLastLocation();
     }
 
     public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
@@ -1309,8 +1288,7 @@ public class ThreadPresenter
         if (chanLoader != null && chanLoader.getThread() != null) {
             threadPresenterCallback.showPosts(chanLoader.getThread(),
                     new PostsFilter(order, searchQuery),
-                    refreshAfterHideOrRemovePosts,
-                    forcePageUpdate
+                    refreshAfterHideOrRemovePosts
             );
         }
     }
@@ -1403,7 +1381,7 @@ public class ThreadPresenter
     }
 
     public interface ThreadPresenterCallback {
-        void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts, boolean newReply);
+        void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts);
 
         void postClicked(Post post);
 
@@ -1444,8 +1422,6 @@ public class ThreadPresenter
         void scrollTo(int displayPosition, boolean smooth);
 
         void smoothScrollNewPosts(int displayPosition);
-
-        void scrollToLastLocation();
 
         void highlightPost(Post post);
 
