@@ -124,15 +124,17 @@ public class ImagePickDelegate {
             intents.add(newIntent);
         }
 
-        if (intents.size() == 1 || !ChanSettings.allowFilePickChooser.get()) {
-            activity.startActivityForResult(intents.get(0), IMAGE_PICK_RESULT);
-        } else if (intents.size() > 1) {
-            Intent chooser = Intent.createChooser(intents.remove(intents.size() - 1),
-                    getString(R.string.image_pick_delegate_select_file_picker)
-            );
+        if (!intents.isEmpty()) {
+            if (intents.size() == 1 || !ChanSettings.allowFilePickChooser.get()) {
+                activity.startActivityForResult(intents.get(0), IMAGE_PICK_RESULT);
+            } else {
+                Intent chooser = Intent.createChooser(intents.remove(intents.size() - 1),
+                        getString(R.string.image_pick_delegate_select_file_picker)
+                );
 
-            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new Intent[0]));
-            activity.startActivityForResult(chooser, IMAGE_PICK_RESULT);
+                chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new Intent[0]));
+                activity.startActivityForResult(chooser, IMAGE_PICK_RESULT);
+            }
         } else {
             showToast(activity, R.string.open_file_picker_failed, Toast.LENGTH_LONG);
             callback.onFilePickError(false);
