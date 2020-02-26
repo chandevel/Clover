@@ -55,7 +55,7 @@ public class Loadable
     public int mode = Mode.INVALID;
 
     @DatabaseField(columnName = "board", canBeNull = false, index = true)
-    public String boardCode;
+    public String boardCode = "";
 
     public Board board;
 
@@ -225,7 +225,7 @@ public class Loadable
         int result = mode;
 
         if (mode == Mode.THREAD || mode == Mode.CATALOG) {
-            result = 31 * result + (boardCode != null ? boardCode.hashCode() : 0);
+            result = 31 * result + boardCode.hashCode();
         }
         if (mode == Mode.THREAD) {
             result = 31 * result + no;

@@ -397,7 +397,7 @@ public class BrowseController
     @Override
     public void loadBoard(Loadable loadable) {
         loadable.title = BoardHelper.getName(loadable.board);
-        navigation.title = "/" + loadable.board.code + "/";
+        navigation.title = "/" + loadable.boardCode + "/";
         navigation.subtitle = loadable.board.name;
 
         ThreadPresenter presenter = threadLayout.getPresenter();

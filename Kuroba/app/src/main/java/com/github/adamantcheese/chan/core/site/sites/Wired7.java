@@ -138,7 +138,7 @@ public class Wired7
 
         @Override
         public void setupPost(Reply reply, MultipartHttpCall call) {
-            call.parameter("board", reply.loadable.board.code);
+            call.parameter("board", reply.loadable.boardCode);
 
             if (reply.loadable.isThreadMode()) {
                 call.parameter("thread", String.valueOf(reply.loadable.no));

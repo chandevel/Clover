@@ -665,7 +665,7 @@ public class ReplyLayout
                 //setup specific items in a submenu
                 SubMenu otherMods = menu.addSubMenu("Modify");
                 // g [code]
-                if (is4chan && threadLoadable.board.code.equals("g")) {
+                if (is4chan && threadLoadable.boardCode.equals("g")) {
                     codeMenuItem = otherMods.add(Menu.NONE,
                             R.id.reply_selection_action_code,
                             1,
@@ -673,7 +673,7 @@ public class ReplyLayout
                     );
                 }
                 // sci [eqn] and [math]
-                if (is4chan && threadLoadable.board.code.equals("sci")) {
+                if (is4chan && threadLoadable.boardCode.equals("sci")) {
                     eqnMenuItem = otherMods.add(Menu.NONE,
                             R.id.reply_selection_action_eqn,
                             2,
@@ -686,7 +686,7 @@ public class ReplyLayout
                     );
                 }
                 // jp and vip [sjis]
-                if (is4chan && (threadLoadable.board.code.equals("jp") || threadLoadable.board.code.equals("vip"))) {
+                if (is4chan && (threadLoadable.boardCode.equals("jp") || threadLoadable.boardCode.equals("vip"))) {
                     eqnMenuItem = otherMods.add(Menu.NONE,
                             R.id.reply_selection_action_sjis,
                             4,

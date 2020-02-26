@@ -581,7 +581,7 @@ public class ThreadLayout
         List<PostHide> postsToRestore = new ArrayList<>();
 
         for (Integer postNo : selectedPosts) {
-            postsToRestore.add(PostHide.unhidePost(threadLoadable.site.id(), threadLoadable.board.code, postNo));
+            postsToRestore.add(PostHide.unhidePost(threadLoadable.site.id(), threadLoadable.boardCode, postNo));
         }
 
         databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostsHide(postsToRestore));

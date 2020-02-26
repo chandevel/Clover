@@ -321,7 +321,7 @@ public class ThreadListLayout
          * BUT if for some reason it starts to cause ANRs then we will have to apply the callback solution.
          */
         List<Post> filteredPosts =
-                filter.apply(thread.getPosts(), thread.getLoadable().siteId, thread.getLoadable().board.code);
+                filter.apply(thread.getPosts(), thread.getLoadable().siteId, thread.getLoadable().boardCode);
 
         //Filter out any bookmarked threads from the catalog
         if (ChanSettings.removeWatchedFromCatalog.get() && thread.getLoadable().isCatalogMode()) {
