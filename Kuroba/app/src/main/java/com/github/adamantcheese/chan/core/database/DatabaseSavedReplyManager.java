@@ -157,7 +157,10 @@ public class DatabaseSavedReplyManager {
             QueryBuilder<SavedReply, Integer> builder = helper.savedDao.queryBuilder();
             List<SavedReply> query =
                     builder.where().eq("site", board.siteId).and().eq("board", board.code).and().eq("no", no).query();
-            return query.isEmpty() ? null : query.get(0);
+            if (query.isEmpty()) return null;
+            SavedReply savedReply = query.get(0);
+            savedReply.site = instance(SiteRepository.class).forId(savedReply.siteId);
+            return savedReply;
         };
     }
 
