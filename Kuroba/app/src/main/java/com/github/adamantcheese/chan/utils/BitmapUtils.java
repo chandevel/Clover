@@ -213,14 +213,13 @@ public class BitmapUtils {
             CompressFormat imageFormat = getImageFormat(file);
             return imageFormat == JPEG || imageFormat == PNG;
         } catch (IOException e) {
-            // ignore
             return false;
         }
     }
 
-    public static CompressFormat getImageFormat(@NonNull File file)
+    public static CompressFormat getImageFormat(File file)
             throws IOException {
-        if (file == null) throw new IOException("File is null!");
+        if (file == null) return null;
         if (!file.exists() || !file.isFile() || !file.canRead()) {
             throw new IOException(
                     "File " + file.getAbsolutePath() + " is inaccessible (exists = " + file.exists() + ", isFile = "
@@ -277,7 +276,7 @@ public class BitmapUtils {
      */
     public static Pair<Integer, Integer> getImageDims(File file)
             throws IOException {
-        if (file == null) throw new IOException();
+        if (file == null) return new Pair<>(-1, -1);
         Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
         return new Pair<>(bitmap.getWidth(), bitmap.getHeight());
     }
