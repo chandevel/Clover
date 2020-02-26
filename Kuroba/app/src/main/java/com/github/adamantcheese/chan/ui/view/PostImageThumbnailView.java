@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -31,7 +30,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class PostImageThumbnailView
@@ -149,8 +148,7 @@ public class PostImageThumbnailView
             return false;
         }
 
-        ClipData clip = ClipData.newPlainText("Image URL", postImage.imageUrl.toString());
-        getClipboardManager().setPrimaryClip(clip);
+        setClipboardContent("Image URL", postImage.imageUrl.toString());
         showToast(getContext(), R.string.image_url_copied_to_clipboard);
 
         return true;

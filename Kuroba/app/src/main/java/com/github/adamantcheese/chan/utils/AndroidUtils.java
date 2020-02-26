@@ -23,6 +23,7 @@ import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.job.JobScheduler;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -143,7 +144,7 @@ public class AndroidUtils {
      * @param link url to open
      */
     public static void openLink(String link) {
-        if(TextUtils.isEmpty(link)) {
+        if (TextUtils.isEmpty(link)) {
             showToast(application, R.string.open_link_failed, Toast.LENGTH_LONG);
             return;
         }
@@ -183,7 +184,7 @@ public class AndroidUtils {
     }
 
     public static void openLinkInBrowser(Context context, String link) {
-        if(TextUtils.isEmpty(link)) {
+        if (TextUtils.isEmpty(link)) {
             showToast(context, R.string.open_link_failed);
             return;
         }
@@ -487,6 +488,19 @@ public class AndroidUtils {
 
     public static ClipboardManager getClipboardManager() {
         return (ClipboardManager) application.getSystemService(CLIPBOARD_SERVICE);
+    }
+
+    public static String getClipboardContent() {
+        ClipData primary = getClipboardManager().getPrimaryClip();
+        if (primary != null) {
+            return primary.getItemAt(0).getText().toString();
+        } else {
+            return "";
+        }
+    }
+
+    public static void setClipboardContent(String label, String content) {
+        getClipboardManager().setPrimaryClip(ClipData.newPlainText(label, content));
     }
 
     public static NotificationManager getNotificationManager() {

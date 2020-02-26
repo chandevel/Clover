@@ -57,7 +57,7 @@ import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -148,7 +148,7 @@ public class ImagePickDelegate {
         HttpUrl clipboardURL;
         try {
             //this is converted to a string again later, but this is an easy way of catching if the clipboard item is a URL
-            clipboardURL = HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
+            clipboardURL = HttpUrl.get(getClipboardContent());
         } catch (Exception exception) {
             toast.showToast(getString(R.string.image_url_get_failed, exception.getMessage()));
             callback.onFilePickError(true);
