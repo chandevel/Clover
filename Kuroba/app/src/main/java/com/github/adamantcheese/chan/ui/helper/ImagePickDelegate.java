@@ -204,8 +204,7 @@ public class ImagePickDelegate {
             Cursor returnCursor = activity.getContentResolver().query(uri, null, null, null, null);
             if (returnCursor != null) {
                 int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                returnCursor.moveToFirst();
-                if (nameIndex > -1) {
+                if (nameIndex > -1 && returnCursor.moveToFirst()) {
                     fileName = returnCursor.getString(nameIndex);
                 }
 
