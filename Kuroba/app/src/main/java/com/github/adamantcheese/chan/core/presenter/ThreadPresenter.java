@@ -28,6 +28,7 @@ import androidx.core.util.Pair;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
@@ -609,6 +610,10 @@ public class ThreadPresenter
                 highlightPost(markedPost);
                 if (BackgroundUtils.isInForeground()) {
                     scrollToPost(markedPost, false);
+                }
+                if (StartActivity.loadedFromURL) {
+                    BackgroundUtils.runOnMainThread(() -> scrollToPost(markedPost, false), 1000);
+                    StartActivity.loadedFromURL = false;
                 }
             }
             loadable.markedNo = -1;

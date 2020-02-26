@@ -106,6 +106,8 @@ public class StartActivity
     private boolean intentMismatchWorkaroundActive = false;
     private boolean exitFlag = false;
 
+    public static boolean loadedFromURL = false;
+
     @Inject
     DatabaseManager databaseManager;
     @Inject
@@ -195,6 +197,7 @@ public class StartActivity
 
             if (loadableResult != null) {
                 handled = true;
+                loadedFromURL = true;
 
                 Loadable loadable = loadableResult.loadable;
                 browseController.setBoard(loadable.board);
