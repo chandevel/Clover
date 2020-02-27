@@ -89,7 +89,15 @@ public class Loadable
      * Tells us whether this loadable (when in THREAD mode) contains information about
      * a live thread or the local saved copy of a thread (which may be already deleted from the server)
      */
-    public transient LoadableDownloadingState loadableDownloadingState = LoadableDownloadingState.NotDownloading;
+    private transient LoadableDownloadingState loadableDownloadingState = LoadableDownloadingState.NotDownloading;
+
+    public synchronized void setLoadableState(LoadableDownloadingState state) {
+        this.loadableDownloadingState = state;
+    }
+
+    public synchronized LoadableDownloadingState getLoadableDownloadingState() {
+        return loadableDownloadingState;
+    }
 
     /**
      * Constructs an empty loadable. The mode is INVALID.

@@ -215,7 +215,7 @@ public class ViewThreadController
     }
 
     private void saveClicked(ToolbarMenuItem item) {
-        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+        if (loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
             // Too many problems with this thing, just disable it while viewing downloading thread
             return;
         }
@@ -339,15 +339,15 @@ public class ViewThreadController
      * Replaces the current live thread with the local thread
      */
     private void handleClickViewLocalVersion(ToolbarMenuSubItem item) {
-        if (loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
+        if (loadable.getLoadableDownloadingState() != Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
             populateLocalOrLiveVersionMenu();
             return;
         }
 
-        loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndViewable;
+        loadable.setLoadableState(Loadable.LoadableDownloadingState.DownloadingAndViewable);
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
-            pin.loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndViewable;
+            pin.loadable.setLoadableState(Loadable.LoadableDownloadingState.DownloadingAndViewable);
             watchManager.updatePin(pin);
         }
 
@@ -358,15 +358,15 @@ public class ViewThreadController
      * Replaces the current local thread with the live thread
      */
     private void handleClickViewLiveVersion(ToolbarMenuSubItem item) {
-        if (loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+        if (loadable.getLoadableDownloadingState() != Loadable.LoadableDownloadingState.DownloadingAndViewable) {
             populateLocalOrLiveVersionMenu();
             return;
         }
 
-        loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+        loadable.setLoadableState(Loadable.LoadableDownloadingState.DownloadingAndNotViewable);
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
-            pin.loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+            pin.loadable.setLoadableState(Loadable.LoadableDownloadingState.DownloadingAndNotViewable);
             watchManager.updatePin(pin);
         }
 
@@ -570,8 +570,8 @@ public class ViewThreadController
 
             SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
             if (savedThread == null || savedThread.isFullyDownloaded
-                    || loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded
-                    || loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.NotDownloading) {
+                    || loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded
+                    || loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.NotDownloading) {
                 // No saved thread.
                 // Saved thread fully downloaded.
                 // Not downloading thread currently.
@@ -581,10 +581,10 @@ public class ViewThreadController
                 return;
             }
 
-            if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
+            if (loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
                 navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = true;
                 navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
-            } else if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+            } else if (loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
                 navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
                 navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = true;
             }

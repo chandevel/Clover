@@ -256,7 +256,7 @@ public class ThreadPresenter
 
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
         if (savedThread == null // We are not downloading this thread
-                || loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded
+                || loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded
                 // We are viewing already saved copy of the thread
                 || savedThread.isFullyDownloaded || savedThread.isStopped) {
             return;
@@ -282,7 +282,7 @@ public class ThreadPresenter
         }
 
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
-        if (loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded
+        if (loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded
                 || savedThread == null || savedThread.isFullyDownloaded || !savedThread.isStopped) {
             // We are viewing already saved copy of the thread
             // We are not downloading this thread
@@ -315,6 +315,8 @@ public class ThreadPresenter
     }
 
     public void requestData() {
+        BackgroundUtils.ensureMainThread();
+
         if (isBound()) {
             threadPresenterCallback.showLoading();
             chanLoader.requestData();
@@ -389,7 +391,7 @@ public class ThreadPresenter
             watchManager.updatePin(pin);
         }
 
-        loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
+        loadable.setLoadableState(Loadable.LoadableDownloadingState.NotDownloading);
         return true;
     }
 
@@ -540,8 +542,8 @@ public class ThreadPresenter
             return;
         }
 
-        loadable.loadableDownloadingState = result.getLoadable().loadableDownloadingState;
-        Logger.d(TAG, "onChanLoaderData() loadableDownloadingState = " + loadable.loadableDownloadingState.name());
+        loadable.setLoadableState(result.getLoadable().getLoadableDownloadingState());
+        Logger.d(TAG, "onChanLoaderData() loadableDownloadingState = " + loadable.getLoadableDownloadingState().name());
 
         //allow for search refreshes inside the catalog
         if (result.getLoadable().isCatalogMode() && !TextUtils.isEmpty(searchQuery)) {
@@ -626,7 +628,7 @@ public class ThreadPresenter
         databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
 
         if (!ChanSettings.watchEnabled.get() && !ChanSettings.watchBackground.get()
-                && loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+                && loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
             Logger.d(TAG,
                     "Background watcher is disabled, so we need to update "
                             + "ViewThreadController's downloading icon as well as the pin in the DrawerAdapter"
@@ -651,7 +653,7 @@ public class ThreadPresenter
 
     private void storeNewPostsIfThreadIsBeingDownloaded(List<Post> posts) {
         if (posts.isEmpty() || loadable.isCatalogMode()
-                || loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+                || loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
             return;
         }
 
@@ -1365,7 +1367,7 @@ public class ThreadPresenter
 
     public void updateLoadable(Loadable.LoadableDownloadingState loadableDownloadingState) {
         if (isBound()) {
-            loadable.loadableDownloadingState = loadableDownloadingState;
+            loadable.setLoadableState(loadableDownloadingState);
         }
     }
 

@@ -261,8 +261,7 @@ public class ThreadLayout
             }
         }
 
-        getPresenter().updateLoadable(thread.getLoadable().loadableDownloadingState);
-
+        getPresenter().updateLoadable(thread.getLoadable().getLoadableDownloadingState());
         threadListLayout.showPosts(thread, filter, visible != Visible.THREAD, refreshAfterHideOrRemovePosts);
 
         switchVisible(Visible.THREAD);
