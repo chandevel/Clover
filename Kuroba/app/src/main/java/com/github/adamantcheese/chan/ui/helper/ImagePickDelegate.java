@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.helper;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -201,10 +202,7 @@ public class ImagePickDelegate {
         boolean canceled = false;
 
         if (resultCode == Activity.RESULT_OK && data != null) {
-            uri = data.getData();
-            if (uri != null) {
-                uri = data.getClipData().getItemAt(0).getUri();
-            }
+            uri = getUriOrNull(data);
             if (uri != null) {
                 Cursor returnCursor = activity.getContentResolver().query(uri, null, null, null, null);
                 if (returnCursor != null) {
@@ -236,6 +234,24 @@ public class ImagePickDelegate {
         }
 
         return true;
+    }
+
+    @Nullable
+    private Uri getUriOrNull(Intent intent) {
+        if (intent.getData() != null) {
+            return intent.getData();
+        }
+
+        ClipData clipData = intent.getClipData();
+        if (clipData == null) {
+            return null;
+        }
+
+        if (clipData.getItemCount() == 0) {
+            return null;
+        }
+
+        return clipData.getItemAt(0).getUri();
     }
 
     private void run() {
