@@ -148,6 +148,10 @@ public class ImageViewerPresenter
         callback.setTitle(postImage, selectedPosition, images.size(), postImage.spoiler);
     }
 
+    public boolean isTransitioning() {
+        return entering;
+    }
+
     public void onInTransitionEnd() {
         entering = false;
         // Depends on what onModeLoaded did
@@ -383,7 +387,7 @@ public class ImageViewerPresenter
             load = videoAutoLoad(loadable, postImage);
         }
 
-        /**
+        /*
          * If the file is a webm file and webm streaming is turned on we don't want to download the
          * webm chunked because it will most likely corrupt the file since we will forcefully stop
          * it.
