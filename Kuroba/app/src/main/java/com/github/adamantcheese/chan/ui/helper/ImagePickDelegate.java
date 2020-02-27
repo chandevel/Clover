@@ -202,26 +202,30 @@ public class ImagePickDelegate {
 
         if (resultCode == Activity.RESULT_OK && data != null) {
             uri = data.getData();
+            if (uri != null) {
+                uri = data.getClipData().getItemAt(0).getUri();
+            }
+            if (uri != null) {
+                Cursor returnCursor = activity.getContentResolver().query(uri, null, null, null, null);
+                if (returnCursor != null) {
+                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex > -1 && returnCursor.moveToFirst()) {
+                        fileName = returnCursor.getString(nameIndex);
+                    }
 
-            Cursor returnCursor = activity.getContentResolver().query(uri, null, null, null, null);
-            if (returnCursor != null) {
-                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                if (nameIndex > -1 && returnCursor.moveToFirst()) {
-                    fileName = returnCursor.getString(nameIndex);
+                    returnCursor.close();
                 }
 
-                returnCursor.close();
-            }
+                if (fileName == null) {
+                    // As per the comment on OpenableColumns.DISPLAY_NAME:
+                    // If this is not provided then the name should default to the last segment of the file's URI.
+                    fileName = uri.getLastPathSegment();
+                    fileName = fileName == null ? DEFAULT_FILE_NAME : fileName;
+                }
 
-            if (fileName == null) {
-                // As per the comment on OpenableColumns.DISPLAY_NAME:
-                // If this is not provided then the name should default to the last segment of the file's URI.
-                fileName = uri.getLastPathSegment();
-                fileName = fileName == null ? DEFAULT_FILE_NAME : fileName;
+                executor.execute(this::run);
+                ok = true;
             }
-
-            executor.execute(this::run);
-            ok = true;
         } else if (resultCode == Activity.RESULT_CANCELED) {
             canceled = true;
         }
