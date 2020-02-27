@@ -90,6 +90,10 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.setTitle(postImage, selectedPosition, images.size(), postImage.spoiler);
     }
 
+    public boolean isTransitioning() {
+        return entering;
+    }
+
     public void onInTransitionEnd() {
         entering = false;
         // Depends on what onModeLoaded did

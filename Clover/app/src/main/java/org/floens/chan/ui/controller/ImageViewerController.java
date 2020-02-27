@@ -253,6 +253,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Override
     public boolean onBack() {
+        if (presenter.isTransitioning()) return false;
         presenter.onExit();
         return true;
     }
