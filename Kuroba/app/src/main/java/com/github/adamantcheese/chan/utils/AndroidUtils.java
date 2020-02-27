@@ -37,6 +37,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -67,6 +68,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.Context.AUDIO_SERVICE;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
@@ -509,6 +511,10 @@ public class AndroidUtils {
 
     public static JobScheduler getJobScheduler() {
         return (JobScheduler) application.getSystemService(JOB_SCHEDULER_SERVICE);
+    }
+
+    public static AudioManager getAudioManager() {
+        return (AudioManager) getAppContext().getSystemService(AUDIO_SERVICE);
     }
 
     public static View inflate(Context context, int resId, ViewGroup root) {

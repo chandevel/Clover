@@ -71,6 +71,15 @@ public class ImageViewerAdapter
         return images.size();
     }
 
+    public MultiImageView find(PostImage postImage) {
+        for (MultiImageView view : loadedViews) {
+            if (view.getPostImage() == postImage) {
+                return view;
+            }
+        }
+        return null;
+    }
+
     @Override
     public void finishUpdate(ViewGroup container) {
         for (ModeChange change : pendingModeChanges) {
@@ -96,7 +105,9 @@ public class ImageViewerAdapter
     public void setVolume(PostImage postImage, boolean muted) {
         // It must be loaded, or the user is not able to click the menu item.
         MultiImageView view = find(postImage);
-        view.setVolume(muted);
+        if (view != null) {
+            view.setVolume(muted);
+        }
     }
 
     public MultiImageView.Mode getMode(PostImage postImage) {
@@ -109,23 +120,18 @@ public class ImageViewerAdapter
         }
     }
 
-    public MultiImageView find(PostImage postImage) {
-        for (MultiImageView view : loadedViews) {
-            if (view.getPostImage() == postImage) {
-                return view;
-            }
-        }
-        return null;
-    }
-
     public void toggleTransparency(PostImage postImage) {
         MultiImageView view = find(postImage);
-        view.toggleTransparency();
+        if (view != null) {
+            view.toggleTransparency();
+        }
     }
 
     public void rotateImage(PostImage postImage, int degrees) {
         MultiImageView view = find(postImage);
-        view.rotateImage(degrees);
+        if (view != null) {
+            view.rotateImage(degrees);
+        }
     }
 
     public void onImageSaved(PostImage postImage) {
