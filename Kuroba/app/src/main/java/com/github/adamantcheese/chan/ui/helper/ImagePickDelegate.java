@@ -238,20 +238,14 @@ public class ImagePickDelegate {
 
     @Nullable
     private Uri getUriOrNull(Intent intent) {
-        if (intent.getData() != null) {
-            return intent.getData();
-        }
+        if (intent.getData() != null) return intent.getData();
 
         ClipData clipData = intent.getClipData();
-        if (clipData == null) {
-            return null;
+        if (clipData != null && clipData.getItemCount() > 0) {
+            return clipData.getItemAt(0).getUri();
         }
 
-        if (clipData.getItemCount() == 0) {
-            return null;
-        }
-
-        return clipData.getItemAt(0).getUri();
+        return null;
     }
 
     private void run() {
