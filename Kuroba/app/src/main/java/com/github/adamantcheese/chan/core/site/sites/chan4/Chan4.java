@@ -106,18 +106,18 @@ public class Chan4
         public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
                 if (postNo > 0) {
-                    return "https://boards.4chan.org/" + loadable.board.code + "/thread/" + postNo;
+                    return "https://boards.4chan.org/" + loadable.boardCode + "/thread/" + postNo;
                 } else {
-                    return "https://boards.4chan.org/" + loadable.board.code + "/";
+                    return "https://boards.4chan.org/" + loadable.boardCode + "/";
                 }
             } else if (loadable.isThreadMode()) {
-                String url = "https://boards.4chan.org/" + loadable.board.code + "/thread/" + loadable.no;
+                String url = "https://boards.4chan.org/" + loadable.boardCode + "/thread/" + loadable.no;
                 if (postNo > 0 && loadable.no != postNo) {
                     url += "#p" + postNo;
                 }
                 return url;
             } else {
-                return "https://boards.4chan.org/" + loadable.board.code + "/";
+                return "https://boards.4chan.org/" + loadable.boardCode + "/";
             }
         }
 
@@ -256,7 +256,7 @@ public class Chan4
 
         @Override
         public HttpUrl reply(Loadable loadable) {
-            return sys.newBuilder().addPathSegment(loadable.board.code).addPathSegment("post").build();
+            return sys.newBuilder().addPathSegment(loadable.boardCode).addPathSegment("post").build();
         }
 
         @Override

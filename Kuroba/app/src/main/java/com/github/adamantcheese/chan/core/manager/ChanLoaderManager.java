@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.HashMap;
@@ -43,6 +44,8 @@ public class ChanLoaderManager {
     public ChanThreadLoader obtain(
             @NonNull Loadable loadable, WatchManager watchManager, ChanThreadLoader.ChanLoaderCallback listener
     ) {
+        BackgroundUtils.ensureMainThread();
+
         ChanThreadLoader chanLoader;
         if (loadable.isThreadMode()) {
             if (!loadable.isFromDatabase()) {
@@ -72,6 +75,8 @@ public class ChanLoaderManager {
     }
 
     public void release(ChanThreadLoader chanLoader, ChanThreadLoader.ChanLoaderCallback listener) {
+        BackgroundUtils.ensureMainThread();
+
         Loadable loadable = chanLoader.getLoadable();
         if (loadable.isThreadMode()) {
             ChanThreadLoader foundChanLoader = threadLoaders.get(loadable);

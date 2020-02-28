@@ -236,7 +236,6 @@ public class WebmStreamingDataSource
     private long fileLength = C.LENGTH_UNSET;
 
     private boolean prepared = false;
-    private boolean opened = false;
 
     public WebmStreamingDataSource(@Nullable Uri uri, RawFile file, FileManager fileManager) {
         super(/* isNetwork= */ true);
@@ -345,11 +344,11 @@ public class WebmStreamingDataSource
             throws IOException {
         if (readLength == 0) {
             return 0;
-        } else if (bytesRemaining() == 0) {
+        } else if (bytesRemaining() == 0 || dataSource == null) {
             return C.RESULT_END_OF_INPUT;
         }
 
-        int readBytes = 0;
+        int readBytes;
         int maxReadableBytes = (int) Math.min(bytesRemaining(), readLength);
 
         Range<Long> cachedRange = activeRegionStats.findCachedRange(pos);
@@ -391,14 +390,18 @@ public class WebmStreamingDataSource
             for (Callback c : listeners) {
                 c.dataSourceAddedFile(innerFile);
             }
-        });
 
-        listeners.clear();
-        partialFileCache.clearListeners();
+            clearListeners();
+        });
     }
 
     public void addListener(Callback c) {
-        listeners.add(c);
+        if (c != null) listeners.add(c);
+    }
+
+    public void clearListeners() {
+        listeners.clear();
+        partialFileCache.clearListeners();
     }
 
     @Nullable
@@ -411,15 +414,11 @@ public class WebmStreamingDataSource
     public void close()
             throws IOException {
         Logger.i(TAG, "close");
-        try {
-            if (dataSource != null) {
-                dataSource.close();
-            }
-        } finally {
-            if (opened) {
-                opened = false;
-                transferEnded();
-            }
+        clearListeners();
+        if (dataSource != null) {
+            dataSource.close();
+            transferEnded();
+            dataSource = null;
         }
     }
 

@@ -31,7 +31,6 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
-import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -276,11 +275,7 @@ public class ThreadListLayout
     }
 
     public void showPosts(
-            ChanThread thread,
-            PostsFilter filter,
-            boolean initial,
-            boolean refreshAfterHideOrRemovePosts,
-            boolean newReply
+            ChanThread thread, PostsFilter filter, boolean initial, boolean refreshAfterHideOrRemovePosts
     ) {
         showingThread = thread;
         if (initial) {
@@ -321,7 +316,7 @@ public class ThreadListLayout
          * BUT if for some reason it starts to cause ANRs then we will have to apply the callback solution.
          */
         List<Post> filteredPosts =
-                filter.apply(thread.getPosts(), thread.getLoadable().siteId, thread.getLoadable().board.code);
+                filter.apply(thread.getPosts(), thread.getLoadable().siteId, thread.getLoadable().boardCode);
 
         //Filter out any bookmarked threads from the catalog
         if (ChanSettings.removeWatchedFromCatalog.get() && thread.getLoadable().isCatalogMode()) {
@@ -340,7 +335,7 @@ public class ThreadListLayout
             filteredPosts.removeAll(toRemove);
         }
 
-        postAdapter.setThread(thread.getLoadable(), filteredPosts, refreshAfterHideOrRemovePosts, newReply);
+        postAdapter.setThread(thread.getLoadable(), filteredPosts, refreshAfterHideOrRemovePosts);
     }
 
     public boolean onBack() {
@@ -536,29 +531,6 @@ public class ThreadListLayout
         }
     }
 
-    public void scrollToLastLocation(final Loadable loadable) {
-        final int index = loadable.listViewIndex;
-        final int top = loadable.listViewTop;
-        ViewTreeObserver.OnGlobalLayoutListener layoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                Loadable checkingLoadable = threadListLayoutCallback.getLoadable();
-                if (checkingLoadable == loadable) {
-                    //just to be sure that loadables haven't changed, so we don't scroll in a different thread than the one posted in
-                    if (postViewMode == LIST) {
-                        ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(index, top);
-                    } else {
-                        throw new IllegalArgumentException(
-                                "Should only be used for scrolling to the last location in a thread");
-                    }
-                }
-            }
-        };
-        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
-        postDelayed(() -> recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener), 2000);
-    }
-
     public void cleanup() {
         postAdapter.cleanup();
         reply.cleanup();
@@ -740,36 +712,57 @@ public class ThreadListLayout
     }
 
     private void setRecyclerViewPadding() {
-        int defaultPadding = 0;
-        if (postViewMode == CARD) {
-            defaultPadding = dp(1);
+        int defaultPadding = postViewMode == CARD ? dp(1) : 0;
+        int recyclerTop = defaultPadding + toolbarHeight();
+        int recyclerBottom = defaultPadding;
+        //reply view padding calculations (before measure)
+        if (ChanSettings.moveInputToBottom.get()) {
+            reply.setPadding(0, 0, 0, 0);
+        } else {
+            if (!replyOpen && searchOpen) {
+                reply.setPadding(0, searchStatus.getMeasuredHeight(), 0, 0); // (2)
+            } else {
+                reply.setPadding(0, toolbarHeight(), 0, 0); // (1)
+            }
         }
 
-        int left = defaultPadding;
-        int top = defaultPadding;
-        int right = defaultPadding;
-        int bottom = defaultPadding;
-
+        //measurements
         if (replyOpen) {
             reply.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
-            if (ChanSettings.moveInputToBottom.get()) {
-                bottom += reply.getMeasuredHeight();
-                top += toolbarHeight();
-            } else {
-                top += reply.getMeasuredHeight();
-            }
-        } else if (searchOpen) {
+        }
+        if (searchOpen) {
             searchStatus.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
             );
-            top += searchStatus.getMeasuredHeight();
-        } else {
-            top += toolbarHeight();
         }
 
-        recyclerView.setPadding(left, top, right, bottom);
+        //recycler view padding calculations
+        if (replyOpen) {
+            if (ChanSettings.moveInputToBottom.get()) {
+                recyclerBottom += reply.getMeasuredHeight();
+            } else {
+                recyclerTop += reply.getMeasuredHeight();
+                recyclerTop -= toolbarHeight(); // reply has built-in padding for the toolbar height when input at top
+            }
+        }
+        if (searchOpen) {
+            recyclerTop += searchStatus.getMeasuredHeight(); //search status has built-in padding for the toolbar height
+            recyclerTop -= toolbarHeight();
+        }
+        recyclerView.setPadding(defaultPadding, recyclerTop, defaultPadding, recyclerBottom);
+
+        //reply view padding calculations (after measure)
+        if (ChanSettings.moveInputToBottom.get()) {
+            reply.setPadding(0, 0, 0, 0);
+        } else {
+            if (replyOpen && searchOpen) {
+                reply.setPadding(0, searchStatus.getMeasuredHeight(), 0, 0); // (2)
+            } else {
+                reply.setPadding(0, toolbarHeight(), 0, 0); // (1)
+            }
+        }
     }
 
     @Override

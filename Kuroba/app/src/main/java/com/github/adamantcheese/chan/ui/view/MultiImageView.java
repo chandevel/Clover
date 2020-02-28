@@ -80,6 +80,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -280,13 +281,14 @@ public class MultiImageView
         callback.onSwipeToSaveImage();
     }
 
+    private boolean getDefaultMuteState() {
+        return ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get()
+                || !getAudioManager().isWiredHeadsetOn());
+    }
+
     public void setVolume(boolean muted) {
-        final float volume = muted ? 0f : 1f;
         if (exoPlayer != null) {
-            Player.AudioComponent audioComponent = exoPlayer.getAudioComponent();
-            if (audioComponent != null) {
-                audioComponent.setVolume(volume);
-            }
+            exoPlayer.setVolume(muted ? 0f : 1f);
         }
     }
 
@@ -537,6 +539,9 @@ public class MultiImageView
                         exoVideoView.setUseController(false);
                         exoVideoView.setControllerHideOnTouch(false);
                         exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
+                        exoVideoView.setUseArtwork(true);
+                        exoVideoView.setDefaultArtwork(getAppContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
+                        exoPlayer.setVolume(getDefaultMuteState() ? 0 : 1);
                         exoPlayer.setPlayWhenReady(true);
                         onModeLoaded(Mode.VIDEO, exoVideoView);
                         callback.onVideoLoaded(MultiImageView.this);
@@ -643,6 +648,9 @@ public class MultiImageView
             exoVideoView.setUseController(false);
             exoVideoView.setControllerHideOnTouch(false);
             exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
+            exoVideoView.setUseArtwork(true);
+            exoVideoView.setDefaultArtwork(getAppContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
+            exoPlayer.setVolume(getDefaultMuteState() ? 0 : 1);
             exoPlayer.setPlayWhenReady(true);
             onModeLoaded(Mode.VIDEO, exoVideoView);
             callback.onVideoLoaded(this);

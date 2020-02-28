@@ -258,8 +258,8 @@ class MediaSettingsControllerPresenter(
     }
 
     private fun withCallbacks(func: SharedLocationSetupDelegateCallbacks.() -> Unit) {
-        callbacks?.let {
-            runOnMainThread {
+        runOnMainThread {
+            callbacks?.let {
                 func(it)
             }
         }

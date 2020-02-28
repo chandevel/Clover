@@ -238,7 +238,7 @@ public class Chan
         }
 
         if (ChanSettings.collectCrashLogs.get()) {
-            reportManager.storeCrashLog(error);
+            reportManager.storeCrashLog(exception.getMessage(), error);
         }
     }
 

@@ -181,7 +181,7 @@ public class NavigationControllerContainerLayout
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!tracking) {
+        if (!tracking || velocityTracker == null) { // tracking already ended
             return false;
         }
 

@@ -152,7 +152,7 @@ public class FilterWatchManager
     }
 
     public void onCatalogLoad(ChanThread catalog) {
-        Logger.d(TAG, "onCatalogLoad() for /" + catalog.getLoadable().board.code + "/");
+        Logger.d(TAG, "onCatalogLoad() for /" + catalog.getLoadable().boardCode + "/");
         if (catalog.getLoadable().isThreadMode()) return; //not a catalog
         if (processing) return; //filter watch manager is currently processing, ignore
 
@@ -183,7 +183,7 @@ public class FilterWatchManager
             implements ChanThreadLoader.ChanLoaderCallback {
         @Override
         public void onChanLoaderData(ChanThread result) {
-            Logger.d(TAG, "onChanLoaderData() for /" + result.getLoadable().board.code + "/");
+            Logger.d(TAG, "onChanLoaderData() for /" + result.getLoadable().boardCode + "/");
             Set<Integer> toAdd = new HashSet<>();
             //Match filters and ignores
             for (Filter f : filters) {

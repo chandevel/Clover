@@ -195,6 +195,8 @@ public class DeveloperSettingsController
         resetThreadOpenCounter.setText("Reset thread open counter");
         wrapper.addView(resetThreadOpenCounter);
 
+        addCrashOnSafeThrowButton(wrapper);
+
         // Reset the hash and make the app updated
         Button resetPrevApkHash = new Button(context);
         resetPrevApkHash.setOnClickListener(v -> {
@@ -221,6 +223,28 @@ public class DeveloperSettingsController
         scrollView.addView(wrapper);
         view = scrollView;
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void addCrashOnSafeThrowButton(LinearLayout wrapper) {
+        Button crashOnSafeThrow = new Button(context);
+        crashOnSafeThrow.setOnClickListener(v -> {
+            ChanSettings.crashOnSafeThrow.set(!ChanSettings.crashOnSafeThrow.get());
+
+            if (ChanSettings.crashOnSafeThrow.get()) {
+                crashOnSafeThrow.setText("Crash on safe throw (ENABLED)");
+            } else {
+                crashOnSafeThrow.setText("Crash on safe throw (DISABLED)");
+            }
+        });
+
+        if (ChanSettings.crashOnSafeThrow.get()) {
+            crashOnSafeThrow.setText("Crash on safe throw (ENABLED)");
+        } else {
+            crashOnSafeThrow.setText("Crash on safe throw (DISABLED)");
+        }
+
+        wrapper.addView(crashOnSafeThrow);
     }
 
     private void addVerboseLogsButton(LinearLayout wrapper) {

@@ -363,6 +363,7 @@ public class ImageViewerController
 
     @Override
     public boolean onBack() {
+        if (presenter.isTransitioning()) return false;
         showSystemUI();
         mainHandler.removeCallbacks(uiHideCall);
         presenter.onExit();

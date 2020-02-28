@@ -10,6 +10,7 @@ import com.github.adamantcheese.chan.ui.layout.crashlogs.CrashLog
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
+import com.github.adamantcheese.chan.utils.TimeUtils.getCurrentDateAndTimeUTC
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import io.reactivex.Completable
@@ -99,6 +100,15 @@ class ReportManager(
     private fun processSingleRequest(request: ReportRequest, crashLogFile: File): Single<MResult<Boolean>> {
         BackgroundUtils.ensureBackgroundThread()
 
+        // Delete old crash logs
+        if (System.currentTimeMillis() - crashLogFile.lastModified() > MAX_CRASH_LOG_LIFETIME) {
+            if (!crashLogFile.delete()) {
+                Logger.e(TAG, "Couldn't delete crash log file: ${crashLogFile.absolutePath}")
+            }
+
+            return Single.just(MResult.value(true))
+        }
+
         return sendInternal(request)
                 .onErrorReturn { error -> MResult.error(error) }
                 .doOnSuccess { result ->
@@ -111,13 +121,17 @@ class ReportManager(
                             }
                         }
                         is MResult.Error -> {
-                            Logger.e(TAG, "Error while trying to send crash log", result.error)
+                            if (result.error is HttpCodeError) {
+                                Logger.e(TAG, "Bad response code: ${result.error.code}")
+                            } else {
+                                Logger.e(TAG, "Error while trying to send crash log", result.error)
+                            }
                         }
                     }
                 }
     }
 
-    fun storeCrashLog(error: String) {
+    fun storeCrashLog(exceptionMessage: String?, error: String) {
         if (!createCrashLogsDirIfNotExists()) {
             return
         }
@@ -133,13 +147,25 @@ class ReportManager(
             val settings = getSettingsStateString()
             val logs = LogsController.loadLogs(CRASH_REPORT_LOGS_LINES_COUNT)
 
+            // Most of the time logs already contain the crash logs so we don't really want to print
+            // it twice.
+            val logsAlreadyContainCrash = exceptionMessage?.let { msg ->
+                logs?.contains(msg, ignoreCase = true)
+            } ?: false
+
             val resultString = buildString {
-                appendln("=== LOGS ===")
+                // To avoid log spam that may happen because of, let's say, server failure for
+                // couple of days, we want some kind of marker to be able to filter them
+                appendln("=== LOGS(${getCurrentDateAndTimeUTC()}) ===")
                 logs?.let { append(it) }
                 append("\n\n")
-                appendln("=== STACKTRACE ===")
-                append(error)
-                append("\n\n")
+
+                if (!logsAlreadyContainCrash) {
+                    appendln("=== STACKTRACE ===")
+                    append(error)
+                    append("\n\n")
+                }
+
                 appendln("=== SETTINGS ===")
                 append(settings)
             }
@@ -378,7 +404,7 @@ class ReportManager(
                         val message = "Response is not successful, status = ${response.code}"
                         Logger.e(TAG, message)
 
-                        emitter.onSuccess(MResult.error(IOException(message)))
+                        emitter.onSuccess(MResult.error(HttpCodeError(response.code)))
                         return
                     }
 
@@ -387,6 +413,8 @@ class ReportManager(
             })
         }.subscribeOn(senderScheduler)
     }
+
+    private class HttpCodeError(val code: Int) : Exception("Response is not successful, code = $code")
 
     data class ReportRequestWithFile(
             val reportRequest: ReportRequest,
@@ -414,8 +442,8 @@ class ReportManager(
         private const val REPORT_URL = "${BuildConfig.DEV_API_ENDPOINT}/report"
         private const val CRASH_LOG_FILE_NAME_PREFIX = "crashlog"
         private const val UNBOUNDED_QUEUE_MIN_SIZE = 32
-
         private const val CRASH_REPORT_LOGS_LINES_COUNT = 500
+        private val MAX_CRASH_LOG_LIFETIME = TimeUnit.DAYS.toMillis(3)
 
         const val MAX_TITLE_LENGTH = 512
         const val MAX_DESCRIPTION_LENGTH = 8192

@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.media.AudioManager;
 
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
@@ -53,7 +52,6 @@ import javax.inject.Inject;
 
 import okhttp3.HttpUrl;
 
-import static android.content.Context.AUDIO_SERVICE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
@@ -66,7 +64,7 @@ import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.GIFIMAGE
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.OTHER;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -103,16 +101,13 @@ public class ImageViewerPresenter
     private boolean viewPagerVisible = false;
     private boolean changeViewsOnInTransitionEnd = false;
 
-    private boolean muted;
+    private boolean muted = ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get()
+            || !getAudioManager().isWiredHeadsetOn());
 
     public ImageViewerPresenter(Context context, Callback callback) {
         this.context = context;
         this.callback = callback;
         inject(this);
-
-        AudioManager audioManager = (AudioManager) getAppContext().getSystemService(AUDIO_SERVICE);
-        muted = ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get()
-                || !audioManager.isWiredHeadsetOn());
     }
 
     @SuppressLint("UseSparseArrays")
@@ -146,6 +141,10 @@ public class ImageViewerPresenter
         callback.startPreviewInTransition(loadable, images.get(selectedPosition));
         PostImage postImage = images.get(selectedPosition);
         callback.setTitle(postImage, selectedPosition, images.size(), postImage.spoiler);
+    }
+
+    public boolean isTransitioning() {
+        return entering;
     }
 
     public void onInTransitionEnd() {
@@ -383,7 +382,7 @@ public class ImageViewerPresenter
             load = videoAutoLoad(loadable, postImage);
         }
 
-        /**
+        /*
          * If the file is a webm file and webm streaming is turned on we don't want to download the
          * webm chunked because it will most likely corrupt the file since we will forcefully stop
          * it.

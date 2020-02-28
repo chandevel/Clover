@@ -23,6 +23,7 @@ import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.job.JobScheduler;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,11 +37,13 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,6 +68,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.Context.AUDIO_SERVICE;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
@@ -148,6 +152,10 @@ public class AndroidUtils {
      * @param link url to open
      */
     public static void openLink(String link) {
+        if (TextUtils.isEmpty(link)) {
+            showToast(application, R.string.open_link_failed, Toast.LENGTH_LONG);
+            return;
+        }
         PackageManager pm = application.getPackageManager();
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
@@ -184,6 +192,10 @@ public class AndroidUtils {
     }
 
     public static void openLinkInBrowser(Context context, String link) {
+        if (TextUtils.isEmpty(link)) {
+            showToast(context, R.string.open_link_failed);
+            return;
+        }
         // Hack that's sort of the same as openLink
         // The link won't be opened in a custom tab if this app is the default handler for that link.
         // Manually check if this app opens it instead of a custom tab, and use the logic of
@@ -510,12 +522,29 @@ public class AndroidUtils {
         return (ClipboardManager) application.getSystemService(CLIPBOARD_SERVICE);
     }
 
+    public static String getClipboardContent() {
+        ClipData primary = getClipboardManager().getPrimaryClip();
+        if (primary != null) {
+            return primary.getItemAt(0).getText().toString();
+        } else {
+            return "";
+        }
+    }
+
+    public static void setClipboardContent(String label, String content) {
+        getClipboardManager().setPrimaryClip(ClipData.newPlainText(label, content));
+    }
+
     public static NotificationManager getNotificationManager() {
         return (NotificationManager) application.getSystemService(NOTIFICATION_SERVICE);
     }
 
     public static JobScheduler getJobScheduler() {
         return (JobScheduler) application.getSystemService(JOB_SCHEDULER_SERVICE);
+    }
+
+    public static AudioManager getAudioManager() {
+        return (AudioManager) getAppContext().getSystemService(AUDIO_SERVICE);
     }
 
     public static View inflate(Context context, int resId, ViewGroup root) {

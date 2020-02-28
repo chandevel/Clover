@@ -241,15 +241,15 @@ public class BrowseController
     }
 
     private void orderClicked(ToolbarMenuSubItem item) {
-        handleSorting(threadLayout.getPresenter());
+        handleSorting();
     }
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
-        handleShareAndOpenInBrowser(threadLayout.getPresenter(), false);
+        handleShareAndOpenInBrowser(false);
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
-        handleShareAndOpenInBrowser(threadLayout.getPresenter(), true);
+        handleShareAndOpenInBrowser(true);
     }
 
     private void upClicked(ToolbarMenuSubItem item) {
@@ -303,7 +303,8 @@ public class BrowseController
         }
     }
 
-    private void handleShareAndOpenInBrowser(ThreadPresenter presenter, boolean share) {
+    private void handleShareAndOpenInBrowser(boolean share) {
+        ThreadPresenter presenter = threadLayout.getPresenter();
         if (presenter.isBound()) {
             if (presenter.getChanThread() == null) {
                 showToast(context, R.string.cannot_open_in_browser_already_deleted);
@@ -338,7 +339,8 @@ public class BrowseController
         threadLayout.setPostViewMode(postViewMode);
     }
 
-    private void handleSorting(final ThreadPresenter presenter) {
+    private void handleSorting() {
+        final ThreadPresenter presenter = threadLayout.getPresenter();
         List<FloatingMenuItem> items = new ArrayList<>();
         for (PostsFilter.Order order : PostsFilter.Order.values()) {
             int nameId = 0;
@@ -395,7 +397,7 @@ public class BrowseController
     @Override
     public void loadBoard(Loadable loadable) {
         loadable.title = BoardHelper.getName(loadable.board);
-        navigation.title = "/" + loadable.board.code + "/";
+        navigation.title = "/" + loadable.boardCode + "/";
         navigation.subtitle = loadable.board.name;
 
         ThreadPresenter presenter = threadLayout.getPresenter();

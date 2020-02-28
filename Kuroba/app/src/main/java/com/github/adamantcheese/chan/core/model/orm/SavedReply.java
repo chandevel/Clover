@@ -25,13 +25,6 @@ public class SavedReply {
     public SavedReply() {
     }
 
-    @Deprecated
-    public SavedReply(String board, int no, String password) {
-        this.board = board;
-        this.no = no;
-        this.password = password;
-    }
-
     public static SavedReply fromSiteBoardNoPassword(Site site, Board board, int no, String password) {
         SavedReply savedReply = new SavedReply();
         savedReply.siteId = site.id();
