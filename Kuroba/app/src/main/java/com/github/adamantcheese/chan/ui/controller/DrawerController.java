@@ -175,7 +175,7 @@ public class DrawerController
                 }
             }
 
-            pin.loadable.loadableDownloadingState = state;
+            pin.loadable.setLoadableState(state);
             threadController.openPin(pin);
         }
     }
