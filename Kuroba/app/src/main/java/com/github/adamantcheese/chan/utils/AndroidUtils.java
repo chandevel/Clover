@@ -68,11 +68,13 @@ import java.util.List;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
+    private static final String CHAN_STATE_PREFS_NAME = "chan_state";
 
     @SuppressLint("StaticFieldLeak")
     private static Application application;
@@ -121,6 +123,10 @@ public class AndroidUtils {
 
     public static SharedPreferences getPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(application);
+    }
+
+    public static SharedPreferences getAppState() {
+        return getAppContext().getSharedPreferences(CHAN_STATE_PREFS_NAME, MODE_PRIVATE);
     }
 
     public static boolean getIsOfficial() {

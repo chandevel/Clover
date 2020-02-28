@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.manager
 
+import androidx.annotation.GuardedBy
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType
 import com.github.adamantcheese.chan.utils.Logger
 import io.reactivex.Flowable
@@ -7,6 +8,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.processors.BehaviorProcessor
 
 class SettingsNotificationManager {
+    @GuardedBy("this")
     private val notifications: MutableSet<SettingNotificationType> = mutableSetOf()
 
     /**
@@ -87,6 +89,7 @@ class SettingsNotificationManager {
     fun listenForNotificationUpdates(): Flowable<Unit> = activeNotificationsSubject
             .onBackpressureBuffer()
             .observeOn(AndroidSchedulers.mainThread())
+            .hide()
 
     companion object {
         private const val TAG = "SettingsNotificationManager"

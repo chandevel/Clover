@@ -23,7 +23,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -75,8 +74,7 @@ public class DrawerController
     protected LinearLayout drawer;
     protected RecyclerView recyclerView;
     protected DrawerAdapter drawerAdapter;
-    @Nullable
-    private CompositeDisposable compositeDisposable = null;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Inject
     WatchManager watchManager;
@@ -104,9 +102,6 @@ public class DrawerController
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_PIN, 0);
 
-        resetDisposables();
-        compositeDisposable = new CompositeDisposable();
-
         drawerAdapter = new DrawerAdapter(this, context);
         recyclerView.setAdapter(drawerAdapter);
 
@@ -129,7 +124,7 @@ public class DrawerController
     public void onDestroy() {
         super.onDestroy();
 
-        resetDisposables();
+        compositeDisposable.clear();
         recyclerView.setAdapter(null);
         EventBus.getDefault().unregister(this);
     }
@@ -234,13 +229,6 @@ public class DrawerController
             }
 
             onHeaderClickedInternal(all, hasDownloadFlag);
-        }
-    }
-
-    private void resetDisposables() {
-        if (compositeDisposable != null) {
-            compositeDisposable.dispose();
-            compositeDisposable = null;
         }
     }
 

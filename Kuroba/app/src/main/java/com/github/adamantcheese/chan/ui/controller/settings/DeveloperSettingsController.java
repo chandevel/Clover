@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.ChanState;
 import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -199,7 +200,7 @@ public class DeveloperSettingsController
         resetPrevApkHash.setOnClickListener(v -> {
             ChanSettings.previousDevHash.setSync(NO_HASH_SET);
             ChanSettings.updateCheckTime.setSync(0L);
-            ChanSettings.hasNewApkUpdate.setSync(false);
+            ChanState.hasNewApkUpdate().setSync(false);
             ((StartActivity) context).restartApp();
         });
         resetPrevApkHash.setText("Make app updated");
@@ -210,7 +211,7 @@ public class DeveloperSettingsController
         setCurrentApkHashAsPrevApkHash.setOnClickListener(v -> {
             ChanSettings.previousDevHash.setSync(BuildConfig.COMMIT_HASH);
             ChanSettings.updateCheckTime.setSync(0L);
-            ChanSettings.hasNewApkUpdate.setSync(true);
+            ChanState.hasNewApkUpdate().setSync(true);
             ((StartActivity) context).restartApp();
         });
         setCurrentApkHashAsPrevApkHash.setText("Make app not updated");

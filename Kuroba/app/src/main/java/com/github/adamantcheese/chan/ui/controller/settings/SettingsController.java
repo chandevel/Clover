@@ -71,7 +71,7 @@ public class SettingsController
     protected List<SettingView> requiresUiRefresh = new ArrayList<>();
     // Very user unfriendly.
     protected List<SettingView> requiresRestart = new ArrayList<>();
-    protected CompositeDisposable compositeDisposable;
+    protected CompositeDisposable compositeDisposable = new CompositeDisposable();
     private boolean needRestart = false;
 
     public SettingsController(Context context) {
@@ -90,25 +90,15 @@ public class SettingsController
     @Override
     public void onCreate() {
         super.onCreate();
-
-        resetDisposables();
-        compositeDisposable = new CompositeDisposable();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        resetDisposables();
+        compositeDisposable.clear();
 
         if (needRestart) {
             ((StartActivity) context).restartApp();
-        }
-    }
-
-    private void resetDisposables() {
-        if (compositeDisposable != null) {
-            compositeDisposable.dispose();
-            compositeDisposable = null;
         }
     }
 

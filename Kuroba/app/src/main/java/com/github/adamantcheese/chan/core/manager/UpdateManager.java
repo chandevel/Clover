@@ -44,6 +44,7 @@ import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest.UpdateApiResponse;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.ChanState;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -157,7 +158,7 @@ public class UpdateManager {
     }
 
     private void runUpdateApi(final boolean manual) {
-        if (ChanSettings.hasNewApkUpdate.get()) {
+        if (ChanState.hasNewApkUpdate().get()) {
             // If we noticed that there was an apk update on the previous check - show the
             // notification
             notifyNewApkUpdate();
@@ -179,7 +180,7 @@ public class UpdateManager {
         if (!BuildConfig.DEV_BUILD) {
             //region Release build
             volleyRequestQueue.add(new UpdateApiRequest(response -> {
-                if (!processUpdateApiResponse(response, manual && BackgroundUtils.isInForeground()) && manual) {
+                if (!processUpdateApiResponse(response, manual) && manual && BackgroundUtils.isInForeground()) {
                     new AlertDialog.Builder(context).setTitle(getString(R.string.update_none, getApplicationLabel()))
                             .setPositiveButton(R.string.ok, null)
                             .show();
@@ -274,12 +275,12 @@ public class UpdateManager {
     }
 
     private void notifyNewApkUpdate() {
-        ChanSettings.hasNewApkUpdate.set(true);
+        ChanState.hasNewApkUpdate().set(true);
         settingsNotificationManager.notify(SettingNotificationType.ApkUpdate);
     }
 
     private void cancelApkUpdateNotification() {
-        ChanSettings.hasNewApkUpdate.set(false);
+        ChanState.hasNewApkUpdate().set(false);
         settingsNotificationManager.cancel(SettingNotificationType.ApkUpdate);
     }
 
