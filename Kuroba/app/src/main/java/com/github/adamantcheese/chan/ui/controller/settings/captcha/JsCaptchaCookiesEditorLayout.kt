@@ -8,6 +8,7 @@ import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.settings.ChanSettings.EMPTY_JSON
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
+import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
 import javax.inject.Inject
@@ -37,10 +38,15 @@ class JsCaptchaCookiesEditorLayout(context: Context) : FrameLayout(context) {
             saveAndApplyButton = findViewById(R.id.js_captcha_cookies_editor_save_and_apply)
             resetButton = findViewById(R.id.js_captcha_cookies_editor_reset)
 
-            val prevCookiesJar = gson.fromJson<JsCaptchaCookiesJar>(
-                    ChanSettings.jsCaptchaCookies.get(),
-                    JsCaptchaCookiesJar::class.java
-            )
+            var prevCookiesJar = JsCaptchaCookiesJar.empty()
+            try {
+                prevCookiesJar = gson.fromJson<JsCaptchaCookiesJar>(
+                        ChanSettings.jsCaptchaCookies.get(),
+                        JsCaptchaCookiesJar::class.java
+                )
+            } catch (ignored: Exception) {
+                showToast(context, R.string.cookies_editor_failed_parse);
+            }
 
             if (prevCookiesJar.hsidCookie.isNotEmpty()) {
                 hsidCookieEditText.setText(prevCookiesJar.hsidCookie)
