@@ -59,6 +59,15 @@ public class ExperimentalSettingsController
                 R.string.setting_image_viewer_gestures_description
         ));
 
+        requiresRestart.add(
+                group.add(new BooleanSettingView(
+                        this,
+                        ChanSettings.okHttpAllowHttp2,
+                        R.string.setting_allow_okhttp_http2,
+                        R.string.setting_allow_okhttp_http2_description
+                ))
+        );
+
         groups.add(group);
     }
 
