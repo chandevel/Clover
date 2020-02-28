@@ -129,7 +129,7 @@ public class Kun8 extends CommonSite {
 
             @Override
             public SiteAuthentication postAuthenticate() {
-                return SiteAuthentication.fromUrl("https://sys.8kun.top/dnsbls_bypass_popup.php",
+                return SiteAuthentication.fromUrl("https://sys.8kun.top/dnsbls_bypass_popup.php?_=" + System.currentTimeMillis(),
                         "You failed the CAPTCHA",
                         "You may now go back and make your post");
             }
