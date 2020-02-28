@@ -220,14 +220,14 @@ public class BrowseBoardsFloatingMenu
                 clickCallback.onSiteClicked(site);
             }
         }
-        dismiss();
+        dismiss(true);
     }
 
     private void inputChanged(String input) {
         presenter.filterChanged(input);
     }
 
-    private void dismiss() {
+    private void dismiss(boolean animated) {
         if (dismissed) return;
         dismissed = true;
 
@@ -238,7 +238,11 @@ public class BrowseBoardsFloatingMenu
 
         anchor.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
 
-        animateOut(() -> removeFromParentView(this));
+        if (animated) {
+            animateOut(() -> removeFromParentView(this));
+        } else {
+            removeFromParentView(this);
+        }
     }
 
     private void setupChildViews() {
@@ -294,7 +298,7 @@ public class BrowseBoardsFloatingMenu
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (isInteractive() && keyCode == KeyEvent.KEYCODE_BACK && event.isTracking() && !event.isCanceled()) {
-            dismiss();
+            dismiss(true);
             return true;
         }
         return super.onKeyUp(keyCode, event);
@@ -305,8 +309,14 @@ public class BrowseBoardsFloatingMenu
     public boolean onTouchEvent(MotionEvent event) {
         if (!isInteractive()) return super.onTouchEvent(event);
 
-        dismiss();
+        dismiss(true);
         return true;
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        dismiss(false);
+        super.onDetachedFromWindow();
     }
 
     private boolean isInteractive() {
@@ -435,7 +445,7 @@ public class BrowseBoardsFloatingMenu
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
             if (keyCode == KeyEvent.KEYCODE_BACK) {
-                dismiss();
+                dismiss(true);
             }
             return true;
         }
