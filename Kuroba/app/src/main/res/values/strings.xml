@@ -809,4 +809,5 @@ Don't have a 4chan Pass?<br>
     <string name="update_manager_apk_copied">Apk successfully copied</string>
     <string name="settings_show_copy_apk_dialog_title">Show copy apk dialog when downloading an update</string>
     <string name="settings_show_copy_apk_dialog_message">Every time you download a new update a dialog with suggestion to copy that apk to some other directory will be shown</string>
+    <string name="thread_load_failed_local_thread_parsing">Error while trying to parse local thread json file. Try deleting and the re-downloading the thread to fix this error.</string>
 </resources>
