@@ -20,10 +20,12 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.AndroidRuntimeException;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.Gravity;
@@ -39,6 +41,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -92,8 +95,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class ReplyLayout
         extends LoadView
         implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher,
-                   ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
-                   CaptchaHolder.CaptchaValidationListener {
+        ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
+        CaptchaHolder.CaptchaValidationListener {
     private static final String TAG = "ReplyLayout";
 
     @Inject
@@ -447,6 +450,33 @@ public class ReplyLayout
 
         captchaContainer.removeView((View) authenticationLayout);
         authenticationLayout = null;
+    }
+
+    @Override
+    public void showAuthenticationFailedError(Throwable error) {
+        String message = getString(R.string.could_not_initialized_captcha, getReason(error));
+        showToast(getContext(), message, Toast.LENGTH_LONG);
+    }
+
+    private String getReason(Throwable error) {
+        if (error instanceof AndroidRuntimeException && error.getMessage() != null) {
+            if (error.getMessage().contains("MissingWebViewPackageException")) {
+                return getString(R.string.fail_reason_webview_is_not_installed);
+            }
+
+            // Fallthrough
+        } else if (error instanceof Resources.NotFoundException) {
+            return getString(
+                    R.string.fail_reason_some_part_of_webview_not_initialized,
+                    error.getMessage()
+            );
+        }
+
+        if (error.getMessage() != null) {
+            return String.format("%s: %s", error.getClass().getSimpleName(), error.getMessage());
+        }
+
+        return error.getClass().getSimpleName();
     }
 
     @Override
