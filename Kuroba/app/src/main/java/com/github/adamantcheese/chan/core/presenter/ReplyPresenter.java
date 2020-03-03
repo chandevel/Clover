@@ -335,8 +335,7 @@ public class ReplyPresenter
                 }
             }
 
-            SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(localLoadable.site,
-                    localLoadable.board,
+            SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(localLoadable.board,
                     replyResponse.postNo,
                     replyResponse.password
             );
