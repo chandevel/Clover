@@ -193,10 +193,6 @@ public class Board
         return TextUtils.isEmpty(name) || TextUtils.isEmpty(code) || perPage < 0 || pages < 0;
     }
 
-    public Site getSite() {
-        return site;
-    }
-
     public boolean siteCodeEquals(Board other) {
         return code.equals(other.code) && other.siteId == siteId;
     }

@@ -44,10 +44,10 @@ import static com.github.adamantcheese.chan.Chan.inject;
 
 /**
  * The central point for database related access.<br>
- * <b>All database queries are run on a single database thread</b>, therefor all functions return a
+ * <b>All database queries are run on a single database thread</b>, therefore most functions return a
  * {@link Callable} that needs to be queued on either {@link #runTaskAsync(Callable)},
  * {@link #runTaskAsync(Callable, TaskResult)} or {@link #runTask(Callable)}.<br>
- * You often want the sync flavour for queries that return data, it waits for the task to be finished on the other thread.<br>
+ * You often want the sync flavour for queries that return data, as it waits for the task to be finished on the other thread.<br>
  * Use the async versions when you don't care when the query is done.
  */
 public class DatabaseManager {
@@ -131,8 +131,8 @@ public class DatabaseManager {
     public DatabaseSavedThreadManager getDatabaseSavedThreadManager() {
         return databaseSavedThreadManager;
     }
-    // Called when the app changes foreground state
 
+    // Called when the app changes foreground state
     @Subscribe
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
