@@ -207,7 +207,12 @@ public class DatabaseManager {
     public <T> T runTask(final Callable<T> taskCallable) {
         try {
             return executeTask(taskCallable, null).get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
+            // Since we don't rethrow InterruptedException we need to at least restore the
+            // "interrupted" flag.
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
     }
