@@ -85,8 +85,8 @@ class ChunkPersisterTest {
                 throw IOException("BAM!!!")
             }
         }
-        .whenever(activeDownloads)
-        .updateDownloaded(anyString(), anyInt(), anyLong())
+                .whenever(activeDownloads)
+                .updateDownloaded(anyString(), anyInt(), anyLong())
 
         val testObserver = Flowable.fromIterable(chunkResponses)
                 .observeOn(Schedulers.newThread())

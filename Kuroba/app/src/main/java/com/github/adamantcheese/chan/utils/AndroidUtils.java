@@ -469,7 +469,7 @@ public class AndroidUtils {
     }
 
     public static void showToast(Context context, String message, int duration) {
-        BackgroundUtils.runOnMainThread(() -> Toast.makeText(application, message, duration).show());
+        BackgroundUtils.runOnMainThread(() -> Toast.makeText(context, message, duration).show());
     }
 
     public static void showToast(Context context, String message) {

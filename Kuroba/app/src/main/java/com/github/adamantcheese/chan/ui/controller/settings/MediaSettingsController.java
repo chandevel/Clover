@@ -61,7 +61,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class MediaSettingsController
         extends SettingsController
         implements SaveLocationSetupDelegate.MediaControllerCallbacks,
-        ThreadsLocationSetupDelegate.MediaControllerCallbacks {
+                   ThreadsLocationSetupDelegate.MediaControllerCallbacks {
     private static final String TAG = "MediaSettingsController";
 
     // Special setting views
@@ -105,29 +105,11 @@ public class MediaSettingsController
         EventBus.getDefault().register(this);
         navigation.setTitle(R.string.settings_screen_media);
 
-        presenter = new MediaSettingsControllerPresenter(
-                fileManager,
-                fileChooser,
-                context
-        );
-        sharedLocationSetupDelegate = new SharedLocationSetupDelegate(
-                context,
-                this,
-                presenter,
-                fileManager
-        );
-        saveLocationSetupDelegate = new SaveLocationSetupDelegate(
-                context,
-                this,
-                presenter
-        );
-        threadsLocationSetupDelegate = new ThreadsLocationSetupDelegate(
-                context,
-                this,
-                presenter,
-                databaseManager,
-                threadSaveManager
-        );
+        presenter = new MediaSettingsControllerPresenter(fileManager, fileChooser, context);
+        sharedLocationSetupDelegate = new SharedLocationSetupDelegate(context, this, presenter, fileManager);
+        saveLocationSetupDelegate = new SaveLocationSetupDelegate(context, this, presenter);
+        threadsLocationSetupDelegate =
+                new ThreadsLocationSetupDelegate(context, this, presenter, databaseManager, threadSaveManager);
         presenter.onCreate(sharedLocationSetupDelegate);
 
         setupLayout();
@@ -326,11 +308,7 @@ public class MediaSettingsController
 
         runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
             if (!granted) {
-                showToast(
-                        context,
-                        R.string.media_settings_cannot_continue_write_permission,
-                        Toast.LENGTH_LONG
-                );
+                showToast(context, R.string.media_settings_cannot_continue_write_permission, Toast.LENGTH_LONG);
             } else {
                 func.run();
             }
@@ -376,13 +354,7 @@ public class MediaSettingsController
     @Override
     public void onCouldNotCreateDefaultBaseDir(@NotNull String path) {
         BackgroundUtils.ensureMainThread();
-        showToast(
-                context,
-                context.getResources().getString(
-                        R.string.media_settings_could_not_create_default_baseDir,
-                        path
-                )
-        );
+        showToast(context, getString(R.string.media_settings_could_not_create_default_baseDir, path));
     }
 
     private void setupMediaLoadTypesSetting(SettingsGroup loading) {
