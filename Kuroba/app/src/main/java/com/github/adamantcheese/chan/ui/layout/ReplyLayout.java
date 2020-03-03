@@ -648,7 +648,9 @@ public class ReplyLayout
                 boolean is4chan = threadLoadable.board.site.name().equals("4chan");
                 //menu item cleanup, these aren't needed for this
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    menu.removeItem(android.R.id.shareText);
+                    if (menu.size() > 0) {
+                        menu.removeItem(android.R.id.shareText);
+                    }
                 }
                 //setup standard items
                 // >greentext
