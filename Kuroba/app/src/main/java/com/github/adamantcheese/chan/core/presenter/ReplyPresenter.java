@@ -407,6 +407,12 @@ public class ReplyPresenter
     }
 
     @Override
+    public void onAuthenticationFailed(Throwable error) {
+        callback.showAuthenticationFailedError(error);
+        switchPage(Page.INPUT);
+    }
+
+    @Override
     public void onFallbackToV1CaptchaView(boolean autoReply) {
         callback.onFallbackToV1CaptchaView(autoReply);
     }
@@ -534,7 +540,20 @@ public class ReplyPresenter
 
                     // cleanup resources tied to the new captcha layout/presenter
                     callback.destroyCurrentAuthentication();
-                    callback.initializeAuthentication(loadable.site, authentication, this, useV2NoJsCaptcha, autoReply);
+
+                    try {
+                        // If the user doesn't have WebView installed it will throw an error
+                        callback.initializeAuthentication(
+                                loadable.site,
+                                authentication,
+                                this,
+                                useV2NoJsCaptcha,
+                                autoReply
+                        );
+                    } catch (Throwable error) {
+                        onAuthenticationFailed(error);
+                    }
+
                     break;
             }
         }
@@ -665,5 +684,7 @@ public class ReplyPresenter
         void onFallbackToV1CaptchaView(boolean autoReply);
 
         void destroyCurrentAuthentication();
+
+        void showAuthenticationFailedError(Throwable error);
     }
 }
