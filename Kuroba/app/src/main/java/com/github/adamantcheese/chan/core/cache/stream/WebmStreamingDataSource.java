@@ -236,6 +236,7 @@ public class WebmStreamingDataSource
     private long fileLength = C.LENGTH_UNSET;
 
     private boolean prepared = false;
+    private boolean opened = false;
 
     public WebmStreamingDataSource(@Nullable Uri uri, RawFile file, FileManager fileManager) {
         super(/* isNetwork= */ true);
@@ -317,7 +318,7 @@ public class WebmStreamingDataSource
         }
 
         transferStarted(dataSpec);
-
+        opened = true;
         return bytesRemaining;
     }
 
@@ -348,7 +349,7 @@ public class WebmStreamingDataSource
             return C.RESULT_END_OF_INPUT;
         }
 
-        int readBytes;
+        int readBytes = 0;
         int maxReadableBytes = (int) Math.min(bytesRemaining(), readLength);
 
         Range<Long> cachedRange = activeRegionStats.findCachedRange(pos);
@@ -415,10 +416,16 @@ public class WebmStreamingDataSource
             throws IOException {
         Logger.i(TAG, "close");
         clearListeners();
-        if (dataSource != null) {
-            dataSource.close();
-            transferEnded();
-            dataSource = null;
+        try {
+            if (dataSource != null) {
+                dataSource.close();
+                dataSource = null;
+            }
+        } finally {
+            if (opened) {
+                opened = false;
+                transferEnded();
+            }
         }
     }
 
