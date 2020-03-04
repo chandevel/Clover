@@ -70,6 +70,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 import javax.inject.Inject;
 
@@ -807,6 +808,7 @@ public class MultiImageView
 
         if (exoPlayer != null) {
             // ExoPlayer will keep loading resources if we don't release it here.
+            releaseStreamCallbacks();
             exoPlayer.release();
             exoPlayer = null;
         }
@@ -820,6 +822,7 @@ public class MultiImageView
                 View child = getChildAt(i);
                 if (child != view) {
                     if (child instanceof PlayerView) {
+                        releaseStreamCallbacks();
                         ((PlayerView) child).getPlayer().release();
                     }
                     removeViewAt(i);
@@ -838,6 +841,26 @@ public class MultiImageView
 
         hasContent = true;
         callback.onModeLoaded(this, mode);
+    }
+
+    private void releaseStreamCallbacks() {
+        if (ChanSettings.videoStream.get()) {
+            try {
+                Field mediaSource = exoPlayer.getClass().getDeclaredField("mediaSource");
+                mediaSource.setAccessible(true);
+                if (mediaSource.get(exoPlayer) != null) {
+                    ProgressiveMediaSource source = (ProgressiveMediaSource) mediaSource.get(exoPlayer);
+                    Field dataSource = source.getClass().getDeclaredField("dataSourceFactory");
+                    dataSource.setAccessible(true);
+                    DataSource.Factory factory = (DataSource.Factory) dataSource.get(source);
+                    ((WebmStreamingDataSource) factory.createDataSource()).clearListeners();
+                    dataSource.setAccessible(false);
+                }
+                mediaSource.setAccessible(false);
+            } catch (Exception ignored) {
+                // data source likely is from a file rather than a stream, ignore any exceptions
+            }
+        }
     }
 
     public interface Callback {

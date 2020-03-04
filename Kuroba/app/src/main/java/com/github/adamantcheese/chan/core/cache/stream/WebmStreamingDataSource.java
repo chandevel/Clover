@@ -187,19 +187,19 @@ public class WebmStreamingDataSource
         }
 
         void addListener(Runnable listener) {
-            listeners.add(listener);
-
             if (firedCacheComplete) {
                 listener.run();
+            } else {
+                listeners.add(listener);
             }
         }
 
         void fireCacheComplete() {
+            firedCacheComplete = true;
             for (Runnable listener : listeners) {
                 listener.run();
             }
-
-            firedCacheComplete = true;
+            listeners.clear();
         }
 
         public void clearListeners() {
@@ -315,6 +315,7 @@ public class WebmStreamingDataSource
         }
 
         transferStarted(dataSpec);
+        opened = true;
 
         return bytesRemaining;
     }
@@ -389,13 +390,22 @@ public class WebmStreamingDataSource
                 c.dataSourceAddedFile(innerFile);
             }
 
-            listeners.clear();
-            partialFileCache.clearListeners();
+            clearListeners();
         });
     }
 
     public void addListener(Callback c) {
-        listeners.add(c);
+        if (c != null) {
+            listeners.add(c);
+            if (partialFileCache != null && partialFileCache.firedCacheComplete) {
+                cacheComplete();
+            }
+        }
+    }
+
+    public void clearListeners() {
+        listeners.clear();
+        partialFileCache.clearListeners();
     }
 
     @Nullable
