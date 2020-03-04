@@ -58,8 +58,6 @@ public class WebmStreamingDataSource
             }
         }
 
-        private final String TAG = "PartialFileCache";
-
         private List<Range<Long>> cachedRanges = new ArrayList<>();
         private byte[] cachedRangesData;
         private long pos = 0;
@@ -111,13 +109,13 @@ public class WebmStreamingDataSource
             for (Range<Long> r : cachedRanges) {
                 try {
                     cached.add(region.intersect(r));
-                } catch (IllegalArgumentException e) {} // Disjoint ranges.
+                } catch (IllegalArgumentException ignored) {} // Disjoint ranges.
             }
 
             for (Range<Long> r : determineMissingRanges()) {
                 try {
                     missing.add(region.intersect(r));
-                } catch (IllegalArgumentException e) {} // Disjoint ranges.
+                } catch (IllegalArgumentException ignored) {} // Disjoint ranges.
             }
 
             return new RegionStats(cached, missing);
@@ -312,7 +310,6 @@ public class WebmStreamingDataSource
         activeRegionStats = partialFileCache.getRegionStats(new Range<>(pos, end));
         httpActiveRange = null;
 
-        Logger.i(TAG, "bytes remaining: " + bytesRemaining);
         if (bytesRemaining < 0) {
             throw new EOFException();
         }
@@ -349,7 +346,7 @@ public class WebmStreamingDataSource
             return C.RESULT_END_OF_INPUT;
         }
 
-        int readBytes = 0;
+        int readBytes;
         int maxReadableBytes = (int) Math.min(bytesRemaining(), readLength);
 
         Range<Long> cachedRange = activeRegionStats.findCachedRange(pos);

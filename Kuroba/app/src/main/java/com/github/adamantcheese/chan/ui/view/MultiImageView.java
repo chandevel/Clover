@@ -44,6 +44,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.MediaSourceCallback;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo;
+import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingDataSource;
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
@@ -54,7 +55,6 @@ import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.file.RawFile;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioListener;
@@ -524,7 +524,7 @@ public class MultiImageView
 
                     if (!hasContent || mode == Mode.VIDEO) {
                         PlayerView exoVideoView = new PlayerView(getContext());
-                        exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+                        exoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
                         exoVideoView.setPlayer(exoPlayer);
 
                         exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get()
@@ -632,7 +632,7 @@ public class MultiImageView
             onModeLoaded(Mode.VIDEO, null);
         } else {
             PlayerView exoVideoView = new PlayerView(getContext());
-            exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+            exoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
             exoVideoView.setPlayer(exoPlayer);
             String userAgent = Util.getUserAgent(getAppContext(), NetModule.USER_AGENT);
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(), userAgent);
