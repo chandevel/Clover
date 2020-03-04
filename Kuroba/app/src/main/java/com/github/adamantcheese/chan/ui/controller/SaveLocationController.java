@@ -20,6 +20,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Environment;
 import android.view.View;
 
 import androidx.appcompat.app.AlertDialog;
@@ -75,24 +76,6 @@ public class SaveLocationController
         addButton = view.findViewById(R.id.add_button);
         addButton.setOnClickListener(this);
 
-        File saveLocation;
-
-        if (mode == SaveLocationControllerMode.ImageSaveLocation) {
-            if (ChanSettings.saveLocation.getFileApiBaseDir().get().isEmpty()) {
-                throw new IllegalStateException("saveLocation is empty!");
-            }
-
-            saveLocation = new File(ChanSettings.saveLocation.getFileApiBaseDir().get());
-        } else {
-            if (ChanSettings.localThreadLocation.getFileApiBaseDir().get().isEmpty()) {
-                throw new IllegalStateException("localThreadLocation is empty!");
-            }
-
-            saveLocation = new File(ChanSettings.localThreadLocation.getFileApiBaseDir().get());
-        }
-
-        fileWatcher = new FileWatcher(this, saveLocation);
-
         runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
         if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             initialize();
@@ -107,8 +90,7 @@ public class SaveLocationController
             onDirectoryChosen();
             navigationController.popController();
         } else if (v == addButton) {
-            @SuppressLint("InflateParams")
-            final NewFolderLayout dialogView = (NewFolderLayout) inflate(context, R.layout.layout_folder_add, null);
+            @SuppressLint("InflateParams") final NewFolderLayout dialogView = (NewFolderLayout) inflate(context, R.layout.layout_folder_add, null);
 
             new AlertDialog.Builder(context).setView(dialogView)
                     .setTitle(R.string.save_new_folder)
@@ -181,8 +163,41 @@ public class SaveLocationController
     }
 
     private void initialize() {
+        fileWatcher = new FileWatcher(this, getInitialLocation());
         filesLayout.initialize();
         fileWatcher.initialize();
+    }
+
+    private File getInitialLocation() {
+        if (mode == SaveLocationControllerMode.ImageSaveLocation) {
+            if (ChanSettings.saveLocation.isFileDirActive()) {
+                if (ChanSettings.saveLocation.getFileApiBaseDir().get().isEmpty()) {
+                    return getExternalStorageDir();
+                }
+
+                return new File(ChanSettings.saveLocation.getFileApiBaseDir().get());
+            }
+        } else {
+            if (ChanSettings.localThreadLocation.isFileDirActive()) {
+                if (ChanSettings.localThreadLocation.getFileApiBaseDir().get().isEmpty()) {
+                    return getExternalStorageDir();
+                }
+
+                return new File(ChanSettings.localThreadLocation.getFileApiBaseDir().get());
+            }
+        }
+
+        return getExternalStorageDir();
+    }
+
+    private File getExternalStorageDir() {
+        File externalStorageDirectory = Environment.getExternalStorageDirectory();
+        if (!externalStorageDirectory.exists()) {
+            throw new IllegalStateException("External storage dir does not exist! " +
+                    "State = " + Environment.getExternalStorageState());
+        }
+
+        return externalStorageDirectory;
     }
 
     public interface SaveLocationControllerCallback {
