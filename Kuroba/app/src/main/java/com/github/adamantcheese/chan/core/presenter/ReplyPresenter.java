@@ -543,8 +543,7 @@ public class ReplyPresenter
 
                     try {
                         // If the user doesn't have WebView installed it will throw an error
-                        callback.initializeAuthentication(
-                                loadable.site,
+                        callback.initializeAuthentication(loadable.site,
                                 authentication,
                                 this,
                                 useV2NoJsCaptcha,
@@ -593,16 +592,13 @@ public class ReplyPresenter
         callback.setFileName(name);
         previewOpen = true;
 
-        boolean probablyWebm = file.getName().endsWith(".webm");
+        boolean probablyWebm = "webm".equals(StringUtils.extractFileNameExtension(name));
         int maxSize = probablyWebm ? board.maxWebmSize : board.maxFileSize;
         //if the max size is undefined for the board, ignore this message
-        if (file.length() > maxSize && maxSize != -1) {
+        if (file != null && file.length() > maxSize && maxSize != -1) {
             String fileSize = getReadableFileSize(file.length());
-            String maxSizeString = getReadableFileSize(maxSize);
-
             int stringResId = probablyWebm ? R.string.reply_webm_too_big : R.string.reply_file_too_big;
-
-            callback.openPreviewMessage(true, getString(stringResId, fileSize, maxSizeString));
+            callback.openPreviewMessage(true, getString(stringResId, fileSize, getReadableFileSize(maxSize)));
         } else {
             callback.openPreviewMessage(false, null);
         }
