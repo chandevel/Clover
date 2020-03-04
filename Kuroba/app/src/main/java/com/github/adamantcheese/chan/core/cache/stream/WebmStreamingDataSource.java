@@ -318,7 +318,7 @@ public class WebmStreamingDataSource
         }
 
         transferStarted(dataSpec);
-        opened = true;
+
         return bytesRemaining;
     }
 
@@ -345,7 +345,7 @@ public class WebmStreamingDataSource
             throws IOException {
         if (readLength == 0) {
             return 0;
-        } else if (bytesRemaining() == 0 || dataSource == null) {
+        } else if (bytesRemaining() == 0) {
             return C.RESULT_END_OF_INPUT;
         }
 
@@ -389,20 +389,16 @@ public class WebmStreamingDataSource
 
         BackgroundUtils.runOnMainThread(() -> {
             for (Callback c : listeners) {
-                c.dataSourceAddedFile(innerFile);
+                if (c != null) c.dataSourceAddedFile(innerFile);
             }
 
-            clearListeners();
+            listeners.clear();
+            partialFileCache.clearListeners();
         });
     }
 
     public void addListener(Callback c) {
         if (c != null) listeners.add(c);
-    }
-
-    public void clearListeners() {
-        listeners.clear();
-        partialFileCache.clearListeners();
     }
 
     @Nullable
@@ -415,11 +411,9 @@ public class WebmStreamingDataSource
     public void close()
             throws IOException {
         Logger.i(TAG, "close");
-        clearListeners();
         try {
             if (dataSource != null) {
                 dataSource.close();
-                dataSource = null;
             }
         } finally {
             if (opened) {
