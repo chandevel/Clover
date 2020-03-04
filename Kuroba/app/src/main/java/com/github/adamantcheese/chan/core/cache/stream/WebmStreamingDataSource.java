@@ -389,7 +389,7 @@ public class WebmStreamingDataSource
 
         BackgroundUtils.runOnMainThread(() -> {
             for (Callback c : listeners) {
-                if (c != null) c.dataSourceAddedFile(innerFile);
+                c.dataSourceAddedFile(innerFile);
             }
 
             listeners.clear();
@@ -398,7 +398,7 @@ public class WebmStreamingDataSource
     }
 
     public void addListener(Callback c) {
-        if (c != null) listeners.add(c);
+        listeners.add(c);
     }
 
     @Nullable
