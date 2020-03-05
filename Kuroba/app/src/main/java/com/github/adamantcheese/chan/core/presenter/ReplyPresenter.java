@@ -40,6 +40,7 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
@@ -219,51 +220,31 @@ public class ReplyPresenter
         }
     }
 
-    public void onSubmitClicked() {
+    public void onSubmitClicked(boolean longClicked) {
         if (!onPrepareToSubmit(false)) {
             return;
         }
 
         //only 4chan seems to have the post delay, this is a hack for that
-        if (draft.loadable.site.name().equals("4chan")) {
+        if (draft.loadable.site instanceof Chan4 && !longClicked) {
             if (loadable.isThreadMode()) {
-                if (lastReplyRepository.canPostReply(draft.loadable.site, draft.loadable.board, draft.file != null)) {
+                long timeLeft = lastReplyRepository.getTimeUntilReply(draft.loadable.board, draft.file != null);
+                if (timeLeft < 0L) {
                     submitOrAuthenticate();
                 } else {
-                    long lastPostTime = lastReplyRepository.getLastReply(draft.loadable.site, draft.loadable.board);
-
-                    long waitTime = draft.file != null
-                            ? draft.loadable.board.cooldownImages
-                            : draft.loadable.board.cooldownReplies;
-
-                    if (draft.loadable.site.actions().isLoggedIn()) {
-                        waitTime /= 2;
-                    }
-
-                    long timeLeft = waitTime - ((System.currentTimeMillis() - lastPostTime) / 1000L);
                     String errorMessage = getString(R.string.reply_error_message_timer_reply, timeLeft);
                     switchPage(Page.INPUT);
                     callback.openMessage(true, false, errorMessage, true);
                 }
-            } else if (loadable.isCatalogMode()) {
-                if (lastReplyRepository.canPostThread(draft.loadable.site, draft.loadable.board)) {
+            } else {
+                long timeLeft = lastReplyRepository.getTimeUntilThread(draft.loadable.board);
+                if (timeLeft < 0L) {
                     submitOrAuthenticate();
                 } else {
-                    long lastThreadTime = lastReplyRepository.getLastThread(draft.loadable.site, draft.loadable.board);
-
-                    long waitTime = draft.loadable.board.cooldownThreads;
-                    if (draft.loadable.site.actions().isLoggedIn()) {
-                        waitTime /= 2;
-                    }
-
-                    long timeLeft = waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
                     String errorMessage = getString(R.string.reply_error_message_timer_thread, timeLeft);
                     switchPage(Page.INPUT);
-
                     callback.openMessage(true, false, errorMessage, true);
                 }
-            } else {
-                Logger.wtf(TAG, "Loadable isn't a thread or a catalog loadable????");
             }
         } else {
             submitOrAuthenticate();
@@ -315,9 +296,9 @@ public class ReplyPresenter
                             "/" + localBoard.code + "/"
                     ));
 
-            lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
+            lastReplyRepository.putLastReply(localLoadable.board);
             if (loadable.isCatalogMode()) {
-                lastReplyRepository.putLastThread(loadable.site, loadable.board);
+                lastReplyRepository.putLastThread(loadable.board);
             }
 
             if (ChanSettings.postPinThread.get()) {
@@ -335,8 +316,7 @@ public class ReplyPresenter
                 }
             }
 
-            SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(localLoadable.site,
-                    localLoadable.board,
+            SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(localLoadable.board,
                     replyResponse.postNo,
                     replyResponse.password
             );
@@ -405,6 +385,12 @@ public class ReplyPresenter
         } else {
             switchPage(Page.INPUT);
         }
+    }
+
+    @Override
+    public void onAuthenticationFailed(Throwable error) {
+        callback.showAuthenticationFailedError(error);
+        switchPage(Page.INPUT);
     }
 
     @Override
@@ -535,7 +521,19 @@ public class ReplyPresenter
 
                     // cleanup resources tied to the new captcha layout/presenter
                     callback.destroyCurrentAuthentication();
-                    callback.initializeAuthentication(loadable.site, authentication, this, useV2NoJsCaptcha, autoReply);
+
+                    try {
+                        // If the user doesn't have WebView installed it will throw an error
+                        callback.initializeAuthentication(loadable.site,
+                                authentication,
+                                this,
+                                useV2NoJsCaptcha,
+                                autoReply
+                        );
+                    } catch (Throwable error) {
+                        onAuthenticationFailed(error);
+                    }
+
                     break;
             }
         }
@@ -575,16 +573,13 @@ public class ReplyPresenter
         callback.setFileName(name);
         previewOpen = true;
 
-        boolean probablyWebm = file.getName().endsWith(".webm");
+        boolean probablyWebm = "webm".equals(StringUtils.extractFileNameExtension(name));
         int maxSize = probablyWebm ? board.maxWebmSize : board.maxFileSize;
         //if the max size is undefined for the board, ignore this message
-        if (file.length() > maxSize && maxSize != -1) {
+        if (file != null && file.length() > maxSize && maxSize != -1) {
             String fileSize = getReadableFileSize(file.length());
-            String maxSizeString = getReadableFileSize(maxSize);
-
             int stringResId = probablyWebm ? R.string.reply_webm_too_big : R.string.reply_file_too_big;
-
-            callback.openPreviewMessage(true, getString(stringResId, fileSize, maxSizeString));
+            callback.openPreviewMessage(true, getString(stringResId, fileSize, getReadableFileSize(maxSize)));
         } else {
             callback.openPreviewMessage(false, null);
         }
@@ -666,5 +661,7 @@ public class ReplyPresenter
         void onFallbackToV1CaptchaView(boolean autoReply);
 
         void destroyCurrentAuthentication();
+
+        void showAuthenticationFailedError(Throwable error);
     }
 }

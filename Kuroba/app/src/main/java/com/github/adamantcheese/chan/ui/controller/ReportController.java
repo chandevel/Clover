@@ -47,7 +47,7 @@ public class ReportController
         super.onCreate();
         navigation.title = getString(R.string.report_screen, PostHelper.getTitle(post, null));
 
-        Site site = post.board.getSite();
+        Site site = post.board.site;
         HttpUrl url = site.endpoints().report(post);
 
         WebView webView = new WebView(context);

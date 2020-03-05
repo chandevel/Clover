@@ -20,10 +20,12 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.AndroidRuntimeException;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.Gravity;
@@ -39,6 +41,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -52,6 +55,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
@@ -244,6 +248,10 @@ public class ReplyLayout
         ThemeHelper.getTheme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);
+        submit.setOnLongClickListener(v -> {
+            presenter.onSubmitClicked(true);
+            return true;
+        });
 
         // Inflate captcha layout
         captchaContainer = (FrameLayout) AndroidUtils.inflate(getContext(), R.layout.layout_reply_captcha, this, false);
@@ -321,7 +329,7 @@ public class ReplyLayout
         } else if (v == captcha) {
             presenter.onAuthenticateCalled();
         } else if (v == submit) {
-            presenter.onSubmitClicked();
+            presenter.onSubmitClicked(false);
         } else if (v == previewHolder) {
             callback.showImageReencodingWindow(presenter.isAttachedFileSupportedForReencoding());
         } else if (v == captchaHardReset) {
@@ -447,6 +455,30 @@ public class ReplyLayout
 
         captchaContainer.removeView((View) authenticationLayout);
         authenticationLayout = null;
+    }
+
+    @Override
+    public void showAuthenticationFailedError(Throwable error) {
+        String message = getString(R.string.could_not_initialized_captcha, getReason(error));
+        showToast(getContext(), message, Toast.LENGTH_LONG);
+    }
+
+    private String getReason(Throwable error) {
+        if (error instanceof AndroidRuntimeException && error.getMessage() != null) {
+            if (error.getMessage().contains("MissingWebViewPackageException")) {
+                return getString(R.string.fail_reason_webview_is_not_installed);
+            }
+
+            // Fallthrough
+        } else if (error instanceof Resources.NotFoundException) {
+            return getString(R.string.fail_reason_some_part_of_webview_not_initialized, error.getMessage());
+        }
+
+        if (error.getMessage() != null) {
+            return String.format("%s: %s", error.getClass().getSimpleName(), error.getMessage());
+        }
+
+        return error.getClass().getSimpleName();
     }
 
     @Override
@@ -645,10 +677,12 @@ public class ReplyLayout
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 if (callback.getThread() == null) return true;
                 Loadable threadLoadable = callback.getThread().getLoadable();
-                boolean is4chan = threadLoadable.board.site.name().equals("4chan");
+                boolean is4chan = threadLoadable.board.site instanceof Chan4;
                 //menu item cleanup, these aren't needed for this
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    menu.removeItem(android.R.id.shareText);
+                    if (menu.size() > 0) {
+                        menu.removeItem(android.R.id.shareText);
+                    }
                 }
                 //setup standard items
                 // >greentext

@@ -45,6 +45,7 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReaderRequest;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
 import java.util.ArrayList;
@@ -168,8 +169,13 @@ public class ChanThreadLoader
         Disposable disposable = Single.fromCallable(this::loadSavedCopyIfExists)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::requestDataInternal,
-                        error -> Logger.e(TAG, "Error while loading saved thread", error)
+                .subscribe(
+                        this::requestDataInternal,
+                        error -> {
+                            Logger.e(TAG, "Error while loading saved thread", error);
+
+                            notifyAboutError(new VolleyError(error));
+                        }
                 );
 
         compositeDisposable.add(disposable);
@@ -275,6 +281,8 @@ public class ChanThreadLoader
                         if (message != null && !message.contains("getData() returned null")) {
                             Logger.e(TAG, "Error while trying to get data: ", error);
                         }
+                    } else {
+                        notifyAboutError(new VolleyError(error));
                     }
                 });
     }
@@ -394,7 +402,14 @@ public class ChanThreadLoader
 
         Disposable disposable = Single.fromCallable(() -> onResponseInternal(response))
                 .subscribeOn(Schedulers.io())
-                .subscribe(result -> { }, error -> Logger.e(TAG, "onResponse error", error));
+                .subscribe(
+                        result -> { },
+                        error -> {
+                            Logger.e(TAG, "onResponse error", error);
+
+                            notifyAboutError(new VolleyError(error));
+                        }
+                );
 
         compositeDisposable.add(disposable);
     }
@@ -773,9 +788,12 @@ public class ChanThreadLoader
                 } else {
                     errorMessage = R.string.thread_load_failed_server;
                 }
+            } else if (volleyError.getCause() instanceof JsonParseException) {
+                errorMessage = R.string.thread_load_failed_local_thread_parsing;
             } else {
                 errorMessage = R.string.thread_load_failed_parsing;
             }
+
             return errorMessage;
         }
 

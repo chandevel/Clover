@@ -118,6 +118,7 @@ public class ThumbnailView
             container = null;
             error = false;
             setImageBitmap(null);
+            animate().cancel();
         }
 
         if (!TextUtils.isEmpty(url)) {
@@ -130,6 +131,7 @@ public class ThumbnailView
     }
 
     public void setUrlFromDisk(Loadable loadable, String filename, boolean isSpoiler, int width, int height) {
+        animate().cancel();
         container = imageLoaderV2.getFromDisk(loadable, filename, isSpoiler, this, width, height, null);
     }
 
@@ -331,6 +333,7 @@ public class ThumbnailView
             animate().alpha(1f).setDuration(200);
         } else {
             setAlpha(1f);
+            animate().cancel();
         }
     }
 

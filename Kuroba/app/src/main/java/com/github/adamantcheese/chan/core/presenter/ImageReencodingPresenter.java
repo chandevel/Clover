@@ -108,24 +108,13 @@ public class ImageReencodingPresenter {
 
     @Nullable
     public Bitmap.CompressFormat getImageFormat() {
-        try {
-            Reply reply = replyManager.getReply(loadable);
-            return BitmapUtils.getImageFormat(reply.file);
-        } catch (Exception e) {
-            Logger.e(TAG, "Error while trying to get image format", e);
-            return null;
-        }
+        Reply reply = replyManager.getReply(loadable);
+        return BitmapUtils.getImageFormat(reply.file);
     }
 
-    @Nullable
     public Pair<Integer, Integer> getImageDims() {
-        try {
-            Reply reply = replyManager.getReply(loadable);
-            return BitmapUtils.getImageDims(reply.file);
-        } catch (Exception e) {
-            Logger.e(TAG, "Error while trying to get image dimensions", e);
-            return null;
-        }
+        Reply reply = replyManager.getReply(loadable);
+        return BitmapUtils.getImageDims(reply.file);
     }
 
     public void setReencode(@Nullable ReencodeSettings reencodeSettings) {
