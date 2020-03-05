@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
@@ -36,7 +35,7 @@ import java.io.InputStream;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class LogsController
@@ -78,8 +77,7 @@ public class LogsController
     }
 
     private void copyLogsClicked(ToolbarMenuSubItem item) {
-        ClipData clip = ClipData.newPlainText("Logs", logText);
-        getClipboardManager().setPrimaryClip(clip);
+        setClipboardContent("Logs", logText);
         showToast(context, R.string.settings_logs_copied_to_clipboard);
     }
 
@@ -92,7 +90,13 @@ public class LogsController
     public static String loadLogs(int linesCount) {
         Process process;
         try {
-            process = new ProcessBuilder().command("logcat", "-v", "tag", "-t", String.valueOf(linesCount), "StrictMode:S").start();
+            process = new ProcessBuilder().command("logcat",
+                    "-v",
+                    "tag",
+                    "-t",
+                    String.valueOf(linesCount),
+                    "StrictMode:S"
+            ).start();
         } catch (IOException e) {
             Logger.e(TAG, "Error starting logcat", e);
             return null;

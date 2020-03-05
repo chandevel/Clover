@@ -79,7 +79,7 @@ public class ChanThread {
     }
 
     public synchronized void updateLoadableState(Loadable.LoadableDownloadingState state) {
-        loadable.loadableDownloadingState = state;
+        loadable.setLoadableState(state);
     }
 
     /**

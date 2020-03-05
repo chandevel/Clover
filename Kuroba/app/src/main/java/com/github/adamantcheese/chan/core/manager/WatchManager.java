@@ -284,7 +284,7 @@ public class WatchManager
             savedThread.isStopped = false;
         }
 
-        loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+        loadable.setLoadableState(Loadable.LoadableDownloadingState.DownloadingAndNotViewable);
         createOrUpdateSavedThread(savedThread);
         databaseManager.runTask(databaseSavedThreadManager.startSavingThread(savedThread));
         return true;
@@ -303,7 +303,7 @@ public class WatchManager
         createOrUpdateSavedThread(savedThread);
         databaseManager.runTask(databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(loadable.id, true));
 
-        loadable.loadableDownloadingState = Loadable.LoadableDownloadingState.NotDownloading;
+        loadable.setLoadableState(Loadable.LoadableDownloadingState.NotDownloading);
         threadSaveManager.stopDownloading(loadable);
     }
 
@@ -388,6 +388,7 @@ public class WatchManager
 
         destroyPinWatcher(pin);
         deleteSavedThread(pin.loadable.id);
+        pin.loadable.setLoadableState(Loadable.LoadableDownloadingState.NotDownloading);
 
         threadSaveManager.cancelDownloading(pin.loadable);
 
@@ -678,21 +679,17 @@ public class WatchManager
         return pinWatchers.get(pin);
     }
 
-    private boolean createPinWatcher(Pin pin) {
+    private void createPinWatcher(Pin pin) {
         if (!pinWatchers.containsKey(pin)) {
             pinWatchers.put(pin, new PinWatcher(pin, this));
-            return true;
-        } else {
-            return false;
         }
     }
 
-    private boolean destroyPinWatcher(Pin pin) {
+    private void destroyPinWatcher(Pin pin) {
         PinWatcher pinWatcher = pinWatchers.remove(pin);
         if (pinWatcher != null) {
             pinWatcher.destroy();
         }
-        return pinWatcher != null;
     }
 
     private void updatePinsInDatabase() {
@@ -925,7 +922,7 @@ public class WatchManager
 
     private void updateDeletedOrArchivedPins() {
         for (Pin pin : pins) {
-            if (pin.loadable.loadableDownloadingState == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+            if (pin.loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
                 continue;
             }
 
@@ -1259,7 +1256,7 @@ public class WatchManager
             if (PinType.hasDownloadFlag(pin.pinType)
                     // Only check for this flag here, since we won't get here when loadableDownloadingState
                     // is AlreadyDownloaded
-                    && pin.loadable.loadableDownloadingState != Loadable.LoadableDownloadingState.DownloadingAndViewable
+                    && pin.loadable.getLoadableDownloadingState() != Loadable.LoadableDownloadingState.DownloadingAndViewable
                     && (thread.isArchived() || thread.isClosed())) {
                 NetworkResponse networkResponse =
                         new NetworkResponse(503, EMPTY_BYTE_ARRAY, Collections.emptyMap(), true);

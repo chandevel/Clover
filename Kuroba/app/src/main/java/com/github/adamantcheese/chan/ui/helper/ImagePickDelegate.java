@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.helper;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -57,7 +58,7 @@ import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -118,20 +119,23 @@ public class ImagePickDelegate {
             Intent newIntent = new Intent(Intent.ACTION_GET_CONTENT);
             newIntent.addCategory(Intent.CATEGORY_OPENABLE);
             newIntent.setPackage(info.activityInfo.packageName);
+            newIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             newIntent.setType("*/*");
 
             intents.add(newIntent);
         }
 
-        if (intents.size() == 1 || !ChanSettings.allowFilePickChooser.get()) {
-            activity.startActivityForResult(intents.get(0), IMAGE_PICK_RESULT);
-        } else if (intents.size() > 1) {
-            Intent chooser = Intent.createChooser(intents.remove(intents.size() - 1),
-                    getString(R.string.image_pick_delegate_select_file_picker)
-            );
+        if (!intents.isEmpty()) {
+            if (intents.size() == 1 || !ChanSettings.allowFilePickChooser.get()) {
+                activity.startActivityForResult(intents.get(0), IMAGE_PICK_RESULT);
+            } else {
+                Intent chooser = Intent.createChooser(intents.remove(intents.size() - 1),
+                        getString(R.string.image_pick_delegate_select_file_picker)
+                );
 
-            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new Intent[0]));
-            activity.startActivityForResult(chooser, IMAGE_PICK_RESULT);
+                chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new Intent[0]));
+                activity.startActivityForResult(chooser, IMAGE_PICK_RESULT);
+            }
         } else {
             showToast(activity, R.string.open_file_picker_failed, Toast.LENGTH_LONG);
             callback.onFilePickError(false);
@@ -145,7 +149,7 @@ public class ImagePickDelegate {
         HttpUrl clipboardURL;
         try {
             //this is converted to a string again later, but this is an easy way of catching if the clipboard item is a URL
-            clipboardURL = HttpUrl.get(getClipboardManager().getPrimaryClip().getItemAt(0).getText().toString());
+            clipboardURL = HttpUrl.get(getClipboardContent());
         } catch (Exception exception) {
             toast.showToast(getString(R.string.image_url_get_failed, exception.getMessage()));
             callback.onFilePickError(true);
@@ -198,28 +202,28 @@ public class ImagePickDelegate {
         boolean canceled = false;
 
         if (resultCode == Activity.RESULT_OK && data != null) {
-            uri = data.getData();
+            uri = getUriOrNull(data);
+            if (uri != null) {
+                Cursor returnCursor = activity.getContentResolver().query(uri, null, null, null, null);
+                if (returnCursor != null) {
+                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex > -1 && returnCursor.moveToFirst()) {
+                        fileName = returnCursor.getString(nameIndex);
+                    }
 
-            Cursor returnCursor = activity.getContentResolver().query(uri, null, null, null, null);
-            if (returnCursor != null) {
-                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                returnCursor.moveToFirst();
-                if (nameIndex > -1) {
-                    fileName = returnCursor.getString(nameIndex);
+                    returnCursor.close();
                 }
 
-                returnCursor.close();
-            }
+                if (fileName == null) {
+                    // As per the comment on OpenableColumns.DISPLAY_NAME:
+                    // If this is not provided then the name should default to the last segment of the file's URI.
+                    fileName = uri.getLastPathSegment();
+                    fileName = fileName == null ? DEFAULT_FILE_NAME : fileName;
+                }
 
-            if (fileName == null) {
-                // As per the comment on OpenableColumns.DISPLAY_NAME:
-                // If this is not provided then the name should default to the last segment of the file's URI.
-                fileName = uri.getLastPathSegment();
-                fileName = fileName == null ? DEFAULT_FILE_NAME : fileName;
+                executor.execute(this::run);
+                ok = true;
             }
-
-            executor.execute(this::run);
-            ok = true;
         } else if (resultCode == Activity.RESULT_CANCELED) {
             canceled = true;
         }
@@ -230,6 +234,18 @@ public class ImagePickDelegate {
         }
 
         return true;
+    }
+
+    @Nullable
+    private Uri getUriOrNull(Intent intent) {
+        if (intent.getData() != null) return intent.getData();
+
+        ClipData clipData = intent.getClipData();
+        if (clipData != null && clipData.getItemCount() > 0) {
+            return clipData.getItemAt(0).getUri();
+        }
+
+        return null;
     }
 
     private void run() {

@@ -175,7 +175,7 @@ public class DrawerController
                 }
             }
 
-            pin.loadable.loadableDownloadingState = state;
+            pin.loadable.setLoadableState(state);
             threadController.openPin(pin);
         }
     }
@@ -284,7 +284,7 @@ public class DrawerController
             drawerLayout.openDrawer(drawer);
             //max out at 5
             int curCount = ChanSettings.drawerAutoOpenCount.get();
-            ChanSettings.drawerAutoOpenCount.set(curCount + 1 > 5 ? 5 : curCount + 1);
+            ChanSettings.drawerAutoOpenCount.set(Math.min(curCount + 1, 5));
             if (ChanSettings.drawerAutoOpenCount.get() < 5 && !ChanSettings.alwaysOpenDrawer.get()) {
                 int countLeft = 5 - ChanSettings.drawerAutoOpenCount.get();
                 showToast(context,

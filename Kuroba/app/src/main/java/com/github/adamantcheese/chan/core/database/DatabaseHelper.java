@@ -510,7 +510,7 @@ public class DatabaseHelper
             Set<Integer> loadableIdSet = new HashSet<>();
             for (Loadable loadable : siteLoadables) {
                 //only get the loadables with the same board code
-                if (loadable.board.code.equals(board.code)) {
+                if (loadable.boardCode.equals(board.code)) {
                     loadableIdSet.add(loadable.id);
                 }
             }

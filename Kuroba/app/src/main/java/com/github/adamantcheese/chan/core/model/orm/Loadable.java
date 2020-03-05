@@ -49,14 +49,13 @@ public class Loadable
     public transient Site site;
 
     /**
-     * Mode for the loadable.
-     * Either thread or catalog. Board is deprecated.
+     * Mode for the loadable. Either thread or catalog.
      */
     @DatabaseField
     public int mode = Mode.INVALID;
 
     @DatabaseField(columnName = "board", canBeNull = false, index = true)
-    public String boardCode;
+    public String boardCode = "";
 
     public Board board;
 
@@ -90,7 +89,15 @@ public class Loadable
      * Tells us whether this loadable (when in THREAD mode) contains information about
      * a live thread or the local saved copy of a thread (which may be already deleted from the server)
      */
-    public transient LoadableDownloadingState loadableDownloadingState = LoadableDownloadingState.NotDownloading;
+    private transient LoadableDownloadingState loadableDownloadingState = LoadableDownloadingState.NotDownloading;
+
+    public synchronized void setLoadableState(LoadableDownloadingState state) {
+        this.loadableDownloadingState = state;
+    }
+
+    public synchronized LoadableDownloadingState getLoadableDownloadingState() {
+        return loadableDownloadingState;
+    }
 
     /**
      * Constructs an empty loadable. The mode is INVALID.
@@ -226,7 +233,7 @@ public class Loadable
         int result = mode;
 
         if (mode == Mode.THREAD || mode == Mode.CATALOG) {
-            result = 31 * result + (boardCode != null ? boardCode.hashCode() : 0);
+            result = 31 * result + boardCode.hashCode();
         }
         if (mode == Mode.THREAD) {
             result = 31 * result + no;

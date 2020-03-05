@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
-import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -25,17 +24,9 @@ public class SavedReply {
     public SavedReply() {
     }
 
-    @Deprecated
-    public SavedReply(String board, int no, String password) {
-        this.board = board;
-        this.no = no;
-        this.password = password;
-    }
-
-    public static SavedReply fromSiteBoardNoPassword(Site site, Board board, int no, String password) {
+    public static SavedReply fromSiteBoardNoPassword(Board board, int no, String password) {
         SavedReply savedReply = new SavedReply();
-        savedReply.siteId = site.id();
-        savedReply.site = site;
+        savedReply.siteId = board.site.id();
         savedReply.board = board.code;
         savedReply.no = no;
         savedReply.password = password;
@@ -47,11 +38,6 @@ public class SavedReply {
 
     @DatabaseField(columnName = "site")
     public int siteId;
-
-    /**
-     * The site this board belongs to, loaded with {@link #siteId} in the database manager.
-     */
-    public transient Site site;
 
     @DatabaseField(index = true, canBeNull = false)
     public String board;

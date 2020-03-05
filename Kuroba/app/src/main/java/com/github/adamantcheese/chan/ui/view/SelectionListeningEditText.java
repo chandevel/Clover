@@ -17,14 +17,13 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.text.Spanned;
 import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatEditText;
 
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
 
 public class SelectionListeningEditText
         extends AppCompatEditText {
@@ -65,8 +64,7 @@ public class SelectionListeningEditText
         int max = isFocused() ? Math.max(0, Math.max(start, end)) : getText().length();
         if (id == android.R.id.paste && plainTextPaste) {
             //this code is basically a duplicate of the plain text paste functionality for later API versions
-            ClipboardManager clipboard = AndroidUtils.getClipboardManager();
-            ClipData clip = clipboard.getPrimaryClip();
+            ClipData clip = getClipboardManager().getPrimaryClip();
             if (clip != null) {
                 boolean didFirst = false;
                 for (int i = 0; i < clip.getItemCount(); i++) {

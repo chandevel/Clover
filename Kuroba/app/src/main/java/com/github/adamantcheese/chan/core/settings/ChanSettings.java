@@ -270,6 +270,7 @@ public class ChanSettings {
     public static final BooleanSetting autoCrashLogsUpload;
     public static final BooleanSetting captchaOnBottom;
     public static final BooleanSetting showCopyApkUpdateDialog;
+    public static final BooleanSetting crashOnSafeThrow;
 
     static {
         try {
@@ -416,6 +417,7 @@ public class ChanSettings {
             autoCrashLogsUpload = new BooleanSetting(p, "auto_upload_crash_logs", true);
             captchaOnBottom = new BooleanSetting(p, "captcha_on_bottom", true);
             showCopyApkUpdateDialog = new BooleanSetting(p, "show_copy_apk_update_dialog", true);
+            crashOnSafeThrow = new BooleanSetting(p, "crash_on_safe_throw", true);
             androidTenGestureZones = new StringSetting(p, "android_ten_gesture_zones", EMPTY_JSON);
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the

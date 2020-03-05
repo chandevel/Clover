@@ -20,10 +20,8 @@ import androidx.annotation.AnyThread;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
-import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
 import java.util.ArrayList;
@@ -50,6 +48,7 @@ public class DatabaseSavedReplyManager {
     @Inject
     DatabaseHelper helper;
 
+    // map of post number to saved replies
     private final Map<Integer, List<SavedReply>> savedRepliesByNo = new HashMap<>();
 
     public DatabaseSavedReplyManager() {
@@ -67,19 +66,7 @@ public class DatabaseSavedReplyManager {
      */
     @AnyThread
     public boolean isSaved(Board board, int postNo) {
-        synchronized (savedRepliesByNo) {
-            if (savedRepliesByNo.containsKey(postNo)) {
-                List<SavedReply> items = savedRepliesByNo.get(postNo);
-                for (SavedReply item : items) {
-                    if (item.board.equals(board.code) && item.siteId == board.siteId) {
-                        return true;
-                    }
-                }
-                return false;
-            } else {
-                return false;
-            }
-        }
+        return getSavedReply(board, postNo) != null;
     }
 
     public Callable<Void> load() {
@@ -94,8 +81,6 @@ public class DatabaseSavedReplyManager {
             synchronized (savedRepliesByNo) {
                 savedRepliesByNo.clear();
                 for (SavedReply savedReply : all) {
-                    savedReply.site = instance(SiteRepository.class).forId(savedReply.siteId);
-
                     List<SavedReply> list = savedRepliesByNo.get(savedReply.no);
                     if (list == null) {
                         list = new ArrayList<>(1);
@@ -152,13 +137,18 @@ public class DatabaseSavedReplyManager {
         };
     }
 
-    public Callable<SavedReply> findSavedReply(final Board board, final int no) {
-        return () -> {
-            QueryBuilder<SavedReply, Integer> builder = helper.savedDao.queryBuilder();
-            List<SavedReply> query =
-                    builder.where().eq("site", board.siteId).and().eq("board", board.code).and().eq("no", no).query();
-            return query.isEmpty() ? null : query.get(0);
-        };
+    public SavedReply getSavedReply(Board board, int postNo) {
+        synchronized (savedRepliesByNo) {
+            if (savedRepliesByNo.containsKey(postNo)) {
+                List<SavedReply> items = savedRepliesByNo.get(postNo);
+                for (SavedReply item : items) {
+                    if (item.board.equals(board.code) && item.siteId == board.siteId) {
+                        return item;
+                    }
+                }
+            }
+            return null;
+        }
     }
 
     public Callable<Void> deleteSavedReplies(Site site) {

@@ -83,7 +83,7 @@ public class ImageDecoder {
     }
 
     public static Bitmap decodeFile(File file, int maxWidth, int maxHeight) {
-        if (!file.exists()) return null;
+        if (file == null || !file.exists()) return null;
 
         FileInputStream fis;
 

@@ -790,6 +790,7 @@ Don't have a 4chan Pass?<br>
     <string name="settings_js_captcha_cookies_title">JS captcha cookies</string>
     <string name="settings_js_captcha_cookies_description">By inputting your desktop browser captcha cookies, captcha solving may become easier</string>
     <string name="cookies_editor_bad_cookie">%1$s cookie is not set!</string>
+    <string name="cookies_editor_failed_parse">Failed to parse cookies, re-enter them correctly!</string>
 
     <string name="mock_reply">Mock reply</string>
     <string name="settings_report">Report</string>
@@ -810,6 +811,11 @@ Don't have a 4chan Pass?<br>
     <string name="update_manager_apk_copied">Apk successfully copied</string>
     <string name="settings_show_copy_apk_dialog_title">Show copy apk dialog when downloading an update</string>
     <string name="settings_show_copy_apk_dialog_message">Every time you download a new update a dialog with suggestion to copy that apk to some other directory will be shown</string>
+
+    <string name="could_not_initialized_captcha">Couldn\'t initialize captcha, reason: %1$s</string>
+    <string name="fail_reason_webview_is_not_installed">WebView is not installed</string>
+    <string name="fail_reason_some_part_of_webview_not_initialized">Some part of WebViewChromium couldn\'t get initialized: (%1$s)</string>
+    <string name="thread_load_failed_local_thread_parsing">Error while trying to parse local thread json file. Try deleting and the re-downloading the thread to fix this error.</string>
     <string name="setting_enable_image_link_loading">Enable image link loading</string>
     <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
     <string name="add_new_zone">Add new zone</string>

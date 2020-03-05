@@ -170,14 +170,15 @@ public class ImageSaver {
                             .doOnSuccess((success) -> imageSaveTaskFinished(t, success))
                             .doOnError((error) -> Logger.e(TAG, "Unhandled exception", error))
                             .onErrorReturnItem(BundledDownloadResult.Failure);
-                }, false, CONCURRENT_REQUESTS_COUNT).subscribe((result) -> {
-            // Do nothing
-        }, (error) -> {
-            throw new RuntimeException(TAG + " Uncaught exception!!! " + "workerQueue is in error state now!!! "
-                    + "This should not happen!!!, original error = " + error.getMessage());
-        }, () -> {
-            throw new RuntimeException(TAG + " workerQueue stream has completed!!! This should not happen!!!");
-        });
+                }, false, CONCURRENT_REQUESTS_COUNT)
+                .subscribe((result) -> {
+                    // Do nothing
+                }, (error) -> {
+                    throw new RuntimeException(TAG + " Uncaught exception!!! " + "workerQueue is in error state now!!! "
+                            + "This should not happen!!!, original error = " + error.getMessage());
+                }, () -> {
+                    throw new RuntimeException(TAG + " workerQueue stream has completed!!! This should not happen!!!");
+                });
     }
 
     public void startDownloadTask(Context context, final ImageSaveTask task, DownloadTaskCallbacks callbacks) {
@@ -188,7 +189,7 @@ public class ImageSaver {
 
         requestPermission(context, granted -> {
             if (!granted) {
-                callbacks.onError(context.getString(R.string.image_saver_no_write_permission_message));
+                callbacks.onError(getString(R.string.image_saver_no_write_permission_message));
                 return;
             }
 
@@ -236,15 +237,13 @@ public class ImageSaver {
                 }
             }
 
-            return checkPermission(context)
-                    .flatMap((granted) -> {
-                        if (!granted) {
-                            return Single.just(NoWriteExternalStoragePermission);
-                        }
+            return checkPermission(context).flatMap((granted) -> {
+                if (!granted) {
+                    return Single.just(NoWriteExternalStoragePermission);
+                }
 
-                        return startBundledTaskInternal(tasks)
-                                .map((result) -> result ? Ok : UnknownError);
-                    });
+                return startBundledTaskInternal(tasks).map((result) -> result ? Ok : UnknownError);
+            });
         });
     }
 
@@ -253,8 +252,8 @@ public class ImageSaver {
             return Single.just(true);
         }
 
-        return Single.<Boolean>create((emitter) -> requestPermission(context, emitter::onSuccess))
-                .subscribeOn(AndroidSchedulers.mainThread());
+        return Single.<Boolean>create((emitter) -> requestPermission(context, emitter::onSuccess)).subscribeOn(
+                AndroidSchedulers.mainThread());
     }
 
     @Nullable
@@ -295,8 +294,11 @@ public class ImageSaver {
             AbstractFile innerDirectory = fileManager.create(baseSaveDir, directorySegments);
 
             if (innerDirectory == null) {
-                Logger.e(TAG, "getSaveLocation() failed to create subdirectory " +
-                        "(" + subFolder + ") for a base dir: " + baseSaveDir.getFullPath());
+                Logger.e(
+                        TAG,
+                        "getSaveLocation() failed to create subdirectory " + "(" + subFolder + ") for a base dir: "
+                                + baseSaveDir.getFullPath()
+                );
             }
 
             return innerDirectory;
@@ -446,9 +448,13 @@ public class ImageSaver {
         if (totalTasks.get() == 0) {
             getAppContext().stopService(service);
         } else {
-            service.putExtra(SavingNotification.DONE_TASKS_KEY, doneTasks.get());
-            service.putExtra(SavingNotification.TOTAL_TASKS_KEY, totalTasks.get());
-            ContextCompat.startForegroundService(getAppContext(), service);
+            if (BackgroundUtils.isInForeground()) {
+                service.putExtra(SavingNotification.DONE_TASKS_KEY, doneTasks.get());
+                service.putExtra(SavingNotification.TOTAL_TASKS_KEY, totalTasks.get());
+                ContextCompat.startForegroundService(getAppContext(), service);
+            } else {
+                getAppContext().stopService(service);
+            }
         }
     }
 

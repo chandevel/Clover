@@ -44,6 +44,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.MediaSourceCallback;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo;
+import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingDataSource;
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
@@ -54,7 +55,6 @@ import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.file.RawFile;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioListener;
@@ -70,6 +70,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 import javax.inject.Inject;
 
@@ -80,6 +81,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -280,13 +282,14 @@ public class MultiImageView
         callback.onSwipeToSaveImage();
     }
 
+    private boolean getDefaultMuteState() {
+        return ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get()
+                || !getAudioManager().isWiredHeadsetOn());
+    }
+
     public void setVolume(boolean muted) {
-        final float volume = muted ? 0f : 1f;
         if (exoPlayer != null) {
-            Player.AudioComponent audioComponent = exoPlayer.getAudioComponent();
-            if (audioComponent != null) {
-                audioComponent.setVolume(volume);
-            }
+            exoPlayer.setVolume(muted ? 0f : 1f);
         }
     }
 
@@ -522,7 +525,7 @@ public class MultiImageView
 
                     if (!hasContent || mode == Mode.VIDEO) {
                         PlayerView exoVideoView = new PlayerView(getContext());
-                        exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+                        exoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
                         exoVideoView.setPlayer(exoPlayer);
 
                         exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get()
@@ -537,6 +540,9 @@ public class MultiImageView
                         exoVideoView.setUseController(false);
                         exoVideoView.setControllerHideOnTouch(false);
                         exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
+                        exoVideoView.setUseArtwork(true);
+                        exoVideoView.setDefaultArtwork(getAppContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
+                        exoPlayer.setVolume(getDefaultMuteState() ? 0 : 1);
                         exoPlayer.setPlayWhenReady(true);
                         onModeLoaded(Mode.VIDEO, exoVideoView);
                         callback.onVideoLoaded(MultiImageView.this);
@@ -627,7 +633,7 @@ public class MultiImageView
             onModeLoaded(Mode.VIDEO, null);
         } else {
             PlayerView exoVideoView = new PlayerView(getContext());
-            exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+            exoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
             exoVideoView.setPlayer(exoPlayer);
             String userAgent = Util.getUserAgent(getAppContext(), NetModule.USER_AGENT);
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(), userAgent);
@@ -643,6 +649,9 @@ public class MultiImageView
             exoVideoView.setUseController(false);
             exoVideoView.setControllerHideOnTouch(false);
             exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
+            exoVideoView.setUseArtwork(true);
+            exoVideoView.setDefaultArtwork(getAppContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
+            exoPlayer.setVolume(getDefaultMuteState() ? 0 : 1);
             exoPlayer.setPlayWhenReady(true);
             onModeLoaded(Mode.VIDEO, exoVideoView);
             callback.onVideoLoaded(this);
@@ -799,6 +808,7 @@ public class MultiImageView
 
         if (exoPlayer != null) {
             // ExoPlayer will keep loading resources if we don't release it here.
+            releaseStreamCallbacks();
             exoPlayer.release();
             exoPlayer = null;
         }
@@ -812,6 +822,7 @@ public class MultiImageView
                 View child = getChildAt(i);
                 if (child != view) {
                     if (child instanceof PlayerView) {
+                        releaseStreamCallbacks();
                         ((PlayerView) child).getPlayer().release();
                     }
                     removeViewAt(i);
@@ -830,6 +841,26 @@ public class MultiImageView
 
         hasContent = true;
         callback.onModeLoaded(this, mode);
+    }
+
+    private void releaseStreamCallbacks() {
+        if (ChanSettings.videoStream.get()) {
+            try {
+                Field mediaSource = exoPlayer.getClass().getDeclaredField("mediaSource");
+                mediaSource.setAccessible(true);
+                if (mediaSource.get(exoPlayer) != null) {
+                    ProgressiveMediaSource source = (ProgressiveMediaSource) mediaSource.get(exoPlayer);
+                    Field dataSource = source.getClass().getDeclaredField("dataSourceFactory");
+                    dataSource.setAccessible(true);
+                    DataSource.Factory factory = (DataSource.Factory) dataSource.get(source);
+                    ((WebmStreamingDataSource) factory.createDataSource()).clearListeners();
+                    dataSource.setAccessible(false);
+                }
+                mediaSource.setAccessible(false);
+            } catch (Exception ignored) {
+                // data source likely is from a file rather than a stream, ignore any exceptions
+            }
+        }
     }
 
     public interface Callback {

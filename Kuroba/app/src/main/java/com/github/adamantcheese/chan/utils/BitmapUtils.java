@@ -1,18 +1,14 @@
 package com.github.adamantcheese.chan.utils;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.drawable.Drawable;
 import android.util.Pair;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
+import androidx.core.math.MathUtils;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
@@ -65,21 +61,8 @@ public class BitmapUtils {
             reencodeType = reencodeSettings.getReencodeType();
         }
 
-        if (quality < MIN_QUALITY) {
-            quality = MIN_QUALITY;
-        }
-
-        if (quality > MAX_QUALITY) {
-            quality = MAX_QUALITY;
-        }
-
-        if (reduce > MAX_REDUCE) {
-            reduce = MAX_REDUCE;
-        }
-
-        if (reduce < MIN_REDUCE) {
-            reduce = MIN_REDUCE;
-        }
+        quality = MathUtils.clamp(quality, MIN_QUALITY, MAX_QUALITY);
+        reduce = MathUtils.clamp(reduce, MIN_REDUCE, MAX_REDUCE);
 
         //all parameters are default - do nothing
         if (quality == MAX_QUALITY && reduce == MIN_REDUCE && reencodeType == AS_IS && !fixExif && !removeMetadata
@@ -209,24 +192,11 @@ public class BitmapUtils {
     }
 
     public static boolean isFileSupportedForReencoding(File file) {
-        try {
-            CompressFormat imageFormat = getImageFormat(file);
-            return imageFormat == JPEG || imageFormat == PNG;
-        } catch (IOException e) {
-            // ignore
-            return false;
-        }
+        CompressFormat imageFormat = getImageFormat(file);
+        return imageFormat == JPEG || imageFormat == PNG;
     }
 
-    public static CompressFormat getImageFormat(@NonNull File file)
-            throws IOException {
-        if (file == null) throw new IOException("File is null!");
-        if (!file.exists() || !file.isFile() || !file.canRead()) {
-            throw new IOException(
-                    "File " + file.getAbsolutePath() + " is inaccessible (exists = " + file.exists() + ", isFile = "
-                            + file.isFile() + ", canRead = " + file.canRead() + ")");
-        }
-
+    public static CompressFormat getImageFormat(File file) {
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
             byte[] header = new byte[16];
             raf.read(header);
@@ -263,7 +233,9 @@ public class BitmapUtils {
                 }
             }
 
-            throw new IOException("File " + file.getName() + " is neither PNG nor JPEG");
+            return null;
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -271,32 +243,14 @@ public class BitmapUtils {
      * Gets the dimensions of the specified image file
      *
      * @param file image
-     * @return a pair of dimensions, in WIDTH then HEIGHT order
-     *
-     * @throws IOException if anything went wrong
+     * @return a pair of dimensions, in WIDTH then HEIGHT order; -1, -1 if not determinable
      */
-    public static Pair<Integer, Integer> getImageDims(File file)
-            throws IOException {
-        if (file == null) throw new IOException();
-        Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
-        return new Pair<>(bitmap.getWidth(), bitmap.getHeight());
-    }
-
-    @Nullable
-    public static Bitmap getBitmapFromVectorDrawable(
-            Context context, int width, int height, @DrawableRes int drawableId
-    ) {
-        Drawable originalDrawable = ContextCompat.getDrawable(context, drawableId);
-        if (originalDrawable == null) {
-            return null;
+    public static Pair<Integer, Integer> getImageDims(File file) {
+        try {
+            Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
+            return new Pair<>(bitmap.getWidth(), bitmap.getHeight());
+        } catch (Exception e) {
+            return new Pair<>(-1, -1);
         }
-
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(bitmap);
-        originalDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        originalDrawable.draw(canvas);
-
-        return bitmap;
     }
 }

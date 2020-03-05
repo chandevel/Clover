@@ -180,16 +180,6 @@ public class Board
         this.archive = archive;
     }
 
-    @Deprecated
-    public Board(Site site, String name, String code, boolean saved, boolean workSafe) {
-        this.siteId = site.id();
-        this.site = site;
-        this.name = name;
-        this.code = code;
-        this.saved = saved;
-        this.workSafe = workSafe;
-    }
-
     public static Board fromSiteNameCode(Site site, String name, String code) {
         Board board = new Board();
         board.siteId = site.id();
@@ -201,10 +191,6 @@ public class Board
 
     public boolean hasMissingInfo() {
         return TextUtils.isEmpty(name) || TextUtils.isEmpty(code) || perPage < 0 || pages < 0;
-    }
-
-    public Site getSite() {
-        return site;
     }
 
     public boolean siteCodeEquals(Board other) {

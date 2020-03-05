@@ -36,7 +36,6 @@ constructor(
         BackgroundUtils.ensureBackgroundThread()
 
         val threadFile = threadSaveDir.clone(FileSegment(THREAD_FILE_NAME))
-
         if (!fileManager.exists(threadFile)) {
             Logger.d(TAG, "threadFile does not exist, threadFilePath = " + threadFile.getFullPath())
             return null
