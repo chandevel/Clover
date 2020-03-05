@@ -17,64 +17,44 @@
 package com.github.adamantcheese.chan.core.repository;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class LastReplyRepository {
-    private Map<SiteBoard, Long> lastReplyMap = new HashMap<>();
-    private Map<SiteBoard, Long> lastThreadMap = new HashMap<>();
+    private Map<Board, Long> lastReplyMap = new HashMap<>();
+    private Map<Board, Long> lastThreadMap = new HashMap<>();
 
-    public void putLastReply(Site s, Board b) {
-        lastReplyMap.put(new SiteBoard(s, b), System.currentTimeMillis());
+    public void putLastReply(Board b) {
+        lastReplyMap.put(b, System.currentTimeMillis());
     }
 
-    public long getLastReply(Site s, Board b) {
-        Long lastTime = lastReplyMap.get(new SiteBoard(s, b));
-        return lastTime != null ? lastTime : 0L;
+    /**
+     * @param b        board for a new reply
+     * @param hasImage if the reply has an image attached to it
+     * @return seconds until a new reply can be posted on this board; negative if postable
+     */
+    public long getTimeUntilReply(Board b, boolean hasImage) {
+        Long lastTime = lastReplyMap.get(b);
+        long lastReplyTime = lastTime != null ? lastTime : 0L;
+        long waitTime = hasImage ? b.cooldownImages : b.cooldownReplies;
+        if (b.site.actions().isLoggedIn()) waitTime /= 2;
+        return waitTime - ((System.currentTimeMillis() - lastReplyTime) / 1000L);
     }
 
-    public void putLastThread(Site s, Board b) {
-        lastThreadMap.put(new SiteBoard(s, b), System.currentTimeMillis());
+    public void putLastThread(Board b) {
+        lastThreadMap.put(b, System.currentTimeMillis());
     }
 
-    public long getLastThread(Site s, Board b) {
-        Long lastTime = lastThreadMap.get(new SiteBoard(s, b));
-        return lastTime != null ? lastTime : 0L;
-    }
-
-    public boolean canPostReply(Site s, Board b, boolean hasImage) {
-        boolean half = s instanceof Chan4 && s.actions().isLoggedIn();
-        int cooldownTime = (hasImage ? b.cooldownImages : b.cooldownReplies) * (half ? 500 : 1000);
-        return getLastReply(s, b) + cooldownTime < System.currentTimeMillis();
-    }
-
-    public boolean canPostThread(Site s, Board b) {
-        boolean half = s instanceof Chan4 && s.actions().isLoggedIn();
-        return getLastThread(s, b) + b.cooldownThreads * (half ? 500 : 1000) < System.currentTimeMillis();
-    }
-
-    private class SiteBoard {
-        public String site;
-        public String boardCode;
-
-        public SiteBoard(Site site, Board board) {
-            this.site = site.name();
-            this.boardCode = board.code;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof SiteBoard)) return false;
-            SiteBoard sb = (SiteBoard) o;
-            return sb.boardCode.equals(this.boardCode) && sb.site.equals(this.site);
-        }
-
-        @Override
-        public int hashCode() {
-            return (site + boardCode).hashCode();
-        }
+    /**
+     * @param b board for a new thread
+     * @return seconds until a new thread can be posted on this board; negative if postable
+     */
+    public long getTimeUntilThread(Board b) {
+        Long lastTime = lastThreadMap.get(b);
+        long lastThreadTime = lastTime != null ? lastTime : 0L;
+        long waitTime = b.cooldownThreads;
+        if (b.site.actions().isLoggedIn()) waitTime /= 2;
+        return waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
     }
 }

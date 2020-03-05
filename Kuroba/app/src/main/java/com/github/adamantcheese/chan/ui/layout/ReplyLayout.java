@@ -96,8 +96,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class ReplyLayout
         extends LoadView
         implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher,
-        ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
-        CaptchaHolder.CaptchaValidationListener {
+                   ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
+                   CaptchaHolder.CaptchaValidationListener {
     private static final String TAG = "ReplyLayout";
 
     @Inject
@@ -248,6 +248,10 @@ public class ReplyLayout
         ThemeHelper.getTheme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);
+        submit.setOnLongClickListener(v -> {
+            presenter.onSubmitClicked(true);
+            return true;
+        });
 
         // Inflate captcha layout
         captchaContainer = (FrameLayout) AndroidUtils.inflate(getContext(), R.layout.layout_reply_captcha, this, false);
@@ -325,7 +329,7 @@ public class ReplyLayout
         } else if (v == captcha) {
             presenter.onAuthenticateCalled();
         } else if (v == submit) {
-            presenter.onSubmitClicked();
+            presenter.onSubmitClicked(false);
         } else if (v == previewHolder) {
             callback.showImageReencodingWindow(presenter.isAttachedFileSupportedForReencoding());
         } else if (v == captchaHardReset) {
@@ -467,10 +471,7 @@ public class ReplyLayout
 
             // Fallthrough
         } else if (error instanceof Resources.NotFoundException) {
-            return getString(
-                    R.string.fail_reason_some_part_of_webview_not_initialized,
-                    error.getMessage()
-            );
+            return getString(R.string.fail_reason_some_part_of_webview_not_initialized, error.getMessage());
         }
 
         if (error.getMessage() != null) {

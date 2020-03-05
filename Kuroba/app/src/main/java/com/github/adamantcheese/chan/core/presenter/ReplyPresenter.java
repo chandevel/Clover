@@ -220,51 +220,31 @@ public class ReplyPresenter
         }
     }
 
-    public void onSubmitClicked() {
+    public void onSubmitClicked(boolean longClicked) {
         if (!onPrepareToSubmit(false)) {
             return;
         }
 
         //only 4chan seems to have the post delay, this is a hack for that
-        if (draft.loadable.site instanceof Chan4) {
+        if (draft.loadable.site instanceof Chan4 && !longClicked) {
             if (loadable.isThreadMode()) {
-                if (lastReplyRepository.canPostReply(draft.loadable.site, draft.loadable.board, draft.file != null)) {
+                long timeLeft = lastReplyRepository.getTimeUntilReply(draft.loadable.board, draft.file != null);
+                if (timeLeft < 0L) {
                     submitOrAuthenticate();
                 } else {
-                    long lastPostTime = lastReplyRepository.getLastReply(draft.loadable.site, draft.loadable.board);
-
-                    long waitTime = draft.file != null
-                            ? draft.loadable.board.cooldownImages
-                            : draft.loadable.board.cooldownReplies;
-
-                    if (draft.loadable.site.actions().isLoggedIn()) {
-                        waitTime /= 2;
-                    }
-
-                    long timeLeft = waitTime - ((System.currentTimeMillis() - lastPostTime) / 1000L);
                     String errorMessage = getString(R.string.reply_error_message_timer_reply, timeLeft);
                     switchPage(Page.INPUT);
                     callback.openMessage(true, false, errorMessage, true);
                 }
-            } else if (loadable.isCatalogMode()) {
-                if (lastReplyRepository.canPostThread(draft.loadable.site, draft.loadable.board)) {
+            } else {
+                long timeLeft = lastReplyRepository.getTimeUntilThread(draft.loadable.board);
+                if (timeLeft < 0L) {
                     submitOrAuthenticate();
                 } else {
-                    long lastThreadTime = lastReplyRepository.getLastThread(draft.loadable.site, draft.loadable.board);
-
-                    long waitTime = draft.loadable.board.cooldownThreads;
-                    if (draft.loadable.site.actions().isLoggedIn()) {
-                        waitTime /= 2;
-                    }
-
-                    long timeLeft = waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
                     String errorMessage = getString(R.string.reply_error_message_timer_thread, timeLeft);
                     switchPage(Page.INPUT);
-
                     callback.openMessage(true, false, errorMessage, true);
                 }
-            } else {
-                Logger.wtf(TAG, "Loadable isn't a thread or a catalog loadable????");
             }
         } else {
             submitOrAuthenticate();
@@ -316,9 +296,9 @@ public class ReplyPresenter
                             "/" + localBoard.code + "/"
                     ));
 
-            lastReplyRepository.putLastReply(localLoadable.site, localLoadable.board);
+            lastReplyRepository.putLastReply(localLoadable.board);
             if (loadable.isCatalogMode()) {
-                lastReplyRepository.putLastThread(loadable.site, loadable.board);
+                lastReplyRepository.putLastThread(loadable.board);
             }
 
             if (ChanSettings.postPinThread.get()) {
