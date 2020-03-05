@@ -502,17 +502,18 @@ public class MultiImageView
         BackgroundUtils.ensureMainThread();
 
         if (ChanSettings.videoStream.get()) {
-            openVideoInternalStream(postImage.imageUrl.toString());
+            openVideoInternalStream(loadable, postImage);
         } else {
             openVideoExternal(loadable, postImage);
         }
     }
 
-    private void openVideoInternalStream(String videoUrl) {
-        webmStreamingSource.createMediaSource(videoUrl, new MediaSourceCallback() {
+    private void openVideoInternalStream(Loadable loadable, PostImage postImage) {
+        webmStreamingSource.createMediaSource(loadable, postImage, new MediaSourceCallback() {
             @Override
             public void onMediaSourceReady(@Nullable MediaSource source) {
                 BackgroundUtils.ensureMainThread();
+
                 if (source == null) {
                     onError(new IllegalArgumentException("Source is null"));
                     return;
@@ -553,6 +554,8 @@ public class MultiImageView
 
             @Override
             public void onError(@NotNull Throwable error) {
+                BackgroundUtils.ensureMainThread();
+
                 Logger.e(TAG, "Error while trying to stream a webm", error);
                 showToast(getContext(), "Couldn't open webm in streaming mode, error = " + error.getMessage());
             }
