@@ -44,6 +44,7 @@ import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
@@ -167,7 +168,7 @@ public class ViewThreadController
 
         menuOverflowBuilder.withSubItem(R.string.action_search, this::searchClicked)
                 .withSubItem(R.string.action_reload, this::reloadClicked);
-        if (loadable.site.name().equals("4chan")) { //archives are 4chan only
+        if (loadable.site instanceof Chan4) { //archives are 4chan only
             menuOverflowBuilder.withSubItem(R.string.thread_show_archives, this::showArchivesInternal);
         }
         menuOverflowBuilder.withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)

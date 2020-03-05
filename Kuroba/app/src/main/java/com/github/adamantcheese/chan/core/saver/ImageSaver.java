@@ -189,7 +189,7 @@ public class ImageSaver {
 
         requestPermission(context, granted -> {
             if (!granted) {
-                callbacks.onError(context.getString(R.string.image_saver_no_write_permission_message));
+                callbacks.onError(getString(R.string.image_saver_no_write_permission_message));
                 return;
             }
 

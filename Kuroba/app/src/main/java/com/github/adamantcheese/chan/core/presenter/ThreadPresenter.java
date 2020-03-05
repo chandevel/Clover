@@ -967,7 +967,7 @@ public class ThreadPresenter
                 requestDeletePost(post);
                 break;
             case POST_OPTION_SAVE:
-                SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(post.board.site, post.board, post.no, "");
+                SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(post.board, post.no, "");
                 if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
                     databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().unsaveReply(savedReply));
                     Pin watchedPin = watchManager.getPinByLoadable(loadable);
@@ -1190,13 +1190,19 @@ public class ThreadPresenter
         threadPresenterCallback.unhideOrUnremovePost(post);
     }
 
+    private void requestDeletePost(Post post) {
+        SavedReply reply = databaseManager.getDatabaseSavedReplyManager().getSavedReply(post.board, post.no);
+        if (reply != null) {
+            threadPresenterCallback.confirmPostDelete(post);
+        }
+    }
+
     public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
         threadPresenterCallback.showDeleting();
 
-        SavedReply reply = databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager()
-                .findSavedReply(post.board, post.no));
+        SavedReply reply = databaseManager.getDatabaseSavedReplyManager().getSavedReply(post.board, post.no);
         if (reply != null) {
-            reply.site.actions()
+            post.board.site.actions()
                     .delete(new DeleteRequest(post, reply, onlyImageDelete), new SiteActions.DeleteListener() {
                         @Override
                         public void onDeleteComplete(HttpCall httpPost, DeleteResponse deleteResponse) {
@@ -1216,14 +1222,6 @@ public class ThreadPresenter
                             threadPresenterCallback.hideDeleting(getString(R.string.delete_error));
                         }
                     });
-        }
-    }
-
-    private void requestDeletePost(Post post) {
-        SavedReply reply = databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager()
-                .findSavedReply(post.board, post.no));
-        if (reply != null) {
-            threadPresenterCallback.confirmPostDelete(post);
         }
     }
 

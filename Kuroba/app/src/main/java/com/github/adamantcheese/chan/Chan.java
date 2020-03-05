@@ -145,6 +145,11 @@ public class Chan
                 // fine, some blocking code was interrupted by a dispose call
                 return;
             }
+            if (e instanceof RuntimeException && e.getCause() instanceof InterruptedException) {
+                // fine, DB synchronous call (via runTask) was interrupted when a reactive stream
+                // was disposed of.
+                return;
+            }
             if (e instanceof FileCacheException.CancellationException
                     || e instanceof FileCacheException.FileNotFoundOnTheServerException) {
                 // fine, sometimes they get through all the checks but it doesn't really matter

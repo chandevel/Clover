@@ -354,9 +354,8 @@ public class UpdateManager {
                         if (!BackgroundUtils.isInForeground()) return;
                         BackgroundUtils.ensureMainThread();
 
-                        String description = context.getString(R.string.update_install_download_failed_description,
-                                exception.getMessage()
-                        );
+                        String description =
+                                getString(R.string.update_install_download_failed_description, exception.getMessage());
 
                         if (updateDownloadDialog != null) {
                             updateDownloadDialog.setOnDismissListener(null);
@@ -392,8 +391,7 @@ public class UpdateManager {
             return;
         }
 
-        AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.update_manager_copy_apk_title)
+        AlertDialog alertDialog = new AlertDialog.Builder(context).setTitle(R.string.update_manager_copy_apk_title)
                 .setMessage(R.string.update_manager_copy_apk_message)
                 .setNegativeButton(R.string.no, (dialog, which) -> onDone.invoke())
                 .setPositiveButton(R.string.yes, (dialog, which) -> {
@@ -419,38 +417,28 @@ public class UpdateManager {
     private void onApkFilePathSelected(RawFile downloadedFile, Uri uri) {
         ExternalFile newApkFile = fileManager.fromUri(uri);
         if (newApkFile == null) {
-            String message = context.getString(
-                    R.string.update_manager_could_not_convert_uri,
-                    uri.toString()
-            );
+            String message = getString(R.string.update_manager_could_not_convert_uri, uri.toString());
 
             showToast(context, message);
             return;
         }
 
         if (!fileManager.exists(downloadedFile)) {
-            String message = context.getString(
-                    R.string.update_manager_input_file_does_not_exist,
-                    downloadedFile.getFullPath()
-            );
+            String message = getString(R.string.update_manager_input_file_does_not_exist, downloadedFile.getFullPath());
 
             showToast(context, message);
             return;
         }
 
         if (!fileManager.exists(newApkFile)) {
-            String message = context.getString(
-                    R.string.update_manager_output_file_does_not_exist,
-                    newApkFile.toString()
-            );
+            String message = getString(R.string.update_manager_output_file_does_not_exist, newApkFile.toString());
 
             showToast(context, message);
             return;
         }
 
         if (!fileManager.copyFileContents(downloadedFile, newApkFile)) {
-            String message = context.getString(
-                    R.string.update_manager_could_not_copy_apk,
+            String message = getString(R.string.update_manager_could_not_copy_apk,
                     downloadedFile.getFullPath(),
                     newApkFile.getFullPath()
             );

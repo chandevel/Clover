@@ -58,8 +58,6 @@ public class WebmStreamingDataSource
             }
         }
 
-        private final String TAG = "PartialFileCache";
-
         private List<Range<Long>> cachedRanges = new ArrayList<>();
         private byte[] cachedRangesData;
         private long pos = 0;
@@ -111,13 +109,13 @@ public class WebmStreamingDataSource
             for (Range<Long> r : cachedRanges) {
                 try {
                     cached.add(region.intersect(r));
-                } catch (IllegalArgumentException e) {} // Disjoint ranges.
+                } catch (IllegalArgumentException ignored) {} // Disjoint ranges.
             }
 
             for (Range<Long> r : determineMissingRanges()) {
                 try {
                     missing.add(region.intersect(r));
-                } catch (IllegalArgumentException e) {} // Disjoint ranges.
+                } catch (IllegalArgumentException ignored) {} // Disjoint ranges.
             }
 
             return new RegionStats(cached, missing);
@@ -189,19 +187,19 @@ public class WebmStreamingDataSource
         }
 
         void addListener(Runnable listener) {
-            listeners.add(listener);
-
             if (firedCacheComplete) {
                 listener.run();
+            } else {
+                listeners.add(listener);
             }
         }
 
         void fireCacheComplete() {
+            firedCacheComplete = true;
             for (Runnable listener : listeners) {
                 listener.run();
             }
-
-            firedCacheComplete = true;
+            listeners.clear();
         }
 
         public void clearListeners() {
@@ -236,6 +234,7 @@ public class WebmStreamingDataSource
     private long fileLength = C.LENGTH_UNSET;
 
     private boolean prepared = false;
+    private boolean opened = false;
 
     public WebmStreamingDataSource(@Nullable Uri uri, RawFile file, FileManager fileManager) {
         super(/* isNetwork= */ true);
@@ -311,12 +310,12 @@ public class WebmStreamingDataSource
         activeRegionStats = partialFileCache.getRegionStats(new Range<>(pos, end));
         httpActiveRange = null;
 
-        Logger.i(TAG, "bytes remaining: " + bytesRemaining);
         if (bytesRemaining < 0) {
             throw new EOFException();
         }
 
         transferStarted(dataSpec);
+        opened = true;
 
         return bytesRemaining;
     }
@@ -344,7 +343,7 @@ public class WebmStreamingDataSource
             throws IOException {
         if (readLength == 0) {
             return 0;
-        } else if (bytesRemaining() == 0 || dataSource == null) {
+        } else if (bytesRemaining() == 0) {
             return C.RESULT_END_OF_INPUT;
         }
 
@@ -396,7 +395,12 @@ public class WebmStreamingDataSource
     }
 
     public void addListener(Callback c) {
-        if (c != null) listeners.add(c);
+        if (c != null) {
+            listeners.add(c);
+            if (partialFileCache != null && partialFileCache.firedCacheComplete) {
+                cacheComplete();
+            }
+        }
     }
 
     public void clearListeners() {
@@ -414,11 +418,15 @@ public class WebmStreamingDataSource
     public void close()
             throws IOException {
         Logger.i(TAG, "close");
-        clearListeners();
-        if (dataSource != null) {
-            dataSource.close();
-            transferEnded();
-            dataSource = null;
+        try {
+            if (dataSource != null) {
+                dataSource.close();
+            }
+        } finally {
+            if (opened) {
+                opened = false;
+                transferEnded();
+            }
         }
     }
 

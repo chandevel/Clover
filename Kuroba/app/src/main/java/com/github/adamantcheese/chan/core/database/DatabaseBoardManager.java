@@ -36,7 +36,7 @@ public class DatabaseBoardManager {
     public Callable<Board> createOrUpdate(final Board board) {
         return () -> {
             QueryBuilder<Board, Integer> q = helper.boardsDao.queryBuilder();
-            q.where().eq("site", board.getSite().id()).and().eq("value", board.code);
+            q.where().eq("site", board.site.id()).and().eq("value", board.code);
             Board existing = q.queryForFirst();
             if (existing != null) {
                 existing.updateExcludingUserFields(board);
