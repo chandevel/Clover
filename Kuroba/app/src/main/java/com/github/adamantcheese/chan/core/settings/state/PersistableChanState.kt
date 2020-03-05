@@ -1,10 +1,12 @@
-package com.github.adamantcheese.chan.core.settings
+package com.github.adamantcheese.chan.core.settings.state
 
+import com.github.adamantcheese.chan.core.settings.BooleanSetting
+import com.github.adamantcheese.chan.core.settings.SharedPreferencesSettingProvider
 import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.adamantcheese.chan.utils.Logger
 
 
-object ChanState {
+object PersistableChanState {
     private const val TAG = "ChanState"
     private val hasNewApkUpdate: BooleanSetting
 
@@ -20,5 +22,11 @@ object ChanState {
 
     // Why? So it can be mocked in tests.
     @JvmStatic
-    open fun hasNewApkUpdate() = hasNewApkUpdate
+    fun getHasNewApkUpdate(): Boolean = hasNewApkUpdate.get()
+
+    @JvmStatic
+    fun setHasNewApkUpdate(value: Boolean) = hasNewApkUpdate.set(value)
+
+    @JvmStatic
+    fun setHasNewApkUpdateSync(value: Boolean) = hasNewApkUpdate.setSync(value)
 }

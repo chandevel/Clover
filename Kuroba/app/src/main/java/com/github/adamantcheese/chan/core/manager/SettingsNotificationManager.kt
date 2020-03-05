@@ -12,7 +12,7 @@ class SettingsNotificationManager {
     private val notifications: MutableSet<SettingNotificationType> = mutableSetOf()
 
     /**
-     * A reactive stream that is being used to notify observer about [notifications] changes
+     * A reactive stream that is being used to notify observers about [notifications] changes
      * */
     private val activeNotificationsSubject = BehaviorProcessor.createDefault(Unit)
 
@@ -34,8 +34,8 @@ class SettingsNotificationManager {
             return SettingNotificationType.ApkUpdate
         }
 
-        if (contains(SettingNotificationType.CrashLogs)) {
-            return SettingNotificationType.CrashLogs
+        if (contains(SettingNotificationType.CrashLog)) {
+            return SettingNotificationType.CrashLog
         }
 
         // Add new notifications here. Don't forget that order matters! The order affects priority.

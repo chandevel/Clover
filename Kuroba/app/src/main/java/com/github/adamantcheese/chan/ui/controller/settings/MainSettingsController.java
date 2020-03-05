@@ -124,7 +124,7 @@ public class MainSettingsController
                 getViewGroupOrThrow(updateSettingView)
         );
         updateSettingNotificationIcon(
-                settingsNotificationManager.getOrDefault(SettingNotificationType.CrashLogs),
+                settingsNotificationManager.getOrDefault(SettingNotificationType.CrashLog),
                 getViewGroupOrThrow(reportSettingView)
         );
     }
@@ -270,7 +270,7 @@ public class MainSettingsController
             onReportSettingClick();
         });
 
-        reportSettingView.setSettingNotificationType(SettingNotificationType.CrashLogs);
+        reportSettingView.setSettingNotificationType(SettingNotificationType.CrashLog);
         return reportSettingView;
     }
 

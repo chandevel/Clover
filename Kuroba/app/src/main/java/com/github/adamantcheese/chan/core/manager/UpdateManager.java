@@ -44,7 +44,7 @@ import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest.UpdateApiResponse;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.settings.ChanState;
+import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -158,7 +158,7 @@ public class UpdateManager {
     }
 
     private void runUpdateApi(final boolean manual) {
-        if (ChanState.hasNewApkUpdate().get()) {
+        if (PersistableChanState.getHasNewApkUpdate()) {
             // If we noticed that there was an apk update on the previous check - show the
             // notification
             notifyNewApkUpdate();
@@ -275,12 +275,12 @@ public class UpdateManager {
     }
 
     private void notifyNewApkUpdate() {
-        ChanState.hasNewApkUpdate().set(true);
+        PersistableChanState.setHasNewApkUpdate(true);
         settingsNotificationManager.notify(SettingNotificationType.ApkUpdate);
     }
 
     private void cancelApkUpdateNotification() {
-        ChanState.hasNewApkUpdate().set(false);
+        PersistableChanState.setHasNewApkUpdate(false);
         settingsNotificationManager.cancel(SettingNotificationType.ApkUpdate);
     }
 

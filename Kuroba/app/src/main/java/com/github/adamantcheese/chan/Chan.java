@@ -199,7 +199,7 @@ public class Chan
 
         if (ChanSettings.collectCrashLogs.get()) {
             if (reportManager.hasCrashLogs()) {
-                settingsNotificationManager.notify(SettingNotificationType.CrashLogs);
+                settingsNotificationManager.notify(SettingNotificationType.CrashLog);
             }
         }
     }
