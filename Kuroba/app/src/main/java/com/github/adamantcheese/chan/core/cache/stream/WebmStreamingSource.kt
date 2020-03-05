@@ -45,6 +45,7 @@ class WebmStreamingSource(
         }
 
         if (loadable.isLocal || loadable.isDownloading) {
+            // Ignore the disposable since this is a singleton
             Completable
                     .fromRunnable { loadFromLocalThread(postImage, loadable, callback) }
                     .subscribe()
