@@ -679,21 +679,17 @@ public class WatchManager
         return pinWatchers.get(pin);
     }
 
-    private boolean createPinWatcher(Pin pin) {
+    private void createPinWatcher(Pin pin) {
         if (!pinWatchers.containsKey(pin)) {
             pinWatchers.put(pin, new PinWatcher(pin, this));
-            return true;
-        } else {
-            return false;
         }
     }
 
-    private boolean destroyPinWatcher(Pin pin) {
+    private void destroyPinWatcher(Pin pin) {
         PinWatcher pinWatcher = pinWatchers.remove(pin);
         if (pinWatcher != null) {
             pinWatcher.destroy();
         }
-        return pinWatcher != null;
     }
 
     private void updatePinsInDatabase() {
