@@ -271,6 +271,7 @@ public class ChanSettings {
     public static final BooleanSetting showCopyApkUpdateDialog;
     public static final BooleanSetting crashOnSafeThrow;
     public static final BooleanSetting okHttpAllowHttp2;
+    public static final BooleanSetting okHttpAllowIpv6;
 
     static {
         try {
@@ -419,6 +420,7 @@ public class ChanSettings {
             showCopyApkUpdateDialog = new BooleanSetting(p, "show_copy_apk_update_dialog", true);
             crashOnSafeThrow = new BooleanSetting(p, "crash_on_safe_throw", true);
             okHttpAllowHttp2 = new BooleanSetting(p, "ok_http_allow_http_2", true);
+            okHttpAllowIpv6 = new BooleanSetting(p, "ok_http_allow_ipv6", true);
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of the Feather.

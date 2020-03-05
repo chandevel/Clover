@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
+import com.github.adamantcheese.chan.core.net.DnsSelector;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
@@ -44,6 +45,7 @@ import java.util.List;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import okhttp3.Dns;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 
@@ -134,6 +136,7 @@ public class NetModule {
                 .readTimeout(30, SECONDS)
                 .writeTimeout(30, SECONDS)
                 .protocols(getOkHttpProtocols())
+                .dns(getOkHttpDnsSelector())
                 .build();
     }
 
@@ -151,7 +154,16 @@ public class NetModule {
                 .writeTimeout(30, SECONDS)
                 .readTimeout(30, SECONDS)
                 .protocols(getOkHttpProtocols())
+                .dns(getOkHttpDnsSelector())
                 .build();
+    }
+
+    private Dns getOkHttpDnsSelector() {
+        if (ChanSettings.okHttpAllowIpv6.get()) {
+            return new DnsSelector(DnsSelector.Mode.SYSTEM);
+        }
+
+        return new DnsSelector(DnsSelector.Mode.IPV4_ONLY);
     }
 
     @NonNull
@@ -179,6 +191,7 @@ public class NetModule {
                         .readTimeout(30, SECONDS)
                         .writeTimeout(30, SECONDS)
                         .protocols(getOkHttpProtocols())
+                        .dns(getOkHttpDnsSelector())
                         .build();
             }
             return proxiedClient;
