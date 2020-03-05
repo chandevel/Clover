@@ -40,6 +40,7 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
@@ -225,7 +226,7 @@ public class ReplyPresenter
         }
 
         //only 4chan seems to have the post delay, this is a hack for that
-        if (draft.loadable.site.name().equals("4chan")) {
+        if (draft.loadable.site instanceof Chan4) {
             if (loadable.isThreadMode()) {
                 if (lastReplyRepository.canPostReply(draft.loadable.site, draft.loadable.board, draft.file != null)) {
                     submitOrAuthenticate();

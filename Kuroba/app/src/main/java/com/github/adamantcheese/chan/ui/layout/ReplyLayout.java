@@ -55,6 +55,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
@@ -675,7 +676,7 @@ public class ReplyLayout
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 if (callback.getThread() == null) return true;
                 Loadable threadLoadable = callback.getThread().getLoadable();
-                boolean is4chan = threadLoadable.board.site.name().equals("4chan");
+                boolean is4chan = threadLoadable.board.site instanceof Chan4;
                 //menu item cleanup, these aren't needed for this
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (menu.size() > 0) {

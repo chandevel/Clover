@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.repository;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,13 +46,13 @@ public class LastReplyRepository {
     }
 
     public boolean canPostReply(Site s, Board b, boolean hasImage) {
-        boolean half = s.name().equals("4chan") && s.actions().isLoggedIn();
+        boolean half = s instanceof Chan4 && s.actions().isLoggedIn();
         int cooldownTime = (hasImage ? b.cooldownImages : b.cooldownReplies) * (half ? 500 : 1000);
         return getLastReply(s, b) + cooldownTime < System.currentTimeMillis();
     }
 
     public boolean canPostThread(Site s, Board b) {
-        boolean half = s.name().equals("4chan") && s.actions().isLoggedIn();
+        boolean half = s instanceof Chan4 && s.actions().isLoggedIn();
         return getLastThread(s, b) + b.cooldownThreads * (half ? 500 : 1000) < System.currentTimeMillis();
     }
 
