@@ -24,7 +24,7 @@ public class SavedReply {
     public SavedReply() {
     }
 
-    public static SavedReply fromSiteBoardNoPassword(Board board, int no, String password) {
+    public static SavedReply fromBoardNoPassword(Board board, int no, String password) {
         SavedReply savedReply = new SavedReply();
         savedReply.siteId = board.site.id();
         savedReply.board = board.code;

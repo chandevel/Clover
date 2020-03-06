@@ -967,7 +967,7 @@ public class ThreadPresenter
                 requestDeletePost(post);
                 break;
             case POST_OPTION_SAVE:
-                SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(post.board, post.no, "");
+                SavedReply savedReply = SavedReply.fromBoardNoPassword(post.board, post.no, "");
                 if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
                     databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().unsaveReply(savedReply));
                     Pin watchedPin = watchManager.getPinByLoadable(loadable);
