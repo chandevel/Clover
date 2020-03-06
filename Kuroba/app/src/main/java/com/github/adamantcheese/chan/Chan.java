@@ -44,6 +44,7 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.codejargon.feather.Feather;
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -90,6 +91,8 @@ public class Chan
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         AndroidUtils.init(this);
+        // remove this if you need to debug some sort of event bus issue
+        EventBus.builder().logNoSubscriberMessages(false).installDefaultEventBus();
     }
 
     @Override
