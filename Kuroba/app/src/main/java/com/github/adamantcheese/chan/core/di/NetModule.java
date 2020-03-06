@@ -160,9 +160,11 @@ public class NetModule {
 
     private Dns getOkHttpDnsSelector() {
         if (ChanSettings.okHttpAllowIpv6.get()) {
+            Logger.d(AppModule.DI_TAG, "Using DnsSelector.Mode.SYSTEM");
             return new DnsSelector(DnsSelector.Mode.SYSTEM);
         }
 
+        Logger.d(AppModule.DI_TAG, "Using DnsSelector.Mode.IPV4_ONLY");
         return new DnsSelector(DnsSelector.Mode.IPV4_ONLY);
     }
 
