@@ -562,6 +562,9 @@ public class ThreadPresenter
             }
 
             loadable.setLastLoaded(result.getPosts().get(result.getPostsCount() - 1).no);
+            if (loadable.lastViewed == -1) {
+                loadable.setLastViewed(loadable.lastLoaded);
+            }
 
             if (more > 0 && loadable.no == result.getLoadable().no) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
