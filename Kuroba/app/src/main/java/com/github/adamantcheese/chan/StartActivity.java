@@ -352,8 +352,7 @@ public class StartActivity
                                     slideNav.switchToController(false);
                                     break;
                                 } else {
-                                    ViewThreadController v = new ViewThreadController(this);
-                                    v.setLoadable(pin.loadable);
+                                    ViewThreadController v = new ViewThreadController(this, pin.loadable);
                                     slideNav.setRightController(v);
                                     slideNav.switchToController(false);
                                     break;

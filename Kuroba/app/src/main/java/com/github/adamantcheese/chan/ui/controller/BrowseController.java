@@ -119,6 +119,7 @@ public class BrowseController
         hint.wiggle();
     }
 
+    @Override
     public void setBoard(Board board) {
         presenter.setBoard(board);
     }
@@ -131,7 +132,10 @@ public class BrowseController
         // Navigation item
         navigation.hasDrawer = true;
 
-        setupMiddleNavigation();
+        navigation.setMiddleMenu(anchor -> {
+            BrowseBoardsFloatingMenu boardsFloatingMenu = new BrowseBoardsFloatingMenu(context);
+            boardsFloatingMenu.show(view, anchor, BrowseController.this, presenter.currentBoard());
+        });
 
         // Toolbar menu
         navigation.hasBack = false;
@@ -258,18 +262,6 @@ public class BrowseController
 
     private void downClicked(ToolbarMenuSubItem item) {
         threadLayout.getPresenter().scrollTo(-1, false);
-    }
-
-    private void setupMiddleNavigation() {
-        navigation.setMiddleMenu(anchor -> {
-            BrowseBoardsFloatingMenu boardsFloatingMenu = new BrowseBoardsFloatingMenu(context);
-            boardsFloatingMenu.show(view, anchor, BrowseController.this, presenter.currentBoard());
-        });
-    }
-
-    @Override
-    public void onBoardClicked(Board item) {
-        presenter.setBoard(item);
     }
 
     @Override
@@ -401,11 +393,12 @@ public class BrowseController
         navigation.subtitle = loadable.board.name;
 
         ThreadPresenter presenter = threadLayout.getPresenter();
-        presenter.unbindLoadable();
         presenter.bindLoadable(loadable);
         presenter.requestData();
 
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
+        ToolbarMenuSubItem archive = navigation.findSubItem(ARCHIVE_ID);
+        archive.enabled = loadable.board.site.boardFeature(Site.BoardFeature.ARCHIVE, loadable.board);
     }
 
     @Override
@@ -418,12 +411,6 @@ public class BrowseController
         } else {
             navigationController.pushController(siteSetupController);
         }
-    }
-
-    @Override
-    public void showArchiveOption(boolean show) {
-        ToolbarMenuSubItem archive = navigation.findSubItem(ARCHIVE_ID);
-        archive.enabled = show;
     }
 
     @Override
@@ -485,8 +472,7 @@ public class BrowseController
             } else {
                 StyledToolbarNavigationController navigationController = new StyledToolbarNavigationController(context);
                 splitNav.setRightController(navigationController);
-                ViewThreadController viewThreadController = new ViewThreadController(context);
-                viewThreadController.setLoadable(threadLoadable);
+                ViewThreadController viewThreadController = new ViewThreadController(context, threadLoadable);
                 navigationController.pushController(viewThreadController, false);
             }
             splitNav.switchToController(false);
@@ -495,16 +481,14 @@ public class BrowseController
             if (slideNav.getRightController() instanceof ViewThreadController) {
                 ((ViewThreadController) slideNav.getRightController()).loadThread(threadLoadable);
             } else {
-                ViewThreadController viewThreadController = new ViewThreadController(context);
-                viewThreadController.setLoadable(threadLoadable);
+                ViewThreadController viewThreadController = new ViewThreadController(context, threadLoadable);
                 slideNav.setRightController(viewThreadController);
             }
             slideNav.switchToController(false);
         } else {
             // the target ThreadNav must be pushed to the parent nav controller
             // (BrowseController -> ToolbarNavigationController)
-            ViewThreadController viewThreadController = new ViewThreadController(context);
-            viewThreadController.setLoadable(threadLoadable);
+            ViewThreadController viewThreadController = new ViewThreadController(context, threadLoadable);
             navigationController.pushController(viewThreadController, animated);
         }
     }

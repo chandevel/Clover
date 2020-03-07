@@ -212,7 +212,7 @@ public class BrowseBoardsFloatingMenu
         if (!isInteractive()) return;
 
         if (board != null) {
-            clickCallback.onBoardClicked(board);
+            clickCallback.setBoard(board);
         } else {
             if (site.name().equals("App Setup")) {
                 clickCallback.openSetup();
@@ -519,7 +519,7 @@ public class BrowseBoardsFloatingMenu
     }
 
     public interface ClickCallback {
-        void onBoardClicked(Board item);
+        void setBoard(Board item);
 
         void onSiteClicked(Site site);
 

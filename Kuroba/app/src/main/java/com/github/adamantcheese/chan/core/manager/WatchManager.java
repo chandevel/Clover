@@ -681,7 +681,7 @@ public class WatchManager
 
     private void createPinWatcher(Pin pin) {
         if (!pinWatchers.containsKey(pin)) {
-            pinWatchers.put(pin, new PinWatcher(pin, this));
+            pinWatchers.put(pin, new PinWatcher(pin));
         }
     }
 
@@ -922,7 +922,8 @@ public class WatchManager
 
     private void updateDeletedOrArchivedPins() {
         for (Pin pin : pins) {
-            if (pin.loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+            if (pin.loadable.getLoadableDownloadingState()
+                    == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
                 continue;
             }
 
@@ -1142,11 +1143,11 @@ public class WatchManager
         public int lastReplyCount = -1;
         public int latestKnownPage = -1;
 
-        public PinWatcher(Pin pin, WatchManager watchManager) {
+        public PinWatcher(Pin pin) {
             this.pin = pin;
 
             Logger.d(TAG, "created for " + pin.loadable.toString());
-            chanLoader = chanLoaderManager.obtain(pin.loadable, watchManager, this);
+            chanLoader = chanLoaderManager.obtain(pin.loadable, this);
             pageRequestManager.addListener(this);
         }
 
@@ -1256,8 +1257,9 @@ public class WatchManager
             if (PinType.hasDownloadFlag(pin.pinType)
                     // Only check for this flag here, since we won't get here when loadableDownloadingState
                     // is AlreadyDownloaded
-                    && pin.loadable.getLoadableDownloadingState() != Loadable.LoadableDownloadingState.DownloadingAndViewable
-                    && (thread.isArchived() || thread.isClosed())) {
+                    && pin.loadable.getLoadableDownloadingState()
+                    != Loadable.LoadableDownloadingState.DownloadingAndViewable && (thread.isArchived()
+                    || thread.isClosed())) {
                 NetworkResponse networkResponse =
                         new NetworkResponse(503, EMPTY_BYTE_ARRAY, Collections.emptyMap(), true);
                 ServerError serverError = new ServerError(networkResponse);

@@ -148,8 +148,7 @@ public class ArchiveController
 
     @Override
     public void openThread(Loadable loadable) {
-        ViewThreadController threadController = new ViewThreadController(context);
-        threadController.setLoadable(loadable);
+        ViewThreadController threadController = new ViewThreadController(context, loadable);
         navigationController.pushController(threadController);
     }
 

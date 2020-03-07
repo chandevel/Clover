@@ -114,11 +114,8 @@ public class ViewThreadController
         }
     };
 
-    public ViewThreadController(Context context) {
+    public ViewThreadController(Context context, Loadable loadable) {
         super(context);
-    }
-
-    public void setLoadable(Loadable loadable) {
         this.loadable = loadable;
     }
 
@@ -409,12 +406,6 @@ public class ViewThreadController
     public void onEvent(PinMessages.PinChangedMessage message) {
         setPinIconState(false);
         setSaveIconState(false);
-
-        // Does this ever happen?
-        // Update title
-        if (message.pin.loadable == loadable) {
-            onShowPosts();
-        }
     }
 
     @Subscribe
@@ -490,6 +481,10 @@ public class ViewThreadController
         }
     }
 
+    public void loadThread(Loadable loadable) {
+        loadThread(loadable, true);
+    }
+
     public void loadThread(Loadable loadable, boolean addToLocalBackHistory) {
         ThreadPresenter presenter = threadLayout.getPresenter();
         if (!loadable.equals(presenter.getLoadable())) {
@@ -505,7 +500,7 @@ public class ViewThreadController
         ThreadPresenter presenter = threadLayout.getPresenter();
 
         presenter.bindLoadable(loadable, addToLocalBackHistory);
-        this.loadable = presenter.getLoadable();
+        this.loadable = loadable;
 
         populateLocalOrLiveVersionMenu();
         navigation.title = loadable.title;
@@ -579,10 +574,6 @@ public class ViewThreadController
         } catch (NullPointerException ignored) {
             // Ignore NPE because the menu ID doesn't exist for the subitem
         }
-    }
-
-    public void loadThread(Loadable loadable) {
-        loadThread(loadable, true);
     }
 
     private void showHints() {
