@@ -193,6 +193,7 @@ public class ImageViewerPresenter
         return images.get(selectedPosition);
     }
 
+    @Override
     public Loadable getLoadable() {
         return loadable;
     }

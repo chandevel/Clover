@@ -112,6 +112,8 @@ public class MultiImageView
 
     private PostImage postImage;
     private Callback callback;
+    private boolean op;
+
     private Mode mode = Mode.UNLOADED;
     private ImageContainer thumbnailRequest;
     private CancelableDownload bigImageRequest;
@@ -160,9 +162,10 @@ public class MultiImageView
         }
     }
 
-    public void bindPostImage(PostImage postImage, Callback callback) {
+    public void bindPostImage(PostImage postImage, Callback callback, boolean op) {
         this.postImage = postImage;
         this.callback = callback;
+        this.op = op;
     }
 
     public PostImage getPostImage() {
@@ -678,11 +681,16 @@ public class MultiImageView
 
     public void toggleTransparency() {
         transparentBackground = !transparentBackground;
-        final int BACKGROUND_COLOR = Color.argb(255, 211, 217, 241);
+        final int BACKGROUND_COLOR_SFW = Color.argb(255, 211, 217, 241);
+        final int BACKGROUND_COLOR_NSFW = Color.argb(255, 240, 224, 214);
+        final int BACKGROUND_COLOR_NSFW_OP = Color.argb(255, 255, 255, 238);
+        int boardColor = callback.getLoadable().board.workSafe
+                ? BACKGROUND_COLOR_SFW
+                : (op ? BACKGROUND_COLOR_NSFW_OP : BACKGROUND_COLOR_NSFW);
         View activeView = getActiveView();
         if (!(activeView instanceof CustomScaleImageView || activeView instanceof GifImageView)) return;
         boolean isImage = activeView instanceof CustomScaleImageView;
-        int backgroundColor = !transparentBackground ? Color.TRANSPARENT : BACKGROUND_COLOR;
+        int backgroundColor = !transparentBackground ? Color.TRANSPARENT : boardColor;
         if (isImage) {
             ((CustomScaleImageView) activeView).setTileBackgroundColor(backgroundColor);
         } else {
@@ -885,5 +893,7 @@ public class MultiImageView
         void onAudioLoaded(MultiImageView multiImageView);
 
         void hideProgress(MultiImageView multiImageView);
+
+        Loadable getLoadable();
     }
 }

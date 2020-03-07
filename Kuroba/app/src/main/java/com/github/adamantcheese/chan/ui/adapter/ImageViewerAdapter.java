@@ -51,7 +51,7 @@ public class ImageViewerAdapter
     public View getView(int position, ViewGroup parent) {
         PostImage postImage = images.get(position);
         MultiImageView view = new MultiImageView(parent.getContext());
-        view.bindPostImage(postImage, multiImageViewCallback);
+        view.bindPostImage(postImage, multiImageViewCallback, images.get(0) == postImage); // hacky but good enough
 
         loadedViews.add(view);
 
