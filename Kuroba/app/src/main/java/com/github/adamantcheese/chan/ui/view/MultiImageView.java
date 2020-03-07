@@ -681,11 +681,13 @@ public class MultiImageView
 
     public void toggleTransparency() {
         transparentBackground = !transparentBackground;
-        final int BACKGROUND_COLOR_SFW = Color.argb(255, 211, 217, 241);
+        // these colors are specific to 4chan for the time being
+        final int BACKGROUND_COLOR_SFW = Color.argb(255, 214, 218, 240);
+        final int BACKGROUND_COLOR_SFW_OP = Color.argb(255, 238, 242, 255);
         final int BACKGROUND_COLOR_NSFW = Color.argb(255, 240, 224, 214);
         final int BACKGROUND_COLOR_NSFW_OP = Color.argb(255, 255, 255, 238);
         int boardColor = callback.getLoadable().board.workSafe
-                ? BACKGROUND_COLOR_SFW
+                ? (op ? BACKGROUND_COLOR_SFW_OP : BACKGROUND_COLOR_SFW)
                 : (op ? BACKGROUND_COLOR_NSFW_OP : BACKGROUND_COLOR_NSFW);
         View activeView = getActiveView();
         if (!(activeView instanceof CustomScaleImageView || activeView instanceof GifImageView)) return;
