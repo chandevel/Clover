@@ -67,6 +67,8 @@ import java.util.Deque;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
 import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -207,7 +209,7 @@ public class ViewThreadController
     }
 
     private void saveClicked(ToolbarMenuItem item) {
-        if (loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+        if (loadable.getLoadableDownloadingState() == DownloadingAndViewable) {
             // Too many problems with this thing, just disable it while viewing downloading thread
             return;
         }
@@ -324,15 +326,15 @@ public class ViewThreadController
      * Replaces the current live thread with the local thread
      */
     private void handleClickViewLocalVersion(ToolbarMenuSubItem item) {
-        if (loadable.getLoadableDownloadingState() != Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
+        if (loadable.getLoadableDownloadingState() != DownloadingAndNotViewable) {
             populateLocalOrLiveVersionMenu();
             return;
         }
 
-        loadable.setLoadableState(Loadable.LoadableDownloadingState.DownloadingAndViewable);
+        loadable.setLoadableState(DownloadingAndViewable);
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
-            pin.loadable.setLoadableState(Loadable.LoadableDownloadingState.DownloadingAndViewable);
+            pin.loadable.setLoadableState(DownloadingAndViewable);
             watchManager.updatePin(pin);
         }
 
@@ -343,15 +345,15 @@ public class ViewThreadController
      * Replaces the current local thread with the live thread
      */
     private void handleClickViewLiveVersion(ToolbarMenuSubItem item) {
-        if (loadable.getLoadableDownloadingState() != Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+        if (loadable.getLoadableDownloadingState() != DownloadingAndViewable) {
             populateLocalOrLiveVersionMenu();
             return;
         }
 
-        loadable.setLoadableState(Loadable.LoadableDownloadingState.DownloadingAndNotViewable);
+        loadable.setLoadableState(DownloadingAndNotViewable);
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
-            pin.loadable.setLoadableState(Loadable.LoadableDownloadingState.DownloadingAndNotViewable);
+            pin.loadable.setLoadableState(DownloadingAndNotViewable);
             watchManager.updatePin(pin);
         }
 
@@ -564,10 +566,10 @@ public class ViewThreadController
                 return;
             }
 
-            if (loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.DownloadingAndNotViewable) {
+            if (loadable.getLoadableDownloadingState() == DownloadingAndNotViewable) {
                 navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = true;
                 navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = false;
-            } else if (loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+            } else if (loadable.getLoadableDownloadingState() == DownloadingAndViewable) {
                 navigation.findSubItem(VIEW_LOCAL_COPY_SUBMENU_ID).enabled = false;
                 navigation.findSubItem(VIEW_LIVE_COPY_SUBMENU_ID).enabled = true;
             }

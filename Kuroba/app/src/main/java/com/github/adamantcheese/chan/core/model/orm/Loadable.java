@@ -26,6 +26,9 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Locale;
 
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.AlreadyDownloaded;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
 import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
 
 /**
@@ -243,11 +246,10 @@ public class Loadable
 
     @Override
     public String toString() {
-        return "Loadable{id=" + id + ", mode=" + mode + ", board='" + boardCode + '\'' +
-                ", no=" + maskPostNo(no) + '\'' + ", listViewIndex=" + listViewIndex +
-                ", listViewTop=" + listViewTop + ", lastViewed=" + maskPostNo(lastViewed) + ", lastLoaded=" +
-                maskPostNo(lastLoaded) + ", markedNo=" + maskPostNo(markedNo) + ", dirty=" + dirty +
-                ", loadableDownloadingState=" + loadableDownloadingState.name() + '}';
+        return "Loadable{id=" + id + ", mode=" + mode + ", board='" + boardCode + '\'' + ", no=" + maskPostNo(no) + '\''
+                + ", listViewIndex=" + listViewIndex + ", listViewTop=" + listViewTop + ", lastViewed=" + maskPostNo(
+                lastViewed) + ", lastLoaded=" + maskPostNo(lastLoaded) + ", markedNo=" + maskPostNo(markedNo)
+                + ", dirty=" + dirty + ", loadableDownloadingState=" + loadableDownloadingState.name() + '}';
     }
 
     public boolean isThreadMode() {
@@ -268,15 +270,14 @@ public class Loadable
      * viewing the local copy of the thread
      */
     public boolean isLocal() {
-        return loadableDownloadingState == LoadableDownloadingState.DownloadingAndViewable
-                || loadableDownloadingState == LoadableDownloadingState.AlreadyDownloaded;
+        return loadableDownloadingState == DownloadingAndViewable || loadableDownloadingState == AlreadyDownloaded;
     }
 
     /**
      * Thread is being downloaded but we are not currently viewing the local copy
      */
     public boolean isDownloading() {
-        return loadableDownloadingState == LoadableDownloadingState.DownloadingAndNotViewable;
+        return loadableDownloadingState == DownloadingAndNotViewable;
     }
 
     /**

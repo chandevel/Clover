@@ -3,7 +3,7 @@ package com.github.adamantcheese.chan.core.manager
 import android.annotation.SuppressLint
 import android.os.Build
 import com.github.adamantcheese.chan.BuildConfig
-import com.github.adamantcheese.chan.core.base.MResult
+import com.github.adamantcheese.chan.core.base.ModularResult
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.controller.LogsController
 import com.github.adamantcheese.chan.utils.BackgroundUtils
@@ -87,7 +87,7 @@ class ReportManager(
                 })
     }
 
-    private fun processSingleRequest(request: ReportRequest, crashLogFile: File): Single<MResult<Boolean>> {
+    private fun processSingleRequest(request: ReportRequest, crashLogFile: File): Single<ModularResult<Boolean>> {
         BackgroundUtils.ensureBackgroundThread()
 
         // Delete old crash logs
@@ -96,21 +96,21 @@ class ReportManager(
                 Logger.e(TAG, "Couldn't delete crash log file: ${crashLogFile.absolutePath}")
             }
 
-            return Single.just(MResult.value(true))
+            return Single.just(ModularResult.value(true))
         }
 
         return sendInternal(request)
-                .onErrorReturn { error -> MResult.error(error) }
+                .onErrorReturn { error -> ModularResult.error(error) }
                 .doOnSuccess { result ->
                     when (result) {
-                        is MResult.Value -> {
+                        is ModularResult.Value -> {
                             Logger.d(TAG, "Crash log ${crashLogFile.absolutePath} sent")
 
                             if (!crashLogFile.delete()) {
                                 Logger.e(TAG, "Couldn't delete crash log file: ${crashLogFile.absolutePath}")
                             }
                         }
-                        is MResult.Error -> {
+                        is ModularResult.Error -> {
                             if (result.error is HttpCodeError) {
                                 Logger.e(TAG, "Bad response code: ${result.error.code}")
                             } else {
@@ -202,7 +202,7 @@ class ReportManager(
                 })
     }
 
-    fun sendReport(title: String, description: String, logs: String?): Single<MResult<Boolean>> {
+    fun sendReport(title: String, description: String, logs: String?): Single<ModularResult<Boolean>> {
         require(title.isNotEmpty()) { "title is empty" }
         require(description.isNotEmpty() || logs != null) { "description is empty" }
         require(title.length <= MAX_TITLE_LENGTH) { "title is too long ${title.length}" }
@@ -306,8 +306,8 @@ class ReportManager(
         return true
     }
 
-    private fun sendInternal(reportRequest: ReportRequest): Single<MResult<Boolean>> {
-        return Single.create<MResult<Boolean>> { emitter ->
+    private fun sendInternal(reportRequest: ReportRequest): Single<ModularResult<Boolean>> {
+        return Single.create<ModularResult<Boolean>> { emitter ->
             BackgroundUtils.ensureBackgroundThread()
 
             val json = try {
@@ -326,7 +326,7 @@ class ReportManager(
 
             okHttpClient.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    emitter.onSuccess(MResult.error(e))
+                    emitter.onSuccess(ModularResult.error(e))
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -334,11 +334,11 @@ class ReportManager(
                         val message = "Response is not successful, status = ${response.code}"
                         Logger.e(TAG, message)
 
-                        emitter.onSuccess(MResult.error(HttpCodeError(response.code)))
+                        emitter.onSuccess(ModularResult.error(HttpCodeError(response.code)))
                         return
                     }
 
-                    emitter.onSuccess(MResult.value(true))
+                    emitter.onSuccess(ModularResult.value(true))
                 }
             })
         }.subscribeOn(senderScheduler)

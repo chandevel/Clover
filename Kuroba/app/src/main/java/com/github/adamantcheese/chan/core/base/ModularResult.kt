@@ -1,8 +1,8 @@
 package com.github.adamantcheese.chan.core.base
 
-sealed class MResult<V> {
-    data class Value<V>(val value: V) : MResult<V>()
-    data class Error<V>(val error: Throwable) : MResult<V>()
+sealed class ModularResult<V> {
+    data class Value<V>(val value: V) : ModularResult<V>()
+    data class Error<V>(val error: Throwable) : ModularResult<V>()
 
     fun isError() = this is Error
     fun isValue() = this is Value
@@ -23,7 +23,7 @@ sealed class MResult<V> {
         return null
     }
 
-    inline fun map(func: (value: V) -> V): MResult<V> {
+    inline fun map(func: (value: V) -> V): ModularResult<V> {
         if (isError()) {
             return this
         }
@@ -33,16 +33,16 @@ sealed class MResult<V> {
 
     companion object {
         @JvmStatic
-        fun <V> value(value: V): MResult<V> {
+        fun <V> value(value: V): ModularResult<V> {
             return Value(value)
         }
 
         @JvmStatic
-        fun <V> error(error: Throwable): MResult<V> {
+        fun <V> error(error: Throwable): ModularResult<V> {
             return Error(error)
         }
 
-        inline fun <T> safeRun(func: () -> T): MResult <T> {
+        inline fun <T> safeRun(func: () -> T): ModularResult<T> {
             return try {
                 value(func())
             } catch (error: Throwable) {
@@ -53,7 +53,7 @@ sealed class MResult<V> {
         // These two are for calling from the Java code since it's not really convenient to use
         // kotlin's lambdas in Java code.
         @JvmStatic
-        fun safeRun(func: MFunc): MResult<Unit> {
+        fun safeRun(func: VoidFunction): ModularResult<Unit> {
             return try {
                 value(func.invoke())
             } catch (error: Throwable) {
@@ -62,7 +62,7 @@ sealed class MResult<V> {
         }
 
         @JvmStatic
-        fun <T> safeRunR(func: MFuncR<T>): MResult<T> {
+        fun <T> safeRunR(func: GenericFunction<T>): ModularResult<T> {
             return try {
                 value(func.invoke())
             } catch (error: Throwable) {

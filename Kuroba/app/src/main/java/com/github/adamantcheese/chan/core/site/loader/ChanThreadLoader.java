@@ -30,7 +30,7 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.base.MResult;
+import com.github.adamantcheese.chan.core.base.ModularResult;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
@@ -68,6 +68,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
 import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
 
 /**
@@ -172,14 +173,11 @@ public class ChanThreadLoader
         Disposable disposable = Single.fromCallable(this::loadSavedCopyIfExists)
                 .subscribeOn(backgroundScheduler)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        this::requestDataInternal,
-                        error -> {
-                            Logger.e(TAG, "Error while loading saved thread", error);
+                .subscribe(this::requestDataInternal, error -> {
+                    Logger.e(TAG, "Error while loading saved thread", error);
 
-                            notifyAboutError(new VolleyError(error));
-                        }
-                );
+                    notifyAboutError(new VolleyError(error));
+                });
 
         compositeDisposable.add(disposable);
     }
@@ -222,7 +220,7 @@ public class ChanThreadLoader
                 // HACK: When opening a pin with local thread that is not yet fully downloaded
                 // we don't want to set the thread as archived/closed because it will make
                 // it permanently archived (fully downloaded)
-                if (loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.DownloadingAndViewable) {
+                if (loadable.getLoadableDownloadingState() == DownloadingAndViewable) {
                     chanThread.setArchived(false);
                     chanThread.setClosed(false);
                 }
@@ -265,22 +263,19 @@ public class ChanThreadLoader
         return Single.fromCallable(() -> {
             ChanLoaderRequest request = getData();
             if (request == null) {
-                return MResult.error(new ThreadAlreadyArchivedException());
+                return ModularResult.error(new ThreadAlreadyArchivedException());
             }
 
-            return MResult.value(request);
-        })
-                .subscribeOn(backgroundScheduler)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> {
-                    if (result instanceof MResult.Error) {
-                        handleErrorResult(((MResult.Error<Throwable>) result).getError());
-                    } else {
-                        request = ((MResult.Value<ChanLoaderRequest>) result).getValue();
-                    }
-                }, error -> {
-                    notifyAboutError(new VolleyError(error));
-                });
+            return ModularResult.value(request);
+        }).subscribeOn(backgroundScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
+            if (result instanceof ModularResult.Error) {
+                handleErrorResult(((ModularResult.Error<Throwable>) result).getError());
+            } else {
+                request = ((ModularResult.Value<ChanLoaderRequest>) result).getValue();
+            }
+        }, error -> {
+            notifyAboutError(new VolleyError(error));
+        });
     }
 
     private void handleErrorResult(Throwable error) {
@@ -406,14 +401,11 @@ public class ChanThreadLoader
 
         Disposable disposable = Single.fromCallable(() -> onResponseInternal(response))
                 .subscribeOn(backgroundScheduler)
-                .subscribe(
-                        result -> { },
-                        error -> {
-                            Logger.e(TAG, "onResponse error", error);
+                .subscribe(result -> { }, error -> {
+                    Logger.e(TAG, "onResponse error", error);
 
-                            notifyAboutError(new VolleyError(error));
-                        }
-                );
+                    notifyAboutError(new VolleyError(error));
+                });
 
         compositeDisposable.add(disposable);
     }
@@ -451,8 +443,9 @@ public class ChanThreadLoader
 
         ChanThread chanThread = loadSavedThreadIfItExists();
         if (chanThread == null) {
-            Logger.d(TAG, "Thread " + maskPostNo(loadable.no) +
-                    " is archived but we don't have a local copy of the thread");
+            Logger.d(TAG,
+                    "Thread " + maskPostNo(loadable.no) + " is archived but we don't have a local copy of the thread"
+            );
 
             // We don't have this thread locally saved, so return false and DO NOT SET thread to
             // chanThread because this will close this thread (user will see 404 not found error)
@@ -461,8 +454,8 @@ public class ChanThreadLoader
         }
 
         Logger.d(TAG,
-                "Thread " + maskPostNo(chanThread.getLoadable().no)
-                        + " is archived (" + archived + ") or closed (" + closed + ")"
+                "Thread " + maskPostNo(chanThread.getLoadable().no) + " is archived (" + archived + ") or closed ("
+                        + closed + ")"
         );
 
         synchronized (this) {
@@ -476,9 +469,7 @@ public class ChanThreadLoader
             // Set isFullyDownloaded and isStopped to true so we can stop downloading it and stop
             // showing the download thread animated icon.
             BackgroundUtils.runOnMainThread(() -> {
-                final SavedThread savedThread = watchManager.findSavedThreadByLoadableId(
-                        chanThread.getLoadableId()
-                );
+                final SavedThread savedThread = watchManager.findSavedThreadByLoadableId(chanThread.getLoadableId());
 
                 if (savedThread != null && !savedThread.isFullyDownloaded) {
                     updateThreadAsDownloaded(archived, chanThread, savedThread);
@@ -535,8 +526,9 @@ public class ChanThreadLoader
             return null;
         });
 
-        Logger.d(TAG, "Successfully updated thread "
-                + maskPostNo(chanThread.getLoadable().no) + " as fully downloaded");
+        Logger.d(TAG,
+                "Successfully updated thread " + maskPostNo(chanThread.getLoadable().no) + " as fully downloaded"
+        );
     }
 
     private void onPreparedResponseInternal(
@@ -670,20 +662,18 @@ public class ChanThreadLoader
 
             // No local thread, show the error screen
             return true;
-        }).subscribeOn(backgroundScheduler)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(showError -> {
-                    if (!showError) {
-                        return;
-                    }
+        }).subscribeOn(backgroundScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(showError -> {
+            if (!showError) {
+                return;
+            }
 
-                    Logger.i(TAG, "Loading error", error);
-                    notifyAboutError(error);
-                }, throwable -> {
-                    Logger.i(TAG, "Loading unhandled error", throwable);
+            Logger.i(TAG, "Loading error", error);
+            notifyAboutError(error);
+        }, throwable -> {
+            Logger.i(TAG, "Loading unhandled error", throwable);
 
-                    notifyAboutError(createError(throwable));
-                });
+            notifyAboutError(createError(throwable));
+        });
 
         compositeDisposable.add(disposable);
     }
@@ -806,7 +796,8 @@ public class ChanThreadLoader
         }
     }
 
-    private static class ThreadAlreadyArchivedException extends Exception {
+    private static class ThreadAlreadyArchivedException
+            extends Exception {
         public ThreadAlreadyArchivedException() {
             super("Thread already archived");
         }

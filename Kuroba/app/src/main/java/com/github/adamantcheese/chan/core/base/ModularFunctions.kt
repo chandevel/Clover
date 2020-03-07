@@ -1,17 +1,17 @@
 package com.github.adamantcheese.chan.core.base
 
-interface MFunc {
+interface VoidFunction {
     fun invoke()
 }
 
-interface MFuncT<T> {
+interface ModularFunction<T> {
     fun invoke(param: T)
 }
 
-interface MFuncR<R> {
+interface GenericFunction<R> {
     fun invoke(): R
 }
 
-interface MFuncTR<T, R> {
+interface GenericModularFunction<T, R> {
     fun invoke(param: T): R
 }

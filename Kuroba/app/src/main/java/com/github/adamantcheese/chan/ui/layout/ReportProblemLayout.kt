@@ -6,7 +6,7 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckBox
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
-import com.github.adamantcheese.chan.core.base.MResult
+import com.github.adamantcheese.chan.core.base.ModularResult
 import com.github.adamantcheese.chan.core.manager.ReportManager
 import com.github.adamantcheese.chan.ui.controller.LogsController
 import com.github.adamantcheese.chan.ui.view.ReportProblemView
@@ -122,13 +122,13 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
                 .also { disposable -> compositeDisposable.add(disposable) }
     }
 
-    private fun handleResult(result: MResult<Boolean>) {
+    private fun handleResult(result: ModularResult<Boolean>) {
         when (result) {
-            is MResult.Value -> {
+            is ModularResult.Value -> {
                 showToast(context, R.string.report_activity_report_sent_message)
                 callbacks?.onFinished()
             }
-            is MResult.Error -> {
+            is ModularResult.Error -> {
                 val errorMessage = result.error.message ?: "No error message"
                 val formattedMessage = getString(
                         R.string.report_activity_error_while_trying_to_send_report,
