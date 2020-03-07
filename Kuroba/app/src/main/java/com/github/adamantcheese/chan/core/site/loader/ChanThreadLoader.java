@@ -30,6 +30,7 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.base.MResult;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
@@ -59,6 +60,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.net.ssl.SSLException;
 
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -81,6 +83,7 @@ public class ChanThreadLoader
 
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private static final int[] WATCH_TIMEOUTS = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
+    private static final Scheduler backgroundScheduler = Schedulers.from(executor);
 
     @Inject
     RequestQueue volleyRequestQueue;
@@ -167,7 +170,7 @@ public class ChanThreadLoader
         clearTimer();
 
         Disposable disposable = Single.fromCallable(this::loadSavedCopyIfExists)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(backgroundScheduler)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         this::requestDataInternal,
@@ -257,34 +260,35 @@ public class ChanThreadLoader
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Disposable requestMoreDataInternal() {
         return Single.fromCallable(() -> {
-                    ChanLoaderRequest request = getData();
-                    if (request == null) {
-                        // Throw an exception here, because we have to do something here but we can't just
-                        // return the result, because it is null and rxjava2 does not allow us to pass
-                        // nulls into the reactive stream.
-                        throw new NullPointerException("getData() returned null");
-                    }
+            ChanLoaderRequest request = getData();
+            if (request == null) {
+                return MResult.error(new ThreadAlreadyArchivedException());
+            }
 
-                    return request;
-                })
-                .subscribeOn(Schedulers.io())
+            return MResult.value(request);
+        })
+                .subscribeOn(backgroundScheduler)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(req -> request = req, error -> {
-                    if (error instanceof NullPointerException) {
-                        // HACK: RxJava does not allow passing null into the reactive streams. So we use
-                        // an exception for a case when getData() returns null. And if getData() returned
-                        // null we don't want to log that exception, therefore we use this hack to check it.
-                        String message = error.getMessage();
-                        // Skip NPEs with the following message
-                        if (message != null && !message.contains("getData() returned null")) {
-                            Logger.e(TAG, "Error while trying to get data: ", error);
-                        }
+                .subscribe(result -> {
+                    if (result instanceof MResult.Error) {
+                        handleErrorResult(((MResult.Error<Throwable>) result).getError());
                     } else {
-                        notifyAboutError(new VolleyError(error));
+                        request = ((MResult.Value<ChanLoaderRequest>) result).getValue();
                     }
+                }, error -> {
+                    notifyAboutError(new VolleyError(error));
                 });
+    }
+
+    private void handleErrorResult(Throwable error) {
+        if (error instanceof ThreadAlreadyArchivedException) {
+            return;
+        }
+
+        notifyAboutError(new VolleyError(error));
     }
 
     /**
@@ -401,7 +405,7 @@ public class ChanThreadLoader
         request = null;
 
         Disposable disposable = Single.fromCallable(() -> onResponseInternal(response))
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(backgroundScheduler)
                 .subscribe(
                         result -> { },
                         error -> {
@@ -666,7 +670,7 @@ public class ChanThreadLoader
 
             // No local thread, show the error screen
             return true;
-        }).subscribeOn(Schedulers.io())
+        }).subscribeOn(backgroundScheduler)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(showError -> {
                     if (!showError) {
@@ -799,6 +803,12 @@ public class ChanThreadLoader
 
         private boolean isServerErrorNotFound(ServerError serverError) {
             return serverError.networkResponse != null && serverError.networkResponse.statusCode == 404;
+        }
+    }
+
+    private static class ThreadAlreadyArchivedException extends Exception {
+        public ThreadAlreadyArchivedException() {
+            super("Thread already archived");
         }
     }
 }
