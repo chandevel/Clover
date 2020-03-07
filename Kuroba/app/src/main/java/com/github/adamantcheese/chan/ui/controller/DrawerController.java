@@ -56,6 +56,8 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
 import static com.github.adamantcheese.chan.ui.adapter.DrawerAdapter.TYPE_PIN;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
@@ -186,9 +188,9 @@ public class DrawerController
                             if (hasNoNetwork) {
                                 // No internet connection, but we have a local copy of this thread,
                                 // so show it instead of an empty screen.
-                                state = Loadable.LoadableDownloadingState.DownloadingAndViewable;
+                                state = DownloadingAndViewable;
                             } else {
-                                state = Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
+                                state = DownloadingAndNotViewable;
                             }
                         }
                     }

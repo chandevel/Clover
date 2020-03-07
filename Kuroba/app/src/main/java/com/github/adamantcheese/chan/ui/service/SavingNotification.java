@@ -75,14 +75,19 @@ public class SavingNotification
 
             if (extras.getBoolean(CANCEL_KEY)) {
                 postToEventBus(new SavingCancelRequestMessage());
+                startForeground(NOTIFICATION_ID, new Notification());
+                stopSelf();
+                return START_NOT_STICKY;
             } else {
                 doneTasks = extras.getInt(DONE_TASKS_KEY);
                 totalTasks = extras.getInt(TOTAL_TASKS_KEY);
                 startForeground(NOTIFICATION_ID, getNotification());
+                return START_STICKY;
             }
         }
-
-        return START_STICKY;
+        startForeground(NOTIFICATION_ID, new Notification());
+        stopSelf();
+        return START_NOT_STICKY;
     }
 
     private Notification getNotification() {

@@ -142,7 +142,7 @@ public class WatchNotification
         Notification notification = createNotification();
         if (notification == null) {
             Logger.d(TAG, "onStartCommand() createNotification returned null");
-
+            startForeground(NOTIFICATION_ID, new Notification());
             stopSelf();
             return START_NOT_STICKY;
         }

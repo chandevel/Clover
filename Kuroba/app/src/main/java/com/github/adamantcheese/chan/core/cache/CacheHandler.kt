@@ -16,13 +16,11 @@
  */
 package com.github.adamantcheese.chan.core.cache
 
+import android.os.Environment
 import android.text.TextUtils
-import com.github.adamantcheese.chan.utils.BackgroundUtils
+import com.github.adamantcheese.chan.utils.*
 import com.github.adamantcheese.chan.utils.ConversionUtils.charArrayToInt
 import com.github.adamantcheese.chan.utils.ConversionUtils.intToCharArray
-import com.github.adamantcheese.chan.utils.HashingUtil
-import com.github.adamantcheese.chan.utils.Logger
-import com.github.adamantcheese.chan.utils.StringUtils
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.FileDescriptorMode
@@ -621,10 +619,11 @@ class CacheHandler(
             val rawFile = File(cacheDirFile.getFullPath())
             if (!rawFile.mkdirs()) {
                 throw RuntimeException(
-                        "Unable to create file cache dir ${cacheDirFile.getFullPath()}")
+                        "Unable to create file cache dir ${cacheDirFile.getFullPath()}, " +
+                                "additional info = ${getAdditionalDebugInfo(rawFile)}")
             } else {
-                Logger.e(TAG, "fileManager.create failed, " +
-                        "but rawFile.mkdirs() succeeded, cacheDirFile = ${cacheDirFile.getFullPath()}")
+                Logger.e(TAG, "fileManager.create failed, but rawFile.mkdirs() succeeded, " +
+                        "cacheDirFile = ${cacheDirFile.getFullPath()}")
             }
         }
 
@@ -632,12 +631,26 @@ class CacheHandler(
             val rawFile = File(chunksCacheDirFile.getFullPath())
             if (!rawFile.mkdirs()) {
                 throw RuntimeException(
-                        "Unable to create file chunks cache dir ${chunksCacheDirFile.getFullPath()}")
+                        "Unable to create file chunks cache dir ${chunksCacheDirFile.getFullPath()}, " +
+                                "additional info = ${getAdditionalDebugInfo(rawFile)}")
             } else {
-                Logger.e(TAG, "fileManager.create failed, " +
-                        "but rawFile.mkdirs() succeeded, chunksCacheDirFile = ${chunksCacheDirFile.getFullPath()}")
+                Logger.e(TAG, "fileManager.create failed, but rawFile.mkdirs() succeeded, " +
+                        "chunksCacheDirFile = ${chunksCacheDirFile.getFullPath()}")
             }
         }
+    }
+
+    private fun getAdditionalDebugInfo(file: File): String {
+        val state = Environment.getExternalStorageState(file)
+        val externalCacheDir = AndroidUtils.getAppContext().externalCacheDir?.absolutePath ?: "<null>"
+        val internalCacheDir = AndroidUtils.getAppContext().cacheDir ?: "<null>"
+
+        return "(exists = ${file.exists()}, " +
+                "canRead = ${file.canRead()}, " +
+                "canWrite = ${file.canWrite()}, " +
+                "state = ${state}, " +
+                "externalCacheDir = ${externalCacheDir}, " +
+                "internalCacheDir = ${internalCacheDir})"
     }
 
     private fun backgroundRecalculateSize() {

@@ -26,7 +26,11 @@ import android.view.ViewGroup;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -53,6 +57,8 @@ public class HintPopup {
     }
 
     private PopupWindow popupWindow;
+    @Nullable
+    private Context context;
     private ViewGroup popupView;
     private final View anchor;
     private final int offsetX;
@@ -64,13 +70,14 @@ public class HintPopup {
     private boolean wiggle = false;
 
     public HintPopup(
-            Context context,
+            @NonNull Context context,
             final View anchor,
             final String text,
             final int offsetX,
             final int offsetY,
             final boolean top
     ) {
+        this.context = context;
         this.anchor = anchor;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
@@ -94,6 +101,17 @@ public class HintPopup {
 
     public void show() {
         runOnMainThread(() -> {
+            if (context == null) {
+                return;
+            }
+
+            if (context instanceof StartActivity) {
+                if (((StartActivity) context).isFinishing()) {
+                    // Activity.finish() was called we cannot show the popup now.
+                    return;
+                }
+            }
+
             if (!dismissed && BackgroundUtils.isInForeground()) {
                 popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
                 int xoff = -popupView.getMeasuredWidth() + offsetX - dp(2) + (centered ? 0 : anchor.getWidth());
@@ -120,5 +138,6 @@ public class HintPopup {
     public void dismiss() {
         popupWindow.dismiss();
         dismissed = true;
+        context = null;
     }
 }

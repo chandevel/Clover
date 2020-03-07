@@ -145,9 +145,9 @@ public abstract class Controller {
         controller.onCreate();
     }
 
-    public boolean removeChildController(Controller controller) {
+    public void removeChildController(Controller controller) {
         controller.onDestroy();
-        return childControllers.remove(controller);
+        childControllers.remove(controller);
     }
 
     public void attachToParentView(ViewGroup parentView) {

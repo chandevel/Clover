@@ -153,8 +153,7 @@ public class HistoryController
     }
 
     private void openThread(History history) {
-        ViewThreadController viewThreadController = new ViewThreadController(context);
-        viewThreadController.setLoadable(history.loadable);
+        ViewThreadController viewThreadController = new ViewThreadController(context, history.loadable);
         navigationController.pushController(viewThreadController);
     }
 

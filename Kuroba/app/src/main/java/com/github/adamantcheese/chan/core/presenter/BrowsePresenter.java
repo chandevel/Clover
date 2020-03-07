@@ -115,7 +115,6 @@ public class BrowsePresenter
             currentBoard = board;
 
             callback.loadBoard(getLoadableForBoard(board));
-            callback.showArchiveOption(board.site.boardFeature(Site.BoardFeature.ARCHIVE, board));
         }
     }
 
@@ -123,7 +122,5 @@ public class BrowsePresenter
         void loadBoard(Loadable loadable);
 
         void loadSiteSetup(Site site);
-
-        void showArchiveOption(boolean show);
     }
 }
