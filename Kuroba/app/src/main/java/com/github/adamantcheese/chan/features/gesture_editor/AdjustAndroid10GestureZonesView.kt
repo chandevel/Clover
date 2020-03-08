@@ -174,6 +174,7 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
 enum class AttachSide(val id: Int) {
     Left(0),
     Right(1),
+    // the following are not currently used, as the application does not have any swipe up/down actions
     Top(2),
     Bottom(3);
 

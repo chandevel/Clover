@@ -161,7 +161,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="open_link_failed">No applications were found to open this link</string>
     <string name="open_file_picker_failed">No file picker applications were found</string>
     <string name="image_pick_delegate_select_file_picker">Select a file picker to open a file…</string>
-    <string name="action_confirm_exit_title">Tap back again to exit</string>
+    <string name="action_confirm_exit">Tap back again to exit</string>
 
     <string name="thumbnail_load_failed_network">Error</string>
     <string name="image_preview_failed">Failed to show image</string>
@@ -733,7 +733,7 @@ Don't have a 4chan Pass?<br>
     <string name="media_settings_there_are_active_downloads">There are %1$d threads being downloaded</string>
     <string name="media_settings_you_have_to_stop_all_downloads">You have to stop all the threads that are being downloaded before changing local threads base directory!</string>
     <string name="media_settings_some_thread_downloads_are_still_processed">Some thread downloads are still being processed</string>
-    <string name="media_settings_do_not_terminate_the_app_manually">You may have to wait for couple of minutes until all active downloads are complete. DO NOT TERMINATE THE APP MANUALLY!!! This will break your local threads.</string>
+    <string name="media_settings_do_not_terminate_the_app_manually">You may have to wait for couple of minutes until all active downloads are complete. DO NOT TERMINATE THE APP MANUALLY! This will break ALL your local threads.</string>
     <string name="media_settings_cannot_continue_write_permission">Cannot continue without the WRITE_EXTERNAL_STORAGE permission</string>
     <string name="media_settings_base_directory_is_already_registered">Cannot use this directory because it is already in use</string>
     <string name="setting_image_link_loading_title">Enable image link loading</string>
@@ -817,18 +817,18 @@ Don't have a 4chan Pass?<br>
     <string name="fail_reason_some_part_of_webview_not_initialized">Some part of WebViewChromium couldn\'t get initialized: (%1$s)</string>
     <string name="thread_load_failed_local_thread_parsing">Error while trying to parse local thread json file. Try deleting and the re-downloading the thread to fix this error.</string>
     <string name="setting_enable_image_link_loading">Enable image link loading</string>
-    <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
+    <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, MP4, PDF, BMP, WEBP, MP3, SWF, M4A, OGG, or FLAC files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
     <string name="add_new_zone">Add new zone</string>
     <string name="setting_exclusion_zones_left_zone_portrait">Left zone (Portrait orientation)</string>
     <string name="setting_exclusion_zones_right_zone_portrait">Right zone (Portrait orientation)</string>
     <string name="setting_exclusion_zones_left_zone_landscape">Left zone (Landscape orientation)</string>
     <string name="setting_exclusion_zones_right_zone_landscape">Right zone (Landscape orientation)</string>
     <string name="setting_exclusion_zones_reset_zones">Reset exclusion zones</string>
-    <string name="setting_exclusion_zones_reset_zones_description">All exclusion zones will be deleted (The app will have to be restarted)</string>
+    <string name="setting_exclusion_zones_reset_zones_description">All exclusion zones will be deleted; the app will be restarted</string>
     <string name="setting_exclusion_zones_editor">Android 10 gesture exclusion zones</string>
-    <string name="setting_exclusion_zones_editor_description">Adjust zones where new Android 10 gestures will be disabled. \n\nYou will have to rotate your phone/tablet to set zones for different orientations. \nYou will have to restart the app for the changes to get applied!!!</string>
+    <string name="setting_exclusion_zones_editor_description">Adjust zones where Android 10 gestures will be disabled. \n\nYou will have to rotate your phone/tablet to set zones for different orientations. \nYou will have to restart the app for the changes to be applied!</string>
     <string name="setting_exclusion_zones_actions_dialog_title">Android 10 exclusion zones actions</string>
-    <string name="setting_exclusion_zones_wrong_phone_orientation">Wrong phone orientation, you need to rotate your phone 90 degrees to any side before using this option</string>
+    <string name="setting_exclusion_zones_wrong_phone_orientation">Wrong phone orientation, you need to rotate your phone 90 degrees to any side before using this option.</string>
     <string name="setting_exclusion_zones_edit_or_remove_zone_title">Edit or remove zone?</string>
     <string name="setting_exclusion_zones_zone_remove_message">Zone removed. Restart the app for the changes to kick in.</string>
     <string name="setting_exclusion_zones_zone_added_message">New exclusion zone added. Restart the app for the changes to kick in.</string>

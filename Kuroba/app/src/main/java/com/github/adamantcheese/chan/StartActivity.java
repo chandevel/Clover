@@ -61,6 +61,7 @@ import com.github.adamantcheese.chan.ui.controller.ViewThreadController;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.callback.FSAFActivityCallbacks;
@@ -500,8 +501,9 @@ public class StartActivity
     public void onBackPressed() {
         if (!stack.peek().onBack()) {
             if (!exitFlag) {
-                showToast(this, R.string.action_confirm_exit_title, Toast.LENGTH_LONG);
+                showToast(this, R.string.action_confirm_exit);
                 exitFlag = true;
+                BackgroundUtils.runOnMainThread(() -> exitFlag = false, 650);
             } else {
                 exitFlag = false;
                 StartActivity.super.onBackPressed();

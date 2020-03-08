@@ -36,8 +36,8 @@ class EditableZone {
         this.viewHeight = viewHeight.toFloat()
         this.currentAttachSide = attachSide
 
-        var x = 0f
-        var y = 0f
+        var x: Float
+        var y: Float
         var zoneWidth = zoneDefaultWidth
         var zoneHeight = zoneDefaultHeight
 

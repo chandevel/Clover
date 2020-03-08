@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.ChanSettings.ConcurrentFileDownloadingChunks;
 import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
 import com.github.adamantcheese.chan.features.gesture_editor.AttachSide;
 import com.github.adamantcheese.chan.features.gesture_editor.ExclusionZone;
@@ -33,6 +34,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientat
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.JavaUtils.in;
 
 public class ExperimentalSettingsController
         extends SettingsController {
@@ -51,10 +53,7 @@ public class ExperimentalSettingsController
     @Inject
     Android10GesturesExclusionZonesHolder exclusionZonesHolder;
 
-    private final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
-            context,
-            android.R.layout.simple_list_item_1
-    );
+    private final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1);
 
     public ExperimentalSettingsController(Context context) {
         super(context);
@@ -63,10 +62,10 @@ public class ExperimentalSettingsController
         //  When changing the following list don't forget to update indexes in LEFT_ZONES_INDEXES,
         //  RIGHT_ZONES_INDEXES
         //  !!!!!!!!!!!!!!!!!!!!!!!!!!
-        arrayAdapter.add(context.getString(R.string.setting_exclusion_zones_left_zone_portrait));
-        arrayAdapter.add(context.getString(R.string.setting_exclusion_zones_right_zone_portrait));
-        arrayAdapter.add(context.getString(R.string.setting_exclusion_zones_left_zone_landscape));
-        arrayAdapter.add(context.getString(R.string.setting_exclusion_zones_right_zone_landscape));
+        arrayAdapter.add(getString(R.string.setting_exclusion_zones_left_zone_portrait));
+        arrayAdapter.add(getString(R.string.setting_exclusion_zones_right_zone_portrait));
+        arrayAdapter.add(getString(R.string.setting_exclusion_zones_left_zone_landscape));
+        arrayAdapter.add(getString(R.string.setting_exclusion_zones_right_zone_landscape));
     }
 
     @Override
@@ -119,12 +118,11 @@ public class ExperimentalSettingsController
     private void setupConcurrentFileDownloadingChunksSetting(SettingsGroup group) {
         List<ListSettingView.Item> items = new ArrayList<>();
 
-        for (ChanSettings.ConcurrentFileDownloadingChunks setting :
-                ChanSettings.ConcurrentFileDownloadingChunks.values()) {
+        for (ConcurrentFileDownloadingChunks setting : ConcurrentFileDownloadingChunks.values()) {
             items.add(new ListSettingView.Item<>(setting.getKey(), setting));
         }
 
-        requiresRestart.add(group.add(new ListSettingView<ChanSettings.ConcurrentFileDownloadingChunks>(
+        requiresRestart.add(group.add(new ListSettingView<ConcurrentFileDownloadingChunks>(
                 this,
                 ChanSettings.concurrentDownloadChunkCount,
                 getString(R.string.settings_concurrent_file_downloading_name),
@@ -132,8 +130,8 @@ public class ExperimentalSettingsController
         ) {
             @Override
             public String getBottomDescription() {
-                return getString(R.string.settings_concurrent_file_downloading_description)
-                        + "\n\n" + items.get(selected).name;
+                return getString(R.string.settings_concurrent_file_downloading_description) + "\n\n" + items.get(
+                        selected).name;
             }
         }));
     }
@@ -168,8 +166,7 @@ public class ExperimentalSettingsController
             return;
         }
 
-        new AlertDialog.Builder(context)
-                .setTitle(R.string.setting_exclusion_zones_actions_dialog_title)
+        new AlertDialog.Builder(context).setTitle(R.string.setting_exclusion_zones_actions_dialog_title)
                 .setAdapter(arrayAdapter, (dialog, selectedIndex) -> {
                     onOptionClicked(selectedIndex);
                     dialog.dismiss();
@@ -201,6 +198,7 @@ public class ExperimentalSettingsController
         } else if (in(selectedIndex, RIGHT_ZONES_INDEXES)) {
             attachSide = AttachSide.Right;
         } else {
+            // this will need to be updated if any swipe up/down actions are added to the application
             throw new IllegalStateException("Unhandled AttachSide index " + selectedIndex);
         }
 
@@ -214,13 +212,13 @@ public class ExperimentalSettingsController
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private void showEditOrRemoveZoneDialog(int orientation, AttachSide attachSide) {
-        new AlertDialog.Builder(context)
-                .setTitle(R.string.setting_exclusion_zones_edit_or_remove_zone_title)
+        new AlertDialog.Builder(context).setTitle(R.string.setting_exclusion_zones_edit_or_remove_zone_title)
                 .setPositiveButton(R.string.edit, (dialog, which) -> {
                     ExclusionZone skipZone = exclusionZonesHolder.getZoneOrNull(orientation, attachSide);
                     if (skipZone == null) {
-                        throw new IllegalStateException("skipZone is null! " +
-                                "(orientation = " + orientation + ", attachSide = " + attachSide + ")");
+                        throw new IllegalStateException(
+                                "skipZone is null! " + "(orientation = " + orientation + ", attachSide = " + attachSide
+                                        + ")");
                     }
 
                     showZoneEditorController(attachSide, skipZone);
@@ -237,22 +235,12 @@ public class ExperimentalSettingsController
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private void showZoneEditorController(AttachSide attachSide, @Nullable ExclusionZone skipZone) {
-        AdjustAndroid10GestureZonesController adjustGestureZonesController
-                = new AdjustAndroid10GestureZonesController(context);
+        AdjustAndroid10GestureZonesController adjustGestureZonesController =
+                new AdjustAndroid10GestureZonesController(context);
 
         adjustGestureZonesController.setAttachSide(attachSide);
         adjustGestureZonesController.setSkipZone(skipZone);
 
         navigationController.presentController(adjustGestureZonesController);
-    }
-
-    private boolean in(int value, int[] array) {
-        for (int i : array) {
-            if (value == i) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

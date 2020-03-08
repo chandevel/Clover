@@ -458,8 +458,21 @@ public class AndroidUtils {
     public static Point getDisplaySize() {
         Point displaySize = new Point();
         WindowManager windowManager = (WindowManager) application.getSystemService(Activity.WINDOW_SERVICE);
-        windowManager.getDefaultDisplay().getSize(displaySize);
+        windowManager.getDefaultDisplay().getRealSize(displaySize);
         return displaySize;
+    }
+
+    /**
+     * These two methods get the screen size ignoring the current screen orientation.
+     * */
+    public static int getMinScreenSize() {
+        Point displaySize = getDisplaySize();
+        return Math.min(displaySize.x, displaySize.y);
+    }
+
+    public static int getMaxScreenSize() {
+        Point displaySize = getDisplaySize();
+        return Math.max(displaySize.x, displaySize.y);
     }
 
     public static Window getWindow(Context context) {
@@ -550,27 +563,6 @@ public class AndroidUtils {
         }
 
         return screenOrientation;
-    }
-
-    /**
-     * These two method get the screen size ignoring the current screen orientation.
-     * */
-    public static int getMinScreenSize() {
-        WindowManager windowManager = (WindowManager) getAppContext().getSystemService(Context.WINDOW_SERVICE);
-
-        Point point = new Point();
-        windowManager.getDefaultDisplay().getRealSize(point);
-
-        return Math.min(point.x, point.y);
-    }
-
-    public static int getMaxScreenSize() {
-        WindowManager windowManager = (WindowManager) getAppContext().getSystemService(Context.WINDOW_SERVICE);
-
-        Point point = new Point();
-        windowManager.getDefaultDisplay().getRealSize(point);
-
-        return Math.max(point.x, point.y);
     }
 
     /**
