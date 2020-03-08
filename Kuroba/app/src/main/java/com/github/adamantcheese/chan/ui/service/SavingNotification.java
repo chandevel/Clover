@@ -96,18 +96,14 @@ public class SavingNotification
             intent.putExtra(CANCEL_KEY, true);
             PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            NotificationCompat.Builder builder =
-                    new NotificationCompat.Builder(getAppContext()).setSmallIcon(R.drawable.ic_stat_notify)
-                            .setContentTitle(getString(R.string.image_save_notification_downloading))
-                            .setContentText(getString(R.string.image_save_notification_cancel))
-                            .setProgress(totalTasks, doneTasks, false)
-                            .setContentInfo(doneTasks + "/" + totalTasks)
-                            .setContentIntent(pendingIntent)
-                            .setOngoing(true);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                builder.setChannelId(NOTIFICATION_ID_STR);
-            }
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext(), NOTIFICATION_ID_STR);
+            builder.setSmallIcon(R.drawable.ic_stat_notify)
+                    .setContentTitle(getString(R.string.image_save_notification_downloading))
+                    .setContentText(getString(R.string.image_save_notification_cancel))
+                    .setProgress(totalTasks, doneTasks, false)
+                    .setContentInfo(doneTasks + "/" + totalTasks)
+                    .setContentIntent(pendingIntent)
+                    .setOngoing(true);
 
             return builder.build();
         }

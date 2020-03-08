@@ -458,9 +458,7 @@ public class WatchNotification
         synchronized (this) {
             NotificationCompat.Builder builder =
                     new NotificationCompat.Builder(this, alertIcon ? NOTIFICATION_ID_ALERT_STR : NOTIFICATION_ID_STR);
-            builder.setContentTitle(title);
-            builder.setContentText(TextUtils.join(", ", expandedLines));
-            builder.setOngoing(true);
+            builder.setContentTitle(title).setContentText(TextUtils.join(", ", expandedLines)).setOngoing(true);
 
             //setup launch action, add pin if there's only one thread watching
             Intent intent = new Intent(this, StartActivity.class);

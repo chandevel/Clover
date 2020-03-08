@@ -67,11 +67,13 @@ public class LastPageNotification
         int pinId = params.getExtras().getInt(PIN_ID_KEY);
         boolean notify = params.getExtras().getInt(NOTIFY_KEY) == 1;
         Pin forPin = watchManager.findPinById(pinId);
-        if (notify) {
-            getNotificationManager().notify(forPin.loadable.no, getNotification(forPin, pinId));
-        } else {
-            getNotificationManager().cancel(forPin.loadable.no);
-        }
+        try {
+            if (notify) {
+                getNotificationManager().notify(forPin.loadable.no, getNotification(forPin, pinId));
+            } else {
+                getNotificationManager().cancel(forPin.loadable.no);
+            }
+        } catch (Exception ignored) {}
         return false;
     }
 
@@ -93,7 +95,7 @@ public class LastPageNotification
                 PendingIntent.getActivity(getAppContext(), pin.loadable.no, intent, PendingIntent.FLAG_ONE_SHOT);
         String time = SimpleDateFormat.getTimeInstance(DateFormat.SHORT).format(new Date());
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext());
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext(), NOTIFICATION_ID_STR);
         builder.setSmallIcon(R.drawable.ic_stat_notify_alert)
                 .setContentTitle(time + " - " + getString(R.string.thread_page_limit))
                 .setContentText(pin.loadable.title)
@@ -102,10 +104,6 @@ public class LastPageNotification
                 .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
                 .setLights(Color.RED, 1000, 1000)
                 .setAutoCancel(true);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder.setChannelId(NOTIFICATION_ID_STR);
-        }
 
         return builder.build();
     }
