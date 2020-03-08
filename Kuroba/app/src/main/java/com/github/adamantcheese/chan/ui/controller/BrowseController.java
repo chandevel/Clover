@@ -146,11 +146,11 @@ public class BrowseController
         navigation.subtitle = "Tap for site/board setup";
 
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
-                if (ChanSettings.moveSortToToolbar.get()) {
-                    menuBuilder.withItem(R.drawable.ic_sort_white_24dp, this::orderClicked);
-                }
-                menuBuilder.withItem(R.drawable.ic_search_white_24dp, this::searchClicked);
-                menuBuilder.withItem(R.drawable.ic_refresh_white_24dp, this::reloadClicked);
+        if (ChanSettings.moveSortToToolbar.get()) {
+            menuBuilder.withItem(R.drawable.ic_sort_white_24dp, this::orderClicked);
+        }
+        menuBuilder.withItem(R.drawable.ic_search_white_24dp, this::searchClicked);
+        menuBuilder.withItem(R.drawable.ic_refresh_white_24dp, this::reloadClicked);
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
 
@@ -379,9 +379,11 @@ public class BrowseController
             items.add(new FloatingMenuItem(order, name));
         }
         ToolbarMenuItem overflow = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
-        FloatingMenu menu = new FloatingMenu(context, overflow.getView(), items);
-        if (ChanSettings.moveSortToToolbar.get()) {
+        FloatingMenu menu;
+        if (item != null) {
             menu = new FloatingMenu(context, item.getView(), items);
+        } else {
+            menu = new FloatingMenu(context, overflow.getView(), items);
         }
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
