@@ -18,6 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <color name="primary">#4caf50</color>
     <color name="primary_dark">#388e3c</color>
     <color name="accent">#009688</color>
+    <color name="gestures_zone_view_background">#5038FFB2</color>
+    <color name="gestures_zone_view_added_zones">#50FFB55B</color>
+    <color name="gestures_zone_view_current_zone">#50FF4C82</color>
 
     <!-- Main light theme -->
     <style name="Chan.Theme" parent="Theme.AppCompat.Light.NoActionBar">

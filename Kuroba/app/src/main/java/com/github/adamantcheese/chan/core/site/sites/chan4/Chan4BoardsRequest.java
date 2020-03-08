@@ -26,7 +26,6 @@ import com.github.adamantcheese.chan.core.site.Site;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Chan4BoardsRequest

@@ -76,6 +76,8 @@ import java.util.Stack;
 
 import javax.inject.Inject;
 
+import kotlin.jvm.functions.Function1;
+
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
@@ -454,9 +456,9 @@ public class StartActivity
         stack.push(controller);
     }
 
-    public boolean isControllerAdded(Controller.ControllerPredicate predicate) {
+    public boolean isControllerAdded(Function1<Controller, Boolean> predicate) {
         for (Controller controller : stack) {
-            if (predicate.test(controller)) {
+            if (predicate.invoke(controller)) {
                 return true;
             }
         }

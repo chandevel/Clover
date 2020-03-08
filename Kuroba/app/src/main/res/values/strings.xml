@@ -98,6 +98,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="create">Create</string>
     <string name="do_not">Do not</string>
     <string name="move">Move</string>
+    <string name="edit">Edit</string>
+    <string name="remove">Remove</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
@@ -809,9 +811,25 @@ Don't have a 4chan Pass?<br>
     <string name="update_manager_apk_copied">Apk successfully copied</string>
     <string name="settings_show_copy_apk_dialog_title">Show copy apk dialog when downloading an update</string>
     <string name="settings_show_copy_apk_dialog_message">Every time you download a new update a dialog with suggestion to copy that apk to some other directory will be shown</string>
-    
+
     <string name="could_not_initialized_captcha">Couldn\'t initialize captcha, reason: %1$s</string>
     <string name="fail_reason_webview_is_not_installed">WebView is not installed</string>
     <string name="fail_reason_some_part_of_webview_not_initialized">Some part of WebViewChromium couldn\'t get initialized: (%1$s)</string>
     <string name="thread_load_failed_local_thread_parsing">Error while trying to parse local thread json file. Try deleting and the re-downloading the thread to fix this error.</string>
+    <string name="setting_enable_image_link_loading">Enable image link loading</string>
+    <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, or MP4 files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
+    <string name="add_new_zone">Add new zone</string>
+    <string name="setting_exclusion_zones_left_zone_portrait">Left zone (Portrait orientation)</string>
+    <string name="setting_exclusion_zones_right_zone_portrait">Right zone (Portrait orientation)</string>
+    <string name="setting_exclusion_zones_left_zone_landscape">Left zone (Landscape orientation)</string>
+    <string name="setting_exclusion_zones_right_zone_landscape">Right zone (Landscape orientation)</string>
+    <string name="setting_exclusion_zones_reset_zones">Reset exclusion zones</string>
+    <string name="setting_exclusion_zones_reset_zones_description">All exclusion zones will be deleted (The app will have to be restarted)</string>
+    <string name="setting_exclusion_zones_editor">Android 10 gesture exclusion zones</string>
+    <string name="setting_exclusion_zones_editor_description">Adjust zones where new Android 10 gestures will be disabled. \n\nYou will have to rotate your phone/tablet to set zones for different orientations. \nYou will have to restart the app for the changes to get applied!!!</string>
+    <string name="setting_exclusion_zones_actions_dialog_title">Android 10 exclusion zones actions</string>
+    <string name="setting_exclusion_zones_wrong_phone_orientation">Wrong phone orientation, you need to rotate your phone 90 degrees to any side before using this option</string>
+    <string name="setting_exclusion_zones_edit_or_remove_zone_title">Edit or remove zone?</string>
+    <string name="setting_exclusion_zones_zone_remove_message">Zone removed. Restart the app for the changes to kick in.</string>
+    <string name="setting_exclusion_zones_zone_added_message">New exclusion zone added. Restart the app for the changes to kick in.</string>
 </resources>
