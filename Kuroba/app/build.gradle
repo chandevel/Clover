@@ -101,6 +101,7 @@ android {
 
     // Needed for volley
     useLibrary 'org.apache.http.legacy'
+    ndkVersion '21.0.6113669'
 
     packagingOptions {
         exclude 'META-INF/*'
