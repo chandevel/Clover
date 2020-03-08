@@ -102,6 +102,12 @@ public class AppearanceSettingsController
                     R.string.setting_images_immersive_mode_description
             )));
 
+            requiresRestart.add(layout.add(new BooleanSettingView(this,
+                    ChanSettings.moveSortToToolbar,
+                    R.string.setting_move_sort_to_toolbar,
+                    R.string.setting_move_sort_to_toolbar_description
+            )));
+
             groups.add(layout);
         }
 

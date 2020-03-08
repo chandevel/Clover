@@ -145,10 +145,14 @@ public class BrowseController
         navigation.title = "App Setup";
         navigation.subtitle = "Tap for site/board setup";
 
-        NavigationItem.MenuOverflowBuilder overflowBuilder = navigation.buildMenu()
-                .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
-                .withItem(R.drawable.ic_refresh_white_24dp, this::reloadClicked)
-                .withOverflow();
+        NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
+                if (ChanSettings.moveSortToToolbar.get()) {
+                    menuBuilder.withItem(R.drawable.ic_sort_white_24dp, this::orderClicked);
+                }
+                menuBuilder.withItem(R.drawable.ic_search_white_24dp, this::searchClicked);
+                menuBuilder.withItem(R.drawable.ic_refresh_white_24dp, this::reloadClicked);
+
+        NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
 
         if (!ChanSettings.enableReplyFab.get()) {
             overflowBuilder.withSubItem(R.string.action_reply, this::replyClicked);
@@ -161,8 +165,11 @@ public class BrowseController
                 this::viewModeClicked
         );
 
+        if (!ChanSettings.moveSortToToolbar.get()) {
+            overflowBuilder.withSubItem(R.string.action_sort, this::orderClicked);
+        }
+
         overflowBuilder.withSubItem(ARCHIVE_ID, R.string.thread_view_archive, this::archiveClicked)
-                .withSubItem(R.string.action_sort, this::orderClicked)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
@@ -244,8 +251,12 @@ public class BrowseController
         openArchive();
     }
 
+    private void orderClicked(ToolbarMenuItem item) {
+        handleSorting(item);
+    }
+
     private void orderClicked(ToolbarMenuSubItem item) {
-        handleSorting();
+        handleSorting(null);
     }
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
@@ -331,7 +342,7 @@ public class BrowseController
         threadLayout.setPostViewMode(postViewMode);
     }
 
-    private void handleSorting() {
+    private void handleSorting(ToolbarMenuItem item) {
         final ThreadPresenter presenter = threadLayout.getPresenter();
         List<FloatingMenuItem> items = new ArrayList<>();
         for (PostsFilter.Order order : PostsFilter.Order.values()) {
@@ -367,9 +378,11 @@ public class BrowseController
 
             items.add(new FloatingMenuItem(order, name));
         }
-
         ToolbarMenuItem overflow = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
         FloatingMenu menu = new FloatingMenu(context, overflow.getView(), items);
+        if (ChanSettings.moveSortToToolbar.get()) {
+            menu = new FloatingMenu(context, item.getView(), items);
+        }
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {

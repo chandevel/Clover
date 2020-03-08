@@ -231,6 +231,8 @@ public class ChanSettings {
     public static final LongSetting updateCheckTime;
     public static final BooleanSetting reencodeHintShown;
     public static final BooleanSetting useImmersiveModeForGallery;
+    public static final BooleanSetting moveSortToToolbar;
+
 
     public static final StringSetting lastImageOptions;
     public static final StringSetting filterWatchIgnored;
@@ -312,6 +314,7 @@ public class ChanSettings {
             saveServerFilename = new BooleanSetting(p, "preference_image_save_original", false);
             shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
             accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);
+
             enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
             anonymize = new BooleanSetting(p, "preference_anonymize", false);
             anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
@@ -368,6 +371,7 @@ public class ChanSettings {
             updateCheckTime = new LongSetting(p, "update_check_time", 0L);
             reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
             useImmersiveModeForGallery = new BooleanSetting(p, "use_immersive_mode_for_gallery", false);
+            moveSortToToolbar = new BooleanSetting(p, "move_sort_to_toolbar", false);
 
             lastImageOptions = new StringSetting(p, "last_image_options", "");
             filterWatchIgnored = new StringSetting(p, "filter_watch_last_ignored_set", "");

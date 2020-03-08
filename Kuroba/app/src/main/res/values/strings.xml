@@ -428,6 +428,8 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="settings_group_post">Post</string>
     <string name="setting_font_size">Font size</string>
     <string name="setting_font_size_default">(default)</string>
+    <string name="setting_move_sort_to_toolbar">Sort option in toolbar</string>
+    <string name="setting_move_sort_to_toolbar_description">Move board sort option from submenu to toolbar</string>
 
     <!-- Appearance post group -->
     <string name="setting_font_alt">Use alternative font</string>
