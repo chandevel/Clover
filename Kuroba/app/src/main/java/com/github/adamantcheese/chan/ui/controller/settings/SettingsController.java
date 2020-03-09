@@ -146,7 +146,7 @@ public class SettingsController
 
         List<View> items = findViewsById(content, R.id.preference_item);
         for (View item : items) {
-            item.setPadding(itemMargin, item.getPaddingTop(), itemMargin, item.getPaddingBottom());
+            updatePaddings(item, itemMargin, itemMargin, -1, -1);
         }
     }
 

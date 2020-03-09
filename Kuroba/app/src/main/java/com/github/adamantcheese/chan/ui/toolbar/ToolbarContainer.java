@@ -55,6 +55,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 /**
  * The container for the views created by the toolbar for the navigation items.
@@ -476,11 +477,7 @@ public class ToolbarContainer
                 titleView.setLayoutParams(titleParams);
                 subtitleView.setText(item.subtitle);
                 subtitleView.setTextColor(Color.WHITE);
-                titleView.setPadding(titleView.getPaddingLeft(),
-                        dp(5f),
-                        titleView.getPaddingRight(),
-                        titleView.getPaddingBottom()
-                );
+                updatePaddings(titleView, -1, -1, dp(5f), -1);
             } else {
                 titleContainer.removeView(subtitleView);
             }

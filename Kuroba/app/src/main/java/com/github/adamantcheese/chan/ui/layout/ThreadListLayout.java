@@ -78,6 +78,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 /**
@@ -164,11 +165,7 @@ public class ThreadListLayout
         } else {
             reply.setPadding(0, toolbarHeight(), 0, 0);
         }
-        searchStatus.setPadding(searchStatus.getPaddingLeft(),
-                searchStatus.getPaddingTop() + toolbarHeight(),
-                searchStatus.getPaddingRight(),
-                searchStatus.getPaddingBottom()
-        );
+        updatePaddings(searchStatus, -1, -1, searchStatus.getPaddingTop() + toolbarHeight(), -1);
     }
 
     private void onRecyclerViewScrolled() {

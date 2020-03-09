@@ -104,6 +104,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class PostCell
@@ -560,16 +561,12 @@ public class PostCell
             }
 
             replies.setText(text);
-            comment.setPadding(comment.getPaddingLeft(), comment.getPaddingTop(), comment.getPaddingRight(), 0);
-            replies.setPadding(replies.getPaddingLeft(),
-                    paddingPx,
-                    replies.getPaddingRight(),
-                    replies.getPaddingBottom()
-            );
+            updatePaddings(comment, -1, -1, -1, 0);
+            updatePaddings(replies, -1, -1, paddingPx, -1);
         } else {
             replies.setVisibility(GONE);
-            comment.setPadding(comment.getPaddingLeft(), comment.getPaddingTop(), comment.getPaddingRight(), paddingPx);
-            replies.setPadding(replies.getPaddingLeft(), 0, replies.getPaddingRight(), replies.getPaddingBottom());
+            updatePaddings(comment, -1, -1, -1, paddingPx);
+            updatePaddings(replies, -1, -1, 0, -1);
         }
 
         divider.setVisibility(showDivider ? VISIBLE : GONE);
