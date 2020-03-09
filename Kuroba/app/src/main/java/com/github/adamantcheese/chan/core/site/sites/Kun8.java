@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.core.site.sites;
 
-
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -21,7 +20,8 @@ import java.util.Map;
 
 import okhttp3.HttpUrl;
 
-public class Kun8 extends CommonSite {
+public class Kun8
+        extends CommonSite {
     private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
 
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
@@ -53,7 +53,8 @@ public class Kun8 extends CommonSite {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
                 return getUrl().newBuilder()
-                        .addPathSegment(loadable.boardCode).addPathSegment("res")
+                        .addPathSegment(loadable.boardCode)
+                        .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
                         .toString();
             } else {
@@ -80,12 +81,11 @@ public class Kun8 extends CommonSite {
             }
         });
 
-        setEndpoints(new VichanEndpoints(this,
-                "https://8kun.top","https://sys.8kun.top") {
+        setEndpoints(new VichanEndpoints(this, "https://8kun.top", "https://sys.8kun.top") {
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
-                return HttpUrl.parse("https://media.8kun.top/" + "file_store/" + (arg.get("tim") + "." + arg.get("ext")));
-
+                return HttpUrl.parse(
+                        "https://media.8kun.top/" + "file_store/" + (arg.get("tim") + "." + arg.get("ext")));
             }
 
             @Override
@@ -103,7 +103,8 @@ public class Kun8 extends CommonSite {
                         break;
                 }
 
-                return HttpUrl.parse("https://media.8kun.top/" + "file_store/" + "thumb/" + (arg.get("tim") + "." + ext));
+                return HttpUrl.parse(
+                        "https://media.8kun.top/" + "file_store/" + "thumb/" + (arg.get("tim") + "." + ext));
             }
         });
 
@@ -129,9 +130,11 @@ public class Kun8 extends CommonSite {
 
             @Override
             public SiteAuthentication postAuthenticate() {
-                return SiteAuthentication.fromUrl("https://sys.8kun.top/dnsbls_bypass_popup.php?_=" + System.currentTimeMillis(),
+                return SiteAuthentication.fromUrl(
+                        "https://sys.8kun.top/dnsbls_bypass_popup.php?_=" + System.currentTimeMillis(),
                         "You failed the CAPTCHA",
-                        "You may now go back and make your post");
+                        "You may now go back and make your post"
+                );
             }
         });
 

@@ -90,7 +90,8 @@ public class SaveLocationController
             onDirectoryChosen();
             navigationController.popController();
         } else if (v == addButton) {
-            @SuppressLint("InflateParams") final NewFolderLayout dialogView = (NewFolderLayout) inflate(context, R.layout.layout_folder_add, null);
+            @SuppressLint("InflateParams")
+            final NewFolderLayout dialogView = (NewFolderLayout) inflate(context, R.layout.layout_folder_add, null);
 
             new AlertDialog.Builder(context).setView(dialogView)
                     .setTitle(R.string.save_new_folder)
@@ -109,11 +110,11 @@ public class SaveLocationController
                     fileWatcher.getCurrentPath().getAbsolutePath() + File.separator + dialogView.getFolderName());
 
             if (!newDir.exists() && !newDir.mkdir()) {
-                String additionalInfo = "Can write: " + newDir.canWrite()
-                        + ", isDirectory: " + newDir.isDirectory();
+                String additionalInfo = "Can write: " + newDir.canWrite() + ", isDirectory: " + newDir.isDirectory();
 
-                throw new IllegalStateException("Could not create directory: "
-                        + newDir.getAbsolutePath() + ", additional info: " + additionalInfo);
+                throw new IllegalStateException(
+                        "Could not create directory: " + newDir.getAbsolutePath() + ", additional info: "
+                                + additionalInfo);
             }
 
             fileWatcher.navigateTo(newDir);
@@ -193,8 +194,8 @@ public class SaveLocationController
     private File getExternalStorageDir() {
         File externalStorageDirectory = Environment.getExternalStorageDirectory();
         if (!externalStorageDirectory.exists()) {
-            throw new IllegalStateException("External storage dir does not exist! " +
-                    "State = " + Environment.getExternalStorageState());
+            throw new IllegalStateException(
+                    "External storage dir does not exist! " + "State = " + Environment.getExternalStorageState());
         }
 
         return externalStorageDirectory;

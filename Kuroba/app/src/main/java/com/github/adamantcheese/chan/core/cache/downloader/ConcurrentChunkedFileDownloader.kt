@@ -68,13 +68,13 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
         return Flowable.concat(
                 Flowable.just(FileDownloadResult.Start(chunksCount)),
                 Flowable.defer {
-                    return@defer downloadInternal(
-                            url,
-                            chunks,
-                            partialContentCheckResult,
-                            output
-                    )
-                }
+                            return@defer downloadInternal(
+                                    url,
+                                    chunks,
+                                    partialContentCheckResult,
+                                    output
+                            )
+                        }
                         .doOnSubscribe { log(TAG, "Starting downloading (${maskImageUrl(url)})") }
                         .doOnComplete {
                             log(TAG, "Completed downloading (${maskImageUrl(url)})")

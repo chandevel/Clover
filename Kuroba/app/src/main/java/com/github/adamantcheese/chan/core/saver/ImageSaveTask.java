@@ -218,8 +218,10 @@ public class ImageSaveTask
             boolean canWrite = fileManager.canWrite(destination);
 
             Logger.e(TAG,
-                    "Error writing to file: (" + destination.getFullPath() + "), " +
-                            "exists = " + exists + ", canWrite = " + canWrite, e);
+                    "Error writing to file: (" + destination.getFullPath() + "), " + "exists = " + exists
+                            + ", canWrite = " + canWrite,
+                    e
+            );
         }
 
         return result;

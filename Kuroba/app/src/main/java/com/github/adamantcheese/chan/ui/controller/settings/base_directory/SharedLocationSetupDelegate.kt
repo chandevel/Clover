@@ -197,16 +197,16 @@ class SharedLocationSetupDelegate(
                     dialog.dismiss()
                 }
                 .create()
-        
+
         alertDialog.show()
     }
-    
+
     private fun onDeleteOldFilesClicked(oldBaseDirectory: AbstractFile) {
         if (!fileManager.deleteContent(oldBaseDirectory)) {
             showToast(context, R.string.media_settings_could_not_delete_files_in_old_dir, Toast.LENGTH_LONG)
             return
         }
-        
+
         showToast(context, R.string.media_settings_old_files_deleted, Toast.LENGTH_LONG)
     }
 

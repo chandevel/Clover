@@ -65,6 +65,7 @@ class CacheHandler(
         private val autoLoadThreadImages: Boolean
 ) {
     private val executor = Executors.newSingleThreadExecutor()
+
     /**
      * An estimation of the current size of the directory. Used to check if trim must be run
      * because the folder exceeds the maximum size.
@@ -904,6 +905,7 @@ class CacheHandler(
         private const val DEFAULT_CACHE_SIZE = 512L * 1024L * 1024L
         private const val PREFETCH_CACHE_SIZE = 1024L * 1024L * 1024L
         private const val CACHE_FILE_META_HEADER_SIZE = 4
+
         // I don't think it will ever get this big but just in case don't forget to update it if it
         // ever gets
         private const val MAX_CACHE_META_SIZE = 1024L

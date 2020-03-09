@@ -255,8 +255,7 @@ public class UpdateManager {
                         getApplicationLabel() + " " + response.versionCodeString + " available")
                         .setMessage(updateMessage)
                         .setNegativeButton(R.string.update_later, null)
-                        .setPositiveButton(
-                                R.string.update_install,
+                        .setPositiveButton(R.string.update_install,
                                 (dialog1, which) -> updateInstallRequested(response)
                         )
                         .create();

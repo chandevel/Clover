@@ -71,8 +71,8 @@ public class ImageLoaderV2 {
 
                     if (extension == null) {
                         // We expect images to have extensions
-                        throw new NullPointerException(
-                                "Could not get extension from thumbnailUrl = " + maskImageUrl(postImage.thumbnailUrl.toString()));
+                        throw new NullPointerException("Could not get extension from thumbnailUrl = " + maskImageUrl(
+                                postImage.thumbnailUrl.toString()));
                     }
 
                     formattedName = ThreadSaveManager.formatThumbnailImageName(postImage.serverFilename, extension);

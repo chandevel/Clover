@@ -206,12 +206,12 @@ class ChunkPersisterTest {
         activeDownloads.put(url, request)
 
         val testObserver = chunkPersister.storeChunkInFile(
-                url,
-                chunkResponse,
-                AtomicLong(),
-                0,
-                chunksCount
-        )
+                        url,
+                        chunkResponse,
+                        AtomicLong(),
+                        0,
+                        chunksCount
+                )
                 .subscribeOn(Schedulers.newThread())
                 .test()
 

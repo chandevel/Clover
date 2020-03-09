@@ -917,8 +917,7 @@ public class ThreadPresenter
 
         if (!loadable.isLocal()) {
             boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
-            extraMenu.add(new FloatingMenuItem(
-                    POST_OPTION_SAVE,
+            extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE,
                     isSaved ? R.string.unmark_as_my_post : R.string.mark_as_my_post
             ));
 

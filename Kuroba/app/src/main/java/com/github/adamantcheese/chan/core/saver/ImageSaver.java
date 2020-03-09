@@ -294,8 +294,7 @@ public class ImageSaver {
             AbstractFile innerDirectory = fileManager.create(baseSaveDir, directorySegments);
 
             if (innerDirectory == null) {
-                Logger.e(
-                        TAG,
+                Logger.e(TAG,
                         "getSaveLocation() failed to create subdirectory " + "(" + subFolder + ") for a base dir: "
                                 + baseSaveDir.getFullPath()
                 );

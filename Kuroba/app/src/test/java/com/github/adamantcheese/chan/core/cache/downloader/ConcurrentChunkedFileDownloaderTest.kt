@@ -366,14 +366,14 @@ class ConcurrentChunkedFileDownloaderTest {
         activeDownloads.put(url, request)
 
         val testObserver = concurrentChunkedFileDownloader.download(
-                PartialContentCheckResult(
-                        supportsPartialContentDownload = true,
-                        notFoundOnServer = false,
-                        length = fileSize
-                ),
-                url,
-                true
-        )
+                        PartialContentCheckResult(
+                                supportsPartialContentDownload = true,
+                                notFoundOnServer = false,
+                                length = fileSize
+                        ),
+                        url,
+                        true
+                )
                 .test()
 
         func(url, output, request, testObserver)
@@ -393,14 +393,14 @@ class ConcurrentChunkedFileDownloaderTest {
         activeDownloads.put(url, request)
 
         val testObserver = concurrentChunkedFileDownloader.download(
-                PartialContentCheckResult(
-                        supportsPartialContentDownload = false,
-                        notFoundOnServer = false,
-                        length = -1
-                ),
-                url,
-                true
-        )
+                        PartialContentCheckResult(
+                                supportsPartialContentDownload = false,
+                                notFoundOnServer = false,
+                                length = -1
+                        ),
+                        url,
+                        true
+                )
                 .test()
 
         func(url, output, request, testObserver)

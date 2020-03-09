@@ -316,10 +316,8 @@ public class ReplyPresenter
                 }
             }
 
-            SavedReply savedReply = SavedReply.fromBoardNoPassword(localLoadable.board,
-                    replyResponse.postNo,
-                    replyResponse.password
-            );
+            SavedReply savedReply =
+                    SavedReply.fromBoardNoPassword(localLoadable.board, replyResponse.postNo, replyResponse.password);
             databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
 
             switchPage(Page.INPUT);

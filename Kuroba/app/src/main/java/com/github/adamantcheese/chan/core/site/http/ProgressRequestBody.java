@@ -83,7 +83,7 @@ public class ProgressRequestBody
             }
 
             bytesWritten += byteCount;
-            if(contentLength() > 0) {
+            if (contentLength() > 0) {
                 int percent = (int) (maxPercent * bytesWritten / contentLength());
 
                 if (percent - lastPercent >= percentStep) {

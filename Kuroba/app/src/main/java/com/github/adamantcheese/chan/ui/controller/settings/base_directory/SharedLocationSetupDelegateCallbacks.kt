@@ -21,6 +21,7 @@ interface SharedLocationSetupDelegateCallbacks {
             oldBaseDirectory: AbstractFile,
             newBaseDirectory: AbstractFile
     )
+
     fun onCopyDirectoryEnded(
             oldBaseDirectory: AbstractFile,
             newBaseDirectory: AbstractFile,

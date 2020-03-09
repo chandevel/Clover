@@ -20,6 +20,7 @@ class CancelableDownload(
 ) {
     private val state: AtomicReference<DownloadState> = AtomicReference(DownloadState.Running)
     private val callbacks: MutableMap<Class<*>, FileCacheListener> = mutableMapOf()
+
     /**
      * These callbacks are used to cancel a lot of things, like the HEAD request, the get response
      * body request and response body read loop.
@@ -134,30 +135,30 @@ class CancelableDownload(
 
         try {
             requestCancellationThread.submit {
-                synchronized(this) {
-                    // Cancel downloads
-                    disposeFuncList.forEach { func ->
-                        try {
-                            func.invoke()
-                        } catch (error: Throwable) {
-                            Logger.e(TAG, "Unhandled error in dispose function, " +
-                                    "error = ${error.javaClass.simpleName}")
+                        synchronized(this) {
+                            // Cancel downloads
+                            disposeFuncList.forEach { func ->
+                                try {
+                                    func.invoke()
+                                } catch (error: Throwable) {
+                                    Logger.e(TAG, "Unhandled error in dispose function, " +
+                                            "error = ${error.javaClass.simpleName}")
+                                }
+                            }
+
+                            disposeFuncList.clear()
                         }
+
+                        val action = when (state.get()) {
+                            DownloadState.Running -> {
+                                throw RuntimeException("Expected Stopped or Canceled but got Running!")
+                            }
+                            DownloadState.Stopped -> "Stopping"
+                            DownloadState.Canceled -> "Cancelling"
+                        }
+
+                        Logger.d(TAG, "$action file download request, url = ${maskImageUrl(url)}")
                     }
-
-                    disposeFuncList.clear()
-                }
-
-                val action = when (state.get()) {
-                    DownloadState.Running -> {
-                        throw RuntimeException("Expected Stopped or Canceled but got Running!")
-                    }
-                    DownloadState.Stopped -> "Stopping"
-                    DownloadState.Canceled -> "Cancelling"
-                }
-
-                Logger.d(TAG, "$action file download request, url = ${maskImageUrl(url)}")
-            }
                     // We use timeout here just in case to not get deadlocked
                     .get(MAX_CANCELLATION_WAIT_TIME_SECONDS, TimeUnit.SECONDS)
         } catch (error: Throwable) {

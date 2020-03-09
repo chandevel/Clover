@@ -60,7 +60,7 @@ public class CustomScaleImageView
             public void onImageLoadError(Exception e) {
                 Logger.w(TAG, "onImageLoadError", e);
                 if (callback != null) {
-                    callback.onError(e,true);
+                    callback.onError(e, true);
                 }
             }
 
@@ -68,7 +68,7 @@ public class CustomScaleImageView
             public void onTileLoadError(Exception e) {
                 Logger.w(TAG, "onTileLoadError", e);
                 if (callback != null) {
-                    callback.onError(e,false);
+                    callback.onError(e, false);
                 }
             }
         });

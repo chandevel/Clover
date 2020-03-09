@@ -31,6 +31,7 @@ internal class PartialContentSupportChecker(
 ) {
     // Thread safe
     private val cachedResults = LruCache<String, PartialContentCheckResult>(1024)
+
     @GuardedBy("itself")
     private val checkedChanHosts = mutableMapOf<String, Boolean>()
 
@@ -106,65 +107,65 @@ internal class PartialContentSupportChecker(
         val startTime = System.currentTimeMillis()
 
         return Single.create<PartialContentCheckResult> { emitter ->
-            val call = okHttpClient.newCall(headRequest)
+                    val call = okHttpClient.newCall(headRequest)
 
-            val disposeFunc = {
-                if (!call.isCanceled()) {
-                    log(TAG, "Disposing of HEAD request for url (${maskImageUrl(url)})")
-                    call.cancel()
-                }
-            }
-
-            val downloadState = activeDownloads.addDisposeFunc(url, disposeFunc)
-            if (downloadState != DownloadState.Running) {
-                when (downloadState) {
-                    DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
-                    DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
-                    else -> {
-                        emitter.tryOnError(
-                                RuntimeException("DownloadState must be either Stopped or Canceled")
-                        )
-                        return@create
-                    }
-                }
-
-                emitter.tryOnError(
-                        FileCacheException.CancellationException(downloadState, url)
-                )
-                return@create
-            }
-
-            call.enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    if (emitter.isDisposed) {
-                        return
+                    val disposeFunc = {
+                        if (!call.isCanceled()) {
+                            log(TAG, "Disposing of HEAD request for url (${maskImageUrl(url)})")
+                            call.cancel()
+                        }
                     }
 
-                    if (!isCancellationError(e)) {
-                        emitter.tryOnError(e)
-                    } else {
-                        val state = activeDownloads.get(url)?.cancelableDownload?.getState()
-                                ?: DownloadState.Canceled
-
-                        if (state == DownloadState.Running) {
-                            throw RuntimeException("Expected Cancelled or Stopped but got Running")
+                    val downloadState = activeDownloads.addDisposeFunc(url, disposeFunc)
+                    if (downloadState != DownloadState.Running) {
+                        when (downloadState) {
+                            DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
+                            DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
+                            else -> {
+                                emitter.tryOnError(
+                                        RuntimeException("DownloadState must be either Stopped or Canceled")
+                                )
+                                return@create
+                            }
                         }
 
                         emitter.tryOnError(
-                                FileCacheException.CancellationException(state, url)
+                                FileCacheException.CancellationException(downloadState, url)
                         )
-                    }
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    if (emitter.isDisposed) {
-                        return
+                        return@create
                     }
 
-                    handleResponse(response, url, emitter, startTime)
+                    call.enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            if (emitter.isDisposed) {
+                                return
+                            }
+
+                            if (!isCancellationError(e)) {
+                                emitter.tryOnError(e)
+                            } else {
+                                val state = activeDownloads.get(url)?.cancelableDownload?.getState()
+                                        ?: DownloadState.Canceled
+
+                                if (state == DownloadState.Running) {
+                                    throw RuntimeException("Expected Cancelled or Stopped but got Running")
+                                }
+
+                                emitter.tryOnError(
+                                        FileCacheException.CancellationException(state, url)
+                                )
+                            }
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            if (emitter.isDisposed) {
+                                return
+                            }
+
+                            handleResponse(response, url, emitter, startTime)
+                        }
+                    })
                 }
-            })
-        }
                 // Some HEAD requests on 4chan may take a lot of time (like 2 seconds or even more) when
                 // a file is not cached by the cloudflare so if a request takes more than [MAX_TIMEOUT_MS]
                 // we assume that cloudflare doesn't have this file cached so we just download it normally

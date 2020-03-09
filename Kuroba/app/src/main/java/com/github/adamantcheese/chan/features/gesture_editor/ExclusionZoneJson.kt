@@ -26,7 +26,7 @@ data class ExclusionZone(
 
     fun checkValid() {
         check(left <= right) { "right (${right}) > left (${left})" }
-        check(top <= bottom) { "bottom (${bottom}) > top (${top})"}
+        check(top <= bottom) { "bottom (${bottom}) > top (${top})" }
     }
 }
 

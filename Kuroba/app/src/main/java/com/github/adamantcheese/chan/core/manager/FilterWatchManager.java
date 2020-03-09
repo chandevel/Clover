@@ -142,8 +142,7 @@ public class FilterWatchManager
                         BackgroundLoader backgroundLoader = new BackgroundLoader();
                         Loadable boardLoadable = Loadable.forCatalog(b);
                         boardLoadable = databaseLoadableManager.get(boardLoadable);
-                        ChanThreadLoader catalogLoader =
-                                chanLoaderManager.obtain(boardLoadable, backgroundLoader);
+                        ChanThreadLoader catalogLoader = chanLoaderManager.obtain(boardLoadable, backgroundLoader);
                         filterLoaders.put(catalogLoader, backgroundLoader);
                     }
                 }
