@@ -44,4 +44,12 @@ public class LongSetting
             onValueChanged();
         }
     }
+
+    public void setSync(Long value) {
+        if (!value.equals(get())) {
+            settingProvider.putLongSync(key, value);
+            cached = value;
+            onValueChanged();
+        }
+    }
 }

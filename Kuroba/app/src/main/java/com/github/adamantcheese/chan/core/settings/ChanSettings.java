@@ -48,6 +48,7 @@ public class ChanSettings {
     public static final String EMPTY_JSON = "{}";
     public static final String NOTIFY_ALL_POSTS = "all";
     public static final String NOTIFY_ONLY_QUOTES = "quotes";
+    public static final String NO_HASH_SET = "NO_HASH_SET";
 
     public enum MediaAutoLoadMode
             implements OptionSettingItem {
@@ -233,7 +234,6 @@ public class ChanSettings {
     public static final BooleanSetting useImmersiveModeForGallery;
     public static final BooleanSetting moveSortToToolbar;
 
-
     public static final StringSetting lastImageOptions;
     public static final StringSetting filterWatchIgnored;
 
@@ -269,7 +269,7 @@ public class ChanSettings {
     public static final OptionsSetting<ImageClickPreloadStrategy> imageClickPreloadStrategy;
     public static final BooleanSetting imageViewerGestures;
     public static final BooleanSetting allowFilePickChooser;
-    public static final BooleanSetting autoCrashLogsUpload;
+    public static final BooleanSetting collectCrashLogs;
     public static final BooleanSetting captchaOnBottom;
     public static final BooleanSetting showCopyApkUpdateDialog;
     public static final BooleanSetting crashOnSafeThrow;
@@ -399,7 +399,7 @@ public class ChanSettings {
 
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
 
-            previousDevHash = new StringSetting(p, "previous_dev_hash", "NO_HASH_SET");
+            previousDevHash = new StringSetting(p, "previous_dev_hash", NO_HASH_SET);
             addDubs = new BooleanSetting(p, "add_dubs", false);
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
             youtubeTitleCache = new StringSetting(p, "yt_title_cache", EMPTY_JSON);
@@ -418,7 +418,9 @@ public class ChanSettings {
             );
             imageViewerGestures = new BooleanSetting(p, "image_viewer_gestures", true);
             allowFilePickChooser = new BooleanSetting(p, "allow_file_picker_chooser", false);
-            autoCrashLogsUpload = new BooleanSetting(p, "auto_upload_crash_logs", true);
+            // "auto_upload_crash_logs" is the old name of this setting. To avoid compatibility
+            // issues it was decided to leave it's name as is.
+            collectCrashLogs = new BooleanSetting(p, "auto_upload_crash_logs", true);
             captchaOnBottom = new BooleanSetting(p, "captcha_on_bottom", true);
             showCopyApkUpdateDialog = new BooleanSetting(p, "show_copy_apk_update_dialog", true);
             crashOnSafeThrow = new BooleanSetting(p, "crash_on_safe_throw", true);

@@ -16,22 +16,31 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.view.ViewGroup;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.presenter.SettingsPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
 import com.github.adamantcheese.chan.ui.controller.LicensesController;
 import com.github.adamantcheese.chan.ui.controller.ReportProblemController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
+import com.github.adamantcheese.chan.ui.controller.crashlogs.ReviewCrashLogsController;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
+import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
+import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import javax.inject.Inject;
+
+import io.reactivex.disposables.Disposable;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
@@ -43,12 +52,19 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 public class MainSettingsController
         extends SettingsController
         implements SettingsPresenter.Callback {
+    private static final String TAG = "MainSettingsController";
+
     @Inject
     private SettingsPresenter presenter;
+    @Inject
+    ReportManager reportManager;
 
     private LinkSettingView watchLink;
     private LinkSettingView sitesSetting;
     private LinkSettingView filtersSetting;
+    private LinkSettingView updateSettingView;
+    private LinkSettingView reportSettingView;
+    private BooleanSettingView collectCrashLogsSettingView;
 
     public MainSettingsController(Context context) {
         super(context);
@@ -63,6 +79,13 @@ public class MainSettingsController
         setupLayout();
         populatePreferences();
         buildPreferences();
+
+        Disposable disposable = settingsNotificationManager.listenForNotificationUpdates()
+                .subscribe((event) -> onNotificationsChanged(), (error) -> {
+                    Logger.e(TAG, "Unknown error received from SettingsNotificationManager", error);
+                });
+
+        compositeDisposable.add(disposable);
 
         presenter.create(this);
     }
@@ -91,6 +114,39 @@ public class MainSettingsController
         watchLink.setDescription(enabled
                 ? R.string.setting_watch_summary_enabled
                 : R.string.setting_watch_summary_disabled);
+    }
+
+    private void onNotificationsChanged() {
+        Logger.d(TAG, "onNotificationsChanged called");
+
+        updateSettingNotificationIcon(settingsNotificationManager.getOrDefault(SettingNotificationType.ApkUpdate),
+                getViewGroupOrThrow(updateSettingView)
+        );
+        updateSettingNotificationIcon(settingsNotificationManager.getOrDefault(SettingNotificationType.CrashLog),
+                getViewGroupOrThrow(reportSettingView)
+        );
+    }
+
+    @Override
+    public void onPreferenceChange(SettingView item) {
+        super.onPreferenceChange(item);
+
+        if (item == collectCrashLogsSettingView) {
+            if (!ChanSettings.collectCrashLogs.get()) {
+                // If disabled delete all already collected crash logs to cancel the notification
+                // (if it's shown) and to avoid showing notification afterwards.
+
+                reportManager.deleteAllCrashLogs();
+            }
+        }
+    }
+
+    private ViewGroup getViewGroupOrThrow(SettingView settingView) {
+        if (!(settingView.getView() instanceof ViewGroup)) {
+            throw new IllegalStateException("updateSettingView must have ViewGroup attached to it");
+        }
+
+        return (ViewGroup) settingView.getView();
     }
 
     private void populatePreferences() {
@@ -157,21 +213,13 @@ public class MainSettingsController
     private void setupAboutGroup() {
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
-        about.add(new LinkSettingView(this,
-                getApplicationLabel() + " " + BuildConfig.VERSION_NAME + " " + (getIsOfficial() ? "✓" : "✗"),
-                "Tap to check for updates",
-                v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
+        about.add(createUpdateSettingView());
+        about.add(createReportSettingView());
+        about.add(collectCrashLogsSettingView = new BooleanSettingView(this,
+                ChanSettings.collectCrashLogs,
+                R.string.settings_collect_crash_logs,
+                R.string.settings_collect_crash_logs_description
         ));
-
-        about.add(new LinkSettingView(this, R.string.settings_report, R.string.settings_report_description, v -> {
-            navigationController.presentController(new ReportProblemController(context));
-        }));
-        about.add(new BooleanSettingView(this,
-                ChanSettings.autoCrashLogsUpload,
-                R.string.settings_auto_crash_report,
-                R.string.settings_auto_crash_report_description
-        ));
-
         about.add(new LinkSettingView(this,
                 "Find " + getApplicationLabel() + " on GitHub",
                 "View the source code, give feedback, submit bug reports",
@@ -203,5 +251,56 @@ public class MainSettingsController
         ));
 
         groups.add(about);
+    }
+
+    private LinkSettingView createReportSettingView() {
+        reportSettingView =
+                new LinkSettingView(this, R.string.settings_report, R.string.settings_report_description, v -> {
+                    onReportSettingClick();
+                });
+
+        reportSettingView.setSettingNotificationType(SettingNotificationType.CrashLog);
+        return reportSettingView;
+    }
+
+    private void onReportSettingClick() {
+        int crashLogsCount = reportManager.countCrashLogs();
+
+        if (crashLogsCount > 0) {
+            new AlertDialog.Builder(context).setTitle(getString(R.string.settings_report_suggest_sending_logs_title,
+                    crashLogsCount
+            ))
+                    .setMessage(R.string.settings_report_suggest_sending_logs_message)
+                    .setPositiveButton(R.string.settings_report_review_button_text, (dialog, which) -> {
+                        navigationController.pushController(new ReviewCrashLogsController(context));
+                    })
+                    .setNeutralButton(R.string.settings_report_review_later_button_text,
+                            (dialog, which) -> openReportProblemController()
+                    )
+                    .setNegativeButton(R.string.settings_report_delete_all_crash_logs, (dialog, which) -> {
+                        reportManager.deleteAllCrashLogs();
+                        openReportProblemController();
+                    })
+                    .create()
+                    .show();
+            return;
+        }
+
+        openReportProblemController();
+    }
+
+    private void openReportProblemController() {
+        navigationController.pushController(new ReportProblemController(context));
+    }
+
+    private LinkSettingView createUpdateSettingView() {
+        updateSettingView = new LinkSettingView(this,
+                getApplicationLabel() + " " + BuildConfig.VERSION_NAME + " " + (getIsOfficial() ? "✓" : "✗"),
+                "Tap to check for updates",
+                v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
+        );
+
+        updateSettingView.setSettingNotificationType(SettingNotificationType.ApkUpdate);
+        return updateSettingView;
     }
 }

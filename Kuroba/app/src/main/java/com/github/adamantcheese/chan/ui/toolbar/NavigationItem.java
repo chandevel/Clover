@@ -53,6 +53,10 @@ public class NavigationItem {
         title = getString(resId);
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public MenuBuilder buildMenu() {
         return new MenuBuilder(this);
     }

@@ -18,51 +18,69 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.PorterDuff;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatImageView;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import io.reactivex.disposables.CompositeDisposable;
+
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.findViewsById;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class SettingsController
         extends Controller
         implements AndroidUtils.OnMeasuredCallback {
+    private final String TAG = "SettingsController";
+
+    @Inject
+    protected SettingsNotificationManager settingsNotificationManager;
+
     protected LinearLayout content;
     protected List<SettingsGroup> groups = new ArrayList<>();
-
     protected List<SettingView> requiresUiRefresh = new ArrayList<>();
-
     // Very user unfriendly.
     protected List<SettingView> requiresRestart = new ArrayList<>();
-
+    protected CompositeDisposable compositeDisposable = new CompositeDisposable();
     private boolean needRestart = false;
 
     public SettingsController(Context context) {
         super(context);
+
+        inject(this);
     }
 
     @Override
@@ -75,6 +93,7 @@ public class SettingsController
     @Override
     public void onDestroy() {
         super.onDestroy();
+        compositeDisposable.clear();
 
         if (needRestart) {
             ((StartActivity) context).restartApp();
@@ -185,6 +204,30 @@ public class SettingsController
                     groupLayout.addView(settingView.divider);
                 }
             }
+        }
+    }
+
+    protected void updateSettingNotificationIcon(
+            SettingNotificationType settingNotificationType, ViewGroup preferenceView
+    ) {
+        AppCompatImageView notificationIcon = preferenceView.findViewById(R.id.setting_notification_icon);
+
+        if (notificationIcon != null) {
+            updatePaddings(notificationIcon, dp(16), dp(16), -1, -1);
+        } else {
+            Logger.e(TAG, "Notification icon is null, can't update setting notification for this view.");
+            return;
+        }
+
+        boolean hasNotifications = settingsNotificationManager.hasNotifications(settingNotificationType);
+
+        if (settingNotificationType != SettingNotificationType.Default && hasNotifications) {
+            int tintColor = getRes().getColor(settingNotificationType.getNotificationIconTintColor());
+
+            notificationIcon.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN);
+            notificationIcon.setVisibility(VISIBLE);
+        } else {
+            notificationIcon.setVisibility(GONE);
         }
     }
 

@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -32,6 +33,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -44,6 +46,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.NO_HASH_SET;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -152,7 +155,7 @@ public class DeveloperSettingsController
                         || t.getName().equalsIgnoreCase("Profile Saver")
                         || t.getName().contains("Okio")
                         || t.getName().contains("AsyncTask"))
-                //@formatter:on
+                    //@formatter:on
                     continue;
                 StackTraceElement[] elements = t.getStackTrace();
                 Logger.i("STACKDUMP-HEADER", "Thread: " + t.getName());
@@ -193,6 +196,28 @@ public class DeveloperSettingsController
         wrapper.addView(resetThreadOpenCounter);
 
         addCrashOnSafeThrowButton(wrapper);
+
+        // Reset the hash and make the app updated
+        Button resetPrevApkHash = new Button(context);
+        resetPrevApkHash.setOnClickListener(v -> {
+            ChanSettings.previousDevHash.setSync(NO_HASH_SET);
+            ChanSettings.updateCheckTime.setSync(0L);
+            PersistableChanState.setHasNewApkUpdateSync(false);
+            ((StartActivity) context).restartApp();
+        });
+        resetPrevApkHash.setText("Make app updated");
+        wrapper.addView(resetPrevApkHash);
+
+        // Set hash to current and trigger the update check
+        Button setCurrentApkHashAsPrevApkHash = new Button(context);
+        setCurrentApkHashAsPrevApkHash.setOnClickListener(v -> {
+            ChanSettings.previousDevHash.setSync(BuildConfig.COMMIT_HASH);
+            ChanSettings.updateCheckTime.setSync(0L);
+            PersistableChanState.setHasNewApkUpdateSync(true);
+            ((StartActivity) context).restartApp();
+        });
+        setCurrentApkHashAsPrevApkHash.setText("Make app not updated");
+        wrapper.addView(setCurrentApkHashAsPrevApkHash);
 
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);

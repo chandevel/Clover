@@ -21,6 +21,8 @@ import android.content.res.Configuration;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
 
+import androidx.annotation.CallSuper;
+
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.transition.FadeInTransition;
 import com.github.adamantcheese.chan.controller.transition.FadeOutTransition;
@@ -74,6 +76,7 @@ public abstract class Controller {
         this.context = context;
     }
 
+    @CallSuper
     public void onCreate() {
         alive = true;
         if (LOG_STATES) {
@@ -81,6 +84,7 @@ public abstract class Controller {
         }
     }
 
+    @CallSuper
     public void onShow() {
         shown = true;
         if (LOG_STATES) {
@@ -96,6 +100,7 @@ public abstract class Controller {
         }
     }
 
+    @CallSuper
     public void onHide() {
         shown = false;
         if (LOG_STATES) {
@@ -111,6 +116,7 @@ public abstract class Controller {
         }
     }
 
+    @CallSuper
     public void onDestroy() {
         alive = false;
         if (LOG_STATES) {

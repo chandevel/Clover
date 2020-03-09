@@ -138,4 +138,14 @@ public class JsonSettingsProvider
     public void putIntSync(String key, Integer value) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void putLongSync(String key, Long value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void putBooleanSync(String key, Boolean value) {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -30,19 +30,17 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
     private val reportActivityProblemDescription: TextInputEditText
     private val reportActivityAttachLogsButton: AppCompatCheckBox
     private val reportActivityLogsText: TextInputEditText
-    private val reportActivityCancel: AppCompatButton
     private val reportActivitySendReport: AppCompatButton
 
     init {
         inject(this)
 
-        inflate(context, R.layout.activity_report, this).apply {
-            reportActivityProblemTitle = findViewById(R.id.report_activity_problem_title)
-            reportActivityProblemDescription = findViewById(R.id.report_activity_problem_description)
-            reportActivityAttachLogsButton = findViewById(R.id.report_activity_attach_logs_button)
-            reportActivityLogsText = findViewById(R.id.report_activity_logs_text)
-            reportActivityCancel = findViewById(R.id.report_activity_cancel)
-            reportActivitySendReport = findViewById(R.id.report_activity_send_report)
+        inflate(context, R.layout.layout_report, this).apply {
+            reportActivityProblemTitle = findViewById(R.id.report_controller_problem_title)
+            reportActivityProblemDescription = findViewById(R.id.report_controller_problem_description)
+            reportActivityAttachLogsButton = findViewById(R.id.report_controller_attach_logs_button)
+            reportActivityLogsText = findViewById(R.id.report_controller_logs_text)
+            reportActivitySendReport = findViewById(R.id.report_controller_send_report)
         }
     }
 
@@ -57,7 +55,6 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
         reportActivityAttachLogsButton.setOnCheckedChangeListener { _, isChecked ->
             reportActivityLogsText.isEnabled = isChecked
         }
-        reportActivityCancel.setOnClickListener { callbacks?.onFinished() }
         reportActivitySendReport.setOnClickListener { onSendReportClick() }
 
         this.callbacks = controllerCallbacks
@@ -78,7 +75,7 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
         val logs = reportActivityLogsText.text?.toString() ?: ""
 
         if (title.isEmpty()) {
-            reportActivityProblemTitle.error = getString(R.string.report_activity_title_cannot_be_empty_error)
+            reportActivityProblemTitle.error = getString(R.string.report_controller_title_cannot_be_empty_error)
             return
         }
 
@@ -86,12 +83,12 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
                 description.isEmpty()
                 && !(reportActivityAttachLogsButton.isChecked && logs.isNotEmpty())
         ) {
-            reportActivityProblemDescription.error = getString(R.string.report_activity_description_cannot_be_empty_error)
+            reportActivityProblemDescription.error = getString(R.string.report_controller_description_cannot_be_empty_error)
             return
         }
 
         if (reportActivityAttachLogsButton.isChecked && logs.isEmpty()) {
-            reportActivityLogsText.error = getString(R.string.report_activity_logs_are_empty_error)
+            reportActivityLogsText.error = getString(R.string.report_controller_logs_are_empty_error)
             return
         }
 
@@ -113,7 +110,7 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
 
                     val errorMessage = error.message ?: "No error message"
                     val formattedMessage = getString(
-                            R.string.report_activity_error_while_trying_to_send_report,
+                            R.string.report_controller_error_while_trying_to_send_report,
                             errorMessage
                     )
 
@@ -125,13 +122,13 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
     private fun handleResult(result: ModularResult<Boolean>) {
         when (result) {
             is ModularResult.Value -> {
-                showToast(context, R.string.report_activity_report_sent_message)
+                showToast(context, R.string.report_controller_report_sent_message)
                 callbacks?.onFinished()
             }
             is ModularResult.Error -> {
                 val errorMessage = result.error.message ?: "No error message"
                 val formattedMessage = getString(
-                        R.string.report_activity_error_while_trying_to_send_report,
+                        R.string.report_controller_error_while_trying_to_send_report,
                         errorMessage
                 )
 

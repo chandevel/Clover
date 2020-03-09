@@ -44,7 +44,9 @@ import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
 import com.github.adamantcheese.chan.core.net.UpdateApiRequest.UpdateApiResponse;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
+import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
@@ -94,6 +96,9 @@ public class UpdateManager {
     FileManager fileManager;
 
     @Inject
+    SettingsNotificationManager settingsNotificationManager;
+
+    @Inject
     FileChooser fileChooser;
 
     private ProgressDialog updateDownloadDialog;
@@ -112,6 +117,7 @@ public class UpdateManager {
      */
     public void autoUpdateCheck() {
         if (ChanSettings.previousVersion.get() < BuildConfig.VERSION_CODE && ChanSettings.previousVersion.get() != 0) {
+            // Show dialog because release updates are infrequent so it's fine
             Spanned text = Html.fromHtml(
                     "<h3>" + getApplicationLabel() + " was updated to " + BuildConfig.VERSION_NAME + "</h3>");
             final AlertDialog dialog =
@@ -128,19 +134,19 @@ public class UpdateManager {
 
             // Also set the new app version to not show this message again
             ChanSettings.previousVersion.set(BuildConfig.VERSION_CODE);
+            cancelApkUpdateNotification();
 
             // Don't process the updater because a dialog is now already showing.
             return;
         }
 
         if (BuildConfig.DEV_BUILD && !ChanSettings.previousDevHash.get().equals(BuildConfig.COMMIT_HASH)) {
-            final AlertDialog dialog = new AlertDialog.Builder(context).setMessage(
-                    getApplicationLabel() + " was updated to the latest commit.")
-                    .setPositiveButton(R.string.ok, null)
-                    .create();
-            dialog.setCanceledOnTouchOutside(true);
-            dialog.show();
+            // Show toast because dev updates may happen every day (to avoid alert dialog spam)
+            showToast(context, getApplicationLabel() + " was updated to the latest commit.");
+
             ChanSettings.previousDevHash.set(BuildConfig.COMMIT_HASH);
+            cancelApkUpdateNotification();
+
             return;
         }
 
@@ -152,6 +158,12 @@ public class UpdateManager {
     }
 
     private void runUpdateApi(final boolean manual) {
+        if (PersistableChanState.getHasNewApkUpdate()) {
+            // If we noticed that there was an apk update on the previous check - show the
+            // notification
+            notifyNewApkUpdate();
+        }
+
         if (!manual) {
             long lastUpdateTime = ChanSettings.updateCheckTime.get();
             long interval = DAYS.toMillis(BuildConfig.UPDATE_DELAY);
@@ -168,7 +180,7 @@ public class UpdateManager {
         if (!BuildConfig.DEV_BUILD) {
             //region Release build
             volleyRequestQueue.add(new UpdateApiRequest(response -> {
-                if (!processUpdateApiResponse(response) && manual && BackgroundUtils.isInForeground()) {
+                if (!processUpdateApiResponse(response, manual) && manual && BackgroundUtils.isInForeground()) {
                     new AlertDialog.Builder(context).setTitle(getString(R.string.update_none, getApplicationLabel()))
                             .setPositiveButton(R.string.ok, null)
                             .show();
@@ -195,6 +207,8 @@ public class UpdateManager {
                                           .setPositiveButton(R.string.ok, null)
                                           .show();
                               }
+
+                              cancelApkUpdateNotification();
                           } else {
                               //new version or commit, update
                               Matcher versionCodeStringMatcher = Pattern.compile("(\\d+)(\\d{2})(\\d{2})")
@@ -210,7 +224,7 @@ public class UpdateManager {
                                   fauxResponse.apkURL = HttpUrl.parse(BuildConfig.DEV_API_ENDPOINT
                                           + "/apk/" + versionCode + "_" + commitHash + ".apk");
                                   fauxResponse.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
-                                  processUpdateApiResponse(fauxResponse);
+                                  processUpdateApiResponse(fauxResponse, manual);
                               } else {
                                   throw new Exception(); // to reuse the failed code below
                               }
@@ -227,23 +241,50 @@ public class UpdateManager {
         }
     }
 
-    private boolean processUpdateApiResponse(UpdateApiResponse response) {
+    private boolean processUpdateApiResponse(UpdateApiResponse response, boolean manual) {
         if ((response.versionCode > BuildConfig.VERSION_CODE || BuildConfig.DEV_BUILD)
                 && BackgroundUtils.isInForeground()) {
-            boolean concat = !response.updateTitle.isEmpty();
-            CharSequence updateMessage =
-                    concat ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body;
-            AlertDialog dialog = new AlertDialog.Builder(context).setTitle(
-                    getApplicationLabel() + " " + response.versionCodeString + " available")
-                    .setMessage(updateMessage)
-                    .setNegativeButton(R.string.update_later, null)
-                    .setPositiveButton(R.string.update_install, (dialog1, which) -> updateInstallRequested(response))
-                    .create();
-            dialog.setCanceledOnTouchOutside(false);
-            dialog.show();
+
+            // Do not spam dialogs if this is not the manual update check, use the notifications
+            // instead
+            if (manual) {
+                boolean concat = !response.updateTitle.isEmpty();
+                CharSequence updateMessage =
+                        concat ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body;
+                AlertDialog dialog = new AlertDialog.Builder(context).setTitle(
+                        getApplicationLabel() + " " + response.versionCodeString + " available")
+                        .setMessage(updateMessage)
+                        .setNegativeButton(R.string.update_later, null)
+                        .setPositiveButton(
+                                R.string.update_install,
+                                (dialog1, which) -> updateInstallRequested(response)
+                        )
+                        .create();
+                dialog.setCanceledOnTouchOutside(false);
+                dialog.show();
+            }
+
+            // There is an update, show the notification.
+            //
+            // (In case of the dev build we check whether the apk hashes differ or not beforehand,
+            // so if they are the same this method won't even get called. In case of the release
+            // build this method will be called in both cases so we do the check in this method)
+            notifyNewApkUpdate();
             return true;
         }
+
+        cancelApkUpdateNotification();
         return false;
+    }
+
+    private void notifyNewApkUpdate() {
+        PersistableChanState.setHasNewApkUpdate(true);
+        settingsNotificationManager.notify(SettingNotificationType.ApkUpdate);
+    }
+
+    private void cancelApkUpdateNotification() {
+        PersistableChanState.setHasNewApkUpdate(false);
+        settingsNotificationManager.cancel(SettingNotificationType.ApkUpdate);
     }
 
     private void failedUpdate(boolean manual) {

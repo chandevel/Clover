@@ -32,7 +32,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.Signature;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -74,11 +73,15 @@ import static android.content.Context.AUDIO_SERVICE;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
+    private static final String CHAN_STATE_PREFS_NAME = "chan_state";
 
     @SuppressLint("StaticFieldLeak")
     private static Application application;
@@ -127,6 +130,10 @@ public class AndroidUtils {
 
     public static SharedPreferences getPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(application);
+    }
+
+    public static SharedPreferences getAppState() {
+        return getAppContext().getSharedPreferences(CHAN_STATE_PREFS_NAME, MODE_PRIVATE);
     }
 
     public static boolean getIsOfficial() {
@@ -290,6 +297,30 @@ public class AndroidUtils {
         if (view.requestFocus()) {
             getInputManager().showSoftInput(view, SHOW_IMPLICIT);
         }
+    }
+
+    public static void updatePaddings(View view, int left, int right, int top, int bottom) {
+        int newLeft = left;
+        if (newLeft < 0) {
+            newLeft = view.getPaddingLeft();
+        }
+
+        int newRight = right;
+        if (newRight < 0) {
+            newRight = view.getPaddingRight();
+        }
+
+        int newTop = top;
+        if (newTop < 0) {
+            newTop = view.getPaddingTop();
+        }
+
+        int newBottom = bottom;
+        if (newBottom < 0) {
+            newBottom = view.getPaddingBottom();
+        }
+
+        view.setPadding(newLeft, newTop, newRight, newBottom);
     }
 
     public interface OnMeasuredCallback {
@@ -464,7 +495,7 @@ public class AndroidUtils {
 
     /**
      * These two methods get the screen size ignoring the current screen orientation.
-     * */
+     */
     public static int getMinScreenSize() {
         Point displaySize = getDisplaySize();
         return Math.min(displaySize.x, displaySize.y);
@@ -554,12 +585,8 @@ public class AndroidUtils {
 
     public static int getScreenOrientation() {
         int screenOrientation = getAppContext().getResources().getConfiguration().orientation;
-        if (
-                screenOrientation != Configuration.ORIENTATION_LANDSCAPE
-                        && screenOrientation != Configuration.ORIENTATION_PORTRAIT
-        ) {
-            throw new IllegalStateException("Illegal screen orientation value! value = "
-                    + screenOrientation);
+        if (screenOrientation != ORIENTATION_LANDSCAPE && screenOrientation != ORIENTATION_PORTRAIT) {
+            throw new IllegalStateException("Illegal screen orientation value! value = " + screenOrientation);
         }
 
         return screenOrientation;

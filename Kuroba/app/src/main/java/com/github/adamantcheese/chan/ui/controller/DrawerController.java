@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -41,6 +42,7 @@ import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
 import com.github.adamantcheese.chan.ui.controller.settings.MainSettingsController;
+import com.github.adamantcheese.chan.utils.Logger;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -49,6 +51,9 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
@@ -64,14 +69,19 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class DrawerController
         extends Controller
         implements DrawerAdapter.Callback, View.OnClickListener {
+    private static final String TAG = "DrawerController";
+
     protected FrameLayout container;
     protected DrawerLayout drawerLayout;
     protected LinearLayout drawer;
     protected RecyclerView recyclerView;
     protected DrawerAdapter drawerAdapter;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Inject
     WatchManager watchManager;
+    @Inject
+    SettingsNotificationManager settingsNotificationManager;
 
     public DrawerController(Context context) {
         super(context);
@@ -101,12 +111,22 @@ public class DrawerController
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         updateBadge();
+
+        Disposable disposable =
+                settingsNotificationManager.listenForNotificationUpdates().subscribe(activeNotifications -> {
+                    drawerAdapter.onNotificationsChanged();
+                }, (error) -> {
+                    Logger.e(TAG, "Unknown error from SettingsNotificationManager", error);
+                });
+
+        compositeDisposable.add(disposable);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
+        compositeDisposable.clear();
         recyclerView.setAdapter(null);
         EventBus.getDefault().unregister(this);
     }
