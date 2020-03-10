@@ -936,8 +936,7 @@ public class ThreadSaveManager {
                             // Retry couple of times upon exceptions
                             .retry(MAX_RETRY_ATTEMPTS)
                             .doOnError(error -> {
-                                Logger.e(
-                                        TAG,
+                                Logger.e(TAG,
                                         "Error while trying to download image " + postImage.serverFilename,
                                         error
                                 );

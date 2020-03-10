@@ -463,7 +463,8 @@ public class ToolbarContainer
                 arrowDrawable.setBounds(0, 0, arrowDrawable.getIntrinsicWidth(), arrowDrawable.getIntrinsicHeight());
                 ImageView dropdown = new ImageView(getContext());
                 dropdown.setImageDrawable(arrowDrawable);
-                titleContainer.addView(dropdown,
+                titleContainer.addView(
+                        dropdown,
                         new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER_VERTICAL | Gravity.RIGHT)
                 );
                 titleContainer.setOnClickListener(v -> item.middleMenu.show(titleView));
@@ -512,11 +513,7 @@ public class ToolbarContainer
             }
 
             searchLayout.setCatalogSearchColors();
-            searchLayout.setPadding(dp(16),
-                    searchLayout.getPaddingTop(),
-                    searchLayout.getPaddingRight(),
-                    searchLayout.getPaddingBottom()
-            );
+            updatePaddings(searchLayout, dp(16), -1, -1, -1);
 
             return searchLayout;
         }
