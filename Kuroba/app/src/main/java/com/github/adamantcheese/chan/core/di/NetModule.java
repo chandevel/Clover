@@ -18,12 +18,15 @@ package com.github.adamantcheese.chan.core.di;
 
 import android.net.ConnectivityManager;
 
+import androidx.annotation.NonNull;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
+import com.github.adamantcheese.chan.core.net.DnsSelector;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
@@ -35,11 +38,16 @@ import com.github.k1rakishou.fsaf.file.RawFile;
 import org.codejargon.feather.Provides;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import okhttp3.Dns;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -126,6 +134,8 @@ public class NetModule {
         return new OkHttpClient.Builder().connectTimeout(30, SECONDS)
                 .readTimeout(30, SECONDS)
                 .writeTimeout(30, SECONDS)
+                .protocols(getOkHttpProtocols())
+                .dns(getOkHttpDnsSelector())
                 .build();
     }
 
@@ -142,7 +152,30 @@ public class NetModule {
                 .connectTimeout(30, SECONDS)
                 .writeTimeout(30, SECONDS)
                 .readTimeout(30, SECONDS)
+                .protocols(getOkHttpProtocols())
+                .dns(getOkHttpDnsSelector())
                 .build();
+    }
+
+    private Dns getOkHttpDnsSelector() {
+        if (ChanSettings.okHttpAllowIpv6.get()) {
+            Logger.d(AppModule.DI_TAG, "Using DnsSelector.Mode.SYSTEM");
+            return new DnsSelector(DnsSelector.Mode.SYSTEM);
+        }
+
+        Logger.d(AppModule.DI_TAG, "Using DnsSelector.Mode.IPV4_ONLY");
+        return new DnsSelector(DnsSelector.Mode.IPV4_ONLY);
+    }
+
+    @NonNull
+    private List<Protocol> getOkHttpProtocols() {
+        if (ChanSettings.okHttpAllowHttp2.get()) {
+            Logger.d(AppModule.DI_TAG, "Using HTTP_2 and HTTP_1_1");
+            return Arrays.asList(Protocol.HTTP_2, Protocol.HTTP_1_1);
+        }
+
+        Logger.d(AppModule.DI_TAG, "Using HTTP_1_1");
+        return Collections.singletonList(Protocol.HTTP_1_1);
     }
 
     //this is basically the same as OkHttpClient, but with a singleton for a proxy instance
@@ -158,6 +191,8 @@ public class NetModule {
                         .connectTimeout(30, SECONDS)
                         .readTimeout(30, SECONDS)
                         .writeTimeout(30, SECONDS)
+                        .protocols(getOkHttpProtocols())
+                        .dns(getOkHttpDnsSelector())
                         .build();
             }
             return proxiedClient;

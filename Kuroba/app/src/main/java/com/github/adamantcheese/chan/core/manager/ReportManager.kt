@@ -303,6 +303,8 @@ class ReportManager(
             appendln("Saved files base dir info: ${getFilesLocationInfo()}")
             appendln("Local threads base dir info: ${getLocalThreadsLocationInfo()}")
             appendln("Phone layout mode: ${ChanSettings.layoutMode.get().name}")
+            appendln("OkHttp IPv6 support enabled: ${ChanSettings.okHttpAllowIpv6.get()}")
+            appendln("OkHttp HTTP/2 support enabled: ${ChanSettings.okHttpAllowHttp2.get()}")
         }
     }
 

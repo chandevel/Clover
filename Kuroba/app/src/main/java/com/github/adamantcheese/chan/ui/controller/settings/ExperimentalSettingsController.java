@@ -112,6 +112,20 @@ public class ExperimentalSettingsController
                 R.string.setting_image_viewer_gestures_description
         ));
 
+        requiresRestart.add(group.add(new BooleanSettingView(
+                this,
+                ChanSettings.okHttpAllowHttp2,
+                R.string.setting_allow_okhttp_http2,
+                R.string.setting_allow_okhttp_http2_ipv6_description
+        )));
+
+        requiresRestart.add(group.add(new BooleanSettingView(
+                this,
+                ChanSettings.okHttpAllowIpv6,
+                R.string.setting_allow_okhttp_ipv6,
+                R.string.setting_allow_okhttp_http2_ipv6_description
+        )));
+
         groups.add(group);
     }
 
