@@ -54,7 +54,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 42;
+    private static final int DATABASE_VERSION = 43;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -351,6 +351,16 @@ public class DatabaseHelper
                 }
             } catch (Exception e) {
                 Logger.e(TAG, "Error upgrading to version 42");
+            }
+        }
+
+        if (oldVersion < 43) {
+            try {
+                Logger.d(TAG, "Removing Arisuchan");
+                deleteSiteByRegistryID(3);
+                Logger.d(TAG, "Removed Arisuchan successfully");
+            } catch (Exception e) {
+                Logger.e(TAG, "Error upgrading to version 44");
             }
         }
     }
