@@ -716,22 +716,21 @@ public class ThreadPresenter
     }
 
     public void onNewPostsViewClicked() {
-        if (isBound()) {
-            Post post = PostUtils.findPostById(loadable.lastViewed, chanLoader.getThread());
-            int position = -1;
-            if (post != null) {
-                List<Post> posts = threadPresenterCallback.getDisplayingPosts();
-                for (int i = 0; i < posts.size(); i++) {
-                    Post needle = posts.get(i);
-                    if (post.no == needle.no) {
-                        position = i;
-                        break;
-                    }
+        if (!isBound()) return;
+        Post post = PostUtils.findPostById(loadable.lastViewed, chanLoader.getThread());
+        int position = -1;
+        if (post != null) {
+            List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+            for (int i = 0; i < posts.size(); i++) {
+                Post needle = posts.get(i);
+                if (post.no == needle.no) {
+                    position = i;
+                    break;
                 }
             }
-            //-1 is fine here because we add 1 down the chain to make it 0 if there's no last viewed
-            threadPresenterCallback.smoothScrollNewPosts(position);
         }
+        //-1 is fine here because we add 1 down the chain to make it 0 if there's no last viewed
+        threadPresenterCallback.smoothScrollNewPosts(position);
     }
 
     public void scrollTo(int displayPosition, boolean smooth) {
@@ -840,6 +839,7 @@ public class ThreadPresenter
 
     @Override
     public void onThumbnailClicked(PostImage postImage, ThumbnailView thumbnail) {
+        if (!isBound()) return;
         List<PostImage> images = new ArrayList<>();
         int index = -1;
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
@@ -860,7 +860,7 @@ public class ThreadPresenter
             }
         }
 
-        if (isBound() && !images.isEmpty()) {
+        if (!images.isEmpty()) {
             threadPresenterCallback.showImages(images, index, loadable, thumbnail);
         }
     }
@@ -1098,14 +1098,13 @@ public class ThreadPresenter
 
     @Override
     public void onShowPostReplies(Post post) {
+        if (!isBound()) return;
         List<Post> posts = new ArrayList<>();
         synchronized (post.repliesFrom) {
             for (int no : post.repliesFrom) {
-                if (isBound()) {
-                    Post replyPost = PostUtils.findPostById(no, chanLoader.getThread());
-                    if (replyPost != null) {
-                        posts.add(replyPost);
-                    }
+                Post replyPost = PostUtils.findPostById(no, chanLoader.getThread());
+                if (replyPost != null) {
+                    posts.add(replyPost);
                 }
             }
         }
