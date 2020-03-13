@@ -21,8 +21,9 @@ import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.FileSegment
 import com.github.k1rakishou.fsaf.file.RawFile
 import com.github.k1rakishou.fsaf.file.Segment
-import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
@@ -293,6 +294,7 @@ class FileCacheV2(
         )
     }
 
+    @SuppressLint("CheckResult")
     private fun enqueueDownloadFileRequest(
             loadable: Loadable,
             postImage: PostImage,
@@ -311,23 +313,21 @@ class FileCacheV2(
                 return null
             }
 
-            return try {
-                // Run this thing on a background thread
-                Completable.fromAction { handleLocalThreadFile(loadable, postImage, callback) }
-                        .subscribeOn(workerScheduler)
-                        .subscribe()
+            loadLocalThreadFile(loadable, postImage)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ file ->
+                        BackgroundUtils.ensureMainThread()
 
-                null
-            } catch (error: Throwable) {
-                logError(TAG, "Error while trying to load local thread file", error)
+                        callback.onSuccess(file)
+                        callback.onEnd()
+                    }, { error ->
+                        BackgroundUtils.ensureMainThread()
 
-                runOnMainThread {
-                    callback.onFail(Exception(error))
-                    callback.onEnd()
-                }
+                        callback.onFail(Exception(error))
+                        callback.onEnd()
+                    })
 
-                null
-            }
+            return null
         }
 
         return enqueueDownloadFileRequest(url, chunksCount, isBatchDownload, extraInfo, callback)
@@ -471,70 +471,53 @@ class FileCacheV2(
         }
     }
 
-    private fun handleLocalThreadFile(
+    fun loadLocalThreadFile(
             loadable: Loadable,
-            postImage: PostImage,
-            callback: FileCacheListener
-    ) {
-        BackgroundUtils.ensureBackgroundThread()
+            postImage: PostImage
+    ): Single<RawFile> {
+        return Single.fromCallable {
+            BackgroundUtils.ensureBackgroundThread()
 
-        val filename = ThreadSaveManager.formatOriginalImageName(
-                postImage.serverFilename,
-                postImage.extension
-        )
+            val filename = ThreadSaveManager.formatOriginalImageName(
+                    postImage.serverFilename,
+                    postImage.extension
+            )
 
-        if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory::class.java)) {
-            logError(TAG, "handleLocalThreadFile() Base local threads directory does not exist")
-
-            runOnMainThread {
-                callback.onFail(IOException("Base local threads directory does not exist"))
-                callback.onEnd()
+            if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory::class.java)) {
+                logError(TAG, "handleLocalThreadFile() Base local threads directory does not exist")
+                throw IOException("Base local threads directory does not exist")
             }
 
-            return
-        }
+            val baseDirFile = fileManager.newBaseDirectoryFile(
+                    LocalThreadsBaseDirectory::class.java
+            )
 
-        val baseDirFile = fileManager.newBaseDirectoryFile(
-                LocalThreadsBaseDirectory::class.java
-        )
-
-        if (baseDirFile == null) {
-            logError(TAG, "handleLocalThreadFile() fileManager.newLocalThreadFile() returned null")
-
-            runOnMainThread {
-                callback.onFail(IOException("Couldn't create a file inside local threads base directory"))
-                callback.onEnd()
+            if (baseDirFile == null) {
+                logError(TAG, "handleLocalThreadFile() fileManager.newLocalThreadFile() returned null")
+                throw IOException("Couldn't create a file inside local threads base directory")
             }
 
-            return
-        }
-
-        val imagesSubDirSegments = ThreadSaveManager.getImagesSubDir(loadable)
-        val segments: MutableList<Segment> = ArrayList(imagesSubDirSegments).apply {
-            add(FileSegment(filename))
-        }
-
-        val localImgFile = baseDirFile.clone(segments)
-        val isLocalFileOk = fileManager.exists(localImgFile)
-                && fileManager.isFile(localImgFile)
-                && fileManager.canRead(localImgFile)
-
-        if (isLocalFileOk) {
-            handleLocalThreadFileImmediatelyAvailable(localImgFile, postImage, callback)
-        } else {
-            logError(TAG, "Cannot load saved image from the disk, path: " + localImgFile.getFullPath())
-
-            runOnMainThread {
-                callback.onFail(
-                        IOException("Couldn't load saved image from the disk, path: "
-                                + localImgFile.getFullPath())
-                )
-
-                callback.onEnd()
+            val imagesSubDirSegments = ThreadSaveManager.getImagesSubDir(loadable)
+            val segments: MutableList<Segment> = ArrayList(imagesSubDirSegments).apply {
+                add(FileSegment(filename))
             }
-        }
 
-        return
+            val localImgFile = baseDirFile.clone(segments)
+            val isLocalFileOk = fileManager.exists(localImgFile)
+                    && fileManager.isFile(localImgFile)
+                    && fileManager.canRead(localImgFile)
+
+            if (!isLocalFileOk) {
+                val path = localImgFile.getFullPath()
+
+                logError(TAG, "Cannot load saved image from the disk, path: $path")
+                throw IOException("Couldn't load saved image from the disk, path: $path")
+            }
+
+            return@fromCallable localImgFile
+        }.flatMap { localImgFile ->
+            return@flatMap handleLocalThreadFileImmediatelyAvailable(localImgFile, postImage)
+        }.subscribeOn(workerScheduler)
     }
 
     private fun handleFileImmediatelyAvailable(file: RawFile, url: String) {
@@ -551,66 +534,42 @@ class FileCacheV2(
 
     private fun handleLocalThreadFileImmediatelyAvailable(
             file: AbstractFile,
-            postImage: PostImage,
-            callback: FileCacheListener?
-    ) {
-        if (file is RawFile) {
-            // Regular Java File
-            runOnMainThread {
-                callback?.onSuccess(file)
-                callback?.onEnd()
-            }
-        } else {
-            // SAF file
-            try {
-                val resultFile = cacheHandler.getOrCreateCacheFile(postImage.imageUrl.toString())
-                if (resultFile == null) {
-                    runOnMainThread {
-                        callback?.onFail(IOException("Couldn't get or create cache file"))
-                        callback?.onEnd()
+            postImage: PostImage
+    ): Single<RawFile> {
+        return Single.fromCallable {
+            if (file is RawFile) {
+                // Regular Java File
+                return@fromCallable file as RawFile
+            } else {
+                // SAF file
+                try {
+                    val resultFile = cacheHandler.getOrCreateCacheFile(postImage.imageUrl.toString())
+                    if (resultFile == null) {
+                        throw IOException("Couldn't get or create cache file")
                     }
 
-                    return
-                }
+                    if (!fileManager.copyFileContents(file, resultFile)) {
+                        if (!cacheHandler.deleteCacheFile(resultFile)) {
+                            Logger.e(TAG, "Couldn't delete cache file ${resultFile.getFullPath()}")
+                        }
 
-                if (!fileManager.copyFileContents(file, resultFile)) {
-                    if (!cacheHandler.deleteCacheFile(resultFile)) {
-                        Logger.e(TAG, "Couldn't delete cache file ${resultFile.getFullPath()}")
+                        val error = IOException(
+                                "Could not copy external SAF file into internal cache file, " +
+                                        "externalFile = " + file.getFullPath() +
+                                        ", resultFile = " + resultFile.getFullPath()
+                        )
+
+                        throw error
                     }
 
-                    val error = IOException(
-                            "Could not copy external SAF file into internal cache file, " +
-                                    "externalFile = " + file.getFullPath() +
-                                    ", resultFile = " + resultFile.getFullPath()
-                    )
-
-                    runOnMainThread {
-                        callback?.onFail(error)
-                        callback?.onEnd()
+                    if (!cacheHandler.markFileDownloaded(resultFile)) {
+                        throw FileCacheException.CouldNotMarkFileAsDownloaded(resultFile)
                     }
 
-                    return
-                }
-
-                if (!cacheHandler.markFileDownloaded(resultFile)) {
-                    runOnMainThread {
-                        callback?.onFail(FileCacheException.CouldNotMarkFileAsDownloaded(resultFile))
-                        callback?.onEnd()
-                    }
-
-                    return
-                }
-
-                runOnMainThread {
-                    callback?.onSuccess(resultFile)
-                    callback?.onEnd()
-                }
-            } catch (e: IOException) {
-                logError(TAG, "Error while trying to create a new random cache file", e)
-
-                runOnMainThread {
-                    callback?.onFail(e)
-                    callback?.onEnd()
+                    return@fromCallable resultFile as RawFile
+                } catch (e: IOException) {
+                    logError(TAG, "Error while trying to create a new random cache file", e)
+                    throw e
                 }
             }
         }
