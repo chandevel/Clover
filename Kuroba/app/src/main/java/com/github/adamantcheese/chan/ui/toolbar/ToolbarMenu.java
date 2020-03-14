@@ -24,9 +24,8 @@ public class ToolbarMenu {
 
     public final List<ToolbarMenuItem> items = new ArrayList<>();
 
-    public ToolbarMenuItem addItem(ToolbarMenuItem item) {
+    public void addItem(ToolbarMenuItem item) {
         items.add(item);
-        return item;
     }
 
     public ToolbarMenuItem findItem(int id) {

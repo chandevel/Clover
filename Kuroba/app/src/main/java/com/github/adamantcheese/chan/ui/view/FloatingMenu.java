@@ -239,7 +239,7 @@ public class FloatingMenu {
             }
         }
 
-        return maxWidth < dp(3 * 56) ? dp(3 * 56) : maxWidth;
+        return Math.max(maxWidth, dp(3 * 56));
     }
 
     public interface FloatingMenuCallback {
