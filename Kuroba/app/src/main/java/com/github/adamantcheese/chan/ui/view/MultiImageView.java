@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -71,6 +72,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -124,6 +126,7 @@ public class MultiImageView
 
     private boolean hasContent = false;
     private boolean mediaSourceCancel = false;
+    private boolean threwException = false;
     private boolean transparentBackground = ChanSettings.transparencyOn.get();
     private boolean imageAlreadySaved = false;
     private GestureDetector gestureDetector;
@@ -304,6 +307,8 @@ public class MultiImageView
         if (getContext() instanceof StartActivity) {
             ((StartActivity) getContext()).getLifecycle().removeObserver(this);
         }
+
+        threwException = false;
     }
 
     private void setThumbnail(Loadable loadable, PostImage postImage, boolean center) {
@@ -769,12 +774,11 @@ public class MultiImageView
     }
 
     private void onError(Exception exception) {
-        String reason = exception.getMessage();
-        if (reason == null) {
-            reason = "Unknown reason";
-        }
-
-        String message = String.format("%s, reason: %s", getString(R.string.image_preview_failed), reason);
+        String message = String.format(Locale.ENGLISH,
+                "%s, reason: %s",
+                getString(R.string.image_preview_failed),
+                exception.getMessage()
+        );
 
         cancellableToast.showToast(message);
         callback.hideProgress(MultiImageView.this);
@@ -873,6 +877,19 @@ public class MultiImageView
             } catch (Exception ignored) {
                 // data source likely is from a file rather than a stream, ignore any exceptions
             }
+        }
+    }
+
+    @Override
+    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+        try {
+            return super.drawChild(canvas, child, drawingTime);
+        } catch (Exception e) {
+            if (!threwException) {
+                onError(e);
+                threwException = true;
+            }
+            return false;
         }
     }
 
