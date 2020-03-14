@@ -35,6 +35,7 @@ import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -123,6 +124,12 @@ public class ReplyLayout
     private EditText options;
     private EditText fileName;
     private LinearLayout nameOptions;
+    private Button commentQuoteButton;
+    private Button commentSpoilerButton;
+    private Button commentCodeButton;
+    private Button commentEqnButton;
+    private Button commentMathButton;
+    private Button commentSJISButton;
     private SelectionListeningEditText comment;
     private TextView commentCounter;
     private CheckBox spoiler;
@@ -192,6 +199,12 @@ public class ReplyLayout
         options = replyInputLayout.findViewById(R.id.options);
         fileName = replyInputLayout.findViewById(R.id.file_name);
         nameOptions = replyInputLayout.findViewById(R.id.name_options);
+        commentQuoteButton = replyInputLayout.findViewById(R.id.comment_quote);
+        commentSpoilerButton = replyInputLayout.findViewById(R.id.comment_spoiler);
+        commentCodeButton = replyInputLayout.findViewById(R.id.comment_code);
+        commentEqnButton = replyInputLayout.findViewById(R.id.comment_eqn);
+        commentMathButton = replyInputLayout.findViewById(R.id.comment_math);
+        commentSJISButton = replyInputLayout.findViewById(R.id.comment_sjis);
         comment = replyInputLayout.findViewById(R.id.comment);
         commentCounter = replyInputLayout.findViewById(R.id.comment_counter);
         spoiler = replyInputLayout.findViewById(R.id.spoiler);
@@ -212,6 +225,12 @@ public class ReplyLayout
 
         // Setup reply layout views
         fileName.setOnLongClickListener(v -> presenter.fileNameLongClicked());
+        commentQuoteButton.setOnClickListener(this);
+        commentSpoilerButton.setOnClickListener(this);
+        commentCodeButton.setOnClickListener(this);
+        commentMathButton.setOnClickListener(this);
+        commentEqnButton.setOnClickListener(this);
+        commentSJISButton.setOnClickListener(this);
 
         comment.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
@@ -336,7 +355,44 @@ public class ReplyLayout
             if (authenticationLayout != null) {
                 authenticationLayout.hardReset();
             }
+        } else if (v == commentQuoteButton) {
+            insertQuote();
+        } else if (v == commentSpoilerButton) {
+            insertTags("[spoiler]", "[/spoiler]");
+        } else if (v == commentCodeButton) {
+            insertTags("[code]", "[/code]");
+        } else if (v == commentEqnButton) {
+            insertTags("[eqn]", "[/eqn]");
+        } else if (v == commentMathButton) {
+            insertTags("[math]", "[/math]");
+        } else if (v == commentSJISButton) {
+            insertTags("[sjis]", "[/sjis]");
         }
+    }
+
+    private boolean insertQuote() {
+        int selectionStart = comment.getSelectionStart();
+        int selectionEnd = comment.getSelectionEnd();
+        String[] textLines =
+                comment.getText().subSequence(selectionStart, selectionEnd).toString().split("\n");
+        StringBuilder rebuilder = new StringBuilder();
+        for (int i = 0; i < textLines.length; i++) {
+            rebuilder.append(">").append(textLines[i]);
+            if (i != textLines.length - 1) {
+                rebuilder.append("\n");
+            }
+        }
+        comment.getText().replace(selectionStart, selectionEnd, rebuilder.toString());
+        return true;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    // for all items, can only be called if >=1 character selected
+    private boolean insertTags(String before, String after) {
+        int selectionStart = comment.getSelectionStart();
+        comment.getText().insert(comment.getSelectionEnd(), after);
+        comment.getText().insert(selectionStart, before);
+        return true;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -578,6 +634,36 @@ public class ReplyLayout
     }
 
     @Override
+    public void openCommentQuoteButton(boolean open) {
+        commentQuoteButton.setVisibility(open ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void openCommentSpoilerButton(boolean open) {
+        commentSpoilerButton.setVisibility(open ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void openCommentCodeButton(boolean open) {
+        commentCodeButton.setVisibility(open ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void openCommentEqnButton(boolean open) {
+        commentEqnButton.setVisibility(open ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void openCommentMathButton(boolean open) {
+        commentMathButton.setVisibility(open ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void openCommentSJISButton(boolean open) {
+        commentSJISButton.setVisibility(open ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
     public void openFileName(boolean open) {
         fileName.setVisibility(open ? VISIBLE : GONE);
     }
@@ -721,7 +807,7 @@ public class ReplyLayout
                 }
                 // jp and vip [sjis]
                 if (is4chan && (threadLoadable.boardCode.equals("jp") || threadLoadable.boardCode.equals("vip"))) {
-                    eqnMenuItem = otherMods.add(Menu.NONE,
+                    sjisMenuItem = otherMods.add(Menu.NONE,
                             R.id.reply_selection_action_sjis,
                             4,
                             R.string.reply_comment_button_sjis
@@ -738,29 +824,17 @@ public class ReplyLayout
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 if (item == quoteMenuItem) {
-                    int selectionStart = comment.getSelectionStart();
-                    int selectionEnd = comment.getSelectionEnd();
-                    String[] textLines =
-                            comment.getText().subSequence(selectionStart, selectionEnd).toString().split("\n");
-                    StringBuilder rebuilder = new StringBuilder();
-                    for (int i = 0; i < textLines.length; i++) {
-                        rebuilder.append(">").append(textLines[i]);
-                        if (i != textLines.length - 1) {
-                            rebuilder.append("\n");
-                        }
-                    }
-                    comment.getText().replace(selectionStart, selectionEnd, rebuilder.toString());
-                    processed = true;
+                    processed = insertQuote();
                 } else if (item == spoilerMenuItem) {
-                    insertTags("[spoiler]", "[/spoiler]");
+                    processed = insertTags("[spoiler]", "[/spoiler]");
                 } else if (item == codeMenuItem) {
-                    insertTags("[code]", "[/code]");
+                    processed = insertTags("[code]", "[/code]");
                 } else if (item == eqnMenuItem) {
-                    insertTags("[eqn]", "[/eqn]");
+                    processed = insertTags("[eqn]", "[/eqn]");
                 } else if (item == mathMenuItem) {
-                    insertTags("[math]", "[/math]");
+                    processed = insertTags("[math]", "[/math]");
                 } else if (item == sjisMenuItem) {
-                    insertTags("[sjis]", "[/sjis]");
+                    processed = insertTags("[sjis]", "[/sjis]");
                 }
 
                 if (processed) {
@@ -770,15 +844,6 @@ public class ReplyLayout
                 } else {
                     return false;
                 }
-            }
-
-            @SuppressWarnings("ConstantConditions")
-            // for all items, can only be called if >=1 character selected
-            private void insertTags(String before, String after) {
-                int selectionStart = comment.getSelectionStart();
-                comment.getText().insert(comment.getSelectionEnd(), after);
-                comment.getText().insert(selectionStart, before);
-                processed = true;
             }
 
             @Override

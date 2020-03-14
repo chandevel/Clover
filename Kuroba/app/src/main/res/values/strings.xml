@@ -338,6 +338,12 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="reply_comment_button_math">Math</string>
     <string name="reply_comment_button_sjis">SJIS</string>
 
+    <string name="reply_comment_button_spoiler_tag">[s]</string>
+    <string name="reply_comment_button_code_tag">[c]</string>
+    <string name="reply_comment_button_eqn_tag">[eqn]</string>
+    <string name="reply_comment_button_math_tag">[math]</string>
+    <string name="reply_comment_button_sjis_tag">[sjis]</string>
+
     <string name="delete_confirm">Delete your post?</string>
     <string name="delete_wait">Deleting post…</string>
     <string name="delete_success">Post deleted</string>

@@ -121,6 +121,94 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             </RelativeLayout>
 
+            <LinearLayout
+                android:id="@+id/comment_buttons"
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                tools:ignore="SpUsage">
+
+                <Button
+                    android:id="@+id/comment_quote"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="0dp"
+                    android:padding="0dp"
+                    android:text="@string/reply_comment_button_quote"
+                    android:textAllCaps="false"
+                    android:textSize="15dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <Button
+                    android:id="@+id/comment_spoiler"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="0dp"
+                    android:padding="0dp"
+                    android:text="@string/reply_comment_button_spoiler_tag"
+                    android:textAllCaps="false"
+                    android:textSize="15dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <Button
+                    android:id="@+id/comment_code"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="0dp"
+                    android:padding="0dp"
+                    android:text="@string/reply_comment_button_code_tag"
+                    android:textAllCaps="false"
+                    android:textSize="15dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <Button
+                    android:id="@+id/comment_eqn"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="0dp"
+                    android:padding="0dp"
+                    android:text="@string/reply_comment_button_eqn_tag"
+                    android:textAllCaps="false"
+                    android:textSize="15dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <Button
+                    android:id="@+id/comment_math"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="50dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="0dp"
+                    android:padding="0dp"
+                    android:text="@string/reply_comment_button_math_tag"
+                    android:textAllCaps="false"
+                    android:textSize="15dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <Button
+                    android:id="@+id/comment_sjis"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="50dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="0dp"
+                    android:padding="0dp"
+                    android:text="@string/reply_comment_button_sjis_tag"
+                    android:textAllCaps="false"
+                    android:textSize="15dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
+
             <CheckBox
                 android:id="@+id/spoiler"
                 android:layout_width="match_parent"

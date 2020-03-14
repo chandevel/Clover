@@ -184,6 +184,20 @@ public class ReplyPresenter
                 callback.openSpoiler(moreOpen, false);
             }
         }
+        callback.openCommentQuoteButton(moreOpen);
+        if (board.spoilers) {
+            callback.openCommentSpoilerButton(moreOpen);
+        }
+        if (board.site.name().equals("4chan") && board.code.equals("g")) {
+            callback.openCommentCodeButton(moreOpen);
+        }
+        if (board.site.name().equals("4chan") && board.code.equals("sci")) {
+            callback.openCommentEqnButton(moreOpen);
+            callback.openCommentMathButton(moreOpen);
+        }
+        if (board.site.name().equals("4chan") && (board.code.equals("jp") || board.code.equals("vip"))) {
+            callback.openCommentSJISButton(moreOpen);
+        }
     }
 
     public boolean isExpanded() {
@@ -488,6 +502,12 @@ public class ReplyPresenter
         callback.openMessage(false, true, "", false);
         callback.setExpanded(false);
         callback.openSubject(false);
+        callback.openCommentQuoteButton(false);
+        callback.openCommentSpoilerButton(false);
+        callback.openCommentCodeButton(false);
+        callback.openCommentEqnButton(false);
+        callback.openCommentMathButton(false);
+        callback.openCommentSJISButton(false);
         callback.openNameOptions(false);
         callback.openFileName(false);
         callback.openSpoiler(false, false);
@@ -631,6 +651,18 @@ public class ReplyPresenter
         void openNameOptions(boolean open);
 
         void openSubject(boolean open);
+
+        void openCommentQuoteButton(boolean open);
+
+        void openCommentSpoilerButton(boolean open);
+
+        void openCommentCodeButton(boolean open);
+
+        void openCommentEqnButton(boolean open);
+
+        void openCommentMathButton(boolean open);
+
+        void openCommentSJISButton(boolean open);
 
         void openFileName(boolean open);
 
