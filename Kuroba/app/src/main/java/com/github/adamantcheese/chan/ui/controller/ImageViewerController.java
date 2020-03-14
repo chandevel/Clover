@@ -100,6 +100,7 @@ public class ImageViewerController
 
     private static final int VOLUME_ID = 1;
     private static final int SAVE_ID = 2;
+    private static final int ROTATE_ID = 3;
 
     @Inject
     ImageLoaderV2 imageLoaderV2;
@@ -159,7 +160,7 @@ public class ImageViewerController
             overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
         }
         overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
-        overflowBuilder.withSubItem(R.string.action_image_rotate, this::rotateImage);
+        overflowBuilder.withSubItem(ROTATE_ID, R.string.action_image_rotate, this::rotateImage);
 
         if (!loadable.isLocal()) {
             overflowBuilder.withSubItem(R.string.action_reload, this::forceReload);
@@ -322,8 +323,11 @@ public class ImageViewerController
             }
 
             imageSaver.startDownloadTask(context, task, message -> {
-                String errorMessage =
-                        String.format(Locale.ENGLISH, "%s, error message = %s", "Couldn't start download task", message);
+                String errorMessage = String.format(Locale.ENGLISH,
+                        "%s, error message = %s",
+                        "Couldn't start download task",
+                        message
+                );
 
                 showToast(context, errorMessage, Toast.LENGTH_LONG);
             });
@@ -417,6 +421,9 @@ public class ImageViewerController
         }
         navigation.subtitle = (index + 1) + "/" + count;
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
+
+        ToolbarMenuSubItem rotate = navigation.findSubItem(ROTATE_ID);
+        rotate.enabled = getImageMode(postImage) == MultiImageView.Mode.BIGIMAGE;
     }
 
     public void scrollToImage(PostImage postImage) {
