@@ -43,7 +43,7 @@ class ReportManager(
                 return@newFixedThreadPool Thread(
                         runnable,
                         String.format(
-                                Locale.US,
+                                Locale.ENGLISH,
                                 SENDER_THREAD_NAME_FORMAT,
                                 senderThreadIndex.getAndIncrement()
                         )
@@ -358,7 +358,7 @@ class ReportManager(
     }
 
     private fun getOsInfo(): String {
-        return String.format(
+        return String.format(Locale.ENGLISH,
                 "Android %s, sdk version: %d",
                 Build.VERSION.RELEASE,
                 Build.VERSION.SDK_INT

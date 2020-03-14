@@ -469,7 +469,7 @@ class CacheHandler(
             return@synchronized outputStream.use { stream ->
                 return@use PrintWriter(stream).use { pw ->
                     val toWrite = String.format(
-                            Locale.US,
+                            Locale.ENGLISH,
                             CACHE_FILE_META_CONTENT_FORMAT,
                             prevCacheFileMeta.createdOn,
                             prevCacheFileMeta.isDownloaded
@@ -585,7 +585,7 @@ class CacheHandler(
             originalFileName: String
     ): String {
         return String.format(
-                Locale.US,
+                Locale.ENGLISH,
                 CHUNK_CACHE_FILE_NAME_FORMAT,
                 originalFileName,
                 chunkStart,
@@ -597,7 +597,7 @@ class CacheHandler(
 
     private fun formatCacheFileName(originalFileName: String): String {
         return String.format(
-                Locale.US,
+                Locale.ENGLISH,
                 CACHE_FILE_NAME_FORMAT,
                 originalFileName,
                 // AbstractFile expects all file names to have extensions
@@ -607,7 +607,7 @@ class CacheHandler(
 
     private fun formatCacheFileMetaName(originalFileName: String): String {
         return String.format(
-                Locale.US,
+                Locale.ENGLISH,
                 CACHE_FILE_NAME_FORMAT,
                 originalFileName,
                 // AbstractFile expects all file names to have extensions

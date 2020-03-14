@@ -284,7 +284,7 @@ public class Loadable
      * Extracts and converts to a string only the info that we are interested in from this loadable
      */
     public String toShortString() {
-        return String.format(Locale.US, "[%s, %s, %s]", site.name(), boardCode, maskPostNo(no));
+        return String.format(Locale.ENGLISH, "[%s, %s, %s]", site.name(), boardCode, maskPostNo(no));
     }
 
     public String desktopUrl() {

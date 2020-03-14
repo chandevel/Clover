@@ -115,7 +115,7 @@ public class ExportedLoadable {
     @Override
     public String toString() {
         return String.format(
-                Locale.US,
+                Locale.ENGLISH,
                 "boardCode = %s, loadableId = %d, no = %d, mode= %d, siteId = %d, title = %s",
                 boardCode,
                 loadableId,

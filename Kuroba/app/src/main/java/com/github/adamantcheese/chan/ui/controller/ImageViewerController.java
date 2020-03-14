@@ -322,7 +322,7 @@ public class ImageViewerController
 
             imageSaver.startDownloadTask(context, task, message -> {
                 String errorMessage =
-                        String.format(Locale.US, "%s, error message = %s", "Couldn't start download task", message);
+                        String.format(Locale.ENGLISH, "%s, error message = %s", "Couldn't start download task", message);
 
                 showToast(context, errorMessage, Toast.LENGTH_LONG);
             });

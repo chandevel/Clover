@@ -43,7 +43,7 @@ public class ExportedSavedThread {
     @Override
     public String toString() {
         return String.format(
-                Locale.US,
+                Locale.ENGLISH,
                 "loadableId: %d, lastSavedPostNo: %d, isFullyDownloaded: %b, isStopped: %b",
                 loadableId,
                 lastSavedPostNo,

@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CaptchaHolder {
     private static final String TAG = "CaptchaHolder";
     private static final long INTERVAL = 5000;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
     private AtomicBoolean running = new AtomicBoolean(false);
 
     private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
