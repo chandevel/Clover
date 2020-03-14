@@ -54,6 +54,7 @@ import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
+import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.utils.AnimationUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -108,6 +109,8 @@ public class ViewThreadController
     @Nullable
     private HintPopup hintPopup = null;
 
+    private FloatingMenu floatingMenu;
+
     private Animatable2Compat.AnimationCallback downloadAnimationCallback = new Animatable2Compat.AnimationCallback() {
         @Override
         public void onAnimationEnd(Drawable drawable) {
@@ -160,7 +163,7 @@ public class ViewThreadController
         menuBuilder.withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
                 .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked);
 
-        NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow();
+        NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow(this);
 
         if (!ChanSettings.enableReplyFab.get()) {
             menuOverflowBuilder.withSubItem(R.string.action_reply, this::replyClicked);
@@ -197,10 +200,12 @@ public class ViewThreadController
     }
 
     private void albumClicked(ToolbarMenuItem item) {
+        dismissFloatingMenu();
         threadLayout.getPresenter().showAlbum();
     }
 
     private void pinClicked(ToolbarMenuItem item) {
+        dismissFloatingMenu();
         if (threadLayout.getPresenter().pin()) {
             setPinIconState(true);
             setSaveIconState(true);
@@ -618,6 +623,13 @@ public class ViewThreadController
         }
     }
 
+    private void dismissFloatingMenu() {
+        if (floatingMenu != null) {
+            floatingMenu.dismiss();
+            floatingMenu = null;
+        }
+    }
+
     @Override
     public void onShowPosts() {
         super.onShowPosts();
@@ -780,6 +792,16 @@ public class ViewThreadController
     @Override
     public Post getPostForPostImage(PostImage postImage) {
         return threadLayout.getPresenter().getPostFromPostImage(postImage);
+    }
+
+    @Override
+    public void onMenuShown(FloatingMenu menu) {
+        dismissFloatingMenu();
+        floatingMenu = menu;
+    }
+
+    @Override
+    public void onMenuHidden() {
     }
 
     public enum DownloadThreadState {

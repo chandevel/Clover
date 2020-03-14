@@ -187,7 +187,7 @@ public class ToolbarMenuItem {
         overflowMenu.show();
 
         if (threedotMenuCallback != null) {
-            threedotMenuCallback.onMenuShown();
+            threedotMenuCallback.onMenuShown(overflowMenu);
         }
     }
 
@@ -210,7 +210,7 @@ public class ToolbarMenuItem {
     }
 
     public interface ToobarThreedotMenuCallback {
-        void onMenuShown();
+        void onMenuShown(FloatingMenu menu);
 
         void onMenuHidden();
     }

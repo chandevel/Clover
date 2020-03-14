@@ -61,6 +61,7 @@ import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.ui.view.CustomScaleImageView;
+import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.LoadingBar;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.ui.view.OptionalSwipeViewPager;
@@ -485,7 +486,7 @@ public class ImageViewerController
     }
 
     @Override
-    public void onMenuShown() {
+    public void onMenuShown(FloatingMenu menu) {
         showSystemUI();
     }
 
