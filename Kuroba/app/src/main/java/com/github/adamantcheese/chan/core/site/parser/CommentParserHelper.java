@@ -139,9 +139,10 @@ public class CommentParserHelper {
             instance(RequestQueue.class).add(request);
 
             String URL = linkMatcher.group(0);
-            String title = youtubeCache.get(URL).first;
-            String duration = youtubeCache.get(URL).second;
-            if (title == null || duration == null) {
+            Pair<String, String> cachedInfo = youtubeCache.get(URL);
+            String title = URL;
+            String duration = null;
+            if (cachedInfo == null) {
                 try {
                     // this will block so we get the title immediately
                     JSONObject response = future.get(2500, TimeUnit.MILLISECONDS);
@@ -174,10 +175,8 @@ public class CommentParserHelper {
                     } else {
                         youtubeCache.put(URL, new Pair<>(title, null));
                     }
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                     //fall back to just showing the URL, otherwise it will display "null" which is pretty useless
-                    title = URL;
-                    duration = null;
                 }
             }
             //prepend two spaces for the youtube icon later
