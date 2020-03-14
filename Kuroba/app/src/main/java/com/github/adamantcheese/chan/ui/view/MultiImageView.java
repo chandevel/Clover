@@ -886,8 +886,14 @@ public class MultiImageView
             return super.drawChild(canvas, child, drawingTime);
         } catch (Exception e) {
             if (!threwException) {
-                onError(e);
-                threwException = true;
+                //don't mask this image URL, it is valuable to have a sample file that errors out
+                try {
+                    throw new Exception("url: " + postImage.imageUrl, e);
+                } catch (Exception err) {
+                    onError(err);
+                } finally {
+                    threwException = true;
+                }
             }
             return false;
         }
