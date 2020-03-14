@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.util.Pair;
+import androidx.core.util.Pair;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;

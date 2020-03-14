@@ -3,7 +3,7 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.util.Pair;
+import androidx.core.util.Pair;
 import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;

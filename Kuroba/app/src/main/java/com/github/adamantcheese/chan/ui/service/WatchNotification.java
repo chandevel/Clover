@@ -29,10 +29,10 @@ import android.os.IBinder;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.util.Pair;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -45,6 +45,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -125,7 +126,7 @@ public class WatchNotification
         super.onCreate();
         inject(this);
 
-        ChanSettings.watchLastCount.set(0);
+        PersistableChanState.watchLastCount.set(0);
     }
 
     @Override
@@ -287,7 +288,7 @@ public class WatchNotification
     ) {
         if (unviewedPosts.isEmpty()) {
             // Idle notification
-            ChanSettings.watchLastCount.set(0);
+            PersistableChanState.watchLastCount.set(0);
             return buildNotification(formatNotificationTitle(pins.size(), threadDownloaderPins.size()),
                     Collections.singletonList(getString(R.string.watch_idle)),
                     0,
@@ -355,14 +356,14 @@ public class WatchNotification
                 expandedLines.add(prefix + ": " + comment);
             }
 
-            boolean alert = ChanSettings.watchLastCount.get() < listQuoting.size();
-            ChanSettings.watchLastCount.set(listQuoting.size());
+            boolean alert = PersistableChanState.watchLastCount.get() < listQuoting.size();
+            PersistableChanState.watchLastCount.set(listQuoting.size());
 
             return buildNotification(message,
                     expandedLines,
                     flags,
                     alert,
-                    ChanSettings.watchLastCount.get() > 0,
+                    PersistableChanState.watchLastCount.get() > 0,
                     subjectPins.size() == 1 ? subjectPins.get(0) : null,
                     pins.size() > 0
             );

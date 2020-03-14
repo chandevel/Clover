@@ -25,7 +25,7 @@ import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -87,7 +87,7 @@ public class FilterWatchManager
 
         wakeManager.registerWakeable(this);
 
-        Set<Integer> previousIgnore = instance(Gson.class).fromJson(ChanSettings.filterWatchIgnored.get(),
+        Set<Integer> previousIgnore = instance(Gson.class).fromJson(PersistableChanState.filterWatchIgnored.get(),
                 new TypeToken<Set<Integer>>() {}.getType()
         );
         if (previousIgnore != null) ignoredPosts.addAll(previousIgnore);
@@ -175,7 +175,7 @@ public class FilterWatchManager
         //clear the ignored posts set if it gets too large; don't have the same sync stuff as background and it's a hassle to keep track of recently loaded catalogs
         if (ignoredPosts.size() + toAdd.size() > 650) ignoredPosts.clear(); //like 11 4chan catalogs? should be plenty
         ignoredPosts.addAll(toAdd);
-        ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
+        PersistableChanState.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
     }
 
     private class BackgroundLoader
@@ -226,7 +226,7 @@ public class FilterWatchManager
                     lastCheckedPostNumbers.add(post.no);
                 }
                 ignoredPosts.retainAll(lastCheckedPostNumbers);
-                ChanSettings.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
+                PersistableChanState.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
                 lastCheckedPosts.clear();
                 processing = false;
                 Logger.i(TAG,

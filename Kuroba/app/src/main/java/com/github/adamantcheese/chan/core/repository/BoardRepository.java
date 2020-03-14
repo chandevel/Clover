@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.repository;
 
-import android.util.Pair;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;

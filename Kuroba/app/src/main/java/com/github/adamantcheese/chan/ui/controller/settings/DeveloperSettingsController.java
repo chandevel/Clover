@@ -200,9 +200,9 @@ public class DeveloperSettingsController
         // Reset the hash and make the app updated
         Button resetPrevApkHash = new Button(context);
         resetPrevApkHash.setOnClickListener(v -> {
-            ChanSettings.previousDevHash.setSync(NO_HASH_SET);
-            ChanSettings.updateCheckTime.setSync(0L);
-            PersistableChanState.setHasNewApkUpdateSync(false);
+            PersistableChanState.previousDevHash.setSync(NO_HASH_SET);
+            PersistableChanState.updateCheckTime.setSync(0L);
+            PersistableChanState.hasNewApkUpdate.setSync(false);
             ((StartActivity) context).restartApp();
         });
         resetPrevApkHash.setText("Make app updated");
@@ -211,9 +211,9 @@ public class DeveloperSettingsController
         // Set hash to current and trigger the update check
         Button setCurrentApkHashAsPrevApkHash = new Button(context);
         setCurrentApkHashAsPrevApkHash.setOnClickListener(v -> {
-            ChanSettings.previousDevHash.setSync(BuildConfig.COMMIT_HASH);
-            ChanSettings.updateCheckTime.setSync(0L);
-            PersistableChanState.setHasNewApkUpdateSync(true);
+            PersistableChanState.previousDevHash.setSync(BuildConfig.COMMIT_HASH);
+            PersistableChanState.updateCheckTime.setSync(0L);
+            PersistableChanState.hasNewApkUpdate.setSync(true);
             ((StartActivity) context).restartApp();
         });
         setCurrentApkHashAsPrevApkHash.setText("Make app not updated");

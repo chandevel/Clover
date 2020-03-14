@@ -45,6 +45,7 @@ public class IntegerSetting
         }
     }
 
+    @Override
     public void setSync(Integer value) {
         if (!value.equals(get())) {
             settingProvider.putIntSync(key, value);

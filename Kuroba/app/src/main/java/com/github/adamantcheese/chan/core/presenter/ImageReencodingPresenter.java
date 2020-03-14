@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.core.presenter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.util.Pair;
+import androidx.core.util.Pair;
 
 import androidx.annotation.Nullable;
 

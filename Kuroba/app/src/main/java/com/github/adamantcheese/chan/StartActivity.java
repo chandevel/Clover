@@ -25,13 +25,13 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.util.LruCache;
-import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Pair;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.OnLifecycleEvent;
 
@@ -46,6 +46,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.core.site.SiteService;
@@ -590,22 +591,14 @@ public class StartActivity
         super.onStart();
         //restore parsed youtube stuff
         Gson gson = instance(Gson.class);
-        Type lruType = new TypeToken<Map<String, String>>() {}.getType();
+        Type lruType = new TypeToken<Map<String, Pair<String, String>>>() {}.getType();
         //convert
-        Map<String, String> titles = gson.fromJson(ChanSettings.youtubeTitleCache.get(), lruType);
-        Map<String, String> durs = gson.fromJson(ChanSettings.youtubeDurationCache.get(), lruType);
+        Map<String, Pair<String, String>> titles = gson.fromJson(PersistableChanState.youtubeCache.get(), lruType);
         //reconstruct
-        CommentParserHelper.youtubeTitleCache = new LruCache<>(500);
-        CommentParserHelper.youtubeDurCache = new LruCache<>(500);
+        CommentParserHelper.youtubeCache = new LruCache<>(500);
         for (String s : titles.keySet()) {
-            CommentParserHelper.youtubeTitleCache.put(s, titles.get(s));
+            CommentParserHelper.youtubeCache.put(s, titles.get(s));
         }
-        for (String s : durs.keySet()) {
-            CommentParserHelper.youtubeDurCache.put(s, durs.get(s));
-        }
-        //reset to not use up as much memory
-        ChanSettings.youtubeTitleCache.set(ChanSettings.youtubeTitleCache.getDefault());
-        ChanSettings.youtubeDurationCache.set(ChanSettings.youtubeDurationCache.getDefault());
 
         Logger.d(TAG, "start");
     }
@@ -615,10 +608,9 @@ public class StartActivity
         super.onStop();
         //store parsed youtube stuff, extra prevention of unneeded API calls
         Gson gson = instance(Gson.class);
-        Type lruType = new TypeToken<Map<String, String>>() {}.getType();
+        Type lruType = new TypeToken<Map<String, Pair<String, String>>>() {}.getType();
         //convert and set
-        ChanSettings.youtubeTitleCache.set(gson.toJson(CommentParserHelper.youtubeTitleCache.snapshot(), lruType));
-        ChanSettings.youtubeDurationCache.set(gson.toJson(CommentParserHelper.youtubeDurCache.snapshot(), lruType));
+        PersistableChanState.youtubeCache.set(gson.toJson(CommentParserHelper.youtubeCache.snapshot(), lruType));
         Logger.d(TAG, "stop");
     }
 }

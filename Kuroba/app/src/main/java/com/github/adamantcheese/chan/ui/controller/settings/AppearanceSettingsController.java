@@ -117,16 +117,16 @@ public class AppearanceSettingsController
 
             setupFontSizeSetting(post);
 
-            requiresRestart.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.shiftPostFormat,
-                    R.string.setting_shift_post,
-                    R.string.setting_shift_post_description
-            )));
-
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.fontAlternate,
                     R.string.setting_font_alt,
                     R.string.setting_font_alt_description
+            )));
+
+            requiresRestart.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.shiftPostFormat,
+                    R.string.setting_shift_post,
+                    R.string.setting_shift_post_description
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,

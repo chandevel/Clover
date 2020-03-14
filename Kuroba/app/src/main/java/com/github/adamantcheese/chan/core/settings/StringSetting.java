@@ -45,13 +45,6 @@ public class StringSetting
         }
     }
 
-    public void setNoUpdate(String value) {
-        if (!value.equals(get())) {
-            settingProvider.putString(key, value);
-            cached = value;
-        }
-    }
-
     public void setSync(String value) {
         if (!value.equals(get())) {
             settingProvider.putStringSync(key, value);

@@ -116,7 +116,8 @@ public class UpdateManager {
      * Runs every time onCreate is called on the StartActivity.
      */
     public void autoUpdateCheck() {
-        if (ChanSettings.previousVersion.get() < BuildConfig.VERSION_CODE && ChanSettings.previousVersion.get() != 0) {
+        if (PersistableChanState.previousVersion.get() < BuildConfig.VERSION_CODE
+                && PersistableChanState.previousVersion.get() != 0) {
             // Show dialog because release updates are infrequent so it's fine
             Spanned text = Html.fromHtml(
                     "<h3>" + getApplicationLabel() + " was updated to " + BuildConfig.VERSION_NAME + "</h3>");
@@ -133,18 +134,18 @@ public class UpdateManager {
             }, 1500);
 
             // Also set the new app version to not show this message again
-            ChanSettings.previousVersion.set(BuildConfig.VERSION_CODE);
+            PersistableChanState.previousVersion.set(BuildConfig.VERSION_CODE);
             cancelApkUpdateNotification();
 
             // Don't process the updater because a dialog is now already showing.
             return;
         }
 
-        if (BuildConfig.DEV_BUILD && !ChanSettings.previousDevHash.get().equals(BuildConfig.COMMIT_HASH)) {
+        if (BuildConfig.DEV_BUILD && !PersistableChanState.previousDevHash.get().equals(BuildConfig.COMMIT_HASH)) {
             // Show toast because dev updates may happen every day (to avoid alert dialog spam)
             showToast(context, getApplicationLabel() + " was updated to the latest commit.");
 
-            ChanSettings.previousDevHash.set(BuildConfig.COMMIT_HASH);
+            PersistableChanState.previousDevHash.set(BuildConfig.COMMIT_HASH);
             cancelApkUpdateNotification();
 
             return;
@@ -158,21 +159,21 @@ public class UpdateManager {
     }
 
     private void runUpdateApi(final boolean manual) {
-        if (PersistableChanState.getHasNewApkUpdate()) {
+        if (PersistableChanState.hasNewApkUpdate.get()) {
             // If we noticed that there was an apk update on the previous check - show the
             // notification
             notifyNewApkUpdate();
         }
 
         if (!manual) {
-            long lastUpdateTime = ChanSettings.updateCheckTime.get();
+            long lastUpdateTime = PersistableChanState.updateCheckTime.get();
             long interval = DAYS.toMillis(BuildConfig.UPDATE_DELAY);
             long now = System.currentTimeMillis();
             long delta = (lastUpdateTime + interval) - now;
             if (delta > 0) {
                 return;
             } else {
-                ChanSettings.updateCheckTime.set(now);
+                PersistableChanState.updateCheckTime.set(now);
             }
         }
 
@@ -277,12 +278,12 @@ public class UpdateManager {
     }
 
     private void notifyNewApkUpdate() {
-        PersistableChanState.setHasNewApkUpdate(true);
+        PersistableChanState.hasNewApkUpdate.set(true);
         settingsNotificationManager.notify(SettingNotificationType.ApkUpdate);
     }
 
     private void cancelApkUpdateNotification() {
-        PersistableChanState.setHasNewApkUpdate(false);
+        PersistableChanState.hasNewApkUpdate.set(false);
         settingsNotificationManager.cancel(SettingNotificationType.ApkUpdate);
     }
 

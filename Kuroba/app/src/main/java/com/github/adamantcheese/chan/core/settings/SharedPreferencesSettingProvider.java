@@ -26,6 +26,7 @@ public class SharedPreferencesSettingProvider
         this.prefs = prefs;
     }
 
+    //region Integer
     @Override
     public int getInt(String key, int def) {
         return prefs.getInt(key, def);
@@ -36,10 +37,13 @@ public class SharedPreferencesSettingProvider
         prefs.edit().putInt(key, value).apply();
     }
 
-    public void putIntSync(String key, int value) {
+    @Override
+    public void putIntSync(String key, Integer value) {
         prefs.edit().putInt(key, value).commit();
     }
 
+    //endregion
+    //region Long
     @Override
     public long getLong(String key, long def) {
         return prefs.getLong(key, def);
@@ -50,10 +54,13 @@ public class SharedPreferencesSettingProvider
         prefs.edit().putLong(key, value).apply();
     }
 
-    public void putLongSync(String key, long value) {
+    @Override
+    public void putLongSync(String key, Long value) {
         prefs.edit().putLong(key, value).commit();
     }
 
+    //endregion
+    //region Boolean
     @Override
     public boolean getBoolean(String key, boolean def) {
         return prefs.getBoolean(key, def);
@@ -64,10 +71,13 @@ public class SharedPreferencesSettingProvider
         prefs.edit().putBoolean(key, value).apply();
     }
 
-    public void putBooleanSync(String key, boolean value) {
+    @Override
+    public void putBooleanSync(String key, Boolean value) {
         prefs.edit().putBoolean(key, value).commit();
     }
 
+    //endregion
+    //region String
     @Override
     public String getString(String key, String def) {
         return prefs.getString(key, def);
@@ -83,23 +93,10 @@ public class SharedPreferencesSettingProvider
         prefs.edit().putString(key, value).commit();
     }
 
+    //endregion
+
     @Override
     public void removeSync(String key) {
         prefs.edit().remove(key).commit();
-    }
-
-    @Override
-    public void putIntSync(String key, Integer value) {
-        prefs.edit().putInt(key, value).commit();
-    }
-
-    @Override
-    public void putLongSync(String key, Long value) {
-        prefs.edit().putLong(key, value).commit();
-    }
-
-    @Override
-    public void putBooleanSync(String key, Boolean value) {
-        prefs.edit().putBoolean(key, value).commit();
     }
 }

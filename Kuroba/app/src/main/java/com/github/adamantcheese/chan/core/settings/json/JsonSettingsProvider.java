@@ -28,6 +28,7 @@ public class JsonSettingsProvider
         this.callback = callback;
     }
 
+    //region Integer
     @Override
     public int getInt(String key, int def) {
         JsonSetting setting = jsonSettings.settings.get(key);
@@ -52,6 +53,13 @@ public class JsonSettingsProvider
     }
 
     @Override
+    public void putIntSync(String key, Integer value) {
+        throw new UnsupportedOperationException();
+    }
+
+    //endregion
+    //region Long
+    @Override
     public long getLong(String key, long def) {
         JsonSetting setting = jsonSettings.settings.get(key);
         if (setting != null) {
@@ -75,6 +83,13 @@ public class JsonSettingsProvider
     }
 
     @Override
+    public void putLongSync(String key, Long value) {
+        throw new UnsupportedOperationException();
+    }
+
+    //endregion
+    //region Boolean
+    @Override
     public boolean getBoolean(String key, boolean def) {
         JsonSetting setting = jsonSettings.settings.get(key);
         if (setting != null) {
@@ -97,6 +112,13 @@ public class JsonSettingsProvider
         callback.save();
     }
 
+    @Override
+    public void putBooleanSync(String key, Boolean value) {
+        throw new UnsupportedOperationException();
+    }
+
+    //endregion
+    //region String
     @Override
     public String getString(String key, String def) {
         JsonSetting setting = jsonSettings.settings.get(key);
@@ -124,28 +146,14 @@ public class JsonSettingsProvider
     public void putStringSync(String key, String value) {
         throw new UnsupportedOperationException();
     }
-
-    public interface Callback {
-        void save();
-    }
+    //endregion
 
     @Override
     public void removeSync(String key) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public void putIntSync(String key, Integer value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void putLongSync(String key, Long value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void putBooleanSync(String key, Boolean value) {
-        throw new UnsupportedOperationException();
+    public interface Callback {
+        void save();
     }
 }

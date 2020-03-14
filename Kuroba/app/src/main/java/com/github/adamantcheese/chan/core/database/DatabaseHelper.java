@@ -19,7 +19,8 @@ package com.github.adamantcheese.chan.core.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
-import android.util.Pair;
+
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -31,8 +32,16 @@ import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
+import com.github.adamantcheese.chan.core.settings.BooleanSetting;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.IntegerSetting;
+import com.github.adamantcheese.chan.core.settings.LongSetting;
+import com.github.adamantcheese.chan.core.settings.Setting;
+import com.github.adamantcheese.chan.core.settings.SettingProvider;
+import com.github.adamantcheese.chan.core.settings.SharedPreferencesSettingProvider;
+import com.github.adamantcheese.chan.core.settings.StringSetting;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
+import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -41,6 +50,7 @@ import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
+import java.lang.reflect.Constructor;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,12 +59,14 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
+
 public class DatabaseHelper
         extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 43;
+    private static final int DATABASE_VERSION = 44;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -363,6 +375,45 @@ public class DatabaseHelper
                 Logger.e(TAG, "Error upgrading to version 44");
             }
         }
+
+        if (oldVersion < 44) {
+            try {
+                SettingProvider p = new SharedPreferencesSettingProvider(getPreferences());
+                // the PersistableChanState class was added, so some settings are being moved over there
+                // get settings from before the move
+                IntegerSetting watchLastCount =
+                        getSettingForKey(p, "preference_watch_last_count", IntegerSetting.class);
+                IntegerSetting previousVersion =
+                        getSettingForKey(p, "preference_previous_version", IntegerSetting.class);
+                LongSetting updateCheckTime = getSettingForKey(p, "update_check_time", LongSetting.class);
+                StringSetting previousDevHash = getSettingForKey(p, "previous_dev_hash", StringSetting.class);
+                StringSetting filterWatchIgnores =
+                        getSettingForKey(p, "filter_watch_last_ignored_set", StringSetting.class);
+                StringSetting youtubeTitleCache = getSettingForKey(p, "yt_title_cache", StringSetting.class);
+                StringSetting youtubeDurCache = getSettingForKey(p, "yt_dur_cache", StringSetting.class);
+
+                // update a few of them
+                PersistableChanState.watchLastCount.setSync(watchLastCount.get());
+                PersistableChanState.previousVersion.setSync(previousVersion.get());
+                PersistableChanState.updateCheckTime.setSync(updateCheckTime.get());
+                PersistableChanState.previousDevHash.setSync(previousDevHash.get());
+
+                // remove them; they are now in PersistableChanState
+                p.removeSync(watchLastCount.getKey());
+                p.removeSync(previousVersion.getKey());
+                p.removeSync(updateCheckTime.getKey());
+                p.removeSync(previousDevHash.getKey());
+                p.removeSync(filterWatchIgnores.getKey());
+                p.removeSync(youtubeTitleCache.getKey());
+                p.removeSync(youtubeDurCache.getKey());
+
+                // Preference key changed, move it over
+                BooleanSetting uploadCrashLogs = getSettingForKey(p, "auto_upload_crash_logs", BooleanSetting.class);
+                ChanSettings.collectCrashLogs.set(uploadCrashLogs.get());
+            } catch (Exception e) {
+                Logger.e(TAG, "Error upgrading to version 43");
+            }
+        }
     }
 
     @Override
@@ -565,5 +616,27 @@ public class DatabaseHelper
         DeleteBuilder boardDelete = boardsDao.deleteBuilder();
         boardDelete.where().eq("site", board.siteId).and().eq("value", board.code);
         boardDelete.delete();
+    }
+
+    /**
+     * @param p    the provider to get the setting from
+     * @param key  the key for the setting
+     * @param type the class of the setting, see parameter T; pass in Setting.class for whatever setting class you need
+     * @param <T>  the type of the setting, should extend Setting
+     * @return the setting requested, or null
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T getSettingForKey(SettingProvider p, String key, Class<T> type) {
+        if (!Setting.class.isAssignableFrom(type)) return null;
+        try {
+            Constructor c = type.getConstructor(SettingProvider.class, String.class, type);
+            c.setAccessible(true);
+            Object returnSetting = c.newInstance(p, key, null);
+            c.setAccessible(false);
+            return (T) returnSetting;
+        } catch (Exception failedSomething) {
+            Logger.e(TAG, "Reflection failed", failedSomething);
+            return null;
+        }
     }
 }

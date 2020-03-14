@@ -63,4 +63,13 @@ public class OptionsSetting<T extends Enum & OptionSettingItem>
             onValueChanged();
         }
     }
+
+    @Override
+    public void setSync(T value) {
+        if (!value.equals(get())) {
+            settingProvider.putStringSync(key, value.getKey());
+            cached = value;
+            onValueChanged();
+        }
+    }
 }

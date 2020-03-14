@@ -24,6 +24,7 @@ import android.text.style.ImageSpan;
 import android.util.LruCache;
 
 import androidx.annotation.AnyThread;
+import androidx.core.util.Pair;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -70,8 +71,8 @@ public class CommentParserHelper {
             "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
     private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
     // a cache for titles and durations to prevent extra api calls if not necessary
-    public static LruCache<String, String> youtubeTitleCache = new LruCache<>(500);
-    public static LruCache<String, String> youtubeDurCache = new LruCache<>(500);
+    // maps a URL to a title and duration string; if durations are disabled, the second argument is an empty string
+    public static LruCache<String, Pair<String, String>> youtubeCache = new LruCache<>(500);
 
     //@formatter:off
     private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)", Pattern.CASE_INSENSITIVE);
@@ -138,8 +139,8 @@ public class CommentParserHelper {
             instance(RequestQueue.class).add(request);
 
             String URL = linkMatcher.group(0);
-            String title = youtubeTitleCache.get(URL);
-            String duration = youtubeDurCache.get(URL);
+            String title = youtubeCache.get(URL).first;
+            String duration = youtubeCache.get(URL).second;
             if (title == null || duration == null) {
                 try {
                     // this will block so we get the title immediately
@@ -148,7 +149,6 @@ public class CommentParserHelper {
                             .getJSONObject(0)
                             .getJSONObject("snippet")
                             .getString("title"); //the response is well formatted so this will always work
-                    youtubeTitleCache.put(URL, title);
                     if (ChanSettings.parseYoutubeDuration.get()) {
                         duration = response.getJSONArray("items")
                                 .getJSONObject(0)
@@ -170,7 +170,9 @@ public class CommentParserHelper {
                                 .appendLiteral("]")
                                 .toFormatter();
                         duration = formatter.print(time);
-                        youtubeDurCache.put(URL, duration);
+                        youtubeCache.put(URL, new Pair<>(title, duration));
+                    } else {
+                        youtubeCache.put(URL, new Pair<>(title, null));
                     }
                 } catch (Exception e) {
                     //fall back to just showing the URL, otherwise it will display "null" which is pretty useless

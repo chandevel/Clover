@@ -219,7 +219,7 @@ public class DrawerAdapter
         Logger.d(TAG, "updateNotificationIcon() called notificationType = " + notificationTypeString);
 
         if (notificationType != null) {
-            int color = context.getResources().getColor(notificationType.getNotificationIconTintColor());
+            int color = getRes().getColor(notificationType.getNotificationIconTintColor());
 
             linkHolder.notificationIcon.setVisibility(VISIBLE);
             linkHolder.notificationIcon.setColorFilter(color);

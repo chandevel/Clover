@@ -35,6 +35,8 @@ public abstract class Setting<T> {
 
     public abstract void set(T value);
 
+    public abstract void setSync(T value);
+
     public T getDefault() {
         return def;
     }

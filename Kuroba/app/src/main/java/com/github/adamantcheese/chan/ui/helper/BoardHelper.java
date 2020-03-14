@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.helper;
 
-import android.util.Pair;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
 
