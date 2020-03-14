@@ -26,7 +26,7 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Pages;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ public interface SiteActions {
     }
 
     interface PagesListener {
-        void onPagesReceived(Board b, Chan4PagesRequest.Pages pages);
+        void onPagesReceived(Board b, Pages pages);
     }
 
     interface ArchiveRequestListener {

@@ -161,5 +161,10 @@ public class PostsFilter {
             }
             return null;
         }
+
+        public static boolean isNotBumpOrder(String orderString) {
+            Order o = find(orderString);
+            return !BUMP.equals(o);
+        }
     }
 }

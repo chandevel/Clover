@@ -30,6 +30,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.text.FastTextView;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -42,6 +43,7 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
@@ -246,7 +248,15 @@ public class CardPostCell
         comment.setText(commentText);
         comment.setTextColor(ThemeHelper.getTheme().textPrimary);
 
-        replies.setText(getString(R.string.card_stats, post.getReplies(), post.getImagesCount()));
+        String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
+        if (!ChanSettings.neverShowPages.get()) {
+            Chan4PagesRequest.Page p = callback.getPage(post);
+            if (p != null && isNotBumpOrder(ChanSettings.boardOrder.get())) {
+                status += " Pg " + p.page;
+            }
+        }
+
+        replies.setText(status);
     }
 
     private void setCompact(boolean compact) {

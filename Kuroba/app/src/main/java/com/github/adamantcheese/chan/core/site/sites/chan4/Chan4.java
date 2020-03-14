@@ -51,6 +51,7 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Pages;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -324,10 +325,10 @@ public class Chan4
         public void pages(Board board, PagesListener listener) {
             requestQueue.add(new Chan4PagesRequest(Chan4.this,
                     board,
-                    response -> listener.onPagesReceived(board, new Chan4PagesRequest.Pages(response)),
+                    response -> listener.onPagesReceived(board, new Pages(response)),
                     error -> {
                         Logger.e(TAG, "Failed to get pages for board " + board.code);
-                        listener.onPagesReceived(board, new Chan4PagesRequest.Pages(new ArrayList<>()));
+                        listener.onPagesReceived(board, new Pages(new ArrayList<>()));
                     }
             ));
         }

@@ -108,6 +108,12 @@ public class AppearanceSettingsController
                     R.string.setting_move_sort_to_toolbar_description
             )));
 
+            layout.add(new BooleanSettingView(this,
+                    ChanSettings.neverShowPages,
+                    "Never show page number",
+                    "Never display the page number in the catalog"
+            ));
+
             groups.add(layout);
         }
 

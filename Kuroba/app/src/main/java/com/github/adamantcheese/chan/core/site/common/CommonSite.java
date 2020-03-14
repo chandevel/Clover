@@ -45,6 +45,7 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Pages;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -534,7 +535,7 @@ public abstract class CommonSite
 
         @Override
         public void pages(Board board, PagesListener pagesListener) {
-            pagesListener.onPagesReceived(board, new Chan4PagesRequest.Pages(new ArrayList<>()));
+            pagesListener.onPagesReceived(board, new Pages(new ArrayList<>()));
         }
 
         @Override

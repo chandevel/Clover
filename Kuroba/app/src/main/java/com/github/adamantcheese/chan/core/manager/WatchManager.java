@@ -44,6 +44,7 @@ import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
@@ -1214,7 +1215,7 @@ public class WatchManager
         private boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
                 //check last page stuff, get the page for the OP and notify in the onPages method
-                Chan4PagesRequest.Page page = pageRequestManager.getPage(chanLoader.getLoadable());
+                Page page = pageRequestManager.getPage(chanLoader.getLoadable());
                 if (page != null) {
                     latestKnownPage = page.page;
                     doPageNotification(page);
@@ -1367,14 +1368,14 @@ public class WatchManager
         @Override
         public void onPagesReceived() {
             //this call will return the proper value now, but if it returns null just skip everything
-            Chan4PagesRequest.Page p = pageRequestManager.getPage(chanLoader.getLoadable());
+            Page p = pageRequestManager.getPage(chanLoader.getLoadable());
             if (p != null) {
                 latestKnownPage = p.page;
             }
             doPageNotification(p);
         }
 
-        private void doPageNotification(Chan4PagesRequest.Page page) {
+        private void doPageNotification(Page page) {
             if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get()
                     && ChanSettings.watchBackground.get()) {
                 if (page != null && page.page >= pin.loadable.board.pages && !notified) {
