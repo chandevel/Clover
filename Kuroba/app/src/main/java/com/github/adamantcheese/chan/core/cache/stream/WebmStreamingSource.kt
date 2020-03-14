@@ -1,10 +1,13 @@
 package com.github.adamantcheese.chan.core.cache.stream
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.cache.FileCacheListener
 import com.github.adamantcheese.chan.core.cache.FileCacheV2
 import com.github.adamantcheese.chan.core.cache.MediaSourceCallback
+import com.github.adamantcheese.chan.core.model.PostImage
+import com.github.adamantcheese.chan.core.model.orm.Loadable
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileManager
@@ -13,14 +16,18 @@ import com.github.k1rakishou.fsaf.file.RawFile
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.FileDataSource
+import io.reactivex.android.schedulers.AndroidSchedulers
 import java.io.IOException
+import java.lang.ref.WeakReference
 
 class WebmStreamingSource(
         private val fileManager: FileManager,
         private val fileCacheV2: FileCacheV2,
         private val cacheHandler: CacheHandler
 ) {
-    fun createMediaSource(videoUrl: String, callback: MediaSourceCallback) {
+
+    fun createMediaSource(loadable: Loadable, postImage: PostImage, callback: MediaSourceCallback) {
+        val videoUrl = postImage.imageUrl.toString()
         val uri = Uri.parse(videoUrl)
         val alreadyExists = cacheHandler.exists(videoUrl)
         val rawFile = cacheHandler.getOrCreateCacheFile(videoUrl)
@@ -31,17 +38,17 @@ class WebmStreamingSource(
             cacheHandler.fileWasAdded(file.length())
         }
 
-        if (alreadyExists
-                && rawFile != null
-                && cacheHandler.isAlreadyDownloaded(rawFile)) {
-            val fileUri = Uri.parse(rawFile.getFullPath())
+        if (alreadyExists && rawFile != null && cacheHandler.isAlreadyDownloaded(rawFile)) {
+            Logger.d(TAG, "Loaded from file cache")
 
-            Logger.d(TAG, "Loading already downloaded file from the disk")
+            loadFromCacheFile(rawFile, callback)
+            return
+        }
 
-            callback.onMediaSourceReady(
-                    ProgressiveMediaSource.Factory(DataSource.Factory { FileDataSource() })
-                            .createMediaSource(fileUri)
-            )
+        if (loadable.isLocal || loadable.isDownloading) {
+            Logger.d(TAG, "Loaded from local thread")
+
+            loadLocalThreadWebm(loadable, postImage, callback)
             return
         }
 
@@ -49,7 +56,7 @@ class WebmStreamingSource(
                 videoUrl,
                 object : FileCacheListener() {
                     override fun onSuccess(file: RawFile?) {
-                        Logger.d(TAG, "Loading just downloaded file after stop()")
+                        Logger.d(TAG, "createMediaSource() Loading just downloaded file after stop()")
                         BackgroundUtils.ensureMainThread()
 
                         // The webm file is already completely downloaded, just use it from the disk
@@ -62,29 +69,7 @@ class WebmStreamingSource(
                     override fun onStop(file: AbstractFile) {
                         BackgroundUtils.ensureMainThread()
 
-                        // The webm file is either partially downloaded or is not downloaded at all.
-                        // We take whatever there is and load it into the WebmStreamingDataSource so
-                        // we don't need to redownload the bytes that have already been downloaded
-                        val exists = fileManager.exists(file)
-                        val fileLength = fileManager.getLength(file)
-
-                        Logger.d(TAG, "Loading partially downloaded file after stop(), fileLength = $fileLength")
-
-                        if (exists && fileLength > 0L) {
-                            try {
-                                fileManager.getInputStream(file)?.use { inputStream ->
-                                    fileCacheSource.fillCache(fileLength, inputStream)
-                                } ?: throw IOException("Couldn't get input stream for file " +
-                                        "(${file.getFullPath()})")
-                            } catch (error: IOException) {
-                                Logger.e(TAG, "Failed to fill cache!", error)
-                            }
-                        }
-
-                        callback.onMediaSourceReady(
-                                ProgressiveMediaSource.Factory(DataSource.Factory { fileCacheSource })
-                                        .createMediaSource(uri)
-                        )
+                        startLoadingFromNetwork(file, fileCacheSource, callback, uri)
                     }
 
                     override fun onNotFound() {
@@ -93,7 +78,7 @@ class WebmStreamingSource(
                     }
 
                     override fun onFail(exception: Exception) {
-                        Logger.d(TAG, "onFail ${exception}")
+                        Logger.d(TAG, "createMediaSource() onFail ${exception}")
 
                         BackgroundUtils.ensureMainThread()
                         callback.onError(exception)
@@ -101,13 +86,81 @@ class WebmStreamingSource(
                 })
 
         if (cancelableDownload == null) {
-            Logger.d(TAG, "cancelableDownload == null")
+            Logger.d(TAG, "createMediaSource() cancelableDownload == null")
             return
         }
 
         // Trigger the onStop() callback so that we can load everything we have managed to download
         // via FileCache into the WebmStreamingDataSource
         cancelableDownload.stop()
+    }
+
+    @SuppressLint("CheckResult")
+    private fun loadLocalThreadWebm(
+            loadable: Loadable,
+            postImage: PostImage,
+            callback: MediaSourceCallback
+    ) {
+        // Not the best solution but should be fine
+        val weakCallback = WeakReference(callback)
+
+        fileCacheV2.loadLocalThreadFile(loadable, postImage)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ destination ->
+                    BackgroundUtils.ensureMainThread()
+                    val fileUri = Uri.parse(destination.getFullPath())
+
+                    weakCallback.get()?.onMediaSourceReady(
+                            ProgressiveMediaSource.Factory(DataSource.Factory { FileDataSource() })
+                                    .createMediaSource(fileUri)
+                    )
+                }, { error ->
+                    BackgroundUtils.ensureMainThread()
+                    weakCallback.get()?.onError(error)
+                })
+    }
+
+    private fun startLoadingFromNetwork(
+            file: AbstractFile,
+            fileCacheSource: WebmStreamingDataSource,
+            callback: MediaSourceCallback,
+            uri: Uri
+    ) {
+        // The webm file is either partially downloaded or is not downloaded at all.
+        // We take whatever there is and load it into the WebmStreamingDataSource so
+        // we don't need to redownload the bytes that have already been downloaded
+        val exists = fileManager.exists(file)
+        val fileLength = fileManager.getLength(file)
+
+        Logger.d(TAG,
+                "createMediaSource() Loading partially downloaded file after stop(), " +
+                        "fileLength = $fileLength")
+
+        if (exists && fileLength > 0L) {
+            try {
+                fileManager.getInputStream(file)?.use { inputStream ->
+                    fileCacheSource.fillCache(fileLength, inputStream)
+                } ?: throw IOException("Couldn't get input stream for file " +
+                        "(${file.getFullPath()})")
+            } catch (error: IOException) {
+                Logger.e(TAG, "createMediaSource() Failed to fill cache!", error)
+            }
+        }
+
+        callback.onMediaSourceReady(
+                ProgressiveMediaSource.Factory(DataSource.Factory { fileCacheSource })
+                        .createMediaSource(uri)
+        )
+    }
+
+    private fun loadFromCacheFile(rawFile: RawFile, callback: MediaSourceCallback) {
+        Logger.d(TAG, "createMediaSource() Loading already downloaded file from the disk")
+        val fileUri = Uri.parse(rawFile.getFullPath())
+
+        callback.onMediaSourceReady(
+                ProgressiveMediaSource.Factory(DataSource.Factory { FileDataSource() })
+                        .createMediaSource(fileUri)
+        )
     }
 
     companion object {
