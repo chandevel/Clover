@@ -107,7 +107,7 @@ class MultiImageViewGestureDetector(
             val imageViewportTouchSide = activeView.imageViewportTouchSide
 
             // Current image is big image
-            if (imageViewportTouchSide.isTouchingAllSides) {
+            if (activeView.scale == activeView.minScale) {
                 // We are not zoomed in. This is the default state when we open an image.
                 // We can use swipe-to-save image gesture.
                 swipeToSaveOrClose()
