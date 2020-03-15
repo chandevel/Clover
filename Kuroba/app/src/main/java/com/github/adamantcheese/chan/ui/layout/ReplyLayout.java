@@ -370,6 +370,7 @@ public class ReplyLayout
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     private boolean insertQuote() {
         int selectionStart = comment.getSelectionStart();
         int selectionEnd = comment.getSelectionEnd();
@@ -387,7 +388,6 @@ public class ReplyLayout
     }
 
     @SuppressWarnings("ConstantConditions")
-    // for all items, can only be called if >=1 character selected
     private boolean insertTags(String before, String after) {
         int selectionStart = comment.getSelectionStart();
         comment.getText().insert(comment.getSelectionEnd(), after);

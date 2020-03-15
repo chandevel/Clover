@@ -184,18 +184,19 @@ public class ReplyPresenter
                 callback.openSpoiler(moreOpen, false);
             }
         }
+        boolean is4chan = board.site instanceof Chan4;
         callback.openCommentQuoteButton(moreOpen);
         if (board.spoilers) {
             callback.openCommentSpoilerButton(moreOpen);
         }
-        if (board.site.name().equals("4chan") && board.code.equals("g")) {
+        if (is4chan && board.code.equals("g")) {
             callback.openCommentCodeButton(moreOpen);
         }
-        if (board.site.name().equals("4chan") && board.code.equals("sci")) {
+        if (is4chan && board.code.equals("sci")) {
             callback.openCommentEqnButton(moreOpen);
             callback.openCommentMathButton(moreOpen);
         }
-        if (board.site.name().equals("4chan") && (board.code.equals("jp") || board.code.equals("vip"))) {
+        if (is4chan && (board.code.equals("jp") || board.code.equals("vip"))) {
             callback.openCommentSJISButton(moreOpen);
         }
     }
