@@ -20,17 +20,19 @@ class MultiImageViewGestureDetector(
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val activeView = callbacks.getActiveView()
-        if (activeView is PlayerView && activeView.player != null) {
-            if (activeView.isControllerVisible) {
-                activeView.useController = false
-                callbacks.setClickHandler(true)
-            } else {
-                activeView.useController = true
-                activeView.showController()
-                callbacks.setClickHandler(false)
-                callbacks.checkImmersive()
+        if (activeView is PlayerView && !ChanSettings.neverShowWebmControls.get()) {
+            if (activeView.player != null) {
+                if (activeView.isControllerVisible) {
+                    activeView.useController = false
+                    callbacks.setClickHandler(true)
+                } else {
+                    activeView.useController = true
+                    activeView.showController()
+                    callbacks.setClickHandler(false)
+                    callbacks.checkImmersive()
+                }
+                return true
             }
-            return true
         }
 
         callbacks.onTap()

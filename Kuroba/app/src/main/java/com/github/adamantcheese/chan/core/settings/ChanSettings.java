@@ -220,6 +220,7 @@ public class ChanSettings {
     public static final BooleanSetting highResCells;
     public static final BooleanSetting parsePostImageLinks;
     public static final BooleanSetting transparencyOn;
+    public static final BooleanSetting neverShowWebmControls;
 
     // Set elsewhere in the application
     public static final OptionsSetting<PostViewMode> boardViewMode;
@@ -373,6 +374,7 @@ public class ChanSettings {
             highResCells = new BooleanSetting(p, "high_res_cells", false);
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
+            neverShowWebmControls = new BooleanSetting(p, "never_show_webm_controls", false);
 
             //Elsewhere
             boardViewMode =

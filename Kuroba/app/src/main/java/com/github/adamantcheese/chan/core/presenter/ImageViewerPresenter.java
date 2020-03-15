@@ -472,7 +472,7 @@ public class ImageViewerPresenter
         if (viewPagerVisible) {
             PostImage postImage = images.get(selectedPosition);
             if (imageAutoLoad(loadable, postImage) && !postImage.spoiler) {
-                if (postImage.type == MOVIE) {
+                if (postImage.type == MOVIE && callback.getImageMode(postImage) != VIDEO) {
                     callback.setImageMode(postImage, VIDEO, true);
                 } else {
                     if (callback.isImmersive()) {

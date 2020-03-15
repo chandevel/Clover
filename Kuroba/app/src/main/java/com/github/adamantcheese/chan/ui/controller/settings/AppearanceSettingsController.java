@@ -251,6 +251,11 @@ public class AppearanceSettingsController
                     "Default state for image transparency in the viewer"
             ));
 
+            images.add(new BooleanSettingView(this,
+                    ChanSettings.neverShowWebmControls,
+                    "Never show WEBM controls",
+                    "Treats WEBMs like GIFs; tap to close, double tap to play/pause, always automatically loops."));
+
             groups.add(images);
         }
     }
