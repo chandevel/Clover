@@ -89,6 +89,12 @@ public class BehaviourSettingsController
             ));
 
             general.add(new BooleanSettingView(this,
+                    ChanSettings.imageViewerGestures,
+                    R.string.setting_image_viewer_gestures,
+                    R.string.setting_image_viewer_gestures_description
+            ));
+
+            general.add(new BooleanSettingView(this,
                     ChanSettings.alwaysOpenDrawer,
                     R.string.settings_always_open_drawer,
                     0

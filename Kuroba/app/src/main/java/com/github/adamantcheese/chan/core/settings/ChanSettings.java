@@ -233,6 +233,7 @@ public class ChanSettings {
     public static final BooleanSetting controllerSwipeable;
     public static final BooleanSetting openLinkConfirmation;
     public static final BooleanSetting openLinkBrowser;
+    public static final BooleanSetting imageViewerGestures;
     public static final BooleanSetting alwaysOpenDrawer;
     public static final StringSetting jsCaptchaCookies;
 
@@ -274,6 +275,7 @@ public class ChanSettings {
     public static final BooleanSetting videoDefaultMuted;
     public static final BooleanSetting headsetDefaultMuted;
     public static final BooleanSetting videoOpenExternal;
+    public static final BooleanSetting videoStream;
 
     // Media loading
     public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
@@ -283,10 +285,8 @@ public class ChanSettings {
     //endregion
 
     //region EXPERIMENTAL
-    public static final BooleanSetting videoStream;
     public static final OptionsSetting<ConcurrentFileDownloadingChunks> concurrentDownloadChunkCount;
     public static final StringSetting androidTenGestureZones;
-    public static final BooleanSetting imageViewerGestures;
     public static final BooleanSetting okHttpAllowHttp2;
     public static final BooleanSetting okHttpAllowIpv6;
     //endregion
@@ -388,6 +388,7 @@ public class ChanSettings {
             controllerSwipeable = new BooleanSetting(p, "preference_controller_swipeable", true);
             openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
             openLinkBrowser = new BooleanSetting(p, "preference_open_link_browser", false);
+            imageViewerGestures = new BooleanSetting(p, "image_viewer_gestures", true);
             alwaysOpenDrawer = new BooleanSetting(p, "drawer_auto_open_always", false);
             jsCaptchaCookies = new StringSetting(p, "js_captcha_cookies", EMPTY_JSON);
 
@@ -436,6 +437,7 @@ public class ChanSettings {
             videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
             headsetDefaultMuted = new BooleanSetting(p, "preference_headset_default_muted", true);
             videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
+            videoStream = new BooleanSetting(p, "preference_video_stream", false);
 
             // Media loading
             imageAutoLoadNetwork = new OptionsSetting<>(p,
@@ -457,14 +459,12 @@ public class ChanSettings {
             //endregion
 
             //region EXPERIMENTAL
-            videoStream = new BooleanSetting(p, "preference_video_stream", false);
             concurrentDownloadChunkCount = new OptionsSetting<>(p,
                     "concurrent_file_downloading_chunks_count",
                     ConcurrentFileDownloadingChunks.class,
                     ConcurrentFileDownloadingChunks.Two
             );
             androidTenGestureZones = new StringSetting(p, "android_ten_gesture_zones", EMPTY_JSON);
-            imageViewerGestures = new BooleanSetting(p, "image_viewer_gestures", true);
             okHttpAllowHttp2 = new BooleanSetting(p, "ok_http_allow_http_2", true);
             okHttpAllowIpv6 = new BooleanSetting(p, "ok_http_allow_ipv6", true);
             //endregion

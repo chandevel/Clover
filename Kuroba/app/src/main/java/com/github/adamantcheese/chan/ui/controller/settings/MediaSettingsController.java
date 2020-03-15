@@ -230,6 +230,12 @@ public class MediaSettingsController
                     R.string.setting_video_open_external_description
             ));
 
+            video.add(new BooleanSettingView(this,
+                    ChanSettings.videoStream,
+                    R.string.setting_video_stream,
+                    R.string.setting_video_stream_description
+            ));
+
             groups.add(video);
         }
 

@@ -94,23 +94,9 @@ public class ExperimentalSettingsController
     private void populatePreferences() {
         SettingsGroup group = new SettingsGroup(getString(R.string.experimental_settings_group));
 
-        group.add(new BooleanSettingView(
-                this,
-                ChanSettings.videoStream,
-                R.string.setting_video_stream,
-                R.string.setting_video_stream_description
-        ));
-
         setupConcurrentFileDownloadingChunksSetting(group);
         setupZonesEditor(group);
         setupZonesResetButton(group);
-
-        group.add(new BooleanSettingView(
-                this,
-                ChanSettings.imageViewerGestures,
-                R.string.setting_image_viewer_gestures,
-                R.string.setting_image_viewer_gestures_description
-        ));
 
         requiresRestart.add(group.add(new BooleanSettingView(
                 this,
