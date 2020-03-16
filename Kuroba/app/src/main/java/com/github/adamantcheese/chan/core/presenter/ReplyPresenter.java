@@ -199,6 +199,9 @@ public class ReplyPresenter
         if (is4chan && (board.code.equals("jp") || board.code.equals("vip"))) {
             callback.openCommentSJISButton(moreOpen);
         }
+        if (is4chan && board.code.equals("pol")) {
+            callback.openFlag(moreOpen);
+        }
     }
 
     public boolean isExpanded() {
@@ -503,6 +506,7 @@ public class ReplyPresenter
         callback.openMessage(false, true, "", false);
         callback.setExpanded(false);
         callback.openSubject(false);
+        callback.openFlag(false);
         callback.openCommentQuoteButton(false);
         callback.openCommentSpoilerButton(false);
         callback.openCommentCodeButton(false);
@@ -652,6 +656,8 @@ public class ReplyPresenter
         void openNameOptions(boolean open);
 
         void openSubject(boolean open);
+
+        void openFlag(boolean open);
 
         void openCommentQuoteButton(boolean open);
 
