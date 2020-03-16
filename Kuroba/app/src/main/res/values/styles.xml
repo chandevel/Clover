@@ -251,9 +251,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_highlighted_color">#3c3836</item>
         <item name="post_selected_color">#3c3836</item>
 
-<!--        <item name="divider_color">#00FFFFFF</item>-->
-<!--        <item name="divider_split_color">#ebdbb2</item>-->
-
         <item name="dropdown_dark_color">#ffffff</item>
         <item name="dropdown_dark_pressed_color">#ffffff</item>
     </style>
