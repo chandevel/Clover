@@ -633,10 +633,14 @@ public class ReplyLayout
     }
 
     @Override
-    public void openSubject(boolean open) { subject.setVisibility(open ? VISIBLE : GONE); }
+    public void openSubject(boolean open) {
+        subject.setVisibility(open ? VISIBLE : GONE);
+    }
 
     @Override
-    public void openFlag(boolean open) { flag.setVisibility(open ? VISIBLE : GONE); }
+    public void openFlag(boolean open) {
+        flag.setVisibility(open ? VISIBLE : GONE);
+    }
 
     @Override
     public void openCommentQuoteButton(boolean open) {
