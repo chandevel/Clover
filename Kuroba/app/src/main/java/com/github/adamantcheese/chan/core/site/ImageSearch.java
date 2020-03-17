@@ -109,7 +109,7 @@ public abstract class ImageSearch {
             }
 
             public String getUrl(String imageUrl) {
-                return "https://www.yandex.com/images/search?rpt=imageview&img_url=" + imageUrl;
+                return "https://www.yandex.com/images/search?rpt=imageview&url=" + imageUrl;
             }
         });
     }
