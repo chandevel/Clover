@@ -121,6 +121,7 @@ public class ReplyLayout
     private TextView message;
     private EditText name;
     private EditText subject;
+    private EditText flag;
     private EditText options;
     private EditText fileName;
     private LinearLayout nameOptions;
@@ -196,6 +197,7 @@ public class ReplyLayout
         message = replyInputLayout.findViewById(R.id.message);
         name = replyInputLayout.findViewById(R.id.name);
         subject = replyInputLayout.findViewById(R.id.subject);
+        flag = replyInputLayout.findViewById(R.id.flag);
         options = replyInputLayout.findViewById(R.id.options);
         fileName = replyInputLayout.findViewById(R.id.file_name);
         nameOptions = replyInputLayout.findViewById(R.id.name_options);
@@ -541,6 +543,7 @@ public class ReplyLayout
     public void loadDraftIntoViews(Reply draft) {
         name.setText(draft.name);
         subject.setText(draft.subject);
+        flag.setText(draft.flag);
         options.setText(draft.options);
         blockSelectionChange = true;
         comment.setText(draft.comment);
@@ -554,6 +557,7 @@ public class ReplyLayout
     public void loadViewsIntoDraft(Reply draft) {
         draft.name = name.getText().toString();
         draft.subject = subject.getText().toString();
+        draft.flag = flag.getText().toString();
         draft.options = options.getText().toString();
         draft.comment = comment.getText().toString();
         draft.selectionStart = comment.getSelectionStart();
@@ -631,6 +635,11 @@ public class ReplyLayout
     @Override
     public void openSubject(boolean open) {
         subject.setVisibility(open ? VISIBLE : GONE);
+    }
+
+    @Override
+    public void openFlag(boolean open) {
+        flag.setVisibility(open ? VISIBLE : GONE);
     }
 
     @Override

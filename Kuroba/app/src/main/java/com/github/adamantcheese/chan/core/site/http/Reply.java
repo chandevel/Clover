@@ -40,6 +40,7 @@ public class Reply {
     public String fileName = "";
     public String name = "";
     public String options = "";
+    public String flag = "";
     public String subject = "";
     public String comment = "";
     public int selectionStart;
