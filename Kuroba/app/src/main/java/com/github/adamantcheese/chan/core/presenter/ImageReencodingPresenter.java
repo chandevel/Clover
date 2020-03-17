@@ -91,7 +91,7 @@ public class ImageReencodingPresenter {
         Point displaySize = getDisplaySize();
         ImageDecoder.decodeFileOnBackgroundThread(reply.file,
                 //decode to the device width/height, whatever is smaller
-                dp(displaySize.x > displaySize.y ? displaySize.y : displaySize.x), 0, bitmap -> {
+                dp(Math.min(displaySize.x, displaySize.y)), 0, bitmap -> {
                     if (bitmap == null) {
                         showToast(context, R.string.could_not_decode_image_bitmap);
                         return;

@@ -55,6 +55,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.k1rakishou.fsaf.file.RawFile;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -126,7 +127,6 @@ public class MultiImageView
 
     private boolean hasContent = false;
     private boolean mediaSourceCancel = false;
-    private boolean threwException = false;
     private boolean transparentBackground = ChanSettings.transparencyOn.get();
     private boolean imageAlreadySaved = false;
     private GestureDetector gestureDetector;
@@ -307,8 +307,6 @@ public class MultiImageView
         if (getContext() instanceof StartActivity) {
             ((StartActivity) getContext()).getLifecycle().removeObserver(this);
         }
-
-        threwException = false;
     }
 
     private void setThumbnail(Loadable loadable, PostImage postImage, boolean center) {
@@ -775,7 +773,7 @@ public class MultiImageView
 
     private void onError(Exception exception) {
         String message = String.format(Locale.ENGLISH,
-                "%s, reason: %s",
+                "%s: %s",
                 getString(R.string.image_preview_failed),
                 exception.getMessage()
         );
@@ -882,21 +880,18 @@ public class MultiImageView
 
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
-        try {
-            return super.drawChild(canvas, child, drawingTime);
-        } catch (Exception e) {
-            if (!threwException) {
-                //don't mask this image URL, it is valuable to have a sample file that errors out
-                try {
-                    throw new Exception("url: " + postImage.imageUrl, e);
-                } catch (Exception err) {
-                    onError(err);
-                } finally {
-                    threwException = true;
+        if (child instanceof GifImageView) {
+            GifImageView gif = (GifImageView) child;
+            if (gif.getDrawable() instanceof GifDrawable) {
+                GifDrawable drawable = (GifDrawable) gif.getDrawable();
+                if (drawable.getFrameByteCount() > 100 * 1024 * 1024) { // max size from RecordingCanvas
+                    onError(new Exception("Uncompressed GIF too large (>100MB), " + PostUtils.getReadableFileSize(
+                            drawable.getFrameByteCount())));
+                    return false;
                 }
             }
-            return false;
         }
+        return super.drawChild(canvas, child, drawingTime);
     }
 
     public interface Callback {
