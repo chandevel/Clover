@@ -352,6 +352,7 @@ public class ReplyLayout
         } else if (v == submit) {
             presenter.onSubmitClicked(false);
         } else if (v == previewHolder) {
+            attach.setClickable(false); // prevent immediately removing the file
             callback.showImageReencodingWindow(presenter.isAttachedFileSupportedForReencoding());
         } else if (v == captchaHardReset) {
             if (authenticationLayout != null) {
@@ -376,8 +377,7 @@ public class ReplyLayout
     private boolean insertQuote() {
         int selectionStart = comment.getSelectionStart();
         int selectionEnd = comment.getSelectionEnd();
-        String[] textLines =
-                comment.getText().subSequence(selectionStart, selectionEnd).toString().split("\n");
+        String[] textLines = comment.getText().subSequence(selectionStart, selectionEnd).toString().split("\n");
         StringBuilder rebuilder = new StringBuilder();
         for (int i = 0; i < textLines.length; i++) {
             rebuilder.append(">").append(textLines[i]);
@@ -900,6 +900,10 @@ public class ReplyLayout
         }
 
         presenter.onImageOptionsApplied(reply);
+    }
+
+    public void onImageOptionsComplete() {
+        attach.setClickable(true); // reencode windows gone, allow the file to be removed
     }
 
     private void showReencodeImageHint() {

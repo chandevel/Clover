@@ -838,6 +838,10 @@ public class ThreadListLayout
         reply.onImageOptionsApplied(modifiedReply, filenameRemoved);
     }
 
+    public void onImageOptionsComplete() {
+        reply.onImageOptionsComplete();
+    }
+
     public interface ThreadListLayoutPresenterCallback {
         void showThread(Loadable loadable);
 

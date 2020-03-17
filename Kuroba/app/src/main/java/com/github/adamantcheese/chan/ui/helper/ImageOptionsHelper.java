@@ -62,6 +62,8 @@ public class ImageOptionsHelper
             imageOptionsController.stopPresenting();
             imageOptionsController = null;
         }
+
+        callbacks.onImageOptionsComplete();
     }
 
     @Override
@@ -113,5 +115,7 @@ public class ImageOptionsHelper
         void presentReencodeOptionsController(Controller controller);
 
         void onImageOptionsApplied(Reply reply, boolean filenameRemoved);
+
+        void onImageOptionsComplete();
     }
 }

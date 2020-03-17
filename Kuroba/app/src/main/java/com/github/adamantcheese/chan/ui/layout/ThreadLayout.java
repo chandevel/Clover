@@ -752,6 +752,11 @@ public class ThreadLayout
         threadListLayout.onImageOptionsApplied(reply, filenameRemoved);
     }
 
+    @Override
+    public void onImageOptionsComplete() {
+        threadListLayout.onImageOptionsComplete();
+    }
+
     public void presentRemovedPostsController(Controller controller) {
         callback.presentController(controller);
     }
