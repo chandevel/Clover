@@ -89,7 +89,7 @@ public class CommentParser {
         rule(tagRule("br").just("\n"));
     }
 
-    public void addDefaultRules() {
+    public CommentParser addDefaultRules() {
         rule(tagRule("a").action(this::handleAnchor));
 
         rule(tagRule("span").cssClass("deadlink")
@@ -117,6 +117,7 @@ public class CommentParser {
                 .monospace()
                 .size(sp(12f))
                 .backgroundColor(StyleRule.BackgroundColor.CODE));
+        return this;
     }
 
     public void rule(StyleRule rule) {

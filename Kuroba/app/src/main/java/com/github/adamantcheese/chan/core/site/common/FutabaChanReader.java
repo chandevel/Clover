@@ -27,8 +27,7 @@ public class FutabaChanReader
     private final PostParser postParser;
 
     public FutabaChanReader() {
-        CommentParser commentParser = new CommentParser();
-        commentParser.addDefaultRules();
+        CommentParser commentParser = new CommentParser().addDefaultRules();
         this.postParser = new DefaultPostParser(commentParser);
     }
 

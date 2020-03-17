@@ -554,6 +554,7 @@ public class PostCell
 
         if ((!threadMode && post.getReplies() > 0) || (repliesFromSize > 0)) {
             replies.setVisibility(VISIBLE);
+            repliesAdditionalArea.setVisibility(VISIBLE);
 
             int replyCount = threadMode ? repliesFromSize : post.getReplies();
             String text = getQuantityString(R.plurals.reply, replyCount, replyCount);
@@ -574,6 +575,7 @@ public class PostCell
             updatePaddings(replies, -1, -1, paddingPx, -1);
         } else {
             replies.setVisibility(GONE);
+            repliesAdditionalArea.setVisibility(GONE);
             updatePaddings(comment, -1, -1, -1, paddingPx);
             updatePaddings(replies, -1, -1, 0, -1);
         }

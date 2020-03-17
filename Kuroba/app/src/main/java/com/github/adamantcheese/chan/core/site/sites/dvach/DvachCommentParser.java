@@ -6,9 +6,10 @@ import com.github.adamantcheese.chan.core.site.parser.StyleRule;
 public class DvachCommentParser
         extends VichanCommentParser {
     @Override
-    public void addDefaultRules() {
+    public DvachCommentParser addDefaultRules() {
         super.addDefaultRules();
         rule(StyleRule.tagRule("span").cssClass("s").strikeThrough());
         rule(StyleRule.tagRule("span").cssClass("u").underline());
+        return this;
     }
 }

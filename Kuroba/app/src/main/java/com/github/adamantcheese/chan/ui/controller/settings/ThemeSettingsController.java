@@ -46,7 +46,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -60,7 +59,10 @@ import com.github.adamantcheese.chan.ui.view.ViewPagerAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import okhttp3.HttpUrl;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -75,18 +77,13 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 public class ThemeSettingsController
         extends Controller
         implements View.OnClickListener {
-    private Board dummyBoard;
+
+    private Board dummyBoard = new Board();
+    private Loadable dummyLoadable = Loadable.emptyLoadable();
 
     {
-        dummyBoard = new Board();
         dummyBoard.name = "name";
         dummyBoard.code = "code";
-    }
-
-    private Loadable dummyLoadable;
-
-    {
-        dummyLoadable = Loadable.emptyLoadable();
         dummyLoadable.mode = Loadable.Mode.THREAD;
     }
 
@@ -280,19 +277,32 @@ public class ThemeSettingsController
 
             Context themeContext = new ContextThemeWrapper(context, theme.resValue);
 
-            Post.Builder builder = new Post.Builder().board(dummyBoard)
+            CommentParser parser = new CommentParser().addDefaultRules();
+            DefaultPostParser postParser = new DefaultPostParser(parser);
+            Post.Builder builder1 = new Post.Builder().board(dummyBoard)
                     .id(123456789)
-                    .opId(1)
+                    .opId(123456789)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .subject("Lorem ipsum")
-                    .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>"
-                            + "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br><br>"
-                            + "<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
+                    .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
                             + "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.<br>"
                             + "<span class=\"quote\">&gt;Nam non hendrerit justo, venenatis bibendum arcu.</span>");
-            CommentParser parser = new CommentParser();
-            parser.addDefaultRules();
-            Post post = new DefaultPostParser(parser).parse(theme, builder, parserCallback);
+            Post post1 = postParser.parse(theme, builder1, parserCallback);
+
+            Post.Builder builder2 = new Post.Builder().board(dummyBoard)
+                    .id(234567890)
+                    .opId(123456789)
+                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(15)))
+                    .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>"
+                            + "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br><br>")
+                    .images(Collections.singletonList(new PostImage.Builder().imageUrl(HttpUrl.get(
+                            "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/new_icon_512.png"))
+                            .thumbnailUrl(HttpUrl.get(
+                                    "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/new_icon_512.png"))
+                            .filename("new_icon_512")
+                            .extension("png")
+                            .build()));
+            Post post2 = postParser.parse(theme, builder2, parserCallback);
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -351,9 +361,9 @@ public class ThemeSettingsController
                     new LinearLayout.LayoutParams(MATCH_PARENT, getDimen(R.dimen.toolbar_height))
             );
 
-            PostCell postCell = (PostCell) inflate(context, R.layout.cell_post, null);
-            postCell.setPost(dummyLoadable,
-                    post,
+            PostCell postCell1 = (PostCell) inflate(context, R.layout.cell_post, null);
+            postCell1.setPost(dummyLoadable,
+                    post1,
                     dummyPostCallback,
                     false,
                     false,
@@ -364,7 +374,22 @@ public class ThemeSettingsController
                     false,
                     theme
             );
-            linearLayout.addView(postCell, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+
+            PostCell postCell2 = (PostCell) inflate(context, R.layout.cell_post, null);
+            postCell2.setPost(dummyLoadable,
+                    post2,
+                    dummyPostCallback,
+                    false,
+                    false,
+                    false,
+                    -1,
+                    true,
+                    ChanSettings.PostViewMode.LIST,
+                    false,
+                    theme
+            );
+            linearLayout.addView(postCell1, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+            linearLayout.addView(postCell2, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
             return linearLayout;
         }
