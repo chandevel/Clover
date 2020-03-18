@@ -686,6 +686,7 @@ public class WatchManager
     private void createPinWatcher(Pin pin) {
         if (!pinWatchers.containsKey(pin)) {
             pinWatchers.put(pin, new PinWatcher(pin));
+            postToEventBus(new PinMessages.PinChangedMessage(pin));
         }
     }
 
