@@ -29,6 +29,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
@@ -63,17 +64,20 @@ public class PostAdapter
 
     private ChanSettings.PostViewMode postViewMode;
     private boolean compact = false;
+    private Theme theme;
 
     public PostAdapter(
             RecyclerView recyclerView,
             PostAdapterCallback postAdapterCallback,
             PostCellInterface.PostCellCallback postCellCallback,
-            ThreadStatusCell.Callback statusCellCallback
+            ThreadStatusCell.Callback statusCellCallback,
+            Theme theme
     ) {
         this.recyclerView = recyclerView;
         this.postAdapterCallback = postAdapterCallback;
         this.postCellCallback = postCellCallback;
         this.statusCellCallback = statusCellCallback;
+        this.theme = theme;
 
         setHasStableIds(true);
     }
@@ -139,7 +143,7 @@ public class PostAdapter
                         true,
                         postViewMode,
                         compact,
-                        ThemeHelper.getTheme()
+                        theme
                 );
 
                 if (itemViewType == TYPE_POST_STUB) {

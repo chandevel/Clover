@@ -149,7 +149,12 @@ public class ThreadListLayout
         this.callback = callback;
         this.threadListLayoutCallback = threadListLayoutCallback;
 
-        postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postCellCallback, statusCellCallback);
+        postAdapter = new PostAdapter(recyclerView,
+                postAdapterCallback,
+                postCellCallback,
+                statusCellCallback,
+                ThemeHelper.getTheme()
+        );
         recyclerView.setAdapter(postAdapter);
         if (ChanSettings.shiftPostFormat.get()) {
             recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_POST, 0);

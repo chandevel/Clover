@@ -29,14 +29,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
@@ -47,7 +52,9 @@ import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
+import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
+import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
@@ -282,19 +289,22 @@ public class ThemeSettingsController
             Post.Builder builder1 = new Post.Builder().board(dummyBoard)
                     .id(123456789)
                     .opId(123456789)
+                    .op(true)
+                    .replies(1)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .subject("Lorem ipsum")
                     .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
                             + "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.<br>"
                             + "<span class=\"quote\">&gt;Nam non hendrerit justo, venenatis bibendum arcu.</span>");
             Post post1 = postParser.parse(theme, builder1, parserCallback);
+            post1.repliesFrom.add(234567890);
 
             Post.Builder builder2 = new Post.Builder().board(dummyBoard)
                     .id(234567890)
                     .opId(123456789)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(15)))
                     .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>"
-                            + "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br><br>")
+                            + "Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
                     .images(Collections.singletonList(new PostImage.Builder().imageUrl(HttpUrl.get(
                             "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/new_icon_512.png"))
                             .thumbnailUrl(HttpUrl.get(
@@ -303,10 +313,56 @@ public class ThemeSettingsController
                             .extension("png")
                             .build()));
             Post post2 = postParser.parse(theme, builder2, parserCallback);
+            List<Post> posts = new ArrayList<>();
+            posts.add(post1);
+            posts.add(post2);
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             linearLayout.setBackgroundColor(theme.backColor);
+
+            RecyclerView postsView = new RecyclerView(themeContext);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(themeContext);
+            layoutManager.setOrientation(RecyclerView.VERTICAL);
+            postsView.setLayoutManager(layoutManager);
+            PostAdapter adapter = new PostAdapter(postsView, new PostAdapter.PostAdapterCallback() {
+                @Override
+                public Loadable getLoadable() {
+                    return dummyLoadable;
+                }
+
+                @Override
+                public void onUnhidePostClick(Post post) {
+                }
+            }, dummyPostCallback, new ThreadStatusCell.Callback() {
+                @Override
+                public long getTimeUntilLoadMore() {
+                    return 0;
+                }
+
+                @Override
+                public boolean isWatching() {
+                    return false;
+                }
+
+                @Nullable
+                @Override
+                public ChanThread getChanThread() {
+                    return null;
+                }
+
+                @Override
+                public Page getPage(Post op) {
+                    return null;
+                }
+
+                @Override
+                public void onListStatusClicked() {
+                }
+            }, theme);
+            adapter.setThread(dummyLoadable, posts, false);
+            adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
+            postsView.setAdapter(adapter);
 
             final Toolbar toolbar = new Toolbar(themeContext);
             final View.OnClickListener colorClick = v -> {
@@ -357,39 +413,8 @@ public class ThemeSettingsController
             toolbar.setNavigationItem(false, true, item, theme);
             toolbar.setOnClickListener(colorClick);
 
-            linearLayout.addView(toolbar,
-                    new LinearLayout.LayoutParams(MATCH_PARENT, getDimen(R.dimen.toolbar_height))
-            );
-
-            PostCell postCell1 = (PostCell) inflate(context, R.layout.cell_post, null);
-            postCell1.setPost(dummyLoadable,
-                    post1,
-                    dummyPostCallback,
-                    false,
-                    false,
-                    false,
-                    -1,
-                    true,
-                    ChanSettings.PostViewMode.LIST,
-                    false,
-                    theme
-            );
-
-            PostCell postCell2 = (PostCell) inflate(context, R.layout.cell_post, null);
-            postCell2.setPost(dummyLoadable,
-                    post2,
-                    dummyPostCallback,
-                    false,
-                    false,
-                    false,
-                    -1,
-                    true,
-                    ChanSettings.PostViewMode.LIST,
-                    false,
-                    theme
-            );
-            linearLayout.addView(postCell1, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-            linearLayout.addView(postCell2, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+            linearLayout.addView(toolbar, new LayoutParams(MATCH_PARENT, getDimen(R.dimen.toolbar_height)));
+            linearLayout.addView(postsView, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
             return linearLayout;
         }
