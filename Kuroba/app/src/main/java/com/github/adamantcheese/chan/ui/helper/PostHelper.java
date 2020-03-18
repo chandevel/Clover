@@ -29,6 +29,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
@@ -68,7 +69,8 @@ public class PostHelper {
         }
     }
 
-    private static DateFormat dateFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
+    private static DateFormat dateFormat =
+            SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Locale.ENGLISH);
     private static Date tmpDate = new Date();
 
     public static String getLocalDate(Post post) {

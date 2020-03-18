@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -97,7 +98,7 @@ public class FilterWatchManager
     public void onWake() {
         if (!processing) {
             wakeManager.manageLock(true, FilterWatchManager.this);
-            Logger.i(TAG, "Processing filter loaders, started at " + DateFormat.getTimeInstance().format(new Date()));
+            Logger.i(TAG, "Processing filter loaders, started at " + DateFormat.getTimeInstance(DateFormat.DEFAULT, Locale.ENGLISH).format(new Date()));
             processing = true;
             populateFilterLoaders();
             Logger.d(TAG, "Number of filter loaders: " + numBoardsChecked);
@@ -230,7 +231,7 @@ public class FilterWatchManager
                 lastCheckedPosts.clear();
                 processing = false;
                 Logger.i(TAG,
-                        "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance()
+                        "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance(DateFormat.DEFAULT, Locale.ENGLISH)
                                 .format(new Date())
                 );
                 wakeManager.manageLock(false, FilterWatchManager.this);

@@ -43,7 +43,6 @@ import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
@@ -1038,7 +1037,7 @@ public class WatchManager
         if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
             Logger.i(TAG,
                     waitingForPinWatchersForBackgroundUpdate.size() + " pin watchers beginning updates, started at "
-                            + DateFormat.getTimeInstance().format(new Date())
+                            + DateFormat.getTimeInstance(DateFormat.DEFAULT, Locale.ENGLISH).format(new Date())
             );
             wakeManager.manageLock(true, WatchManager.this);
         }
@@ -1088,7 +1087,10 @@ public class WatchManager
 
                 if (waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
                     Logger.i(TAG,
-                            "All watchers updated, finished at " + DateFormat.getTimeInstance().format(new Date())
+                            "All watchers updated, finished at " + DateFormat.getTimeInstance(
+                                    DateFormat.DEFAULT,
+                                    Locale.ENGLISH
+                            ).format(new Date())
                     );
                     waitingForPinWatchersForBackgroundUpdate = null;
                     wakeManager.manageLock(false, WatchManager.this);

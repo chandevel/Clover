@@ -1,6 +1,6 @@
 package com.github.adamantcheese.chan.ui.controller.settings;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;

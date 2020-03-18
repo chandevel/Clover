@@ -180,16 +180,12 @@ public class SitesSetupController
 
         final AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
                 .setTitle(R.string.setup_sites_add_title)
-                .setPositiveButton(R.string.add, null)
+                .setPositiveButton(R.string.add, (dialog1, which) -> dialogView.onPositiveClicked())
                 .setNegativeButton(R.string.cancel, null)
                 .create();
 
         dialogView.setDialog(dialog);
-
         dialog.show();
-
-        Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        positiveButton.setOnClickListener(v -> dialogView.onPositiveClicked());
     }
 
     @Override
