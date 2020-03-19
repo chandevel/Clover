@@ -123,22 +123,26 @@ public class WakeManager {
     }
 
     private void startAlarm() {
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                0,
-                ChanSettings.watchBackgroundInterval.get(),
-                pendingIntent
-        );
-        Logger.i(TAG,
-                "Started background alarm with an interval of "
-                        + MILLISECONDS.toMinutes(ChanSettings.watchBackgroundInterval.get()) + " minutes"
-        );
-        alarmRunning = true;
+        if (!alarmRunning) {
+            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    0,
+                    ChanSettings.watchBackgroundInterval.get(),
+                    pendingIntent
+            );
+            Logger.i(TAG,
+                    "Started background alarm with an interval of "
+                            + MILLISECONDS.toMinutes(ChanSettings.watchBackgroundInterval.get()) + " minutes"
+            );
+            alarmRunning = true;
+        }
     }
 
     private void stopAlarm() {
-        alarmManager.cancel(pendingIntent);
-        Logger.i(TAG, "Stopped background alarm");
-        alarmRunning = false;
+        if (alarmRunning) {
+            alarmManager.cancel(pendingIntent);
+            Logger.i(TAG, "Stopped background alarm");
+            alarmRunning = false;
+        }
     }
 
     /**
