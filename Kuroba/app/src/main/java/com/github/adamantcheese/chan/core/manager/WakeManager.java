@@ -59,6 +59,7 @@ public class WakeManager {
     public static final Intent intent = new Intent(getAppContext(), WakeUpdateReceiver.class);
     private PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
     private long lastBackgroundUpdateTime;
+    private boolean alarmRunning;
 
     @Inject
     public WakeManager() {
@@ -105,13 +106,20 @@ public class WakeManager {
     }
 
     public void registerWakeable(Wakeable wakeable) {
+        boolean needsStart = wakeableSet.isEmpty();
         Logger.d(TAG, "Registered " + wakeable.getClass().toString());
         wakeableSet.add(wakeable);
+        if (!alarmRunning && needsStart) {
+            startAlarm();
+        }
     }
 
     public void unregisterWakeable(Wakeable wakeable) {
         Logger.d(TAG, "Unregistered " + wakeable.getClass().toString());
         wakeableSet.remove(wakeable);
+        if (alarmRunning && wakeableSet.isEmpty()) {
+            stopAlarm();
+        }
     }
 
     private void startAlarm() {
@@ -124,11 +132,13 @@ public class WakeManager {
                 "Started background alarm with an interval of "
                         + MILLISECONDS.toMinutes(ChanSettings.watchBackgroundInterval.get()) + " minutes"
         );
+        alarmRunning = true;
     }
 
     private void stopAlarm() {
         alarmManager.cancel(pendingIntent);
         Logger.i(TAG, "Stopped background alarm");
+        alarmRunning = false;
     }
 
     /**

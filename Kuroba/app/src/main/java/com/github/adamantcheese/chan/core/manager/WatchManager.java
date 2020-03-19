@@ -734,7 +734,7 @@ public class WatchManager
                         + isInForeground()
         );
 
-        updateDeletedOrArchivedPins();
+        updateDeletedOrArchivedLocalThreads();
         switchIncrementalThreadDownloadingState(watchEnabled && backgroundEnabled);
         updateIntervals(watchEnabled, backgroundEnabled);
 
@@ -782,11 +782,11 @@ public class WatchManager
             updatePins(pinsToUpdateInDatabase, false);
         }
 
-        return hasActiveOrUnreadPins();
+        return hasDownloadingOrUnreadPins();
     }
 
-    private boolean hasActiveOrUnreadPins() {
-        boolean hasAtLeastOneActivePin = false;
+    private boolean hasDownloadingOrUnreadPins() {
+        boolean hasAtLeastOneDownloadingPin = false;
         boolean hasAtLeastOnePinWithUnreadPosts = false;
         boolean hasActiveLocalThread = false;
 
@@ -795,7 +795,7 @@ public class WatchManager
                 SavedThread savedThread = findSavedThreadByLoadableId(pin.loadable.id);
                 // If pin is still downloading posts - it is active
                 if (savedThread != null && (!savedThread.isStopped && !savedThread.isFullyDownloaded)) {
-                    hasAtLeastOneActivePin = true;
+                    hasAtLeastOneDownloadingPin = true;
 
                     // FIXME: This is a hack for ThreadSaveManager. Without this hack, when the user
                     //  selects to only notify him about quotes to his posts, ThreadSaveManager will
@@ -815,7 +815,7 @@ public class WatchManager
 
             // If pin is not archived/404ed and we are watching it - it is active
             if (!pin.isError && !pin.archived && pin.watching) {
-                hasAtLeastOneActivePin = true;
+                hasAtLeastOneDownloadingPin = true;
 
                 if (ChanSettings.watchNotifyMode.get().equals(NOTIFY_ALL_POSTS)) {
                     // This check is here so we can stop the foreground service when the user has read
@@ -832,7 +832,7 @@ public class WatchManager
                 }
             }
 
-            if ((hasAtLeastOneActivePin && hasAtLeastOnePinWithUnreadPosts) || hasActiveLocalThread) {
+            if ((hasAtLeastOneDownloadingPin && hasAtLeastOnePinWithUnreadPosts) || hasActiveLocalThread) {
                 return true;
             }
         }
@@ -924,7 +924,7 @@ public class WatchManager
         return false;
     }
 
-    private void updateDeletedOrArchivedPins() {
+    private void updateDeletedOrArchivedLocalThreads() {
         for (Pin pin : pins) {
             if (pin.loadable.getLoadableDownloadingState() == DownloadingAndViewable) {
                 continue;
