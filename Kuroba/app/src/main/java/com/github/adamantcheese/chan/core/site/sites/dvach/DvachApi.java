@@ -189,6 +189,7 @@ public class DvachApi
         int fileHeight = 0;
         String fileName = null;
         String thumbnail = null;
+        String fileHash = null;
 
         while (reader.hasNext()) {
             switch (reader.nextName()) {
@@ -211,6 +212,8 @@ public class DvachApi
                 case "thumbnail":
                     thumbnail = reader.nextString();
                     break;
+                case "md5":
+                    fileHash = reader.nextString();
                 default:
                     reader.skipValue();
                     break;
@@ -235,6 +238,7 @@ public class DvachApi
                     .imageWidth(fileWidth)
                     .imageHeight(fileHeight)
                     .size(fileSize)
+                    .fileHash(fileHash)
                     .build();
         }
         return null;
