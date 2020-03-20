@@ -29,6 +29,7 @@ import androidx.core.util.Pair;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.RequestFuture;
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -222,8 +223,7 @@ public class CommentParserHelper {
                     Matcher matcher = imageUrlPattern.matcher(((String) linkable.value));
                     if (matcher.matches()) {
                         boolean noThumbnail = StringUtils.endsWithAny((String) linkable.value, noThumbLinkSuffixes);
-                        String spoilerThumbnail =
-                                "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/internal_spoiler.png";
+                        String spoilerThumbnail = BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png";
 
                         HttpUrl imageUrl = HttpUrl.parse((String) linkable.value);
                         if (imageUrl == null) {

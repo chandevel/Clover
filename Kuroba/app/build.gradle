@@ -57,6 +57,7 @@ android {
         //the repo endpoint is also used to calculate the issues endpoint
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
         buildConfigField "String", "GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba\""
+        buildConfigField "String", "RESOURCES_ENDPOINT", "\"https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/\""
         //this is for your development server endpoint
         //you WILL need to change the code in UpdateManager if your endpoint changes or you use a different API structure
         buildConfigField "String", "DEV_API_ENDPOINT", "\"https://kuroba.io:8443\""

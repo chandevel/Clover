@@ -38,6 +38,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -306,9 +307,8 @@ public class ThemeSettingsController
                     .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>"
                             + "Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
                     .images(Collections.singletonList(new PostImage.Builder().imageUrl(HttpUrl.get(
-                            "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/new_icon_512.png"))
-                            .thumbnailUrl(HttpUrl.get(
-                                    "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/new_icon_512.png"))
+                            BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png"))
+                            .thumbnailUrl(HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png"))
                             .filename("new_icon_512")
                             .extension("png")
                             .build()));

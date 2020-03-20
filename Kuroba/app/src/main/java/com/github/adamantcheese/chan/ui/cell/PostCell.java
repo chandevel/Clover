@@ -79,7 +79,6 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.Logger;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -654,7 +653,6 @@ public class PostCell
             for (int i = 0; i < post.images.size(); i++) {
                 PostImage image = post.images.get(i);
                 if (image.imageUrl == null) {
-                    Logger.e(TAG, "buildThumbnails() image.imageUrl == null");
                     continue;
                 }
 
@@ -682,7 +680,7 @@ public class PostCell
                 v.setRounding(dp(2));
                 p.setMargins(dp(4), first ? dp(4) : 0, 0,
                         //1 extra for bottom divider
-                        i + 1 == post.images.size() ? dp(1) + dp(4) : 0
+                        i + 1 == post.images.size() ? dp(1) + dp(4) : dp(2)
                 );
 
                 relativeLayoutContainer.addView(v, p);

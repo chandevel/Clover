@@ -22,6 +22,7 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -211,8 +212,7 @@ public class Chan4
             } else {
                 switch (arg.get("ext")) {
                     case "swf":
-                        return HttpUrl.parse(
-                                "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/swf_thumb.png");
+                        return HttpUrl.parse(BuildConfig.RESOURCES_ENDPOINT + "swf_thumb.png");
                     default:
                         return t.newBuilder()
                                 .addPathSegment(post.board.code)

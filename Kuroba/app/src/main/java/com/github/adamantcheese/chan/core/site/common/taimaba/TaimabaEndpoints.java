@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.common.taimaba;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -57,14 +58,12 @@ public class TaimabaEndpoints
     public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
         switch (arg.get("ext")) {
             case "swf":
-                return HttpUrl.parse(
-                        "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/swf_thumb.png");
+                return HttpUrl.parse(BuildConfig.RESOURCES_ENDPOINT + "swf_thumb.png");
             case "mp3":
             case "m4a":
             case "ogg":
             case "flac":
-                return HttpUrl.parse(
-                        "https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/audio_thumb.png");
+                return HttpUrl.parse(BuildConfig.RESOURCES_ENDPOINT + "audio_thumb.png");
             default:
                 return sys.builder().s(post.board.code).s("thumb").s(arg.get("tim") + "s.jpg").url();
         }
