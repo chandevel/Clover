@@ -76,8 +76,8 @@ public class Kun8
 
         setConfig(new CommonConfig() {
             @Override
-            public boolean feature(Feature feature) {
-                return feature == Feature.POSTING || feature == Feature.POST_DELETE;
+            public boolean siteFeature(SiteFeature siteFeature) {
+                return super.siteFeature(siteFeature) || siteFeature == SiteFeature.POSTING || siteFeature == SiteFeature.POST_DELETE;
             }
         });
 

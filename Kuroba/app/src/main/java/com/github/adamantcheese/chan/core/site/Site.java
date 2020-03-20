@@ -31,7 +31,7 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import java.util.List;
 
 public interface Site {
-    enum Feature {
+    enum SiteFeature {
         /**
          * This site supports posting. (Or rather, we've implemented support for it.)
          *
@@ -61,11 +61,16 @@ public interface Site {
          * @see SiteActions#login(LoginRequest, SiteActions.LoginListener)
          * @see SiteEndpoints#login()
          */
-        LOGIN
+        LOGIN,
+
+        /**
+         * This site reports image hashes.
+         */
+        IMAGE_FILE_HASH
     }
 
     /**
-     * Features available to check when {@link Feature#POSTING} is {@code true}.
+     * Features available to check when {@link SiteFeature#POSTING} is {@code true}.
      */
     enum BoardFeature {
         /**
@@ -146,7 +151,7 @@ public interface Site {
 
     SiteUrlHandler resolvable();
 
-    boolean feature(Feature feature);
+    boolean siteFeature(SiteFeature siteFeature);
 
     boolean boardFeature(BoardFeature boardFeature, Board board);
 

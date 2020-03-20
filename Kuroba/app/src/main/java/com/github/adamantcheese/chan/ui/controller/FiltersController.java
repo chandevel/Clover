@@ -152,6 +152,7 @@ public class FiltersController
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         databaseManager.getDatabaseFilterManager().updateFilters(adapter.sourceList);
     }
 

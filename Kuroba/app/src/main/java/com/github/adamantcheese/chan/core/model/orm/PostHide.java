@@ -119,8 +119,4 @@ public class PostHide {
         result = 31 * result + site;
         return result;
     }
-
-    public boolean equalsPost(Post post) {
-        return post.no == no && board.equals(post.board.code) && post.board.siteId == site;
-    }
 }

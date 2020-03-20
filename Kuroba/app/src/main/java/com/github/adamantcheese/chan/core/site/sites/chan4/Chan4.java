@@ -524,23 +524,8 @@ public class Chan4
     }
 
     @Override
-    public boolean feature(Feature feature) {
-        switch (feature) {
-            case POSTING:
-                // yes, we support posting.
-                return true;
-            case LOGIN:
-                // 4chan pass.
-                return true;
-            case POST_DELETE:
-                // yes, with the password saved when posting.
-                return true;
-            case POST_REPORT:
-                // yes, with a custom url
-                return true;
-            default:
-                return false;
-        }
+    public boolean siteFeature(SiteFeature siteFeature) {
+        return true; // everything is supported
     }
 
     @Override

@@ -876,7 +876,7 @@ public class ThreadPresenter
             menu.add(new FloatingMenuItem(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
 
-        if (loadable.getSite().feature(Site.Feature.POST_REPORT) && !loadable.isLocal()) {
+        if (loadable.getSite().siteFeature(Site.SiteFeature.POST_REPORT) && !loadable.isLocal()) {
             menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
         }
 
@@ -898,7 +898,7 @@ public class ThreadPresenter
             }
         }
 
-        if (loadable.site.feature(Site.Feature.POST_DELETE) && databaseManager.getDatabaseSavedReplyManager()
+        if (loadable.site.siteFeature(Site.SiteFeature.POST_DELETE) && databaseManager.getDatabaseSavedReplyManager()
                 .isSaved(post.board, post.no) && !loadable.isLocal()) {
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.post_delete));
         }

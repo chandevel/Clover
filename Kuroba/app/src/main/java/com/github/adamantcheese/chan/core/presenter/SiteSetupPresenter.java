@@ -23,7 +23,7 @@ public class SiteSetupPresenter {
         this.callback = callback;
         this.site = site;
 
-        hasLogin = site.feature(Site.Feature.LOGIN);
+        hasLogin = site.siteFeature(Site.SiteFeature.LOGIN);
 
         if (hasLogin) {
             callback.showLogin();

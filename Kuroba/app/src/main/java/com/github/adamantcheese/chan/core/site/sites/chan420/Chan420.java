@@ -98,8 +98,10 @@ public class Chan420
 
         setConfig(new CommonConfig() {
             @Override
-            public boolean feature(Feature feature) {
-                return feature == Feature.POSTING || feature == Feature.POST_REPORT;
+            public boolean siteFeature(SiteFeature siteFeature) {
+                //420chan doesn't support file hashes
+                return (super.siteFeature(siteFeature) && siteFeature != SiteFeature.IMAGE_FILE_HASH)
+                        || siteFeature == SiteFeature.POSTING || siteFeature == SiteFeature.POST_REPORT;
             }
         });
 

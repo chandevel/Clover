@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.webkit.WebView;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -44,7 +45,6 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Pages;
 
 import java.security.SecureRandom;
@@ -195,8 +195,8 @@ public abstract class CommonSite
     }
 
     @Override
-    public boolean feature(Feature feature) {
-        return config.feature(feature);
+    public boolean siteFeature(SiteFeature siteFeature) {
+        return config.siteFeature(siteFeature);
     }
 
     @Override
@@ -225,8 +225,9 @@ public abstract class CommonSite
     }
 
     public abstract class CommonConfig {
-        public boolean feature(Feature feature) {
-            return false;
+        @CallSuper
+        public boolean siteFeature(SiteFeature siteFeature) {
+            return siteFeature == SiteFeature.IMAGE_FILE_HASH;
         }
 
         public boolean boardFeature(BoardFeature boardFeature, Board board) {

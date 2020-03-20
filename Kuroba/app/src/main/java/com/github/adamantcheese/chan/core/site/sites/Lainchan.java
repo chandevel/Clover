@@ -108,8 +108,8 @@ public class Lainchan
 
         setConfig(new CommonConfig() {
             @Override
-            public boolean feature(Feature feature) {
-                return feature == Feature.POSTING;
+            public boolean siteFeature(SiteFeature siteFeature) {
+                return super.siteFeature(siteFeature) || siteFeature == SiteFeature.POSTING;
             }
         });
 

@@ -286,6 +286,7 @@ public class VichanApi
         int fileHeight = 0;
         boolean fileSpoiler = false;
         String fileName = null;
+        String fileHash = null;
 
         while (reader.hasNext()) {
             switch (reader.nextName()) {
@@ -310,6 +311,9 @@ public class VichanApi
                 case "filename":
                     fileName = reader.nextString();
                     break;
+                case "md5":
+                    fileHash = reader.nextString();
+                    break;
                 default:
                     reader.skipValue();
                     break;
@@ -330,6 +334,7 @@ public class VichanApi
                     .imageHeight(fileHeight)
                     .spoiler(fileSpoiler)
                     .size(fileSize)
+                    .fileHash(fileHash)
                     .build();
         }
         return null;
