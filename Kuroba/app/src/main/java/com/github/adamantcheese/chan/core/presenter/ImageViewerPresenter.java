@@ -140,7 +140,7 @@ public class ImageViewerPresenter
         // Pager is measured, but still invisible
         callback.startPreviewInTransition(loadable, images.get(selectedPosition));
         PostImage postImage = images.get(selectedPosition);
-        callback.setTitle(postImage, selectedPosition, images.size(), postImage.spoiler);
+        callback.setTitle(postImage, selectedPosition, images.size(), postImage.spoiler());
     }
 
     public boolean isTransitioning() {
@@ -295,7 +295,7 @@ public class ImageViewerPresenter
     private void onLowResInCenter() {
         PostImage postImage = images.get(selectedPosition);
 
-        if (imageAutoLoad(loadable, postImage) && (!postImage.spoiler || ChanSettings.revealimageSpoilers.get())) {
+        if (imageAutoLoad(loadable, postImage) && (!postImage.spoiler() || ChanSettings.revealimageSpoilers.get())) {
             if (postImage.type == STATIC) {
                 callback.setImageMode(postImage, BIGIMAGE, true);
             } else if (postImage.type == GIF) {
@@ -471,7 +471,7 @@ public class ImageViewerPresenter
         // Don't mistake a swipe when the pager is disabled as a tap
         if (viewPagerVisible) {
             PostImage postImage = images.get(selectedPosition);
-            if (imageAutoLoad(loadable, postImage) && !postImage.spoiler) {
+            if (imageAutoLoad(loadable, postImage) && !postImage.spoiler()) {
                 if (postImage.type == MOVIE && callback.getImageMode(postImage) != VIDEO) {
                     callback.setImageMode(postImage, VIDEO, true);
                 } else {
@@ -629,7 +629,7 @@ public class ImageViewerPresenter
         callback.setTitle(postImage,
                 position,
                 images.size(),
-                postImage.spoiler && callback.getImageMode(postImage) == LOWRES
+                postImage.spoiler() && callback.getImageMode(postImage) == LOWRES
         );
     }
 

@@ -249,7 +249,7 @@ public abstract class ThreadController
     }
 
     @Override
-    public void openFilterForTripcode(String tripcode) {
+    public void openFilterForType(FilterType type, String filterText) {
         FiltersController filtersController = new FiltersController(context);
         if (doubleNavigationController != null) {
             doubleNavigationController.pushController(filtersController);
@@ -258,8 +258,8 @@ public abstract class ThreadController
         }
 
         Filter filter = new Filter();
-        filter.type = FilterType.TRIPCODE.flag;
-        filter.pattern = '/' + tripcode + '/';
+        filter.type = type.flag;
+        filter.pattern = '/' + filterText + '/';
 
         filtersController.showFilterDialog(filter);
     }

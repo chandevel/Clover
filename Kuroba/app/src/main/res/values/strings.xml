@@ -172,6 +172,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="image_failed_big_image">Failed to show image (deep-zoom loading failed)</string>
     <string name="image_not_found">Image not found</string>
     <string name="image_spoiler_filename">Spoilered file</string>
+    <string name="image_hidden_filename">Hidden file</string>
     <string name="thread_boards_search_hint">Search</string>
     <string name="thread_load_failed_ssl">HTTPS error</string>
     <string name="thread_load_failed_network">Network error</string>
@@ -268,6 +269,7 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="filter_subject">Subject</string>
     <string name="filter_filename">Filename</string>
     <string name="filter_country_code">Country code</string>
+    <string name="filter_image_hash">Image hash</string>
 
     <string name="board_select_all">Select all</string>
     <string name="board_select_none">Select none</string>
@@ -295,6 +297,7 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="post_highlight_id">Highlight ID</string>
     <string name="post_highlight_tripcode">Highlight tripcode</string>
     <string name="post_filter_tripcode">Filter tripcode</string>
+    <string name="post_filter_image_hash">Filter image hash</string>
     <string name="post_text_copied">Text copied to clipboard</string>
     <string name="post_quote">Quote</string>
     <string name="post_quote_text">Quote text</string>

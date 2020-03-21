@@ -47,6 +47,7 @@ import static com.github.adamantcheese.chan.core.manager.FilterType.COMMENT;
 import static com.github.adamantcheese.chan.core.manager.FilterType.COUNTRY_CODE;
 import static com.github.adamantcheese.chan.core.manager.FilterType.FILENAME;
 import static com.github.adamantcheese.chan.core.manager.FilterType.ID;
+import static com.github.adamantcheese.chan.core.manager.FilterType.IMAGE;
 import static com.github.adamantcheese.chan.core.manager.FilterType.NAME;
 import static com.github.adamantcheese.chan.core.manager.FilterType.SUBJECT;
 import static com.github.adamantcheese.chan.core.manager.FilterType.TRIPCODE;
@@ -184,7 +185,11 @@ public class FilterEngine {
         }
     }
 
-    // This method must be a duplicate of the one below
+    /**
+     * @param filter the filter to use
+     * @param post   the post content to test against
+     * @return true if the filter matches and should be applied to the content, false if not
+     */
     @AnyThread
     public boolean matches(Filter filter, Post.Builder post) {
         if (!post.moderatorCapcode.equals("") || post.sticky) return false;
@@ -196,6 +201,19 @@ public class FilterEngine {
         if (typeMatches(filter, COMMENT) && matches(filter, post.comment.toString(), false)) return true;
         if (typeMatches(filter, ID) && matches(filter, post.posterId, false)) return true;
         if (typeMatches(filter, SUBJECT) && matches(filter, post.subject, false)) return true;
+        for (PostImage image : post.images) {
+            if (typeMatches(filter, IMAGE) && matches(filter, image.fileHash, false)) {
+                //for filtering image hashes, we don't want to apply the post-level filter (thus return false)
+                //this takes care of it at an image level, either flagging it to be hidden, which applies a
+                //custom spoiler image, or removes the image from the post entirely since this is a Post.Builder instance
+                if (filter.action == FilterAction.HIDE.id) {
+                    image.hidden = true;
+                } else if (filter.action == FilterAction.REMOVE.id) {
+                    post.images.remove(image);
+                }
+                return false;
+            }
+        }
 
         //figure out if the post has a country code, if so check the filter
         String countryCode = "";
@@ -223,6 +241,14 @@ public class FilterEngine {
         return false;
     }
 
+    /**
+     * This method is a rough duplicate of the one with Post.Builder
+     * However is only used for post-processing, like filter watching
+     *
+     * @param filter the filter to use
+     * @param post   the post content to test against
+     * @return true if the filter matches and should be applied to the content, false if not
+     */
     @AnyThread
     public boolean matches(Filter filter, Post post) {
         if (!post.capcode.equals("") || post.isSticky()) return false;
@@ -234,6 +260,10 @@ public class FilterEngine {
         if (typeMatches(filter, COMMENT) && matches(filter, post.comment.toString(), false)) return true;
         if (typeMatches(filter, ID) && matches(filter, post.id, false)) return true;
         if (typeMatches(filter, SUBJECT) && matches(filter, post.subject, false)) return true;
+        for (PostImage image : post.images) {
+            //for this case, we don't do any actions, so just return if it actually does match
+            if (typeMatches(filter, IMAGE) && matches(filter, image.fileHash, false)) return true;
+        }
 
         //figure out if the post has a country code, if so check the filter
         String countryCode = "";
@@ -249,16 +279,13 @@ public class FilterEngine {
             return true;
         }
 
-        if (post.images != null) {
-            StringBuilder files = new StringBuilder();
-            for (PostImage image : post.images) {
-                files.append(image.filename).append(" ");
-            }
-            String fnames = files.toString();
-            return !fnames.isEmpty() && typeMatches(filter, FILENAME) && matches(filter, fnames, false);
+        //images is not null, must be at least an empty collection here
+        StringBuilder files = new StringBuilder();
+        for (PostImage image : post.images) {
+            files.append(image.filename).append(" ");
         }
-
-        return false;
+        String fnames = files.toString();
+        return !fnames.isEmpty() && typeMatches(filter, FILENAME) && matches(filter, fnames, false);
     }
 
     @AnyThread

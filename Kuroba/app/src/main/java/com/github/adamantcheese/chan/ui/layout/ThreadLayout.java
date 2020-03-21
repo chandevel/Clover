@@ -27,9 +27,11 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -38,6 +40,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -442,7 +445,32 @@ public class ThreadLayout
 
     @Override
     public void filterPostTripcode(String tripcode) {
-        callback.openFilterForTripcode(tripcode);
+        callback.openFilterForType(FilterType.TRIPCODE, tripcode);
+    }
+
+    @Override
+    public void filterPostImageHash(Post post) {
+        if (post.images.isEmpty()) return;
+        if (post.images.size() == 1) {
+            callback.openFilterForType(FilterType.IMAGE, post.image().fileHash);
+        } else {
+            ListView hashList = new ListView(getContext());
+            AlertDialog dialog = new AlertDialog.Builder(getContext()).setTitle("Select an image to filter.")
+                    .setView(hashList)
+                    .create();
+            dialog.setCanceledOnTouchOutside(true);
+            List<String> hashes = new ArrayList<>();
+            for (PostImage image : post.images) {
+                hashes.add(image.fileHash);
+            }
+            hashList.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, hashes));
+            hashList.setOnItemClickListener((parent, view, position, id) -> {
+                callback.openFilterForType(FilterType.IMAGE, hashes.get(position));
+                dialog.dismiss();
+            });
+
+            dialog.show();
+        }
     }
 
     @Override
@@ -807,7 +835,7 @@ public class ThreadLayout
 
         Toolbar getToolbar();
 
-        void openFilterForTripcode(String tripcode);
+        void openFilterForType(FilterType type, String filterText);
 
         boolean threadBackPressed();
     }

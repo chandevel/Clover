@@ -67,7 +67,7 @@ public class PostImageThumbnailView
                 } else {
                     String fileName;
 
-                    if (postImage.spoiler) {
+                    if (postImage.spoiler()) {
                         String extension =
                                 StringUtils.extractFileNameExtension(postImage.spoilerThumbnailUrl.toString());
 
@@ -78,7 +78,7 @@ public class PostImageThumbnailView
                         fileName = ThreadSaveManager.formatThumbnailImageName(postImage.serverFilename, extension);
                     }
 
-                    setUrlFromDisk(loadable, fileName, postImage.spoiler, width, height);
+                    setUrlFromDisk(loadable, fileName, postImage.spoiler(), width, height);
                 }
             } else {
                 setUrl(null);
@@ -89,7 +89,7 @@ public class PostImageThumbnailView
     private String getUrl(PostImage postImage, boolean useHiRes) {
         String url = postImage.getThumbnailUrl().toString();
         if ((ChanSettings.autoLoadThreadImages.get() || ChanSettings.highResCells.get()) && useHiRes) {
-            if (!postImage.spoiler || ChanSettings.removeImageSpoilers.get()) {
+            if (!postImage.spoiler() || ChanSettings.removeImageSpoilers.get()) {
                 url = postImage.type == PostImage.Type.STATIC
                         ? postImage.imageUrl.toString()
                         : postImage.getThumbnailUrl().toString();

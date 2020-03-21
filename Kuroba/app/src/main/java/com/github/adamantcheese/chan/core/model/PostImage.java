@@ -21,6 +21,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -40,6 +41,8 @@ public class PostImage {
         SWF
     }
 
+    public boolean hidden;
+
     public final String serverFilename;
     public final HttpUrl thumbnailUrl;
     public final HttpUrl spoilerThumbnailUrl;
@@ -49,7 +52,7 @@ public class PostImage {
     public final String extension;
     public final int imageWidth;
     public final int imageHeight;
-    public final boolean spoiler;
+    private final boolean spoiler;
     public final boolean isInlined;
     public final long size;
     @Nullable
@@ -104,11 +107,19 @@ public class PostImage {
     }
 
     public HttpUrl getThumbnailUrl() {
-        if (!spoiler) {
+        if (!spoiler()) {
             return thumbnailUrl;
         } else {
-            return spoilerThumbnailUrl;
+            if (!hidden) {
+                return spoilerThumbnailUrl;
+            } else {
+                return HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "hide_thumb.png");
+            }
         }
+    }
+
+    public boolean spoiler() {
+        return spoiler || hidden;
     }
 
     public static final class Builder {

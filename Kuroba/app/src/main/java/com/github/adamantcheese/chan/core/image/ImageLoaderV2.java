@@ -61,7 +61,7 @@ public class ImageLoaderV2 {
             String formattedName;
             Logger.d(TAG, "Loading image " + getImageUrlForLogs(postImage) + " from the disk");
 
-            if (postImage.spoiler) {
+            if (postImage.spoiler()) {
                 String extension = StringUtils.extractFileNameExtension(postImage.spoilerThumbnailUrl.toString());
 
                 formattedName = ThreadSaveManager.formatSpoilerImageName(extension);
@@ -83,7 +83,7 @@ public class ImageLoaderV2 {
                 }
             }
 
-            return getFromDisk(loadable, formattedName, postImage.spoiler, imageListener, width, height, () -> {
+            return getFromDisk(loadable, formattedName, postImage.spoiler(), imageListener, width, height, () -> {
                 Logger.d(TAG, "Falling back to imageLoaderV1 load the image " + getImageUrlForLogs(postImage));
 
                 return imageLoader.get(postImage.getThumbnailUrl().toString(), imageListener, width, height);

@@ -30,7 +30,8 @@ public enum FilterType {
     ID(0x8),
     SUBJECT(0x10),
     FILENAME(0x20),
-    COUNTRY_CODE(0x40);
+    COUNTRY_CODE(0x40),
+    IMAGE(0x80);
 
     public final int flag;
 
@@ -64,6 +65,8 @@ public enum FilterType {
                 return getString(R.string.filter_filename);
             case COUNTRY_CODE:
                 return getString(R.string.filter_country_code);
+            case IMAGE:
+                return getString(R.string.filter_image_hash);
         }
         return null;
     }
