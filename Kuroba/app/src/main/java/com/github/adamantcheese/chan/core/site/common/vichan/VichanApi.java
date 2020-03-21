@@ -222,7 +222,7 @@ public class VichanApi
                     .imageHeight(fileHeight)
                     .spoiler(fileSpoiler)
                     .size(fileSize)
-                    .fileHash(fileHash)
+                    .fileHash(fileHash, true)
                     .build();
             // Insert it at the beginning.
             files.add(0, image);
@@ -334,7 +334,7 @@ public class VichanApi
                     .imageHeight(fileHeight)
                     .spoiler(fileSpoiler)
                     .size(fileSize)
-                    .fileHash(fileHash)
+                    .fileHash(fileHash, true)
                     .build();
         }
         return null;

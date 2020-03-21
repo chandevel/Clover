@@ -199,9 +199,13 @@ public class PostImage {
             return this;
         }
 
-        public Builder fileHash(String fileHash) {
+        public Builder fileHash(String fileHash, boolean encoded) {
             if (!TextUtils.isEmpty(fileHash)) {
-                this.fileHash = StringUtils.decodeBase64(fileHash);
+                if (encoded) {
+                    this.fileHash = StringUtils.decodeBase64(fileHash);
+                } else {
+                    this.fileHash = fileHash;
+                }
             }
 
             return this;

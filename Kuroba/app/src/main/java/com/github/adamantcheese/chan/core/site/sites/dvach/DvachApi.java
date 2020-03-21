@@ -214,6 +214,7 @@ public class DvachApi
                     break;
                 case "md5":
                     fileHash = reader.nextString();
+                    break;
                 default:
                     reader.skipValue();
                     break;
@@ -238,7 +239,7 @@ public class DvachApi
                     .imageWidth(fileWidth)
                     .imageHeight(fileHeight)
                     .size(fileSize)
-                    .fileHash(fileHash)
+                    .fileHash(fileHash, false)
                     .build();
         }
         return null;

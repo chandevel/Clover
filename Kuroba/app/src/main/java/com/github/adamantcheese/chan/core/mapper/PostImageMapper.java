@@ -70,7 +70,8 @@ public class PostImageMapper {
                 .imageHeight(serializablePostImage.getImageHeight())
                 .spoiler(serializablePostImage.isSpoiler())
                 .size(serializablePostImage.getSize())
-                .fileHash(serializablePostImage.getFileHash())
+                //hack for 2ch, everything else encodes their image hashes
+                .fileHash(serializablePostImage.getFileHash(), !serializablePostImage.getImageUrl().contains("2ch.hk"))
                 .build();
     }
 
