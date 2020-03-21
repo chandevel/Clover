@@ -41,7 +41,7 @@ public class PostImage {
         SWF
     }
 
-    public boolean hidden;
+    public boolean hidden = ChanSettings.hideImages.get();
 
     public final String serverFilename;
     public final HttpUrl thumbnailUrl;

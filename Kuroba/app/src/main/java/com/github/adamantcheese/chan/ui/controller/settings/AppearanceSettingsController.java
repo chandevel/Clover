@@ -221,6 +221,12 @@ public class AppearanceSettingsController
         {
             SettingsGroup images = new SettingsGroup(R.string.settings_group_images);
 
+            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
+                    ChanSettings.hideImages,
+                    R.string.setting_hide_images,
+                    R.string.setting_hide_images_description
+            )));
+
             images.add(new BooleanSettingView(this,
                     ChanSettings.removeImageSpoilers,
                     R.string.settings_remove_image_spoilers,
@@ -254,7 +260,8 @@ public class AppearanceSettingsController
             images.add(new BooleanSettingView(this,
                     ChanSettings.neverShowWebmControls,
                     "Never show WEBM controls",
-                    "Treats WEBMs like GIFs; tap to close, double tap to play/pause, always automatically loops."));
+                    "Treats WEBMs like GIFs; tap to close, double tap to play/pause, always automatically loops."
+            ));
 
             groups.add(images);
         }

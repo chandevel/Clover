@@ -454,6 +454,8 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="settings_group_images">Images</string>
 
     <!-- Appearance gallery group -->
+    <string name="setting_hide_images">Hide images</string>
+    <string name="setting_hide_images_description">Hides images when with a special spoiler image. If you want to save on data, turn this on.</string>
     <string name="setting_images_high_res">High resolution cells</string>
     <string name="setting_images_high_res_description">Make the album view and card catalog images higher resolution by pre-rescaling full size images</string>
     <string name="setting_images_immersive_mode_title">Use immersive mode for image gallery</string>
@@ -474,7 +476,7 @@ Note that for country code filtering, troll country codes should be prepended wi
 
     <!-- Behavior reply group -->
     <string name="setting_text_only">Text-only mode</string>
-    <string name="setting_text_only_description">Hide images when in board and thread view</string>
+    <string name="setting_text_only_description">Remove images when in board and thread view</string>
     <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
 
     <!-- Behavior post group -->
