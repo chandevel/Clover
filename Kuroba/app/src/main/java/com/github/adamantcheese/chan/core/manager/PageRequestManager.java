@@ -20,7 +20,6 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteActions;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Pages;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.ThreadNoTimeModPair;

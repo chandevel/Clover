@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.database;
 
 import android.annotation.SuppressLint;
+
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;

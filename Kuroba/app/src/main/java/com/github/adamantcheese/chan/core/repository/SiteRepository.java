@@ -1,8 +1,9 @@
 package com.github.adamantcheese.chan.core.repository;
 
 import android.text.TextUtils;
-import androidx.core.util.Pair;
 import android.util.SparseArray;
+
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;

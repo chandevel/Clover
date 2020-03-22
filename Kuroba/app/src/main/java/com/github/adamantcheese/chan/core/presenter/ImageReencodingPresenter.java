@@ -19,9 +19,9 @@ package com.github.adamantcheese.chan.core.presenter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import androidx.core.util.Pair;
 
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;

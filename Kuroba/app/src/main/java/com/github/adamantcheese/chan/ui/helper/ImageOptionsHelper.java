@@ -2,10 +2,10 @@ package com.github.adamantcheese.chan.ui.helper;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import androidx.core.util.Pair;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;

@@ -4,11 +4,11 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import androidx.core.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.math.MathUtils;
+import androidx.core.util.Pair;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;

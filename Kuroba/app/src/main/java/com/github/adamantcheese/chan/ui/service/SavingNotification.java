@@ -32,7 +32,6 @@ import androidx.core.app.NotificationCompat;
 
 import com.github.adamantcheese.chan.R;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 

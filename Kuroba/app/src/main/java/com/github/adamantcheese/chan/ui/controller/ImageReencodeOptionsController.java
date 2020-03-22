@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import androidx.core.util.Pair;
 import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
@@ -13,6 +12,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatSeekBar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;

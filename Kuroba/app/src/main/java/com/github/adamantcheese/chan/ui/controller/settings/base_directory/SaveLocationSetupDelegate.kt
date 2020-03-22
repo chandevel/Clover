@@ -1,7 +1,7 @@
 package com.github.adamantcheese.chan.ui.controller.settings.base_directory
 
-import androidx.appcompat.app.AlertDialog
 import android.content.Context
+import androidx.appcompat.app.AlertDialog
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter
 import com.github.adamantcheese.chan.core.settings.ChanSettings
