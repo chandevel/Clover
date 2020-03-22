@@ -78,6 +78,9 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.BuildType.Development;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.BuildType.Other;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.BuildType.Release;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
@@ -136,14 +139,24 @@ public class AndroidUtils {
         return getAppContext().getSharedPreferences(CHAN_STATE_PREFS_NAME, MODE_PRIVATE);
     }
 
-    public static boolean getIsOfficial() {
+    public enum BuildType {
+        Development,
+        Release,
+        Other
+    }
+
+    public static BuildType getBuildType() {
         try {
             @SuppressLint("PackageManagerGetSignatures")
             Signature sig = application.getPackageManager()
                     .getPackageInfo(application.getPackageName(), PackageManager.GET_SIGNATURES).signatures[0];
-            return BuildConfig.SIGNATURE.equals(Integer.toHexString(sig.toCharsString().hashCode()));
+            String buildSig = Integer.toHexString(sig.toCharsString().hashCode());
+            Logger.d(TAG, "Build Signature: " + buildSig);
+            boolean isRelease = BuildConfig.SIGNATURE.equals(buildSig);
+            boolean isDev = BuildConfig.DEV_SIGNATURE.equals(buildSig);
+            return isRelease ? Release : (isDev ? Development : Other);
         } catch (Exception ignored) {
-            return false;
+            return Other;
         }
     }
 
