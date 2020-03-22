@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.service;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -68,45 +69,44 @@ public class SavingNotification
         getNotificationManager().cancel(NOTIFICATION_ID);
     }
 
+    @SuppressLint("NewApi")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        //start with a blank notification, to ensure it is made within 5 seconds
+        startForeground(NOTIFICATION_ID, new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).build());
         if (intent != null && intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
-
             if (extras.getBoolean(CANCEL_KEY)) {
                 postToEventBus(new SavingCancelRequestMessage());
-                startForeground(NOTIFICATION_ID, new Notification());
                 stopSelf();
                 return START_NOT_STICKY;
             } else {
                 doneTasks = extras.getInt(DONE_TASKS_KEY);
                 totalTasks = extras.getInt(TOTAL_TASKS_KEY);
+                //replace the notification with the generated one
                 startForeground(NOTIFICATION_ID, getNotification());
                 return START_STICKY;
             }
         }
-        startForeground(NOTIFICATION_ID, new Notification());
         stopSelf();
         return START_NOT_STICKY;
     }
 
     private Notification getNotification() {
-        synchronized (this) {
-            Intent intent = new Intent(this, SavingNotification.class);
-            intent.putExtra(CANCEL_KEY, true);
-            PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent = new Intent(this, SavingNotification.class);
+        intent.putExtra(CANCEL_KEY, true);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext(), NOTIFICATION_ID_STR);
-            builder.setSmallIcon(R.drawable.ic_stat_notify)
-                    .setContentTitle(getString(R.string.image_save_notification_downloading))
-                    .setContentText(getString(R.string.image_save_notification_cancel))
-                    .setProgress(totalTasks, doneTasks, false)
-                    .setContentInfo(doneTasks + "/" + totalTasks)
-                    .setContentIntent(pendingIntent)
-                    .setOngoing(true);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_ID_STR);
+        builder.setSmallIcon(R.drawable.ic_stat_notify)
+                .setContentTitle(getString(R.string.image_save_notification_downloading))
+                .setContentText(getString(R.string.image_save_notification_cancel))
+                .setProgress(totalTasks, doneTasks, false)
+                .setContentInfo(doneTasks + "/" + totalTasks)
+                .setContentIntent(pendingIntent)
+                .setOngoing(true);
 
-            return builder.build();
-        }
+        return builder.build();
     }
 
     public static class SavingCancelRequestMessage {}

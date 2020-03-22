@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.service;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -66,6 +67,7 @@ import javax.inject.Inject;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ONLY_QUOTES;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 
@@ -135,20 +137,24 @@ public class WatchNotification
         getNotificationManager().cancel(NOTIFICATION_ID);
     }
 
+    @SuppressLint("NewApi")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        //start with a blank notification, to ensure it is made within 5 seconds
+        startForeground(NOTIFICATION_ID, new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).build());
+
         if (intent != null && intent.getExtras() != null && intent.getExtras().getBoolean(PAUSE_PINS_KEY, false)) {
             watchManager.pauseAll();
         }
-        Notification notification = createNotification();
+
+        Notification notification = createNotification(); //this may take more than 5 seconds to generate
         if (notification == null) {
             Logger.d(TAG, "onStartCommand() createNotification returned null");
-            startForeground(NOTIFICATION_ID, new Notification());
             stopSelf();
             return START_NOT_STICKY;
         }
 
-        // Do not remove this or the app will blow up on Android.Oreo and above
+        //replace the notification with the properly generated one
         startForeground(NOTIFICATION_ID, notification);
         return START_STICKY;
     }
