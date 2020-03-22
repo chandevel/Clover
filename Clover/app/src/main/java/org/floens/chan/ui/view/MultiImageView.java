@@ -20,6 +20,7 @@ package org.floens.chan.ui.view;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.AudioManager;
@@ -235,7 +236,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             public void onErrorResponse(VolleyError error) {
                 thumbnailRequest = null;
                 if (center) {
-                    onError();
+                    onError(error);
                 }
             }
 
@@ -286,7 +287,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 if (notFound) {
                     onNotFoundError();
                 } else {
-                    onError();
+                    onError(new Exception());
                 }
             }
 
@@ -335,7 +336,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 if (notFound) {
                     onNotFoundError();
                 } else {
-                    onError();
+                    onError(new Exception());
                 }
             }
 
@@ -366,7 +367,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             }
         } catch (IOException e) {
             e.printStackTrace();
-            onError();
+            onError(new Exception());
             return;
         } catch (OutOfMemoryError e) {
             Runtime.getRuntime().gc();
@@ -404,7 +405,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 if (notFound) {
                     onNotFoundError();
                 } else {
-                    onError();
+                    onError(new Exception());
                 }
             }
 
@@ -561,8 +562,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         });
     }
 
-    private void onError() {
-        Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_SHORT).show();
+    private void onError(Exception e) {
+        String message = getContext().getString(R.string.image_preview_failed);
+        String extra = e.getMessage() == null ? "" : ": " + e.getMessage();
+        Toast.makeText(getContext(), message + extra, Toast.LENGTH_SHORT).show();
         callback.showProgress(this, false);
     }
 
@@ -630,6 +633,21 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
         hasContent = true;
         callback.onModeLoaded(this, mode);
+    }
+
+    @Override
+    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+        if (child instanceof GifImageView) {
+            GifImageView gif = (GifImageView) child;
+            if (gif.getDrawable() instanceof GifDrawable) {
+                GifDrawable drawable = (GifDrawable) gif.getDrawable();
+                if (drawable.getFrameByteCount() > 100 * 1024 * 1024) { //max size from RecordingCanvas
+                    onError(new Exception("Uncompressed GIF too large (>100MB)"));
+                    return false;
+                }
+            }
+        }
+        return super.drawChild(canvas, child, drawingTime);
     }
 
     public interface Callback {
