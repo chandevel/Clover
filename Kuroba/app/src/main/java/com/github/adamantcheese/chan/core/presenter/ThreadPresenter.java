@@ -897,7 +897,7 @@ public class ThreadPresenter
                 menu.add(new FloatingMenuItem(POST_OPTION_FILTER_TRIPCODE, R.string.post_filter_tripcode));
             }
 
-            if(loadable.site.siteFeature(Site.SiteFeature.IMAGE_FILE_HASH)) {
+            if (loadable.site.siteFeature(Site.SiteFeature.IMAGE_FILE_HASH) && !post.images.isEmpty()) {
                 menu.add(new FloatingMenuItem(POST_OPTION_FILTER_IMAGE_HASH, R.string.post_filter_image_hash));
             }
         }
