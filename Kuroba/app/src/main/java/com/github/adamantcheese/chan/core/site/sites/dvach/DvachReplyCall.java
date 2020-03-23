@@ -86,10 +86,10 @@ public class DvachReplyCall
         RequestBody requestBody;
 
         if (progressListener == null) {
-            requestBody = RequestBody.create(MediaType.parse("application/octet-stream"), reply.file);
+            requestBody = RequestBody.create(reply.file, MediaType.parse("application/octet-stream"));
         } else {
             requestBody =
-                    new ProgressRequestBody(RequestBody.create(MediaType.parse("application/octet-stream"), reply.file),
+                    new ProgressRequestBody(RequestBody.create(reply.file, MediaType.parse("application/octet-stream")),
                             progressListener
                     );
         }

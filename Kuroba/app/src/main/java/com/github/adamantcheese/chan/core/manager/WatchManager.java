@@ -1266,7 +1266,7 @@ public class WatchManager
                     && pin.loadable.getLoadableDownloadingState() != DownloadingAndViewable && (thread.isArchived()
                     || thread.isClosed())) {
                 NetworkResponse networkResponse =
-                        new NetworkResponse(503, EMPTY_BYTE_ARRAY, Collections.emptyMap(), true);
+                        new NetworkResponse(503, EMPTY_BYTE_ARRAY, true, 1, Collections.emptyList());
                 ServerError serverError = new ServerError(networkResponse);
 
                 pin.isError = true;

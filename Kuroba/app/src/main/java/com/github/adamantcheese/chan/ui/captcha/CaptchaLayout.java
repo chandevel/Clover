@@ -142,7 +142,7 @@ public class CaptchaLayout
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
         cookieManager.setAcceptThirdPartyCookies(this, true);
-        cookieManager.removeAllCookie();
+        cookieManager.removeAllCookies(null);
 
         for (String c : jsCaptchaCookiesJar.getCookies()) {
             cookieManager.setCookie(COOKIE_DOMAIN, c);

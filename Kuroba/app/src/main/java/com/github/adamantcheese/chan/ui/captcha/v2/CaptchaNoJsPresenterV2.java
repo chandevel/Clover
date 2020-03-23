@@ -260,7 +260,7 @@ public class CaptchaNoJsPresenterV2 {
             resultBody = sb.toString();
         }
 
-        return MultipartBody.create(MediaType.parse(mediaType), resultBody);
+        return MultipartBody.create(resultBody, MediaType.parse(mediaType));
     }
 
     @Nullable
