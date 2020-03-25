@@ -82,7 +82,9 @@ public class Dvach
     public Dvach() {
         chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(
                 // 2ch.hk sends file size in KB
-                false, true);
+                false,
+                // 2ch.hk sometimes sends an incorrect file hash
+                false);
     }
 
     @Override
