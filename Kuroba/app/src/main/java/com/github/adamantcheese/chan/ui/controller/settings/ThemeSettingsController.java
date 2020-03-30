@@ -124,7 +124,7 @@ public class ThemeSettingsController
         }
 
         @Override
-        public void onPostOptionClicked(Post post, Object id, boolean inPopup) {
+        public void onPostOptionClicked(View anchor, Post post, Object id, boolean inPopup) {
         }
 
         @Override

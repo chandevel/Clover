@@ -107,7 +107,7 @@ public class PostStubCell
                     showOptions(anchor, extraItems, null, null);
                 }
 
-                callback.onPostOptionClicked(post, item.getId(), false);
+                callback.onPostOptionClicked(anchor, post, item.getId(), false);
             }
 
             @Override

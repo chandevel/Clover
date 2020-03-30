@@ -296,8 +296,6 @@ Note that for country code filtering, troll country codes should be prepended wi
 
     <string name="post_highlight_id">Highlight ID</string>
     <string name="post_highlight_tripcode">Highlight tripcode</string>
-    <string name="post_filter_tripcode">Filter tripcode</string>
-    <string name="post_filter_image_hash">Filter image hash</string>
     <string name="post_text_copied">Text copied to clipboard</string>
     <string name="post_quote">Quote</string>
     <string name="post_quote_text">Quote text</string>
@@ -314,6 +312,7 @@ Note that for country code filtering, troll country codes should be prepended wi
     <string name="thread_hidden">Thread hidden</string>
     <string name="thread_removed">Thread removed</string>
     <string name="post_delete">Delete</string>
+    <string name="post_filter">Filter…</string>
     <string name="post_more">More…</string>
     <string name="reply_name">Name</string>
     <string name="reply_options">Options</string>

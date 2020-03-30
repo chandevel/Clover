@@ -43,6 +43,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -441,6 +442,46 @@ public class ThreadLayout
     @Override
     public void highlightPostTripcode(String tripcode) {
         threadListLayout.highlightPostTripcode(tripcode);
+    }
+
+    @Override
+    public void filterPostSubject(String subject) {
+        callback.openFilterForType(FilterType.SUBJECT, subject);
+    }
+
+    @Override
+    public void filterPostName(String name) {
+        callback.openFilterForType(FilterType.NAME, name);
+    }
+
+    @Override
+    public void filterPostID(String id) {
+        callback.openFilterForType(FilterType.ID, id);
+    }
+
+    @Override
+    public void filterPostComment(CharSequence comment) {
+        callback.openFilterForType(FilterType.COMMENT, comment.toString());
+    }
+
+    @Override
+    public void filterPostCountryCode(Post post) {
+        String countryCode = "";
+        if (post.httpIcons != null && !post.httpIcons.isEmpty()) {
+            for (PostHttpIcon icon : post.httpIcons) {
+                if (icon.url.toString().contains("troll") || icon.url.toString().contains("country")) {
+                    countryCode = icon.name.substring(icon.name.indexOf('/') + 1);
+                    break;
+                }
+            }
+        }
+        callback.openFilterForType(FilterType.COUNTRY_CODE, countryCode);
+    }
+
+    @Override
+    public void filterPostFilename(Post post) {
+        if (post.images.isEmpty()) return;
+        callback.openFilterForType(FilterType.FILENAME, post.image().filename);
     }
 
     @Override
