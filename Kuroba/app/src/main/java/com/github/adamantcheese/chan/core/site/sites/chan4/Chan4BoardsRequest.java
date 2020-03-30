@@ -144,6 +144,7 @@ public class Chan4BoardsRequest
                 case "preupload_captcha":
                     board.preuploadCaptcha = reader.nextInt() == 1;
                     break;
+                case "troll_flags":
                 case "country_flags":
                     board.countryFlags = reader.nextInt() == 1;
                     break;
