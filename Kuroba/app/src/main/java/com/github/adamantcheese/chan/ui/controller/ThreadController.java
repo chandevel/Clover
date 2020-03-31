@@ -259,7 +259,7 @@ public abstract class ThreadController
 
         Filter filter = new Filter();
         filter.type = type.flag;
-        filter.pattern = '/' + filterText + '/';
+        filter.pattern = '/' + (filterText == null ? "" : filterText) + '/';
 
         filtersController.showFilterDialog(filter);
     }
