@@ -18,8 +18,10 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.AndroidRuntimeException;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -31,6 +33,7 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
 public class ReportController
         extends Controller {
@@ -50,17 +53,30 @@ public class ReportController
         Site site = post.board.site;
         HttpUrl url = site.endpoints().report(post);
 
-        WebView webView = new WebView(context);
+        try {
+            WebView webView = new WebView(context);
 
-        SiteRequestModifier siteRequestModifier = site.requestModifier();
-        if (siteRequestModifier != null) {
-            siteRequestModifier.modifyWebView(webView);
+            SiteRequestModifier siteRequestModifier = site.requestModifier();
+            if (siteRequestModifier != null) {
+                siteRequestModifier.modifyWebView(webView);
+            }
+
+            WebSettings settings = webView.getSettings();
+            settings.setJavaScriptEnabled(true);
+            settings.setDomStorageEnabled(true);
+            webView.loadUrl(url.toString());
+            view = webView;
+        } catch (Throwable error) {
+            String errmsg = "";
+            if (error instanceof AndroidRuntimeException && error.getMessage() != null) {
+                if (error.getMessage().contains("MissingWebViewPackageException")) {
+                    errmsg = getString(R.string.fail_reason_webview_is_not_installed);
+                }
+            } else {
+                errmsg = getString(R.string.fail_reason_some_part_of_webview_not_initialized, error.getMessage());
+            }
+            view = inflate(context, R.layout.layout_webview_error);
+            ((TextView) view.findViewById(R.id.text)).setText(errmsg);
         }
-
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        webView.loadUrl(url.toString());
-        view = webView;
     }
 }

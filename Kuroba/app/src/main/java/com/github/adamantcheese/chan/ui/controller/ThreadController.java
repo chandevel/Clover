@@ -21,9 +21,7 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
-import android.util.AndroidRuntimeException;
 import android.view.KeyEvent;
-import android.widget.Toast;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -48,7 +46,6 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -173,21 +170,7 @@ public abstract class ThreadController
 
     @Override
     public void openReportController(final Post post) {
-        try {
-            navigationController.pushController(new ReportController(context, post));
-        } catch (Throwable error) {
-            if (error instanceof AndroidRuntimeException && error.getMessage() != null) {
-                if (error.getMessage().contains("MissingWebViewPackageException")) {
-                    showToast(context, R.string.fail_reason_webview_is_not_installed, Toast.LENGTH_LONG);
-                }
-            } else {
-                showToast(
-                        context,
-                        getString(R.string.fail_reason_some_part_of_webview_not_initialized, error.getMessage()),
-                        Toast.LENGTH_LONG
-                );
-            }
-        }
+        navigationController.pushController(new ReportController(context, post));
     }
 
     public void selectPostImage(PostImage postImage) {

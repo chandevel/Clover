@@ -18,9 +18,15 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.AndroidRuntimeException;
 import android.webkit.WebView;
+import android.widget.TextView;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 
 public class LicensesController
         extends Controller {
@@ -39,9 +45,22 @@ public class LicensesController
 
         navigation.title = title;
 
-        WebView webView = new WebView(context);
-        webView.loadUrl(url);
-        webView.setBackgroundColor(Color.WHITE);
-        view = webView;
+        try {
+            WebView webView = new WebView(context);
+            webView.loadUrl(url);
+            webView.setBackgroundColor(Color.WHITE);
+            view = webView;
+        } catch (Throwable error) {
+            String errmsg = "";
+            if (error instanceof AndroidRuntimeException && error.getMessage() != null) {
+                if (error.getMessage().contains("MissingWebViewPackageException")) {
+                    errmsg = getString(R.string.fail_reason_webview_is_not_installed);
+                }
+            } else {
+                errmsg = getString(R.string.fail_reason_some_part_of_webview_not_initialized, error.getMessage());
+            }
+            view = inflate(context, R.layout.layout_webview_error);
+            ((TextView) view.findViewById(R.id.text)).setText(errmsg);
+        }
     }
 }
