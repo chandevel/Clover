@@ -862,4 +862,6 @@ Don't have a 4chan Pass?<br>
     <string name="setting_allow_okhttp_http2">Allow OkHttp to use HTTP/2 protocol</string>
     <string name="setting_allow_okhttp_ipv6">Allow OkHttp to use IPv6</string>
     <string name="setting_allow_okhttp_http2_ipv6_description">Disabling this setting may resolve issues with images not loading whatsoever in some rare cases. Try disabling this setting if images refuse to start loading.</string>
+    
+    <string name="file_has_exif_data">This file has exif data. Consider re-encoding it before posting.</string>
 </resources>

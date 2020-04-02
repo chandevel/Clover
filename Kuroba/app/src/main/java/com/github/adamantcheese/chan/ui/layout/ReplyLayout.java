@@ -24,6 +24,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AndroidRuntimeException;
 import android.util.AttributeSet;
@@ -567,12 +568,13 @@ public class ReplyLayout
     }
 
     @Override
-    public void openMessage(boolean open, boolean animate, String text, boolean autoHide) {
+    public void openMessage(String text) {
+        if (text == null) text = "";
         removeCallbacks(closeMessageRunnable);
         message.setText(text);
-        message.setVisibility(open ? VISIBLE : GONE);
+        message.setVisibility(TextUtils.isEmpty(text) ? GONE : VISIBLE);
 
-        if (autoHide) {
+        if (!TextUtils.isEmpty(text)) {
             postDelayed(closeMessageRunnable, 5000);
         }
     }

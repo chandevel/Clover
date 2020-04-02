@@ -20,6 +20,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import androidx.exifinterface.media.ExifInterface;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
@@ -252,7 +254,7 @@ public class ReplyPresenter
                 } else {
                     String errorMessage = getString(R.string.reply_error_message_timer_reply, timeLeft);
                     switchPage(Page.INPUT);
-                    callback.openMessage(true, false, errorMessage, true);
+                    callback.openMessage(errorMessage);
                 }
             } else {
                 long timeLeft = lastReplyRepository.getTimeUntilThread(draft.loadable.board);
@@ -261,7 +263,7 @@ public class ReplyPresenter
                 } else {
                     String errorMessage = getString(R.string.reply_error_message_timer_thread, timeLeft);
                     switchPage(Page.INPUT);
-                    callback.openMessage(true, false, errorMessage, true);
+                    callback.openMessage(errorMessage);
                 }
             }
         } else {
@@ -281,7 +283,7 @@ public class ReplyPresenter
         callback.loadViewsIntoDraft(draft);
 
         if (!isAuthenticateOnly && (draft.comment.trim().isEmpty() && draft.file == null)) {
-            callback.openMessage(true, false, getString(R.string.reply_comment_empty), true);
+            callback.openMessage(getString(R.string.reply_comment_empty));
             return false;
         }
 
@@ -362,7 +364,7 @@ public class ReplyPresenter
 
             Logger.e(TAG, "onPostComplete error", errorMessage);
             switchPage(Page.INPUT);
-            callback.openMessage(true, false, errorMessage, true);
+            callback.openMessage(errorMessage);
         }
     }
 
@@ -386,7 +388,7 @@ public class ReplyPresenter
             }
         }
 
-        callback.openMessage(true, false, errorMessage, true);
+        callback.openMessage(errorMessage);
     }
 
     @Override
@@ -488,6 +490,13 @@ public class ReplyPresenter
         pickingFile = false;
         draft.file = file;
         draft.fileName = name;
+        try {
+            ExifInterface exif = new ExifInterface(file.getAbsolutePath());
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            if (orientation != ExifInterface.ORIENTATION_UNDEFINED) {
+                callback.openMessage(getString(R.string.file_has_exif_data));
+            }
+        } catch (Exception ignored) {}
         showPreview(name, file);
     }
 
@@ -503,7 +512,7 @@ public class ReplyPresenter
         moreOpen = false;
         previewOpen = false;
         selectedQuote = -1;
-        callback.openMessage(false, true, "", false);
+        callback.openMessage(null);
         callback.setExpanded(false);
         callback.openSubject(false);
         callback.openFlag(false);
@@ -643,7 +652,7 @@ public class ReplyPresenter
 
         void resetAuthentication();
 
-        void openMessage(boolean open, boolean animate, String message, boolean autoHide);
+        void openMessage(String message);
 
         void onPosted();
 
