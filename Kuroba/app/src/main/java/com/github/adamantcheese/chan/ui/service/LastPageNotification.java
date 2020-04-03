@@ -46,6 +46,7 @@ public class LastPageNotification
 
     public static void setupChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (getNotificationManager().getNotificationChannel(NOTIFICATION_ID_STR) != null) return;
             NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID_STR,
                     "Last page notification",
                     NotificationManager.IMPORTANCE_HIGH
@@ -65,6 +66,7 @@ public class LastPageNotification
 
     @Override
     public boolean onStartJob(JobParameters params) {
+        setupChannel();
         int pinId = params.getExtras().getInt(PIN_ID_KEY);
         boolean notify = params.getExtras().getInt(NOTIFY_KEY) == 1;
         Pin forPin = watchManager.findPinById(pinId);

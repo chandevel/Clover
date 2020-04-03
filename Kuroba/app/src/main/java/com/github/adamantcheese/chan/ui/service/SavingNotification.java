@@ -49,6 +49,7 @@ public class SavingNotification
 
     public static void setupChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (getNotificationManager().getNotificationChannel(NOTIFICATION_ID_STR) != null) return;
             getNotificationManager().createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR,
                     "Save notification",
                     NotificationManager.IMPORTANCE_LOW
@@ -60,6 +61,12 @@ public class SavingNotification
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        setupChannel();
     }
 
     @Override

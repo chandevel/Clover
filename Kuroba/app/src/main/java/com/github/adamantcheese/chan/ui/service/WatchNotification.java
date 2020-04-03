@@ -95,8 +95,11 @@ public class WatchNotification
 
     public static void setupChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = getNotificationManager();
+            if (notificationManager.getNotificationChannel(NOTIFICATION_ID_STR) != null
+                    && notificationManager.getNotificationChannel(NOTIFICATION_ID_ALERT_STR) != null) return;
             //notification channel for non-alerts
-            getNotificationManager().createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR,
+            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR,
                     NOTIFICATION_NAME,
                     NotificationManager.IMPORTANCE_MIN
             ));
@@ -113,7 +116,7 @@ public class WatchNotification
             );
             alert.enableLights(true);
             alert.setLightColor(0xff91e466);
-            getNotificationManager().createNotificationChannel(alert);
+            notificationManager.createNotificationChannel(alert);
         }
     }
 
@@ -139,6 +142,7 @@ public class WatchNotification
     @SuppressLint("NewApi")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        setupChannel();
         //start with a blank notification, to ensure it is made within 5 seconds
         startForeground(NOTIFICATION_ID, new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).build());
 
