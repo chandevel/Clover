@@ -42,6 +42,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
@@ -204,6 +205,14 @@ public class WatchManager
 
     public boolean createPin(Loadable loadable) {
         return createPin(loadable, null, PinType.WATCH_NEW_POSTS);
+    }
+
+    public boolean createPin(Loadable loadable, Reply newThreadOP) {
+        //use a dummy post with just the subject/comment copied in for getting the right title
+        return createPin(loadable,
+                new Post.Builder().subject(newThreadOP.subject).comment(newThreadOP.comment).build(),
+                PinType.WATCH_NEW_POSTS
+        );
     }
 
     public boolean createPin(Loadable loadable, @Nullable Post opPost, int pinType) {

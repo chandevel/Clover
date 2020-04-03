@@ -332,7 +332,7 @@ public class ReplyPresenter
                     }
                 } else {
                     //new thread
-                    watchManager.createPin(localLoadable);
+                    watchManager.createPin(localLoadable, draft);
                 }
             }
 
