@@ -179,6 +179,9 @@ public class CommentParserHelper {
                 } catch (Exception ignored) {
                     //fall back to just showing the URL, otherwise it will display "null" which is pretty useless
                 }
+            } else {
+                title = cachedInfo.first;
+                duration = cachedInfo.second;
             }
             //prepend two spaces for the youtube icon later
             String extraDur = ChanSettings.parseYoutubeDuration.get() ? (duration != null ? " " + duration : "") : "";
