@@ -132,7 +132,7 @@ public class Kun8
             @Override
             public SiteAuthentication postAuthenticate() {
                 return SiteAuthentication.fromUrl(
-                        "https://sys.8kun.top/dnsbls_bypass_popup.php?_=" + System.currentTimeMillis(),
+                        "https://sys.8kun.top/dnsbls_bypass.php",
                         "You failed the CAPTCHA",
                         "You may now go back and make your post"
                 );
