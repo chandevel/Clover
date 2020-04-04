@@ -20,6 +20,8 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.vdurmont.emoji.EmojiParser;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -416,7 +418,11 @@ public class Post
         }
 
         public Builder name(String name) {
-            this.name = name;
+            if (ChanSettings.enableEmoji.get()) {
+                this.name = EmojiParser.parseToUnicode(name);
+            } else {
+                this.name = name;
+            }
             return this;
         }
 

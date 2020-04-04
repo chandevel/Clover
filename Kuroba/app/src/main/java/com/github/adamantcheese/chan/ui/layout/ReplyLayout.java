@@ -76,6 +76,8 @@ import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
+import com.vdurmont.emoji.EmojiParser;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -542,13 +544,17 @@ public class ReplyLayout
 
     @Override
     public void loadDraftIntoViews(Reply draft) {
+        if (ChanSettings.enableEmoji.get()) {
+            draft.name = EmojiParser.parseToUnicode(draft.name);
+            draft.comment = EmojiParser.parseToUnicode(draft.comment);
+        }
+
         name.setText(draft.name);
         subject.setText(draft.subject);
         flag.setText(draft.flag);
         options.setText(draft.options);
         blockSelectionChange = true;
         comment.setText(draft.comment);
-        comment.setSelection(draft.selectionStart, draft.selectionEnd);
         blockSelectionChange = false;
         fileName.setText(draft.fileName);
         spoiler.setChecked(draft.spoilerImage);
@@ -561,10 +567,27 @@ public class ReplyLayout
         draft.flag = flag.getText().toString();
         draft.options = options.getText().toString();
         draft.comment = comment.getText().toString();
-        draft.selectionStart = comment.getSelectionStart();
-        draft.selectionEnd = comment.getSelectionEnd();
         draft.fileName = fileName.getText().toString();
         draft.spoilerImage = spoiler.isChecked();
+
+        if (ChanSettings.enableEmoji.get()) {
+            draft.name = StringUtils.parseEmojiToAscii(draft.name);
+            draft.comment = StringUtils.parseEmojiToAscii(draft.comment);
+        }
+    }
+
+    @Override
+    public int getSelectionStart() {
+        return comment.getSelectionStart();
+    }
+
+    @Override
+    public void adjustSelection(int start, int amount) {
+        try {
+            comment.setSelection(start + amount);
+        } catch (Exception e) {
+            comment.setSelection(comment.getText().length()); // set selection to the end if it fails for any reason
+        }
     }
 
     @Override

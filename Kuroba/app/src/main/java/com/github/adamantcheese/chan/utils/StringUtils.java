@@ -5,6 +5,8 @@ import android.util.Base64;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.vdurmont.emoji.EmojiParser;
+
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -128,5 +130,13 @@ public class StringUtils {
             }
         }
         return false;
+    }
+
+    public static String parseEmojiToAscii(String input) {
+        return EmojiParser.parseFromUnicode(
+                input,
+                e -> ":" + e.getEmoji().getAliases().get(0) + (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "")
+                        + ": "
+        );
     }
 }
