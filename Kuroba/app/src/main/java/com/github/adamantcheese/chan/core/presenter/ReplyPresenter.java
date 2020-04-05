@@ -218,7 +218,7 @@ public class ReplyPresenter
                 if (moreOpen) {
                     callback.openFileName(false);
                     if (board.spoilers) {
-                        callback.openSpoiler(false, false);
+                        callback.openSpoiler(false, true);
                     }
                 }
                 previewOpen = false;
@@ -511,7 +511,7 @@ public class ReplyPresenter
         callback.openCommentSJISButton(false);
         callback.openNameOptions(false);
         callback.openFileName(false);
-        callback.openSpoiler(false, false);
+        callback.openSpoiler(false, true);
         callback.openPreview(false, null);
         callback.openPreviewMessage(false, null);
         callback.destroyCurrentAuthentication();
@@ -682,7 +682,7 @@ public class ReplyPresenter
 
         void openPreviewMessage(boolean show, String message);
 
-        void openSpoiler(boolean show, boolean checked);
+        void openSpoiler(boolean show, boolean setUnchecked);
 
         void highlightPostNo(int no);
 

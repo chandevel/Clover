@@ -753,9 +753,11 @@ public class ReplyLayout
     }
 
     @Override
-    public void openSpoiler(boolean show, boolean checked) {
+    public void openSpoiler(boolean show, boolean setUnchecked) {
         spoiler.setVisibility(show ? VISIBLE : GONE);
-        spoiler.setChecked(checked);
+        if (setUnchecked) {
+            spoiler.setChecked(false);
+        }
     }
 
     @Override
