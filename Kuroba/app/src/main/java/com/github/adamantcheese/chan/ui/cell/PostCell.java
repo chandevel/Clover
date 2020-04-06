@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.cell;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -235,10 +234,6 @@ public class PostCell
     private void showOptions(
             View anchor, List<FloatingMenuItem> items, List<FloatingMenuItem> extraItems, Object extraOption
     ) {
-        if (ThemeHelper.getTheme().isLightTheme) {
-            options.setImageResource(R.drawable.ic_overflow_black);
-        }
-
         FloatingMenu menu = new FloatingMenu(getContext(), anchor, items);
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
@@ -252,7 +247,6 @@ public class PostCell
 
             @Override
             public void onFloatingMenuDismissed(FloatingMenu menu) {
-                options.setImageResource(R.drawable.ic_overflow);
             }
         });
         menu.show();
@@ -342,7 +336,7 @@ public class PostCell
 
         setPostLinkableListener(post, true);
 
-        options.setImageTintList(ColorStateList.valueOf(theme.textSecondary));
+        options.setColorFilter(theme.textSecondary);
 
         replies.setClickable(threadMode);
         repliesAdditionalArea.setClickable(threadMode);

@@ -60,7 +60,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="post_id_background_light">#636363</item>
         <item name="post_id_background_dark">#00000000</item>
-        <item name="post_options_drawable">@drawable/ic_overflow</item>
         <item name="post_saved_reply_color">#FFBCBCBC</item>
         <item name="post_highlighted_color">#FFD6BAD0</item>
         <item name="post_selected_color">#20000000</item>

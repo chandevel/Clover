@@ -36,7 +36,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <attr name="post_id_background_light" format="color" />
     <attr name="post_id_background_dark" format="color" />
     <attr name="post_inline_quote_color" format="color" />
-    <attr name="post_options_drawable" format="integer" />
     <attr name="post_last_seen_color" format="color" />
     <attr name="post_selected_color" format="color" />
 

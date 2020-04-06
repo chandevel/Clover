@@ -163,7 +163,7 @@ public class ViewThreadController
         if (!ChanSettings.textOnly.get()) {
             menuBuilder.withItem(R.drawable.ic_image_white_24dp, this::albumClicked);
         }
-        menuBuilder.withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked);
+        menuBuilder.withItem(PIN_ID, R.drawable.ic_bookmark_border_white_24dp, this::pinClicked);
 
         NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow(this);
 
@@ -760,7 +760,7 @@ public class ViewThreadController
 
         pinItemPinned = pinned;
 
-        Drawable outline = context.getDrawable(R.drawable.ic_bookmark_outline_white_24dp);
+        Drawable outline = context.getDrawable(R.drawable.ic_bookmark_border_white_24dp);
         Drawable white = context.getDrawable(R.drawable.ic_bookmark_white_24dp);
 
         Drawable drawable = pinned ? white : outline;

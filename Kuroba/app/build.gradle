@@ -200,7 +200,7 @@ android {
             // Because we're always on dev, don't minify to make sure that crash logs are intelligible
             //You can turn this on if you wish
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
             debuggable = false
         }
         debug {
@@ -250,7 +250,9 @@ dependencies {
     implementation 'me.xdrop:fuzzywuzzy:1.2.0'
     implementation 'org.codejargon.feather:feather:1.0'
     implementation 'com.vladsch.flexmark:flexmark:0.60.2'
-    implementation 'com.vdurmont:emoji-java:5.1.1'
+    implementation ('com.vdurmont:emoji-java:5.1.1') {
+        exclude group: 'org.json', module: 'json'
+    }
     implementation 'io.reactivex.rxjava2:rxjava:2.2.17'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"

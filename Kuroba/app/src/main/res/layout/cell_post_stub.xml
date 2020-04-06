@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:paddingTop="2dp"
         android:paddingRight="2dp"
         android:paddingBottom="2dp"
-        android:src="?post_options_drawable"
+        android:src="@drawable/ic_overflow"
         android:tint="?attr/text_color_secondary"
         tools:ignore="ContentDescription,RtlHardcoded" />
 

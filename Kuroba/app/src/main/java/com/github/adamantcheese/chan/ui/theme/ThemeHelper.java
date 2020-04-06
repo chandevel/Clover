@@ -128,7 +128,7 @@ public class ThemeHelper {
         context.getWindow().setNavigationBarColor(0xff000000);
 
         Bitmap taskDescriptionBitmap =
-                BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_task_description);
+                BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_stat_notify);
         context.setTaskDescription(new ActivityManager.TaskDescription(null,
                 taskDescriptionBitmap,
                 theme.primaryColor.color

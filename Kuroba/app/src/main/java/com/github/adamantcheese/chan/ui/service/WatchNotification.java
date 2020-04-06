@@ -504,7 +504,10 @@ public class WatchNotification
                 pauseWatching.putExtra(PAUSE_PINS_KEY, true);
                 PendingIntent pauseWatchIntent =
                         PendingIntent.getService(this, 0, pauseWatching, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_action_pause, getString(R.string.watch_pause_pins), pauseWatchIntent);
+                builder.addAction(R.drawable.ic_pause_white_24dp,
+                        getString(R.string.watch_pause_pins),
+                        pauseWatchIntent
+                );
             }
 
             //setup the display in the notification

@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:scaleY="-1"
+        android:translateY="24">
+        <!-- This was originally the publish icon, but has been reoriented to be a download icon. -->
+        <path
+            android:fillColor="#ffffff"
+            android:pathData="M5,4v2h14L19,4L5,4zM5,14h4v6h6v-6h4l-7,-7 -7,7z" />
+    </group>
+</vector>
