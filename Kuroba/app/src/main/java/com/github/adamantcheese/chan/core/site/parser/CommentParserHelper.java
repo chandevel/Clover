@@ -76,7 +76,7 @@ public class CommentParserHelper {
     public static LruCache<String, Pair<String, String>> youtubeCache = new LruCache<>(500);
 
     //@formatter:off
-    private static Pattern imageUrlPattern = Pattern.compile(".*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)", Pattern.CASE_INSENSITIVE);
+    private static Pattern imageUrlPattern = Pattern.compile("https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)", Pattern.CASE_INSENSITIVE);
     private static String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
     //@formatter:on
 
