@@ -46,7 +46,7 @@ public class ImageOptionsHelper
             }
             imageOptionsController =
                     new ImageOptionsController(context, this, this, loadable, lastImageOptions, supportsReencode);
-            callbacks.presentReencodeOptionsController(imageOptionsController);
+            callbacks.presentController(imageOptionsController);
         }
     }
 
@@ -78,7 +78,7 @@ public class ImageOptionsHelper
                     dims,
                     lastImageOptions != null ? lastImageOptions.getReencodeSettings() : null
             );
-            callbacks.presentReencodeOptionsController(imageReencodeOptionsController);
+            callbacks.presentController(imageReencodeOptionsController);
         } else {
             showToast(context, R.string.image_reencode_format_error, Toast.LENGTH_LONG);
         }
@@ -112,7 +112,7 @@ public class ImageOptionsHelper
     }
 
     public interface ImageReencodingHelperCallback {
-        void presentReencodeOptionsController(Controller controller);
+        void presentController(Controller controller);
 
         void onImageOptionsApplied(Reply reply, boolean filenameRemoved);
 

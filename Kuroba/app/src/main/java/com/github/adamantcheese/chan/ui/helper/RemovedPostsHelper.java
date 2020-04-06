@@ -96,7 +96,7 @@ public class RemovedPostsHelper {
     private void present() {
         if (controller == null) {
             controller = new RemovedPostsController(context, this);
-            callbacks.presentRemovedPostsController(controller);
+            callbacks.presentController(controller);
         }
     }
 
@@ -114,6 +114,6 @@ public class RemovedPostsHelper {
     }
 
     public interface RemovedPostsCallbacks {
-        void presentRemovedPostsController(Controller controller);
+        void presentController(Controller controller);
     }
 }

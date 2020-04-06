@@ -766,12 +766,7 @@ public class ThreadLayout
     }
 
     @Override
-    public void presentRepliesController(Controller controller) {
-        callback.presentController(controller);
-    }
-
-    @Override
-    public void presentReencodeOptionsController(Controller controller) {
+    public void presentController(Controller controller) {
         callback.presentController(controller);
     }
 
@@ -783,10 +778,6 @@ public class ThreadLayout
     @Override
     public void onImageOptionsComplete() {
         threadListLayout.onImageOptionsComplete();
-    }
-
-    public void presentRemovedPostsController(Controller controller) {
-        callback.presentController(controller);
     }
 
     @Override

@@ -111,7 +111,7 @@ public class PostPopupHelper {
     private void present() {
         if (presentingController == null) {
             presentingController = new PostRepliesController(context, this, presenter);
-            callback.presentRepliesController(presentingController);
+            callback.presentController(presentingController);
         }
     }
 
@@ -128,6 +128,6 @@ public class PostPopupHelper {
     }
 
     public interface PostPopupHelperCallback {
-        void presentRepliesController(Controller controller);
+        void presentController(Controller controller);
     }
 }
