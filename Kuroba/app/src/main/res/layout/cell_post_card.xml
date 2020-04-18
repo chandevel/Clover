@@ -15,14 +15,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <com.github.adamantcheese.chan.ui.cell.CardPostCell xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/grid_card_margin"
-    card_view:cardBackgroundColor="?backcolor"
-    card_view:cardCornerRadius="@dimen/grid_card_corner_radius"
-    card_view:cardElevation="2dp">
+    app:cardBackgroundColor="?backcolor"
+    app:cardCornerRadius="@dimen/grid_card_corner_radius"
+    app:cardElevation="2dp">
 
     <com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout
         android:id="@+id/card_content"
@@ -77,7 +77,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingLeft="8dp"
             android:paddingTop="8dp"
             android:paddingRight="8dp"
-            android:textColor="?attr/text_color_primary" />
+            app:textColor="?attr/text_color_primary" />
 
         <TextView
             android:id="@+id/replies"

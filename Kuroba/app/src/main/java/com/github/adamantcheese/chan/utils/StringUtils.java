@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public class StringUtils {
     private static final Pattern IMAGE_THUMBNAIL_EXTRACTOR_PATTERN = Pattern.compile("/(\\d{12,32}+)s.(.*)");
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toLowerCase(Locale.ENGLISH).toCharArray();
-    private static final String RESERVED_CHARACTERS = "|?*<\":>+\\[\\]/'\\\\\\s";
+    private static final String RESERVED_CHARACTERS = "|?*<\":>+\\[]/'\\\\\\s";
     private static final String RESERVED_CHARACTERS_DIR = "[" + RESERVED_CHARACTERS + "." + "]";
     private static final String RESERVED_CHARACTERS_FILE = "[" + RESERVED_CHARACTERS + "]";
 

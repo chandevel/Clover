@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    android:background="?attr/selectableItemBackground"
+    android:background="?android:attr/selectableItemBackground"
     android:orientation="horizontal">
 
     <ImageView
@@ -44,11 +44,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:textColor="?text_color_primary"
         android:textSize="14sp" />
 
-    <include layout="@layout/setting_notification"/>
+    <include layout="@layout/setting_notification" />
 
     <View
         android:layout_width="11dp"
         android:layout_height="match_parent"
-        android:visibility="invisible"/>
+        android:visibility="invisible" />
 
 </LinearLayout>

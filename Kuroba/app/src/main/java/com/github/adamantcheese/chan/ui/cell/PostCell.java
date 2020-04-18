@@ -95,6 +95,7 @@ import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMod
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
@@ -346,11 +347,11 @@ public class PostCell
         }
 
         if (highlighted) {
-            setBackgroundColor(theme.highlightedColor);
+            setBackgroundColor(getAttrColor(getContext(), R.attr.post_highlighted_color));
         } else if (post.isSavedReply) {
-            setBackgroundColor(theme.savedReplyColor);
+            setBackgroundColor(getAttrColor(getContext(), R.attr.post_saved_reply_color));
         } else if (selected) {
-            setBackgroundColor(theme.selectedColor);
+            setBackgroundColor(getAttrColor(getContext(), R.attr.post_selected_color));
         } else if (threadMode) {
             setBackgroundResource(0);
         } else {

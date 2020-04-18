@@ -34,7 +34,6 @@ import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.text.FastTextView;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
@@ -246,7 +245,6 @@ public class CardPostCell
         }
 
         comment.setText(commentText);
-        comment.setTextColor(ThemeHelper.getTheme().textPrimary);
 
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
         if (!ChanSettings.neverShowPages.get()) {

@@ -102,7 +102,6 @@ public class ThreadListLayout
     private boolean replyOpen;
     private ChanSettings.PostViewMode postViewMode;
     private int spanCount = 2;
-    private int background;
     private boolean searchOpen;
     private int lastPostCount;
 
@@ -238,10 +237,7 @@ public class ThreadListLayout
                     recyclerView.setLayoutManager(linearLayoutManager);
                     layoutManager = linearLayoutManager;
 
-                    if (background != R.attr.backcolor) {
-                        background = R.attr.backcolor;
-                        setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
-                    }
+                    setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
 
                     break;
                 case CARD:
@@ -262,10 +258,7 @@ public class ThreadListLayout
                     recyclerView.setLayoutManager(gridLayoutManager);
                     layoutManager = gridLayoutManager;
 
-                    if (background != R.attr.backcolor_secondary) {
-                        background = R.attr.backcolor_secondary;
-                        setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor_secondary));
-                    }
+                    setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor_secondary));
 
                     break;
             }

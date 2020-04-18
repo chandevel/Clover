@@ -10,7 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:background="?attr/selectableItemBackground"
+        android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center_vertical"
@@ -25,7 +25,7 @@
         android:id="@+id/cell_crashlog_click_area"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:background="?attr/selectableItemBackgroundBorderless"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:paddingStart="20dp"
         android:paddingEnd="20dp">
 
