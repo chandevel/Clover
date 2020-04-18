@@ -397,21 +397,21 @@ public class UpdateManager {
         AlertDialog alertDialog = new AlertDialog.Builder(context).setTitle(R.string.update_manager_copy_apk_title)
                 .setMessage(R.string.update_manager_copy_apk_message)
                 .setNegativeButton(R.string.no, (dialog, which) -> onDone.invoke())
-                .setPositiveButton(R.string.yes, (dialog, which) -> {
-                    fileChooser.openCreateFileDialog(fileName, new FileCreateCallback() {
-                        @Override
-                        public void onResult(@NotNull Uri uri) {
-                            onApkFilePathSelected(file, uri);
-                            onDone.invoke();
-                        }
+                .setPositiveButton(R.string.yes,
+                        (dialog, which) -> fileChooser.openCreateFileDialog(fileName, new FileCreateCallback() {
+                            @Override
+                            public void onResult(@NotNull Uri uri) {
+                                onApkFilePathSelected(file, uri);
+                                onDone.invoke();
+                            }
 
-                        @Override
-                        public void onCancel(@NotNull String reason) {
-                            showToast(context, reason);
-                            onDone.invoke();
-                        }
-                    });
-                })
+                            @Override
+                            public void onCancel(@NotNull String reason) {
+                                showToast(context, reason);
+                                onDone.invoke();
+                            }
+                        })
+                )
                 .create();
 
         alertDialog.show();

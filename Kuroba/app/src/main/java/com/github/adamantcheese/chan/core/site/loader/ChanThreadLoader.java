@@ -273,9 +273,7 @@ public class ChanThreadLoader
             } else {
                 request = ((ModularResult.Value<ChanLoaderRequest>) result).getValue();
             }
-        }, error -> {
-            notifyAboutError(new VolleyError(error));
-        });
+        }, error -> notifyAboutError(new VolleyError(error)));
     }
 
     private void handleErrorResult(Throwable error) {

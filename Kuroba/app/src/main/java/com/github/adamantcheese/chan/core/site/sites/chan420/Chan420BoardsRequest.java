@@ -75,7 +75,7 @@ public class Chan420BoardsRequest
         board.siteId = site.id();
         board.site = site;
 
-        Map<String, Integer> fileSizeLimit = new HashMap<String, Integer>();
+        Map<String, Integer> fileSizeLimit = new HashMap<>();
         fileSizeLimit.put("f", 40960 * 1024);
         fileSizeLimit.put("m", 40960 * 1024);
         fileSizeLimit.put("h", 40960 * 1024);

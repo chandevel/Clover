@@ -30,10 +30,11 @@ import com.github.adamantcheese.chan.utils.IOUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public abstract class JsonReaderRequest<T>
         extends Request<T> {
-    private static final Charset UTF8 = Charset.forName("UTF-8");
+    private static final Charset UTF8 = StandardCharsets.UTF_8;
 
     protected final Listener<T> listener;
 

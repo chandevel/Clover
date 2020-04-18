@@ -1,12 +1,9 @@
 package com.github.adamantcheese.chan.core.site.sites.dvach;
 
-import androidx.annotation.NonNull;
-
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.OptionsSetting;
-import com.github.adamantcheese.chan.core.site.ChunkDownloaderSiteProperties;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
@@ -36,8 +33,6 @@ import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaT
 public class Dvach
         extends CommonSite {
     private static final String TAG = "Dvach";
-
-    private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private static final String ROOT = "https://2ch.hk";
 
@@ -79,13 +74,7 @@ public class Dvach
     static final String CAPTCHA_KEY = "6LeQYz4UAAAAAL8JCk35wHSv6cuEV5PyLhI6IxsM";
     private OptionsSetting<Chan4.CaptchaType> captchaType;
 
-    public Dvach() {
-        chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(
-                // 2ch.hk sends file size in KB
-                false,
-                // 2ch.hk sometimes sends an incorrect file hash
-                false);
-    }
+    public Dvach() { }
 
     @Override
     public void initializeSettings() {
@@ -242,11 +231,5 @@ public class Dvach
         setApi(new DvachApi(this));
 
         setParser(new DvachCommentParser());
-    }
-
-    @NonNull
-    @Override
-    public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return chunkDownloaderSiteProperties;
     }
 }

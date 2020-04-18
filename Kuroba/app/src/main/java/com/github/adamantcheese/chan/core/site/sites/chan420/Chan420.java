@@ -16,11 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan420;
 
-import androidx.annotation.NonNull;
-
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.ChunkDownloaderSiteProperties;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -38,7 +35,6 @@ import okhttp3.HttpUrl;
 
 public class Chan420
         extends CommonSite {
-    private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
     private static final String TAG = "420Chan";
 
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
@@ -84,9 +80,7 @@ public class Chan420
         }
     };
 
-    public Chan420() {
-        chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(false, false);
-    }
+    public Chan420() { }
 
     @Override
     public void setup() {
@@ -109,29 +103,24 @@ public class Chan420
         setActions(new TaimabaActions(this) {
             @Override
             public void boards(final BoardsListener listener) {
-                requestQueue.add(new Chan420BoardsRequest(Chan420.this, response -> {
-                    listener.onBoardsReceived(new Boards(response));
-                }, (error) -> {
-                    Logger.e(TAG, "Failed to get boards from server", error);
+                requestQueue.add(new Chan420BoardsRequest(Chan420.this,
+                        response -> listener.onBoardsReceived(new Boards(response)),
+                        (error) -> {
+                            Logger.e(TAG, "Failed to get boards from server", error);
 
-                    // API fail, provide some default boards
-                    List<Board> list = new ArrayList<>();
-                    list.add(Board.fromSiteNameCode(Chan420.this, "Cannabis Discussion", "weed"));
-                    list.add(Board.fromSiteNameCode(Chan420.this, "Alcohol Discussion", "hooch"));
-                    list.add(Board.fromSiteNameCode(Chan420.this, "Dream Discussion", "dr"));
-                    list.add(Board.fromSiteNameCode(Chan420.this, "Detoxing & Rehabilitation", "detox"));
-                    Collections.shuffle(list);
-                    listener.onBoardsReceived(new Boards(list));
-                }));
+                            // API fail, provide some default boards
+                            List<Board> list = new ArrayList<>();
+                            list.add(Board.fromSiteNameCode(Chan420.this, "Cannabis Discussion", "weed"));
+                            list.add(Board.fromSiteNameCode(Chan420.this, "Alcohol Discussion", "hooch"));
+                            list.add(Board.fromSiteNameCode(Chan420.this, "Dream Discussion", "dr"));
+                            list.add(Board.fromSiteNameCode(Chan420.this, "Detoxing & Rehabilitation", "detox"));
+                            Collections.shuffle(list);
+                            listener.onBoardsReceived(new Boards(list));
+                        }
+                ));
             }
         });
         setApi(new TaimabaApi(this));
         setParser(new TaimabaCommentParser());
-    }
-
-    @NonNull
-    @Override
-    public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return chunkDownloaderSiteProperties;
     }
 }

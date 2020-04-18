@@ -36,12 +36,15 @@ public class CustomScaleImageView
             @Override
             public void onReady() {
                 Logger.d(TAG, "onReady");
-                float scale = Math.min(getWidth() / (float) getSWidth(), getHeight() / (float) getSHeight());
-
+                int vPadding = getPaddingBottom() + getPaddingTop();
+                int hPadding = getPaddingLeft() + getPaddingRight();
+                // this scale value is what makes the image fill the view by default
+                float scale = Math.min((getWidth() - hPadding) / (float) getSWidth(),
+                        (getHeight() - vPadding) / (float) getSHeight()
+                );
                 if (getMaxScale() < scale * 2f) {
                     setMaxScale(scale * 2f);
                 }
-
                 setMinimumScaleType(SCALE_TYPE_CUSTOM);
                 if (callback != null) {
                     callback.onReady();

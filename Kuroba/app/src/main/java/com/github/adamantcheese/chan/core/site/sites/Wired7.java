@@ -44,8 +44,6 @@ import static android.text.TextUtils.isEmpty;
 
 public class Wired7
         extends CommonSite {
-    private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
-
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private static final String ROOT = "https://wired-7.org/";
 
@@ -85,13 +83,7 @@ public class Wired7
         }
     };
 
-    public Wired7() {
-        chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(
-                true,
-                // Wired-7 sends incorrect file md5 hash sometimes
-                false
-        );
-    }
+    public Wired7() { }
 
     @Override
     public void setup() {
@@ -199,6 +191,10 @@ public class Wired7
     @NonNull
     @Override
     public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return chunkDownloaderSiteProperties;
+        return new ChunkDownloaderSiteProperties(
+                true,
+                // Wired-7 sends incorrect file md5 hash sometimes
+                false
+        );
     }
 }

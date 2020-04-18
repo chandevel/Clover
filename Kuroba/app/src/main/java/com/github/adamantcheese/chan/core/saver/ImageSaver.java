@@ -147,30 +147,28 @@ public class ImageSaver {
                 // Unbounded queue
                 .onBackpressureBuffer(UNBOUNDED_QUEUE_MIN_CAPACITY, false, true)
                 .observeOn(workerScheduler)
-                .flatMapSingle((t) -> {
-                    return Single.just(t)
-                            .observeOn(workerScheduler)
-                            .flatMap((task) -> {
-                                boolean isStillActive = false;
+                .flatMapSingle((t) -> Single.just(t)
+                        .observeOn(workerScheduler)
+                        .flatMap((task) -> {
+                            boolean isStillActive = false;
 
-                                synchronized (activeDownloads) {
-                                    isStillActive = activeDownloads.contains(task.getPostImageUrl());
-                                }
+                            synchronized (activeDownloads) {
+                                isStillActive = activeDownloads.contains(task.getPostImageUrl());
+                            }
 
-                                // If the download is not present in activeDownloads that means that
-                                // it wat canceled, so exit immediately
-                                if (!isStillActive) {
-                                    return Single.just(BundledDownloadResult.Canceled);
-                                }
+                            // If the download is not present in activeDownloads that means that
+                            // it wat canceled, so exit immediately
+                            if (!isStillActive) {
+                                return Single.just(BundledDownloadResult.Canceled);
+                            }
 
-                                return task.run();
-                            })
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnError((error) -> imageSaveTaskFailed(t, error))
-                            .doOnSuccess((success) -> imageSaveTaskFinished(t, success))
-                            .doOnError((error) -> Logger.e(TAG, "Unhandled exception", error))
-                            .onErrorReturnItem(BundledDownloadResult.Failure);
-                }, false, CONCURRENT_REQUESTS_COUNT)
+                            return task.run();
+                        })
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnError((error) -> imageSaveTaskFailed(t, error))
+                        .doOnSuccess((success) -> imageSaveTaskFinished(t, success))
+                        .doOnError((error) -> Logger.e(TAG, "Unhandled exception", error))
+                        .onErrorReturnItem(BundledDownloadResult.Failure), false, CONCURRENT_REQUESTS_COUNT)
                 .subscribe((result) -> {
                     // Do nothing
                 }, (error) -> {

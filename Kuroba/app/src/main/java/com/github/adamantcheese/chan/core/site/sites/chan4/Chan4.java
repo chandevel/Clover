@@ -70,10 +70,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class Chan4
         extends SiteBase {
-    private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
-
     private static final String TAG = "Chan4";
-    private static final String CAPTCHA_KEY = "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
     private static final Random random = new Random();
 
     public static final SiteUrlHandler URL_HANDLER = new SiteUrlHandler() {
@@ -210,15 +207,10 @@ public class Chan4
                 }
                 return image.build();
             } else {
-                switch (arg.get("ext")) {
-                    case "swf":
-                        return HttpUrl.parse(BuildConfig.RESOURCES_ENDPOINT + "swf_thumb.png");
-                    default:
-                        return t.newBuilder()
-                                .addPathSegment(post.board.code)
-                                .addPathSegment(arg.get("tim") + "s.jpg")
-                                .build();
+                if ("swf".equals(arg.get("ext"))) {
+                    return HttpUrl.parse(BuildConfig.RESOURCES_ENDPOINT + "swf_thumb.png");
                 }
+                return t.newBuilder().addPathSegment(post.board.code).addPathSegment(arg.get("tim") + "s.jpg").build();
             }
         }
 
@@ -384,6 +376,7 @@ public class Chan4
 
         @Override
         public SiteAuthentication postAuthenticate() {
+            final String CAPTCHA_KEY = "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
             if (isLoggedIn()) {
                 return SiteAuthentication.fromNone();
             } else {
@@ -488,8 +481,6 @@ public class Chan4
         // token was renamed, before it meant the username, now it means the token returned
         // from the server that the cookie is set to.
         passToken = new StringSetting(p, "preference_pass_id", "");
-
-        chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(true, true);
     }
 
     @Override
@@ -573,6 +564,6 @@ public class Chan4
     @NonNull
     @Override
     public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return chunkDownloaderSiteProperties;
+        return new ChunkDownloaderSiteProperties(true, true);
     }
 }

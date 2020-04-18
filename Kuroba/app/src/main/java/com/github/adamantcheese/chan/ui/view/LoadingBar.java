@@ -77,7 +77,7 @@ public class LoadingBar
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        float width = getWidth() / chunksCount;
+        float width = (float) getWidth() / chunksCount;
         float offset = 0f;
 
         for (int i = 0; i < chunkLoadingProgress.size(); i++) {

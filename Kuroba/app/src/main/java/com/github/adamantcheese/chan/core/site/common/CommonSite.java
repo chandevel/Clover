@@ -74,7 +74,7 @@ public abstract class CommonSite
     private CommonEndpoints endpoints;
     private CommonActions actions;
     private CommonApi api;
-    private CommonRequestModifier requestModifier;
+    private CommonRequestModifier requestModifier = new CommonRequestModifier() {};
 
     public PostParser postParser;
 
@@ -119,11 +119,6 @@ public abstract class CommonSite
 
         if (postParser == null) {
             throw new NullPointerException("setParser not called");
-        }
-
-        if (requestModifier == null) {
-            // No-op implementation.
-            requestModifier = new CommonRequestModifier() {};
         }
     }
 

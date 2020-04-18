@@ -33,8 +33,6 @@ import okhttp3.HttpUrl;
 
 public class Sushichan
         extends CommonSite {
-    private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
-
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private static final String ROOT = "https://sushigirl.us/";
 
@@ -74,9 +72,7 @@ public class Sushichan
         }
     };
 
-    public Sushichan() {
-        chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(true, true);
-    }
+    public Sushichan() {}
 
     @Override
     public void setup() {
@@ -115,6 +111,6 @@ public class Sushichan
     @NonNull
     @Override
     public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return chunkDownloaderSiteProperties;
+        return new ChunkDownloaderSiteProperties(true, true);
     }
 }

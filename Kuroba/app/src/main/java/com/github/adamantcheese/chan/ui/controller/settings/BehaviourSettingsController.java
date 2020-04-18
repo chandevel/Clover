@@ -108,9 +108,7 @@ public class BehaviourSettingsController
             general.add(new LinkSettingView(this,
                     R.string.settings_js_captcha_cookies_title,
                     R.string.settings_js_captcha_cookies_description,
-                    v -> {
-                        navigationController.pushController(new JsCaptchaCookiesEditorController(context));
-                    }
+                    v -> navigationController.pushController(new JsCaptchaCookiesEditorController(context))
             ));
 
             general.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, v -> {

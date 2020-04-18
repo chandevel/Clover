@@ -921,15 +921,13 @@ public class ThreadSaveManager {
                 // We don't want to download inlined images/files
                 .filter((postImage) -> !postImage.isInlined).flatMapSingle(postImage -> {
                     // Download each image in parallel using executorService
-                    return Single.defer(() -> {
-                        return downloadInternal(snapshotFileManager,
-                                loadable,
-                                threadSaveDirImages,
-                                imageDownloadsWithIoError,
-                                maxImageIoErrors,
-                                postImage
-                        );
-                    })
+                    return Single.defer(() -> downloadInternal(snapshotFileManager,
+                            loadable,
+                            threadSaveDirImages,
+                            imageDownloadsWithIoError,
+                            maxImageIoErrors,
+                            postImage
+                    ))
                             // We don't really want to use a lot of threads here so we use an executor with
                             // specified amount of threads
                             .subscribeOn(Schedulers.from(executorService))

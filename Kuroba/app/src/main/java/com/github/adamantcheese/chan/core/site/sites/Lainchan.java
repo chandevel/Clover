@@ -33,8 +33,6 @@ import okhttp3.HttpUrl;
 
 public class Lainchan
         extends CommonSite {
-    private final ChunkDownloaderSiteProperties chunkDownloaderSiteProperties;
-
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private static final String ROOT = "https://lainchan.org/";
 
@@ -74,9 +72,7 @@ public class Lainchan
         }
     };
 
-    public Lainchan() {
-        chunkDownloaderSiteProperties = new ChunkDownloaderSiteProperties(true, true);
-    }
+    public Lainchan() { }
 
     @Override
     public void setup() {
@@ -122,6 +118,6 @@ public class Lainchan
     @NonNull
     @Override
     public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return chunkDownloaderSiteProperties;
+        return new ChunkDownloaderSiteProperties(true, true);
     }
 }

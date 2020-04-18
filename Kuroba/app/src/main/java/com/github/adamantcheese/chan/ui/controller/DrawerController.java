@@ -112,12 +112,10 @@ public class DrawerController
 
         updateBadge();
 
-        Disposable disposable =
-                settingsNotificationManager.listenForNotificationUpdates().subscribe(activeNotifications -> {
-                    drawerAdapter.onNotificationsChanged();
-                }, (error) -> {
-                    Logger.e(TAG, "Unknown error from SettingsNotificationManager", error);
-                });
+        Disposable disposable = settingsNotificationManager.listenForNotificationUpdates()
+                .subscribe(activeNotifications -> drawerAdapter.onNotificationsChanged(),
+                        (error) -> Logger.e(TAG, "Unknown error from SettingsNotificationManager", error)
+                );
 
         compositeDisposable.add(disposable);
     }

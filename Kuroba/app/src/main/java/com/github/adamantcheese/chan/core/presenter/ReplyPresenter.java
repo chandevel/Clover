@@ -53,6 +53,7 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,7 +76,7 @@ public class ReplyPresenter
     private static final String TAG = "ReplyPresenter";
     private Context context;
     private static final Pattern QUOTE_PATTERN = Pattern.compile(">>\\d+");
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
     private ReplyPresenterCallback callback;
 
@@ -641,8 +642,6 @@ public class ReplyPresenter
                 boolean useV2NoJsCaptcha,
                 boolean autoReply
         );
-
-        void resetAuthentication();
 
         void openMessage(String message);
 

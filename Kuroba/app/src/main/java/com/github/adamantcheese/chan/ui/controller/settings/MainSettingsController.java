@@ -83,9 +83,9 @@ public class MainSettingsController
         buildPreferences();
 
         Disposable disposable = settingsNotificationManager.listenForNotificationUpdates()
-                .subscribe((event) -> onNotificationsChanged(), (error) -> {
-                    Logger.e(TAG, "Unknown error received from SettingsNotificationManager", error);
-                });
+                .subscribe((event) -> onNotificationsChanged(),
+                        (error) -> Logger.e(TAG, "Unknown error received from SettingsNotificationManager", error)
+                );
 
         compositeDisposable.add(disposable);
 
@@ -256,10 +256,11 @@ public class MainSettingsController
     }
 
     private LinkSettingView createReportSettingView() {
-        reportSettingView =
-                new LinkSettingView(this, R.string.settings_report, R.string.settings_report_description, v -> {
-                    onReportSettingClick();
-                });
+        reportSettingView = new LinkSettingView(this,
+                R.string.settings_report,
+                R.string.settings_report_description,
+                v -> onReportSettingClick()
+        );
 
         reportSettingView.setSettingNotificationType(SettingNotificationType.CrashLog);
         return reportSettingView;
@@ -273,9 +274,9 @@ public class MainSettingsController
                     crashLogsCount
             ))
                     .setMessage(R.string.settings_report_suggest_sending_logs_message)
-                    .setPositiveButton(R.string.settings_report_review_button_text, (dialog, which) -> {
-                        navigationController.pushController(new ReviewCrashLogsController(context));
-                    })
+                    .setPositiveButton(R.string.settings_report_review_button_text,
+                            (dialog, which) -> navigationController.pushController(new ReviewCrashLogsController(context))
+                    )
                     .setNeutralButton(R.string.settings_report_review_later_button_text,
                             (dialog, which) -> openReportProblemController()
                     )

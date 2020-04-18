@@ -43,7 +43,6 @@ public class LogsController
     private static final String TAG = "LogsController";
     private static final int DEFAULT_LINES_COUNT = 250;
 
-    private TextView logTextView;
     private String logText;
 
     public LogsController(Context context) {
@@ -64,7 +63,7 @@ public class LogsController
 
         ScrollView container = new ScrollView(context);
         container.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
-        logTextView = new TextView(context);
+        TextView logTextView = new TextView(context);
         container.addView(logTextView, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
         view = container;

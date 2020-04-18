@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
+import androidx.annotation.NonNull;
+
 import com.android.volley.RequestQueue;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
@@ -90,6 +92,13 @@ public abstract class SiteBase
     }
 
     public void initializeSettings() {
+    }
+
+    @NonNull
+    @Override
+    public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
+        // by default, assume everything is bad
+        return new ChunkDownloaderSiteProperties(false, false);
     }
 
     @Override
