@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.controller.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
@@ -289,6 +290,7 @@ public class NavigationControllerContainerLayout
         }
     }
 
+    @SuppressLint("NewApi") // this method is only called by methods that already check this condition
     private void provideAndroid10GesturesExclusionZones() {
         Map<Integer, Set<ExclusionZone>> zonesMap = exclusionZonesHolder.getZones();
         if (zonesMap.size() > 0) {

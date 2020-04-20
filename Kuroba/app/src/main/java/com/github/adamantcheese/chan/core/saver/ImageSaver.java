@@ -73,7 +73,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl;
 
 public class ImageSaver {
-    private static final String TAG = "ImageSaver";
     /**
      * We don't want to process all images at once because that will freeze the phone. Also we don't
      * want to process images one by one because it will be way too slow. So we use this parameter
@@ -167,15 +166,17 @@ public class ImageSaver {
                         .observeOn(AndroidSchedulers.mainThread())
                         .doOnError((error) -> imageSaveTaskFailed(t, error))
                         .doOnSuccess((success) -> imageSaveTaskFinished(t, success))
-                        .doOnError((error) -> Logger.e(TAG, "Unhandled exception", error))
+                        .doOnError((error) -> Logger.e(ImageSaver.this, "Unhandled exception", error))
                         .onErrorReturnItem(BundledDownloadResult.Failure), false, CONCURRENT_REQUESTS_COUNT)
                 .subscribe((result) -> {
                     // Do nothing
                 }, (error) -> {
-                    throw new RuntimeException(TAG + " Uncaught exception!!! " + "workerQueue is in error state now!!! "
-                            + "This should not happen!!!, original error = " + error.getMessage());
+                    throw new RuntimeException(
+                            ImageSaver.this + " Uncaught exception!!! " + "workerQueue is in error state now!!! "
+                                    + "This should not happen!!!, original error = " + error.getMessage());
                 }, () -> {
-                    throw new RuntimeException(TAG + " workerQueue stream has completed!!! This should not happen!!!");
+                    throw new RuntimeException(
+                            ImageSaver.this + " workerQueue stream has completed!!! This should not happen!!!");
                 });
     }
 
@@ -258,19 +259,19 @@ public class ImageSaver {
     private AbstractFile getSaveLocation(ImageSaveTask task) {
         AbstractFile baseSaveDir = fileManager.newBaseDirectoryFile(SavedFilesBaseDirectory.class);
         if (baseSaveDir == null) {
-            Logger.e(TAG, "getSaveLocation() fileManager.newSaveLocationFile() returned null");
+            Logger.e(this, "getSaveLocation() fileManager.newSaveLocationFile() returned null");
             return null;
         }
 
         AbstractFile createdBaseSaveDir = fileManager.create(baseSaveDir);
 
         if (!fileManager.exists(baseSaveDir) || createdBaseSaveDir == null) {
-            Logger.e(TAG, "getSaveLocation() Couldn't create base image save directory");
+            Logger.e(this, "getSaveLocation() Couldn't create base image save directory");
             return null;
         }
 
         if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
-            Logger.e(TAG, "getSaveLocation() Base save local directory does not exist");
+            Logger.e(this, "getSaveLocation() Base save local directory does not exist");
             return null;
         }
 
@@ -292,7 +293,7 @@ public class ImageSaver {
             AbstractFile innerDirectory = fileManager.create(baseSaveDir, directorySegments);
 
             if (innerDirectory == null) {
-                Logger.e(TAG,
+                Logger.e(this,
                         "getSaveLocation() failed to create subdirectory " + "(" + subFolder + ") for a base dir: "
                                 + baseSaveDir.getFullPath()
                 );
@@ -320,7 +321,7 @@ public class ImageSaver {
             onBatchCompleted();
         }
 
-        Logger.e(TAG, "imageSaveTaskFailed imageUrl = " + maskImageUrl(task.getPostImageUrl()));
+        Logger.e(this, "imageSaveTaskFailed imageUrl = " + maskImageUrl(task.getPostImageUrl()));
 
         String errorMessage = getString(R.string.image_saver_failed_to_save_image, error.getMessage());
         cancellableToast.showToast(errorMessage, Toast.LENGTH_LONG);
@@ -338,7 +339,7 @@ public class ImageSaver {
             callbacks.onImageProcessed(doneTasks.get(), failedTasks.get(), totalTasks.get());
         }
 
-        Logger.d(TAG, "imageSaveTaskFinished imageUrl = " + maskImageUrl(task.getPostImageUrl()));
+        Logger.d(this, "imageSaveTaskFinished imageUrl = " + maskImageUrl(task.getPostImageUrl()));
         boolean wasAlbumSave = false;
 
         if (checkBatchCompleted()) {
@@ -369,7 +370,7 @@ public class ImageSaver {
 
     private void onBatchCompleted() {
         BackgroundUtils.ensureMainThread();
-        Logger.d(TAG,
+        Logger.d(this,
                 "onBatchCompleted " + "downloaded = " + doneTasks.get() + ", " + "failed = " + failedTasks.get() + ", "
                         + "total = " + totalTasks.get()
         );

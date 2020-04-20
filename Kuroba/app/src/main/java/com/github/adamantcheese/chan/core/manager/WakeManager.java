@@ -48,8 +48,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * Deals with background alarms specifically. No foreground stuff here.
  */
 public class WakeManager {
-    private static final String TAG = "WakeManager";
-
     private Map<Object, WakeLock> wakeLocks = new HashMap<>();
 
     private final AlarmManager alarmManager;
@@ -75,7 +73,7 @@ public class WakeManager {
 
     public void onBroadcastReceived() {
         if (System.currentTimeMillis() - lastBackgroundUpdateTime < SECONDS.toMillis(90)) {
-            Logger.w(TAG, "Background update broadcast ignored because it was requested too soon");
+            Logger.w(this, "Background update broadcast ignored because it was requested too soon");
         } else {
             lastBackgroundUpdateTime = System.currentTimeMillis();
             for (Wakeable wakeable : wakeableSet) {
@@ -107,7 +105,7 @@ public class WakeManager {
 
     public void registerWakeable(Wakeable wakeable) {
         boolean needsStart = wakeableSet.isEmpty();
-        Logger.d(TAG, "Registered " + wakeable.getClass().toString());
+        Logger.d(this, "Registered " + wakeable.getClass().toString());
         wakeableSet.add(wakeable);
         if (!alarmRunning && needsStart) {
             startAlarm();
@@ -115,7 +113,7 @@ public class WakeManager {
     }
 
     public void unregisterWakeable(Wakeable wakeable) {
-        Logger.d(TAG, "Unregistered " + wakeable.getClass().toString());
+        Logger.d(this, "Unregistered " + wakeable.getClass().toString());
         wakeableSet.remove(wakeable);
         if (alarmRunning && wakeableSet.isEmpty()) {
             stopAlarm();
@@ -129,7 +127,7 @@ public class WakeManager {
                     ChanSettings.watchBackgroundInterval.get(),
                     pendingIntent
             );
-            Logger.i(TAG,
+            Logger.i(this,
                     "Started background alarm with an interval of "
                             + MILLISECONDS.toMinutes(ChanSettings.watchBackgroundInterval.get()) + " minutes"
             );
@@ -140,7 +138,7 @@ public class WakeManager {
     private void stopAlarm() {
         if (alarmRunning) {
             alarmManager.cancel(pendingIntent);
-            Logger.i(TAG, "Stopped background alarm");
+            Logger.i(this, "Stopped background alarm");
             alarmRunning = false;
         }
     }
@@ -156,7 +154,7 @@ public class WakeManager {
         WakeLock wakeLock = wakeLocks.get(locker);
         if (lock) {
             if (wakeLock != null) {
-                Logger.e(TAG, "Wakelock not null while trying to acquire one");
+                Logger.e(this, "Wakelock not null while trying to acquire one");
                 wakeLock.release();
                 wakeLocks.remove(locker);
             }
@@ -169,7 +167,7 @@ public class WakeManager {
             wakeLocks.put(locker, wakeLock);
         } else {
             if (wakeLock == null) {
-                Logger.e(TAG, "Wakelock null while trying to release it");
+                Logger.e(this, "Wakelock null while trying to release it");
             } else {
                 wakeLock.release();
                 wakeLocks.remove(locker);

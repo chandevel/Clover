@@ -24,7 +24,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 public class CustomScaleImageView
         extends SubsamplingScaleImageView {
-    private static final String TAG = "CustomScaleImageView";
     private static final float EPSILON = 0.00001f;
 
     private Callback callback;
@@ -35,7 +34,7 @@ public class CustomScaleImageView
         setOnImageEventListener(new DefaultOnImageEventListener() {
             @Override
             public void onReady() {
-                Logger.d(TAG, "onReady");
+                Logger.d(CustomScaleImageView.this, "onReady");
                 int vPadding = getPaddingBottom() + getPaddingTop();
                 int hPadding = getPaddingLeft() + getPaddingRight();
                 // this scale value is what makes the image fill the view by default
@@ -53,7 +52,7 @@ public class CustomScaleImageView
 
             @Override
             public void onImageLoaded() {
-                Logger.d(TAG, "onImageLoaded");
+                Logger.d(CustomScaleImageView.this, "onImageLoaded");
                 if (callback != null) {
                     callback.onReady();
                 }
@@ -61,7 +60,7 @@ public class CustomScaleImageView
 
             @Override
             public void onImageLoadError(Exception e) {
-                Logger.w(TAG, "onImageLoadError", e);
+                Logger.w(CustomScaleImageView.this, "onImageLoadError", e);
                 if (callback != null) {
                     callback.onError(e, true);
                 }
@@ -69,7 +68,7 @@ public class CustomScaleImageView
 
             @Override
             public void onTileLoadError(Exception e) {
-                Logger.w(TAG, "onTileLoadError", e);
+                Logger.w(CustomScaleImageView.this, "onTileLoadError", e);
                 if (callback != null) {
                     callback.onError(e, false);
                 }
@@ -104,6 +103,7 @@ public class CustomScaleImageView
     }
 
     public static class ImageViewportTouchSide {
+        @SuppressWarnings("PointlessBitwiseExpression")
         public final static int LEFT_SIDE = 1 << 0;
         public final static int RIGHT_SIDE = 1 << 1;
         public final static int TOP_SIDE = 1 << 2;

@@ -30,8 +30,6 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class DatabasePinManager {
-    private static final String TAG = "DatabasePinManager";
-
     @Inject
     DatabaseHelper helper;
     private DatabaseLoadableManager databaseLoadableManager;

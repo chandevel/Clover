@@ -104,8 +104,6 @@ public class MultiImageView
         OTHER
     }
 
-    private static final String TAG = "MultiImageView";
-
     @Inject
     FileCacheV2 fileCacheV2;
     @Inject
@@ -180,7 +178,7 @@ public class MultiImageView
         hasContent = false;
         waitForMeasure(this, view -> {
             if (getWidth() == 0 || getHeight() == 0 || !isLaidOut()) {
-                Logger.e(TAG, "getWidth() or getHeight() returned 0, or view not laid out, not loading");
+                Logger.e(MultiImageView.this, "getWidth() or getHeight() returned 0, or view not laid out, not loading");
                 return false;
             }
             switch (newMode) {
@@ -486,12 +484,12 @@ public class MultiImageView
                 return;
             }
         } catch (IOException e) {
-            Logger.e(TAG, "Error while trying to set a gif file", e);
+            Logger.e(this, "Error while trying to set a gif file", e);
             onError(e);
             return;
         } catch (OutOfMemoryError e) {
             Runtime.getRuntime().gc();
-            Logger.e(TAG, "OOM while trying to set a gif file", e);
+            Logger.e(this, "OOM while trying to set a gif file", e);
             onOutOfMemoryError();
             return;
         }
@@ -562,7 +560,7 @@ public class MultiImageView
             public void onError(@NotNull Throwable error) {
                 BackgroundUtils.ensureMainThread();
 
-                Logger.e(TAG, "Error while trying to stream a webm", error);
+                Logger.e(this, "Error while trying to stream a webm", error);
                 showToast(getContext(), "Couldn't open webm in streaming mode, error = " + error.getMessage());
             }
         });
@@ -759,7 +757,7 @@ public class MultiImageView
             @Override
             public void onError(Exception e, boolean wasInitial) {
                 if (e.getCause() instanceof OutOfMemoryError) {
-                    Logger.e(TAG, "OOM while trying to set a big image file", e);
+                    Logger.e(this, "OOM while trying to set a big image file", e);
                     Runtime.getRuntime().gc();
                     onOutOfMemoryError();
                 } else {

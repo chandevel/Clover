@@ -91,8 +91,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class StartActivity
         extends AppCompatActivity
         implements NfcAdapter.CreateNdefMessageCallback, FSAFActivityCallbacks {
-    private static final String TAG = "StartActivity";
-
     private static final String STATE_KEY = "chan_state";
 
     private ViewGroup contentView;
@@ -226,7 +224,7 @@ public class StartActivity
         // Restore the activity state from the previously saved state.
         ChanState chanState = savedInstanceState.getParcelable(STATE_KEY);
         if (chanState == null) {
-            Logger.w(TAG, "savedInstanceState was not null, but no ChanState was found!");
+            Logger.w(this, "savedInstanceState was not null, but no ChanState was found!");
         } else {
             Pair<Loadable, Loadable> boardThreadPair = resolveChanState(chanState);
 
@@ -384,7 +382,7 @@ public class StartActivity
 
         Loadable board = browseController.getLoadable();
         if (board == null) {
-            Logger.w(TAG, "Can not save instance state, the board loadable is null");
+            Logger.w(this, "Can not save instance state, the board loadable is null");
         } else {
             Loadable thread = null;
 
@@ -563,7 +561,7 @@ public class StartActivity
         if (!isTaskRoot()) {
             Intent intent = getIntent();
             if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && Intent.ACTION_MAIN.equals(intent.getAction())) {
-                Logger.w(TAG, "Workaround for intent mismatch.");
+                Logger.w(this, "Workaround for intent mismatch.");
                 intentMismatchWorkaroundActive = true;
                 finish();
                 return true;
@@ -599,8 +597,6 @@ public class StartActivity
         for (String s : titles.keySet()) {
             CommentParserHelper.youtubeCache.put(s, titles.get(s));
         }
-
-        Logger.d(TAG, "start");
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
@@ -611,6 +607,5 @@ public class StartActivity
         Type lruType = new TypeToken<Map<String, Pair<String, String>>>() {}.getType();
         //convert and set
         PersistableChanState.youtubeCache.set(gson.toJson(CommentParserHelper.youtubeCache.snapshot(), lruType));
-        Logger.d(TAG, "stop");
     }
 }

@@ -49,8 +49,6 @@ import static com.github.adamantcheese.chan.Chan.instance;
 
 public class FilterWatchManager
         implements WakeManager.Wakeable {
-    private static final String TAG = "FilterWatchManager";
-
     private final WakeManager wakeManager;
     private final FilterEngine filterEngine;
     private final WatchManager watchManager;
@@ -98,14 +96,14 @@ public class FilterWatchManager
     public void onWake() {
         if (!processing) {
             wakeManager.manageLock(true, FilterWatchManager.this);
-            Logger.i(TAG,
+            Logger.i(this,
                     "Processing filter loaders, started at " + DateFormat.getTimeInstance(DateFormat.DEFAULT,
                             Locale.ENGLISH
                     ).format(new Date())
             );
             processing = true;
             populateFilterLoaders();
-            Logger.d(TAG, "Number of filter loaders: " + numBoardsChecked);
+            Logger.d(this, "Number of filter loaders: " + numBoardsChecked);
             if (!filterLoaders.keySet().isEmpty()) {
                 for (ChanThreadLoader loader : filterLoaders.keySet()) {
                     loader.requestData();
@@ -156,7 +154,7 @@ public class FilterWatchManager
     }
 
     public void onCatalogLoad(ChanThread catalog) {
-        Logger.d(TAG, "onCatalogLoad() for /" + catalog.getLoadable().boardCode + "/");
+        Logger.d(this, "onCatalogLoad() for /" + catalog.getLoadable().boardCode + "/");
         if (catalog.getLoadable().isThreadMode()) return; //not a catalog
         if (processing) return; //filter watch manager is currently processing, ignore
 
@@ -187,7 +185,7 @@ public class FilterWatchManager
             implements ChanThreadLoader.ChanLoaderCallback {
         @Override
         public void onChanLoaderData(ChanThread result) {
-            Logger.d(TAG, "onChanLoaderData() for /" + result.getLoadable().boardCode + "/");
+            Logger.d(this, "onChanLoaderData() for /" + result.getLoadable().boardCode + "/");
             Set<Integer> toAdd = new HashSet<>();
             //Match filters and ignores
             for (Filter f : filters) {
@@ -209,7 +207,7 @@ public class FilterWatchManager
             lastCheckedPosts.addAll(result.getPosts());
             synchronized (this) {
                 numBoardsChecked--;
-                Logger.d(TAG, "Filter loader processed, left " + numBoardsChecked);
+                Logger.d(this, "Filter loader processed, left " + numBoardsChecked);
                 checkComplete();
             }
         }
@@ -218,7 +216,7 @@ public class FilterWatchManager
         public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
             synchronized (this) {
                 numBoardsChecked--;
-                Logger.d(TAG, "Filter loader failed, left " + numBoardsChecked);
+                Logger.d(this, "Filter loader failed, left " + numBoardsChecked);
                 checkComplete();
             }
         }
@@ -234,7 +232,7 @@ public class FilterWatchManager
                 PersistableChanState.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
                 lastCheckedPosts.clear();
                 processing = false;
-                Logger.i(TAG,
+                Logger.i(this,
                         "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance(DateFormat.DEFAULT,
                                 Locale.ENGLISH
                         ).format(new Date())

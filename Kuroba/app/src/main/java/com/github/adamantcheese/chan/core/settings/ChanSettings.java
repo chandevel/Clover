@@ -51,7 +51,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
  */
 
 public class ChanSettings {
-    private static final String TAG = "ChanSettings";
     public static final String EMPTY_JSON = "{}";
     public static final String NOTIFY_ALL_POSTS = "all";
     public static final String NOTIFY_ONLY_QUOTES = "quotes";
@@ -492,7 +491,7 @@ public class ChanSettings {
         } catch (Throwable error) {
             // If something crashes while the settings are initializing we at least will have the
             // stacktrace. Otherwise we won't because of Feather.
-            Logger.e(TAG, "Error while initializing the settings", error);
+            Logger.e("ChanSettings", "Error while initializing the settings", error);
             throw error;
         }
     }
@@ -501,7 +500,7 @@ public class ChanSettings {
         try {
             return gson.fromJson(ChanSettings.jsCaptchaCookies.get(), JsCaptchaCookiesJar.class);
         } catch (Throwable error) {
-            Logger.e(TAG, "Error while trying to deserialize JsCaptchaCookiesJar", error);
+            Logger.e("ChanSettings", "Error while trying to deserialize JsCaptchaCookiesJar", error);
             return JsCaptchaCookiesJar.empty();
         }
     }

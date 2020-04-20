@@ -29,8 +29,6 @@ import android.view.View;
 
 public class TransitionImageView
         extends View {
-    private static final String TAG = "TransitionImageView";
-
     private Bitmap bitmap;
     private Matrix matrix = new Matrix();
     private Paint paint = new Paint();

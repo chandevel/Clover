@@ -26,8 +26,6 @@ import java.util.Comparator;
 import java.util.List;
 
 public class FileWatcher {
-    private static final String TAG = "FileWatcher";
-
     private static final Comparator<FileItem> FILE_COMPARATOR =
             (a, b) -> a.file.getName().compareToIgnoreCase(b.file.getName());
 

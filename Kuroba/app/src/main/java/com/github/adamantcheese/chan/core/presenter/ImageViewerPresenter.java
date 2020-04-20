@@ -70,7 +70,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageViewerPresenter
         implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
-    private static final String TAG = "ImageViewerPresenter";
     private Context context;
     private static final int PRELOAD_IMAGE_INDEX = 1;
     /**
@@ -452,7 +451,7 @@ public class ImageViewerPresenter
 
     private boolean cancelImageDownload(int position, CancelableDownload downloader) {
         if (nonCancelableImages.contains(downloader.getUrl())) {
-            Logger.d(TAG, "Attempt to cancel non cancelable download for image with url: " + downloader.getUrl());
+            Logger.d(this, "Attempt to cancel non cancelable download for image with url: " + downloader.getUrl());
             return false;
         }
 
@@ -675,7 +674,7 @@ public class ImageViewerPresenter
                     if (((Integer) item.getId()) == imageSearch.getId()) {
                         final HttpUrl searchImageUrl = getSearchImageUrl(getCurrentPostImage());
                         if (searchImageUrl == null) {
-                            Logger.e(TAG, "onFloatingMenuItemClicked() searchImageUrl == null");
+                            Logger.e(this, "onFloatingMenuItemClicked() searchImageUrl == null");
                             break;
                         }
 

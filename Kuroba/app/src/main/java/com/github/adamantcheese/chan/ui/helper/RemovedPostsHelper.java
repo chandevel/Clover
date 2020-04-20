@@ -27,8 +27,6 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class RemovedPostsHelper {
-    private final String TAG = "RemovedPostsHelper";
-
     @Inject
     DatabaseManager databaseManager;
 

@@ -25,8 +25,6 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.core.site.SiteRegistry.SITE_CLASSES;
 
 public class SiteRepository {
-    private static final String TAG = "SiteRepository";
-
     private DatabaseManager databaseManager;
     private Sites sitesObservable = new Sites();
 
@@ -82,7 +80,7 @@ public class SiteRepository {
             try {
                 holder = instantiateSiteFromModel(siteModel);
             } catch (IllegalArgumentException e) {
-                Logger.e(TAG, "instantiateSiteFromModel", e);
+                Logger.e(this, "instantiateSiteFromModel", e);
                 break;
             }
 

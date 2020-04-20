@@ -101,7 +101,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WatchManager
         implements WakeManager.Wakeable {
-    private static final String TAG = "WatchManager";
     private static final Intent WATCH_NOTIFICATION_INTENT = new Intent(getAppContext(), WatchNotification.class);
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[]{};
 
@@ -268,7 +267,7 @@ public class WatchManager
 
     public boolean startSavingThread(Loadable loadable, List<Post> postsToSave) {
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
-            Logger.d(TAG, "startSavingThread() LocalThreadsBaseDirectory does not exist");
+            Logger.d(this, "startSavingThread() LocalThreadsBaseDirectory does not exist");
 
             stopSavingAllThread();
             return false;
@@ -739,7 +738,7 @@ public class WatchManager
     private void updateStateInternal(boolean watchEnabled, boolean backgroundEnabled) {
         BackgroundUtils.ensureMainThread();
 
-        Logger.d(TAG,
+        Logger.d(this,
                 "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground="
                         + isInForeground()
         );
@@ -868,7 +867,7 @@ public class WatchManager
         }
 
         if (!hasActivePins()) {
-            Logger.d(TAG, "No active pins found, removing all wakeables");
+            Logger.d(this, "No active pins found, removing all wakeables");
 
             switch (currentInterval) {
                 case FOREGROUND:
@@ -902,7 +901,7 @@ public class WatchManager
                         break;
                 }
 
-                Logger.d(TAG, "Setting interval type from " + currentInterval.name() + " to " + newInterval.name());
+                Logger.d(this, "Setting interval type from " + currentInterval.name() + " to " + newInterval.name());
                 currentInterval = newInterval;
 
                 switch (newInterval) {
@@ -1001,11 +1000,11 @@ public class WatchManager
         }
 
         if (pinsWithDownloadFlag.isEmpty()) {
-            Logger.d(TAG, "No pins found with download flag");
+            Logger.d(this, "No pins found with download flag");
             return;
         }
 
-        Logger.d(TAG, "Found " + pinsWithDownloadFlag.size() + " pins with download flag");
+        Logger.d(this, "Found " + pinsWithDownloadFlag.size() + " pins with download flag");
 
         for (Pin pin : pinsWithDownloadFlag) {
             if (isEnabled) {
@@ -1018,7 +1017,7 @@ public class WatchManager
 
     // Update the watching pins
     private void update(boolean fromBackground) {
-        Logger.d(TAG, "update() from " + (fromBackground ? "background" : "foreground"));
+        Logger.d(this, "update() from " + (fromBackground ? "background" : "foreground"));
 
         if (currentInterval == FOREGROUND) {
             // reschedule handler message
@@ -1045,7 +1044,7 @@ public class WatchManager
         }
 
         if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-            Logger.i(TAG,
+            Logger.i(this,
                     waitingForPinWatchersForBackgroundUpdate.size() + " pin watchers beginning updates, started at "
                             + DateFormat.getTimeInstance(DateFormat.DEFAULT, Locale.ENGLISH).format(new Date())
             );
@@ -1074,16 +1073,16 @@ public class WatchManager
         }
 
         if (hasAtLeastOneDownloadNewPostsPin && hasAtLeastOneWatchNewPostsPin) {
-            Logger.d(TAG, "Current interval is FOREGROUND_INTERVAL_MIXED");
+            Logger.d(this, "Current interval is FOREGROUND_INTERVAL_MIXED");
             return FOREGROUND_INTERVAL_MIXED;
         }
 
         if (hasAtLeastOneWatchNewPostsPin) {
-            Logger.d(TAG, "Current interval is FOREGROUND_INTERVAL_ONLY_WATCHES");
+            Logger.d(this, "Current interval is FOREGROUND_INTERVAL_ONLY_WATCHES");
             return FOREGROUND_INTERVAL_ONLY_WATCHES;
         }
 
-        Logger.d(TAG, "Current interval is FOREGROUND_INTERVAL_ONLY_DOWNLOADS");
+        Logger.d(this, "Current interval is FOREGROUND_INTERVAL_ONLY_DOWNLOADS");
         return FOREGROUND_INTERVAL_ONLY_DOWNLOADS;
     }
 
@@ -1096,7 +1095,7 @@ public class WatchManager
                 waitingForPinWatchersForBackgroundUpdate.remove(pinWatcher);
 
                 if (waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-                    Logger.i(TAG,
+                    Logger.i(this,
                             "All watchers updated, finished at " + DateFormat.getTimeInstance(DateFormat.DEFAULT,
                                     Locale.ENGLISH
                             ).format(new Date())
@@ -1144,8 +1143,6 @@ public class WatchManager
 
     public class PinWatcher
             implements ChanThreadLoader.ChanLoaderCallback, PageRequestManager.PageCallback {
-        private static final String TAG = "PinWatcher";
-
         private final Pin pin;
         private ChanThreadLoader chanLoader;
 
@@ -1161,7 +1158,7 @@ public class WatchManager
         public PinWatcher(Pin pin) {
             this.pin = pin;
 
-            Logger.d(TAG, "created for " + pin.loadable.toString());
+            Logger.d(this, "created for " + pin.loadable.toString());
             chanLoader = chanLoaderManager.obtain(pin.loadable, this);
             pageRequestManager.addListener(this);
         }
@@ -1215,7 +1212,7 @@ public class WatchManager
 
         private void destroy() {
             if (chanLoader != null) {
-                Logger.d(TAG,
+                Logger.d(this,
                         "PinWatcher: destroyed for pin with id " + pin.id + " and loadable" + pin.loadable.toString()
                 );
                 chanLoaderManager.release(chanLoader, this);
@@ -1248,7 +1245,7 @@ public class WatchManager
 
         @Override
         public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
-            Logger.d(TAG, "onChanLoaderError()");
+            Logger.d(this, "onChanLoaderError()");
 
             // Ignore normal network errors, we only pause pins when there is absolutely no way
             // we'll ever need watching again: a 404.
@@ -1356,7 +1353,7 @@ public class WatchManager
             }
 
             if (BuildConfig.DEBUG) {
-                Logger.d(TAG, String.format(
+                Logger.d(this, String.format(
                         Locale.ENGLISH,
                         "postlast=%d postnew=%d werenewposts=%b quotelast=%d quotenew=%d werenewquotes=%b nextload=%ds",
                         pin.watchLastCount,

@@ -37,8 +37,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class PageRequestManager
         implements SiteActions.PagesListener {
-    private static final String TAG = "PageRequestManager";
-
     private Set<String> requestedBoards = Collections.synchronizedSet(new HashSet<>());
     private Set<String> savedBoards = Collections.synchronizedSet(new HashSet<>());
     private ConcurrentMap<String, Pages> boardPagesMap = new ConcurrentHashMap<>();
@@ -61,7 +59,6 @@ public class PageRequestManager
     }
 
     public void forceUpdateForBoard(Board b) {
-        Logger.d(TAG, "Requesting existing board pages, forced");
         requestBoard(b);
     }
 
@@ -86,7 +83,6 @@ public class PageRequestManager
             return boardPagesMap.get(b.code);
         } else {
             //otherwise, get the site for the board and request the pages for it
-            Logger.d(TAG, "Requesting new board pages");
             requestBoard(b);
             return null;
         }
@@ -97,7 +93,6 @@ public class PageRequestManager
         Long lastUpdate = boardTimeMap.get(b.code); //had some null issues for some reason? arisuchan in particular?
         long lastUpdateTime = lastUpdate != null ? lastUpdate : 0L;
         if (lastUpdateTime + MINUTES.toMillis(3) <= System.currentTimeMillis()) {
-            Logger.d(TAG, "Requesting existing board pages for /" + b.code + "/, timeout");
             requestBoard(b);
         }
     }
@@ -125,7 +120,6 @@ public class PageRequestManager
 
     @Override
     public void onPagesReceived(Board b, Pages pages) {
-        Logger.d(TAG, "Got pages for " + b.site.name() + " /" + b.code + "/");
         savedBoards.add(b.code);
         requestedBoards.remove(b.code);
         boardTimeMap.put(b.code, System.currentTimeMillis());

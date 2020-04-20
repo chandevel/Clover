@@ -87,7 +87,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 public class ThreadListLayout
         extends FrameLayout
         implements ReplyLayout.ReplyLayoutCallback {
-    private static final String TAG = "ThreadListLayout";
     public static final int MAX_SMOOTH_SCROLL_DISTANCE = 20;
 
     private ReplyLayout reply;
@@ -522,7 +521,7 @@ public class ThreadListLayout
                     recyclerView.getHeight() - recyclerView.getPaddingTop() - dp(4)
             );
         } else {
-            Logger.wtf(TAG, "Layout manager is grid inside thread??");
+            Logger.wtf(this, "Layout manager is grid inside thread??");
         }
     }
 

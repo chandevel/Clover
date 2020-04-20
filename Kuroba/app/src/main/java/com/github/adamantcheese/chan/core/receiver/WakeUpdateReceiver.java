@@ -32,8 +32,6 @@ import static com.github.adamantcheese.chan.Chan.inject;
 
 public class WakeUpdateReceiver
         extends BroadcastReceiver {
-    private static final String TAG = "WakeUpdateReceiver";
-
     @Inject
     WakeManager wakeManager;
 
@@ -43,7 +41,7 @@ public class WakeUpdateReceiver
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Logger.d(TAG, "Alarm trigger at " + DateFormat.getTimeInstance().format(new Date()));
+        Logger.d(this, "Alarm trigger at " + DateFormat.getTimeInstance().format(new Date()));
         wakeManager.onBroadcastReceived();
     }
 }

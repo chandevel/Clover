@@ -62,8 +62,6 @@ public class MediaSettingsController
         extends SettingsController
         implements SaveLocationSetupDelegate.MediaControllerCallbacks,
                    ThreadsLocationSetupDelegate.MediaControllerCallbacks {
-    private static final String TAG = "MediaSettingsController";
-
     // Special setting views
     private BooleanSettingView boardFolderSetting;
     private BooleanSettingView threadFolderSetting;
@@ -278,7 +276,7 @@ public class MediaSettingsController
     //region Setup Local Threads location
     private void setupLocalThreadLocationSetting(SettingsGroup media) {
         if (!ChanSettings.incrementalThreadDownloadingEnabled.get()) {
-            Logger.d(TAG, "setupLocalThreadLocationSetting() incrementalThreadDownloadingEnabled is disabled");
+            Logger.d(this, "setupLocalThreadLocationSetting() incrementalThreadDownloadingEnabled is disabled");
             return;
         }
 

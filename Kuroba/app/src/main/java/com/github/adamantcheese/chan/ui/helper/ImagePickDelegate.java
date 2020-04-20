@@ -63,8 +63,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImagePickDelegate {
-    private static final String TAG = "ImagePickActivity";
-
     private static final int IMAGE_PICK_RESULT = 2;
     private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
     private static final String DEFAULT_FILE_NAME = "file";
@@ -268,7 +266,7 @@ public class ImagePickDelegate {
 
             success = IOUtils.copy(is, os, MAX_FILE_SIZE);
         } catch (IOException | SecurityException e) {
-            Logger.e(TAG, "Error copying file from the file descriptor", e);
+            Logger.e(this, "Error copying file from the file descriptor", e);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(os);
@@ -276,7 +274,7 @@ public class ImagePickDelegate {
 
         if (!success) {
             if (!fileManager.delete(cacheFile)) {
-                Logger.e(TAG, "Could not delete picked_file after copy fail");
+                Logger.e(this, "Could not delete picked_file after copy fail");
             }
         }
 

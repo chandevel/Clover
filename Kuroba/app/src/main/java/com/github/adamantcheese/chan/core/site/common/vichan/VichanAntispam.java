@@ -44,7 +44,6 @@ import okhttp3.ResponseBody;
  * {@link #get()} blocks, run it off the main thread.
  */
 public class VichanAntispam {
-    private static final String TAG = "Antispam";
     private HttpUrl url;
     private NetModule.ProxiedOkHttpClient okHttpClient;
 
@@ -103,9 +102,9 @@ public class VichanAntispam {
                 }
             }
         } catch (IOException e) {
-            Logger.e(TAG, "IOException parsing vichan bot fields", e);
+            Logger.e(this, "IOException parsing vichan bot fields", e);
         } catch (NullPointerException e) {
-            Logger.e(TAG, "NullPointerException parsing vichan bot fields", e);
+            Logger.e(this, "NullPointerException parsing vichan bot fields", e);
         }
 
         return res;

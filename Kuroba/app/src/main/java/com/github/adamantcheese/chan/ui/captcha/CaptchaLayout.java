@@ -59,7 +59,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 public class CaptchaLayout
         extends WebView
         implements AuthenticationLayoutInterface {
-    private static final String TAG = "CaptchaLayout";
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
     private static final String COOKIE_DOMAIN = "google.com";
@@ -115,7 +114,7 @@ public class CaptchaLayout
             @Override
             public boolean onConsoleMessage(@NonNull ConsoleMessage consoleMessage) {
                 Logger.i(
-                        TAG,
+                        CaptchaLayout.this,
                         consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId()
                 );
                 return true;

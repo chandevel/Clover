@@ -34,7 +34,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class ArchivesManager
         implements SiteActions.ArchiveRequestListener {
-    private final String TAG = "ArchivesManager";
     private List<Archives> archivesList;
 
     public ArchivesManager() {
@@ -45,7 +44,7 @@ public class ArchivesManager
             JsonReader reader = new JsonReader(new InputStreamReader(json));
             archivesList = parseArchives(reader);
         } catch (Exception e) {
-            Logger.d(TAG, "Unable to load/parse internal archives list");
+            Logger.d(this, "Unable to load/parse internal archives list");
         }
     }
 
@@ -104,7 +103,7 @@ public class ArchivesManager
 
     @Override
     public void onArchivesReceived(List<Archives> archives) {
-        Logger.d(TAG, "Got archives");
+        Logger.d(this, "Got archives");
         archivesList = archives;
     }
 

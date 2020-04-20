@@ -40,8 +40,6 @@ public class ThreadSlideController
         extends Controller
         implements DoubleNavigationController, SlidingPaneLayout.PanelSlideListener,
                    ToolbarNavigationController.ToolbarSearchCallback {
-    private static final String TAG = "ThreadSlideController";
-
     public Controller leftController;
     public Controller rightController;
 
@@ -88,7 +86,7 @@ public class ThreadSlideController
             field.setAccessible(true);
             restoredOpen = field.getBoolean(slidingPaneLayout);
         } catch (Exception e) {
-            Logger.e(TAG, "Error getting restored open state with reflection", e);
+            Logger.e(this, "Error getting restored open state with reflection", e);
         }
         if (restoredOpen != leftOpen) {
             leftOpen = restoredOpen;

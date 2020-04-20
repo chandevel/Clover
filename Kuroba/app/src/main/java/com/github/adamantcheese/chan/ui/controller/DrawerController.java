@@ -69,8 +69,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class DrawerController
         extends Controller
         implements DrawerAdapter.Callback, View.OnClickListener {
-    private static final String TAG = "DrawerController";
-
     protected FrameLayout container;
     protected DrawerLayout drawerLayout;
     protected LinearLayout drawer;
@@ -114,7 +112,7 @@ public class DrawerController
 
         Disposable disposable = settingsNotificationManager.listenForNotificationUpdates()
                 .subscribe(activeNotifications -> drawerAdapter.onNotificationsChanged(),
-                        (error) -> Logger.e(TAG, "Unknown error from SettingsNotificationManager", error)
+                        (error) -> Logger.e(DrawerController.this, "Unknown error from SettingsNotificationManager", error)
                 );
 
         compositeDisposable.add(disposable);

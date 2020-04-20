@@ -30,8 +30,6 @@ import java.util.List;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 
 public class BoardHelper {
-    private static final String TAG = "BoardHelper";
-
     public static String getName(Board board) {
         return "/" + board.code + "/ \u2013 " + board.name;
     }

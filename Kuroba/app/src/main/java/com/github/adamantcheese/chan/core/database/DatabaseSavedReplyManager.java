@@ -40,8 +40,6 @@ import static com.github.adamantcheese.chan.Chan.instance;
  * and used to delete posts.
  */
 public class DatabaseSavedReplyManager {
-    private static final String TAG = "DatabaseSavedReplyManager";
-
     private static final long SAVED_REPLY_TRIM_TRIGGER = 250;
     private static final long SAVED_REPLY_TRIM_COUNT = 50;
 

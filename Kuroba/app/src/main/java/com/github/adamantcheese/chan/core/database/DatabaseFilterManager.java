@@ -30,8 +30,6 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class DatabaseFilterManager {
-    private static final String TAG = "DatabaseFilterManager";
-
     @Inject
     DatabaseHelper helper;
 

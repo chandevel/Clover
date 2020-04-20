@@ -57,7 +57,6 @@ import static com.github.adamantcheese.chan.Chan.inject;
  */
 public class ChanReaderRequest
         extends JsonReaderRequest<ChanLoaderResponse> {
-    private static final String TAG = "ChanReaderRequest";
     private static final int THREAD_COUNT;
     private static final ExecutorService EXECUTOR;
     private static final String threadFactoryName = "post_parser_thread_%d";
@@ -65,7 +64,6 @@ public class ChanReaderRequest
 
     static {
         THREAD_COUNT = Runtime.getRuntime().availableProcessors();
-        Logger.d(TAG, "Thread count: " + THREAD_COUNT);
         EXECUTOR = Executors.newFixedThreadPool(THREAD_COUNT, r -> {
             String threadName = String.format(Locale.ENGLISH, threadFactoryName, threadIndex.getAndIncrement());
             return new Thread(r, threadName);

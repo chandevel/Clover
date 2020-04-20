@@ -29,8 +29,6 @@ import java.util.List;
  */
 public class WebmStreamingDataSource
         extends BaseDataSource {
-    private final String TAG = "WebmStreamingDataSource";
-
     class PartialFileCache {
         class RegionStats {
             final List<Range<Long>> cachedRanges;
@@ -237,8 +235,7 @@ public class WebmStreamingDataSource
     private boolean opened = false;
 
     public WebmStreamingDataSource(@Nullable Uri uri, RawFile file, FileManager fileManager) {
-        super(/* isNetwork= */ true);
-        Logger.i(TAG, "WebmStreamingDataSource");
+        super(true);
 
         this.dataSource = new DefaultHttpDataSourceFactory(NetModule.USER_AGENT).createDataSource();
 
@@ -251,7 +248,7 @@ public class WebmStreamingDataSource
             throws HttpDataSource.HttpDataSourceException {
         this.fileLength = dataSource.open(new DataSpec(uri, 0, C.LENGTH_UNSET, null));
 
-        Logger.i(TAG, "detectLength: " + this.fileLength);
+        Logger.i(this, "detectLength: " + this.fileLength);
     }
 
     private void prepare()
@@ -299,7 +296,7 @@ public class WebmStreamingDataSource
 
         transferInitializing(dataSpec);
 
-        Logger.i(TAG, "opening, position: " + dataSpec.position + " length: " + dataSpec.length);
+        Logger.i(this, "opening, position: " + dataSpec.position + " length: " + dataSpec.length);
         partialFileCache.seek(dataSpec.position);
 
         long bytesRemaining = dataSpec.length == C.LENGTH_UNSET ? fileLength - dataSpec.position : dataSpec.length;
@@ -381,7 +378,7 @@ public class WebmStreamingDataSource
         try (FileOutputStream fos = new FileOutputStream(innerFile)) {
             fos.write(partialFileCache.getCacheBytes());
         } catch (Exception e) {
-            Logger.e(TAG, "cacheComplete: caught exception", e);
+            Logger.e(this, "cacheComplete: caught exception", e);
             return;
         }
 
@@ -417,7 +414,7 @@ public class WebmStreamingDataSource
     @Override
     public void close()
             throws IOException {
-        Logger.i(TAG, "close");
+        Logger.i(this, "close");
         try {
             if (dataSource != null) {
                 dataSource.close();

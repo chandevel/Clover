@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
+    private static final String TAG = "StringUtils";
     private static final Pattern IMAGE_THUMBNAIL_EXTRACTOR_PATTERN = Pattern.compile("/(\\d{12,32}+)s.(.*)");
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toLowerCase(Locale.ENGLISH).toCharArray();
     private static final String RESERVED_CHARACTERS = "|?*<\":>+\\[]/'\\\\\\s";
@@ -89,7 +90,7 @@ public class StringUtils {
         try {
             bytes = Base64.decode(base64Encoded, Base64.DEFAULT);
         } catch (Throwable error) {
-            Logger.e("decodeBase64", "Error decoding base64 string! Msg: " + error.getMessage());
+            Logger.e(TAG, "Error decoding base64 string! Msg: " + error.getMessage());
             return null;
         }
 

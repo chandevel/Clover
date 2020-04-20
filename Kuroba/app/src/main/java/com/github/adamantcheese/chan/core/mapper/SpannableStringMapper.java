@@ -34,8 +34,6 @@ import com.google.gson.Gson;
 import static com.github.adamantcheese.chan.Chan.instance;
 
 public class SpannableStringMapper {
-    private static final String TAG = "SpannableStringMapper";
-
     @Nullable
     public static SerializableSpannableString serializeSpannableString(@Nullable CharSequence charSequence) {
         if (charSequence == null || charSequence.length() == 0) {

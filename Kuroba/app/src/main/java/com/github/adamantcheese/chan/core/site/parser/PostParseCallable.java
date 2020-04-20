@@ -29,8 +29,6 @@ import java.util.concurrent.Callable;
 // belong to ChanReaderRequest
 class PostParseCallable
         implements Callable<Post> {
-    private static final String TAG = "PostParseCallable";
-
     private FilterEngine filterEngine;
     private List<Filter> filters;
     private DatabaseSavedReplyManager savedReplyManager;

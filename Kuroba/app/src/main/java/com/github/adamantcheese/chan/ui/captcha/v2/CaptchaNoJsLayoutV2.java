@@ -59,7 +59,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class CaptchaNoJsLayoutV2
         extends FrameLayout
         implements AuthenticationLayoutInterface, CaptchaNoJsPresenterV2.AuthenticationCallbacks {
-    private static final String TAG = "CaptchaNoJsLayoutV2";
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
     private AppCompatTextView captchaChallengeTitle;
@@ -193,7 +192,7 @@ public class CaptchaNoJsLayoutV2
     @Override
     public void onCaptchaInfoParseError(Throwable error) {
         BackgroundUtils.runOnMainThread(() -> {
-            Logger.e(TAG, "CaptchaV2 error", error);
+            Logger.e(CaptchaNoJsLayoutV2.this, "CaptchaV2 error", error);
             showToast(getContext(), error.getMessage(), Toast.LENGTH_LONG);
             captchaVerifyButton.setEnabled(true);
             callback.onFallbackToV1CaptchaView(isAutoReply);

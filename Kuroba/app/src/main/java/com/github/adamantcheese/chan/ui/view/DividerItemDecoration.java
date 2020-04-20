@@ -21,13 +21,14 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.github.adamantcheese.chan.utils.Logger;
 
 /**
  * DividerItemDecoration is a {@link RecyclerView.ItemDecoration} that can be used as a divider
@@ -45,7 +46,6 @@ public class DividerItemDecoration
     public static final int HORIZONTAL = LinearLayout.HORIZONTAL;
     public static final int VERTICAL = LinearLayout.VERTICAL;
 
-    private static final String TAG = "DividerItem";
     private static final int[] ATTRS = new int[]{android.R.attr.listDivider};
 
     private Drawable mDivider;
@@ -68,8 +68,8 @@ public class DividerItemDecoration
         final TypedArray a = context.obtainStyledAttributes(ATTRS);
         mDivider = a.getDrawable(0);
         if (mDivider == null) {
-            Log.w(
-                    TAG,
+            Logger.w(
+                    this,
                     "@android:attr/listDivider was not set in the theme used for this "
                             + "DividerItemDecoration. Please set that attribute all call setDrawable()"
             );

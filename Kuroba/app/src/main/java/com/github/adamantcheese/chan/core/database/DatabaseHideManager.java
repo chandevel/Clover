@@ -29,8 +29,6 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class DatabaseHideManager {
-    private static final String TAG = "DatabaseHideManager";
-
     private static final long POST_HIDE_TRIM_TRIGGER = 25000;
     private static final long POST_HIDE_TRIM_COUNT = 5000;
 
@@ -168,7 +166,7 @@ public class DatabaseHideManager {
             if (post.hasFilterParameters()) {
                 if (post.filterRemove && post.filterStub) {
                     // wtf?
-                    Logger.w(TAG, "Post has both filterRemove and filterStub flags");
+                    Logger.w(this, "Post has both filterRemove and filterStub flags");
                     continue;
                 }
 

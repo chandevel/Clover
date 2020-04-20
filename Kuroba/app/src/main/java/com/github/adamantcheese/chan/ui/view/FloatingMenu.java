@@ -179,7 +179,7 @@ public class FloatingMenu {
 
         globalLayoutListener = () -> {
             if (popupWindow == null) {
-                Logger.d("FloatingMenu", "popupWindow null in layout listener");
+                Logger.d(FloatingMenu.this, "popupWindow null in layout listener");
             } else {
                 if (popupWindow.isShowing()) {
                     // Recalculate anchor position

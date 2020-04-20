@@ -33,8 +33,6 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class DatabaseHistoryManager {
-    private static final String TAG = "DatabaseHistoryManager";
-
     private static final long HISTORY_TRIM_TRIGGER = 100;
     private static final long HISTORY_TRIM_COUNT = 50;
 

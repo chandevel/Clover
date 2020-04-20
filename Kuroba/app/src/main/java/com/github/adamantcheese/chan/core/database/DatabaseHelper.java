@@ -97,7 +97,7 @@ public class DatabaseHelper
             siteDao = getDao(SiteModel.class);
             savedThreadDao = getDao(SavedThread.class);
         } catch (SQLException e) {
-            Logger.e(TAG, "Error creating dao's", e);
+            Logger.e(this, "Error creating dao's", e);
         }
     }
 
@@ -106,7 +106,7 @@ public class DatabaseHelper
         try {
             createTables(connectionSource);
         } catch (SQLException e) {
-            Logger.e(TAG, "Error creating db", e);
+            Logger.e(this, "Error creating db", e);
             throw new RuntimeException(e);
         }
     }
@@ -143,7 +143,7 @@ public class DatabaseHelper
      */
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
-        Logger.i(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
+        Logger.i(this, "Upgrading database from " + oldVersion + " to " + newVersion);
 
         if (oldVersion < 25) {
             try {
@@ -151,7 +151,7 @@ public class DatabaseHelper
                 boardsDao.executeRawNoArgs("CREATE INDEX board_saved_idx ON board(saved);");
                 boardsDao.executeRawNoArgs("CREATE INDEX board_value_idx ON board(value);");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 25", e);
+                Logger.e(this, "Error upgrading to version 25", e);
             }
         }
 
@@ -160,7 +160,7 @@ public class DatabaseHelper
                 postHideDao.executeRawNoArgs("ALTER TABLE threadhide RENAME TO posthide;");
                 postHideDao.executeRawNoArgs("ALTER TABLE posthide ADD COLUMN whole_thread INTEGER default 0");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 26", e);
+                Logger.e(this, "Error upgrading to version 26", e);
             }
         }
 
@@ -171,7 +171,7 @@ public class DatabaseHelper
                 postHideDao.executeRawNoArgs("CREATE INDEX posthide_board_idx ON posthide(board);");
                 postHideDao.executeRawNoArgs("CREATE INDEX posthide_no_idx ON posthide(no);");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 27", e);
+                Logger.e(this, "Error upgrading to version 27", e);
             }
         }
 
@@ -182,7 +182,7 @@ public class DatabaseHelper
                         "ALTER TABLE posthide ADD COLUMN hide_replies_to_this_post INTEGER default 0");
                 filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN apply_to_replies INTEGER default 0");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 28", e);
+                Logger.e(this, "Error upgrading to version 28", e);
             }
         }
 
@@ -190,7 +190,7 @@ public class DatabaseHelper
             try {
                 postHideDao.executeRawNoArgs("ALTER TABLE posthide ADD COLUMN thread_no INTEGER default 0");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 29", e);
+                Logger.e(this, "Error upgrading to version 29", e);
             }
         }
 
@@ -204,7 +204,7 @@ public class DatabaseHelper
                         + "INSERT INTO board SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board_backup;\n"
                         + "DROP TABLE board_backup;\n" + "COMMIT;");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 30");
+                Logger.e(this, "Error upgrading to version 30");
             }
         }
 
@@ -212,7 +212,7 @@ public class DatabaseHelper
             try {
                 loadableDao.executeRawNoArgs("UPDATE loadable SET mode = 1 WHERE mode = 2");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 31");
+                Logger.e(this, "Error upgrading to version 31");
             }
         }
 
@@ -220,7 +220,7 @@ public class DatabaseHelper
             try {
                 filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN \"order\" INTEGER");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 32");
+                Logger.e(this, "Error upgrading to version 32");
             }
         }
 
@@ -230,7 +230,7 @@ public class DatabaseHelper
             try {
                 filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN onlyOnOP INTEGER default 0");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 34");
+                Logger.e(this, "Error upgrading to version 34");
             }
         }
 
@@ -238,7 +238,7 @@ public class DatabaseHelper
             try {
                 filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN applyToSaved INTEGER default 0");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 35");
+                Logger.e(this, "Error upgrading to version 35");
             }
         }
 
@@ -253,7 +253,7 @@ public class DatabaseHelper
                 // to set flag WatchNewPosts for all of the old pins
                 filterDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN pin_type INTEGER NOT NULL DEFAULT 1");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 36", e);
+                Logger.e(this, "Error upgrading to version 36", e);
             }
         }
 
@@ -262,27 +262,27 @@ public class DatabaseHelper
                 //reset all settings, key was never saved which caused issues
                 siteDao.executeRawNoArgs("UPDATE site SET userSettings='{}'");
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 37", e);
+                Logger.e(this, "Error upgrading to version 37", e);
             }
         }
 
         if (oldVersion < 38) {
             try {
-                Logger.d(TAG, "Removing Chan55");
+                Logger.d(this, "Removing Chan55");
                 deleteSiteByRegistryID(7);
-                Logger.d(TAG, "Removed Chan55 successfully");
+                Logger.d(this, "Removed Chan55 successfully");
             } catch (Exception e) {
-                Logger.e(TAG, "Error upgrading to version 38");
+                Logger.e(this, "Error upgrading to version 38");
             }
         }
 
         if (oldVersion < 39) {
             try {
-                Logger.d(TAG, "Removing 8Chan");
+                Logger.d(this, "Removing 8Chan");
                 deleteSiteByRegistryID(1);
-                Logger.d(TAG, "Removed 8Chan successfully");
+                Logger.d(this, "Removed 8Chan successfully");
             } catch (Exception e) {
-                Logger.e(TAG, "Error upgrading to version 39");
+                Logger.e(this, "Error upgrading to version 39");
             }
         }
 
@@ -340,7 +340,7 @@ public class DatabaseHelper
                 } catch (Exception ignored) {
                 }
             } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 40");
+                Logger.e(this, "Error upgrading to version 40");
             }
         }
 
@@ -362,17 +362,17 @@ public class DatabaseHelper
                     }
                 }
             } catch (Exception e) {
-                Logger.e(TAG, "Error upgrading to version 42");
+                Logger.e(this, "Error upgrading to version 42");
             }
         }
 
         if (oldVersion < 43) {
             try {
-                Logger.d(TAG, "Removing Arisuchan");
+                Logger.d(this, "Removing Arisuchan");
                 deleteSiteByRegistryID(3);
-                Logger.d(TAG, "Removed Arisuchan successfully");
+                Logger.d(this, "Removed Arisuchan successfully");
             } catch (Exception e) {
-                Logger.e(TAG, "Error upgrading to version 44");
+                Logger.e(this, "Error upgrading to version 44");
             }
         }
 
@@ -411,7 +411,7 @@ public class DatabaseHelper
                 BooleanSetting uploadCrashLogs = getSettingForKey(p, "auto_upload_crash_logs", BooleanSetting.class);
                 ChanSettings.collectCrashLogs.set(uploadCrashLogs.get());
             } catch (Exception e) {
-                Logger.e(TAG, "Error upgrading to version 43");
+                Logger.e(this, "Error upgrading to version 43");
             }
         }
     }
@@ -422,10 +422,10 @@ public class DatabaseHelper
     }
 
     public void reset() {
-        Logger.i(TAG, "Resetting database!");
+        Logger.i(this, "Resetting database!");
 
         if (context.deleteDatabase(DATABASE_NAME)) {
-            Logger.i(TAG, "Deleted database");
+            Logger.i(this, "Deleted database");
         }
     }
 

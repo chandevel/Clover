@@ -41,7 +41,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class CaptchaNoJsPresenterV2 {
-    private static final String TAG = "CaptchaNoJsPresenterV2";
     private static final String userAgentHeader =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36";
     private static final String acceptHeader =
@@ -92,13 +91,13 @@ public class CaptchaNoJsPresenterV2 {
     public VerifyError verify(List<Integer> selectedIds)
             throws CaptchaNoJsV2Error {
         if (!verificationInProgress.compareAndSet(false, true)) {
-            Logger.d(TAG, "Verify captcha request is already in progress");
+            Logger.d(this, "Verify captcha request is already in progress");
             return VerifyError.ALREADY_IN_PROGRESS;
         }
 
         if (executor.isShutdown()) {
             verificationInProgress.set(false);
-            Logger.d(TAG, "Cannot verify, executor has been shut down");
+            Logger.d(this, "Cannot verify, executor has been shut down");
             return VerifyError.ALREADY_SHUTDOWN;
         }
 
@@ -121,7 +120,7 @@ public class CaptchaNoJsPresenterV2 {
                     String recaptchaUrl = recaptchaUrlBase + siteKey;
                     RequestBody body = createResponseBody(prevCaptchaInfo, selectedIds);
 
-                    Logger.d(TAG, "Verify called");
+                    Logger.d(CaptchaNoJsPresenterV2.this, "Verify called");
 
                     Request request = new Request.Builder().url(recaptchaUrl)
                             .post(body)
@@ -162,7 +161,7 @@ public class CaptchaNoJsPresenterV2 {
      */
     public RequestCaptchaInfoError requestCaptchaInfo() {
         if (!captchaRequestInProgress.compareAndSet(false, true)) {
-            Logger.d(TAG, "Request captcha request is already in progress");
+            Logger.d(this, "Request captcha request is already in progress");
             return RequestCaptchaInfoError.ALREADY_IN_PROGRESS;
         }
 
@@ -170,13 +169,13 @@ public class CaptchaNoJsPresenterV2 {
             // recaptcha may become very angry at you if your are fetching it too fast
             if (System.currentTimeMillis() - lastTimeCaptchaRequest < CAPTCHA_REQUEST_THROTTLE_MS) {
                 captchaRequestInProgress.set(false);
-                Logger.d(TAG, "Requesting captcha info too fast");
+                Logger.d(this, "Requesting captcha info too fast");
                 return RequestCaptchaInfoError.HOLD_YOUR_HORSES;
             }
 
             if (executor.isShutdown()) {
                 captchaRequestInProgress.set(false);
-                Logger.d(TAG, "Cannot request captcha info, executor has been shut down");
+                Logger.d(this, "Cannot request captcha info, executor has been shut down");
                 return RequestCaptchaInfoError.ALREADY_SHUTDOWN;
             }
 
@@ -194,7 +193,7 @@ public class CaptchaNoJsPresenterV2 {
                         throw error;
                     }
                 } catch (Throwable error) {
-                    Logger.e(TAG, "Error while executing captcha requests", error);
+                    Logger.e(CaptchaNoJsPresenterV2.this, "Error while executing captcha requests", error);
 
                     prevCaptchaInfo = null;
                 } finally {
@@ -292,7 +291,7 @@ public class CaptchaNoJsPresenterV2 {
             if (bodyString.contains(verificationTokenString)) {
                 // got the token
                 String verificationToken = parser.parseVerificationToken(bodyString);
-                Logger.d(TAG, "Got the verification token");
+                Logger.d(this, "Got the verification token");
 
                 if (callbacks != null) {
                     callbacks.onVerificationDone(verificationToken);
@@ -302,7 +301,7 @@ public class CaptchaNoJsPresenterV2 {
             } else {
                 // got the challenge
                 CaptchaInfo captchaInfo = parser.parseHtml(bodyString, siteKey);
-                Logger.d(TAG, "Got new challenge");
+                Logger.d(this, "Got new challenge");
 
                 if (callbacks != null) {
                     callbacks.onCaptchaInfoParsed(captchaInfo);
@@ -315,7 +314,7 @@ public class CaptchaNoJsPresenterV2 {
                 return captchaInfo;
             }
         } catch (Throwable e) {
-            Logger.e(TAG, "Error while trying to parse captcha html data", e);
+            Logger.e(this, "Error while trying to parse captcha html data", e);
 
             if (callbacks != null) {
                 callbacks.onCaptchaInfoParseError(e);

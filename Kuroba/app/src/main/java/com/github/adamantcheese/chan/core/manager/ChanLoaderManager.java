@@ -40,7 +40,6 @@ import static com.github.adamantcheese.chan.Chan.instance;
  * as many times as you want as long as you call release an equal amount of times.
  */
 public class ChanLoaderManager {
-    private static final String TAG = "ChanLoaderManager";
     public static final int THREAD_LOADERS_CACHE_SIZE = 25;
 
     //map between a loadable and a chan loader instance for it, currently in use
@@ -88,7 +87,7 @@ public class ChanLoaderManager {
         if (loadable.isThreadMode()) {
             ChanThreadLoader foundChanLoader = threadLoaders.get(loadable);
             if (foundChanLoader == null) {
-                Logger.wtf(TAG, "Loader doesn't exist.");
+                Logger.wtf(this, "Loader doesn't exist.");
                 throw new IllegalStateException("The released loader does not exist");
             }
 

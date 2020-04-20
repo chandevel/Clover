@@ -37,8 +37,6 @@ import javax.inject.Inject;
  * favorite board list, along with a {@link Board#order} in which they appear.
  */
 public class BoardManager {
-    private static final String TAG = "BoardManager";
-
     private final BoardRepository boardRepository;
 
     @Inject

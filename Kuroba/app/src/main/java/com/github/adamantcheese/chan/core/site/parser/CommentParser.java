@@ -60,8 +60,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParser {
-    private static final String TAG = "CommentParser";
-
     private static final String SAVED_REPLY_SELF_SUFFIX = " (Me)";
     private static final String SAVED_REPLY_OTHER_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
@@ -219,7 +217,6 @@ public class CommentParser {
     private void addMockReply(
             Theme theme, Post.Builder post, SpannableStringBuilder spannableStringBuilder, int mockReplyPostNo
     ) {
-        Logger.d(TAG, "Adding a new mock reply (replyTo: " + mockReplyPostNo + ", replyFrom: " + post.id + ")");
         post.addReplyTo(mockReplyPostNo);
 
         CharSequence replyText = ">>" + mockReplyPostNo + " (MOCK)";

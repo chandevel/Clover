@@ -54,7 +54,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class ImportExportSettingsController
         extends SettingsController
         implements ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
-    private static final String TAG = "ImportExportSettingsController";
     public static final String EXPORT_FILE_NAME = getApplicationLabel() + "_exported_settings.json";
 
     @Inject
@@ -254,7 +253,7 @@ public class ImportExportSettingsController
         if (externalFile == null) {
             String message = "onFileChosen() fileManager.fromUri() returned null, uri = " + uri;
 
-            Logger.d(TAG, message);
+            Logger.d(this, message);
             showToast(context, message, Toast.LENGTH_LONG);
             return;
         }
@@ -271,7 +270,7 @@ public class ImportExportSettingsController
                 if (externalFile == null) {
                     String message = "onImportClicked() fileManager.fromUri() returned null, uri = " + uri;
 
-                    Logger.d(TAG, message);
+                    Logger.d(ImportExportSettingsController.this, message);
                     showToast(context, message, Toast.LENGTH_LONG);
                     return;
                 }

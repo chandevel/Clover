@@ -84,20 +84,14 @@ import static java.util.concurrent.TimeUnit.DAYS;
  * screen is launched after downloading.
  */
 public class UpdateManager {
-    private static final String TAG = "UpdateManager";
-
     @Inject
     RequestQueue volleyRequestQueue;
-
     @Inject
     FileCacheV2 fileCacheV2;
-
     @Inject
     FileManager fileManager;
-
     @Inject
     SettingsNotificationManager settingsNotificationManager;
-
     @Inject
     FileChooser fileChooser;
 
@@ -177,7 +171,7 @@ public class UpdateManager {
             }
         }
 
-        Logger.d(TAG, "Calling update API");
+        Logger.d(this, "Calling update API");
         if (!BuildConfig.DEV_BUILD) {
             //region Release build
             volleyRequestQueue.add(new UpdateApiRequest(response -> {
@@ -288,7 +282,7 @@ public class UpdateManager {
     }
 
     private void failedUpdate(boolean manual) {
-        Logger.e(TAG, "Failed to process " + (BuildConfig.DEV_BUILD ? "dev" : "stable") + " API call for updating");
+        Logger.e(this, "Failed to process " + (BuildConfig.DEV_BUILD ? "dev" : "stable") + " API call for updating");
         if (manual && BackgroundUtils.isInForeground()) {
             new AlertDialog.Builder(context).setTitle(R.string.update_check_failed)
                     .setPositiveButton(R.string.ok, null)

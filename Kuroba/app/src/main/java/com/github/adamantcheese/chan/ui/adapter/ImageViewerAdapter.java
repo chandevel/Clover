@@ -30,8 +30,6 @@ import java.util.List;
 
 public class ImageViewerAdapter
         extends ViewPagerAdapter {
-    private static final String TAG = "ImageViewerAdapter";
-
     private final List<PostImage> images;
     private final Loadable loadable;
     private final MultiImageView.Callback multiImageViewCallback;
@@ -85,7 +83,7 @@ public class ImageViewerAdapter
         for (ModeChange change : pendingModeChanges) {
             MultiImageView view = find(change.postImage);
             if (view == null || view.getWindowToken() == null) {
-                Logger.w(TAG, "finishUpdate setMode view still not found");
+                Logger.w(this, "finishUpdate setMode view still not found");
             } else {
                 view.setMode(loadable, change.mode, change.center);
             }
@@ -113,7 +111,7 @@ public class ImageViewerAdapter
     public MultiImageView.Mode getMode(PostImage postImage) {
         MultiImageView view = find(postImage);
         if (view == null) {
-            Logger.w(TAG, "getMode view not found");
+            Logger.w(this, "getMode view not found");
             return null;
         } else {
             return view.getMode();

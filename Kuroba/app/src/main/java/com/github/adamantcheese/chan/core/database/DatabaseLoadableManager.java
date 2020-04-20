@@ -41,8 +41,6 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 
 public class DatabaseLoadableManager {
-    private static final String TAG = "DatabaseLoadableManager";
-
     @Inject
     DatabaseHelper helper;
 
@@ -68,7 +66,7 @@ public class DatabaseLoadableManager {
             }
 
             if (!toFlush.isEmpty()) {
-                Logger.d(TAG, "Flushing " + toFlush.size() + " loadable(s)");
+                Logger.d(DatabaseLoadableManager.this, "Flushing " + toFlush.size() + " loadable(s)");
                 for (Loadable loadable : toFlush) {
                     helper.loadableDao.update(loadable);
                 }
@@ -138,7 +136,7 @@ public class DatabaseLoadableManager {
         return () -> {
             Loadable cachedLoadable = cachedLoadables.get(loadable);
             if (cachedLoadable != null) {
-                Logger.v(TAG, "Cached loadable found");
+                Logger.v(DatabaseLoadableManager.this, "Cached loadable found");
                 return cachedLoadable;
             } else {
                 QueryBuilder<Loadable, Integer> builder = helper.loadableDao.queryBuilder();
@@ -153,19 +151,19 @@ public class DatabaseLoadableManager {
                         .query();
 
                 if (results.size() > 1) {
-                    Log.w(TAG, "Multiple loadables found for where Loadable.equals() would return true");
+                    Logger.w(DatabaseLoadableManager.this, "Multiple loadables found for where Loadable.equals() would return true");
                     for (Loadable result : results) {
-                        Log.w(TAG, result.toString());
+                        Logger.w(DatabaseLoadableManager.this, result.toString());
                     }
                 }
 
                 Loadable result = results.isEmpty() ? null : results.get(0);
                 if (result == null) {
-                    Log.d(TAG, "Creating loadable");
+                    Logger.d(DatabaseLoadableManager.this, "Creating loadable");
                     helper.loadableDao.create(loadable);
                     result = loadable;
                 } else {
-                    Log.d(TAG, "Loadable found in db");
+                    Logger.d(DatabaseLoadableManager.this, "Loadable found in db");
                     result.site = instance(SiteRepository.class).forId(result.siteId);
                     result.board = result.site.board(result.boardCode);
                 }

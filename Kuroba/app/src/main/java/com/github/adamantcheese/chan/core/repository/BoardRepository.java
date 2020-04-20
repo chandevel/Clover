@@ -33,8 +33,6 @@ import javax.inject.Inject;
 
 public class BoardRepository
         implements Observer {
-    private static final String TAG = "BoardRepository";
-
     private final DatabaseManager databaseManager;
     private final DatabaseBoardManager databaseBoardManager;
 
@@ -66,7 +64,7 @@ public class BoardRepository
 
     public void updateAvailableBoardsForSite(Site site, List<Board> availableBoards) {
         boolean changed = databaseManager.runTask(databaseBoardManager.createAll(site, availableBoards));
-        Logger.d(TAG, "updateAvailableBoardsForSite changed = " + changed);
+        Logger.d(this, "updateAvailableBoardsForSite changed = " + changed);
         if (changed) {
             updateObservablesAsync();
         }

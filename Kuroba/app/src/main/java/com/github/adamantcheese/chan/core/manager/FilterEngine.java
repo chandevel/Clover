@@ -54,8 +54,6 @@ import static com.github.adamantcheese.chan.core.manager.FilterType.TRIPCODE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class FilterEngine {
-    private static final String TAG = "FilterEngine";
-
     public enum FilterAction {
         HIDE(0),
         COLOR(1),
@@ -135,7 +133,7 @@ public class FilterEngine {
         try {
             return databaseFilterManager.getFilters().call();
         } catch (Exception e) {
-            Logger.wtf(TAG, "Couldn't get all filters for some reason.");
+            Logger.wtf(this, "Couldn't get all filters for some reason.");
             return new ArrayList<>();
         }
     }
@@ -313,7 +311,7 @@ public class FilterEngine {
                 synchronized (patternCache) {
                     patternCache.put(filter.pattern, pattern);
                 }
-                Logger.d(TAG, "Resulting pattern: " + pattern.pattern());
+                Logger.d(this, "Resulting pattern: " + pattern.pattern());
             }
         }
 
@@ -322,11 +320,11 @@ public class FilterEngine {
             try {
                 return matcher.find();
             } catch (IllegalArgumentException e) {
-                Logger.w(TAG, "matcher.find() exception", e);
+                Logger.w(this, "matcher.find() exception", e);
                 return false;
             }
         } else {
-            Logger.e(TAG, "Invalid pattern");
+            Logger.e(this, "Invalid pattern");
             return false;
         }
     }

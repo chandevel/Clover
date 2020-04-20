@@ -51,8 +51,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 
 public class ImageSaveTask
         extends FileCacheListener {
-    private static final String TAG = "ImageSaveTask";
-
     @Inject
     FileCacheV2 fileCacheV2;
     @Inject
@@ -114,7 +112,7 @@ public class ImageSaveTask
 
     public Single<ImageSaver.BundledDownloadResult> run() {
         BackgroundUtils.ensureBackgroundThread();
-        Logger.d(TAG, "ImageSaveTask.run() destination = " + destination.getFullPath());
+        Logger.d(this, "ImageSaveTask.run() destination = " + destination.getFullPath());
 
         @Nullable
         Action onDisposeFunc = null;
@@ -172,7 +170,7 @@ public class ImageSaveTask
     private void deleteDestination() {
         if (fileManager.exists(destination)) {
             if (!fileManager.delete(destination)) {
-                Logger.e(TAG, "Could not delete destination after an interrupt");
+                Logger.e(this, "Could not delete destination after an interrupt");
             }
         }
     }
@@ -217,7 +215,7 @@ public class ImageSaveTask
             boolean exists = fileManager.exists(destination);
             boolean canWrite = fileManager.canWrite(destination);
 
-            Logger.e(TAG,
+            Logger.e(this,
                     "Error writing to file: (" + destination.getFullPath() + "), " + "exists = " + exists
                             + ", canWrite = " + canWrite,
                     e
@@ -228,7 +226,7 @@ public class ImageSaveTask
     }
 
     private void afterScan(final Uri uri) {
-        Logger.d(TAG, "Media scan succeeded: " + uri);
+        Logger.d(this, "Media scan succeeded: " + uri);
 
         if (share) {
             Intent intent = new Intent(Intent.ACTION_SEND);

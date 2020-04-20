@@ -49,8 +49,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 @AnyThread
 public class DefaultPostParser
         implements PostParser {
-    private static final String TAG = "DefaultPostParser";
-
     private CommentParser commentParser;
 
     public DefaultPostParser(CommentParser commentParser) {
@@ -188,7 +186,7 @@ public class DefaultPostParser
 
             total = TextUtils.concat(texts.toArray(new CharSequence[0]));
         } catch (Exception e) {
-            Logger.e(TAG, "Error parsing comment html", e);
+            Logger.e(this, "Error parsing comment html", e);
         }
 
         CommentParserHelper.addPostImages(post);
@@ -245,7 +243,7 @@ public class DefaultPostParser
                 return allInnerText;
             }
         } else {
-            Logger.e(TAG, "Unknown node instance: " + node.getClass().getName());
+            Logger.e(this, "Unknown node instance: " + node.getClass().getName());
             return ""; // ?
         }
     }

@@ -18,8 +18,6 @@ import static com.github.adamantcheese.chan.core.settings.ChanSettings.EMPTY_JSO
  */
 
 public class PersistableChanState {
-    private static final String TAG = "ChanState";
-
     public static IntegerSetting watchLastCount;
 
     public static BooleanSetting hasNewApkUpdate;
@@ -43,7 +41,7 @@ public class PersistableChanState {
             filterWatchIgnored = new StringSetting(p, "filter_watch_last_ignored_set", "");
             youtubeCache = new StringSetting(p, "yt_cache", EMPTY_JSON);
         } catch (Exception e) {
-            Logger.e(TAG, "Error while initializing the state", e);
+            Logger.e("PersistableChanState", "Error while initializing the state", e);
             throw e;
         }
     }

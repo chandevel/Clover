@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -43,8 +44,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 public class RemovedPostsController
         extends BaseFloatingController
         implements View.OnClickListener {
-    private static final String TAG = "RemovedPostsController";
-
     @Inject
     ImageLoaderV2 imageLoaderV2;
 
@@ -202,7 +201,7 @@ public class RemovedPostsController
             AppCompatCheckBox checkbox = convertView.findViewById(R.id.removed_post_checkbox);
             AppCompatImageView postImage = convertView.findViewById(R.id.post_image);
 
-            postNo.setText(String.format("No. %d", removedPost.postNo));
+            postNo.setText(String.format(Locale.ENGLISH, "No. %d", removedPost.postNo));
             postComment.setText(removedPost.comment);
             checkbox.setChecked(removedPost.isChecked());
             checkbox.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
@@ -221,7 +220,7 @@ public class RemovedPostsController
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Logger.e(TAG, "Error while trying to download post image", error);
+                        Logger.e(RemovedPostAdapter.this, "Error while trying to download post image", error);
                         postImage.setVisibility(GONE);
                     }
                 }, postImage.getWidth(), postImage.getHeight());

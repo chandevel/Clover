@@ -102,8 +102,6 @@ public class ReplyLayout
         implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher,
                    ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
                    CaptchaHolder.CaptchaValidationListener {
-    private static final String TAG = "ReplyLayout";
-
     @Inject
     ReplyPresenter presenter;
     @Inject

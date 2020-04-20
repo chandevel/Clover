@@ -54,8 +54,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 public class MainSettingsController
         extends SettingsController
         implements SettingsPresenter.Callback {
-    private static final String TAG = "MainSettingsController";
-
     @Inject
     private SettingsPresenter presenter;
     @Inject
@@ -84,7 +82,7 @@ public class MainSettingsController
 
         Disposable disposable = settingsNotificationManager.listenForNotificationUpdates()
                 .subscribe((event) -> onNotificationsChanged(),
-                        (error) -> Logger.e(TAG, "Unknown error received from SettingsNotificationManager", error)
+                        (error) -> Logger.e(MainSettingsController.this, "Unknown error received from SettingsNotificationManager", error)
                 );
 
         compositeDisposable.add(disposable);
@@ -119,8 +117,6 @@ public class MainSettingsController
     }
 
     private void onNotificationsChanged() {
-        Logger.d(TAG, "onNotificationsChanged called");
-
         updateSettingNotificationIcon(settingsNotificationManager.getOrDefault(SettingNotificationType.ApkUpdate),
                 getViewGroupOrThrow(updateSettingView)
         );

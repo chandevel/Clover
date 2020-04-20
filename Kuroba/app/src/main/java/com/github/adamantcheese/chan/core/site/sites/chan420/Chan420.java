@@ -35,8 +35,6 @@ import okhttp3.HttpUrl;
 
 public class Chan420
         extends CommonSite {
-    private static final String TAG = "420Chan";
-
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private final String[] mediaHosts = new String[]{"boards.420chan.org"};
 
@@ -106,7 +104,7 @@ public class Chan420
                 requestQueue.add(new Chan420BoardsRequest(Chan420.this,
                         response -> listener.onBoardsReceived(new Boards(response)),
                         (error) -> {
-                            Logger.e(TAG, "Failed to get boards from server", error);
+                            Logger.e(Chan420.this, "Failed to get boards from server", error);
 
                             // API fail, provide some default boards
                             List<Board> list = new ArrayList<>();

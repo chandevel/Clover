@@ -70,7 +70,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class Chan4
         extends SiteBase {
-    private static final String TAG = "Chan4";
     private static final Random random = new Random();
 
     public static final SiteUrlHandler URL_HANDLER = new SiteUrlHandler() {
@@ -307,7 +306,7 @@ public class Chan4
             requestQueue.add(new Chan4BoardsRequest(Chan4.this,
                     response -> listener.onBoardsReceived(new Boards(response)),
                     error -> {
-                        Logger.e(TAG, "Failed to get boards from server", error);
+                        Logger.e(Chan4.this, "Failed to get boards from server", error);
                         listener.onBoardsReceived(new Boards(new ArrayList<>()));
                     }
             ));
@@ -319,7 +318,7 @@ public class Chan4
                     board,
                     response -> listener.onPagesReceived(board, new Pages(response)),
                     error -> {
-                        Logger.e(TAG, "Failed to get pages for board " + board.code);
+                        Logger.e(Chan4.this, "Failed to get pages for board " + board.code);
                         listener.onPagesReceived(board, new Pages(new ArrayList<>()));
                     }
             ));
@@ -332,7 +331,7 @@ public class Chan4
             requestQueue.add(new JsonReaderRequest<List<ArchivesManager.Archives>>(
                     "https://nstepien.github.io/archives.json/archives.json",
                     archivesListener::onArchivesReceived,
-                    error -> Logger.e(TAG, "Failed to get archives for 4Chan, using builtins")
+                    error -> Logger.e(Chan4.this, "Failed to get archives for 4Chan, using builtins")
             ) {
                 @Override
                 public List<ArchivesManager.Archives> readJson(JsonReader reader)

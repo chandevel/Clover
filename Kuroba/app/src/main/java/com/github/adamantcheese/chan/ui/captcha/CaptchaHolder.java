@@ -19,7 +19,6 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CaptchaHolder {
-    private static final String TAG = "CaptchaHolder";
     private static final long INTERVAL = 5000;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
     private AtomicBoolean running = new AtomicBoolean(false);
@@ -49,10 +48,7 @@ public class CaptchaHolder {
 
         synchronized (captchaQueue) {
             captchaQueue.add(0, new CaptchaInfo(token, tokenLifetime + System.currentTimeMillis()));
-            Logger.d(
-                    TAG,
-                    "A new token has been added, validCount = " + captchaQueue.size() + ", token = " + trimToken(token)
-            );
+            Logger.d(this, "New token added, validCount = " + captchaQueue.size() + ", token = " + trimToken(token));
         }
 
         notifyListener();
@@ -86,7 +82,7 @@ public class CaptchaHolder {
 
             String token = captchaQueue.get(lastIndex).getToken();
             captchaQueue.remove(lastIndex);
-            Logger.d(TAG, "getToken() token = " + trimToken(token));
+            Logger.d(this, "getToken() token = " + trimToken(token));
 
             notifyListener();
             return token;
@@ -98,7 +94,7 @@ public class CaptchaHolder {
             timer = new Timer();
             timer.scheduleAtFixedRate(new CheckCaptchaFreshnessTask(), INTERVAL, INTERVAL);
 
-            Logger.d(TAG, "Timer started");
+            Logger.d(this, "Timer started");
         }
     }
 
@@ -107,7 +103,7 @@ public class CaptchaHolder {
             timer.cancel();
             timer.purge();
 
-            Logger.d(TAG, "Timer stopped");
+            Logger.d(this, "Timer stopped");
         }
     }
 
@@ -124,8 +120,8 @@ public class CaptchaHolder {
                     it.remove();
 
                     Logger.d(
-                            TAG,
-                            "Captcha token got expired, now = " + sdf.format(now) + ", token validUntil = "
+                            this,
+                            "Captcha token expired, now = " + sdf.format(now) + ", token validUntil = "
                                     + sdf.format(captchaInfo.getValidUntil()) + ", token = "
                                     + trimToken(captchaInfo.getToken())
                     );

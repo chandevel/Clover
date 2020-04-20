@@ -54,8 +54,6 @@ public abstract class ThreadController
         implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.ImageViewerCallback,
                    SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback,
                    NfcAdapter.CreateNdefMessageCallback, ThreadSlideController.SlideChangeListener {
-    private static final String TAG = "ThreadController";
-
     protected ThreadLayout threadLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -157,11 +155,11 @@ public abstract class ThreadController
 
         if (url != null) {
             try {
-                Logger.d(TAG, "Pushing url " + url + " to android beam");
+                Logger.d(this, "Pushing url " + url + " to android beam");
                 NdefRecord record = NdefRecord.createUri(url);
                 message = new NdefMessage(new NdefRecord[]{record});
             } catch (IllegalArgumentException e) {
-                Logger.e(TAG, "NdefMessage create error", e);
+                Logger.e(this, "NdefMessage create error", e);
             }
         }
 

@@ -47,7 +47,6 @@ import okhttp3.Response;
 import static com.github.adamantcheese.chan.ui.captcha.v2.CaptchaInfo.CaptchaType.UNKNOWN;
 
 public class CaptchaNoJsHtmlParser {
-    private static final String TAG = "CaptchaNoJsHtmlParser";
     private static final String googleBaseUrl = "https://www.google.com";
     private static final Pattern checkboxesPattern = Pattern.compile(
             "<input class=\"fbc-imageselect-checkbox-\\d+\" type=\"checkbox\" name=\"response\" value=\"(\\d+)\">");
@@ -111,7 +110,7 @@ public class CaptchaNoJsHtmlParser {
         try {
             token = matcher.group(1);
         } catch (Throwable error) {
-            Logger.e(TAG, "Could not parse verification token", error);
+            Logger.e(this, "Could not parse verification token", error);
             throw error;
         }
 
@@ -152,7 +151,7 @@ public class CaptchaNoJsHtmlParser {
                 captchaTitle = new CaptchaInfo.CaptchaTitle(title, -1, -1);
             }
         } catch (Throwable error) {
-            Logger.e(TAG, "Error while trying to parse challenge title", error);
+            Logger.e(this, "Error while trying to parse challenge title", error);
             throw error;
         }
 
@@ -175,7 +174,7 @@ public class CaptchaNoJsHtmlParser {
         try {
             challengeImageUrl = matcher.group(1);
         } catch (Throwable error) {
-            Logger.e(TAG, "Error while trying to parse challenge image url", error);
+            Logger.e(this, "Error while trying to parse challenge image url", error);
             throw error;
         }
 
@@ -239,7 +238,7 @@ public class CaptchaNoJsHtmlParser {
         try {
             cParameter = matcher.group(1);
         } catch (Throwable error) {
-            Logger.e(TAG, "Error while trying to parse c parameter", error);
+            Logger.e(this, "Error while trying to parse c parameter", error);
             throw error;
         }
 
@@ -265,7 +264,7 @@ public class CaptchaNoJsHtmlParser {
                 Integer checkboxId = Integer.parseInt(matcher.group(1));
                 checkboxesSet.add(checkboxId);
             } catch (Throwable error) {
-                Logger.e(TAG, "Error while trying to parse checkbox with id (" + index + ")", error);
+                Logger.e(this, "Error while trying to parse checkbox with id (" + index + ")", error);
                 throw error;
             }
 
@@ -281,7 +280,7 @@ public class CaptchaNoJsHtmlParser {
         try {
             captchaType = CaptchaInfo.CaptchaType.fromCheckboxesCount(checkboxesSet.size());
         } catch (Throwable error) {
-            Logger.e(TAG, "Error while trying to parse captcha type", error);
+            Logger.e(this, "Error while trying to parse captcha type", error);
             throw error;
         }
 

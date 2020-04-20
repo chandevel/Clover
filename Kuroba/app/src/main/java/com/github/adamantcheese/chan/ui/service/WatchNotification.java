@@ -72,7 +72,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString
 
 public class WatchNotification
         extends Service {
-    private static final String TAG = "WatchNotification";
     private static String NOTIFICATION_ID_STR = "1";
     private static String NOTIFICATION_ID_ALERT_STR = "2";
     private int NOTIFICATION_ID = 1;
@@ -152,7 +151,7 @@ public class WatchNotification
 
         Notification notification = createNotification(); //this may take more than 5 seconds to generate
         if (notification == null) {
-            Logger.d(TAG, "onStartCommand() createNotification returned null");
+            Logger.d(this, "onStartCommand() createNotification returned null");
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -189,7 +188,7 @@ public class WatchNotification
             }
 
             if (PinType.hasNoFlags(pin.pinType)) {
-                Logger.d(TAG, "Pin " + pin.toString() + " has no flags");
+                Logger.d(this, "Pin " + pin.toString() + " has no flags");
                 continue;
             }
 
@@ -254,7 +253,7 @@ public class WatchNotification
         }
 
         if (pins.isEmpty() && threadDownloaderPins.isEmpty()) {
-            Logger.d(TAG, "Both pins or threadDownloaderPins are empty");
+            Logger.d(this, "Both pins or threadDownloaderPins are empty");
             return null;
         }
 
@@ -270,7 +269,7 @@ public class WatchNotification
 
     private void updateSavedThreads(HashMap<SavedThread, Pair<Loadable, List<Post>>> allPostsByThread) {
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
-            Logger.d(TAG, "updateSavedThreads() LocalThreadsBaseDirectory does not exist");
+            Logger.d(this, "updateSavedThreads() LocalThreadsBaseDirectory does not exist");
 
             watchManager.stopSavingAllThread();
             return;

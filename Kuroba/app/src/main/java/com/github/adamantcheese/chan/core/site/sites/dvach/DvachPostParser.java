@@ -22,9 +22,6 @@ public class DvachPostParser
         extends DefaultPostParser {
 
     private Pattern colorPattern = Pattern.compile("color:rgb\\((\\d+),(\\d+),(\\d+)\\);");
-    private static final String TAG = "DvachPostParser";
-
-    private CommentParser commentParser;
 
     public DvachPostParser(CommentParser commentParser) {
         super(commentParser);
@@ -38,7 +35,6 @@ public class DvachPostParser
     }
 
     private void parseNameForColor(Post.Builder builder) {
-        CharSequence total = new SpannableString("");
         CharSequence nameRaw = builder.name;
         try {
             String name = nameRaw.toString();
@@ -64,7 +60,7 @@ public class DvachPostParser
                 }
             }
         } catch (Exception e) {
-            Logger.e(TAG, "Error parsing name html", e);
+            Logger.e(this, "Error parsing name html", e);
         }
     }
 }

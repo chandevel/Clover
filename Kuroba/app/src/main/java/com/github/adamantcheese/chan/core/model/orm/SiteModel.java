@@ -69,7 +69,7 @@ public class SiteModel {
     public Pair<SiteConfig, JsonSettings> loadConfigFields() {
         SiteConfig config = gson.fromJson(this.configuration, SiteConfig.class);
         JsonSettings settings = gson.fromJson(this.userSettings, JsonSettings.class);
-        Logger.d("SiteModel", "Config: " + configuration + ", Settings: " + userSettings);
+        Logger.d(this, "Config: " + configuration + ", Settings: " + userSettings);
 
         return Pair.create(config, settings);
     }

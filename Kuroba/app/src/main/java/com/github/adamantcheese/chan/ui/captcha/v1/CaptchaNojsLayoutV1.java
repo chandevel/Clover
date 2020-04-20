@@ -61,7 +61,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 public class CaptchaNojsLayoutV1
         extends WebView
         implements AuthenticationLayoutInterface {
-    private static final String TAG = "CaptchaNojsLayout";
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
     @Inject
@@ -114,7 +113,7 @@ public class CaptchaNojsLayoutV1
             @Override
             public boolean onConsoleMessage(@NonNull ConsoleMessage consoleMessage) {
                 Logger.i(
-                        TAG,
+                        CaptchaNojsLayoutV1.this,
                         consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId()
                 );
                 return true;

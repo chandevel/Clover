@@ -31,7 +31,6 @@ import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 public class SiteIcon {
-    private static final String TAG = "SiteIcon";
     private static final int FAVICON_SIZE = 64;
 
     private HttpUrl url;
@@ -67,7 +66,7 @@ public class SiteIcon {
 
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Logger.e(TAG, "Error loading favicon", error);
+                    Logger.e(SiteIcon.this, "Error loading favicon", error);
                 }
             }, FAVICON_SIZE, FAVICON_SIZE);
         }

@@ -38,7 +38,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class SitesSetupPresenter
         implements Observer {
-    private static final String TAG = "SitesSetupPresenter";
     private Context context;
     private final SiteService siteService;
     private final SiteRepository siteRepository;
@@ -158,7 +157,7 @@ public class SitesSetupPresenter
             siteRepository.removeSite(site);
             callback.onSiteDeleted(site);
         } catch (Throwable error) {
-            Logger.e(TAG, "Could not delete site: " + site.name(), error);
+            Logger.e(this, "Could not delete site: " + site.name(), error);
             String message = getString(R.string.could_not_remove_site_error_message, site.name(), error.getMessage());
             showToast(context, message, Toast.LENGTH_LONG);
         }

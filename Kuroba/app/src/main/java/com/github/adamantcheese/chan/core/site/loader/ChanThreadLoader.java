@@ -80,8 +80,6 @@ import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
  */
 public class ChanThreadLoader
         implements Response.ErrorListener, Response.Listener<ChanLoaderResponse> {
-    private static final String TAG = "ChanThreadLoader";
-
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private static final int[] WATCH_TIMEOUTS = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
     private static final Scheduler backgroundScheduler = Schedulers.from(executor);
@@ -174,7 +172,7 @@ public class ChanThreadLoader
                 .subscribeOn(backgroundScheduler)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::requestDataInternal, error -> {
-                    Logger.e(TAG, "Error while loading saved thread", error);
+                    Logger.e(ChanThreadLoader.this, "Error while loading saved thread", error);
 
                     notifyAboutError(new VolleyError(error));
                 });
@@ -333,7 +331,7 @@ public class ChanThreadLoader
         clearPendingRunnable();
 
         int watchTimeout = WATCH_TIMEOUTS[currentTimeout];
-        Logger.d(TAG, "Scheduled reload in " + watchTimeout + "s");
+        Logger.d(this, "Scheduled reload in " + watchTimeout + "s");
 
         pendingFuture = executor.schedule(() -> BackgroundUtils.runOnMainThread(() -> {
             pendingFuture = null;
@@ -370,12 +368,12 @@ public class ChanThreadLoader
             // If loadableDownloadingState is AlreadyDownloaded try to load the local thread from
             // the disk. If we couldn't do that then try to send the request to the server
             if (onThreadArchived(true, true)) {
-                Logger.d(TAG, "Thread is already fully downloaded for loadable " + loadable.toString());
+                Logger.d(this, "Thread is already fully downloaded for loadable " + loadable.toString());
                 return null;
             }
         }
 
-        Logger.d(TAG, "Requested /" + loadable.boardCode + "/, " + maskPostNo(loadable.no));
+        Logger.d(this, "Requested /" + loadable.boardCode + "/, " + maskPostNo(loadable.no));
 
         List<Post> cached;
         synchronized (this) {
@@ -400,7 +398,7 @@ public class ChanThreadLoader
         Disposable disposable = Single.fromCallable(() -> onResponseInternal(response))
                 .subscribeOn(backgroundScheduler)
                 .subscribe(result -> { }, error -> {
-                    Logger.e(TAG, "onResponse error", error);
+                    Logger.e(ChanThreadLoader.this, "onResponse error", error);
 
                     notifyAboutError(new VolleyError(error));
                 });
@@ -441,7 +439,7 @@ public class ChanThreadLoader
 
         ChanThread chanThread = loadSavedThreadIfItExists();
         if (chanThread == null) {
-            Logger.d(TAG,
+            Logger.d(this,
                     "Thread " + maskPostNo(loadable.no) + " is archived but we don't have a local copy of the thread"
             );
 
@@ -451,7 +449,7 @@ public class ChanThreadLoader
             return false;
         }
 
-        Logger.d(TAG,
+        Logger.d(this,
                 "Thread " + maskPostNo(chanThread.getLoadable().no) + " is archived (" + archived + ") or closed ("
                         + closed + ")"
         );
@@ -482,7 +480,7 @@ public class ChanThreadLoader
             );
             return true;
         } else {
-            Logger.d(TAG, "Thread " + maskPostNo(chanThread.getLoadable().no) + " has no posts");
+            Logger.d(this, "Thread " + maskPostNo(chanThread.getLoadable().no) + " has no posts");
         }
 
         return false;
@@ -524,7 +522,7 @@ public class ChanThreadLoader
             return null;
         });
 
-        Logger.d(TAG,
+        Logger.d(this,
                 "Successfully updated thread " + maskPostNo(chanThread.getLoadable().no) + " as fully downloaded"
         );
     }
@@ -619,7 +617,7 @@ public class ChanThreadLoader
                 thread.setClosed(realOp.isClosed());
                 thread.setArchived(realOp.isArchived());
             } else {
-                Logger.e(TAG, "Thread has no op!");
+                Logger.e(this, "Thread has no op!");
             }
         }
     }
@@ -634,7 +632,7 @@ public class ChanThreadLoader
             // Thread was deleted (404), try to load a saved copy (if we have it)
             if (error.networkResponse != null && error.networkResponse.statusCode == 404
                     && loadable.mode == Loadable.Mode.THREAD) {
-                Logger.d(TAG, "Got 404 status for a thread " + maskPostNo(loadable.no));
+                Logger.d(ChanThreadLoader.this, "Got 404 status for a thread " + maskPostNo(loadable.no));
 
                 ChanThread chanThread = loadSavedThreadIfItExists();
                 if (chanThread != null && chanThread.getPostsCount() > 0) {
@@ -642,7 +640,7 @@ public class ChanThreadLoader
                         thread = chanThread;
                     }
 
-                    Logger.d(TAG,
+                    Logger.d(ChanThreadLoader.this,
                             "Successfully loaded local thread " + maskPostNo(loadable.no) + " from disk, isClosed = "
                                     + chanThread.isClosed() + ", isArchived = " + chanThread.isArchived()
                     );
@@ -665,10 +663,10 @@ public class ChanThreadLoader
                 return;
             }
 
-            Logger.i(TAG, "Loading error", error);
+            Logger.i(ChanThreadLoader.this, "Loading error", error);
             notifyAboutError(error);
         }, throwable -> {
-            Logger.i(TAG, "Loading unhandled error", throwable);
+            Logger.i(ChanThreadLoader.this, "Loading unhandled error", throwable);
 
             notifyAboutError(createError(throwable));
         });
@@ -706,18 +704,18 @@ public class ChanThreadLoader
         // FIXME(synchronization): Not thread safe! findPinByLoadableId is not synchronized.
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null) {
-            Logger.d(TAG, "Could not find pin for loadable " + loadable.toString());
+            Logger.d(this, "Could not find pin for loadable " + loadable.toString());
             return null;
         }
 
         if (!PinType.hasDownloadFlag(pin.pinType)) {
-            Logger.d(TAG, "Pin has no DownloadPosts flag");
+            Logger.d(this, "Pin has no DownloadPosts flag");
             return null;
         }
 
         SavedThread savedThread = getSavedThreadByThreadLoadable(loadable);
         if (savedThread == null) {
-            Logger.d(TAG, "Could not find savedThread for loadable " + loadable.toString());
+            Logger.d(this, "Could not find savedThread for loadable " + loadable.toString());
             return null;
         }
 
@@ -731,7 +729,7 @@ public class ChanThreadLoader
         return databaseManager.runTask(() -> {
             Pin pin = databaseManager.getDatabasePinManager().getPinByLoadableId(loadable.id).call();
             if (pin == null) {
-                Logger.e(TAG, "Could not find pin by loadableId = " + loadable.id);
+                Logger.e(ChanThreadLoader.this, "Could not find pin by loadableId = " + loadable.id);
                 return null;
             }
 
@@ -743,7 +741,7 @@ public class ChanThreadLoader
         BackgroundUtils.ensureMainThread();
 
         if (pendingFuture != null) {
-            Logger.d(TAG, "Cleared timer");
+            Logger.d(this, "Cleared timer");
             pendingFuture.cancel(false);
             pendingFuture = null;
         }

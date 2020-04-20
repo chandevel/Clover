@@ -64,7 +64,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParserHelper {
-    private static final String TAG = "CommentParserHelper";
     private static final LinkExtractor LINK_EXTRACTOR =
             LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
@@ -230,7 +229,6 @@ public class CommentParserHelper {
 
                         HttpUrl imageUrl = HttpUrl.parse((String) linkable.value);
                         if (imageUrl == null) {
-                            Logger.e(TAG, "addPostImages() couldn't parse linkable.value (" + linkable.value + ")");
                             continue;
                         }
 

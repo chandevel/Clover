@@ -17,8 +17,6 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class DatabaseSavedThreadManager {
-    private static final String TAG = "DatabaseSavedThreadManager";
-
     @Inject
     DatabaseHelper helper;
     @Inject
@@ -195,7 +193,7 @@ public class DatabaseSavedThreadManager {
         }
 
         if (!fileManager.delete(threadDir)) {
-            Logger.d(TAG, "deleteThreadFromDisk() Could not delete SAF directory " + threadDir.getFullPath());
+            Logger.d(this, "deleteThreadFromDisk() Could not delete SAF directory " + threadDir.getFullPath());
         }
     }
 

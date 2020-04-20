@@ -40,7 +40,6 @@ import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,8 +63,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 public class SettingsController
         extends Controller
         implements AndroidUtils.OnMeasuredCallback {
-    private final String TAG = "SettingsController";
-
     @Inject
     protected SettingsNotificationManager settingsNotificationManager;
 
@@ -211,13 +208,9 @@ public class SettingsController
             SettingNotificationType settingNotificationType, ViewGroup preferenceView
     ) {
         AppCompatImageView notificationIcon = preferenceView.findViewById(R.id.setting_notification_icon);
+        if (notificationIcon == null) return; // no notification icon for this view
 
-        if (notificationIcon != null) {
-            updatePaddings(notificationIcon, dp(16), dp(16), -1, -1);
-        } else {
-            Logger.e(TAG, "Notification icon is null, can't update setting notification for this view.");
-            return;
-        }
+        updatePaddings(notificationIcon, dp(16), dp(16), -1, -1);
 
         boolean hasNotifications = settingsNotificationManager.hasNotifications(settingNotificationType);
 

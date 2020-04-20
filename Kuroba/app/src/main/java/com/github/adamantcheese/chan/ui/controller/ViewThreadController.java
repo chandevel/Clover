@@ -83,8 +83,6 @@ public class ViewThreadController
         extends ThreadController
         implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback,
                    ToolbarMenuItem.ToobarThreedotMenuCallback {
-    private static final String TAG = "ViewThreadController";
-
     private static final int PIN_ID = 1;
     private static final int SAVE_THREAD_ID = 2;
 
@@ -244,19 +242,16 @@ public class ViewThreadController
         AbstractFile baseLocalThreadsDir = fileManager.newBaseDirectoryFile(LocalThreadsBaseDirectory.class);
 
         if (baseLocalThreadsDir == null) {
-            Logger.e(TAG, "saveClickedInternal() fileManager.newLocalThreadFile() returned null");
             showToast(context, R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
             return;
         }
 
         if (!fileManager.exists(baseLocalThreadsDir) && fileManager.create(baseLocalThreadsDir) == null) {
-            Logger.e(TAG, "saveClickedInternal() Couldn't create baseLocalThreadsDir");
             showToast(context, R.string.could_not_create_base_local_threads_dir, Toast.LENGTH_LONG);
             return;
         }
 
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
-            Logger.e(TAG, "Base local threads directory does not exist");
             showToast(context, R.string.local_threads_base_dir_does_not_exist, Toast.LENGTH_LONG);
             return;
         }

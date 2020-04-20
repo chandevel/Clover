@@ -53,7 +53,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class DeveloperSettingsController
         extends Controller {
-    private static final String TAG = "DEV";
     @Inject
     DatabaseManager databaseManager;
     @Inject
@@ -140,7 +139,7 @@ public class DeveloperSettingsController
         Button dumpAllThreadStacks = new Button(context);
         dumpAllThreadStacks.setOnClickListener(v -> {
             Set<Thread> activeThreads = Thread.getAllStackTraces().keySet();
-            Logger.i("STACKDUMP-COUNT", String.valueOf(activeThreads.size()));
+            Logger.i(this, "Thread count: " + activeThreads.size());
             for (Thread t : activeThreads) {
                 //ignore these threads as they aren't relevant (main will always be this button press)
                 //@formatter:off
@@ -158,11 +157,11 @@ public class DeveloperSettingsController
                     //@formatter:on
                     continue;
                 StackTraceElement[] elements = t.getStackTrace();
-                Logger.i("STACKDUMP-HEADER", "Thread: " + t.getName());
+                Logger.i(this, "Thread: " + t.getName());
                 for (StackTraceElement e : elements) {
-                    Logger.i("STACKDUMP", e.toString());
+                    Logger.i(this, e.toString());
                 }
-                Logger.i("STACKDUMP-FOOTER", "----------------");
+                Logger.i(this, "----------------");
             }
         });
         dumpAllThreadStacks.setText("Dump active thread stack traces to log");

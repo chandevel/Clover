@@ -32,7 +32,6 @@ import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaT
 
 public class Dvach
         extends CommonSite {
-    private static final String TAG = "Dvach";
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private static final String ROOT = "https://2ch.hk";
 
@@ -212,7 +211,7 @@ public class Dvach
                 requestQueue.add(new DvachBoardsRequest(Dvach.this,
                    response -> listener.onBoardsReceived(new Boards(response)),
                    error -> {
-                       Logger.e(TAG, "Failed to get boards from server", error);
+                       Logger.e(Dvach.this, "Failed to get boards from server", error);
 
                        // API fail, provide some default boards
                        List<Board> list = new ArrayList<>();

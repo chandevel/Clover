@@ -45,7 +45,7 @@ constructor(
             return@use DataInputStream(inputStream).use { dis ->
                 val json = String(dis.readBytes(), StandardCharsets.UTF_8)
 
-                return@use gson.fromJson<SerializableThread>(
+                return@use gson.fromJson(
                         json,
                         SerializableThread::class.java)
             }

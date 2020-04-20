@@ -51,8 +51,6 @@ import static com.github.adamantcheese.chan.Chan.inject;
  * Use the async versions when you don't care when the query is done.
  */
 public class DatabaseManager {
-    private static final String TAG = "DatabaseManager";
-
     private final ExecutorService backgroundExecutor;
     private Thread executorThread;
 
@@ -191,7 +189,7 @@ public class DatabaseManager {
                 );
             }
         } catch (SQLException e) {
-            Logger.e(TAG, "Error trimming table " + table, e);
+            Logger.e(this, "Error trimming table " + table, e);
         }
     }
 
@@ -274,7 +272,7 @@ public class DatabaseManager {
                 }
                 return result;
             } catch (Exception e) {
-                Logger.e(TAG, "executeTask", e);
+                Logger.e(this, "executeTask", e);
                 throw new RuntimeException(e);
             }
         }

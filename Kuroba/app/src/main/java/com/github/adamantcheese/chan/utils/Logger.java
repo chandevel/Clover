@@ -26,98 +26,98 @@ public class Logger {
     private static final String TAG_PREFIX = getApplicationLabel() + " | ";
 
     //region VERBOSE
-    public static void v(String tag, String message) {
+    public static void v(Object source, String message) {
         if (BuildConfig.DEBUG) {
-            Log.v(TAG_PREFIX + tag, message);
+            Log.v(TAG_PREFIX + getTag(source), message);
         }
     }
 
-    public static void v(String tag, String message, Throwable throwable) {
+    public static void v(Object source, String message, Throwable throwable) {
         if (BuildConfig.DEBUG) {
-            Log.v(TAG_PREFIX + tag, message, throwable);
+            Log.v(TAG_PREFIX + getTag(source), message, throwable);
         }
     }
 
-    public static void v(String tag, String format, Object... args) {
+    public static void v(Object source, String format, Object... args) {
         if (BuildConfig.DEBUG) {
-            Log.v(TAG_PREFIX + tag, String.format(format, args));
+            Log.v(TAG_PREFIX + getTag(source), String.format(format, args));
         }
     }
     //endregion VERBOSE
 
     //region DEBUG
-    public static void d(String tag, String message) {
+    public static void d(Object source, String message) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG_PREFIX + tag, message);
+            Log.d(TAG_PREFIX + getTag(source), message);
         }
     }
 
-    public static void d(String tag, String message, Throwable throwable) {
+    public static void d(Object source, String message, Throwable throwable) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG_PREFIX + tag, message, throwable);
+            Log.d(TAG_PREFIX + getTag(source), message, throwable);
         }
     }
 
-    public static void d(String tag, String format, Object... args) {
+    public static void d(Object source, String format, Object... args) {
         if (BuildConfig.DEBUG) {
-            Log.d(TAG_PREFIX + tag, String.format(format, args));
+            Log.d(TAG_PREFIX + getTag(source), String.format(format, args));
         }
     }
     //endregion DEBUG
 
     //region INFO
-    public static void i(String tag, String message) {
-        Log.i(TAG_PREFIX + tag, message);
+    public static void i(Object source, String message) {
+        Log.i(TAG_PREFIX + getTag(source), message);
     }
 
-    public static void i(String tag, String message, Throwable throwable) {
-        Log.i(TAG_PREFIX + tag, message, throwable);
+    public static void i(Object source, String message, Throwable throwable) {
+        Log.i(TAG_PREFIX + getTag(source), message, throwable);
     }
 
-    public static void i(String tag, String format, Object... args) {
-        Log.i(TAG_PREFIX + tag, String.format(format, args));
+    public static void i(Object source, String format, Object... args) {
+        Log.i(TAG_PREFIX + getTag(source), String.format(format, args));
     }
     //endregion INFO
 
     //region WARN
-    public static void w(String tag, String message) {
-        Log.w(TAG_PREFIX + tag, message);
+    public static void w(Object source, String message) {
+        Log.w(TAG_PREFIX + getTag(source), message);
     }
 
-    public static void w(String tag, String message, Throwable throwable) {
-        Log.w(TAG_PREFIX + tag, message, throwable);
+    public static void w(Object source, String message, Throwable throwable) {
+        Log.w(TAG_PREFIX + getTag(source), message, throwable);
     }
 
-    public static void w(String tag, String format, Object... args) {
-        Log.w(TAG_PREFIX + tag, String.format(format, args));
+    public static void w(Object source, String format, Object... args) {
+        Log.w(TAG_PREFIX + getTag(source), String.format(format, args));
     }
     //endregion WARN
 
     //region ERROR
-    public static void e(String tag, String message) {
-        Log.e(TAG_PREFIX + tag, message);
+    public static void e(Object source, String message) {
+        Log.e(TAG_PREFIX + getTag(source), message);
     }
 
-    public static void e(String tag, String message, Throwable throwable) {
-        Log.e(TAG_PREFIX + tag, message, throwable);
+    public static void e(Object source, String message, Throwable throwable) {
+        Log.e(TAG_PREFIX + getTag(source), message, throwable);
     }
 
-    public static void e(String tag, String format, Object... args) {
-        Log.e(TAG_PREFIX + tag, String.format(format, args));
+    public static void e(Object source, String format, Object... args) {
+        Log.e(TAG_PREFIX + getTag(source), String.format(format, args));
     }
     //endregion ERROR
 
     //region WTF
-    public static void wtf(String tag, String message) {
-        Log.wtf(TAG_PREFIX + tag, message);
+    public static void wtf(Object source, String message) {
+        Log.wtf(TAG_PREFIX + getTag(source), message);
     }
 
-    public static void wtf(String tag, String message, Throwable throwable) {
-        Log.wtf(TAG_PREFIX + tag, message, throwable);
+    public static void wtf(Object source, String message, Throwable throwable) {
+        Log.wtf(TAG_PREFIX + getTag(source), message, throwable);
     }
 
-    public static void wtf(String tag, String format, Object... args) {
-        Log.wtf(TAG_PREFIX + tag, String.format(format, args));
+    public static void wtf(Object source, String format, Object... args) {
+        Log.wtf(TAG_PREFIX + getTag(source), String.format(format, args));
     }
     //endregion WTF
 
@@ -140,4 +140,9 @@ public class Logger {
         }
     }
     //endregion TEST
+
+    private static String getTag(Object o) {
+        if (o instanceof String) return (String) o;
+        return o.getClass().getSimpleName();
+    }
 }

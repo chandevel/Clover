@@ -73,7 +73,6 @@ public class ReplyPresenter
         LOADING
     }
 
-    private static final String TAG = "ReplyPresenter";
     private Context context;
     private static final Pattern QUOTE_PATTERN = Pattern.compile(">>\\d+");
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
@@ -355,7 +354,7 @@ public class ReplyPresenter
                 errorMessage = getString(R.string.reply_error_message, replyResponse.errorMessage);
             }
 
-            Logger.e(TAG, "onPostComplete error", errorMessage);
+            Logger.e(this, "onPostComplete error", errorMessage);
             switchPage(Page.INPUT);
             callback.openMessage(errorMessage);
         }
@@ -369,7 +368,7 @@ public class ReplyPresenter
 
     @Override
     public void onPostError(HttpCall httpCall, Exception exception) {
-        Logger.e(TAG, "onPostError", exception);
+        Logger.e(this, "onPostError", exception);
 
         switchPage(Page.INPUT);
 

@@ -28,7 +28,6 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -94,7 +93,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 public class ImageViewerController
         extends Controller
         implements ImageViewerPresenter.Callback, ToolbarMenuItem.ToobarThreedotMenuCallback {
-    private static final String TAG = "ImageViewerController";
     private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
@@ -231,7 +229,7 @@ public class ImageViewerController
     private void openBrowserClicked(ToolbarMenuSubItem item) {
         PostImage postImage = presenter.getCurrentPostImage();
         if (postImage.imageUrl == null) {
-            Logger.e(TAG, "openBrowserClicked() postImage.imageUrl is null");
+            Logger.e(this, "openBrowserClicked() postImage.imageUrl is null");
             return;
         }
 
@@ -300,7 +298,7 @@ public class ImageViewerController
     private void saveShare(boolean share, PostImage postImage) {
         if (share && ChanSettings.shareUrl.get()) {
             if (postImage.imageUrl == null) {
-                Logger.e(TAG, "saveShare() postImage.imageUrl == null");
+                Logger.e(this, "saveShare() postImage.imageUrl == null");
                 return;
             }
 
@@ -546,9 +544,9 @@ public class ImageViewerController
                 new ImageListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e(
-                                TAG,
-                                "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap"
+                        Logger.e(
+                                ImageViewerController.this,
+                                "onErrorResponse for preview in transition, cannot show correct transition bitmap"
                         );
                         startAnimation.start();
                     }

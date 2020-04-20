@@ -32,8 +32,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.github.adamantcheese.chan.Chan.instance;
 
 public class BackgroundUtils {
+    private static final String TAG = "BackgroundUtils";
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private static final AtomicLong mainHandlerTokenCounter = new AtomicLong(0);
 
     public static boolean isInForeground() {
         return ((Chan) instance(Context.class)).getApplicationInForeground();
@@ -60,10 +60,7 @@ public class BackgroundUtils {
             if (BuildConfig.DEV_BUILD && ChanSettings.crashOnSafeThrow.get()) {
                 throw new IllegalStateException("Cannot be executed on a background thread!");
             } else {
-                Logger.e(
-                        "BackgroundUtils",
-                        "ensureMainThread() expected main thread but got " + Thread.currentThread().getName()
-                );
+                Logger.e(TAG, "expected main thread but got " + Thread.currentThread().getName());
             }
         }
     }
@@ -73,7 +70,7 @@ public class BackgroundUtils {
             if (BuildConfig.DEV_BUILD && ChanSettings.crashOnSafeThrow.get()) {
                 throw new IllegalStateException("Cannot be executed on the main thread!");
             } else {
-                Logger.e("BackgroundUtils", "ensureBackgroundThread() expected background thread but got main");
+                Logger.e(TAG, "ensureBackgroundThread() expected background thread but got main");
             }
         }
     }

@@ -34,8 +34,6 @@ import java.util.concurrent.Executors;
 import static com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl;
 
 public class ImageLoaderV2 {
-    private static final String TAG = "ImageLoaderV2";
-
     private ImageLoader imageLoader;
     private FileManager fileManager;
 
@@ -59,7 +57,7 @@ public class ImageLoaderV2 {
 
         if (loadable.isLocal() || loadable.isDownloading()) {
             String formattedName;
-            Logger.d(TAG, "Loading image " + getImageUrlForLogs(postImage) + " from the disk");
+            Logger.d(this, "Loading image " + getImageUrlForLogs(postImage) + " from the disk");
 
             if (postImage.spoiler()) {
                 String extension = StringUtils.extractFileNameExtension(postImage.spoilerThumbnailUrl.toString());
@@ -84,12 +82,12 @@ public class ImageLoaderV2 {
             }
 
             return getFromDisk(loadable, formattedName, postImage.spoiler(), imageListener, width, height, () -> {
-                Logger.d(TAG, "Falling back to imageLoaderV1 load the image " + getImageUrlForLogs(postImage));
+                Logger.d(this, "Falling back to imageLoaderV1 load the image " + getImageUrlForLogs(postImage));
 
                 return imageLoader.get(postImage.getThumbnailUrl().toString(), imageListener, width, height);
             });
         } else {
-            Logger.d(TAG, "Loading image " + getImageUrlForLogs(postImage) + " via the imageLoaderV1");
+            Logger.d(this, "Loading image " + getImageUrlForLogs(postImage) + " via the imageLoaderV1");
 
             return imageLoader.get(postImage.getThumbnailUrl().toString(), imageListener, width, height);
         }
@@ -120,7 +118,7 @@ public class ImageLoaderV2 {
             c.setAccessible(true);
             container = (ImageLoader.ImageContainer) c.newInstance(imageLoader, null, null, null, imageListener);
         } catch (Exception failedSomething) {
-            Logger.e(TAG, "Reflection failed", failedSomething);
+            Logger.e(this, "Reflection failed", failedSomething);
             return null;
         }
 
@@ -136,7 +134,7 @@ public class ImageLoaderV2 {
                 if (baseDirFile == null) {
                     // User has deleted the base directory with all the files,
                     // fallback to loading the image from the server
-                    Logger.w(TAG, "Base saved files directory does not exist");
+                    Logger.w(ImageLoaderV2.this, "Base saved files directory does not exist");
 
                     if (imageListener != null && callback != null) {
                         BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(),
@@ -164,7 +162,7 @@ public class ImageLoaderV2 {
 
                 if (!exists || !isFile || !canRead) {
                     // Local file does not exist, fallback to loading the image from the server
-                    Logger.d(TAG, "Local image does not exist (or is inaccessible)");
+                    Logger.d(ImageLoaderV2.this, "Local image does not exist (or is inaccessible)");
 
                     if (imageListener != null && callback != null) {
                         BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(),
@@ -183,7 +181,7 @@ public class ImageLoaderV2 {
                     Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, bitmapOptions);
 
                     if (bitmap == null) {
-                        Logger.e(TAG, "Could not decode bitmap");
+                        Logger.e(ImageLoaderV2.this, "Could not decode bitmap");
                         postError(imageListener, "Could not decode bitmap");
                         return;
                     }
@@ -207,7 +205,7 @@ public class ImageLoaderV2 {
                 }
             } catch (Exception e) {
                 // Some error has occurred, fallback to loading the image from the server
-                Logger.e(TAG, "Error while trying to load a local image", e);
+                Logger.e(ImageLoaderV2.this, "Error while trying to load a local image", e);
 
                 if (imageListener != null && callback != null) {
                     BackgroundUtils.runOnMainThread(() -> imageListener.onResponse(callback.onLocalImageDoesNotExist(),

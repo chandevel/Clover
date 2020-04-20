@@ -42,8 +42,6 @@ import okhttp3.ResponseBody;
  */
 public abstract class HttpCall
         implements Callback {
-    private static final String TAG = "HttpCall";
-
     protected Site site;
 
     private Handler handler = new Handler(Looper.getMainLooper());
@@ -77,7 +75,7 @@ public abstract class HttpCall
         }
 
         if (exception != null) {
-            Logger.e(TAG, "onResponse", exception);
+            Logger.e(this, "onResponse", exception);
             callFail(exception);
         } else {
             callSuccess();
@@ -86,7 +84,7 @@ public abstract class HttpCall
 
     @Override
     public void onFailure(Call call, IOException e) {
-        Logger.e(TAG, "onFailure", e);
+        Logger.e(this, "onFailure", e);
         callFail(e);
     }
 

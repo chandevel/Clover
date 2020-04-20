@@ -40,8 +40,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentV
  * some callback. Add them with the NavigationItem MenuBuilder.
  */
 public class ToolbarMenuItem {
-    private static final String TAG = "ToolbarMenuItem";
-
     public Object id;
 
     public boolean visible = true;
@@ -84,7 +82,7 @@ public class ToolbarMenuItem {
 
     public void detach() {
         if (view == null) {
-            Logger.d(TAG, "Already detached");
+            Logger.d(this, "Already detached");
             return;
         }
 
@@ -159,7 +157,7 @@ public class ToolbarMenuItem {
 
     public void showSubmenu() {
         if (view == null) {
-            Logger.w(TAG, "Item not attached, can't show submenu");
+            Logger.w(this, "Item not attached, can't show submenu");
             return;
         }
 

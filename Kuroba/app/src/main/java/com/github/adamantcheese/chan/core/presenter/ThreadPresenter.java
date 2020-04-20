@@ -100,8 +100,6 @@ public class ThreadPresenter
                    PostCellInterface.PostCellCallback, ThreadStatusCell.Callback,
                    ThreadListLayout.ThreadListLayoutPresenterCallback, ArchivesLayout.Callback {
     //region Private Variables
-    private static final String TAG = "ThreadPresenter";
-
     private static final int POST_OPTION_QUOTE = 0;
     private static final int POST_OPTION_QUOTE_TEXT = 1;
     private static final int POST_OPTION_INFO = 2;
@@ -226,8 +224,6 @@ public class ThreadPresenter
         if (activePrefetches == null) {
             return;
         }
-
-        Logger.d(TAG, "Cancel previous prefetching");
 
         for (CancelableDownload cancelableDownload : activePrefetches) {
             cancelableDownload.cancelPrefetch();
@@ -395,7 +391,7 @@ public class ThreadPresenter
 
     private boolean saveInternal() {
         if (chanLoader.getThread() == null) {
-            Logger.e(TAG, "chanLoader.getThread() == null");
+            Logger.e(this, "chanLoader.getThread() == null");
             return false;
         }
 
@@ -536,12 +532,12 @@ public class ThreadPresenter
                 chanLoader.setTimer();
             }
         } else {
-            Logger.e(TAG, "onChanLoaderData when not bound!");
+            Logger.e(this, "onChanLoaderData when not bound!");
             return;
         }
 
         loadable.setLoadableState(result.getLoadable().getLoadableDownloadingState());
-        Logger.d(TAG, "onChanLoaderData() loadableDownloadingState = " + loadable.getLoadableDownloadingState().name());
+        Logger.d(this, "onChanLoaderData() loadableDownloadingState = " + loadable.getLoadableDownloadingState().name());
 
         //allow for search refreshes inside the catalog
         if (result.getLoadable().isCatalogMode() && !TextUtils.isEmpty(searchQuery)) {
@@ -583,7 +579,7 @@ public class ThreadPresenter
                 for (Post p : result.getPosts()) {
                     for (PostImage postImage : p.images) {
                         if (postImage.imageUrl == null) {
-                            Logger.e(TAG, "onChanLoaderData() postImage.imageUrl == null");
+                            Logger.e(this, "onChanLoaderData() postImage.imageUrl == null");
                             continue;
                         }
 
@@ -630,14 +626,9 @@ public class ThreadPresenter
 
         if (!ChanSettings.watchEnabled.get() && !ChanSettings.watchBackground.get()
                 && loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
-            Logger.d(TAG,
-                    "Background watcher is disabled, so we need to update "
-                            + "ViewThreadController's downloading icon as well as the pin in the DrawerAdapter"
-            );
-
             Pin pin = watchManager.findPinByLoadableId(loadable.id);
             if (pin == null) {
-                Logger.d(TAG, "Could not find pin with loadableId = " + loadable.id + ", it was already deleted?");
+                Logger.d(this, "Could not find pin with loadableId = " + loadable.id + ", it was already deleted?");
                 return;
             }
 
@@ -672,7 +663,7 @@ public class ThreadPresenter
         }
 
         if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
-            Logger.d(TAG, "storeNewPostsIfThreadIsBeingDownloaded() LocalThreadsBaseDirectory does not exist");
+            Logger.d(this, "storeNewPostsIfThreadIsBeingDownloaded() LocalThreadsBaseDirectory does not exist");
 
             watchManager.stopSavingAllThread();
             return;
@@ -687,7 +678,7 @@ public class ThreadPresenter
 
     @Override
     public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
-        Logger.d(TAG, "onChanLoaderError()");
+        Logger.d(this, "onChanLoaderError()");
         threadPresenterCallback.showError(error);
     }
 
@@ -847,7 +838,7 @@ public class ThreadPresenter
         for (Post item : posts) {
             for (PostImage image : item.images) {
                 if (image.imageUrl == null) {
-                    Logger.e(TAG, "onThumbnailClicked() image.imageUrl == null");
+                    Logger.e(this, "onThumbnailClicked() image.imageUrl == null");
                     continue;
                 }
 
