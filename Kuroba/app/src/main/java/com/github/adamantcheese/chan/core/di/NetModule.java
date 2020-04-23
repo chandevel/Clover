@@ -55,7 +55,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class NetModule {
-    public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36";
     public static final String THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME = "thread_save_manager_okhttp_client";
     public static final String DOWNLOADER_OKHTTP_CLIENT_NAME = "downloader_okhttp_client";
     private static final String FILE_CACHE_DIR = "filecache";
