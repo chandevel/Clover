@@ -9,7 +9,7 @@ public class SerializablePostLinkableSpan {
     @SerializedName("type")
     private int postLinkableType;
     @SerializedName("post_linkable_value_json")
-    @Expose(serialize = true, deserialize = false)
+    @Expose(deserialize = false)
     private String postLinkableValueJson;
 
     public SerializablePostLinkableSpan(String key) {

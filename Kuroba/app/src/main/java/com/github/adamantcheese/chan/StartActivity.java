@@ -93,7 +93,6 @@ public class StartActivity
         implements NfcAdapter.CreateNdefMessageCallback, FSAFActivityCallbacks {
     private static final String STATE_KEY = "chan_state";
 
-    private ViewGroup contentView;
     private Stack<Controller> stack = new Stack<>();
 
     private DrawerController drawerController;
@@ -135,8 +134,6 @@ public class StartActivity
         imagePickDelegate = new ImagePickDelegate(this);
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
         updateManager = new UpdateManager(this);
-
-        contentView = findViewById(android.R.id.content);
 
         // Setup base controllers, and decide if to use the split layout for tablets
         drawerController = new DrawerController(this);
@@ -472,7 +469,7 @@ public class StartActivity
     }
 
     public ViewGroup getContentView() {
-        return contentView;
+        return findViewById(android.R.id.content);
     }
 
     public ImagePickDelegate getImagePickDelegate() {

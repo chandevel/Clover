@@ -146,12 +146,11 @@ public class ListSettingView<T>
     public static class Item<T> {
         public final String name;
         public final T key;
-        public boolean enabled;
+        public boolean enabled = true;
 
         public Item(String name, T key) {
             this.name = name;
             this.key = key;
-            enabled = true;
         }
     }
 }

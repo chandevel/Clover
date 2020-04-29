@@ -10,4 +10,14 @@ public class JavaUtils {
 
         return false;
     }
+
+    public static <T> boolean arrayPrefixedWith(byte[] array, byte[] prefix) {
+        if (prefix.length > array.length) return false;
+        for (int i = 0; i < prefix.length; i++) {
+            if (prefix[i] != array[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

@@ -201,36 +201,12 @@ public class BitmapUtils {
             byte[] header = new byte[16];
             raf.read(header);
 
-            {
-                boolean isPngHeader = true;
-                int size = Math.min(PNG_HEADER.length, header.length);
-
-                for (int i = 0; i < size; ++i) {
-                    if (header[i] != PNG_HEADER[i]) {
-                        isPngHeader = false;
-                        break;
-                    }
-                }
-
-                if (isPngHeader) {
-                    return PNG;
-                }
+            if (JavaUtils.arrayPrefixedWith(header, PNG_HEADER)) {
+                return PNG;
             }
 
-            {
-                boolean isJpegHeader = true;
-                int size = Math.min(JPEG_HEADER.length, header.length);
-
-                for (int i = 0; i < size; ++i) {
-                    if (header[i] != JPEG_HEADER[i]) {
-                        isJpegHeader = false;
-                        break;
-                    }
-                }
-
-                if (isJpegHeader) {
-                    return JPEG;
-                }
+            if (JavaUtils.arrayPrefixedWith(header, JPEG_HEADER)) {
+                return JPEG;
             }
 
             return null;
@@ -245,6 +221,7 @@ public class BitmapUtils {
      * @param file image
      * @return a pair of dimensions, in WIDTH then HEIGHT order; -1, -1 if not determinable
      */
+    @NonNull
     public static Pair<Integer, Integer> getImageDims(File file) {
         try {
             Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));

@@ -359,7 +359,7 @@ public class SpannableStringMapper {
             case Spoiler:
                 postLinkable = new PostLinkable(currentTheme,
                         serializablePostLinkableSpan.getKey(),
-                        currentTheme.spoilerColor,
+                        serializablePostLinkableSpan.getKey(),
                         PostLinkable.Type.SPOILER
                 );
                 break;
