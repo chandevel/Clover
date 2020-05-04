@@ -93,7 +93,7 @@ public class ThumbnailView
     public ThumbnailView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        textPaint.setColor(getAttrColor(context, android.R.attr.textColor));
+        textPaint.setColor(getAttrColor(context, android.R.attr.textColorPrimary));
         textPaint.setTextSize(sp(context, 14));
 
         // for Android Studio to display some sort of bitmap in preview windows

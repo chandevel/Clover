@@ -268,7 +268,7 @@ public class FiltersController
             Filter filter = displayList.get(position);
             holder.text.setText(filter.pattern);
             holder.text.setTextColor(getAttrColor(context,
-                    filter.enabled ? android.R.attr.textColor : android.R.attr.textColorHint
+                    filter.enabled ? android.R.attr.textColorPrimary : android.R.attr.textColorHint
             ));
             holder.subtext.setTextColor(getAttrColor(context,
                     filter.enabled ? android.R.attr.textColorSecondary : android.R.attr.textColorHint

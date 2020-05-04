@@ -102,7 +102,7 @@ public class DrawerAdapter
         setHasStableIds(true);
 
         downloadIconOutline = context.getDrawable(R.drawable.ic_download_anim0).mutate();
-        downloadIconOutline.setTint(getAttrColor(context, android.R.attr.textColor));
+        downloadIconOutline.setTint(getAttrColor(context, android.R.attr.textColorPrimary));
 
         downloadIconFilled = context.getDrawable(R.drawable.ic_download_anim1).mutate();
         downloadIconFilled.setTint(Color.GRAY);
@@ -449,7 +449,7 @@ public class DrawerAdapter
 
         if (!(holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat)) {
             AnimatedVectorDrawableCompat downloadAnimation =
-                    AnimationUtils.createAnimatedDownloadIcon(context, getAttrColor(context, android.R.attr.textColor));
+                    AnimationUtils.createAnimatedDownloadIcon(context, getAttrColor(context, android.R.attr.textColorPrimary));
             holder.threadDownloadIcon.setImageDrawable(downloadAnimation);
 
             downloadAnimation.start();

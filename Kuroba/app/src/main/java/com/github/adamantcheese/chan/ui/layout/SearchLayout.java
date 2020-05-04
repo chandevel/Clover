@@ -60,7 +60,7 @@ public class SearchLayout
         searchView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
         searchView.setHint(getString(R.string.search_hint));
         searchView.setHintTextColor(getAttrColor(getContext(), android.R.attr.textColorHint));
-        searchView.setTextColor(getAttrColor(getContext(), android.R.attr.textColor));
+        searchView.setTextColor(getAttrColor(getContext(), android.R.attr.textColorPrimary));
         searchView.setSingleLine(true);
         searchView.setBackgroundResource(0);
         searchView.setPadding(0, 0, 0, 0);
@@ -95,7 +95,7 @@ public class SearchLayout
                 view.postDelayed(() -> requestKeyboardFocus(view), 100);
             }
         });
-        LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(36), 1);
+        LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(getContext(), 36), 1);
         searchViewParams.gravity = Gravity.CENTER_VERTICAL;
         addView(searchView, searchViewParams);
         searchView.setFocusable(true);
@@ -103,13 +103,13 @@ public class SearchLayout
 
         clearButton.setAlpha(0f);
         clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
-        clearButton.getDrawable().setTint(getAttrColor(getContext(), android.R.attr.textColor));
+        clearButton.getDrawable().setTint(getAttrColor(getContext(), android.R.attr.textColorPrimary));
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
         clearButton.setOnClickListener(v -> {
             searchView.setText("");
             requestKeyboardFocus(searchView);
         });
-        addView(clearButton, dp(48), MATCH_PARENT);
+        addView(clearButton, dp(getContext(), 48), MATCH_PARENT);
     }
 
     public void setText(String text) {

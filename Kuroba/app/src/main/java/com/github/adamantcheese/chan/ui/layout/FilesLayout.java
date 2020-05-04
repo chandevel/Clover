@@ -118,7 +118,7 @@ public class FilesLayout
         backLayout.setEnabled(enabled);
         Drawable wrapped = DrawableCompat.wrap(backImage.getDrawable());
         backImage.setImageDrawable(wrapped);
-        int color = getAttrColor(getContext(), enabled ? android.R.attr.textColor : android.R.attr.textColorHint);
+        int color = getAttrColor(getContext(), enabled ? android.R.attr.textColorPrimary : android.R.attr.textColorHint);
         DrawableCompat.setTint(wrapped, color);
         backText.setEnabled(enabled);
         backText.setTextColor(color);
