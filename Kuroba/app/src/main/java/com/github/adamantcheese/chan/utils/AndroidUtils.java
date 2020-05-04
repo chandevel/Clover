@@ -22,7 +22,6 @@ import android.app.Application;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.job.JobScheduler;
-import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -212,29 +211,29 @@ public class AndroidUtils {
             showToast(context, R.string.open_link_failed);
             return;
         }
-        // Hack that's sort of the same as openLink
-        // The link won't be opened in a custom tab if this app is the default handler for that link.
-        // Manually check if this app opens it instead of a custom tab, and use the logic of
-        // openLink to avoid that and show a chooser instead.
-        boolean openWithCustomTabs = true;
-        Intent urlIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-        PackageManager pm = application.getPackageManager();
-        ComponentName resolvedActivity = urlIntent.resolveActivity(pm);
-        if (resolvedActivity != null) {
-            openWithCustomTabs = !resolvedActivity.getPackageName().equals(application.getPackageName());
-        }
-
-        if (openWithCustomTabs) {
-            CustomTabsIntent tabsIntent =
-                    new CustomTabsIntent.Builder().setToolbarColor(getAttrColor(context, R.attr.colorPrimary)).build();
-            try {
-                tabsIntent.launchUrl(context, Uri.parse(link));
-            } catch (ActivityNotFoundException e) {
-                // Can't check it beforehand so catch the exception
-                showToast(context, R.string.open_link_failed, Toast.LENGTH_LONG);
+        try {
+            // Hack that's sort of the same as openLink
+            // The link won't be opened in a custom tab if this app is the default handler for that link.
+            // Manually check if this app opens it instead of a custom tab, and use the logic of
+            // openLink to avoid that and show a chooser instead.
+            boolean openWithCustomTabs = true;
+            Intent urlIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+            PackageManager pm = application.getPackageManager();
+            ComponentName resolvedActivity = urlIntent.resolveActivity(pm);
+            if (resolvedActivity != null) {
+                openWithCustomTabs = !resolvedActivity.getPackageName().equals(application.getPackageName());
             }
-        } else {
-            openLink(link);
+
+            if (openWithCustomTabs) {
+                new CustomTabsIntent.Builder().setToolbarColor(getAttrColor(context, R.attr.colorPrimary))
+                        .build()
+                        .launchUrl(context, Uri.parse(link));
+            } else {
+                openLink(link);
+            }
+        } catch (Exception e) {
+            //any exception means we can't open the link
+            showToast(context, R.string.open_link_failed, Toast.LENGTH_LONG);
         }
     }
 
