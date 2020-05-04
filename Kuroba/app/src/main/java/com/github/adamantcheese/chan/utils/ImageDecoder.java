@@ -38,7 +38,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 public class ImageDecoder {
 
     public static void decodeFileOnBackgroundThread(
-            final File file, final int maxWidth, final int maxHeight, ImageDecoderCallback callback
+            final File file, int maxWidth, int maxHeight, final ImageDecoderCallback callback
     ) {
         Thread thread = new Thread(() -> {
             final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
