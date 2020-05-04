@@ -229,10 +229,7 @@ public class DefaultPostParser
             List<CharSequence> texts = new ArrayList<>(innerNodes.size() + 1);
 
             for (Node innerNode : innerNodes) {
-                CharSequence nodeParsed = parseNode(theme, post, callback, innerNode);
-                if (nodeParsed != null) {
-                    texts.add(nodeParsed);
-                }
+                texts.add(parseNode(theme, post, callback, innerNode));
             }
 
             CharSequence allInnerText = TextUtils.concat(texts.toArray(new CharSequence[0]));
@@ -242,7 +239,7 @@ public class DefaultPostParser
             if (result != null) {
                 return result;
             } else {
-                return allInnerText;
+                return "";
             }
         } else {
             Logger.e(this, "Unknown node instance: " + node.getClass().getName());
